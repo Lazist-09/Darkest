@@ -250,3 +250,33 @@
   - 构造性反例：把军医急救 self_slots 从 "all" 改为 [1] → 位 5/6 自数降为 1 → 用例红；把战士投掷短矛 self_slots 改为 [1,2] → 位 3 自数 <3 → 用例红（证明测试真实反映换位覆盖）；
   - 与 T-M3-03 场景回归同源：Resolve 快照判定结果与矩阵计数在任意（原型, 位置）组合上一致。
 - **风险/开放**：O-16（表声明数 vs 自数口径，仅 ≥2 为硬校验，细账不阻塞）
+
+---
+
+## 9. 冒烟记录（主程序回填 2026-09-09；判据状态与踩坑实录）
+
+### 9.1 判据状态（T-M3-01~08 全部关闭）
+
+| 卡 | 判据 | 验证 |
+|---|---|---|
+| T-M3-01 | 43 条导入 + 抽样逐字段 + 越界 fail-fast | ✅ DataGateTests（劈砍/铁壁/恐惧低语/威吓箭−4/段/-反例） |
+| T-M3-02 | P1/P2/P3 + 43 断言 + 扰动反例 | ✅ 计数 43 / slot 越界 / O-24 破对 / 删 1 条；Coverage 测试补 P3 |
+| T-M3-03/04/05 | 四步判定 + tooltip + 敌方跳过 + 幂等；配装冻结；目标解析含障碍升序 | ✅ SkillAvailabilityTests 8 用例 |
+| T-M3-06 | 执行骨架次序 / 多段 / 未命中 / 位移 / DrawCount | ✅ SkillExecutionTests（双连击两段、missing_hp 逐目标 12/9、威吓箭 −4、战吼 team+5、急救 12、位移殿后） |
+| T-M3-07 | 特殊标注逐字（per_battle 3 / self_damage 6·8 / all 4 / missing 0.8·0.9 / 多段 2 / 我方 mental 0·敌方 3） | ✅ SpecialSkillTests + 构造性反例 |
+| T-M3-08 | 4 角色 × 6 位置 ≥ 表声明数且 ≥2（换位不废人） | ✅ SkillCoverageTests（矩阵逐格 + 急救 all→[1] 反例 + 敌方池引用） |
+
+工程承接：`dotnet test` **102/102 绿（1.56s）**；`using Godot` 基线 0 命中 + 负向自检 PASS。
+
+### 9.2 踩坑实录（写回本卡）
+
+- **枚举 JSON 词汇是 snake_case**（`stat_mod`/`self_forward`/`missing_hp`/`per_battle`…），直接 ToLowerInvariant 匹配枚举名必炸；改显式词表转换器（读/写双向）。
+- **record 构造两连踩**（positional + 额外构造方法体；与 SlotLayout/SkillLoadout 同款），统一改"普通 record + 显式构造"。
+- **根属性漏绑**（`skills`/`units`/`events` 集合根），凡 JsonPropertyName 缺失静默 null——序参 record 必须逐字段标注。
+- **测试对目标数的预期**：AOE/范围技能按"目标×段"产生事件；多目标用例需按目标数给足 ScriptedRng 序列（兜底 50 会"偶发命中"掩盖断言意图）。
+- **missing_hp 按目标实际 HP 逐目标计算**：同技能不同目标倍率不同（失血 50%→1.4；满血→1.0），断言按槽/极值表达。
+
+### 9.3 移交（不阻塞 M3）
+
+- `shield/taunt/guard_attach/next_attack_boost` 数据已逐字入库，执行（buff 生命周期）归 M4；`self_damage` 致死死门链归 M4。
+- Validators 跨文件 P1（units↔skills 引用）已由 SkillCoverageTests.EnemySkills 引用补强覆盖；启动门禁统一装配归 M5（BattleSession 构建）。
