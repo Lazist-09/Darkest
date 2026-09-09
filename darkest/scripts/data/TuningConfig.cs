@@ -67,6 +67,21 @@ public sealed record TuningStatDebuffDefault(
 public sealed record TuningStun(
     [property: JsonPropertyName("effect")] string Effect);
 
+/// <summary>
+/// 撤退公式（O-11/#169 已拍板；M5 撤退按钮用）：
+/// 基础 = 50% + (我方存活平均实际速度 − 敌方存活平均实际速度) × 4%，钳制 [15,85]；
+/// 实际 = 基础 + uniform(−random_range, +random_range)，钳制 [rand_clamp_min, rand_clamp_max]。
+/// </summary>
+public sealed record TuningRetreatFormula(
+    [property: JsonPropertyName("base_percent")] int BasePercent,
+    [property: JsonPropertyName("per_speed_diff_percent")] int PerSpeedDiffPercent,
+    [property: JsonPropertyName("clamp_min")] int ClampMin,
+    [property: JsonPropertyName("clamp_max")] int ClampMax,
+    [property: JsonPropertyName("random_range")] int RandomRange,
+    [property: JsonPropertyName("rand_clamp_min")] int RandClampMin,
+    [property: JsonPropertyName("rand_clamp_max")] int RandClampMax,
+    [property: JsonPropertyName("source")] string Source);
+
 /// <summary>命中率钳制 [55,100]（combat_math §1）。</summary>
 public sealed record TuningHitClamp(
     [property: JsonPropertyName("min")] int Min,
@@ -108,6 +123,7 @@ public sealed record TuningConfig(
     [property: JsonPropertyName("bleed")] TuningBleed Bleed,
     [property: JsonPropertyName("stat_debuff_default")] TuningStatDebuffDefault StatDebuffDefault,
     [property: JsonPropertyName("stun")] TuningStun Stun,
+    [property: JsonPropertyName("retreat_formula")] TuningRetreatFormula RetreatFormula,
     [property: JsonPropertyName("damage_floor")] int DamageFloor,
     [property: JsonPropertyName("hit_clamp")] TuningHitClamp HitClamp,
     [property: JsonPropertyName("crit_multiplier")] double CritMultiplier,
@@ -186,6 +202,14 @@ public sealed record TuningConfig(
         if (t.SpeedFloat.Percent is < 0 or > 100)
         {
             throw new InvalidDataException($"{ResPath}: speed_float.percent 越界 [0,100]。");
+        }
+
+        if (t.RetreatFormula is null
+            || t.RetreatFormula.BasePercent is < 0 or > 100
+            || t.RetreatFormula.ClampMin < 0 || t.RetreatFormula.ClampMin > 100
+            || t.RetreatFormula.ClampMax < t.RetreatFormula.ClampMin || t.RetreatFormula.ClampMax > 100)
+        {
+            throw new InvalidDataException($"{ResPath}: retreat_formula 取值非法（O-11/#169）。");
         }
     }
 }

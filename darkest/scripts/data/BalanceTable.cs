@@ -32,4 +32,7 @@ public sealed record BalanceTable(TuningConfig Tuning)
     public int BleedRounds => Tuning.Bleed.Rounds;
     public int StatDebuffDelta => Tuning.StatDebuffDefault.Delta;
     public int StatDebuffRounds => Tuning.StatDebuffDefault.Rounds;
+
+    /// <summary>撤退公式（O-11/#169 已拍板；M5 撤退按钮数字用）。</summary>
+    public TuningRetreatFormula RetreatFormula => Tuning.RetreatFormula;
 }

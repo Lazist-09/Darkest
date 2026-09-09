@@ -22,7 +22,11 @@ public sealed record SkillFixture(
     IReadOnlyList<double> Segments,
     bool IsAoe,
     IReadOnlyList<EffectRequest> Effects,
-    SkillDisplace? Displacement);
+    SkillDisplace? Displacement,
+    IReadOnlyList<MoraleEffectRequest>? ExplicitMoraleEffects = null);
+
+/// <summary>显式士气影响（data_schema §3.2 morale_effects 的最小形态；O-21 威吓箭 −4 属此类）。</summary>
+public sealed record MoraleEffectRequest(string Scope, int Delta);
 
 /// <summary>位移效果（data_schema §3.2 displacement 的最小形态；SelfDisplacement=自移不依赖命中，O-12）。</summary>
 public sealed record SkillDisplace(int FromPos, int ToPos, int Distance, bool SelfDisplacement);
@@ -94,7 +98,23 @@ public sealed class DamagePipeline
 
             DamageOutcome dmg = DamageStep.Deal(caster, target, skill.Axis, skill.Segments, skill.CritMod, rng, _log, _balance);
             anyCritThisAction |= dmg.AnyCrit;
-            _ledger.ApplyIncomingDamageMorale(target, skill.Axis, dmg.AnyCrit, skill.IsAoe, _log);
+
+            // 士气：显式 morale_effects（如威吓箭 targets −4，O-21/#170）取代精神派生 −8/−12/−5（不叠加）；
+            // 否则按 damage_axis + 暴击 + aoe 派生（#157）。
+            if (skill.ExplicitMoraleEffects is { Count: > 0 } explicitEffects)
+            {
+                foreach (MoraleEffectRequest eff in explicitEffects)
+                {
+                    if (eff.Scope == "targets")
+                    {
+                        _ledger.Apply(target, eff.Delta, "skill_morale_effect", _log); // 数值来源 = 技能数据（skills.json morale_effects，M3 全量接入）
+                    }
+                }
+            }
+            else
+            {
+                _ledger.ApplyIncomingDamageMorale(target, skill.Axis, dmg.AnyCrit, skill.IsAoe, _log);
+            }
 
             if (target.IsPlayer)
             {

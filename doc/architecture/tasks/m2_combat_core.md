@@ -300,4 +300,6 @@
 ### 7.3 边界/移交（不阻塞 M2，挂后续里程碑）
 
 - 护盾/护卫拦截口、流血回合钩子、崩溃判定池解析、撤退行触发、技能 `morale_effects`（M3 全量数据）→ M3/M4。
-- 组合行三默认（AOE+暴击 → 折扣优先 / 虚弱 −8 与 −5 叠加 / 跨阵营同速我方先手）已锁单测，建议架构师登记 O-31+ 供策划回读。
+- 组合行三默认（AOE+暴击 → 折扣优先 / 虚弱 −8 与 −5 叠加 / 跨阵营同速我方先手）已锁单测。**策划拍板 #166~#170（2026-09-09）核对**：与实现一致，无需改动；O-32 的 open_issues 旧登记（"−12 覆盖 −5"）已由策划纠正为折扣优先——主程序实现自始按 m2 §6 组合行默认（折扣优先）落地，未照旧登记做过错判例。
+- **O-11（#169）已落盘**：`tuning.json → retreat_formula`（base 50 / ±4%×速度差 / 钳 [15,85] / ±10 / 钳 [5,95]）；`BattleMath.RetreatBaseRate / RetreatFinalRate` 纯函数 + FormulaTests 边界用例（M5 撤退按钮按此实现，tuning 默认即上值）。
+- **O-21（#170）钩子已落**：`SkillFixture.ExplicitMoraleEffects`——显式 morale_effects（威吓箭 targets −4）**取代**精神派生 −8/−12/−5（不叠加）；CombatResolutionTests 已锁"−4 替换、无 mental_hit"语义。M3 全量 skills.json 接入时启用。

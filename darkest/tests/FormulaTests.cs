@@ -123,4 +123,21 @@ public sealed class FormulaTests
         Assert.AreEqual(70, BattleMath.DeathDoorSurvivePercent(resistPercent: 70, afflicted: false));
         Assert.AreEqual(60, BattleMath.DeathDoorSurvivePercent(resistPercent: 70, afflicted: true), "#123 折磨 −10%");
     }
+
+    [TestMethod]
+    public void RetreatFormula_BaseAndFinal_Clamps()
+    {
+        // O-11/#169：基础 = 50% + 速度差×4%，钳制 [15,85]；最终 = 基础 ±10，钳制 [5,95]
+        Assert.AreEqual(50.0, BattleMath.RetreatBaseRate(0), 1e-9, "速度差 0 → 50%");
+        Assert.AreEqual(70.0, BattleMath.RetreatBaseRate(5), 1e-9, "速度差每 1 点 ±4%（+5 → 70%）");
+        Assert.AreEqual(40.0, BattleMath.RetreatBaseRate(-2.5), 1e-9, "对方更快 → 下降");
+        Assert.AreEqual(15.0, BattleMath.RetreatBaseRate(-10), 1e-9, "基础下钳 15%");
+        Assert.AreEqual(85.0, BattleMath.RetreatBaseRate(20), 1e-9, "基础上钳 85%");
+
+        Assert.AreEqual(40.0, BattleMath.RetreatFinalRate(50, 0.0), 1e-9, "roll=0 → −10");
+        Assert.AreEqual(60.0, BattleMath.RetreatFinalRate(50, 1.0), 1e-9, "roll=1 → +10");
+        Assert.AreEqual(95.0, BattleMath.RetreatFinalRate(90, 1.0), 1e-9, "90+10 → 钳 95");
+        Assert.AreEqual(5.0, BattleMath.RetreatFinalRate(0, 0.0), 1e-9, "0−10 → 最终下钳 5%");
+        Assert.AreEqual(95.0, BattleMath.RetreatFinalRate(100, 0.5), 1e-9, "最终上钳 95%");
+    }
 }

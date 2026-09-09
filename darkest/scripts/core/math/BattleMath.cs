@@ -44,6 +44,30 @@ public static class BattleMath
     public static double SpeedFloatMultiplier(double unitRoll, int percent = 10)
         => 1.0 + unitRoll * (percent / 100.0);
 
+    /// <summary>
+    /// 撤退基础成功率（O-11/#169 拍板）：50% + (我方存活平均实际速度 − 敌方存活平均实际速度) × 4%，
+    /// 钳制 [clampMin, clampMax]（默认 [15,85]）。速度差每 1 点 ±4%，"先杀最快敌人再撤"成立。
+    /// </summary>
+    public static double RetreatBaseRate(
+        double avgSpeedDiff,
+        int basePercent = 50,
+        int perSpeedDiffPercent = 4,
+        int clampMin = 15,
+        int clampMax = 85)
+        => System.Math.Clamp(basePercent + avgSpeedDiff * perSpeedDiffPercent, (double)clampMin, clampMax);
+
+    /// <summary>
+    /// 撤退最终成功率（#169）：基础率 + uniform(−randomRange, +randomRange)，钳制 [randClampMin, randClampMax]
+    /// （默认 ±10 → 钳制 [5,95]）。unitRoll ∈ [0,1)，由注入 RNG 提供（M5 调用点）。
+    /// </summary>
+    public static double RetreatFinalRate(
+        double baseRate,
+        double unitRoll,
+        int randomRange = 10,
+        int randClampMin = 5,
+        int randClampMax = 95)
+        => System.Math.Clamp(baseRate + (unitRoll * 2.0 - 1.0) * randomRange, (double)randClampMin, randClampMax);
+
     // ------------------------------------------------------------------
     // 伤害（§2.1 / §2.2 / §2.3）
     // ------------------------------------------------------------------

@@ -313,6 +313,28 @@ public sealed class CombatResolutionTests
     }
 
     [TestMethod]
+    public void ExplicitMoraleEffect_ReplacesDerivedMentalHit_O21()
+    {
+        // O-21/#170：威吓箭显式 morale_effects −4 取代精神派生 −8（不叠加）
+        (FormationBoard player, FormationBoard enemy, BalanceTable balance) = DefaultBoards();
+        var pipeline = NewPipeline(balance);
+        pipeline.InitializeMorale(player);
+
+        pipeline.Execute(new SkillFixture("intimidating_shot", UnitId.Of("caster"), FormationSide.Player,
+            new[] { 2 }, HitMod: 0, CritMod: 0, Axis: "mental", Segments: new[] { 0.5 }, IsAoe: false,
+            Effects: Array.Empty<EffectRequest>(), Displacement: null,
+            ExplicitMoraleEffects: new[] { new MoraleEffectRequest("targets", -4) }),
+            player, enemy, new ScriptedRng(0.0, 100.0));
+
+        MoraleEvent[] moraleEvents = pipeline.Log.Events.OfType<MoraleEvent>().ToArray();
+        Assert.AreEqual(1, moraleEvents.Length, "显式 −4 取代派生，只有一条士气事件");
+        Assert.AreEqual(-4, moraleEvents[0].Delta);
+        Assert.IsFalse(pipeline.Log.Events.OfType<MoraleEvent>().Any(m => m.Source == "mental_hit"),
+            "不再出现精神派生 −8（O-21）");
+        Assert.AreEqual(46, player.UnitRuntimeAt(2)!.Morale);
+    }
+
+    [TestMethod]
     public void Determinism_SameSeed_SameCommand_IdenticalLog()
     {
         (FormationBoard p1, FormationBoard e1, BalanceTable b1) = DefaultBoards();

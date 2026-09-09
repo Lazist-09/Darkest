@@ -7,6 +7,16 @@
   "weak_exit_hp_ratio": 0.10,
   "deaths_door": { "affliction_penalty_percent": 10 },
   "retreat": { "success_morale": -10, "fail_morale": -5 },
+  "retreat_formula": {
+    "base_percent": 50,
+    "per_speed_diff_percent": 4,
+    "clamp_min": 15,
+    "clamp_max": 85,
+    "random_range": 10,
+    "rand_clamp_min": 5,
+    "rand_clamp_max": 95,
+    "source": "#169"
+  },
   "support_slot_morale_per_turn": 3,
   "affliction_proc_percent": 33,
   "guard_redirect": { "max_per_turn": 1, "physical_only": true },
