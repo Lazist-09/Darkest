@@ -1,0 +1,35 @@
+# CI for the Darkest vertical slice — M0 engineering bootstrap (T-M0-04).
+# Pipeline: checkout → .NET SDK (Godot 4.6 .NET 配套 net8.0) → dotnet build →
+# dotnet test (Darkest.Tests) → `using Godot` whitelist static check (+negative).
+# Any failing step blocks the run.
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET (net8.0 — Godot 4.6 .NET 配套)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: dotnet build (Darkest.sln)
+        working-directory: darkest
+        run: dotnet build Darkest.sln --nologo
+
+      - name: dotnet test (Darkest.Tests)
+        working-directory: darkest
+        run: dotnet test Darkest.sln --nologo --no-build
+
+      - name: Static check — `using Godot` whitelist (baseline, must be 0)
+        run: python tools/check_godot_refs.py --root darkest
+
+      - name: Static check — negative self-test (guard against a dead checker)
+        run: python tools/check_godot_refs.py --root darkest --selfcheck

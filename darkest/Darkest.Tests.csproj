@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Darkest.Tests —— M0 (T-M0-01 要点2/要点3)：
+    * 测试框架固定：MSTest 3.6.4 + Microsoft.NET.Test.Sdk 17.14.1（本机 NuGet 离线缓存可用；
+      xUnit / NUnit 未入缓存 —— 出处 ~/.nuget/packages）。经典 VSTest 模式
+      (UseMicrosoftTestingPlatformRunner=false)。
+    * 内核零 Godot：scripts/core、scripts/gameplay/sim、scripts/data 的源码以"源码直编"方式纳入
+      本工程（显式 Compile Include），不引用 Godot 程序集 → CI 无 Godot 窗口也能 dotnet test
+      （blueprint §3「tests/ 直连 sim+director 编译，不经过场景树」）。
+    * TFM：默认 net8.0（与主工程一致），经自定义属性 DarkestTargetFramework 间接取值——本机仅
+      .NET SDK 10（离线）时用 `-p:DarkestTargetFramework=net10.0` 覆盖（restore 与编译同时生效）。
+      bin/obj 落 tests/ 工程默认位置（darkest/obj、darkest/bin，已入 .gitignore），不布置到 res://
+      顶层；不再改写 BaseIntermediateOutputPath（MSB3539：须在 Microsoft.Common.props 之前设置）。
+  -->
+  <PropertyGroup>
+    <DarkestTargetFramework Condition="'$(DarkestTargetFramework)' == ''">net8.0</DarkestTargetFramework>
+    <TargetFramework>$(DarkestTargetFramework)</TargetFramework>
+    <RootNamespace>Darkest.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <UseMicrosoftTestingPlatformRunner>false</UseMicrosoftTestingPlatformRunner>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 内核源码直编白名单（零 Godot 目录，与 tools/check_godot_refs.py 口径一致） -->
+    <Compile Include="scripts/core/**/*.cs" />
+    <Compile Include="scripts/gameplay/sim/**/*.cs" />
+    <Compile Include="scripts/data/**/*.cs" />
+    <!-- tests/** 含本工程 obj/bin（经 Directory.Build.props 重定位到 tests/ 下），显式排除生成物 -->
+    <Compile Include="tests/**/*.cs" Exclude="tests/obj/**/*.cs;tests/bin/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.6.4" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.6.4" />
+  </ItemGroup>
+
+</Project>

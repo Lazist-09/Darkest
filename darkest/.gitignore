@@ -1,3 +1,8 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# .NET build artifacts (game at .godot/mono/temp; tests under tests/; ignored at any depth)
+bin/
+obj/
+

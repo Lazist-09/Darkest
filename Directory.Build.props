@@ -1,0 +1,23 @@
+<!--
+  Repo-root MSBuild props (applies to every csproj under this repo).
+
+  M0 (T-M0-01) toolchain fact: Darkest.csproj and Darkest.Tests.csproj both live in
+  darkest/ (= res://, blueprint §3). Without this file the tests project's default
+  obj/bin would land in darkest/obj & darkest/bin, and the Godot game project's
+  default `**/*.cs` glob would recompile the tests' generated AssemblyInfo.cs ->
+  duplicate assembly attributes (CS0579, found in the 2026-09-09 smoke).
+
+  Relocation happens here (before Microsoft.Common.props consumes
+  BaseIntermediateOutputPath) so NuGet assets and compile intermediates for the
+  tests project go under darkest/tests/, which Darkest.csproj already excludes via
+  <Compile Remove="tests/**/*.cs">.
+-->
+<Project>
+
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Darkest.Tests'">
+    <BaseIntermediateOutputPath>tests/obj/</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>tests/obj/</MSBuildProjectExtensionsPath>
+    <BaseOutputPath>tests/bin/</BaseOutputPath>
+  </PropertyGroup>
+
+</Project>
