@@ -151,7 +151,7 @@
 
 | 里程碑判据 | 状态 |
 |---|---|
-| #1/#2 编辑器可用/无导入错误 | ⏸ 待装有 Godot 4.6 (.NET) 编辑器的机器复验（本机无编辑器可执行文件）；工程文件已按编辑器生成形状编写 |
+| #1/#2 编辑器可用/无导入错误 | ✅ **本机补验（2026-09-09 22:xx）**：Godot **4.6.1 stable mono**（`E:\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64.exe`，出处：`.godot/mono/metadata/ide_messaging_meta.txt` 实况 + `--version` 复核）`--headless --path darkest --import` → first_scan_filesystem / update_scripts_classes / loading_editor_layout 全部 DONE、退出码 0，**无项目导入错误/SCRIPT ERROR/error CS**；编辑器已识别 project.godot（features 4.6）并加载 .godot/mono/temp 的 Darkest.dll。噪音（非项目）：向 `%APPDATA%/Godot/editor_settings-4.6.tres` 写设置被沙箱拒绝、root 证书库读取告警。编辑器侧 `--build-solutions` 回调在本机失败 = 离线 net8 restore（§5.1 事实 1），经 CI/.NET 8 机器复验 |
 | #2b 解决方案可构建 | ✅ `dotnet build Darkest.sln -p:DarkestTargetFramework=net10.0 --no-restore -m:1` → Darkest.dll + Darkest.Tests.dll，0 警告 0 错误 |
 | #3 `dotnet test` 含 §7.1 两样例复算 | ✅ 8/8 通过；**最终复验 2026-09-09 21:22 全绿**（解除本机应用程序控制策略拦截后；中途拦截见 5.3） |
 | #4 `using Godot` 白名单静态检查 | ✅ 基线 0 命中；负向注入自检 PASS（`tools/check_godot_refs.py`，负向样例带文件+行号） |
@@ -166,5 +166,5 @@
 
 ### 5.4 边界/开放（不阻塞 M0）
 
-- T-M0-01 要点1「首个 csproj/sln 由编辑器生成」：本机无编辑器，按编辑器生成形状手写并记录；编辑器打开后如有出入以编辑器实况为准（含 res:// 根第二 csproj 误导入/双编译时，按本卡边界把 Darkest.Tests.csproj 下移 `darkest/tests/` 并同步路径的预案）。
+- T-M0-01 要点1「首个 csproj/sln 由编辑器生成」：本机无编辑器（初判），按编辑器生成形状手写并记录；**2026-09-09 编辑器冒烟补验**（见 §5.2 #1/#2 行）：编辑器打开后与手写工程文件**无出入**——slN/csproj 未被改写，`Darkest.Tests.csproj`（res:// 根第二 csproj）未引发误导入/双编译（update_scripts_classes 正常）。
 - 本里程碑不含玩法/数值决策；O-11（撤退公式）/O-21（威吓箭士气口径）/O-33/O-34 与 M0 无关，其默认口径自 M2 起按卡引用实现，不阻塞。
