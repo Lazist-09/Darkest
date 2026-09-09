@@ -6,3 +6,6 @@
 bin/
 obj/
 
+
+# Godot C# 插件保存 csproj 时生成的备份
+*.csproj.old

@@ -19,10 +19,13 @@
     * TFM 通过自定义属性 DarkestTargetFramework 间接取值（默认 net8.0）：NuGet restore 不接受
       `-p:TargetFramework`（单数）全局覆盖，用自定义属性覆盖可同时作用于 restore 与编译。
       本机验证：`dotnet build -p:DarkestTargetFramework=net10.0`。
+    * ⚠️ 维护纪律（2026-09-09 编辑器冒烟钉死）：Godot 4.6 C# 插件保存 csproj 时会把下行
+      `TargetFramework` 的间接取值【实化为字面量 net8.0】（并生成 *.csproj.old 备份）。
+      一旦被实化，本机 net10 覆盖即失效 → 请还原下行并删除 .old；工程默认与 CI 不受影响。
   -->
   <PropertyGroup>
     <DarkestTargetFramework Condition="'$(DarkestTargetFramework)' == ''">net8.0</DarkestTargetFramework>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>$(DarkestTargetFramework)</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>Darkest</RootNamespace>
     <Nullable>enable</Nullable>
