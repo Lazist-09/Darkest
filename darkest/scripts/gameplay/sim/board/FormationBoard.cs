@@ -136,6 +136,26 @@ public sealed class FormationBoard : IFormation
         return null;
     }
 
+    /// <summary>槽位上的单位运行时实例（Blocked/Empty → null；供结算管线取属性）。</summary>
+    public UnitRuntime? UnitRuntimeAt(int pos)
+    {
+        ValidateSlot(pos);
+        return _units[pos - 1];
+    }
+
+    /// <summary>移除单位（死亡/离场；槽位变 Empty）。返回是否确有空单。</summary>
+    public bool RemoveUnitAt(int pos)
+    {
+        ValidateSlot(pos);
+        if (_units[pos - 1] is null)
+        {
+            return false;
+        }
+
+        _units[pos - 1] = null;
+        return true;
+    }
+
     /// <inheritdoc />
     public DisplaceResult TrySwapChain(UnitId mover, int fromPos, int toPos, int distance)
     {

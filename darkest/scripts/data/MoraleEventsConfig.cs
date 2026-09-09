@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -28,11 +27,11 @@ public enum MoraleOccurrence
 public sealed record MoraleEventConfig(
     [property: JsonPropertyName("id")] string Id,
     [property: JsonPropertyName("name")] string Name,
-    int Delta,
-    MoraleEventScope Scope,
-    MoraleOccurrence Occurrence,
-    string Source,
-    string? Note = null);
+    [property: JsonPropertyName("delta")] int Delta,
+    [property: JsonPropertyName("scope")] MoraleEventScope Scope,
+    [property: JsonPropertyName("occurrence")] MoraleOccurrence Occurrence,
+    [property: JsonPropertyName("source")] string Source,
+    [property: JsonPropertyName("note")] string? Note = null);
 
 /// <summary>morale_events.json 绑定模型 + P9 校验（combat_math §5.2 全 14 行 id 齐备）。</summary>
 public sealed record MoraleEventsConfig(
@@ -49,22 +48,18 @@ public sealed record MoraleEventsConfig(
         "retreat_success", "retreat_fail", "weak_hit_any_damage",
     });
 
-    private static readonly IReadOnlyDictionary<string, MoraleEventConfig> EmptyMap =
-        new ReadOnlyDictionary<string, MoraleEventConfig>(new Dictionary<string, MoraleEventConfig>());
-
-    private readonly IReadOnlyDictionary<string, MoraleEventConfig> _byId = EmptyMap;
-
-    public IReadOnlyDictionary<string, MoraleEventConfig> ById => _byId;
-
     /// <summary>按 id 取事件（缺失抛异常——fail-fast，P9 之外还防运行时引用漂移）。</summary>
     public MoraleEventConfig Get(string id)
     {
-        if (!_byId.TryGetValue(id, out MoraleEventConfig? e))
+        foreach (MoraleEventConfig e in Events)
         {
-            throw new InvalidDataException($"{ResPath}: 引用了不存在的事件 \"{id}\"。");
+            if (e.Id == id)
+            {
+                return e;
+            }
         }
 
-        return e;
+        throw new InvalidDataException($"{ResPath}: 引用了不存在的事件 \"{id}\"。");
     }
 
     public static MoraleEventsConfig Parse(string json)

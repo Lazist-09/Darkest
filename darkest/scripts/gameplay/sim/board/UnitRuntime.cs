@@ -55,6 +55,9 @@ public sealed class UnitRuntime
     /// <summary>流血剩余回合（每回合结束 3 点，切片无施加者，链路预置）。</summary>
     public int BleedRoundsRemaining { get; set; }
 
+    /// <summary>士气值（0~100；起手 balance.MoraleStart，唯一写入口 = MoraleLedger）。</summary>
+    public int Morale { get; set; }
+
     // ------------------------------------------------------------------
     // 生效口（加法先于乘法；M4 由 IBuffLedger.FinalStats 汇总后仍走这些口）
     // ------------------------------------------------------------------
