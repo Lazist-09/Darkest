@@ -40,3 +40,6 @@ public sealed record HealEvent(UnitId? Target, int Amount) : BattleEvent;
 
 /// <summary>自我伤害固定值（殊死一搏 6 / 舍身 8；可致死走死门，M4 接线）。</summary>
 public sealed record SelfDamageEvent(UnitId? Unit, int Amount) : BattleEvent;
+
+/// <summary>崩溃判定产物（T-M4-02/03）：Kind ∈ Virtue/Affliction + 落挂 buff id。</summary>
+public sealed record CollapseResultEvent(UnitId? Unit, string Kind, string? BuffId) : BattleEvent;

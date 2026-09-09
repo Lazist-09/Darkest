@@ -45,12 +45,13 @@ public sealed class DamagePipeline
     private readonly CombatLog _log;
     private readonly MoraleLedger _ledger;
 
-    public DamagePipeline(BalanceTable balance, MoraleEventsConfig moraleEvents, CombatLog log)
+    public DamagePipeline(BalanceTable balance, MoraleEventsConfig moraleEvents, CombatLog log,
+        Darkest.Core.Contracts.IBuffLedger? buffs = null)
     {
         _balance = balance ?? throw new ArgumentNullException(nameof(balance));
         _moraleEvents = moraleEvents ?? throw new ArgumentNullException(nameof(moraleEvents));
         _log = log ?? throw new ArgumentNullException(nameof(log));
-        _ledger = new MoraleLedger(balance, moraleEvents);
+        _ledger = new MoraleLedger(balance, moraleEvents, buffs);
     }
 
     public CombatLog Log => _log;
@@ -72,6 +73,7 @@ public sealed class DamagePipeline
         FormationBoard sourceBoard = skill.TargetSide == FormationSide.Enemy ? player : enemy;
         UnitRuntime? caster = sourceBoard.UnitsInSlotOrder().FirstOrDefault(u => u.Id == skill.CasterId);
         UnitRuntime[] playerTeam = player.UnitsInSlotOrder().ToArray();
+        _ledger.ResetActionTracker(); // 动作级崩溃判定去重（T-M4-02）
 
         bool anyCritThisAction = false;
         int[] orderedSlots = skill.TargetSlots.OrderBy(s => s).ToArray(); // 槽位编号升序（固定枚举序）
@@ -99,6 +101,7 @@ public sealed class DamagePipeline
             DamageOutcome dmg = DamageStep.Deal(caster, target, skill.Axis, skill.Segments, skill.CritMod, rng, _log, _balance);
             anyCritThisAction |= dmg.AnyCrit;
 
+            int moraleBefore = target.Morale;
             // 士气：显式 morale_effects（如威吓箭 targets −4，O-21/#170）取代精神派生 −8/−12/−5（不叠加）；
             // 否则按 damage_axis + 暴击 + aoe 派生（#157）。
             if (skill.ExplicitMoraleEffects is { Count: > 0 } explicitEffects)
@@ -114,6 +117,17 @@ public sealed class DamagePipeline
             else
             {
                 _ledger.ApplyIncomingDamageMorale(target, skill.Axis, dmg.AnyCrit, skill.IsAoe, _log);
+            }
+
+            // 崩溃判定（事件触发 #67：士气从 >0 跨到 0 → 恰好一次）+ 满值处理（T-M4-05）
+            if (moraleBefore > 0 && target.Morale == 0)
+            {
+                _ledger.CheckCollapseTrigger(target, rng, _log);
+            }
+
+            if (target.Morale >= _balance.MoraleMax)
+            {
+                _ledger.HandleMoraleMax(target, playerTeam, rng, _log);
             }
 
             if (target.IsPlayer)

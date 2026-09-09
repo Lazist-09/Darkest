@@ -58,6 +58,9 @@ public sealed class UnitRuntime
     /// <summary>士气值（0~100；起手 balance.MoraleStart，唯一写入口 = MoraleLedger）。</summary>
     public int Morale { get; set; }
 
+    /// <summary>崩溃余烬（morale §4.0）：士气停在 0 的标记，期间不再触发崩溃判定（事件触发，#67）。</summary>
+    public bool CollapseEmber { get; set; }
+
     // ------------------------------------------------------------------
     // 生效口（加法先于乘法；M4 由 IBuffLedger.FinalStats 汇总后仍走这些口）
     // ------------------------------------------------------------------

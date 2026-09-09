@@ -27,14 +27,14 @@ public sealed class SkillExecutor
     private readonly DamagePipeline _pipeline;
 
     public SkillExecutor(SkillsConfig skills, BalanceTable balance, MoraleEventsConfig moraleEvents,
-        CombatLog log, SkillRuntimeState runtime)
+        CombatLog log, SkillRuntimeState runtime, Darkest.Core.Contracts.IBuffLedger? buffs = null)
     {
         _skills = skills ?? throw new ArgumentNullException(nameof(skills));
         _balance = balance ?? throw new ArgumentNullException(nameof(balance));
         _moraleEvents = moraleEvents ?? throw new ArgumentNullException(nameof(moraleEvents));
         _log = log ?? throw new ArgumentNullException(nameof(log));
         _runtime = runtime ?? throw new ArgumentNullException(nameof(runtime));
-        _pipeline = new DamagePipeline(balance, moraleEvents, log);
+        _pipeline = new DamagePipeline(balance, moraleEvents, log, buffs);
     }
 
     public DamagePipeline Pipeline => _pipeline;
