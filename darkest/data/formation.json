@@ -1,0 +1,33 @@
+{
+  "player": { "slot_count": 6, "combat_slots": 4, "support_slots": [5, 6] },
+  "enemy": { "slot_count": 4, "combat_slots": 4, "support_slots": [] },
+  "numeration": "center_outward",
+  "initial_roster": {
+    "player": [
+      { "slot": 1, "unit": "tank" },
+      { "slot": 2, "unit": "warrior" },
+      { "slot": 3, "unit": "commissar" },
+      { "slot": 4, "unit": "medic" },
+      { "slot": 5, "unit": "warrior" },
+      { "slot": 6, "unit": "medic" }
+    ],
+    "enemy": [
+      { "slot": 1, "unit": "melee_soldier" },
+      { "slot": 2, "unit": "melee_soldier" },
+      { "slot": 3, "unit": "ranged_archer" },
+      { "slot": 4, "unit": "caster" }
+    ]
+  },
+  "obstacles": [],
+  "rules": {
+    "boundary_as_hard_wall": true,
+    "displacement_only_via_swap_chain": true,
+    "obstacle_swaps_like_unit": true,
+    "close_up_on_death_immediate": true,
+    "close_up_ignores_obstacle": true,
+    "close_up_enemy_symmetric": true,
+    "swap_player_initiated": true,
+    "slot_three_state": true,
+    "deaths_and_close_up_separate_from_displacement": true
+  }
+}

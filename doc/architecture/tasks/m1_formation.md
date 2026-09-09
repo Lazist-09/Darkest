@@ -155,3 +155,29 @@
 - doc/architecture/blueprint.md：§1.2（障碍只用关卡预置）、§3（目录归属）、§4（B2/B3 边界）、§5a（FormationBoard/UnitRuntime）、§5d（dry-run 预览注）、§9.1（IFormation 契约）、§12 风险 6（预览两套坐标漂移）。
 - doc/architecture/data_schema.md：§2.1（Side/SlotKind/SlotState/DisplacementType 枚举）、§2.4（必显 #6/#9 数据来源）、§3.6（formation.json 全字段与 rules 表）、§4.1（绑定约定）、§4.2（P1/P2 校验——引用完整性待 M3）。
 - 开放题（open_issues.md 权威编号）：O-08（障碍，不阻塞）、O-12（AOE/技能内部次序，结算涉及挂）、O-16（数据口径冲突源）。
+
+---
+
+## 5. 冒烟记录（主程序回填 2026-09-09；判据状态与踩坑实录）
+
+### 5.1 判据状态
+
+| # | 里程碑判据 | 状态 |
+|---|---|---|
+| 1 | 数据源成立（formation.json 可解析并构造板） | ✅ Board_FromFormationJson / FormationConfig 非法样例抛错（P2 同级） |
+| 2 | 交换链正确（§1.2 示例逐位一致） | ✅ 逐位重放断言 + 属性式（150 随机满阵） |
+| 3 | 靠齐原子（含虚弱/全虚弱/障碍边界用例） | ✅ 单次调用全量序列、重放==后板、收敛守卫在案 |
+| 4 | 障碍建模（三态/可推/不阻挡/不计胜负口径） | ✅ Blocked 语义 + 移除→立即靠齐 |
+| 5 | 预览单源（dry-run 与真实结算逐事件一致且不改板） | ✅ 逐项一致 + 无副作用 + 可回放 |
+| 6 | 工程承接（dotnet test 全绿 + 白名单不回归） | ✅ 33/33（0.88s）；`using Godot` 基线 0 命中 |
+
+### 5.2 踩坑实录（写回本卡）
+
+- **CloseUp 链式交换下标偏移（严重，曾致 testhost OOM）**：实现初版以"槽位号"直接作 `_units[]`/`_obstacles[]` 下标（数组下标 = 槽位号 − 1），导致交换链整体右移一格：空槽永不填上、相邻两单位反复互换 → 外层 `while(true)` 永不收敛 → 步骤列表无限追加 → 测试进程内存单调上涨直至 OOM（用户实机观测 testhost 占用持续上升至 ~97% 内存）。修复：链体改用显式「位置→下标」转换（`pos - 1` / `moverPos = pos + 1`），并加**收敛上限守卫**（`SlotCount² + 8` 次，超限抛 `InvalidOperationException`）——防呆纪律把任何未来不收敛转化为快速失败而非内存爆炸。修复后全套 33/33 于 0.88s 内完成，无内存增长。
+- **记录模型绑定（snake_case）**：FormationConfig 顶层与嵌套 record 若漏 `[JsonPropertyName]`，`PropertyNameCaseInsensitive=false` 下静默得 null 段（以「必填段缺失」误导性报错）；已全部显式标注。
+- **replay 断言须用调用前快照**：对已变更板重放步骤 = 双重应用；相关断言一律从 `CreatePreviewSnapshot()` 回放。
+
+### 5.3 边界/开放（不阻塞 M1）
+
+- TrySwapChain/CloseUp 均在**内核层**验证；死亡事件触发编排、多单位死亡批量次序（O-12）、数据引用完整性（P1/P2 待 units.json）归 M2~M4。
+- `CanCloseUpIn(dir)` 为预览查询的最小实现（dir=-1/+1 是否存在可动一步），M5 呈现层消费时复核语义。

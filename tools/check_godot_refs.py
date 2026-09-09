@@ -23,8 +23,11 @@ import pathlib
 import re
 import sys
 
-# `using Godot` exactly (word boundary keeps `using GodotSharp;` out).
-_PATTERN = re.compile(r"\busing\s+Godot\b")
+# `using Godot` exactly (word boundary keeps `using GodotSharp;` out; anchored to
+# line start so comments/strings merely mentioning the phrase are not false
+# positives — a real using-directive always begins at line start after optional
+# indentation).
+_PATTERN = re.compile(r"^\s*using\s+Godot\b")
 
 # Directories where `using Godot` is forbidden (relative to the res:// root).
 FORBIDDEN_REL = ("scripts/core", "scripts/gameplay/sim", "scripts/data", "tests")
