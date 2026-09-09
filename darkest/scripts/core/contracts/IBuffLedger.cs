@@ -9,6 +9,9 @@ namespace Darkest.Core.Contracts;
 public interface IBuffLedger
 {
     void Add(UnitId u, string buffId, UnitId? source);
+
+    /// <summary>带次数的施加（护盾：次数来自技能效果 charges，非 buff 定义；铁壁 2 次 #156）。</summary>
+    void AddCharged(UnitId u, string buffId, int charges);
     void Remove(UnitId u, string buffId);
     bool Has(UnitId u, string buffId);
     IReadOnlyList<string> Buffs(UnitId u);

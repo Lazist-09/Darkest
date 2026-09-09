@@ -65,6 +65,17 @@ public sealed class MoraleLedger
         unit.Morale = newValue;
         unit.CollapseEmber = newValue == 0; // morale §4.0 余烬标记；>0 清除
         log.Append(new MoraleEvent(unit.Id, delta, sourceId, newValue));
+
+        // T-M4-04 折磨结束点 == 恢复判定资格点（士气回初始值 50，morale §4.0；捆缚同）
+        if (_buffs is not null && newValue == _balance.MoraleStart)
+        {
+            foreach (string buff in _buffs.Buffs(unit.Id)
+                         .Where(b => b.StartsWith("affliction_", StringComparison.Ordinal) || b == "bound").ToArray())
+            {
+                _buffs.Remove(unit.Id, buff);
+            }
+        }
+
         return actual;
     }
 
@@ -107,12 +118,25 @@ public sealed class MoraleLedger
 
     public bool IsCollapseEmber(UnitRuntime unit) => unit.CollapseEmber;
 
-    /// <summary>士气从 >0 跨到 0（普通打击路径）：恰好触发 1 次判定（调用方保证 before&gt;0）。</summary>
+    /// <summary>士气从 >0 跨到 0（普通打击路径）：恰好触发 1 次判定（调用方保证 before&gt;0）。
+    /// 美德中再归 0 → 消除美德 → 士气回 50 → 重新走崩溃判定（morale §8 / T-M4-04）。</summary>
     public void CheckCollapseTrigger(UnitRuntime unit, IRngProvider rng, CombatLog log)
     {
         if (unit.Morale != 0 || !_collapsedThisAction.Add(unit.Id))
         {
             return;
+        }
+
+        if (_buffs is not null && _buffs.AnyOfKind(unit.Id, "virtue_"))
+        {
+            foreach (string buff in _buffs.Buffs(unit.Id).Where(b => b.StartsWith("virtue_", StringComparison.Ordinal)).ToArray())
+            {
+                _buffs.Remove(unit.Id, buff);
+            }
+
+            unit.Morale = _balance.MoraleStart; // 消除美德 → 士气回 50
+            unit.CollapseEmber = false;
+            log.Append(new MoraleEvent(unit.Id, 0, "virtue_reset", _balance.MoraleStart));
         }
 
         RollCollapse(unit, rng, log);

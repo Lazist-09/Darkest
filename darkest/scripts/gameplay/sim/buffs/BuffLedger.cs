@@ -69,6 +69,18 @@ public sealed class BuffLedger : IBuffLedger
         }
     }
 
+    public void AddCharged(UnitId u, string buffId, int charges)
+    {
+        if (!_byUnit.TryGetValue(u, out List<BuffInstance>? list))
+        {
+            list = new List<BuffInstance>();
+            _byUnit[u] = list;
+        }
+
+        list.RemoveAll(b => b.BuffId == buffId);
+        list.Add(new BuffInstance(buffId, RemainingRounds: 0, charges));
+    }
+
     public void Remove(UnitId u, string buffId)
     {
         if (_byUnit.TryGetValue(u, out List<BuffInstance>? list))

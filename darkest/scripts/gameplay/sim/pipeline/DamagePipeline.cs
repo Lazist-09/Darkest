@@ -44,14 +44,17 @@ public sealed class DamagePipeline
     private readonly MoraleEventsConfig _moraleEvents;
     private readonly CombatLog _log;
     private readonly MoraleLedger _ledger;
+    private readonly Darkest.Gameplay.Sim.Buffs.ShieldGuard? _shield;
 
     public DamagePipeline(BalanceTable balance, MoraleEventsConfig moraleEvents, CombatLog log,
-        Darkest.Core.Contracts.IBuffLedger? buffs = null)
+        Darkest.Core.Contracts.IBuffLedger? buffs = null,
+        Darkest.Gameplay.Sim.Buffs.ShieldGuard? shield = null)
     {
         _balance = balance ?? throw new ArgumentNullException(nameof(balance));
         _moraleEvents = moraleEvents ?? throw new ArgumentNullException(nameof(moraleEvents));
         _log = log ?? throw new ArgumentNullException(nameof(log));
         _ledger = new MoraleLedger(balance, moraleEvents, buffs);
+        _shield = shield;
     }
 
     public CombatLog Log => _log;
@@ -74,6 +77,7 @@ public sealed class DamagePipeline
         UnitRuntime? caster = sourceBoard.UnitsInSlotOrder().FirstOrDefault(u => u.Id == skill.CasterId);
         UnitRuntime[] playerTeam = player.UnitsInSlotOrder().ToArray();
         _ledger.ResetActionTracker(); // 动作级崩溃判定去重（T-M4-02）
+        _shield?.OnActionStart(); // 护盾"本次攻击已挡"重置（T-M4-08）
 
         bool anyCritThisAction = false;
         int[] orderedSlots = skill.TargetSlots.OrderBy(s => s).ToArray(); // 槽位编号升序（固定枚举序）
@@ -98,10 +102,33 @@ public sealed class DamagePipeline
                 continue; // 未命中：该目标无伤害/士气/效果/位移（技能自位移殿后照常，§2 O-12 默认）
             }
 
-            DamageOutcome dmg = DamageStep.Deal(caster, target, skill.Axis, skill.Segments, skill.CritMod, rng, _log, _balance);
+            // 受伤害前拦截（T-M4-08）：护盾挡物理 → 完全无效（不扣HP/不死门/不虚弱/不士气，#156）；
+            // 护卫重定向（只物理，O-22）→ 后续以保护者为受害（按保护者防御重算、虚弱保护者走死门，#159）。
+            UnitRuntime victim = target;
+            if (_shield is not null)
+            {
+                if (_shield.TryBlockShield(target, skill.Axis))
+                {
+                    _log.Append(new EffectEvent(target.Id, "shield_block", 100.0, true));
+                    continue;
+                }
+
+                UnitId? protectorId = _shield.FindProtector(target, targetBoard, slot, skill.Axis);
+                if (protectorId is { } pid && pid != target.Id)
+                {
+                    UnitRuntime? protector = targetBoard.UnitsInSlotOrder().FirstOrDefault(u => u.Id == pid);
+                    if (protector is not null)
+                    {
+                        victim = protector;
+                        _log.Append(new EffectEvent(pid, "guard_redirect", 100.0, true));
+                    }
+                }
+            }
+
+            DamageOutcome dmg = DamageStep.Deal(caster, victim, skill.Axis, skill.Segments, skill.CritMod, rng, _log, _balance);
             anyCritThisAction |= dmg.AnyCrit;
 
-            int moraleBefore = target.Morale;
+            int moraleBefore = victim.Morale;
             // 士气：显式 morale_effects（如威吓箭 targets −4，O-21/#170）取代精神派生 −8/−12/−5（不叠加）；
             // 否则按 damage_axis + 暴击 + aoe 派生（#157）。
             if (skill.ExplicitMoraleEffects is { Count: > 0 } explicitEffects)
@@ -110,50 +137,51 @@ public sealed class DamagePipeline
                 {
                     if (eff.Scope == "targets")
                     {
-                        _ledger.Apply(target, eff.Delta, "skill_morale_effect", _log); // 数值来源 = 技能数据（skills.json morale_effects，M3 全量接入）
+                        _ledger.Apply(victim, eff.Delta, "skill_morale_effect", _log); // 数值来源 = 技能数据（skills.json morale_effects，M3 全量接入）
                     }
                 }
             }
             else
             {
-                _ledger.ApplyIncomingDamageMorale(target, skill.Axis, dmg.AnyCrit, skill.IsAoe, _log);
+                _ledger.ApplyIncomingDamageMorale(victim, skill.Axis, dmg.AnyCrit, skill.IsAoe, _log);
             }
 
             // 崩溃判定（事件触发 #67：士气从 >0 跨到 0 → 恰好一次）+ 满值处理（T-M4-05）
-            if (moraleBefore > 0 && target.Morale == 0)
+            if (moraleBefore > 0 && victim.Morale == 0)
             {
-                _ledger.CheckCollapseTrigger(target, rng, _log);
+                _ledger.CheckCollapseTrigger(victim, rng, _log);
             }
 
-            if (target.Morale >= _balance.MoraleMax)
+            if (victim.Morale >= _balance.MoraleMax)
             {
-                _ledger.HandleMoraleMax(target, playerTeam, rng, _log);
+                _ledger.HandleMoraleMax(victim, playerTeam, rng, _log);
             }
 
-            if (target.IsPlayer)
+            int victimSlot = targetBoard.UnitAtPosition(victim.Id) ?? slot; // 重定向后按保护者槽移除/靠齐
+            if (victim.IsPlayer)
             {
-                if (target.Weak)
+                if (victim.Weak)
                 {
                     if (dmg.TotalDealt > 0)
                     {
-                        _ = _ledger.TryApplyWeakHitPenalty(target, _log); // 虚弱 −5（每回合≤1）
-                        bool survived = WeakDeathsDoor.Roll(target, afflicted: false, rng, _log, _balance);
+                        _ = _ledger.TryApplyWeakHitPenalty(victim, _log); // 虚弱 −5（每回合≤1）
+                        bool survived = WeakDeathsDoor.Roll(victim, afflicted: false, rng, _log, _balance);
                         if (!survived)
                         {
-                            KillAt(targetBoard, slot, target, isPlayer: true);
+                            KillAt(targetBoard, victimSlot, victim, isPlayer: true);
                             _ledger.ApplyTeamOnce(playerTeam, "ally_death", _log); // O-14 合并一次
                         }
                     }
                 }
-                else if (target.CurrentHp <= 0)
+                else if (victim.CurrentHp <= 0)
                 {
-                    WeakDeathsDoor.EnterWeak(target, _ledger, rng, _log, _balance);
+                    WeakDeathsDoor.EnterWeak(victim, _ledger, rng, _log, _balance);
                     _ledger.ApplyTeamOnce(playerTeam, "ally_enters_weak", _log);
                 }
             }
-            else if (target.CurrentHp <= 0)
+            else if (victim.CurrentHp <= 0)
             {
-                KillAt(targetBoard, slot, target, isPlayer: false); // 敌方直接死亡（无虚弱/死门）
+                KillAt(targetBoard, victimSlot, victim, isPlayer: false); // 敌方直接死亡（无虚弱/死门）
                 _ledger.ApplyTeamOnce(playerTeam, "kill_enemy", _log);
             }
         }

@@ -25,6 +25,7 @@ public sealed class SkillExecutor
     private readonly CombatLog _log;
     private readonly SkillRuntimeState _runtime;
     private readonly DamagePipeline _pipeline;
+    private readonly Darkest.Core.Contracts.IBuffLedger? _buffs;
 
     public SkillExecutor(SkillsConfig skills, BalanceTable balance, MoraleEventsConfig moraleEvents,
         CombatLog log, SkillRuntimeState runtime, Darkest.Core.Contracts.IBuffLedger? buffs = null)
@@ -34,6 +35,7 @@ public sealed class SkillExecutor
         _moraleEvents = moraleEvents ?? throw new ArgumentNullException(nameof(moraleEvents));
         _log = log ?? throw new ArgumentNullException(nameof(log));
         _runtime = runtime ?? throw new ArgumentNullException(nameof(runtime));
+        _buffs = buffs;
         _pipeline = new DamagePipeline(balance, moraleEvents, log, buffs);
     }
 
@@ -143,7 +145,17 @@ public sealed class SkillExecutor
                         _log.Append(new EffectEvent(target.Id, "stat_mod", 100.0, true));
                     }
                 }
-                // shield/taunt/guard_attach/next_attack_boost：数据已录，buff 生命周期执行归 M4
+
+                if (effect.Type is SkillEffectType.Shield && effect.Charges is { } charges)
+                {
+                    UnitRuntime? target = ResolveRuntime(allyBoard, targetBoard, slot);
+                    if (target is not null)
+                    {
+                        _buffs?.AddCharged(target.Id, "shield", charges); // #156 按次数（铁壁 2 次）
+                        _log.Append(new EffectEvent(target.Id, "shield", 100.0, true));
+                    }
+                }
+                // taunt/guard_attach/next_attack_boost：数据已录，钩子执行归 M5 动作层（buff 生命周期在岗）
             }
         }
 
