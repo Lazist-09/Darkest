@@ -1,0 +1,18 @@
+{
+  "events": [
+    { "id": "physical_hit_no_effect", "name": "受到物理伤害", "delta": 0, "scope": "self", "occurrence": "normal", "source": "combat_math §5.2 · #157", "note": "物理不掉士气，实际不产生士气变化；保留行作口径记录" },
+    { "id": "mental_hit", "name": "受到精神伤害", "delta": -8, "scope": "self", "occurrence": "normal", "source": "combat_math §5.2 · #157" },
+    { "id": "mental_crit_hit", "name": "被精神暴击", "delta": -12, "scope": "self", "occurrence": "normal", "source": "combat_math §5.2 · #157", "note": "覆盖同一次伤害的 −8" },
+    { "id": "mental_aoe_hit", "name": "AOE 精神伤害", "delta": -5, "scope": "per_target", "occurrence": "normal", "source": "combat_math §5.2 · #157", "note": "AOE 折扣，每个被命中目标各 −5" },
+    { "id": "critical_strike_dealt", "name": "打出暴击", "delta": 5, "scope": "team", "occurrence": "normal", "source": "morale §2" },
+    { "id": "kill_enemy", "name": "击杀敌人", "delta": 10, "scope": "team", "occurrence": "normal", "source": "morale §2" },
+    { "id": "ally_enters_weak", "name": "队友进入虚弱", "delta": -8, "scope": "team", "occurrence": "normal", "source": "morale §2" },
+    { "id": "ally_death", "name": "队友死亡", "delta": -15, "scope": "team", "occurrence": "normal", "source": "GDD §3.7" },
+    { "id": "support_slot_turn_start", "name": "站在支援位（每回合）", "delta": 3, "scope": "self", "occurrence": "normal", "source": "#60" },
+    { "id": "battle_inspiration", "name": "政委「战场鼓舞」", "delta": 15, "scope": "self", "occurrence": "normal", "source": "morale §2", "note": "单一目标；同值也由技能声明，供 §4 校验 P5 对账" },
+    { "id": "morale_full_100", "name": "士气冲满 100", "delta": 10, "scope": "team", "occurrence": "once_per_battle", "source": "#104/#151/#155", "note": "一次性；附加效果：自身回 50" },
+    { "id": "retreat_success", "name": "撤退成功", "delta": -10, "scope": "team", "occurrence": "normal", "source": "#126/#43" },
+    { "id": "retreat_fail", "name": "撤退失败", "delta": -5, "scope": "team", "occurrence": "normal", "source": "#126/#43", "note": "失败当回合不可再试 #118" },
+    { "id": "weak_hit_any_damage", "name": "虚弱状态下受伤（任意类型）", "delta": -5, "scope": "self", "occurrence": "once_per_turn_max1", "source": "#157", "note": "物理不掉士气的唯一例外；每回合最多 1 次；可改仅精神（O-03）" }
+  ]
+}

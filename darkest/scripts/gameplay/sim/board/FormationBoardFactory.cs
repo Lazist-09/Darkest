@@ -6,21 +6,29 @@ using Darkest.Data;
 namespace Darkest.Gameplay.Sim.Board;
 
 /// <summary>
-/// 编成装载（T-M1-01/04）：把 <see cref="FormationConfig"/>（data_schema §3.6）映射为
-/// 两侧 <see cref="FormationBoard"/>。board 构造自配置快照，配置在战斗期只读（blueprint §7）。
-/// 引用完整性（units.json 原型 id）校验待 M2/M3 数据齐备后接入（data_schema §4.2 P1/P2）。
+/// 编成装载（T-M1-01/04 → M2 属性接入）：把 <see cref="FormationConfig"/>（data_schema §3.6）
+/// 与 <see cref="UnitsConfig"/>（§3.1 属性表）映射为两侧 <see cref="FormationBoard"/>。
+/// board 构造自配置快照，配置在战斗期只读（blueprint §7）。引用完整性（units.json 原型 id）
+/// 校验随数据齐备接入（data_schema §4.2 P1/P2；原型缺失由 UnitsConfig.Get fail-fast）。
 /// </summary>
 public static class FormationBoardFactory
 {
-    public static FormationBoard CreatePlayerBoard(FormationConfig cfg) => Create(cfg, FormationSide.Player);
+    public static FormationBoard CreatePlayerBoard(FormationConfig cfg, UnitsConfig units)
+        => Create(cfg, units, FormationSide.Player);
 
-    public static FormationBoard CreateEnemyBoard(FormationConfig cfg) => Create(cfg, FormationSide.Enemy);
+    public static FormationBoard CreateEnemyBoard(FormationConfig cfg, UnitsConfig units)
+        => Create(cfg, units, FormationSide.Enemy);
 
-    public static FormationBoard Create(FormationConfig cfg, FormationSide side)
+    public static FormationBoard Create(FormationConfig cfg, UnitsConfig units, FormationSide side)
     {
         if (cfg is null)
         {
             throw new ArgumentNullException(nameof(cfg));
+        }
+
+        if (units is null)
+        {
+            throw new ArgumentNullException(nameof(units));
         }
 
         SlotLayoutConfig layoutCfg = side == FormationSide.Player ? cfg.Player : cfg.Enemy;
@@ -33,10 +41,11 @@ public static class FormationBoardFactory
             side == FormationSide.Player ? cfg.InitialRoster.Player : cfg.InitialRoster.Enemy;
 
         var layout = new SlotLayout(layoutCfg.SlotCount, layoutCfg.CombatSlots, layoutCfg.SupportSlots);
-        var units = new Dictionary<int, UnitRuntime>();
+        var unitsBySlot = new Dictionary<int, UnitRuntime>();
         foreach (RosterEntryConfig entry in roster)
         {
-            units[entry.Slot] = new UnitRuntime(UnitId.Of(entry.Unit), side, weak: false);
+            UnitRuntime unit = new(UnitId.Of(entry.Unit), side, UnitStatsMapper.From(units.Get(entry.Unit)), weak: false);
+            unitsBySlot[entry.Slot] = unit;
         }
 
         var obstacles = new Dictionary<int, ObstacleRuntime>();
@@ -49,7 +58,7 @@ public static class FormationBoardFactory
         }
 
         FormationRules rules = MapRules(cfg.Rules);
-        return new FormationBoard(side, layout, rules, units, obstacles);
+        return new FormationBoard(side, layout, rules, unitsBySlot, obstacles);
     }
 
     private static FormationRules MapRules(FormationRulesConfig r)

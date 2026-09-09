@@ -107,6 +107,35 @@ public sealed class FormationBoard : IFormation
         return list;
     }
 
+    /// <summary>本侧槽位升序的在列单位列表（固定枚举序：我方 1~6 / 敌方 1~4；供行动序列固定抽取序）。</summary>
+    public IReadOnlyList<UnitRuntime> UnitsInSlotOrder()
+    {
+        var list = new List<UnitRuntime>();
+        for (int pos = 1; pos <= SlotCount; pos++)
+        {
+            if (_units[pos - 1] is { } unit)
+            {
+                list.Add(unit);
+            }
+        }
+
+        return list;
+    }
+
+    /// <summary>首个持有指定单位的槽位号（无 → null；供行动序列破平局取编号）。</summary>
+    public int? UnitAtPosition(UnitId id)
+    {
+        for (int pos = 1; pos <= SlotCount; pos++)
+        {
+            if (_units[pos - 1] is { } u && u.Id == id)
+            {
+                return pos;
+            }
+        }
+
+        return null;
+    }
+
     /// <inheritdoc />
     public DisplaceResult TrySwapChain(UnitId mover, int fromPos, int toPos, int distance)
     {

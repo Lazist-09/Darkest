@@ -1,29 +1,75 @@
+using System;
 using Darkest.Core.Contracts;
 
 namespace Darkest.Gameplay.Sim.Board;
 
 /// <summary>
-/// 战斗单位运行时最小实体（T-M1-01 产出定义，本卡不得超前实现 M2/M4 属性）：
-/// M1 只承载 Id / Side / Weak 占位（Weak 供向中靠齐读取；写入方 = M4 士气管线，
-/// M1 测试以夹具直接置位验证）。
+/// 战斗单位运行时实体（M1 为最小 Id/Side/Weak；M2 扩展为结算管线属性宿主）：
+/// 基础属性只读（模板），HP/状态/临时修正为运行时可变；生效口统一在此计算
+/// （"加法先于乘法"，blueprint §9.6 FinalStats 语义，M4 buff 修改器接入同一批口）。
+/// 零 `using Godot`。
 /// </summary>
 public sealed class UnitRuntime
 {
-    public UnitRuntime(UnitId id, FormationSide side, bool weak = false)
+    public UnitRuntime(UnitId id, FormationSide side, UnitStats baseStats, bool weak = false)
     {
         Id = id;
         Side = side;
+        Base = baseStats ?? throw new ArgumentNullException(nameof(baseStats));
         Weak = weak;
+        MaxHp = baseStats.Hp;
+        CurrentHp = baseStats.Hp;
     }
 
-    /// <summary>原型 id（M1 阶段编制引用，data_schema §3.6）。</summary>
+    /// <summary>原型 id（M1 阶段编成引用，data_schema §3.6；M3 技能/实例化接续）。</summary>
     public UnitId Id { get; }
 
     /// <summary>本单位所属阵营。</summary>
     public FormationSide Side { get; }
 
-    /// <summary>虚弱标记：靠齐时编号不得减小（换人保护，formation.md §3）。</summary>
+    public bool IsPlayer => Side == FormationSide.Player;
+
+    /// <summary>基础属性模板（只读）。</summary>
+    public UnitStats Base { get; }
+
+    /// <summary>虚弱标记：靠齐时编号不得减小；伤害 −50%、速度 −30%（tuning weak）。</summary>
     public bool Weak { get; set; }
 
-    public override string ToString() => $"{Id}@({Side}){(Weak ? ":W" : "")}";
+    public int MaxHp { get; }
+
+    /// <summary>当前 HP（扣血/击杀/虚弱锁 1 语义见 T-M2-05/09）。</summary>
+    public int CurrentHp { get; set; }
+
+    // ------------------------------------------------------------------
+    // M2-06 临时修正与状态（属性减益固定值 / 眩晕 / 流血；buff 修改器 M4 接入）
+    // ------------------------------------------------------------------
+
+    public int AttackMod { get; set; }
+    public int PhysDefMod { get; set; }
+    public int ResilienceMod { get; set; }
+    public int SpeedMod { get; set; }
+
+    /// <summary>眩晕标记：跳过 1 次行动随即结束（GDD §2.5 / tuning stun）。</summary>
+    public bool Stunned { get; set; }
+
+    /// <summary>流血剩余回合（每回合结束 3 点，切片无施加者，链路预置）。</summary>
+    public int BleedRoundsRemaining { get; set; }
+
+    // ------------------------------------------------------------------
+    // 生效口（加法先于乘法；M4 由 IBuffLedger.FinalStats 汇总后仍走这些口）
+    // ------------------------------------------------------------------
+
+    public int EffectiveAttack => Math.Max(1, Base.Attack + AttackMod);
+    public int EffectivePhysDef => Math.Max(0, Base.PhysDef + PhysDefMod);
+    public int EffectiveResilience => Math.Max(0, Base.Resilience + ResilienceMod);
+
+    /// <summary>生效速度 = (基础+速度修正) × 虚弱因子（weak.speed_mult；加法先于乘法）。</summary>
+    public double EffectiveSpeed(double weakSpeedMult = 1.0)
+    {
+        double flat = Base.Speed + SpeedMod;
+        return Weak ? flat * weakSpeedMult : flat;
+    }
+
+    public override string ToString()
+        => $"{Id}@({Side}){(Weak ? ":W" : "")} hp={CurrentHp}/{MaxHp}";
 }

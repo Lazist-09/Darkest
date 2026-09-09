@@ -23,8 +23,13 @@ public sealed class BoardTests
     // 测试脚手架
     // ------------------------------------------------------------------
 
+    private static UnitStats DummyStats()
+        => new(Hp: 10, Attack: 12, PhysDef: 8, Speed: 8, Dodge: 10, Crit: 5, Resilience: 50,
+            StunResist: 30, BleedResist: 30, StatDebuffResist: 25, DisplaceResist: 40,
+            DeathsDoorResist: null);
+
     private static UnitRuntime U(string id, FormationSide side, bool weak = false)
-        => new(UnitId.Of(id), side, weak);
+        => new(UnitId.Of(id), side, DummyStats(), weak);
 
     private static FormationBoard MakeBoard(FormationSide side, params (int slot, string id, bool weak)[] roster)
     {
@@ -58,12 +63,12 @@ public sealed class BoardTests
         return string.Join(",", Enumerable.Range(1, count).Select(p => board.UnitAt(p)?.ToString() ?? "-"));
     }
 
-    private static string FindFormationJson()
+    private static string FindDataFile(string name)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir is not null)
         {
-            string candidate = Path.Combine(dir.FullName, "data", "formation.json");
+            string candidate = Path.Combine(dir.FullName, "data", name);
             if (File.Exists(candidate))
             {
                 return candidate;
@@ -72,8 +77,12 @@ public sealed class BoardTests
             dir = dir.Parent;
         }
 
-        throw new FileNotFoundException("data/formation.json 未找到（应从 darkest/ 运行测试）。");
+        throw new FileNotFoundException($"data/{name} 未找到（应从 darkest/ 运行测试）。");
     }
+
+    private static string FindFormationJson() => FindDataFile("formation.json");
+
+    private static string FindUnitsJson() => FindDataFile("units.json");
 
     /// <summary>按序回放 Step 序列（模型版），用于断言「序列可无歧义还原最终板」。</summary>
     private static string ReplayAndSnapshot(
@@ -160,8 +169,9 @@ public sealed class BoardTests
     {
         string json = File.ReadAllText(FindFormationJson());
         FormationConfig cfg = FormationConfig.Parse(json);
+        UnitsConfig units = UnitsConfig.Parse(File.ReadAllText(FindUnitsJson()));
 
-        FormationBoard player = FormationBoardFactory.CreatePlayerBoard(cfg);
+        FormationBoard player = FormationBoardFactory.CreatePlayerBoard(cfg, units);
         Assert.AreEqual(FormationSide.Player, player.Side);
         Assert.AreEqual(6, player.SlotCount);
         string[] expectedPlayer = { "tank", "warrior", "commissar", "medic", "warrior", "medic" };
@@ -175,7 +185,7 @@ public sealed class BoardTests
         Assert.AreEqual(SlotKind.Support, player.SlotKindAt(5));
         Assert.AreEqual(SlotKind.Support, player.SlotKindAt(6));
 
-        FormationBoard enemy = FormationBoardFactory.CreateEnemyBoard(cfg);
+        FormationBoard enemy = FormationBoardFactory.CreateEnemyBoard(cfg, units);
         Assert.AreEqual(4, enemy.SlotCount);
         string[] expectedEnemy = { "melee_soldier", "melee_soldier", "ranged_archer", "caster" };
         for (int p = 1; p <= 4; p++)
@@ -555,15 +565,16 @@ public sealed class BoardTests
                          "deaths_and_close_up_separate_from_displacement": true } }
             """;
         FormationConfig cfg = FormationConfig.Parse(json);
+        UnitsConfig units = UnitsConfig.Parse(File.ReadAllText(FindUnitsJson()));
 
-        FormationBoard player = FormationBoardFactory.CreatePlayerBoard(cfg);
+        FormationBoard player = FormationBoardFactory.CreatePlayerBoard(cfg, units);
         Assert.AreEqual(SlotState.Blocked, player.GetSlot(3));
         Assert.IsNull(player.UnitAt(3));
         CollectionAssert.Contains(player.OccupiedPositions(true).ToArray(), 3, "includeObstacle=true 应含障碍槽");
         CollectionAssert.DoesNotContain(player.OccupiedPositions(false).ToArray(), 3, "includeObstacle=false 不含障碍槽");
         Assert.IsTrue(player.TryGetObstacleHp(3, out int? hp) && hp is null, "hp 缺省 = 不可被摧毁占位");
 
-        FormationBoard enemy = FormationBoardFactory.CreateEnemyBoard(cfg);
+        FormationBoard enemy = FormationBoardFactory.CreateEnemyBoard(cfg, units);
         Assert.AreEqual(SlotState.Blocked, enemy.GetSlot(2));
         Assert.IsTrue(enemy.TryGetObstacleHp(2, out int? hp2) && hp2 == 5);
     }
