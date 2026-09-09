@@ -10,9 +10,9 @@ namespace Darkest.Gameplay.Sim.Pipeline;
 
 /// <summary>
 /// 附加效果请求（M2 夹具，data_schema §3.2 effects 的最小形态）。
-/// LabeledPercent=null = 无概率标注 → 直挂不掷骰（O-24 已定）。
+/// LabeledPercent=null = 无概率标注 → 直挂不掷骰（O-24 已定）；ResistAxis=null 同理（无概率→不过抗性）。
 /// </summary>
-public sealed record EffectRequest(string Type, int? LabeledPercent, string ResistAxis, string? Stat, int Delta);
+public sealed record EffectRequest(string Type, int? LabeledPercent, string? ResistAxis, string? Stat, int Delta);
 
 /// <summary>
 /// 附加效果判定与登记（T-M2-06）：实际触发率 = 标注概率 × (1 − 对应抗性)（乘法，§4）；

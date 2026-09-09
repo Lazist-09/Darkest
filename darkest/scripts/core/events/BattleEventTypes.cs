@@ -34,3 +34,9 @@ public sealed record DeathEvent(UnitId? Unit, bool IsPlayer) : BattleEvent;
 
 /// <summary>崩溃判定调用点（T-M2-09；完整池解析归 M4，本事件仅记录抽取）。</summary>
 public sealed record CollapseRollEvent(UnitId? Unit, double Roll) : BattleEvent;
+
+/// <summary>固定值治疗（combat_math §8，不吃攻击力；急救 12 / 群体绷带 5 / 喘息 8、10）。</summary>
+public sealed record HealEvent(UnitId? Target, int Amount) : BattleEvent;
+
+/// <summary>自我伤害固定值（殊死一搏 6 / 舍身 8；可致死走死门，M4 接线）。</summary>
+public sealed record SelfDamageEvent(UnitId? Unit, int Amount) : BattleEvent;
