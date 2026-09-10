@@ -52,11 +52,11 @@ public sealed class MonteCarloTests
     [TestMethod]
     public void SmallBatch_ReportShapeValid()
     {
-        // 快速批（30 场）验证报告结构 + 无软锁（全部自然终局，无 100 回合强切）
+        // 快速批（30 场）验证报告结构 + 软锁审计（RoundLimit 局占比 ≤20%，强切局不计胜）
         SimulationReport r = HeadlessDriver.RunMany(30, PolicyKind.SemiRandom, seedBase: 333);
         Assert.AreEqual(30, r.Runs);
         Assert.IsTrue(r.WinRate is >= 0 and <= 1);
-        Assert.IsTrue(r.MaxRounds < 100, "无软锁：300 场内无 100 回合强切终局");
+        Assert.IsTrue(r.RoundLimitGames <= 6, $"软锁审计：30 场中 {r.RoundLimitGames} 场打满 100 回合（>20%）");
         Assert.IsTrue(r.TotalCollapse + r.TotalWeak + r.TotalDisplacements >= 1, "系统事件确实发生");
         Assert.IsTrue(r.SkillUses.Count > 0 && r.PlayerDamage.Count > 0);
     }

@@ -24,21 +24,31 @@ public sealed record AiRuleSpec(
     [property: JsonPropertyName("when")] AiWhenSpec When,
     [property: JsonPropertyName("mark_weight")] int? MarkWeight = 0);
 
-/// <summary>原型 AI 配置（data_schema §3.5）：固定优先级规则表 + 15% 随机开关（O-19 default off）。</summary>
+/// <summary>原型 AI 配置（data_schema §3.5）：固定优先级规则表 + 目标偏好 + 15% 随机开关（O-19 default off）。</summary>
 public sealed record ArchetypeAiConfig(
     [property: JsonPropertyName("archetype_id")] string ArchetypeId,
     [property: JsonPropertyName("random")] AiRandomSpec Random,
-    [property: JsonPropertyName("rules")] IReadOnlyList<AiRuleSpec> Rules);
+    [property: JsonPropertyName("rules")] IReadOnlyList<AiRuleSpec> Rules,
+    [property: JsonPropertyName("target_preference")] string? TargetPreference = null);
 
 public sealed record AiRandomSpec(
     [property: JsonPropertyName("enabled")] bool Enabled,
     [property: JsonPropertyName("fallback_probability")] double FallbackProbability);
 
-/// <summary>enemy_ai.json 根模型 + 校验。</summary>
+/// <summary>enemy_ai.json 根模型 + 校验（含 P13：target_preference 白名单与原型映射、taunt_weight ≥ 1）。</summary>
 public sealed record EnemyAiConfig(
-    [property: JsonPropertyName("archetypes")] IReadOnlyList<ArchetypeAiConfig> Archetypes)
+    [property: JsonPropertyName("archetypes")] IReadOnlyList<ArchetypeAiConfig> Archetypes,
+    [property: JsonPropertyName("taunt_weight")] int TauntWeight = 3)
 {
     public const string ResPath = "res://data/enemy_ai.json";
+
+    /// <summary>P13：目标偏好白名单与原型固定映射（#185/#187）。</summary>
+    public static readonly IReadOnlyDictionary<string, string> PreferenceByArchetype = new Dictionary<string, string>
+    {
+        ["melee_soldier"] = "lowest_hp",
+        ["ranged_archer"] = "backmost",
+        ["caster"] = "lowest_morale",
+    };
 
     public ArchetypeAiConfig? For(string archetypeId)
         => Archetypes.FirstOrDefault(a => a.ArchetypeId == archetypeId);
@@ -101,6 +111,25 @@ public sealed record EnemyAiConfig(
             {
                 throw new InvalidDataException($"{ResPath}: \"{a.ArchetypeId}\" random 非法。");
             }
+
+            // P13：target_preference 白名单 + 原型映射固定（#185/#187）
+            if (PreferenceByArchetype.TryGetValue(a.ArchetypeId, out string? expected))
+            {
+                if (a.TargetPreference != expected)
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: \"{a.ArchetypeId}\" target_preference 必须为 \"{expected}\"（实际 \"{a.TargetPreference}\"，P13）。");
+                }
+            }
+            else if (a.TargetPreference is not null)
+            {
+                throw new InvalidDataException($"{ResPath}: \"{a.ArchetypeId}\" 非白名单元型不得声明 target_preference（P13）。");
+            }
+        }
+
+        if (cfg.TauntWeight < 1)
+        {
+            throw new InvalidDataException($"{ResPath}: taunt_weight 必须 ≥ 1（实际 {cfg.TauntWeight}，P13）。");
         }
     }
 }

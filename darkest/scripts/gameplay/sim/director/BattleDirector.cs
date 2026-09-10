@@ -192,8 +192,11 @@ public sealed class BattleDirector
         SkillChoice? choice = _ai.Choose(u, _enemy, _player, _buffs, rng, _log);
         if (choice is not null)
         {
-            int[]? chosen = choice.TargetSlots.Count > 0 ? new[] { choice.TargetSlots[0] } : null;
-            _executor.Execute(_skills.Get(choice.SkillId), actor, _player, _enemy, rng, chosen);
+            // P1：单体 → 传规则所选单槽；AOE → 传 null（执行器按全池命中，不受选一影响）
+            SkillTemplateConfig skill = _skills.Get(choice.SkillId);
+            bool aoe = skill.Tags.Contains(FuncTag.Aoe);
+            int[]? chosen = aoe || choice.TargetSlots.Count == 0 ? null : new[] { choice.TargetSlots[0] };
+            _executor.Execute(skill, actor, _player, _enemy, rng, chosen);
         }
     }
 

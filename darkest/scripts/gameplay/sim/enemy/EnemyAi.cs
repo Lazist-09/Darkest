@@ -87,7 +87,7 @@ public sealed class EnemyAi
             }
         }
 
-        IReadOnlyList<int> targets = ResolveTargets(_skills.Get(chosen.SkillId), enemyUnit, enemy, player, buffs);
+        IReadOnlyList<int> targets = ResolveTargets(_skills.Get(chosen.SkillId), enemyUnit, enemy, player, buffs, rng, log);
         return new SkillChoice(chosen.SkillId, targets);
     }
 
@@ -146,7 +146,7 @@ public sealed class EnemyAi
 
         if (skill.Target.Scope == SkillTargetScope.Slots)
         {
-            IReadOnlyList<int> targets = SkillTargetResolver.Resolve(skill, unit.Id, enemy, player);
+            IReadOnlyList<int> targets = SkillTargetResolver.Resolve(skill, unit.Id, player, enemy); // 参数序修正（同 ResolveTargets）
             if (targets.Count == 0)
             {
                 return false;
@@ -156,29 +156,54 @@ public sealed class EnemyAi
         return true;
     }
 
-    /// <summary>目标槽（槽升序）；taunt 时把坦克位置首（"改敌方 AI 优先攻击嘲盳者"，buff.md taunt）。</summary>
+    /// <summary>
+    /// 池内目标选择（P1/O-46 ← #185/#186/#187）三层：
+    ///   AOE → 池内全部（不受选一影响）；池 ≤1 → 直接返回（**不掷骰**）；
+    ///   ① taunt 生效且嘲讽者在池内 → 加权抽取（嘲讽者 taunt_weight、其余各 1），**写 RngDraw**；
+    ///   ② 否则按原型固定偏好 target_preference（lowest_hp / backmost / lowest_morale，平局取槽号小）；
+    ///   ③ 兜底槽号最小（由 ThenBy(槽号) 保证）。
+    /// </summary>
     private IReadOnlyList<int> ResolveTargets(SkillTemplateConfig skill, UnitRuntime unit,
-        FormationBoard enemy, FormationBoard player, IBuffLedger? buffs)
+        FormationBoard enemy, FormationBoard player, IBuffLedger? buffs, IRngProvider rng, CombatLog log)
     {
         if (skill.Target.Scope != SkillTargetScope.Slots)
         {
             return Array.Empty<int>();
         }
 
-        List<int> targets = SkillTargetResolver.Resolve(skill, unit.Id, enemy, player).ToList();
-        if (targets.Count > 1 && buffs is not null && buffs.Has(unit.Id, "taunt"))
+        List<int> pool = SkillTargetResolver.Resolve(skill, unit.Id, player, enemy).ToList(); // 参数序：player 板在前（caster 在敌方侧自动识别）
+        if (pool.Count <= 1 || skill.Tags.Contains(FuncTag.Aoe))
         {
-            // taunt：优先攻击嘲讽者（按原型识别，兼容实例 id 唯一化）
-            UnitRuntime? taunter = player.UnitsInSlotOrder().FirstOrDefault(u => u.ArchetypeId == "tank");
-            int? taunterSlot = taunter is null ? null : player.UnitAtPosition(taunter.Id);
-            if (taunterSlot is { } ts && targets.Contains(ts))
-            {
-                targets.Remove(ts);
-                targets.Insert(0, ts);
-            }
+            return pool; // AOE 全池；唯一/空池无抽取（确定性基线保护）
         }
 
-        return targets;
+        // ① taunt 加权抽取（嘲讽者必须在池内；唯一候选已在上面返回）
+        UnitRuntime? taunter = player.UnitsInSlotOrder().FirstOrDefault(u => u.ArchetypeId == "tank");
+        if (buffs is not null && taunter is not null && buffs.Has(unit.Id, "taunt")
+            && player.UnitAtPosition(taunter.Id) is { } ts && pool.Contains(ts))
+        {
+            int tauntW = Math.Max(1, _config.TauntWeight);
+            int total = pool.Count - 1 + tauntW;
+            int roll = rng.NextInt(0, total);
+            log.Append(new RngDraw(rng.DrawCount, roll)); // 确定性红线：抽取必写日志
+            if (roll < tauntW)
+            {
+                return new[] { ts };
+            }
+
+            List<int> others = pool.Where(p => p != ts).ToList();
+            return new[] { others[roll - tauntW] };
+        }
+
+        // ② 原型固定偏好（③ 兜底：槽号小者优先）
+        string pref = _config.For(unit.ArchetypeId)?.TargetPreference ?? "lowest_hp";
+        int picked = pref switch
+        {
+            "backmost" => pool.Max(),
+            "lowest_morale" => pool.OrderBy(p => player.UnitRuntimeAt(p)?.Morale ?? int.MaxValue).ThenBy(p => p).First(),
+            _ => pool.OrderBy(p => player.UnitRuntimeAt(p)?.CurrentHp ?? int.MaxValue).ThenBy(p => p).First(),
+        };
+        return new[] { picked };
     }
 }
 
