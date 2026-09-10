@@ -16,8 +16,8 @@ using Darkest.Gameplay.Sim.Turn;
 
 namespace Darkest.Gameplay.Sim.Director;
 
-/// <summary>玩家行动决策（actor 节拍回调产物）：技能 或 换位（消耗本次行动，二选一）。</summary>
-public sealed record PlayerDecision(string? SkillId, int? SwapSupportPos);
+/// <summary>玩家行动决策（actor 节拍回调产物）：技能（含单体内核随机选一/基线指定目标）或换位（二选一）。</summary>
+public sealed record PlayerDecision(string? SkillId, int? SwapSupportPos, int? SkillTargetSlot = null);
 
 /// <summary>
 /// BattleDirector：一场战斗的确定性编排（blueprint §4 B3 / §8.3，T-M5-02/03/04/09）——
@@ -112,9 +112,9 @@ public sealed class BattleDirector
         _lastRoundOrder = _sequencer.BuildRoundOrder(rng); // 每回合固定点重掷（#163）；UI 读缓存
     }
 
-    /// <summary>玩家命令：释放技能（SkillExecutor 桥接管线；可用性防御性由执行侧短路）。</summary>
-    public void PlayerUseSkill(UnitId actor, string skillId, IRngProvider rng)
-        => _executor.Execute(_skills.Get(skillId), actor, _player, _enemy, rng);
+    /// <summary>玩家命令：释放技能（SkillExecutor 桥接管线；chosenTargets 供实机单体选一，headless 默认随机选一 #178/#179）。</summary>
+    public void PlayerUseSkill(UnitId actor, string skillId, IRngProvider rng, IReadOnlyList<int>? chosenTargets = null)
+        => _executor.Execute(_skills.Get(skillId), actor, _player, _enemy, rng, chosenTargets);
 
     /// <summary>
     /// 换位/增援（#41a/CHANGELOG §1.4.1）：战斗位角色发起 → 与指定支援位角色交换（交换链结算）。
@@ -154,7 +154,8 @@ public sealed class BattleDirector
     /// <summary>下一位行动者（M6 前置立卡：行动序列/眩晕/减速生效——排序与眩晕跳过均在内核 TurnSequencer）。</summary>
     public UnitId? NextActor() => _sequencer.NextActor();
 
-    /// <summary>敌方单位行动一次（actor 节拍内调用；AI 同源）。</summary>
+    /// <summary>敌方单位行动一次（actor 节拍内调用；AI 同源）。
+    /// 目标选择按 O-39 架构裁定：候选池槽序【首个非空】+ taunt 优先（EnemyAi 已重排），不含 RNG。</summary>
     public void EnemyAct(UnitId actor, IRngProvider rng)
     {
         UnitRuntime? u = _enemy.UnitsInSlotOrder().FirstOrDefault(x => x.Id == actor);
@@ -166,7 +167,8 @@ public sealed class BattleDirector
         SkillChoice? choice = _ai.Choose(u, _enemy, _player, _buffs, rng, _log);
         if (choice is not null)
         {
-            _executor.Execute(_skills.Get(choice.SkillId), actor, _player, _enemy, rng);
+            int[]? chosen = choice.TargetSlots.Count > 0 ? new[] { choice.TargetSlots[0] } : null;
+            _executor.Execute(_skills.Get(choice.SkillId), actor, _player, _enemy, rng, chosen);
         }
     }
 
@@ -197,7 +199,8 @@ public sealed class BattleDirector
                 }
                 else if (decision.SkillId is not null)
                 {
-                    PlayerUseSkill(actor.Value, decision.SkillId, rng);
+                    int[]? chosen = decision.SkillTargetSlot is { } ts ? new[] { ts } : null;
+                    PlayerUseSkill(actor.Value, decision.SkillId, rng, chosen);
                 }
             }
             else if (_enemy.UnitsInSlotOrder().Any(x => x.Id == actor))

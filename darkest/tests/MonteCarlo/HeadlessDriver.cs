@@ -75,7 +75,7 @@ public static class HeadlessDriver
                 break;
             }
 
-            // actor 节拍（M6 前置立卡）：行动序列/眩晕/减速生效，我方逐个决策（半随机含换位增援 #176）、敌方经 AI
+            // actor 节拍（M6 前置立卡）：行动序列/眩晕/减速生效，我方逐个决策（半随机含换位/单体选一，#178/#179）、敌方经 AI
             director.RunFullRound(rng, unit =>
             {
                 PlayerDecision decision = Policies.DecideForUnit(policy, unit, director, rng);

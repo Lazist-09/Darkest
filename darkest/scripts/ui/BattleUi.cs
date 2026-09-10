@@ -44,7 +44,7 @@ public partial class BattleUi : CanvasLayer
     private Label _actionOrderLabel = null!;
     private Button _retreatButton = null!;
     // 卡片槽位顺序：0..3=敌方1..4，4..7=我方4,3,2,1（我方读投影按槽1→4再逆序放置），8,9=支援位5,6
-    private readonly List<(Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag)> _cards = new();
+    private readonly List<(Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer)> _cards = new();
     private readonly List<Button> _skillButtons = new();
     private Button _swap5 = null!;
     private Button _swap6 = null!;
@@ -143,7 +143,21 @@ public partial class BattleUi : CanvasLayer
         card.AddChild(hp);
         card.AddChild(morale);
         card.AddChild(tag);
-        _cards.Add((card, text, hp, morale, tag));
+        // 记录卡片身份（槽位/阵营），供单体系目标选择点击（#178/#179）
+        int slot = _cards.Count < 4 ? _cards.Count + 1
+            : _cards.Count < 8 ? 4 - (_cards.Count - 4)
+            : _cards.Count - 8 + 5;
+        bool isPlayer = _cards.Count >= 4;
+        int slotCaptured = slot;
+        bool playerCaptured = isPlayer;
+        card.GuiInput += (InputEvent e) =>
+        {
+            if (e is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: true })
+            {
+                _host?.OnCardClicked(slotCaptured, playerCaptured);
+            }
+        };
+        _cards.Add((card, text, hp, morale, tag, slot, isPlayer));
         return card;
     }
 
@@ -186,6 +200,17 @@ public partial class BattleUi : CanvasLayer
         FillCard(_cards[8], playerUnits[4], isPlayer: true, false);
         FillCard(_cards[9], playerUnits[5], isPlayer: true, false);
 
+        // 单体/any_ally 选一（#178/#179）：候选目标卡高亮蓝色并接收点击
+        int[] pending = _host.PendingCandidates;
+        foreach ((Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c in _cards)
+        {
+            c.card.MouseFilter = Control.MouseFilterEnum.Stop; // 卡片收点击（目标选择/无操作）
+            if (_host.IsTargeting && System.Array.IndexOf(pending, c.slot) >= 0)
+            {
+                c.card.Modulate = new Color(0.7f, 0.85f, 1.2f);
+            }
+        }
+
         RefreshSkillBar(d, p);
 
         // 提示语（2 秒后自动清）
@@ -206,7 +231,7 @@ public partial class BattleUi : CanvasLayer
         _hintTimer = 2.0;
     }
 
-    private static void FillCard((Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag) c, UnitProjection u, bool isPlayer, bool active)
+    private static void FillCard((Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c, UnitProjection u, bool isPlayer, bool active)
     {
         string title = u.UnitId == "-" ? $"[{u.Slot}] 空位" : $"[{u.Slot}] {NameOf(u.UnitId)}  HP {u.Hp}/{u.MaxHp}  士气 {u.Morale}";
         c.text.Text = title;

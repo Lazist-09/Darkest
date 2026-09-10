@@ -143,14 +143,22 @@ public sealed class SkillExecutionTests
         var executor = NewExecutor(log, new SkillRuntimeState(), balance, skills, morale);
         executor.Pipeline.Morale.Initialize(player.UnitsInSlotOrder());
 
-        // 远程射手(敌2) 威吓箭 打 我 1、2：两目标各显式 −4（无 mental_hit）
-        executor.Execute(skills.Get("ranged_intimidating_shot"), UnitId.Of("ranged_archer"), player, enemy, new ScriptedRng(0.0, 100.0, 0.0, 100.0));
+        // 远程射手(敌2) 威吓箭（单体 #178/#179）：候选 我1/我2 → 分别指定目标验证显式 −4（无 mental_hit）
+        executor.Execute(skills.Get("ranged_intimidating_shot"), UnitId.Of("ranged_archer"), player, enemy,
+            new ScriptedRng(0.0, 100.0), chosenTargets: new[] { 1 });
         MoraleEvent[] moraleEvents = log.Events.OfType<MoraleEvent>().ToArray();
-        Assert.IsTrue(moraleEvents.Length == 2, "两目标各一条显式士气事件");
-        Assert.IsTrue(moraleEvents.All(m => m.Delta == -4), "显式 −4（O-21/#170）");
+        Assert.AreEqual(1, moraleEvents.Length, "单体选一 → 单条显式士气事件");
+        Assert.AreEqual(-4, moraleEvents[0].Delta, "显式 −4（O-21/#170）");
         Assert.IsFalse(log.Events.OfType<MoraleEvent>().Any(m => m.Source == "mental_hit"), "不叠加精神派生 −8");
         Assert.AreEqual(46, player.UnitRuntimeAt(1)!.Morale);
-        Assert.AreEqual(46, player.UnitRuntimeAt(2)!.Morale);
+        Assert.AreEqual(50, player.UnitRuntimeAt(2)!.Morale, "未选中目标不受影响");
+
+        // 第二次：选中 2 号位（独立执行，仅断言士气落点）
+        executor.Execute(skills.Get("ranged_intimidating_shot"), UnitId.Of("ranged_archer"), player, enemy,
+            new ScriptedRng(0.0, 100.0), chosenTargets: new[] { 2 });
+        MoraleEvent[] second = log.Events.OfType<MoraleEvent>().Where(m => m.Source == "skill_morale_effect").ToArray();
+        Assert.AreEqual(46, player.UnitRuntimeAt(2)!.Morale, "选中 2 号位 −4");
+        Assert.IsTrue(second.Length >= 2, "两次执行各一条显式 −4");
     }
 
     [TestMethod]
@@ -180,7 +188,7 @@ public sealed class SkillExecutionTests
         FormationBoard rebuilt = RebuildPlayer((1, "medic"), (2, "warrior"));
         rebuilt.UnitRuntimeAt(2)!.CurrentHp = 1; // 战士濒死
 
-        executor.Execute(skills.Get("medic_first_aid"), UnitId.Of("medic"), rebuilt, enemy, new ScriptedRng());
+        executor.Execute(skills.Get("medic_first_aid"), UnitId.Of("medic"), rebuilt, enemy, new ScriptedRng(), chosenTargets: new[] { 2 });
         HealEvent heal = log.Events.OfType<HealEvent>().First(e => e.Target == UnitId.Of("warrior"));
         Assert.AreEqual(12, heal.Amount, "急救固定值 12（不吃攻击力，combat_math §8）");
         Assert.AreEqual(13, rebuilt.UnitRuntimeAt(2)!.CurrentHp);
@@ -195,14 +203,18 @@ public sealed class SkillExecutionTests
         FormationBoard rebuilt = RebuildPlayer((1, "medic"), (2, "tank"));
 
         enemy.UnitRuntimeAt(1)!.CurrentHp = 25; // 近战小兵 60 → 已失血 58.3%
-        executor.Execute(skills.Get("medic_lethal_injection"), UnitId.Of("medic"), rebuilt, enemy, new ScriptedRng(0.0, 100.0, 0.0, 100.0));
-        // 两目标（敌 1、2 同型 HP 60，敌1 设 25 → 失血 58.3%）：倍率 = 1.0 + 0.583×0.4 = 1.233
+        // 单体（#178/#179）：先指定敌 1（失血 58.3%）→ 倍率 1.0+0.583×0.4=1.233 → 11
+        executor.Execute(skills.Get("medic_lethal_injection"), UnitId.Of("medic"), rebuilt, enemy,
+            new ScriptedRng(0.0, 100.0), chosenTargets: new[] { 1 });
         DamageEvent[] damages = log.Events.OfType<DamageEvent>().ToArray();
-        Assert.AreEqual(2, damages.Length, "两目标各一条伤害");
-        // 敌 1（失血 58.3%）倍率 1.233 → 11；敌 2（满血）倍率 1.0 → 9 —— 已失血% 按目标实际 HP 逐目标计算（#171 系数 0.4）
-        Assert.AreEqual(11, damages.Max(d => d.Amount), "失血目标 11（1.233 倍）");
-        Assert.AreEqual(9, damages.Min(d => d.Amount), "满血目标倍率 1.0 → 9");
-        Assert.IsTrue(damages.Any(d => d.Raw > 11 * 1.0 * (1 - 8 / 38.0)), "失血目标伤害高于基础 1.0 情形");
+        Assert.AreEqual(1, damages.Length, "单体选一 → 单条伤害");
+        Assert.AreEqual(11, damages[0].Amount, "失血目标 11（1.233 倍）");
+        Assert.IsTrue(damages[0].Raw > 11 * 1.0 * (1 - 8 / 38.0), "失血目标伤害高于基础 1.0 情形");
+
+        // 再指定满血敌 2 → 倍率 1.0 → 9（逐目标按实际 HP 计算，#171 系数 0.4）
+        executor.Execute(skills.Get("medic_lethal_injection"), UnitId.Of("medic"), rebuilt, enemy,
+            new ScriptedRng(0.0, 100.0), chosenTargets: new[] { 2 });
+        Assert.AreEqual(9, log.Events.OfType<DamageEvent>().Last().Amount, "满血目标倍率 1.0 → 9");
     }
 
     [TestMethod]
@@ -213,11 +225,12 @@ public sealed class SkillExecutionTests
         var executor = NewExecutor(log, new SkillRuntimeState(), balance, skills, morale);
         FormationBoard rebuilt = RebuildPlayer((2, "warrior"), (1, "tank"));
 
-        // 战士突刺（self_slots [2,3]，敌 1、2，推1）：两目标各 [命中0 暴击100 位移55]（55 ≥ melee 抗性 55）
-        executor.Execute(skills.Get("warrior_lunge"), UnitId.Of("warrior"), rebuilt, enemy, new ScriptedRng(0.0, 100.0, 55.0, 0.0, 100.0, 55.0));
+        // 战士突刺（self_slots [2,3]，候选 敌1/2，推1，单体 #178/#179）：指定敌 1，[命中0 暴击100 位移55]（55 ≥ melee 抗性 55）
+        executor.Execute(skills.Get("warrior_lunge"), UnitId.Of("warrior"), rebuilt, enemy,
+            new ScriptedRng(0.0, 100.0, 55.0), chosenTargets: new[] { 1 });
         Assert.IsTrue(log.Events.OfType<DamageEvent>().Any(), "位移失败与否不影响伤害");
         DisplaceEvent[] displaces = log.Events.OfType<DisplaceEvent>().ToArray();
-        Assert.AreEqual(2, displaces.Length, "两目标各自位移判定");
+        Assert.AreEqual(1, displaces.Length, "单体选一 → 单目标位移判定");
         Assert.IsTrue(displaces.All(d => d.PassedResist && d.ChainSucceeded), "roll==抗性 → 位移成功（>=）");
         int dmgIdx = log.Events.ToList().FindIndex(e => e is DamageEvent);
         int dispIdx = log.Events.ToList().FindIndex(e => e is DisplaceEvent);

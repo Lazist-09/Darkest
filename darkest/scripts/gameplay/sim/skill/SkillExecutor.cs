@@ -41,8 +41,14 @@ public sealed class SkillExecutor
 
     public DamagePipeline Pipeline => _pipeline;
 
-    /// <summary>执行一次技能动作（导演/目标选择者调用；可用性复核由导演层前置，此处防御性短路 NoTarget）。</summary>
-    public void Execute(SkillTemplateConfig skill, UnitId caster, FormationBoard player, FormationBoard enemy, IRngProvider rng)
+    /// <summary>
+/// 执行一次技能动作（导演/目标选择者调用）：
+/// #178/#179「target 范围 = 候选池」——单体伤害技能从候选（占用目标槽）【选一】执行：
+///   实机由玩家指定（chosenTargets，须落在候选内）；headless/模拟走固定调用点随机选一（NextInt + RngDraw）；
+/// AOE（tags aoe，仅横扫/精神震荡，P11）与无伤害技能照旧全范围。
+/// </summary>
+    public void Execute(SkillTemplateConfig skill, UnitId caster, FormationBoard player, FormationBoard enemy,
+        IRngProvider rng, IReadOnlyList<int>? chosenTargets = null)
     {
         if (skill is null)
         {
@@ -52,21 +58,49 @@ public sealed class SkillExecutor
         FormationBoard targetBoard = skill.Target.Side == "enemy" ? enemy : player;
         FormationBoard allyBoard = player.UnitAtPosition(caster) is not null ? player : enemy;
 
-        int[] targets = SkillTargetResolver.Resolve(skill, caster, player, enemy).ToArray();
-        if (targets.Length == 0)
+        int[] candidates = SkillTargetResolver.Resolve(skill, caster, player, enemy).ToArray();
+        if (candidates.Length == 0)
         {
             return; // NoTarget（防御性；导演层任务应已灰显）
+        }
+
+        // 选一（#178/#179）：单体伤害（非 aoe）或 any_ally 单体支援 → 玩家指定（须合法）优先，否则随机固定调用点
+        int[] execTargets = candidates;
+        bool isSingleton = skill.Damage is not null && !IsAoe(skill)
+                           || skill.Damage is null && skill.Target.Scope == SkillTargetScope.AnyAlly;
+        if (isSingleton && candidates.Length > 1)
+        {
+            int pick = -1;
+            if (chosenTargets is not null)
+            {
+                foreach (int t in chosenTargets)
+                {
+                    if (Array.IndexOf(candidates, t) >= 0)
+                    {
+                        pick = t;
+                        break;
+                    }
+                }
+            }
+
+            if (pick < 0)
+            {
+                pick = candidates[rng.NextInt(0, candidates.Length)];
+                _log.Append(new RngDraw(rng.DrawCount, pick));
+            }
+
+            execTargets = new[] { pick };
         }
 
         MoraleEffectRequest[] explicitMorale = MapMoraleEffects(skill);
 
         if (skill.Damage is null)
         {
-            ExecuteSupportPath(skill, caster, allyBoard, targetBoard, targets, rng, explicitMorale);
+            ExecuteSupportPath(skill, caster, allyBoard, targetBoard, execTargets, rng, explicitMorale);
         }
         else
         {
-            ExecuteDamagePath(skill, caster, player, enemy, targets, explicitMorale, rng);
+            ExecuteDamagePath(skill, caster, player, enemy, execTargets, explicitMorale, rng);
         }
 
         _runtime.RecordUse(caster, skill); // CD 置位 / per_battle 计数

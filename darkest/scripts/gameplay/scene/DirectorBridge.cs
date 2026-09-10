@@ -16,6 +16,7 @@ public static class DirectorBridge
     {
         public BattleDirector Core { get; init; } = null!;
         public BattleProjector Projector { get; init; } = null!;
+        public SkillsConfig Skills { get; init; } = null!;
     }
 
     /// <summary>从 res://data 读 JSON 并构建导演（含只读投影与士气初始化）。</summary>
@@ -38,6 +39,6 @@ public static class DirectorBridge
         var projector = new BattleProjector(director, balance,
             SkillsConfig.Parse(Read("skills.json")), new SkillRuntimeState());
 
-        return new DirectorHandle { Core = director, Projector = projector };
+        return new DirectorHandle { Core = director, Projector = projector, Skills = SkillsConfig.Parse(Read("skills.json")) };
     }
 }

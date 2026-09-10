@@ -272,8 +272,9 @@ sequenceDiagram
     participant EV as 事件流/战斗日志→UI
 
     P->>TD: 点击技能(灰显态已由导演只读供给)
+    TD->>TD: 单体技能→候选池内选一目标(#178/③b)；AOE→全范围不选 [#178/#179]
     TD->>BD: UseSkill(actor, skillId, targetPos)
-    BD->>BD: 复核可用性：携带/站位/目标部分非空/限制 [skill.md §5]
+    BD->>BD: 复核可用性：携带/站位/候选池非空(AOE全中·单体选一)/限制 [skill.md §5, #178/#179]
     BD->>RNG: 命中骰 rand(0,100) < 命中率 [combat_math §1]
     alt 未命中
         Note over BD: 该目标无伤害；同技能其它子效果(位移/附加)按 O-12 裁定
@@ -300,7 +301,7 @@ sequenceDiagram
         end
     end
     BD-->>EV: 发出结算事件(伤害/士气/虚弱/死门/死亡/飘字数据)
-    Note over EV: 技能附带效果(眩晕/流血/属性减益)与位移结算在本技能全部目标结算后执行<br/>位移不产生伤害、不触发死门(#117)；相对次序裁定见 O-12<br/>团队士气事件(暴击+5/击杀+10/队友虚弱-8/死亡-15)聚合口径见 O-14
+    Note over EV: 技能附带效果(眩晕/流血/属性减益)与位移结算在本技能全部目标结算后执行<br/>位移不产生伤害、不触发死门(#117)；相对次序裁定见 O-12<br/>团队士气事件(暴击+5/击杀+10/队友虚弱-8/死亡-15)聚合口径见 O-14<br/>目标数量语义(#178/#179,O-38)：单体/any_ally=候选池选一(恰1个)、AOE=全部非空、team=全体、adjacent=自身+相邻；双段=同一目标两段(#179)
 ```
 
 ### 5c. stateDiagram — 单位状态机（主生命周期轴）
@@ -483,6 +484,7 @@ public interface ITurnSequencer {
 // 9.3 技能可用性判定
 // 关键规则：判定顺序=①战前携带5个内 ②自身站位要求 ③目标位部分非空(全空灰显) ④使用限制(CD/每场次数)
 //          [skill.md §5；GDD §4/#23]；灰显原因须给 UI tooltip(ui_spec §4/必显示#3)
+//          目标数量=候选池派生（#178/#179，O-38）：单体/any_ally 池内选一、AOE 全中、双段同目标两段
 // ---------------------------------------------------------------
 public interface ISkillUseResolver {
     Availability Resolve(UnitId caster, SkillId skill, IFormation snapshot);
@@ -558,6 +560,7 @@ public interface IShieldGuard {
 // ---------------------------------------------------------------
 // 9.10 模拟/实机共用的命令源（供 BattleDirector 与 headless 驱动）
 // 关键规则：玩家半随机策略 + 基线 AI 对照(verification §2)；与实机 AI 同源(enemy.md §5.4)
+//          目标选择=候选池内选一(#178)；SemiRandom 含换位增援(#177，缺此口径非验收口径)
 // ---------------------------------------------------------------
 public interface IPlayerPolicy {
     BattleCommand Choose(IPlayerSideView view, IRngProvider rng); // 合法技能+合法目标内决策
@@ -592,10 +595,10 @@ public interface IPlayerPolicy {
 | M0 工程引导 | _conventions.md §3；本蓝图 §2/§3 | §2、§3 | `darkest/` 在 Godot 4.6 .NET 可打开，测试工程跑通冒烟（含公式 1 例） |
 | M1 阵型骨架 | formation.md / glossary §1 | §3、§4、§5a/5c/5d、§9.1 | 推一个人能看到整条交换链结果且不产生空位；死亡靠齐同一时刻完成（formation.md §6） |
 | M2 结算核心 | combat_math.md | §4、§5b、§8、§9、§10 | 用文档 §7.1 试算样例能复算出同样数字 |
-| M3 技能与角色 | skill.md / skill_data.md / character.md | §3、§7、§9.3 | 4 个角色在每个位置都至少 2 个可用技能（skill_data §6 覆盖校验表；灰显原因正确） |
+| M3 技能与角色 | skill.md / skill_data.md / character.md | §3、§7、§9.3 | 4 个角色在每个位置都至少 2 个可用技能（skill_data §6 覆盖校验表；灰显原因正确）；**目标=候选池选一（#178/#179，data_schema P11）** |
 | M4 士气与生存 | morale.md / buff.md / GDD §3 | §5c、§6、§9.4~9.6 | 走通"受伤→虚弱→死门→死亡/靠齐"全链，且只被精神伤害掉士气（#157） |
-| M5 敌人与 UI | enemy.md / ui_spec.md | §5d、§6、§9.7 | 玩家不看代码就能预判位移结果（位移预览=内核 dry-run）；9 条必显示齐全 |
-| M6 验收 | verification.md | §8、§10、§12 | 同内核 headless 跑 ≥300 场，胜率 40~70%、KPI 全达标、手感 3 指标过 |
+| M5 敌人与 UI | enemy.md / ui_spec.md | §5d、§6、§9.7 | 玩家不看代码就能预判位移结果（位移预览=内核 dry-run）；9 条必显示齐全；**③b 目标点选（#178）与敌方 AI 单体选一（T-M5-02/06/07）** |
+| M6 验收 | verification.md | §8、§10、§12 | 同内核 headless 跑 ≥300 场，胜率 40~70%、KPI 全达标、手感 3 指标过；**v0.44 目标语义改造后重新基线（旧 46% 作废，T-M6-08）** |
 
 ---
 

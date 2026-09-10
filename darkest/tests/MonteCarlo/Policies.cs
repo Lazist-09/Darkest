@@ -54,7 +54,7 @@ public static class Policies
         return actions;
     }
 
-    /// <summary>单单位决策（导演 actor 节拍用）：SemiRandom 含基础智能换位（虚弱者换下，见拍板 #176）。</summary>
+    /// <summary>单单位决策（导演 actor 节拍用）：SemiRandom 含基础智能换位；Baseline 对单体系指定最低血目标。</summary>
     public static PlayerDecision DecideForUnit(PolicyKind kind, UnitRuntime unit, BattleDirector director, IRngProvider rng)
     {
         if (kind == PolicyKind.SemiRandom)
@@ -66,8 +66,39 @@ public static class Policies
             }
         }
 
-        return new PlayerDecision(
-            kind == PolicyKind.SemiRandom ? PickSemiRandom(unit, director, rng) : PickBaseline(unit, director), null);
+        if (kind == PolicyKind.Baseline)
+        {
+            string? skillId = PickBaseline(unit, director);
+            int? target = LowestHpTargetSlot(skillId, unit, director);
+            return new PlayerDecision(skillId, null, target);
+        }
+
+        return new PlayerDecision(PickSemiRandom(unit, director, rng), null);
+    }
+
+    /// <summary>基线：若该技能是单体伤害（非 aoe）且候选含最低血敌方槽 → 指定之（#178 玩家集火）。</summary>
+    private static int? LowestHpTargetSlot(string? skillId, UnitRuntime unit, BattleDirector director)
+    {
+        if (skillId is null)
+        {
+            return null;
+        }
+
+        SkillTemplateConfig s = C.Skills.Get(skillId);
+        if (s.Damage is null || s.Tags.Contains(FuncTag.Aoe))
+        {
+            return null;
+        }
+
+        IReadOnlyList<int> candidates = SkillTargetResolver.Resolve(s, unit.Id, director.Enemy, director.Player);
+        UnitRuntime? lowest = director.Enemy.UnitsInSlotOrder().OrderBy(u => u.CurrentHp).FirstOrDefault();
+        if (lowest is null)
+        {
+            return null;
+        }
+
+        int? lowestSlot = director.Enemy.UnitAtPosition(lowest.Id);
+        return lowestSlot is { } ls && candidates.Contains(ls) ? ls : null;
     }
 
     /// <summary>

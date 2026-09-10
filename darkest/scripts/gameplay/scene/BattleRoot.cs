@@ -1,9 +1,12 @@
+using System;
 using System.Linq;
 using Darkest.Core.Contracts;
 using Darkest.Core.Events;
 using Darkest.Core.Rng;
+using Darkest.Data;
 using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
+using Darkest.Gameplay.Sim.Skill;
 using Darkest.UI;
 using Godot;
 
@@ -22,10 +25,12 @@ public partial class BattleRoot : Node2D
 
     private RngProvider _rng = null!;
     private BattleUi _ui = null!;
+    private SkillsConfig _skills = null!;
     private bool _awaitingPlayer;
     private UnitId _activeActor = new("-");
     private bool _gameOver;
     private long _seed = 20260909L;
+    private string? _pendingSkill; // 实机单体选一：选定技能后等待玩家点目标
 
     public override void _Ready()
     {
@@ -47,10 +52,12 @@ public partial class BattleRoot : Node2D
         var handle = DirectorBridge.BuildFromRes(this);
         Director = handle.Core;
         Projector = handle.Projector;
+        _skills = handle.Skills;
         _rng = new RngProvider(++_seed);
         _awaitingPlayer = false;
         _gameOver = false;
         _activeActor = new("-");
+        _pendingSkill = null;
 
         if (_ui is null)
         {
@@ -113,10 +120,63 @@ public partial class BattleRoot : Node2D
             return;
         }
 
-        Director.PlayerUseSkill(actor, skillId, _rng);
-        _awaitingPlayer = false;
-        GD.Print($"[BattleRoot] {actor} 使用 {skillId}");
+        SkillTemplateConfig skill = _skills.Get(skillId);
+        int[] candidates = SkillTargetResolver.Resolve(skill, actor, Director.Player, Director.Enemy).ToArray();
+        // #178/#179：单体伤害（非 aoe）或 any_ally 单体支援，候选 >1 → 玩家选择目标（实机交互）
+        bool singleton = skill.Damage is not null && !skill.Tags.Contains(FuncTag.Aoe)
+                         || skill.Damage is null && skill.Target.Scope == SkillTargetScope.AnyAlly;
+        if (singleton && candidates.Length > 1)
+        {
+            _pendingSkill = skillId;
+            _ui.FlashHint($"请选择目标（{candidates.Length} 个候选中点卡）");
+            return;
+        }
+
+        ExecutePlayerSkill(actor, skillId, null);
     }
+
+    /// <summary>卡片点击（UI 回调）：单体/any_ally 选一阶段点中候选目标 → 执行。</summary>
+    public void OnCardClicked(int slot, bool isPlayer)
+    {
+        if (_pendingSkill is null || !_awaitingPlayer)
+        {
+            return;
+        }
+
+        string skillId = _pendingSkill;
+        int[] candidates = SkillTargetResolver.Resolve(_skills.Get(skillId), _activeActor, Director.Player, Director.Enemy).ToArray();
+        if (Array.IndexOf(candidates, slot) < 0)
+        {
+            _ui.FlashHint("该目标不在候选中，请点候选卡");
+            return;
+        }
+
+        ExecutePlayerSkill(_activeActor, skillId, new[] { slot });
+    }
+
+    private void ExecutePlayerSkill(UnitId actor, string skillId, int[]? chosen)
+    {
+        _pendingSkill = null;
+        Director.PlayerUseSkill(actor, skillId, _rng, chosen);
+        _awaitingPlayer = false;
+        GD.Print($"[BattleRoot] {actor} 使用 {skillId}" + (chosen is not null ? $" → 槽 {chosen[0]}" : ""));
+    }
+
+    /// <summary>单体选一阶段的候选槽（UI 高亮用）。</summary>
+    public int[] PendingCandidates
+    {
+        get
+        {
+            if (_pendingSkill is null)
+            {
+                return Array.Empty<int>();
+            }
+
+            return SkillTargetResolver.Resolve(_skills.Get(_pendingSkill), _activeActor, Director.Player, Director.Enemy).ToArray();
+        }
+    }
+
+    public bool IsTargeting => _pendingSkill is not null;
 
     private void DoSwap(UnitId actor, int supportPos)
     {

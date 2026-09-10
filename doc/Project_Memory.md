@@ -19,6 +19,7 @@
 9. **开放题纪律**：歧义挂 open_issues.md（O-nn），不静默拍板、不改设计；先后以 `doc/modules/` 与 `#N` 为准。
 10. **先读后写**：改任何文件前 read 全文；同文件禁止并行编辑（本轮已踩过坑，策划纪律第 4 条）。
 11. **命名**：C# 类型 PascalCase、文件/资源 snake_case、配置字段名以 data_schema.md 为准（_conventions §3）；术语用 glossary §9 建议（Morale/Resilience/Weak/DeathsDoor/…）。
+12. **目标语义（#178/#179，v0.44）**：技能范围=候选池——单体/`any_ally` 池内**选一**（玩家③b / AI / 策略）、AOE 全中、`team` 全体、双段=同一目标两段；数据 JSON 零改动（data_schema §3.2 生效语义 + P11）；**旧"范围全命中"口径已废（O-38）**——改造中，完成前不重新基线。
 
 ---
 
@@ -38,15 +39,16 @@
 | _conventions.md | 写作规范 / 任务卡模板 | 定稿 v1 |
 | blueprint.md | 总体蓝图（五层/目录/接口/确定性/测试钩子/风险） | 草案 v0.1 |
 | data_schema.md | 数据 Schema + P1~P10 校验 | 草案 v0.1 |
-| open_issues.md | 开放题 O-01~O-34 | 滚动维护 |
+| open_issues.md | 开放题 O-01~O-39（O-35~O-39 为 v0.40~v0.44 实现期登记） | 滚动维护 |
 | README.md | 架构入口 + 看板 + 交付清单 | 本套入口 |
-| tasks/m0~m6 共 7 个文件 | 53 张任务卡 | 草案 |
+| tasks/m0~m6 共 7 个文件 | **54 张任务卡**（M6 含 T-M6-08 重新基线） | 草案→随实现滚动 |
 
 ### Godot 工程（darkest/ = res://）
 | 路径 | 状态 | 备注 |
 |---|---|---|
-| project.godot | 存在（Godot 4.6 .NET / assembly_name=Darkest） | 只读实况 |
-| scenes/ scripts/ data/ resources/ tests/ | 未建（M0 建立） | 顶层铁律 _conventions §3 |
+| project.godot | 存在（Godot 4.6 .NET / assembly_name=Darkest，main_scene=Battle.tscn） | 只读实况 |
+| scenes/ scripts/ data/ resources/ tests/ | ✅ **已实现（M0~M6 主程序迭代，压测 141/142 绿）** | 关键文件：`sim/skill/SkillTargetResolver.cs` / `SkillExecutor.cs`（**O-38 改造中：候选池+选一**）、`pipeline/DamagePipeline.cs`、`director/BattleDirector.cs`、`turn/TurnSequencer.cs`、`enemy/EnemyAi.cs`、`sim/buffs/ShieldGuard.cs`、`tests/MonteCarlo/{HeadlessDriver,Policies}.cs` |
+| darkest/data/*.json（7 个） | ✅ 生效值：#171/#173（敌 HP 60/60/46/41、收割 0.4/0.5、横扫 0.6 等） | 与 skill_data/enemy 起手值表并存（README §6-5 口径） |
 
 ---
 
@@ -76,4 +78,8 @@
 
 - `2026-09-09: [新增] M5 编辑器可视补强（86fbbc3）：project.godot 设 run/main_scene=Battle.tscn；BattleRoot 演示驱动（每 1.2s 推回合+撤退按钮实时百分比+点击含 #118 拒绝）；全权限下 headless 运行 Battle 场景成功（回合 1 日志+撤退 47%）；此前 signal 11 二分定位=默认沙箱拦截 Godot 运行时 .NET 宿主初始化（全权限 0 崩溃，与 dotnet test 同源）；Darkest.csproj TFM 实化再还原；134/134 绿。_`
 
-- `2026-09-09: [新增] M6 验收（T-M6-01~07，主程序）落地：tests/MonteCarlo/HeadlessDriver.cs（直驱 BattleDirector 零 Godot：显式 seed/三态终局/事件流 KPI/紧凑日志/tweak override 语义/RunMany 批量报告）、tests/MonteCarlo/Policies.cs（SemiRandom 标签权重 + Baseline 最低血集火；随机走注入 RNG 固定时机）、tests/MonteCarloTests.cs（单场统计/override 生效/确定性逐条一致/报告形状/KPI 自然发生/边界冒烟/300 场验收红+建议）。DamageEvent 增 Attacker（输出统计）；DamageStep 消费 damage_float.enabled（O-01 开关远程）。实测 300 场：胜率 100%（超标）、avgRounds 2.94（节奏告警）、KPI 六项除位移（3.82/场）外单场下限未达 → 验收 A/B 组红、确定性/无软锁绿；数值调整建议已落 m6 卡（敌方行动频率/HP/倍率 override 路线，README §6-5 由数值迭代方执行）；手感 C 组待人工 ≥5 局。dotnet test 141/142（1 项为判据 A 如实红）。_`
+- `2026-09-09: [新增] M6 验收（T-M6-01~07，主程序）落地：…_`（见上段 M6 记录）
+
+- `2026-09-09: [修订·架构师] v0.44 目标语义同步（#178/#179，O-38）：策划拍板"范围=候选池、单体选一"——旧实现（SkillTargetResolver 全命中 / SkillExecutor 全结算）与 #176 46% 基线、combat_math §7.3 实测全部作废。架构文档已对齐：data_schema P11（aoe 标签一致性）+ §3.2 生效语义、blueprint §5b 时序/§9.3/§9.10、m2 §2 目标数量语义 + O-32~34 收口（#166~#168）、m3 T-M3-05/06 改造清单（候选池+选一、双段同目标 #179）、m5 T-M5-02/06/07（AI 选一 O-39 / UI ③b）+ 撤退 #169、m6 T-M6-08 重新基线（含 SimSanity：劈砍·精准射击·急救恰 1 目标）、open_issues O-01~O-39 收口（O-11=#169、O-21=#170、O-31 关闭、O-36 ×2 否决）。主程序待办：SkillTargetResolver/SkillExecutor 改造 → M5 ③b/AI 选目标 → 重跑 300 场新基线（T-M6-08）。数据 JSON 零改动。_`
+
+- `2026-09-09: [主程序·v0.44 改造完成] #178/#179 目标语义全链路落地：SkillExecutor.Execute(chosenTargets)（单体伤害/any_ally 候选池选一——实机=玩家点候选卡+蓝卡高亮+OnCardClicked，headless=固定调用点随机选一+RngDraw）；AOE（横扫/精神震荡，P11 入 SkillsConfig.Validate）全范围；双段同目标两段；敌方按 O-39 裁定=候选槽序首个非空+taunt 优先（无 RNG，EnemyAct 传首槽）；Policies.Baseline 指定最低血目标。SimSanity 全绿；**M6-08 新基线（300 场，数据零改动）：胜率 27%、平均回合 18.03**（旧 46%/13.51 全打基线作废，combat_math §7.3 作废）；KPI 六项全达标；调整建议三案待拍板（敌 HP 58/44/41 / cleave 1.0 或 lethal 0.5 回抬 / Baseline 集火增益探针量化实机点选价值）。全套 147/147（判据 A 按新口径红）。_`

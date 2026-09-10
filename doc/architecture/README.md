@@ -30,17 +30,17 @@
 | `_conventions.md` | 规范 | 产出约定 / 命名 / 任务卡模板 / 目录铁律 | ✅ 全员 |
 | `blueprint.md` | blueprint | 总体技术蓝图：五层边界、目录树、4 张 Mermaid、事件流、数据管线、确定性设计、接口契约、测试钩子、风险 | ✅ 主程序 |
 | `data_schema.md` | schema | `res://data/` 7 个 JSON 的字段级 Schema + C# 模型 + 校验 P1~P10 + JSON 示例 | ✅ 主程序 |
-| `open_issues.md` | issue | 开放题 O-01~O-34：策划拍板 / 架构裁定 / 实现期待定 | ✅ 全员 |
+| `open_issues.md` | issue | 开放题 O-01~O-39：策划拍板 / 架构裁定 / 实现期待定（v0.44 含 O-38/#178/#179） | ✅ 全员 |
 | `tasks/m0_bootstrap.md` | task | M0 工程引导：5 张卡（T-M0-01~05） | ✅ 先做 |
 | `tasks/m1_formation.md` | task | M1 阵型骨架：5 张卡（T-M1-01~05） | ✅ |
 | `tasks/m2_combat_core.md` | task | M2 结算核心：10 张卡（T-M2-01~10） | ✅ |
 | `tasks/m3_skills_units.md` | task | M3 技能与角色：8 张卡（T-M3-01~08） | ✅ |
 | `tasks/m4_morale_survival.md` | task | M4 士气与生存：9 张卡（T-M4-01~09） | ✅ |
 | `tasks/m5_enemy_ui.md` | task | M5 敌人与 UI：9 张卡（T-M5-01~09） | ✅ |
-| `tasks/m6_verification.md` | task | M6 验收：7 张卡（T-M6-01~07） | ✅ 收口 |
+| `tasks/m6_verification.md` | task | M6 验收：**8 张卡（T-M6-01~08，v0.44 增补 T-M6-08 重新基线）** | ✅ 收口 |
 | `README.md` | entry | 本文件：入口 + 看板 + 交付清单 | ✅ 全员 |
 
-> 任务卡合计 **53 张**（5+5+10+8+9+9+7）。
+> 任务卡合计 **54 张**（5+5+10+8+9+9+8；M6 增补 T-M6-08「v0.44 重新基线回归」）。
 
 ---
 
@@ -51,10 +51,10 @@
 | **M0 工程引导** | —（架构新增，承接 blueprint §2/§3/§12 风险 8） | blueprint §2/§3/§10/§11；tasks/m0 | `darkest/` 在 Godot 4.6 .NET 打开即用，`dotnet build`+`dotnet test` 通过，`using Godot` 白名单 0 命中 |
 | M1 阵型骨架 | README §2 M1；formation.md | tasks/m1 | 推一个人能看到整条交换链结果、无空位；死亡靠齐同一时刻完成（formation.md §6 判定式） |
 | M2 结算核心 | README §2 M2；combat_math.md | tasks/m2 | 用 combat_math §7.1 八个样例能复算出同样数字；同 seed 同命令流事件日志一致 |
-| M3 技能与角色 | README §2 M3；skill.md / skill_data.md / character.md | tasks/m3 + data_schema §3.2 | 导入断言 43 条技能；每角色每位置 ≥2 可用技能（data_schema P3）；灰显原因正确 |
+| M3 技能与角色 | README §2 M3；skill.md / skill_data.md / character.md | tasks/m3 + data_schema §3.2 | 导入断言 43 条技能；每角色每位置 ≥2 可用技能（data_schema P3）；灰显原因正确；**目标=候选池选一（#178/#179，P11）** |
 | M4 士气与生存 | README §2 M4；morale.md / buff.md / GDD §3 | tasks/m4 | 走通"受伤→虚弱→死门→死亡/靠齐"全链，仅精神伤害掉士气（#157） |
-| M5 敌人与 UI | README §2 M5；enemy.md / ui_spec.md | tasks/m5 | 9 条必显示齐全；位移预览=内核 dry-run（玩家可预判整条交换链） |
-| M6 验收 | verification.md（#119~#122） | tasks/m6 | `--runs 300` 胜率落 40~70%、六项 KPI 全达标、手感 3 指标过、无软锁 |
+| M5 敌人与 UI | README §2 M5；enemy.md / ui_spec.md | tasks/m5 | 9 条必显示齐全；位移预览=内核 dry-run（玩家可预判整条交换链）；**③b 目标点选 + AI 单体选一（#178）** |
+| M6 验收 | verification.md（#119~#122） | tasks/m6 | `--runs 300` 胜率落 40~70%、六项 KPI 全达标、手感 3 指标过、无软锁；**v0.44 目标语义改造后重新基线（旧 46% 作废，T-M6-08）** |
 
 > **硬门槛**：M0 + M1 + M2 未完成前，M3 之后的技能数值没有意义（策划 README §2 口径）。
 
@@ -83,7 +83,7 @@ M0 工程引导 ──► M1 阵型骨架 ──► M2 结算核心 ──► M3
 
 ---
 
-## 4. 实施前必须知道的 8 件事（FAST START）
+## 4. 实施前必须知道的 9 件事（FAST START）
 
 1. **先读** `_conventions.md`（写作规则）→ `blueprint.md`（架构全景）→ `data_schema.md`（数据字段）。
 2. **目录铁律**：res:// 顶层只有 `scenes/ scripts/ data/ resources/ tests/`；`core / gameplay/sim / data` 零 `using Godot`（M0-04 静态检查）。
@@ -91,8 +91,9 @@ M0 工程引导 ──► M1 阵型骨架 ──► M2 结算核心 ──► M3
 4. **确定性**：每场一个 seed；固件层 9 层随机在固定调用点（blueprint §8.2）；headless 与实机共用同一 BattleDirector（M6 前提）。
 5. **位移预览 = 内核 dry-run**：预览与结算同源（blueprint §5d），禁止 UI 自己推演"只推 1 格"。
 6. **UI 是机制的一部分**：9 条必显示信息（ui_spec §2）缺一不可，尤其行动序列 / 撤退成功率数字 / 灰显原因 / 位移预览。
-7. **开放题处置**：任务卡内遇到的歧义先查 open_issues.md；未覆盖的 → 挂 O-nn（O-35 起），**不得静默改设计/拍数值**。
-8. **先读后写**：任何文件修改前先 read 全文；同文件禁止并行编辑（策划纪律第 4 条）。
+7. **目标语义（#178/#179，v0.44）**：技能范围=**候选池**——单体/`any_ally` 在池内**选一**（玩家 ③b / AI / 策略），AOE 全中、`team` 全体、双段同目标两段；数据 JSON 零改动（data_schema §3.2 生效语义 + P11）。
+8. **开放题处置**：任务卡内遇到的歧义先查 open_issues.md（O-01~O-39）；未覆盖的 → 挂新 O-nn，**不得静默改设计/拍数值**。
+9. **先读后写**：任何文件修改前先 read 全文；同文件禁止并行编辑（策划纪律第 4 条）。
 
 ---
 
@@ -113,10 +114,12 @@ M0 工程引导 ──► M1 阵型骨架 ──► M2 结算核心 ──► M3
 | 2026-09-09 | `tasks/m4_morale_survival.md` | 新建 9 卡 | 草案 |
 | 2026-09-09 | `tasks/m5_enemy_ui.md` | 新建 9 卡 | 草案 |
 | 2026-09-09 | `tasks/m6_verification.md` | 新建 7 卡 | 草案 |
+| 2026-09-09 | 全套（v0.44 修订，#178/#179） | 按策划 v0.44（#166~#179）同步：目标语义=候选池选一（O-38）落 data_schema P11 / blueprint 时序与契约 / m2 §2+O-32~34 / m3 T-M3-05/06 改造清单 / m5 ③b+AI 选一+撤退 #169 / m6 T-M6-08 重新基线 / open_issues O-01~O-39 收口 | 修订（草案→随实现滚动） |
+| 2026-09-09 | `doc/Project_Memory.md` | 初始化 + v0.40~v0.44 实现期记录 | 滚动维护 |
 
 ---
 
 ## 6. 交接语（按架构师协议 Loop C）
 
-策划已交付完整设计规格（`doc/`，v0.39，可做垂直切片）；本套技术拆分已就绪。
-**主程序可从 `tasks/m0_bootstrap.md` 开始落地**，途中随卡引用对应开放题编号回查 `open_issues.md`。
+策划已交付完整设计规格（`doc/`，v0.44，含 #178/#179 目标语义修正与 #171/#173 生效数值）；本套技术拆分已按 v0.44 同步。
+**主程序可继续从 `tasks/m0_bootstrap.md` 顺序推进；当前在途：M3/M5/M6 目标语义改造（O-38）→ M6 重新基线（T-M6-08）**，途中随卡引用开放题编号回查 `open_issues.md`。
