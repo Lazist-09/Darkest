@@ -67,7 +67,7 @@ public partial class BattleRoot : Node2D
         _ = delta;
         if (_gameOver)
         {
-            _ui.Refresh(status: "战斗结束");
+            _ui.Refresh(status: "按 R 重开（新 seed）");
             return;
         }
 
