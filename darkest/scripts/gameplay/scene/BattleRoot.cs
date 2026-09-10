@@ -50,6 +50,17 @@ public partial class BattleRoot : Node2D
         {
             NewGame();
             GD.Print($"[BattleRoot] 重开（seed={_seed}）");
+            return;
+        }
+
+        // F0（#189）：Esc / 右键取消选目标（不消耗行动）
+        bool cancel = e is InputEventKey { Pressed: true, PhysicalKeycode: Key.Escape }
+                      || e is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right };
+        if (cancel && (_pendingSkill is not null || _reinforcePhase != 0))
+        {
+            _pendingSkill = null;
+            _reinforcePhase = 0;
+            _ui.FlashHint("已取消选择（不消耗行动）");
         }
     }
 
@@ -138,17 +149,24 @@ public partial class BattleRoot : Node2D
 
         SkillTemplateConfig skill = _skills.Get(skillId);
         int[] candidates = SkillTargetResolver.Resolve(skill, actor, Director.Player, Director.Enemy).ToArray();
-        // #178/#179：单体伤害（非 aoe）或 any_ally 单体支援，候选 >1 → 玩家选择目标（实机交互）
-        bool singleton = skill.Damage is not null && !skill.Tags.Contains(FuncTag.Aoe)
-                         || skill.Damage is null && skill.Target.Scope == SkillTargetScope.AnyAlly;
-        if (singleton && candidates.Length > 1)
+
+        // F0（#189）：一律进入选目标——候选池非空就必须点卡确认（单体/AOE/team/self/any_ally 无例外）
+        if (candidates.Length == 0)
         {
-            _pendingSkill = skillId;
-            _ui.FlashHint($"请选择目标（{candidates.Length} 个候选中点卡）");
+            _ui.FlashHint("没有合法目标（技能应已灰显）");
             return;
         }
 
-        ExecutePlayerSkill(actor, skillId, null);
+        if (_pendingSkill == skillId)
+        {
+            _pendingSkill = null; // 再点同一技能 = 取消（不消耗行动）
+            _ui.FlashHint("已取消选择");
+            return;
+        }
+
+        _pendingSkill = skillId;
+        _reinforcePhase = 0;
+        _ui.FlashHint($"请选择目标：点亮 {candidates.Length} 张卡（点任意亮卡确认，Esc 取消）");
     }
 
     /// <summary>「增援」按钮（#181 两步）：未开始 → 选 B（高亮支援位）；再点 → 取消。</summary>
