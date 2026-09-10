@@ -156,6 +156,12 @@ public sealed class FormationBoard : IFormation
         return true;
     }
 
+    /// <summary>装配期置位（增援/初始编成用；与障碍互斥校验）。</summary>
+    public void PlaceUnitAt(int pos, UnitRuntime unit)
+    {
+        SetUnit(pos, unit);
+    }
+
     /// <inheritdoc />
     public DisplaceResult TrySwapChain(UnitId mover, int fromPos, int toPos, int distance)
     {

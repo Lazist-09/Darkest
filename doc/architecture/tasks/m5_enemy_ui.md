@@ -297,3 +297,33 @@
 | O-31 | 威吓箭伤害表达式 12×0.5 vs 射手攻击 13 | T-M5-01：数据按 0.5 倍率 + 攻击 13，疑笔误不阻塞 |
 | O-28 | 射手 AI 规则②使③威吓箭不可达 / 贴脸口径 | T-M5-02：按 data_schema §3.5 表序直译，不静默改序 |
 | O-30 | 敌人意图 / 伤害预估显示可选 | T-M5-06 注：可选项，建议做敌人意图，非 9 条必显 |
+
+---
+
+## 实施记录（主程序回填 2026-09-09；判据状态与口径落点）
+
+### 内核侧判据（T-M5-01~04 + T-M5-06/09 数据侧）全部关闭
+
+| 判据 | 验证 |
+|---|---|
+| M-A 位移预览=结算 | BattleProjectorTests：dry-run 与真实 TrySwapChain 逐条一致、无副作用（快照板不变） |
+| M-B 9 条必显数据可达 | BattleProjectorTests：Support（行动序列/撤退数字/占用）、HitRateFor 公式（90/55/100）、Skill tooltip 逐字、Units 槽升序含编号 |
+| M-C 撤退按钮数字 | Support().RetreatRatePercent == director.CurrentRetreatRate()（纯公式无抽取）；钳制 [15,85] |
+| M-D 增援第 6 回合 | DirectorMilestoneTests：第 5 回合前无事件、第 6 回合 Fill 首个空位、满编改 Buff（+攻/+速占位 3/3）、4 位上限 |
+| 敌方 AI | EnemyAiTests：近战 3/4→突进、射手 1/2→后撤、施法者 AOE/低语、推至 1 空过、random off 确定性 0 抽取 |
+| 撤退 | RetreatTests 子集：成功 −10×6/失败 −5×6、当回合禁用、下回合可试、钳制 [5,95] |
+| 镜像/回放 | DirectorMilestoneTests.Mirror：同 seed 同命令流（含敌方 AI/增援钩子）两份 CombatLog 逐条一致 |
+
+工程承接：`dotnet test` **134/134 绿（1.87s）**；`using Godot` 静态检查基线 0。
+
+### 落地文件
+- data/enemy_ai.json（3 原型优先级表 + random 开关 + #96 mark_weight 预留）+ EnemyAiConfig 模型/校验
+- sim/enemy/EnemyAi.cs（谓词/taunt 优先/15% 分支 default off/空过）
+- sim/director/BattleDirector.cs（回合状态机：增援/支援位+3/虚弱回升/行动序列固定点 BuildRoundOrder/玩家命令/敌方阶段/撤退 + 失败禁用 #118）
+- sim/director/BattleProjector.cs（9 条必显只读投影 + dry-run 预览）、IBattleView.cs（UI 唯一依赖面）
+- 事件：RoundStartEvent/ReinforcementEvent/RetreatEvent
+- UI 薄层骨架（待 .NET 8/编辑器验证）：scenes/battle/Battle.tscn、BattleRoot.cs（组合根）、BattleUi.cs、IBattleView；tuning.overtime_reinforcement 增 buff_attack_delta/buff_speed_delta 占位
+
+### 口径落点与移交
+- O-19 random default off、O-20 增援走默认起手值（无随机分布）+ 增益占位数值、O-28 射手表序直译不静默改序（威吓箭③不可达已记录）、O-21 施法者按 target 直译、O-31 数据按 0.5 倍率+攻击 13、O-11 撤退展示=基础率（无扰动无抽取）、结算带扰动。
+- 战斗出口（胜/负/撤退三态）与 BattleUI 四分区控件、死门演出、物理/精神配色、A 区 ActionOrderBar 等为 M5 UI 人工走查项，待编辑器（.NET 8）构建后逐项核验（见 §0 判据 M-B）。

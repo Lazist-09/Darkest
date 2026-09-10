@@ -48,10 +48,12 @@ public sealed record TuningGuardRedirect(
     [property: JsonPropertyName("max_per_turn")] int MaxPerTurn,
     [property: JsonPropertyName("physical_only")] bool PhysicalOnly);
 
-/// <summary>超时增援（GDD §1.5.2，第 6 回合；O-20 数值未定）。M5 消费。</summary>
+/// <summary>超时增援（GDD §1.5.2，第 6 回合；O-20 增益数值占位可配，禁止拍死在内核）。</summary>
 public sealed record TuningOvertimeReinforcement(
     [property: JsonPropertyName("trigger_round")] int TriggerRound,
-    [property: JsonPropertyName("fill_or_buff")] string FillOrBuff);
+    [property: JsonPropertyName("fill_or_buff")] string FillOrBuff,
+    [property: JsonPropertyName("buff_attack_delta")] int BuffAttackDelta,
+    [property: JsonPropertyName("buff_speed_delta")] int BuffSpeedDelta);
 
 /// <summary>流血（combat_math §4）：每回合 3 / 2 回合；须与 buff_defs 一致（P6）。</summary>
 public sealed record TuningBleed(

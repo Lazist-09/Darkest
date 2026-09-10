@@ -1,0 +1,29 @@
+{
+  "archetypes": [
+    {
+      "archetype_id": "melee_soldier",
+      "random": { "enabled": false, "fallback_probability": 0.15 },
+      "rules": [
+        { "skill_id": "melee_charge", "when": { "self_slot_in": [3, 4] }, "mark_weight": 0 },
+        { "skill_id": "melee_heavy_slash", "when": {}, "mark_weight": 0 }
+      ]
+    },
+    {
+      "archetype_id": "ranged_archer",
+      "random": { "enabled": false, "fallback_probability": 0.15 },
+      "rules": [
+        { "skill_id": "ranged_retreat", "when": { "self_slot_in": [1, 2] }, "mark_weight": 0 },
+        { "skill_id": "ranged_precise_shot", "when": {}, "mark_weight": 0 },
+        { "skill_id": "ranged_intimidating_shot", "when": { "player_morale_all_at_least": 40 }, "mark_weight": 0 }
+      ]
+    },
+    {
+      "archetype_id": "caster",
+      "random": { "enabled": false, "fallback_probability": 0.15 },
+      "rules": [
+        { "skill_id": "caster_mental_shock", "when": { "target_slots_occupied_min": { "side": "player", "slots": [1, 2], "min": 2 } }, "mark_weight": 0 },
+        { "skill_id": "caster_fear_whisper", "when": {}, "mark_weight": 0 }
+      ]
+    }
+  ]
+}

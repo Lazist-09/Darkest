@@ -43,3 +43,12 @@ public sealed record SelfDamageEvent(UnitId? Unit, int Amount) : BattleEvent;
 
 /// <summary>崩溃判定产物（T-M4-02/03）：Kind ∈ Virtue/Affliction + 落挂 buff id。</summary>
 public sealed record CollapseResultEvent(UnitId? Unit, string Kind, string? BuffId) : BattleEvent;
+
+/// <summary>回合开始事件（M5 导演，供增援/支援位/回升钩子与回放锚点）。</summary>
+public sealed record RoundStartEvent(int Round) : BattleEvent;
+
+/// <summary>超时增援事件（M5-03）：Kind=Fill（填了谁/槽位）或 Buff（满编增益）。</summary>
+public sealed record ReinforcementEvent(string Kind, UnitId? Unit, int? Slot) : BattleEvent;
+
+/// <summary>撤退结算事件（M5-04；Rate=当回合成功率数字）。</summary>
+public sealed record RetreatEvent(bool Success, double Rate) : BattleEvent;
