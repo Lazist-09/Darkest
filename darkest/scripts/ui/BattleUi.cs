@@ -49,6 +49,8 @@ public partial class BattleUi : CanvasLayer
     private Button _swap5 = null!;
     private Button _swap6 = null!;
     private Label _skillTitle = null!;
+    private Label _hintLabel = null!;
+    private double _hintTimer;
     private string _skillBarFor = "";
     private bool _skillBarWaiting;
     private static readonly Dictionary<string, string> _unitNames = new();
@@ -110,6 +112,9 @@ public partial class BattleUi : CanvasLayer
         _skillTitle = new Label { Position = new Vector2(16, SkillTitleY), CustomMinimumSize = new Vector2(600, 26), Text = "技能栏（轮到行动者时可用）" };
         _skillTitle.AddThemeColorOverride("font_color", new Color(0.9f, 1, 0.9f));
         AddChild(_skillTitle);
+        _hintLabel = new Label { Position = new Vector2(16, SkillTitleY + 26), CustomMinimumSize = new Vector2(900, 24), Text = "" };
+        _hintLabel.AddThemeColorOverride("font_color", new Color(1, 0.85f, 0.5f));
+        AddChild(_hintLabel);
         _swap5 = new Button { Position = new Vector2(1010, SkillBarY), Size = new Vector2(118, 44), Text = "换位 ←5" };
         _swap5.Pressed += () => _swap?.Invoke(_host!.ActiveActor, 5);
         AddChild(_swap5);
@@ -182,6 +187,23 @@ public partial class BattleUi : CanvasLayer
         FillCard(_cards[9], playerUnits[5], isPlayer: true, false);
 
         RefreshSkillBar(d, p);
+
+        // 提示语（2 秒后自动清）
+        if (_hintTimer > 0)
+        {
+            _hintTimer -= 1.0 / 60.0;
+            if (_hintTimer <= 0)
+            {
+                _hintLabel.Text = "";
+            }
+        }
+    }
+
+    /// <summary>临时提示（换位被拒等），显示约 2 秒。</summary>
+    public void FlashHint(string text)
+    {
+        _hintLabel.Text = text;
+        _hintTimer = 2.0;
     }
 
     private static void FillCard((Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag) c, UnitProjection u, bool isPlayer, bool active)

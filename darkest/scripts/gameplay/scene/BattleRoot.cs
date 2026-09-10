@@ -93,11 +93,6 @@ public partial class BattleRoot : Node2D
             return;
         }
 
-        if (actor.Value.Value is "win" or "lose")
-        {
-            return;
-        }
-
         UnitRuntime? playerUnit = FindPlayerUnit(actor.Value);
         if (playerUnit is not null)
         {
@@ -131,8 +126,16 @@ public partial class BattleRoot : Node2D
         }
 
         bool ok = Director.PlayerSwap(actor, supportPos);
-        GD.Print(ok ? $"[BattleRoot] {actor} 与支援位 {supportPos} 换位" : "[BattleRoot] 换位被拒");
-        _awaitingPlayer = false; // 不论成败均消耗本次行动（发起者已行动）
+        if (!ok)
+        {
+            // 被拒（支援位空/本回合已换/发起者不在战斗位）：不吞行动，提示原因
+            _ui.FlashHint("换位被拒（支援位空或本回合已换位）");
+            return;
+        }
+
+        GD.Print($"[BattleRoot] {actor} 与支援位 {supportPos} 换位");
+        _awaitingPlayer = false;
+        _ui.Refresh(status: $"回合 {Director.Round} · 换位完成");
     }
 
     private void DoRetreat()
