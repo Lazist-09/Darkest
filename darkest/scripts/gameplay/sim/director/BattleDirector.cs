@@ -123,7 +123,7 @@ public sealed class BattleDirector
 
     /// <summary>
 /// 增援（#181 单按钮两步，推翻旧双按钮 PlayerSwap）：发起者 A（战斗位，消耗本次行动）指定
-/// 支援位角色 B（5/6 占用者）与目标战斗位 X（1~4）——X 有人 → B 与 X 上单位交换（沿链）；
+/// 支援位角色 B（5/6 占用者）与目标战斗位 X（1~4）——X 有人 → B 与 X 上单位【直接互换】；
 /// X 空 → B 直接进入并（若需）前移。同回合至多 1 次。
 /// </summary>
     public bool Reinforce(UnitId a, int bSlot, int x)
@@ -152,16 +152,15 @@ public sealed class BattleDirector
 
         if (_player.GetSlot(x) == SlotState.Occupied)
         {
-            // X 有人：B 与 X 上单位逐级交换（沿链，含途经单位后移）
-            DisplaceResult r = _player.TrySwapChain(b.Id, bSlot, x, Math.Abs(x - bSlot));
-            if (!r.Success)
+            // X 有人：B 与 X 上单位【直接互换】（#41a「X 有人则交换」——原 X 上的人到 B 的原位，途经槽位不动）
+            if (!_player.SwapSlots(bSlot, x))
             {
                 return false;
             }
         }
         else
         {
-            // X 空：B 直接进入（原支援位槽位随之空出，靠齐由链外显式处理——移动自不产生空位语义仅在链内）
+            // X 空：B 直接进入（原支援位槽位随之空出）
             _player.RemoveUnitAt(bSlot);
             _player.PlaceUnitAt(x, b);
         }

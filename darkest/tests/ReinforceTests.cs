@@ -54,16 +54,33 @@ public sealed class ReinforceTests
         UnitRuntime tank = d.Player.UnitRuntimeAt(1)!;
         tank.Weak = true;
 
-        // A=tank(1) 发起，B=槽6（medic_2），X=1 → B 与 X 上单位沿链交换（mover medic_2 最终到 1，tank 后移）
+        // A=tank(1) 发起，B=槽6（medic_2），X=1 → B 与 X 上单位【直接互换】（原 X 上的人到 6，途经槽位不动）
         Assert.IsTrue(d.Reinforce(tank.Id, 6, 1), "战斗位虚弱发起 → 支援位换入");
-        Assert.AreEqual("medic_2", d.Player.UnitRuntimeAt(1)!.Id.Value, "军医沿链进入战斗位 1");
-        Assert.AreEqual("tank", d.Player.UnitRuntimeAt(2)!.Id.Value, "坦克后移到 2（交换链语义）");
+        Assert.AreEqual("medic_2", d.Player.UnitRuntimeAt(1)!.Id.Value, "军医进入战斗位 1");
+        Assert.AreEqual("tank", d.Player.UnitRuntimeAt(6)!.Id.Value, "原 1 位坦克到支援位 6（直接互换，非链式推移）");
+        Assert.AreEqual("warrior", d.Player.UnitRuntimeAt(2)!.Id.Value, "途经槽位 2 不受影响");
         Assert.IsTrue(d.SwappedThisRound);
         Assert.IsTrue(log.Events.OfType<SwapEvent>().Any(), "增援事件落日志");
 
         Assert.IsFalse(d.Reinforce(tank.Id, 6, 2), "同回合至多 1 次（护栏）");
         d.StartTurn(new RngProvider(1));
         Assert.IsFalse(d.SwappedThisRound, "下回合重置");
+    }
+
+    [TestMethod]
+    public void Reinforce_5To3_OriginalOccupantGoesTo5_Slot4Untouched()
+    {
+        // 用户实测场景（#181）：增援 B=5、X=3 —— 原 3 号位的人应到 5，4 号位不动（修复链式推移 bug）
+        BattleDirector d = NewDirector(out _);
+        d.Player.UnitRuntimeAt(1)!.Weak = true; // A=发起者（战斗位）
+        string slot3Before = d.Player.UnitRuntimeAt(3)!.Id.Value;
+        string slot4Before = d.Player.UnitRuntimeAt(4)!.Id.Value;
+        string b5 = d.Player.UnitRuntimeAt(5)!.Id.Value;
+
+        Assert.IsTrue(d.Reinforce(d.Player.UnitRuntimeAt(1)!.Id, 5, 3));
+        Assert.AreEqual(b5, d.Player.UnitRuntimeAt(3)!.Id.Value, "B（5 位）进入 X=3");
+        Assert.AreEqual(slot3Before, d.Player.UnitRuntimeAt(5)!.Id.Value, "原 3 位的人回到 B 的原位 5");
+        Assert.AreEqual(slot4Before, d.Player.UnitRuntimeAt(4)!.Id.Value, "4 号位不动（修复前会被推到 5）");
     }
 
     [TestMethod]

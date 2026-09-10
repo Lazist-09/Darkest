@@ -110,7 +110,8 @@ public sealed class SkillExecutor
         _runtime.RecordUse(caster, skill); // CD 置位 / per_battle 计数
     }
 
-    /// <summary>池外「移动」（#180）：与目标位交换（逐级交换链）、不过抗性、无伤害/士气/死门（#117）；渡桥=Failured 事件计入位移 KPI（O-41）。</summary>
+    /// <summary>池外「移动」（#180）：与目标位【直接互换】（原目标位的人到自身原位，途经槽位不动）、
+    /// 不过抗性、无伤害/士气/死门（#117）；SwapEvent/DisplaceEvent 计入位移 KPI（O-41）。</summary>
     private void ExecuteMovePath(SkillTemplateConfig skill, UnitId caster, FormationBoard allyBoard,
         int[] execTargets, IRngProvider rng)
     {
@@ -122,14 +123,14 @@ public sealed class SkillExecutor
 
         int from = allyBoard.UnitAtPosition(caster) ?? -1;
         int to = execTargets[0];
-        if (from < 1)
+        if (from < 1 || from == to)
         {
             return;
         }
 
+        bool ok = allyBoard.SwapSlots(from, to); // 两点直接互换（非逐级推移）
         _log.Append(new SwapEvent(caster, from, to)); // 移动事件（计入位移 KPI，O-41）
-        DisplaceResult result = allyBoard.TrySwapChain(caster, from, to, Math.Abs(to - from));
-        _log.Append(new DisplaceEvent(caster, from, to, PassedResist: true, result.Success, result.Success ? "" : "move_chain_failed"));
+        _log.Append(new DisplaceEvent(caster, from, to, PassedResist: true, ok, ok ? "" : "move_swap_failed"));
     }
 
     // ------------------------------------------------------------------

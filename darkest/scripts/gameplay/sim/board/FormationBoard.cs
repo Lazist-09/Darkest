@@ -162,6 +162,30 @@ public sealed class FormationBoard : IFormation
         SetUnit(pos, unit);
     }
 
+    /// <summary>
+    /// 两点【直接互换】（#41a 增援「X 有人则交换」/ #180 移动「与目标位交换」）：
+    /// 只交换 a、b 两槽单位，途经槽位不受影响（区别于 TrySwapChain 的逐级推移语义）。
+    /// 任一槽为空/越界/相同 → false（空位直入由调用方走 Remove+Place）。
+    /// </summary>
+    public bool SwapSlots(int a, int b)
+    {
+        if (a == b || a < 1 || a > SlotCount || b < 1 || b > SlotCount)
+        {
+            return false;
+        }
+
+        UnitRuntime? ua = _units[a - 1];
+        UnitRuntime? ub = _units[b - 1];
+        if (ua is null || ub is null)
+        {
+            return false;
+        }
+
+        _units[a - 1] = ub;
+        _units[b - 1] = ua;
+        return true;
+    }
+
     /// <inheritdoc />
     public DisplaceResult TrySwapChain(UnitId mover, int fromPos, int toPos, int distance)
     {
