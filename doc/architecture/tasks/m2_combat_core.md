@@ -195,8 +195,8 @@
 - **依赖**：T-M2-02（位移骰）；T-M1（IFormation.TrySwapChain / DisplaceResult / 预览 dry-run）；技能 `displacement` 字段（夹具先行）
 - **产出**：`res://scripts/gameplay/sim/pipeline/DisplaceStep.cs`（位移步：过抗性判定 + 调 IFormation.TrySwapChain + 事件记录）
 - **要点**：
-  1. `过抗性 = rand(0,100) >= 目标位移抗性` 即成功（**唯一 `>=` 例外**，combat_math §3 / data_schema §2.3 / glossary §3）。**例外：通用「移动」（#180，池外）与自我位移类技能的自我移动不过位移抗性**——过抗性判定仅用于"推/拉目标"；移动 = 直接对目标位走交换链（目标槽由调用方在候选池内选定）。
-  1b. **通用「移动」执行（#180，衔接 T-M2-03 的伤害无关位移）**：目标 = 自身左右 N 格内**被占用**战斗位（`move_range`，由 M3 SkillTargetResolver 解析）；交换链经 IFormation.TrySwapChain；**无伤害 → 不触发死门（#117）**；本步不产生额外抽取（不过抗性）。
+  1. `过抗性 = rand(0,100) >= 目标位移抗性` 即成功（**唯一 `>=` 例外**，combat_math §3 / data_schema §2.3 / glossary §3）。**例外：通用「移动」（#180，池外）与自我位移类技能的自我移动不过位移抗性**——过抗性判定仅用于"推/拉目标"；移动 = **两点直接互换**（目标槽由调用方在候选池内选定）。
+  1b. **通用「移动」执行（#180，衔接 T-M2-03 的伤害无关位移）**：目标 = 自身左右 N 格内**被占用**战斗位（`move_range`，由 M3 SkillTargetResolver 解析）；结算 = **两点直接互换 `FormationBoard.SwapSlots(a,b)`**（途经槽位不动；**不是**逐级交换链——**O-48/d290e10**，链只属 push/pull 位移）；**无伤害 → 不触发死门（#117）**；本步不产生额外抽取（不过抗性）。
   2. 成功 → IFormation.TrySwapChain 交换链（**永不产生空位**，formation §2）；失败 → 位移不生效，**伤害与其它效果照常结算**（combat_math §3）——本步与卡 05/06 解耦（各自独立判定与事件）。
   3. 位移**不产生伤害** → **不触发死门**（#117）：本步不触碰 HP / 士气 / 死门（集成用例断言）。
   4. 撞边界 = 位移失败不动（`boundary_as_hard_wall`，#78）；撞障碍 = 交换（`obstacle_swaps_like_unit`，#22）——由 M1 FormationBoard 返回 DisplaceResult 承载，本步只读结果记事件。

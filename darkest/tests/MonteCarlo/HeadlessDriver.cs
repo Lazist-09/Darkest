@@ -20,12 +20,13 @@ public sealed record GameOutcome(long Seed, GameResult Result, int Rounds, int C
     int DeathDoorRolls, bool AnyRetreat, int VirtueCount, int AfflictionCount, int Displacements,
     IReadOnlyDictionary<string, int> SkillUses, IReadOnlyDictionary<int, int> MoraleHistogram);
 
-/// <summary>批量报告（T-M6-03/04）。</summary>
+/// <summary>批量报告（T-M6-03/04）。终局拆分：PlayerVictory=敌方全灭、RetreatWinGames=撤退成功、EnemyVictory=我方全灭、RoundLimit=100 回合强切。</summary>
 public sealed record SimulationReport(int Runs, double WinRate, double AvgRounds, double MinRounds, double MaxRounds,
     int TotalCollapse, int TotalWeak, int TotalDeathDoorRolls, double AvgDeathDoorRolls,
     int GamesWithRetreat, int TotalVirtue, int TotalAffliction, int TotalDisplacements,
     IReadOnlyDictionary<string, int> SkillUses, IReadOnlyDictionary<int, int> MoraleHistogram,
-    IReadOnlyDictionary<string, int> PlayerDamage, int RoundLimitGames, string? LastLogDump);
+    IReadOnlyDictionary<string, int> PlayerDamage, int RoundLimitGames, string? LastLogDump,
+    int PlayerVictoryGames = 0, int EnemyVictoryGames = 0, int RetreatWinGames = 0);
 
 /// <summary>
 /// HeadlessDriver（T-M6-01）：直驱 BattleDirector（无场景树/无窗口/零 Godot）——
@@ -157,7 +158,10 @@ public static class HeadlessDriver
             MergeHistogram(outcomes),
             playerDamage,
             outcomes.Count(o => o.Result == GameResult.RoundLimit),
-            lastLog is null ? null : Dump(lastLog));
+            lastLog is null ? null : Dump(lastLog),
+            outcomes.Count(o => o.Result == GameResult.PlayerVictory),
+            outcomes.Count(o => o.Result == GameResult.EnemyVictory),
+            outcomes.Count(o => o.Result == GameResult.DrawRetreat));
         return report;
     }
 

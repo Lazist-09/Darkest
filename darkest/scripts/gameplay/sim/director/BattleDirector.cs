@@ -16,6 +16,9 @@ using Darkest.Gameplay.Sim.Turn;
 
 namespace Darkest.Gameplay.Sim.Director;
 
+/// <summary>战斗结果（O-47）：Ongoing 进行中 / Victory 敌方全灭 / Defeat 我方全灭（优先判定）。</summary>
+public enum BattleOutcome { Ongoing, Victory, Defeat }
+
 /// <summary>玩家行动决策（actor 节拍回调产物）：技能 / 增援两步（ReinforceB+ReinforceX）/ 目标指定（互斥）。</summary>
 public sealed record PlayerDecision(string? SkillId, int? ReinforceB, int? ReinforceX, int? SkillTargetSlot = null)
 {
@@ -202,6 +205,11 @@ public sealed class BattleDirector
     /// </summary>
     public void RunFullRound(IRngProvider rng, System.Func<UnitRuntime, PlayerDecision> decide)
     {
+        if (IsBattleOver)
+        {
+            return; // P0/O-47：胜负已定 → 不开启回合、不产生任何事件（含回合钩子）
+        }
+
         StartTurn(rng);
         while (!IsBattleOver)
         {
@@ -287,8 +295,22 @@ public sealed class BattleDirector
     /// <summary>撤退可点状态投影（UI 用）：失败当回合 disabled。</summary>
     public bool CanRetreatThisRound => !_retreatDisabledThisRound && !IsBattleOver;
 
-    public bool IsBattleOver
-        => _enemy.OccupiedPositions(false).Count == 0 || _player.OccupiedPositions(false).Count == 0;
+    /// <summary>战斗结果投影（O-47）：我方优先判负（硬核受苦定位："活下来才算赢"；同瞬间双灭 → 判负）。</summary>
+    public BattleOutcome Outcome
+    {
+        get
+        {
+            if (_player.OccupiedPositions(false).Count == 0)
+            {
+                return BattleOutcome.Defeat; // ★ 我方优先判负
+            }
+
+            return _enemy.OccupiedPositions(false).Count == 0 ? BattleOutcome.Victory : BattleOutcome.Ongoing;
+        }
+    }
+
+    /// <summary>胜负已定（= Outcome != Ongoing 的别名；既有调用语义不变）。</summary>
+    public bool IsBattleOver => Outcome != BattleOutcome.Ongoing;
 
     private double AvgSpeed(FormationBoard board)
     {

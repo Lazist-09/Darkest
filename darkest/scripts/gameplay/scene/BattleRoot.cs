@@ -86,6 +86,20 @@ public partial class BattleRoot : Node2D
             return;
         }
 
+        // P0/O-47：每轮推进先查结果——任一方归零立即收束（不区分先后，不再多打）
+        BattleOutcome outcome = Director.Outcome;
+        if (outcome == BattleOutcome.Victory)
+        {
+            EndGame("胜利：敌方全灭");
+            return;
+        }
+
+        if (outcome == BattleOutcome.Defeat)
+        {
+            EndGame("失败：我方全灭");
+            return;
+        }
+
         if (_awaitingPlayer)
         {
             _ui.Refresh(status: $"回合 {Director.Round} · 轮到 {_activeActor}");
@@ -96,13 +110,7 @@ public partial class BattleRoot : Node2D
         UnitId? actor = Director.NextActor();
         if (actor is null)
         {
-            // 本回合队列耗尽 → 胜负判定 → 下回合
-            if (Director.IsBattleOver)
-            {
-                EndGame("胜利：敌方全灭");
-                return;
-            }
-
+            // 本回合队列耗尽（结果已在顶部检查）→ 下回合
             Director.StartTurn(_rng);
             _ui.Refresh(status: $"回合 {Director.Round} 开始");
             return;
@@ -293,15 +301,18 @@ public partial class BattleRoot : Node2D
     {
         _gameOver = true;
         _awaitingPlayer = false;
-        // T-M6-07 系统触发日志（供试玩报告填写）
+        ResultText = what;
+        ResultRound = Director.Round;
+        // T-M6-07 系统触发日志 + P0④ 结算面板数据（同一批计数）
         var events = Director.Log.Events;
         int collapse = events.OfType<CollapseResultEvent>().Count();
         int weak = events.OfType<WeakEnterEvent>().Count();
         int dd = events.OfType<DeathDoorEvent>().Count();
-        bool retreat = events.OfType<RetreatEvent>().Any();
+        int retreat = events.OfType<RetreatEvent>().Count();
         int virtue = events.OfType<CollapseResultEvent>().Count(e => e.Kind == "Virtue");
         int aff = events.OfType<CollapseResultEvent>().Count(e => e.Kind == "Affliction");
         int disp = events.OfType<DisplaceEvent>().Count();
+        ResultCounts = new[] { collapse, weak, dd, retreat, virtue, aff, disp };
         GD.Print($"[BattleRoot] 战斗结束：{what}（第 {Director.Round} 回合）。系统触发：士气触底 {collapse} / 虚弱 {weak} / 死门 {dd} / " +
                  $"撤退出现 {retreat} / 美德 {virtue} / 折磨 {aff} / 位移 {disp}。按 R 重开。");
     }
@@ -325,4 +336,10 @@ public partial class BattleRoot : Node2D
 
     public bool IsAwaitingPlayer => _awaitingPlayer;
     public bool GameOver => _gameOver;
+
+    /// <summary>结算面板数据（P0④）：结果文案 / 回合数 / 7 项系统触发计数。</summary>
+    public string ResultText { get; private set; } = "";
+
+    public int ResultRound { get; private set; }
+    public int[] ResultCounts { get; private set; } = new int[7];
 }

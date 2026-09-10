@@ -38,62 +38,62 @@ public sealed class OverrideProbeTests
                 .ToList(),
         };
 
-    private static Func<SkillsConfig, SkillsConfig> CasterShockCd1 = skills =>
+    /// <summary>把指定单体技能的段倍率设为给定值（探针用；双段技能会同时改两段，避免用于它）。</summary>
+    private static Func<SkillsConfig, SkillsConfig> SetMult(string id, double mult) => skills =>
         skills with
         {
             Skills = skills.Skills
-                .Select(s => s.Id == "caster_mental_shock"
-                    ? s with { UseLimit = new UseLimitSpec(UseLimitType.Cooldown, 1) }
+                .Select(s => s.Id == id && s.Damage is not null
+                    ? s with { Damage = new DamageSpec(s.Damage.Segments.Select(x => x with { Multiplier = mult }).ToList()) }
                     : s)
                 .ToList(),
         };
 
+    private static Func<SkillsConfig, SkillsConfig> SetCoefficient(string id, double coef) => skills =>
+        skills with
+        {
+            Skills = skills.Skills
+                .Select(s => s.Id == id && s.Damage is not null
+                    ? s with { Damage = new DamageSpec(s.Damage.Segments.Select(x => x with { Coefficient = coef }).ToList()) }
+                    : s)
+                .ToList(),
+        };
+
+    private static Func<SkillsConfig, SkillsConfig> Chain(params Func<SkillsConfig, SkillsConfig>[] fs)
+        => s => fs.Aggregate(s, (acc, f) => f(acc));
+
     [TestMethod]
-    public void Probe_Matrix_PrintOnly()
+    public void Probe_Matrix_v045_PrintOnly()
     {
         const int runs = 150;
         const long seedBase = 20260909;
-        string[] names =
+
+        Func<UnitsConfig, UnitsConfig> hp58 = u => BoostEnemyHp(u, 58, 44, 41);
+        Func<SkillsConfig, SkillsConfig> cleave1 = SetMult("warrior_cleave", 1.0);
+        Func<SkillsConfig, SkillsConfig> lethal5 = SetCoefficient("medic_lethal_injection", 0.5);
+        Func<SkillsConfig, SkillsConfig> sweep7 = SetMult("warrior_sweep", 0.7);
+        Func<SkillsConfig, SkillsConfig> exec6 = SetCoefficient("commissar_execution_order", 0.6);
+
+        // (名称, tuning, units, skills, 策略)
+        (string name, Func<TuningConfig, TuningConfig>? t, Func<UnitsConfig, UnitsConfig>? un,
+         Func<SkillsConfig, SkillsConfig>? sk, PolicyKind policy)[] cases =
         {
-            "P0 baseline（当前数据）",
-            "P1 enemy HP+20%（60/46/41）",
-            "P2 =P1 + 玩家倍率下调（cleave0.9/lunge0.8/doubleHit0.5/charge1.0）",
-            "P3 =P2 + 施法者 CD1 精神震荡（强化敌方压榨）",
-            "P4 敌方每回合行动×2（enemy_actions_per_round=2）",
-            "P5 =P4 + 玩家倍率下调（cleave0.9/lunge0.8/doubleHit0.5/charge1.0）",
-            "P6 =P5 + 敌人 HP+20%（60/46/41）",
+            ("V0 v0.45 基线（当前数据）", null, null, null, PolicyKind.SemiRandom),
+            ("V6 V0 数据 + Baseline 集火（玩家上限对照）", null, null, null, PolicyKind.Baseline),
+            ("V1 HP 58/44/41（预授权轻降）", null, hp58, null, PolicyKind.SemiRandom),
+            ("V2 =V1 + cleave 1.0", null, hp58, cleave1, PolicyKind.SemiRandom),
+            ("V3 =V1 + lethal 0.5", null, hp58, lethal5, PolicyKind.SemiRandom),
+            ("V4 =V1 + cleave 1.0 + lethal 0.5", null, hp58, Chain(cleave1, lethal5), PolicyKind.SemiRandom),
+            ("V5 =V4 + sweep 0.7 + 处决 0.6", null, hp58, Chain(cleave1, lethal5, sweep7, exec6), PolicyKind.SemiRandom),
+            ("V7 =V4 + Baseline 集火", null, hp58, Chain(cleave1, lethal5), PolicyKind.Baseline),
         };
 
-        var configs = new[]
+        foreach ((string name, var t, var un, var sk, PolicyKind policy) in cases)
         {
-            (t: (Func<TuningConfig, TuningConfig>?)null, un: (Func<UnitsConfig, UnitsConfig>?)null, sk: (Func<SkillsConfig, SkillsConfig>?)null),
-            (t: null, un: (Func<UnitsConfig, UnitsConfig>?)(u => BoostEnemyHp(u, 60, 46, 41)), sk: null),
-            (t: null, un: (Func<UnitsConfig, UnitsConfig>?)(u => BoostEnemyHp(u, 60, 46, 41)),
-             sk: (Func<SkillsConfig, SkillsConfig>?)(s => NerfPlayerMult(s,
-                 ("warrior_cleave", 0.9), ("warrior_lunge", 0.8),
-                 ("medic_double_hit", 0.5), ("commissar_charge_order", 1.0)))),
-            (t: null, un: (Func<UnitsConfig, UnitsConfig>?)(u => BoostEnemyHp(u, 60, 46, 41)),
-             sk: (Func<SkillsConfig, SkillsConfig>?)(s => CasterShockCd1(NerfPlayerMult(s,
-                 ("warrior_cleave", 0.9), ("warrior_lunge", 0.8),
-                 ("medic_double_hit", 0.5), ("commissar_charge_order", 1.0))))),
-            (t: (Func<TuningConfig, TuningConfig>?)(x => x with { EnemyActionsPerRound = 2 }), un: null, sk: null),
-            (t: (Func<TuningConfig, TuningConfig>?)(x => x with { EnemyActionsPerRound = 2 }), un: null,
-             sk: (Func<SkillsConfig, SkillsConfig>?)(s => NerfPlayerMult(s,
-                 ("warrior_cleave", 0.9), ("warrior_lunge", 0.8),
-                 ("medic_double_hit", 0.5), ("commissar_charge_order", 1.0)))),
-            (t: (Func<TuningConfig, TuningConfig>?)(x => x with { EnemyActionsPerRound = 2 }),
-             un: (Func<UnitsConfig, UnitsConfig>?)(u => BoostEnemyHp(u, 60, 46, 41)),
-             sk: (Func<SkillsConfig, SkillsConfig>?)(s => NerfPlayerMult(s,
-                 ("warrior_cleave", 0.9), ("warrior_lunge", 0.8),
-                 ("medic_double_hit", 0.5), ("commissar_charge_order", 1.0)))),
-        };
-
-        for (int i = 0; i < configs.Length; i++)
-        {
-            SimulationReport r = HeadlessDriver.RunMany(runs, PolicyKind.SemiRandom, seedBase,
-                configs[i].t, configs[i].un, configs[i].sk);
-            string line = $"[Probe {names[i]}] runs={r.Runs} win={r.WinRate:P0} avgRounds={r.AvgRounds:F2} " +
-                          $"max={r.MaxRounds} retreat={r.GamesWithRetreat} weak={r.TotalWeak}";
+            SimulationReport r = HeadlessDriver.RunMany(runs, policy, seedBase, t, un, sk);
+            string line = $"[Probe {name}] win={r.WinRate:P0} avgRounds={r.AvgRounds:F2} " +
+                          $"max={r.MaxRounds} coll={r.TotalCollapse} weak={r.TotalWeak} dd={r.TotalDeathDoorRolls} " +
+                          $"retreat={r.GamesWithRetreat} disp={r.TotalDisplacements} roundLimit={r.RoundLimitGames}";
             Console.WriteLine(line);
             TestContext.WriteLine(line);
         }

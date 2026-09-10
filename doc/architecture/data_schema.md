@@ -13,7 +13,7 @@
 
 - **P11 校验（新增，已入 SkillsConfig.Validate）**：带 `aoe` 标签的伤害技能仅允许 `warrior_sweep`、`caster_mental_shock`；其余伤害技能必须走"选一"路径。
 - **备注 4（执行期生效值）**：units.json（敌方 60/60/46/41）与 skills.json（#173 主杠杆净值：cleave 0.9/lunge 0.8/收割 0.4/0.5/横扫 0.6/双段 0.5×2/charge 1.0）为**执行期生效值**；策划文档表（combat_math §7.1 速查、§7.3 实测行 v0.41）为旧口径引用，改数值只走这两份 JSON。
-- 执行器落点：`SkillExecutor.Execute(skill, caster, …, chosenTargets)`（选一）；敌方选一按 **O-39 裁定**（候选槽序首个非空 + taunt 优先，无 RNG）。
+- 执行器落点：`SkillExecutor.Execute(skill, caster, …, chosenTargets)`（选一）；**敌方池内选人按 #185/#187 三层语义**（taunt **加权抽取** `taunt_weight`=3 → `target_preference` 原型偏好 → 槽号兜底；taunt 抽取必须写 `RngDraw`）——O-39 原「槽号最小」已降为兜底（§3.5 / P13）。
 
 > **编号**：ARCH-DS · **类型**：schema · **状态**：草案 v0.1
 > **上游**：[设计] doc/modules/{glossary, skill, skill_data, combat_math, character, enemy, morale, buff, formation, ui_spec}.md · **决策引用**：#106, #110, #112, #123, #126, #136, #143, #149, #153, #154, #155, #156, #157, #158, #159, #163, #164, #165
@@ -69,6 +69,7 @@ JSON 一律存小写 ASCII 字符串，C# 用对应 PascalCase 枚举（由 `Jso
 | 技能目标范围 TargetScope | `slots` / `self` / `any_ally` / `team` / `adjacent_ally_and_self` / **`move_range`** | `Slots` / `Self` / `AnyAlly` / `Team` / `AdjacentAllyAndSelf` / **`MoveRange`** | 位置列表 / 自身 / 任意友方 / 本方全队 / 相邻友方 + 自身 / **自身左右 N 格内被占用战斗位（池外移动，#180）** | skill_data 目标列 + skill.md §1.1 |
 | 士气影响对象 MoraleScope | `self` / `targets` / `team` / `ally_targets` | `Self` / `Targets` / `Team` / `AllyTargets` | 本人 / 本次技能目标 / 全队 / 目标中的友方（盾墙"被守护者 +3"用） | skill_data 士气列（"自身 +3 / 全队 +5 / 目标 +15 / 被守护者 +3"） |
 | 士气事件对象 EventScope | `self` / `team` / `per_target` | `Self` / `Team` / `PerTarget` | 本人 / 全队 / 每个被命中目标（AOE 精神 −5/目标） | combat_math §5.2 |
+| 敌人目标偏好 TargetPreference | `lowest_hp` / `backmost` / `lowest_morale` | `LowestHp` / `Backmost` / `LowestMorale` | 池内选人偏好（#185，v0.46）：最低 HP（近战收残）/ 槽号最大即后排（射手点军医·政委）/ 最低士气（施法者压士气） | state #185 / O-44 / O-46 |
 | 状态类别 StatusClass | `buff` / `unit_state` | `Buff` / `UnitState` | 数据驱动可挂 buff / 机制性单位状态（虚弱、崩溃余烬） | 见 §3.4 分类说明 |
 | 状态极性 Polarity | `positive` / `negative` | `Positive` / `Negative` | 正面（不可驱散）/ 负面（可驱散） | buff.md §5.1 |
 | 持续时间类型 DurationType | `rounds` / `action_skip` / `charges` / `until_morale_50` / `until_battle_end_or_morale_zero` / `next_attack_within_rounds` | `Rounds` / `ActionSkip` / `Charges` / `UntilMorale50` / `UntilBattleEndOrMoraleZero` / `NextAttackWithinRounds` | 回合数 / 跳过 1 次行动即结束（眩晕）/ 次数（护盾）/ 到士气回初始值（折磨）/ 战斗结束或士气再归 0（美德）/ 下次攻击且 ≤N 回合（突进增伤） | buff.md §6 / GDD §2.5 / combat_math §4 / morale §8 |
@@ -218,7 +219,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 > | `scope=self` / `adjacent_ally_and_self` | 自身 / 自身+相邻（盾墙多目标**有意**，#159） |
 > | `scope=move_range` + `pool_external:true`（移动，#180） | 自身左右 N 格内**被占用**战斗位**选一**（空位不可选 → NoTarget，#21） |
 >
-> 范围内**全部为空 → 灰显不可释放**（NoTarget）；**部分非空 → 单体选其一、AOE 打全部非空**（不浪费、不落空）。**双段（0.55×2 / 0.5×2）= 同一目标两段，目标只选一次（#179）**。此为引擎规则、不入数据——**池内 43 条技能 JSON 无需改动；v0.45 新增 4 条池外「移动」（总量 47）**：自我移动**不过位移抗性**、无伤害 → 不触发死门（#117），结算 = 与目标位**交换**（走逐级交换链，M1 / M2 位移步）。
+> 范围内**全部为空 → 灰显不可释放**（NoTarget）；**部分非空 → 单体选其一、AOE 打全部非空**（不浪费、不落空）。**双段（0.55×2 / 0.5×2）= 同一目标两段，目标只选一次（#179）**。此为引擎规则、不入数据——**池内 43 条技能 JSON 无需改动；v0.45 新增 4 条池外「移动」（总量 47）**：自我移动**不过位移抗性**、无伤害 → 不触发死门（#117），结算 = 与目标位**两点直接互换**（`FormationBoard.SwapSlots`；**逐级交换链仅属 push/pull 位移技能**——O-48 / d290e10）。
 
 **`damage`（DamageSpec）子结构 —— 多段倍率与公式型倍率的 JSON 表达**：
 
@@ -256,7 +257,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `type` | DisplacementType | `push`（推 1）/`self_forward`（突进：自我前移 1）/`self_backward`（后撤：自我后移 1）；`pull` 切片未用 |
 | `count` | int | 格数（本切片全部为 1） |
 
-结算语义：过目标位移抗性（`rand(0,100) >= 抗性`）后走逐级交换链（formation §2）；撞边界 = 位移失败不动（#78），撞障碍 = 交换（#22）；位移不产生空位、不产生伤害、不触发死门（#117）。敌人位移仅能由技能触发（#88）。
+结算语义：**推/拉**（`push`/`pull`）→ 过目标位移抗性（`rand(0,100) >= 抗性`）后走逐级交换链（formation §2）；**自我位移**（`self_forward`/`self_backward`）与池外「移动」（#180，`move_range`）→ **不过位移抗性**（推的是自己）；撞边界 = 位移失败不动（#78），撞障碍 = 交换（#22）；位移不产生空位、不产生伤害、不触发死门（#117）。敌人位移仅能由技能触发（#88）。**注（O-48）**：逐级交换链只属 push/pull；增援（#181）与池外「移动」是**两点直接互换** `SwapSlots`（途经槽位不动）。
 
 **`use_limit` 子结构**：
 
@@ -327,7 +328,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | 状态（id / 中文） | 类别 / 极性 | 数值 | 持续 | 叠层 | 驱散 | 施加来源 | 出处 |
 |---|---|---|---|---|---|---|---|
 | `stun` 眩晕 | buff / negative | 跳过本次行动（无伤害数值） | `action_skip`（1 次行动后结束） | refresh（上限 1，再次施加刷新） | ✅ 可驱散 | 盾击（概率 35/40）、麻醉针（30） | GDD §2.5 / combat_math §4 / buff.md §5.1 |
-| `taunt` 嘲讽 | buff / negative | 改敌方 AI 优先攻击施法者（坦克） | `rounds` = 2 | refresh | ✅ 可驱散 | 坦克·嘲讽（CD 3） | skill_data §2 / buff.md §7 |
+| `taunt` 嘲讽 | buff / negative | 改敌方 AI **加权**优先攻击施法者（坦克）：嘲讽者权重 `taunt_weight`（起手 3），其余候选各 1（#187 由"强制顶首位"改为加权；唯一候选=100%） | `rounds` = 2 | refresh | ✅ 可驱散 | 坦克·嘲讽（CD 3） | skill_data §2 / buff.md §7 / #187 |
 | `bleed` 流血 | buff / negative | 每回合 3 点固定伤害（回合结束结算） | `rounds` = 2 | refresh | ✅ 可驱散 | **切片无技能施加**（预留，定义随 combat_math §4 收录） | combat_math §4 / buff.md §7 |
 | `shield` 护盾（次数型） | buff / positive | 抵挡 N 次物理攻击（铁壁 = 2 次） | `charges`（次数归 0 消失） | 待拍板（见 O-25）；不消耗流血/位移/自我伤害；AOE 消耗 1 次 | ❌ 不可驱散 | 铁壁（CD 4） | #156 / combat_math §8.1 / buff.md §7.1 |
 | `guard_attach` 护卫/守护链接 | buff / positive（挂在保护者） | 伤害重定向到保护者自身（**只挡物理**，见 O-22）；被守护者 +3 士气（#136） | 未定（盾墙未标 → **O-26**） | 每回合最多重定向 1 次（#159） | ❌ 不可驱散 | 坦克·盾墙（目标=相邻友方） | #136/#159 / buff.md §7.1 |
@@ -383,6 +384,8 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 {
   "archetype_id": "caster",
   "random": { "enabled": false, "fallback_probability": 0.15 },   // #112 切片不做随机；0.15 见 enemy §5.4
+  "target_preference": "lowest_morale",                            // #185：池内选人偏好（lowest_hp / backmost / lowest_morale）
+  "taunt_weight": 3,                                               // #187：嘲讽者相对权重（起手 3；其余候选各 1）
   "rules": [ { "skill_id": "...", "when": { /* 条件谓词 */ } }, ... ]
 }
 ```
@@ -400,6 +403,23 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 - 按数组顺序求值，选择**第一个"条件满足且技能可用"**的规则释放；无条件规则即兜底。
 - 引擎层过滤"技能可用"（含 `self_slots`、CD），AI 表只负责"同类可选时优先谁"。
 
+**目标选择（池内选一）语义（#185/#186/#187，v0.46）**——作用于"技能 `target` 已确定的候选池"，三层按序判定：
+
+| 层 | 条件 | 选谁 | 出处 |
+|---|---|---|---|
+| ① taunt 优先 | 嘲讽 buff 生效且嘲讽者在候选池内 | **加权抽取**：嘲讽者权重 = `taunt_weight`（起手 3），其余每个候选 = 1 → 池内 2 人 P=75% / 3 人 60% / 4 人 50%；唯一候选 = 100%。**抽取必须写 `RngDraw` 日志**（确定性/可回放） | #187 |
+| ② 原型偏好 | 否则 | `target_preference`：`lowest_hp`（近战收残）/ `backmost`（射手点后排 = 槽号最大）/ `lowest_morale`（施法者压士气） | #185 |
+| ③ 兜底 | 平局或未声明 | 槽号最小 | #185（原 O-39「槽号最小」降为兜底） |
+
+**新增字段表**：
+
+| JSON key | C# 类型 | 必填 | 值 / 说明 | 出处 |
+|---|---|---|---|---|
+| `target_preference` | string(TargetPreference) | ✅ | 每原型一条：`melee_soldier=lowest_hp` / `ranged_archer=backmost` / `caster=lowest_morale` | state #185 / O-44 / O-46 |
+| `taunt_weight` | int（≥1） | ✅ | 全局键（起手 **3**）；仅当 taunt 生效且有嘲讽者在池内时参与加权抽取 | state #187 / O-46 |
+
+> 大前提：**目标位仍由技能 `target` 决定**（#186 后恐惧低语 `[1,2,3,4]`），AI 只在池内选人；保留 enemy.md §2「固定偏好、可预判 > 每回合算最优解」。**推翻** O-39 原「槽号最小」默认与 §5.3「重劈 前排优先」的人选语义。
+
 **切片 3 原型规则（逐字对应 enemy.md §5.4）**：
 
 | 原型 | 顺序 | when | skill_id | 对应策划原文 |
@@ -410,7 +430,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | ranged_archer | 2 | （默认） | `ranged_precise_shot` 精准射击 | ② 否则【精准射击】 |
 | ranged_archer | 3 | `player_morale_all_at_least:40` | `ranged_intimidating_shot` 威吓箭 | ③ 我方士气整体偏高（无人 <40）且【威吓箭】CD 就绪 → 用威吓箭压士气（#165）；按首条命中语义与第 2 条存在互斥问题 → **O-28** |
 | caster | 1 | `target_slots_occupied_min:{player,[1,2],min:2}` | `caster_mental_shock` 精神震荡 | ① 优先【精神震荡】打多人（AOE 收益高） |
-| caster | 2 | （默认） | `caster_fear_whisper` 恐惧低语 | ② 否则【恐惧低语】点名最低韧性单位（"点名最低韧性"与技能目标"我 1 位"冲突 → **O-21**） |
+| caster | 2 | （默认） | `caster_fear_whisper` 恐惧低语 | ② 否则【恐惧低语】；**#186 已放宽目标位 `[1,2,3,4]`**，再由 `target_preference=lowest_morale` 在池内选人（"点名最低韧性"的文字口径见 O-21/O-46） |
 
 > 全部技能不可用（CD/站位不符/目标全空）时该敌人本回合不行动（切片技能多无 CD、属边角，行为待实现期确认，不阻塞）。
 > 位移技能的站位要求与 AI 优先级对齐（skill_data §5 末注）：小兵在 3/4 才突进、射手在 1/2 才后撤——已体现在 `self_slot_in` 条件。
@@ -447,7 +467,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | key | 值 | 语义 | 出处 |
 |---|---|---|---|
 | `boundary_as_hard_wall` | true | 最外侧被向外推 → 位移失败不动 | #78 / GDD §1.7 |
-| `displacement_only_via_swap_chain` | true | 位移只走逐级交换链，永不产生空位，角色不可走进空格 | #20/#21 / formation §2 |
+| `displacement_only_via_swap_chain` | true | **推/拉位移**只走逐级交换链，永不产生空位，角色不可走进空格；**例外（O-48）**：增援（#181）与池外「移动」（#180）为两点直接互换 `SwapSlots`（途经槽位不动） | #20/#21 / #180/#181 / formation §2 / O-48 |
 | `obstacle_swaps_like_unit` | true | 撞障碍 = 与障碍交换位置 | #22 / formation §2 |
 | `close_up_on_death_immediate` | true | 死亡/离场立即向 1 号位靠齐，空位只留队尾；虚弱者不参与前移；后方全虚弱留空不补 | #24/#115 / formation §3 |
 | `close_up_ignores_obstacle` | true | 靠齐遇障碍不阻挡，交换推进 | #114 |
@@ -507,12 +527,13 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | P4 | 派生量不入库 | `∀u∈units: u 不含 mental_reduction 与 virtue_rate 字段`（schema 级白名单校验，反序列化模型无此属性即可） | glossary §7.1 注 | 结构校验（建模即满足） |
 | P5 | 士气事件 ↔ 技能对账 | `∀e∈morale_events: e.source 指向技能 ⇒ skills 中对应技能 morale_effects 含同 delta/scope`（战场鼓舞 +15 与 morale_events `battle_inspiration`） | morale §2 与 skill_data §4 | 启动报错（防止双源漂移） |
 | P6 | tuning ↔ buff/技能常量一致 | `tuning.bleed.per_round_damage == buff_defs(bleed).modifiers.damage` 且 `tuning.bleed.rounds == buff_defs(bleed).duration.value`；`tuning.weak.*` 与相关技能/状态无矛盾 | combat_math §4 与 §3.4 | 启动报错（同一数值两处定义，改动须同步） |
-| P7 | 敌人数据边界 | `∀e∈units(side=enemy): e.deaths_door_resist == null`；enemy_ai 的 rules[].skill_id 属于该原型且 `self_slots` 与 AI 触发位置不矛盾（如后撤 self_slots=[1,2] 与 ranged rule1 一致） | enemy §1 / §5.4 | 同上 |
+| P7 | 敌人数据边界 | `∀e∈units(side=enemy): e.deaths_door_resist == null`；enemy_ai 的 rules[].skill_id 属于该原型且 `self_slots` 与 AI 触发位置不矛盾（如后撤 self_slots=[1,2] 与 ranged rule1 一致）；`target_preference` 与原型一致（melee_soldier=lowest_hp / ranged_archer=backmost / caster=lowest_morale） | enemy §1 / §5.4 / #185 | 同上 |
 | P8 | 数值范围 | 百分比 ∈ [0,100]；`resilience ∈ [0,100]`；`hp/attack/speed > 0`；`damage.segments` 非空（当 damage 非 null）；`use_limit.cooldown.value ≥ 1` | glossary §7.1 / 通用约定 | 同上 |
 | P9 | 士气事件表完整性 | morale_events 必须包含 §5.2 全部 14 行 id（缺失=实现期士气数值静默丢来源） | combat_math §5.2 | 启动告警/报错（缺失即失败） |
 | P10 | 派生一致性抽查 | 运行时复算样例（combat_math §7.1 单次伤害表）应复现文档数字（如战士→近战小兵 = 9）；该样例验证属 M2 验收而非启动校验 | verification §1 / README M2 | 测试阶段断言 |
 | P11 | **目标语义一致性（#178/#179）** | `∀s∈skills: (tags 含 aoe) ⇒ scope=slots`（aoe 只允许"范围型多格目标"）；切片 aoe 集 = {`warrior_sweep`, `caster_mental_shock`}；非 aoe 的 `slots`/`any_ally` 技能在执行层必须走**选一**路径（SkillTargetResolver 输出候选池 + 调用方选择，禁止"范围内全命中"） | GDD §1.2 / skill.md §2 字段3 / O-38 | 启动报错（aoe 标签越界）+ 执行层行为断言（单体技能单次结算） |
 | P12 | **池外移动一致性（#180）** | `∀s∈skills: s.pool_external=true ⇒ scope=move_range ∧ self_slots=[1,2,3,4] ∧ damage==null ∧ effects==∅ ∧ use_limit.type=none ∧ distance∈{1,2}`；`scope=move_range ⇒ pool_external=true`；池外移动恰 4 条（id 以 `_move` 结尾） | skill.md §1/§1.1 / skill_data §4.5 / GDD §1.3.1 | 启动报错（池外滥用/移动越界）+ 执行断言（移动不过抗性、空位 NoTarget） |
+| P13 | **敌人目标选择一致性（#185/#186/#187，v0.46）** | `∀a∈enemy_ai: a.target_preference ∈ {lowest_hp,backmost,lowest_morale}` 且与原型映射一致；`a.taunt_weight ≥ 1`（起手 3，全局同值）；`skills(caster_fear_whisper).target.slots == [1,2,3,4]`（#186）；taunt 抽取写 `RngDraw`（执行层断言：无 `System.Random`/时间源） | state #185/#186/#187 / O-44 / O-46 | 启动报错 + 执行层确定性断言（taunt 加权抽取入日志） |
 
 > 校验失败时日志给出"文件 / 记录 id / 规则 / 期望 vs 实际"，便于追到策划原文行（每条规则带 §/行号出处，如上表"依据"列）。
 
@@ -582,7 +603,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
   "name": "恐惧低语",
   "owner_unit": "caster",
   "self_slots": [2, 3, 4],
-  "target": { "scope": "slots", "side": "player", "slots": [1] },
+  "target": { "scope": "slots", "side": "player", "slots": [1, 2, 3, 4] },   // #186：由 [1] 放宽（供 lowest_morale 池内选人）
   "damage": { "segments": [ { "type": "flat", "multiplier": 0.8 } ] },
   "hit_mod": 0,
   "crit_mod": 0,
@@ -598,8 +619,8 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 }
 ```
 
-> 对应表：站位 2、3、4；目标 我 1 位；倍率 0.8；附加 = 目标韧性 −10（2 回合）；限制 CD 1（#165 后持续压力源）；轴 远程·精神；标签 输出·减益。
-> 士气衔接：`damage_axis=mental` 单目标命中 → 按 morale_events `mental_hit` 对目标 −8（精神暴击 −12）；韧性 −10 使精神减免与美德率同降（#158 双威胁）。"点名最低韧性单位"（enemy §5.4）与固定目标"我 1 位"冲突见 **O-21**。
+> 对应表：站位 2、3、4；目标 **我 1~4 位（#186 放宽）**；倍率 0.8；附加 = 目标韧性 −10（2 回合）；限制 CD 1（#165 后持续压力源）；轴 远程·精神；标签 输出·减益。
+> 士气衔接：`damage_axis=mental` 单目标命中 → 按 morale_events `mental_hit` 对目标 −8（精神暴击 −12）；韧性 −10 使精神减免与美德率同降（#158 双威胁）。**池内选人**由 `enemy_ai.json target_preference=lowest_morale` 决定（#185/#187）；"点名最低韧性"的文字口径见 O-21/O-46。
 
 ### 5.4 池外通用「移动」——战士（skill_data §4.5 / character §7.1b，单词示例）
 
@@ -626,7 +647,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 }
 ```
 
-> 对应表：池外常备（#180，不占 9 选 5）；仅战斗位 1~4（self_slots）；目标 = 自身左右 **2** 格内**被占用**战斗位（`move_range` + distance 2，空位不可选 #21）；结算 = 与目标位**交换**（走逐级交换链）；无 CD；**自我移动不过位移抗性**、无伤害 → 不触发死门（#117）。坦克 `tank_move` 仅此一处不同：`distance: 1`。
+> 对应表：池外常备（#180，不占 9 选 5）；仅战斗位 1~4（self_slots）；目标 = 自身左右 **2** 格内**被占用**战斗位（`move_range` + distance 2，空位不可选 #21）；结算 = 与目标位**两点直接互换**（`SwapSlots`，**非**逐级交换链——O-48）；无 CD；**自我移动不过位移抗性**、无伤害 → 不触发死门（#117）。坦克 `tank_move` 仅此一处不同：`distance: 1`。
 
 ---
 

@@ -49,6 +49,8 @@ public partial class BattleUi : CanvasLayer
     private readonly List<Button> _skillButtons = new();
     private Button _reinforceButton = null!;
     private Button _moveButton = null!;
+    private Panel _resultPanel = null!;
+    private Label _resultLabel = null!;
     private Label _skillTitle = null!;
     private Label _hintLabel = null!;
     private double _hintTimer;
@@ -123,6 +125,14 @@ public partial class BattleUi : CanvasLayer
         _moveButton = new Button { Position = new Vector2(1132, SkillBarY), Size = new Vector2(116, 44), Text = "移动" };
         _moveButton.Pressed += () => _move?.Invoke();
         AddChild(_moveButton);
+
+        // P0④ 结算面板（最小文本版）：结果 + 回合数 + 7 项系统触发计数 + 按 R 重开
+        _resultPanel = new Panel { Position = new Vector2(340, 236), Size = new Vector2(600, 250), Visible = false };
+        _resultPanel.Modulate = new Color(0.1f, 0.1f, 0.14f, 0.98f);
+        AddChild(_resultPanel);
+        _resultLabel = new Label { Position = new Vector2(24, 20), CustomMinimumSize = new Vector2(552, 210) };
+        _resultLabel.AddThemeFontSizeOverride("font_size", 18);
+        _resultPanel.AddChild(_resultLabel);
     }
 
     private void AddRowTitle(string title, float x, float y)
@@ -225,6 +235,21 @@ public partial class BattleUi : CanvasLayer
         }
 
         RefreshSkillBar(d, p);
+
+        // P0④ 结算面板（结果 + 回合 + 7 项计数 + 按 R 重开）
+        _resultPanel.Visible = _host.GameOver;
+        if (_host.GameOver)
+        {
+            int[] c = _host.ResultCounts;
+            _resultLabel.Text =
+                $"{_host.ResultText}\n\n" +
+                $"回合数：{_host.ResultRound}\n\n" +
+                "系统触发计数：\n" +
+                $"　士气触底 {c[0]}　虚弱 {c[1]}　死门 {c[2]}\n" +
+                $"　撤退 {c[3]}　美德 {c[4]}　折磨 {c[5]}\n" +
+                $"　位移 {c[6]}\n\n" +
+                "按 R 重开（新 seed）";
+        }
 
         // 提示语（2 秒后自动清）
         if (_hintTimer > 0)
