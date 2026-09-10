@@ -75,16 +75,16 @@ public static class HeadlessDriver
                 break;
             }
 
-            // actor 节拍（M6 前置立卡）：行动序列/眩晕/减速生效，我方逐个决策、敌方经 AI
+            // actor 节拍（M6 前置立卡）：行动序列/眩晕/减速生效，我方逐个决策（半随机含换位增援 #176）、敌方经 AI
             director.RunFullRound(rng, unit =>
             {
-                string? skillId = Policies.ChooseForUnit(policy, unit, director, rng);
-                if (skillId is not null)
+                PlayerDecision decision = Policies.DecideForUnit(policy, unit, director, rng);
+                if (decision.SkillId is not null)
                 {
-                    skillUses[skillId] = skillUses.GetValueOrDefault(skillId) + 1;
+                    skillUses[decision.SkillId] = skillUses.GetValueOrDefault(decision.SkillId) + 1;
                 }
 
-                return skillId;
+                return decision;
             });
 
             if (director.IsBattleOver)

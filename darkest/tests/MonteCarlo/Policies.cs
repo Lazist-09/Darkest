@@ -44,7 +44,7 @@ public static class Policies
         var actions = new List<PlayerAction>();
         foreach (UnitRuntime unit in director.Player.UnitsInSlotOrder())
         {
-            string? skillId = ChooseForUnit(kind, unit, director, rng);
+            string? skillId = DecideForUnit(kind, unit, director, rng).SkillId;
             if (skillId is not null)
             {
                 actions.Add(new PlayerAction(unit.Id, skillId));
@@ -54,9 +54,59 @@ public static class Policies
         return actions;
     }
 
-    /// <summary>单单位决策（导演 actor 节拍用：一方行动时按该单位决策一次）。</summary>
-    public static string? ChooseForUnit(PolicyKind kind, UnitRuntime unit, BattleDirector director, IRngProvider rng)
-        => kind == PolicyKind.SemiRandom ? PickSemiRandom(unit, director, rng) : PickBaseline(unit, director);
+    /// <summary>单单位决策（导演 actor 节拍用）：SemiRandom 含基础智能换位（虚弱者换下，见拍板 #176）。</summary>
+    public static PlayerDecision DecideForUnit(PolicyKind kind, UnitRuntime unit, BattleDirector director, IRngProvider rng)
+    {
+        if (kind == PolicyKind.SemiRandom)
+        {
+            int? swapPos = SwapSupportNeeded(unit, director);
+            if (swapPos is { } sp)
+            {
+                return new PlayerDecision(null, sp);
+            }
+        }
+
+        return new PlayerDecision(
+            kind == PolicyKind.SemiRandom ? PickSemiRandom(unit, director, rng) : PickBaseline(unit, director), null);
+    }
+
+    /// <summary>
+    /// 基础智能换位（拍板）：战斗位虚弱者发起 → 换入健康支援位（优先军医/政委；同回合 ≤1 次）。
+    /// 返回支援位槽位（无可换 → null）。
+    /// </summary>
+    private static int? SwapSupportNeeded(UnitRuntime unit, BattleDirector director)
+    {
+        if (director.SwappedThisRound || !unit.Weak)
+        {
+            return null;
+        }
+
+        int pos = director.Player.UnitAtPosition(unit.Id) ?? -1;
+        if (pos is < 1 or > 4)
+        {
+            return null; // 发起者须在战斗位
+        }
+
+        // 支援位占用者，优先军医/政委（#41a「换位由战斗位角色发起，支援位选人优先…」；编成 5=warrior 6=medic）
+        int priority(string id) => id switch { "medic" => 0, "commissar" => 1, _ => 2 };
+        int? best = null;
+        foreach (int slot in director.Player.Layout.SupportSlots)
+        {
+            UnitRuntime? ally = director.Player.UnitRuntimeAt(slot);
+            if (ally is null || ally.Weak)
+            {
+                continue;
+            }
+
+            if (best is null || priority(director.Player.UnitRuntimeAt(slot)!.Id.Value)
+                < priority(director.Player.UnitRuntimeAt(best.Value)!.Id.Value))
+            {
+                best = slot;
+            }
+        }
+
+        return best;
+    }
 
     private static string? PickSemiRandom(UnitRuntime unit, BattleDirector director, IRngProvider rng)
     {

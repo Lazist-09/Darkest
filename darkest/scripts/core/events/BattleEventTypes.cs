@@ -52,3 +52,6 @@ public sealed record ReinforcementEvent(string Kind, UnitId? Unit, int? Slot) : 
 
 /// <summary>撤退结算事件（M5-04；Rate=当回合成功率数字）。</summary>
 public sealed record RetreatEvent(bool Success, double Rate) : BattleEvent;
+
+/// <summary>换位/增援事件（#41a：战斗位角色发起，消耗其本次行动；交换链结算）。</summary>
+public sealed record SwapEvent(UnitId? Actor, int FromPos, int ToPos) : BattleEvent;

@@ -16,9 +16,12 @@ using Darkest.Gameplay.Sim.Turn;
 
 namespace Darkest.Gameplay.Sim.Director;
 
+/// <summary>玩家行动决策（actor 节拍回调产物）：技能 或 换位（消耗本次行动，二选一）。</summary>
+public sealed record PlayerDecision(string? SkillId, int? SwapSupportPos);
+
 /// <summary>
 /// BattleDirector：一场战斗的确定性编排（blueprint §4 B3 / §8.3，T-M5-02/03/04/09）——
-/// 回合推进（增援/支援位+3/虚弱回升）、玩家命令（UseSkill/Retreat）、敌方阶段（EnemyAi 同源）、
+/// 回合推进（增援/支援位+3/虚弱回升）、玩家命令（UseSkill/Swap/Retreat）、敌方阶段（EnemyAi 同源）、
 /// 失败当回合不可再试（#118）。实机输入 / 录制回放 / headless 策略只差命令来源；
 /// 全部事件写同一 CombatLog（回放/镜像基础）。零 Godot 引用。
 /// </summary>
@@ -39,6 +42,7 @@ public sealed class BattleDirector
     private readonly FormationBoard _enemy;
     private int _round;
     private bool _retreatDisabledThisRound;
+    private bool _swappedThisRound;
     private int _reinforcementCount;
     private readonly string[] _reinforcePool = { "melee_soldier", "ranged_archer", "caster" }; // O-20 占位轮换
     private readonly TurnSequencer _sequencer;
@@ -103,6 +107,7 @@ public sealed class BattleDirector
         }
 
         _retreatDisabledThisRound = false;
+        _swappedThisRound = false;
         _shield.OnTurnStart();
         _lastRoundOrder = _sequencer.BuildRoundOrder(rng); // 每回合固定点重掷（#163）；UI 读缓存
     }
@@ -110,6 +115,41 @@ public sealed class BattleDirector
     /// <summary>玩家命令：释放技能（SkillExecutor 桥接管线；可用性防御性由执行侧短路）。</summary>
     public void PlayerUseSkill(UnitId actor, string skillId, IRngProvider rng)
         => _executor.Execute(_skills.Get(skillId), actor, _player, _enemy, rng);
+
+    /// <summary>
+    /// 换位/增援（#41a/CHANGELOG §1.4.1）：战斗位角色发起 → 与指定支援位角色交换（交换链结算）。
+    /// 消耗发起者本次行动（actor 节拍内换位后不再放技能）。同回合至多 1 次（SwappedThisRound 护栏，
+    /// 防换位空转抽行动；#41a 无冷却但行动即代价）。
+    /// </summary>
+    public bool PlayerSwap(UnitId actor, int supportPos)
+    {
+        if (_swappedThisRound)
+        {
+            return false;
+        }
+
+        UnitRuntime? actorUnit = _player.UnitsInSlotOrder().FirstOrDefault(x => x.Id == actor);
+        int actorPos = _player.UnitAtPosition(actor) ?? -1;
+        if (actorUnit is null || actorPos < 1 || actorPos > _player.SlotCount
+            || _player.GetSlot(supportPos) != SlotState.Occupied)
+        {
+            return false;
+        }
+
+        // 交换链：发起者向目标位逐位交换（途经单位后移），目标必须是支援位占用者
+        DisplaceResult result = _player.TrySwapChain(actor, actorPos, supportPos, Math.Abs(supportPos - actorPos));
+        if (!result.Success)
+        {
+            return false;
+        }
+
+        _swappedThisRound = true;
+        _log.Append(new SwapEvent(actor, actorPos, supportPos));
+        return true;
+    }
+
+    /// <summary>本回合是否已换位（策略护栏；StartTurn 重置）。</summary>
+    public bool SwappedThisRound => _swappedThisRound;
 
     /// <summary>下一位行动者（M6 前置立卡：行动序列/眩晕/减速生效——排序与眩晕跳过均在内核 TurnSequencer）。</summary>
     public UnitId? NextActor() => _sequencer.NextActor();
@@ -136,7 +176,7 @@ public sealed class BattleDirector
     /// （清除标记），减速经行动序列排序生效。队列耗尽或胜负分定即回合结束。
     /// enemy_actions_per_round（默认 1）为「策划保留否决」探针键：&gt;1 时走旧 EnemyPhase 路径。
     /// </summary>
-    public void RunFullRound(IRngProvider rng, System.Func<UnitRuntime, string?> choosePlayerSkill)
+    public void RunFullRound(IRngProvider rng, System.Func<UnitRuntime, PlayerDecision> decide)
     {
         StartTurn(rng);
         while (!IsBattleOver)
@@ -150,10 +190,14 @@ public sealed class BattleDirector
             UnitRuntime? playerUnit = _player.UnitsInSlotOrder().FirstOrDefault(x => x.Id == actor);
             if (playerUnit is not null)
             {
-                string? skillId = choosePlayerSkill(playerUnit);
-                if (skillId is not null)
+                PlayerDecision decision = decide(playerUnit);
+                if (decision.SwapSupportPos is { } swapPos)
                 {
-                    PlayerUseSkill(actor.Value, skillId, rng);
+                    PlayerSwap(actor.Value, swapPos); // 换位消耗本次行动（不再放技能）
+                }
+                else if (decision.SkillId is not null)
+                {
+                    PlayerUseSkill(actor.Value, decision.SkillId, rng);
                 }
             }
             else if (_enemy.UnitsInSlotOrder().Any(x => x.Id == actor))
