@@ -46,17 +46,27 @@ public static class DamageStep
             log.Append(new CritEvent(crit, attacker.Id, target.Id));
 
             double critMult = crit ? balance.CritMultiplier : 1.0;
+            double dmgFloat = 1.0;
+            if (balance.DamageFloatEnabled)
+            {
+                // 伤害浮动（O-01 默认关闭）：开启时 0.9~1.1（tuning damage_float），固定调用点抽取
+                double floatRoll = rng.NextPercent();
+                log.Append(new RngDraw(rng.DrawCount, floatRoll));
+                double t = floatRoll / 100.0;
+                dmgFloat = balance.Tuning.DamageFloat.Min + t * (balance.Tuning.DamageFloat.Max - balance.Tuning.DamageFloat.Min);
+            }
+
             double raw;
             if (axis == "mental")
             {
                 double mitig = BattleMath.MentalMitigation(
                     target.EffectiveResilience, balance.MentalReductionDivisor, balance.MentalReductionCapPercent);
-                raw = attacker.EffectiveAttack * multipliers[i] * (1.0 - mitig) * critMult; // §2.2
+                raw = attacker.EffectiveAttack * multipliers[i] * (1.0 - mitig) * critMult * dmgFloat; // §2.2
             }
             else
             {
                 double mitig = BattleMath.PhysicalMitigation(target.EffectivePhysDef);
-                raw = attacker.EffectiveAttack * multipliers[i] * (1.0 - mitig) * critMult; // §2.1
+                raw = attacker.EffectiveAttack * multipliers[i] * (1.0 - mitig) * critMult * dmgFloat; // §2.1
             }
 
             if (attacker.Weak)
@@ -71,7 +81,7 @@ public static class DamageStep
             }
 
             total += damage;
-            log.Append(new DamageEvent(target.Id, damage, raw, crit, i, axis));
+            log.Append(new DamageEvent(target.Id, damage, raw, crit, i, axis, attacker.Id));
         }
 
         return new DamageOutcome(total, anyCrit, target.Weak, multipliers.Count);

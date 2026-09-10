@@ -232,4 +232,36 @@ M6 整体通过 = 下列全部满足（对应 verification §5 验收清单）�
 | T-M6-06 | 无软锁与边界验收 | §3 T-M6-06 |
 | T-M6-07 | 手感与报告 | §3 T-M6-07 |
 
+---
+
+## 5. 实施记录（主程序回填 2026-09-09；判据状态与数值建议）
+
+### 落地
+- `tests/MonteCarlo/HeadlessDriver.cs`：直驱 BattleDirector（零 Godot、无窗口）。`Run(seed, policy, tweak?)` 单场三态终局（我方全灭/敌方全灭/撤退成功）+ 每场独立 seed + 事件流 KPI 聚合（士气触底=CollapseResultEvent、虚弱=WeakEnterEvent、死门=DeathDoorEvent、撤退=RetreatEvent、美德/折磨、位移=DisplaceEvent）+ 紧凑日志留档；`RunMany(runs, …)` 批量 + 报告（胜率/回合/六项 KPI/技能使用率/士气直方图/各角色输出）；`tweak` 支持 **override 语义**（同 seed 改 tuning 可复现差异，已测 damage_float）。
+- `tests/MonteCarlo/Policies.cs`：`SemiRandom`（合法技能+合法目标，标签权重 output×3/displacement×2/其余×1）与 `Baseline`（输出优先、目标覆盖最低血敌方槽）；策略随机走注入 RNG 固定时机，整场命令流可复现。
+- `tests/MonteCarloTests.cs`：单场统计非空 / override 生效 / 同 seed 同命令流逐条一致（T-M6-05）/ 30 场报告形状 / 六项 KPI 小批自然发生 / 50 场边界冒烟（HP·士气·槽位由内核保证，无 100 回合强切）/ **300 场验收红** / 报告 dump。
+
+（注意：`MonteCarlo/HeadlessDriver` 与 `Policies` 在 `tests/` 下随测试工程编译，不经 Godot 程序集。）
+
+### 判据状态矩阵（300 场，SemiRandom，seedBase=20260909）
+
+| 组 | 判据 | 实测 | 状态 |
+|---|---|---|---|
+| A | 胜率 40~70% | **100%** | 🔴 数值超标 |
+| A | 平均回合 ≥6（<6 告警） | **2.94** | 🔴 节奏告警（战斗过短） |
+| B | 士气触底 ≥1/场 | 0.29/场 | 🔴 未达单场下限 |
+| B | 虚弱 ≥1/场 | 0.25/场 | 🔴 |
+| B | 死门 ≥3/场 | 0.15/场 | 🔴 |
+| B | 撤退 ≥1 整场 | 0.12 场次占比 | 🔴 |
+| B | 美德/折磨各 ≥1 整场 | 0.15/0.14 场次 | 🔴 |
+| B | 位移 ≥2/场 | 3.82/场 | 🟢 |
+| A-确 | 同 seed 同命令流逐条一致 | ✅ | 🟢 |
+| C-确 | 无 100 回合软锁（300 场全部 <100） | ✅ | 🟢 |
+| C | 手感 3 指标 | 待人工 ≥5 局（编辑器可玩 MVP 下进行，见 M5 记录） | ⏸ |
+
+### 数值调整建议（M6 只验收不调数值，README §6-5：走 override / JSON 迭代）
+1. **节奏 / 胜率同源问题**：我方每回合 6 次行动 vs 敌方 4 次（支援位也参与攻击权重覆盖）——先调 ① 敌方行动频率（enemy_ai 规则让后排也稳定行动 + 施法者 CD1 恐惧低语已被 AI 使用）或 ② 我方支援位策略权重下调（Policies 权重未来迭代）或 ③ 直接数值：melee_soldier HP 50→60、ranged_archer HP 38→46、caster HP 34→42（units override），并下调 warrior_cleave 1.0→0.9 / lunge 0.9→0.8 倍率（skills override）拉长战线。
+2. **KPI 单场下限**：胜率回到带内后，死门≥3/场需要把"进入虚弱后再被集火"场景增多——建议在 B 区迭代后复测；同动作死亡靠齐已由内核保证（无软锁）。
+3. 峰值验证命令（本机）：`dotnet test --filter Name~M6Acceptance`（300 场 ~1.5s）；修改建议的 override 可在 `HeadlessDriver.RunMany(..., tweak)` 中逐组试跑，找到带内组合后再落 data JSON（由数值迭代方执行）。
+
 > 共 7 张任务卡（T-M6-01 ~ T-M6-07），均遵守 _conventions.md §6 模板。

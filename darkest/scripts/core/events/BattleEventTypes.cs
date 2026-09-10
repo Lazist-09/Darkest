@@ -11,8 +11,8 @@ public sealed record HitEvent(bool Hit, int HitRate, UnitId? Attacker, UnitId? T
 /// <summary>暴击判定事件（T-M2-05）。</summary>
 public sealed record CritEvent(bool Crit, UnitId? Attacker, UnitId? Target) : BattleEvent;
 
-/// <summary>单段伤害事件（T-M2-05；多段=多条，SegmentIndex 从 0 起）。</summary>
-public sealed record DamageEvent(UnitId? Target, int Amount, double Raw, bool Crit, int SegmentIndex, string Axis) : BattleEvent;
+/// <summary>单段伤害事件（T-M2-05；多段=多条，SegmentIndex 从 0 起；Attacker 供 M6 输出统计）。</summary>
+public sealed record DamageEvent(UnitId? Target, int Amount, double Raw, bool Crit, int SegmentIndex, string Axis, UnitId? Attacker = null) : BattleEvent;
 
 /// <summary>士气变动事件（T-M2-08；Delta 为净变动，NewValue 为钳制后值）。</summary>
 public sealed record MoraleEvent(UnitId Unit, int Delta, string Source, int NewValue) : BattleEvent;
