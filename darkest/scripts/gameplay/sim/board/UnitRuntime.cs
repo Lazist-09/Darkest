@@ -11,18 +11,22 @@ namespace Darkest.Gameplay.Sim.Board;
 /// </summary>
 public sealed class UnitRuntime
 {
-    public UnitRuntime(UnitId id, FormationSide side, UnitStats baseStats, bool weak = false)
+    public UnitRuntime(UnitId id, FormationSide side, UnitStats baseStats, bool weak = false, string? archetypeId = null)
     {
         Id = id;
         Side = side;
         Base = baseStats ?? throw new ArgumentNullException(nameof(baseStats));
         Weak = weak;
+        ArchetypeId = archetypeId ?? id.Value; // 兼容旧构造：id 即原型
         MaxHp = baseStats.Hp;
         CurrentHp = baseStats.Hp;
     }
 
-    /// <summary>原型 id（M1 阶段编成引用，data_schema §3.6；M3 技能/实例化接续）。</summary>
+    /// <summary>实例身份 id（编成内唯一；同原型多实例为 `原型_2` 等——修正同名冲突）。</summary>
     public UnitId Id { get; }
+
+    /// <summary>原型 id（技能池 owner_unit / units.json / AI 表 / 中文名均按此匹配；与实例 Id 分离）。</summary>
+    public string ArchetypeId { get; }
 
     /// <summary>本单位所属阵营。</summary>
     public FormationSide Side { get; }

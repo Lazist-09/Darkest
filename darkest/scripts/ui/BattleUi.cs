@@ -175,7 +175,7 @@ public partial class BattleUi : CanvasLayer
         _statusLabel.Text = _host.GameOver
             ? $"战斗结束（第 {support.Round} 回合）：{status}"
             : status.Length > 0 ? status : $"回合 {support.Round}";
-        _actionOrderLabel.Text = "行动序列: " + string.Join(" → ", support.ActionOrderThisRound.Select(NameOf));
+        _actionOrderLabel.Text = "行动序列: " + string.Join(" → ", support.ActionOrderThisRound.Select(id => NameOf(_host.ArchetypeOf(new UnitId(id)))));
         _retreatButton.Text = support.CanRetreat && !_host.GameOver ? $"撤退 {support.RetreatRatePercent}%" : "本回合不可撤退";
         _retreatButton.Disabled = !support.CanRetreat || _host.GameOver;
 
@@ -233,7 +233,7 @@ public partial class BattleUi : CanvasLayer
 
     private static void FillCard((Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c, UnitProjection u, bool isPlayer, bool active)
     {
-        string title = u.UnitId == "-" ? $"[{u.Slot}] 空位" : $"[{u.Slot}] {NameOf(u.UnitId)}  HP {u.Hp}/{u.MaxHp}  士气 {u.Morale}";
+        string title = u.UnitId == "-" ? $"[{u.Slot}] 空位" : $"[{u.Slot}] {NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId)}  HP {u.Hp}/{u.MaxHp}  士气 {u.Morale}";
         c.text.Text = title;
         c.hp.MaxValue = u.MaxHp > 0 ? u.MaxHp : 1;
         c.hp.Value = u.Hp;
@@ -265,7 +265,7 @@ public partial class BattleUi : CanvasLayer
             return;
         }
 
-        _skillTitle.Text = $"轮到 {NameOf(actor.ToString())} — 选择技能或换位";
+        _skillTitle.Text = $"轮到 {NameOf(_host.ActiveArchetype)} — 选择技能或换位";
         if (_skillBarFor == actor.ToString() && _skillBarWaiting)
         {
             return;
@@ -274,8 +274,9 @@ public partial class BattleUi : CanvasLayer
         _skillBarFor = actor.ToString();
         _skillBarWaiting = true;
         ClearSkillButtons();
-        var pool = new HashSet<string>(SkillPool(actor.ToString()));
-        string[] poolIds = SkillPool(actor.ToString());
+        string archetype = _host.ActiveArchetype;
+        var pool = new HashSet<string>(SkillPool(archetype));
+        string[] poolIds = SkillPool(archetype);
         int perRow = 6; // (990−24)/158
         float startX = 24f;
         for (int i = 0; i < poolIds.Length; i++)

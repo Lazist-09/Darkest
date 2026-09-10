@@ -237,6 +237,19 @@ public partial class BattleRoot : Node2D
         => Director.Player.UnitsInSlotOrder().FirstOrDefault(u => u.Id == id);
 
     public UnitId ActiveActor => _activeActor;
+
+    /// <summary>当前行动者原型 id（技能池/中文名按原型匹配；实例 id 已唯一化）。</summary>
+    public string ActiveArchetype
+        => Director.Player.UnitsInSlotOrder().FirstOrDefault(u => u.Id == _activeActor)?.ArchetypeId
+           ?? Director.Enemy.UnitsInSlotOrder().FirstOrDefault(u => u.Id == _activeActor)?.ArchetypeId
+           ?? _activeActor.Value;
+
+    /// <summary>实例 id → 原型 id（行动序列中文名映射用）。</summary>
+    public string ArchetypeOf(UnitId id)
+        => Director.Player.UnitsInSlotOrder().FirstOrDefault(u => u.Id == id)?.ArchetypeId
+           ?? Director.Enemy.UnitsInSlotOrder().FirstOrDefault(u => u.Id == id)?.ArchetypeId
+           ?? id.Value;
+
     public bool IsAwaitingPlayer => _awaitingPlayer;
     public bool GameOver => _gameOver;
 }

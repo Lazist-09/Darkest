@@ -56,7 +56,7 @@ public sealed class SwapSupportTests
         // 交换链语义（M1）：路径上各单位整体前移一位（1=原2位 战士、2=原3位 政委…5=原6位 军医）
         Assert.AreEqual("warrior", d.Player.UnitRuntimeAt(1)!.Id.Value, "原 2 位战士前移填 1");
         Assert.IsFalse(d.Player.UnitRuntimeAt(1)!.Weak, "换位后战斗位 1 是健康者");
-        Assert.AreEqual("medic", d.Player.UnitRuntimeAt(5)!.Id.Value, "原 6 位军医前移到 5");
+        Assert.AreEqual("medic_2", d.Player.UnitRuntimeAt(5)!.Id.Value, "原 6 位军医（实例 medic_2）前移到 5");
         Assert.IsTrue(d.SwappedThisRound);
         Assert.IsTrue(log.Events.OfType<SwapEvent>().Any(), "换位事件落日志");
 

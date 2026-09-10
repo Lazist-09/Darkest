@@ -174,11 +174,11 @@ public sealed class BoardTests
         FormationBoard player = FormationBoardFactory.CreatePlayerBoard(cfg, units);
         Assert.AreEqual(FormationSide.Player, player.Side);
         Assert.AreEqual(6, player.SlotCount);
-        string[] expectedPlayer = { "tank", "warrior", "commissar", "medic", "warrior", "medic" };
+        string[] expectedPlayer = { "tank", "warrior", "commissar", "medic", "warrior_2", "medic_2" };
         for (int p = 1; p <= 6; p++)
         {
             Assert.AreEqual(SlotState.Occupied, player.GetSlot(p), $"player 槽 {p} 应为 Occupied");
-            Assert.AreEqual(expectedPlayer[p - 1], player.UnitAt(p)!.ToString(), $"player 槽 {p} 单位");
+            Assert.AreEqual(expectedPlayer[p - 1], player.UnitAt(p)!.ToString(), $"player 槽 {p} 单位（同原型多实例 id 唯一化）");
         }
 
         Assert.AreEqual(SlotKind.Combat, player.SlotKindAt(1));
@@ -187,7 +187,7 @@ public sealed class BoardTests
 
         FormationBoard enemy = FormationBoardFactory.CreateEnemyBoard(cfg, units);
         Assert.AreEqual(4, enemy.SlotCount);
-        string[] expectedEnemy = { "melee_soldier", "melee_soldier", "ranged_archer", "caster" };
+        string[] expectedEnemy = { "melee_soldier", "melee_soldier_2", "ranged_archer", "caster" };
         for (int p = 1; p <= 4; p++)
         {
             Assert.AreEqual(SlotState.Occupied, enemy.GetSlot(p));

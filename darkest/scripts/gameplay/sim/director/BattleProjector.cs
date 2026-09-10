@@ -8,9 +8,9 @@ using Darkest.Gameplay.Sim.Skill;
 
 namespace Darkest.Gameplay.Sim.Director;
 
-/// <summary>单位视图行（B 区/C 卡；值来自内核只读投影）。</summary>
+/// <summary>单位视图行（B 区/C 卡；值来自内核只读投影）。Archetype=原型 id（中文名/技能池按此匹配）。</summary>
 public sealed record UnitProjection(int Slot, string UnitId, int Hp, int MaxHp, int Morale, bool Weak,
-    IReadOnlyList<string> Buffs, bool IsPlayer);
+    IReadOnlyList<string> Buffs, bool IsPlayer, string Archetype = "");
 
 /// <summary>技能可用性视图（D 栏：灰显 + tooltip 原因）。</summary>
 public sealed record SkillProjection(string SkillId, AvailabilityReason Reason, string Tooltip);
@@ -59,7 +59,7 @@ public sealed class BattleProjector
             list.Add(u is null
                 ? new UnitProjection(slot, "-", 0, 0, 0, false, Array.Empty<string>(), isPlayer)
                 : new UnitProjection(slot, u.Id.ToString(), u.CurrentHp, u.MaxHp, u.Morale, u.Weak,
-                    Array.Empty<string>(), isPlayer)); // buff 摘要由 IBattleView 侧经 IBuffLedger 提供（M5 UI 薄层）
+                    Array.Empty<string>(), isPlayer, u.ArchetypeId)); // buff 摘要由 IBattleView 侧经 IBuffLedger 提供
         }
 
         return list;

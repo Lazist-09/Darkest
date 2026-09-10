@@ -118,8 +118,8 @@ public static class Policies
             return null; // 发起者须在战斗位
         }
 
-        // 支援位占用者，优先军医/政委（#41a「换位由战斗位角色发起，支援位选人优先…」；编成 5=warrior 6=medic）
-        int priority(string id) => id switch { "medic" => 0, "commissar" => 1, _ => 2 };
+        // 支援位占用者，优先军医/政委（按原型匹配；实例 id 已唯一化）
+        int priority(string archetype) => archetype switch { "medic" => 0, "commissar" => 1, _ => 2 };
         int? best = null;
         foreach (int slot in director.Player.Layout.SupportSlots)
         {
@@ -129,8 +129,7 @@ public static class Policies
                 continue;
             }
 
-            if (best is null || priority(director.Player.UnitRuntimeAt(slot)!.Id.Value)
-                < priority(director.Player.UnitRuntimeAt(best.Value)!.Id.Value))
+            if (best is null || priority(ally.ArchetypeId) < priority(director.Player.UnitRuntimeAt(best.Value)!.ArchetypeId))
             {
                 best = slot;
             }
@@ -193,7 +192,7 @@ public static class Policies
     private static List<string> UsableSkills(UnitRuntime unit, BattleDirector director)
     {
         var usable = new List<string>();
-        string[] owned = C.Skills.Skills.Where(s => s.OwnerUnit == unit.Id.Value).Select(s => s.Id).ToArray();
+        string[] owned = C.Skills.Skills.Where(s => s.OwnerUnit == unit.ArchetypeId).Select(s => s.Id).ToArray();
         for (int i = 0; i < owned.Length; i++)
         {
             string skillId = owned[i];

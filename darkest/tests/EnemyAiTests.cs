@@ -87,7 +87,7 @@ public sealed class EnemyAiTests
         enemy.RemoveUnitAt(1);
         enemy.TrySwapChain(m2.Id, 2, 3, 1);
         UnitRuntime pushed = enemy.UnitRuntimeAt(3)!;
-        Assert.AreEqual("melee_soldier", pushed.Id.Value);
+        Assert.AreEqual("melee_soldier", pushed.ArchetypeId);
         SkillChoice? c3 = ai.Choose(pushed, enemy, player, null, new ScriptedRng(), new CombatLog());
         Assert.AreEqual("melee_charge", c3!.SkillId, "被推到 3/4 → 突进归位");
     }

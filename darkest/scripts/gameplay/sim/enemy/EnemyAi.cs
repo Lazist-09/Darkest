@@ -36,7 +36,7 @@ public sealed class EnemyAi
     public SkillChoice? Choose(UnitRuntime enemyUnit, FormationBoard enemy, FormationBoard player,
         IBuffLedger? buffs, IRngProvider rng, CombatLog log)
     {
-        ArchetypeAiConfig? ai = _config.For(enemyUnit.Id.Value);
+        ArchetypeAiConfig? ai = _config.For(enemyUnit.ArchetypeId);
         if (ai is null || ai.Rules.Count == 0)
         {
             return null;
@@ -168,7 +168,9 @@ public sealed class EnemyAi
         List<int> targets = SkillTargetResolver.Resolve(skill, unit.Id, enemy, player).ToList();
         if (targets.Count > 1 && buffs is not null && buffs.Has(unit.Id, "taunt"))
         {
-            int? taunterSlot = player.UnitAtPosition(new UnitId("tank"));
+            // taunt：优先攻击嘲讽者（按原型识别，兼容实例 id 唯一化）
+            UnitRuntime? taunter = player.UnitsInSlotOrder().FirstOrDefault(u => u.ArchetypeId == "tank");
+            int? taunterSlot = taunter is null ? null : player.UnitAtPosition(taunter.Id);
             if (taunterSlot is { } ts && targets.Contains(ts))
             {
                 targets.Remove(ts);

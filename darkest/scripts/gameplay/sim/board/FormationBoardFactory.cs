@@ -42,9 +42,15 @@ public static class FormationBoardFactory
 
         var layout = new SlotLayout(layoutCfg.SlotCount, layoutCfg.CombatSlots, layoutCfg.SupportSlots);
         var unitsBySlot = new Dictionary<int, UnitRuntime>();
+        var archetypeCount = new Dictionary<string, int>();
         foreach (RosterEntryConfig entry in roster)
         {
-            UnitRuntime unit = new(UnitId.Of(entry.Unit), side, UnitStatsMapper.From(units.Get(entry.Unit)), weak: false);
+            // 实例 id 唯一化（同原型多实例：原型 / 原型_2 / 原型_3…）；ArchetypeId 保留原型供技能池/AI/中文名匹配
+            int seen = archetypeCount.TryGetValue(entry.Unit, out int c) ? c + 1 : 1;
+            archetypeCount[entry.Unit] = seen;
+            string instanceId = seen == 1 ? entry.Unit : $"{entry.Unit}_{seen}";
+            UnitRuntime unit = new(UnitId.Of(instanceId), side, UnitStatsMapper.From(units.Get(entry.Unit)),
+                weak: false, archetypeId: entry.Unit);
             unitsBySlot[entry.Slot] = unit;
         }
 
