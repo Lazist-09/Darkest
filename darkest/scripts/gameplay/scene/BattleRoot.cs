@@ -1,5 +1,7 @@
+using System.Linq;
 using Darkest.Core.Contracts;
 using Darkest.Core.Rng;
+using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
 using Darkest.UI;
 using Godot;
@@ -7,10 +9,10 @@ using Godot;
 namespace Darkest.Gameplay.Scene;
 
 /// <summary>
-/// BattleRoot：主战斗场景组合根（blueprint §5d / T-M5-05）——只做装配/转发/订阅：
-/// 持有 BattleDirector（纯 C# 确定性内核）与 BattleProjector（只读视图）。
-/// 本文件含一个【演示驱动】_Process（每 1.2s 自动推一回合 + 更新撤退按钮数字），
-/// 供编辑器 F5 直接观看 MVP 骨架；真实输入流由 M5/M6 的 BattleCommand 管线接入（此处不重复实现规则）。
+/// BattleRoot：主战斗场景组合根（blueprint §5d / T-M5-05）——装配 + 游玩状态机。
+/// 游玩循环（与 headless 同源，blueprint §10 镜像）：StartTurn（回合钩子+行动序列重掷）
+/// → NextActor 逐个出列：我方 → 等待玩家输入（技能/换位/撤退）；敌方 → 自动 EnemyAct；
+/// 队列空 → 下回合。全部事件写内核 CombatLog；UI 只读投影 + 命令门面。
 /// </summary>
 public partial class BattleRoot : Node2D
 {
@@ -19,9 +21,9 @@ public partial class BattleRoot : Node2D
 
     private RngProvider _rng = null!;
     private BattleUi _ui = null!;
-    private double _turnTimer;
-    private const double TurnInterval = 1.2;
-    private bool _ended;
+    private bool _awaitingPlayer;
+    private UnitId _activeActor = new("-");
+    private bool _gameOver;
 
     public override void _Ready()
     {
@@ -31,41 +33,115 @@ public partial class BattleRoot : Node2D
         _rng = new RngProvider(20260909L);
 
         _ui = GetNode<BattleUi>("BattleUi");
-        _ui.Bind(Director, Projector, _rng, (actor, skillId) => Director.PlayerUseSkill(actor, skillId, _rng));
+        _ui.Bind(host: this, useSkill: (actor, skillId) => DoUseSkill(actor, skillId),
+            swap: (actor, supportPos) => DoSwap(actor, supportPos),
+            retreat: () => DoRetreat());
 
-        GD.Print("[BattleRoot] 装配完成：内核 BattleDirector 就绪。F5 运行 → 每回合自动推进；四分区控件已挂载（槽位/行动序列/技能按钮）。");
+        GD.Print("[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算。关闭自动演示，玩家驱动。");
     }
 
     public override void _Process(double delta)
     {
-        _ui.Refresh(); // 每帧只读投影刷新（无抽取、零写，blueprint §4 B5）
-        if (_ended)
+        _ = delta;
+        if (_gameOver)
+        {
+            _ui.Refresh(status: "战斗结束");
+            return;
+        }
+
+        if (_awaitingPlayer)
+        {
+            _ui.Refresh(status: $"回合 {Director.Round} · 轮到 {_activeActor}");
+            return; // 等玩家输入
+        }
+
+        // 非玩家阶段（回合开始 / 敌方行动）自动推进
+        UnitId? actor = Director.NextActor();
+        if (actor is null)
+        {
+            // 本回合队列耗尽 → 胜负判定 → 下回合
+            if (Director.IsBattleOver)
+            {
+                EndGame("胜利：敌方全灭");
+                return;
+            }
+
+            Director.StartTurn(_rng);
+            _ui.Refresh(status: $"回合 {Director.Round} 开始");
+            return;
+        }
+
+        if (actor.Value.Value is "win" or "lose")
         {
             return;
         }
 
-        _turnTimer += delta;
-        if (_turnTimer < TurnInterval)
+        UnitRuntime? playerUnit = FindPlayerUnit(actor.Value);
+        if (playerUnit is not null)
         {
+            _awaitingPlayer = true;
+            _activeActor = actor.Value;
+            _ui.Refresh(status: $"回合 {Director.Round} · 轮到 {_activeActor}");
             return;
         }
 
-        _turnTimer = 0.0;
-
-        if (Director.IsBattleOver)
-        {
-            _ended = true;
-            GD.Print($"[BattleRoot] 战斗结束（第 {Director.Round} 回合）。MVP 演示停止。");
-            return;
-        }
-
-        // 演示策略：每回合敌方行动 + 两发我方固定动作（重劈 敌1 / 急救 我方满血目标由内核处理）
-        Director.StartTurn(_rng);
-        Director.EnemyPhase(_rng);
-        Director.PlayerUseSkill(new UnitId("warrior"), "warrior_cleave", _rng);
-        Director.PlayerUseSkill(new UnitId("medic"), "medic_first_aid", _rng);
-
-        GD.Print($"[BattleRoot] 回合 {Director.Round}: 敌方剩余 {Director.Enemy.OccupiedPositions(false).Count}, " +
-                 $"我方剩余 {Director.Player.OccupiedPositions(false).Count}, 撤退成功率 {(int)Director.CurrentRetreatRate()}%");
+        Director.EnemyAct(actor.Value, _rng); // 敌方自动
+        _ui.Refresh(status: $"回合 {Director.Round}");
     }
+
+    private void DoUseSkill(UnitId actor, string skillId)
+    {
+        if (!_awaitingPlayer || actor != _activeActor)
+        {
+            return;
+        }
+
+        Director.PlayerUseSkill(actor, skillId, _rng);
+        _awaitingPlayer = false;
+        GD.Print($"[BattleRoot] {actor} 使用 {skillId}");
+    }
+
+    private void DoSwap(UnitId actor, int supportPos)
+    {
+        if (!_awaitingPlayer || actor != _activeActor)
+        {
+            return;
+        }
+
+        bool ok = Director.PlayerSwap(actor, supportPos);
+        GD.Print(ok ? $"[BattleRoot] {actor} 与支援位 {supportPos} 换位" : "[BattleRoot] 换位被拒");
+        _awaitingPlayer = false; // 不论成败均消耗本次行动（发起者已行动）
+    }
+
+    private void DoRetreat()
+    {
+        if (_gameOver)
+        {
+            return;
+        }
+
+        bool success = Director.PlayerRetreat(_rng);
+        if (success || Director.IsBattleOver)
+        {
+            EndGame(success ? "撤退成功" : "撤退失败");
+        }
+        else
+        {
+            _ui.Refresh(status: $"回合 {Director.Round} · 撤退失败，本回合不可再试");
+        }
+    }
+
+    private void EndGame(string what)
+    {
+        _gameOver = true;
+        _awaitingPlayer = false;
+        GD.Print($"[BattleRoot] 战斗结束：{what}（第 {Director.Round} 回合）");
+    }
+
+    private UnitRuntime? FindPlayerUnit(UnitId id)
+        => Director.Player.UnitsInSlotOrder().FirstOrDefault(u => u.Id == id);
+
+    public UnitId ActiveActor => _activeActor;
+    public bool IsAwaitingPlayer => _awaitingPlayer;
+    public bool GameOver => _gameOver;
 }
