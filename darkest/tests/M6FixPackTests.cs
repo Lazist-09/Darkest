@@ -103,7 +103,7 @@ public sealed class M6FixPackTests
         int limit = results.GetValueOrDefault(GameResult.RoundLimit);
         double win = (double)(victory + retreatWin) / runs;
         double avg = (double)totalRounds / runs;
-        int moveUses = skillUses.Where(kv => kv.Key.EndsWith("_move", StringComparison.Ordinal)).Sum(kv => kv.Value);
+        int moveUses = skillUses.Where(kv => kv.Key == "move").Sum(kv => kv.Value); // F1：池外通用 move
         int allUses = skillUses.Values.Sum();
 
         string dist = string.Join(" ", Enumerable.Range(1, 6)

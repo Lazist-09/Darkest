@@ -92,7 +92,7 @@ public sealed record SkillsConfig(
     [property: JsonPropertyName("skills")] IReadOnlyList<SkillTemplateConfig> Skills)
 {
     public const string ResPath = "res://data/skills.json";
-    public const int ExpectedCount = 47; // 36 池内我方 + 4 池外移动 + 7 敌方（v0.45 #180）
+    public const int ExpectedCount = 44; // 36 池内 + 1 通用池外 move + 7 敌方（F1/#191）
 
     /// <summary>按 id 取技能（缺失抛异常——fail-fast）。</summary>
     public SkillTemplateConfig Get(string id)
@@ -193,9 +193,10 @@ public sealed record SkillsConfig(
                 throw new InvalidDataException($"{ResPath}: 技能 id \"{s.Id}\" 缺失或重复（P1）。");
             }
 
-            if (string.IsNullOrWhiteSpace(s.Name) || s.OwnerUnit is not ("warrior" or "tank" or "medic" or "commissar" or "melee_soldier" or "ranged_archer" or "caster"))
+            if (string.IsNullOrWhiteSpace(s.Name) || (s.OwnerUnit is null && !s.PoolExternal) || s.OwnerUnit is "")
             {
-                throw new InvalidDataException($"{ResPath}: \"{s.Id}\" owner_unit 非法（P1）。");
+                throw new InvalidDataException(
+                    $"{ResPath}: \"{s.Id}\" owner_unit 非法（池内必填、池外 move 不填；P1/F1；跨文件存在性由 P1 校验/数据门禁用例核对）。");
             }
 
             ValidateTarget(s);
@@ -343,18 +344,18 @@ public sealed record SkillsConfig(
             }
         }
 
-        // v0.45（#180）：我方各原型 10 = 9 池内 + 1 池外移动；敌方 7 不变
-        if (player.Any(c => c != 10) || enemy is not [2, 3, 2])
+        // F1（#191）：我方各原型池内 9（移动改为通用池外 1 条，不再逐原型各 1 条）；敌方 2/3/2 不变
+        if (player.Any(c => c != 9) || enemy is not [2, 3, 2])
         {
             throw new InvalidDataException(
-                $"{ResPath}: 各原型技能数必须为 10/10/10/10 + 2/3/2（含池外移动；实际 {string.Join("/", player)} + {string.Join("/", enemy)}）。");
+                $"{ResPath}: 各原型池内技能数必须为 9/9/9/9 + 2/3/2（实际 {string.Join("/", player)} + {string.Join("/", enemy)}，F1）。");
         }
     }
 
     /// <summary>P12（#180）：池外移动一致性——pool_external ⇒ move_range+战斗位+无伤害+无效果+无 CD+distance∈{1,2}；反之亦然。</summary>
     private static void ValidatePoolExternalMove(SkillTemplateConfig s)
     {
-        bool isMove = s.Id.EndsWith("_move", StringComparison.Ordinal);
+        bool isMove = s.Id == "move"; // F1（#191）：池外技能唯一 id = "move"（禁止 _move 后缀命名约定）
         if (s.PoolExternal)
         {
             if (!isMove || s.Target.Scope != SkillTargetScope.MoveRange)
@@ -381,9 +382,19 @@ public sealed record SkillsConfig(
                 throw new InvalidDataException($"{ResPath}: \"{s.Id}\" 移动必须无伤害/无效果/无位移/无 CD（P12）。");
             }
 
-            if (s.Target.Distance is not (1 or 2))
+            if (s.OwnerUnit is not null)
             {
-                throw new InvalidDataException($"{ResPath}: \"{s.Id}\" move_range.distance 必须为 1 或 2（P12）。");
+                throw new InvalidDataException($"{ResPath}: \"{s.Id}\" 池外通用技能不得绑定 owner_unit（P12/F1）。");
+            }
+
+            if (s.Target.Distance is not null)
+            {
+                throw new InvalidDataException($"{ResPath}: \"{s.Id}\" 移动距离必须从 units.move_distance 读，技能不得自带 distance（P14/F1）。");
+            }
+
+            if (s.Id.EndsWith("_move", StringComparison.Ordinal))
+            {
+                throw new InvalidDataException($"{ResPath}: 禁止使用 _move 后缀命名池外技能（P12/F1）。");
             }
         }
         else if (s.Target.Scope == SkillTargetScope.MoveRange)
@@ -394,10 +405,10 @@ public sealed record SkillsConfig(
 
     private static void ValidateMoveCount(SkillsConfig cfg)
     {
-        int moves = cfg.Skills.Count(s => s.PoolExternal && s.Id.EndsWith("_move", StringComparison.Ordinal));
-        if (moves != 4)
+        int moves = cfg.Skills.Count(s => s.PoolExternal);
+        if (moves != 1)
         {
-            throw new InvalidDataException($"{ResPath}: 池外移动必须恰 4 条（实际 {moves}，P12）。");
+            throw new InvalidDataException($"{ResPath}: 池外技能必须恰 1 条（通用 move，实际 {moves}，P12/F1）。");
         }
     }
 

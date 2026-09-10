@@ -19,5 +19,6 @@ public static class UnitStatsMapper
             BleedResist: c.BleedResist,
             StatDebuffResist: c.StatDebuffResist,
             DisplaceResist: c.DisplaceResist,
-            DeathsDoorResist: c.DeathsDoorResist);
+            DeathsDoorResist: c.DeathsDoorResist,
+            MoveDistance: c.MoveDistance);
 }

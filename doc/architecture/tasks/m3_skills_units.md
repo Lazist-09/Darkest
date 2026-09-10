@@ -6,6 +6,13 @@
 
 > 本文只写任务卡，不写业务实现。数字、技能名与 `doc/modules/skill_data.md` **逐字一致**，禁止"顺手改数值"。
 
+> ## 🔴 v0.48 口径变更公告（#191，`feat_pack_01` F1.3 落地口径 —— 与下列行冲突时**以本公告为准**）
+> - **技能总量 47 → 44**：36 池内 + **1 条通用 `move`** + 7 敌方（原 4 条 `*_move` 删除）。
+> - **通用 `move` 不绑 `owner_unit`**；**距离不再写在技能里**，改读 `units.json` 的 **`move_distance`**（坦 1 / 战医政 2）；`target.distance` 切片必须为 `null`（P14）。
+> - **池外过滤一律按 `pool_external` 标志**；**禁止** `id.EndsWith("_move")` 或拼接 `$"{archetype}_move"`（#190 去硬编码）。
+> - 校验：**P12 改写**（池外恰 1 条 = `id=="move"`、`owner_unit==null`、`target.distance==null`）+ 新增 **P14**（`move_distance ≥1`）/ **P15**（士气 buff 消费白名单，F2 相关）。
+> - 本文其余处出现"47 条 / 4 条池外移动 / `*_move`"均为 v0.45 口径残留，**随 F1.3 落地一并替换**（决策映射：#191）。
+
 ---
 
 ## 0. 里程碑目标与判据对齐
@@ -65,7 +72,7 @@
 - **依赖**：T-M2 系列（B1 加载管线与只读注册表就绪）+ data_schema.md §3.1（units.json 原型 id 全集，供 owner_unit 落库）
 - **产出**：`res://data/skills.json`（47 条，逐字转写 skill_data §1~§5 + §4.5 池外移动）；`res://scripts/data/` 下强类型模型（SkillTemplate 及子结构 record，字段名与 data_schema §3.2 逐 key 一致）与 Loaders（JSON→校验→绑定→只读快照）；`res://resources/skills/*.tres`（编辑器导入派生，blueprint §7）
 - **要点**：
-  1. **数据总量**：**47 条 = 我方 4 原型各 9 池内 + 4 池外移动（skill_data §4.5）+ 敌方 7 条**（melee_soldier 2 / ranged_archer 3 / caster 2），行号对齐 skill_data §1~§5；记录 id 以 data_schema §3.2「记录索引」为唯一来源（47 个 id，如 `warrior_cleave`…`caster_mental_shock`）。
+  1. **数据总量（v0.48 口径，见顶部公告）**：**44 条 = 我方 4 原型各 9 池内 + 1 条通用 `move`（`pool_external`、不绑 owner_unit）+ 敌方 7 条**（melee_soldier 2 / ranged_archer 3 / caster 2）；移动距离来自 `units.move_distance`（坦 1 / 战医政 2）。记录 id 以 data_schema §3.2「记录索引」为唯一来源。
   2. **13 字段逐字段落模型**（JSON key 一律照 data_schema §3.2/§2.1，C# 类型 PascalCase，下行为契约清单非实现）：
 
      | skill.md 字段 | JSON key | 类型/语义 | skill_data 出处 |
@@ -103,7 +110,7 @@
 - **产出**：`res://scripts/data/Validators.cs`（P1~P3/P12 + 47 断言，判定式照 data_schema §4.2）；`tests/DataGateTests.cs`（数据门禁用例，含扰动反例）
 - **要点**：
   1. **P1 引用完整**：`∀f∈{units,skills,enemy_ai,buff_defs}: ids(f) 无重复`，且 `skills.owner_unit ∪ formation.initial_roster[].unit ⊆ units.id`（data_schema §4.2 P1 逐字）。
-  2. **技能数=47 硬断言**（O-16 / #180）：导入校验断言 `count(skills)==47`（36 池内 + 4 池外移动 + 7 敌方）；README §2 M3 行的"42"按笔误不采用；character.md 草案数值不参与任何校验输入。
+  2. **技能数=44 硬断言**（O-16 / #191，v0.48 口径）：导入校验断言 `count(skills)==44`（36 池内 + 1 通用 `move` + 7 敌方）；池外恰 1 条且 `id=="move"`（**P12 改写 / P14**）；README「42」按笔误不采用；character.md 草案数值不参与任何校验输入。
   3. **P2 技能引用完整**：`target.side ∈ {player,enemy}`；`scope=slots ⇒ 0≤slot≤(side=player?6:4)`（敌方 4 位无支援，GDD §1.5）；`effects[].buff_id`（若有）∈ buff_defs.id；`owner_unit` ∈ units.id（data_schema §4.2 P2）。
   4. **P3 覆盖校验（#180 起只数池内）**：`∀u∈player_units: ∀pos∈1..6: count{s∈skills(u) ∧ ¬pool_external: s.self_slots="all" ∨ pos∈s.self_slots} ≥ 2`（位 1~4 战斗位与 5、6 支援位分别计入），且每角色 ≥1 个 `self_slots="all"` 池内兜底（战吼×2 / 急救 / 战场鼓舞）；**池外移动兜底（#180）**：`∀u: 存在 pool_external 的 *_move`（战斗位 1~4 恒 ≥1 可用技能）——判据基准 = skill_data §6 覆盖表（池内口径）。
   5. **口径差异处理（P3 注，勿误伤）**：skill_data §6 表声明数（战士 5/5/4/3、坦克 7/6/2/2、军医 6/6/4/4、政委 5/5/4/4）与"逐行自数"存在差异（把殊死一搏/战吼/总动员等计入后自数更多为合法），**只按 ≥2 硬校验、以表声明数为下限判据，禁止用"相等"断言**（否则战士位 1/2、坦克位 1/2、政委位 1/3 等格会误红）；细账不阻塞。
@@ -309,3 +316,4 @@
 | 4 | 与 M5 联动：玩家③b 目标选择步、EnemyAi 目标选择、UI 高亮口径 | UI ③b 可用（见 tasks/m5），AI 单体选目标确定性 |
 | 5 | M6 重新基线：combat_math §7.3 / #176 旧基线（46%）作废 | 重跑 ≥300 场，见 tasks/m6 |
 | 6 | **v0.45（#180~#182，O-40）二次改造**：`skills.json` 增 4 条池外移动（总量 47）+ `pool_external` 字段 + `move_range` 目标解析；P3 改池内口径、新增 P12 校验；`SkillTargetResolver` 支持 `move_range`（自身 ±N 被占用位，空位 NoTarget） | 47 断言 + P12 全绿；移动执行 = 与目标位交换（不过抗性、不触发死门 #117）；配合 m5 增援两步命令 `Reinforce(A,B,X)` 与技能栏去内联要求文字 |
+| 7 | **v0.48（#189/#190/#191/#192/#193/#194，O-49~O-53）三次改造**：① 4 条 `*_move` → **1 条通用 `move`**（不绑 owner_unit）+ `units.move_distance`，**44 断言 + P12 改写 + P14**（F1.3/#191）；② 池外过滤改按 `pool_external` 标志（禁 `_move` 后缀，F1.2/#190）；③ 嘲讽 `tank_taunt.target → {scope:self}`、`polarity=positive`、`dispellable=false`（F1.4/#192，字段口径 **O-53**）；④ 美德池 4 项 + 振奋 +3（F2/#193，**P15**）；⑤ 增援 `wave_interval_rounds:3` + 每波补齐（F3/#194） | 44 断言 + P12/P14/P15 全绿；`move_range` 距离取自**施法单位**；`skill_data.md` §4.5 同步为 1 条通用 move |

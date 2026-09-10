@@ -113,7 +113,10 @@ public static class SkillTargetResolver
                     return System.Array.Empty<int>();
                 }
 
-                int n = skill.Target.Distance ?? 0;
+                // F1（#191）：移动射程从【单位】读（units.move_distance），技能不再自带 distance
+                int n = allyBoard.UnitRuntimeAt(from) is { } mover
+                    ? mover.Base.MovementRange
+                    : skill.Target.Distance ?? 0;
                 var moves = new List<int>();
                 for (int pos = 1; pos <= allyBoard.SlotCount; pos++)
                 {

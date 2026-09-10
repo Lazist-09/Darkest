@@ -133,7 +133,7 @@ public static class Policies
         }
 
         // ② 移动条件化：无输出可用时才考虑，且落点须"可用技能数更多"
-        string moveId = $"{unit.ArchetypeId}_move";
+        string moveId = "move"; // F1（#191）：池外通用移动（所有我方单位共用；距离从单位读）
         if (usable.Contains(moveId) && BestMovePos(unit, director, usable) is { } mv)
         {
             return PlayerDecision.Skill(moveId, mv);
@@ -183,11 +183,11 @@ public static class Policies
         }
 
         int CountAt(int pos) => usable.Count(id =>
-            !id.EndsWith("_move", StringComparison.Ordinal) && C.Skills.Get(id).SelfSlots.Allows(pos));
+            !C.Skills.Get(id).PoolExternal && C.Skills.Get(id).SelfSlots.Allows(pos));
 
         int bestCount = CountAt(cur);
         int? bestPos = null;
-        foreach (int pos in SkillTargetResolver.Resolve(C.Skills.Get($"{unit.ArchetypeId}_move"), unit.Id, director.Player, director.Enemy))
+        foreach (int pos in SkillTargetResolver.Resolve(C.Skills.Get("move"), unit.Id, director.Player, director.Enemy))
         {
             int c = CountAt(pos);
             if (c > bestCount)
@@ -294,7 +294,10 @@ public static class Policies
     private static List<string> UsableSkills(UnitRuntime unit, BattleDirector director)
     {
         var usable = new List<string>();
-        string[] owned = C.Skills.Skills.Where(s => s.OwnerUnit == unit.ArchetypeId).Select(s => s.Id).ToArray();
+        // F1（#191）：池内技能（owner 匹配）+ 池外通用技能（owner 不绑，人人可用）
+        string[] owned = C.Skills.Skills
+            .Where(s => (s.OwnerUnit == unit.ArchetypeId || s.PoolExternal))
+            .Select(s => s.Id).ToArray();
         for (int i = 0; i < owned.Length; i++)
         {
             string skillId = owned[i];

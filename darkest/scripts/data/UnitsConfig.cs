@@ -24,7 +24,8 @@ public sealed record UnitConfig(
     [property: JsonPropertyName("stat_debuff_resist")] int StatDebuffResist,
     [property: JsonPropertyName("displace_resist")] int DisplaceResist,
     [property: JsonPropertyName("deaths_door_resist")] int? DeathsDoorResist,
-    [property: JsonPropertyName("skills")] IReadOnlyList<string> Skills)
+    [property: JsonPropertyName("skills")] IReadOnlyList<string> Skills,
+    [property: JsonPropertyName("move_distance")] int MoveDistance = 0)
 {
     public bool IsPlayer => Side == "player";
 }
@@ -110,6 +111,12 @@ public sealed record UnitsConfig(
             if (u.DeathsDoorResist is { } dd && dd is < 0 or > 100)
             {
                 throw new InvalidDataException($"{ResPath}: \"{u.Id}\" deaths_door_resist={dd} 越界 [0,100]。");
+            }
+
+            // F1/P14（#191）：我方原型必须有移动射程（池外 move 从单位读距离）
+            if (u.IsPlayer && u.MoveDistance < 1)
+            {
+                throw new InvalidDataException($"{ResPath}: 我方原型 \"{u.Id}\" move_distance 必须 ≥ 1（P14）。");
             }
 
             // 我方必有死门抗性，敌方必须为 null（P7；enemy §1 敌方无死门）

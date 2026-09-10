@@ -89,7 +89,7 @@ public sealed class PolicyTests
             for (int i = 0; i < 20; i++)
             {
                 PlayerDecision dec = Decide(d, id);
-                Assert.IsFalse(dec.SkillId?.EndsWith("_move") == true,
+                Assert.AreNotEqual("move", dec.SkillId,
                     $"{id} 有可用输出技能时移动不得入池（实际 {dec.SkillId}）");
             }
         }

@@ -186,14 +186,14 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `self_slots` | string \| int[] | `"all"` 或位置数组 | ✅ | 13 字段之 2 | **自身站位要求**。`"all"`=任意位置可用（战吼/急救/战场鼓舞等兜底）；数组元素：我方 1~6（含支援位 5、6）、敌方 1~4（相对本方编号） |
 | `target` | object(TargetSpec) | 见下 | ✅ | 13 字段之 3 | **目标位置**：技能不直接选目标、只选位置（glossary §2） |
 | `damage` | object? | 见下 | ⬜ | 13 字段之 4 | **伤害倍率**；治疗/纯增益类为 null |
-| `hit_mod` | int | 对基础命中的加减（百分点） | ✅ | 13 字段之 5 | skill_data 命中列（+5 / −5 / +0 等） |
+| `hit_mod` | int | 对基础命中的加减（百分点） | ✅ | 13 字段之 5 | skill_data 命中列（+5 / −5 / +0 等）；**`scope=self`/`team`/`adjacent` 类恒 `0` 且引擎不掷命中（占位，O-53）** |
 | `crit_mod` | int | 对基础暴击的加减（百分点） | ✅ | 13 字段之 6 | skill_data 暴击列 |
 | `effects` | array(Effect[]) | 见下 | ✅（可为空数组） | 13 字段之 7 | **附加效果 + 概率**（眩晕/嘲讽/属性减益/护盾/守护等） |
 | `displacement` | object? | 见下 | ⬜ | 13 字段之 8 | **位移效果**（推/拉/自移 + 格数） |
 | `use_limit` | object(UseLimit) | 见下 | ✅ | 13 字段之 9 | **使用限制** |
 | `morale_effects` | array(MoraleEffect[]) | 见下 | ✅（可为空数组） | 13 字段之 10 | **士气影响**（对象+数值）；精神伤害派生士气见下文"士气扣减衔接" |
 | `tags` | string[](FuncTag) | 见 §2.1 | ✅ | 13 字段之 11 | **功能标签**（数组=组合，如 输出+AOE）；skill_data 标签列以"·"连接的词拆入数组 |
-| `range_axis` | string(RangeAxis) | 见 §2.1 | ✅ | 13 字段之 12 | **距离轴** |
+| `range_axis` | string(RangeAxis) | 见 §2.1 | ✅ | 13 字段之 12 | **距离轴**；**`scope=self`/`team` 类恒 `"none"`（无距离轴，O-53——不填 `melee`，避免 UI/AI 误按近战筛选）** |
 | `damage_axis` | string(DamageAxis) | 见 §2.1 | ✅ | 13 字段之 13 | **伤害轴**（决定减免轴、掉不掉士气、护盾/护卫挡不挡，#157） |
 | `heal_fixed` | int? | ≥0，固定值 | ⬜ | combat_math §8 | **治疗固定值**：不吃攻击力。急救 12 / 群体绷带 5（每人）/ 喘息 8、10（自身）。对象随 `target` |
 | `self_damage_fixed` | int? | ≥0，固定值 | ⬜ | combat_math §8 / glossary §3 | **自我伤害固定值**：殊死一搏 6 / 舍身 8。不被护盾吸收、可致死（走死门） |

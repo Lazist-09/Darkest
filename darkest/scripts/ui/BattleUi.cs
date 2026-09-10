@@ -430,7 +430,7 @@ public partial class BattleUi : CanvasLayer
             return Array.Empty<int>();
         }
 
-        return SkillTargetResolver.Resolve(SkillsCfg.Get($"{_host!.ArchetypeOf(actor)}_move"), actor, d.Player, d.Enemy).ToArray();
+        return SkillTargetResolver.Resolve(SkillsCfg.Get("move"), actor, d.Player, d.Enemy).ToArray(); // F1：通用 move
     }
 
     private static string[] SkillPool(string archetype)
@@ -441,7 +441,7 @@ public partial class BattleUi : CanvasLayer
         }
 
         string[] pool = SkillsCfg.Skills
-            .Where(s => s.OwnerUnit == archetype && !s.Id.EndsWith("_move", StringComparison.Ordinal))
+            .Where(s => s.OwnerUnit == archetype && !s.PoolExternal) // F1/P12：按 pool_external 标志过滤（非 id 后缀）
             .Select(s => s.Id).ToArray();
         _poolCache[archetype] = pool;
         return pool;

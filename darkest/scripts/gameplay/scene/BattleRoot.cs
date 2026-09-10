@@ -197,7 +197,7 @@ public partial class BattleRoot : Node2D
             return;
         }
 
-        string moveId = $"{ActiveArchetype}_move";
+        string moveId = "move"; // F1（#191）：池外通用移动技能（距离从单位 move_distance 读）
         SkillTemplateConfig move = _skills.Get(moveId);
         if (SkillTargetResolver.Resolve(move, _activeActor, Director.Player, Director.Enemy).Count == 0)
         {

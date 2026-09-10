@@ -16,7 +16,11 @@ public sealed record UnitStats(
     int BleedResist,
     int StatDebuffResist,
     int DisplaceResist,
-    int? DeathsDoorResist)
+    int? DeathsDoorResist,
+    int MoveDistance = 0)
 {
     public bool HasDeathsDoor => DeathsDoorResist is not null;
+
+    /// <summary>池外「移动」的射程（自身 ±N 格换位；F1/#191 从单位读，不再写在技能上）。</summary>
+    public int MovementRange => MoveDistance;
 }

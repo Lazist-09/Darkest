@@ -6,7 +6,6 @@ using Darkest.Core.Contracts;
 using Darkest.Core.Events;
 using Darkest.Core.Rng;
 using Darkest.Data;
-using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,9 +13,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Darkest.Tests;
 
 /// <summary>
-/// 池外「移动」（#180，O-41）：候选=自身±N 被占用战斗位；执行=与目标位【直接互换】
-/// （原目标位的人到自身原位，途经槽位不动）；不过抗性、无伤害/士气 → 不触发死门（#117）；
-/// 空位不可选 → NoTarget（#21）。距离：坦克 1 / 战士·军医·政委 2（character §7.1b）。
+/// F1（#191）池外通用「移动」：技能 id = `move`（不绑 owner_unit）、射程从**单位** `move_distance` 读
+/// （坦克 1 / 战医政 2）；候选 = 自身 ±N 被占用战斗位；执行=两点直接互换（不过抗性/无伤害/不死门）。
 /// </summary>
 [TestClass]
 public sealed class MoveSkillTests
@@ -26,10 +24,7 @@ public sealed class MoveSkillTests
         private readonly Queue<double> _p;
         private ulong _d;
 
-        public ScriptedRng(params double[] percents)
-        {
-            _p = new Queue<double>(percents);
-        }
+        public ScriptedRng(params double[] percents) => _p = new Queue<double>(percents);
 
         public double NextPercent()
         {
@@ -65,7 +60,6 @@ public sealed class MoveSkillTests
 
     private static (BattleDirector d, SkillsConfig skills, SkillRuntimeState rt) World()
     {
-        var log = new CombatLog();
         var skills = SkillsConfig.Parse(ReadData("skills.json"));
         var rt = new SkillRuntimeState();
         var d = new BattleDirector(
@@ -76,69 +70,69 @@ public sealed class MoveSkillTests
             MoraleEventsConfig.Parse(ReadData("morale_events.json")),
             BuffDefsConfig.Parse(ReadData("buff_defs.json")),
             EnemyAiConfig.Parse(ReadData("enemy_ai.json")),
-            log);
+            new CombatLog());
         d.Morale.Initialize(d.Player.UnitsInSlotOrder());
         return (d, skills, rt);
     }
 
+    private static SkillExecutor Executor(BattleDirector d, SkillsConfig skills, SkillRuntimeState rt)
+        => new(skills, BalanceTable.FromTuning(TuningConfig.Parse(ReadData("tuning.json"))),
+            MoraleEventsConfig.Parse(ReadData("morale_events.json")), d.Log, rt);
+
     [TestMethod]
-    public void MoveRange_Candidates_SelfPlusMinusN_OccupiedCombatOnly()
+    public void MoveCandidates_UseUnitMoveDistance()
     {
         (BattleDirector d, SkillsConfig skills, _) = World();
-        SkillTemplateConfig tankMove = skills.Get("tank_move"); // distance 1
+        SkillTemplateConfig move = skills.Get("move");
 
-        // 坦克在 1：候选仅 2（±1 内被占用战斗位；自身排除）
-        IReadOnlyList<int> c1 = SkillTargetResolver.Resolve(tankMove, UnitId.Of("tank"), d.Player, d.Enemy);
-        CollectionAssert.AreEqual(new[] { 2 }, c1.ToArray(), "距离 1 → 仅相邻战斗位 2");
+        // 坦克（1 位，move_distance 1）→ 仅相邻战斗位 2
+        IReadOnlyList<int> tank = SkillTargetResolver.Resolve(move, UnitId.Of("tank"), d.Player, d.Enemy);
+        CollectionAssert.AreEqual(new[] { 2 }, tank.ToArray(), "坦克距离 1 → 仅 2 位");
 
-        // 战士（距离 2）在 2：候选 = 1..4 中的被占用位（±2 内，排除自身）
-        SkillTemplateConfig warriorMove = skills.Get("warrior_move");
-        IReadOnlyList<int> c2 = SkillTargetResolver.Resolve(warriorMove, UnitId.Of("warrior"), d.Player, d.Enemy);
-        CollectionAssert.AreEqual(new[] { 1, 3, 4 }, c2.ToArray(), "距离 2 → 1/3/4（2 为自身排除）");
+        // 战士（2 位，move_distance 2）→ 1/3/4（排除自身 2）
+        IReadOnlyList<int> warrior = SkillTargetResolver.Resolve(move, UnitId.Of("warrior"), d.Player, d.Enemy);
+        CollectionAssert.AreEqual(new[] { 1, 3, 4 }, warrior.ToArray(), "战士距离 2 → 1/3/4");
     }
 
     [TestMethod]
     public void MoveRange_EmptyNeighbor_NoTarget()
     {
         (BattleDirector d, SkillsConfig skills, _) = World();
-        d.Player.RemoveUnitAt(2); // 坦克唯一相邻位空出
-        IReadOnlyList<int> c = SkillTargetResolver.Resolve(skills.Get("tank_move"), UnitId.Of("tank"), d.Player, d.Enemy);
-        Assert.AreEqual(0, c.Count, "空位不可选 → NoTarget（#21）");
+        d.Player.RemoveUnitAt(2);
+        Assert.AreEqual(0, SkillTargetResolver.Resolve(skills.Get("move"), UnitId.Of("tank"), d.Player, d.Enemy).Count,
+            "空位不可选 → NoTarget（#21）");
     }
 
     [TestMethod]
-    public void Move_Execution_DirectSwap_NoDamageNoMoraleNoDeathDoor_MiddleUntouched()
+    public void Move_Execution_DirectSwap_NoDamageNoMoraleNoDeathDoor()
     {
         (BattleDirector d, SkillsConfig skills, SkillRuntimeState rt) = World();
         var log = d.Log;
-        var executor = new SkillExecutor(skills, BalanceTable.FromTuning(TuningConfig.Parse(ReadData("tuning.json"))),
-            MoraleEventsConfig.Parse(ReadData("morale_events.json")), log, rt);
-        string slot2Before = d.Player.UnitRuntimeAt(2)!.Id.Value;
+        SkillExecutor ex = Executor(d, skills, rt);
         string slot3Before = d.Player.UnitRuntimeAt(3)!.Id.Value;
 
-        // 战士（2 位，距离 2）移动到 4：直接互换 → 战士@4、原4（军医）@2、3 位不动
-        executor.Execute(skills.Get("warrior_move"), UnitId.Of("warrior"), d.Player, d.Enemy,
+        // 战士（2 位，距离 2）移动到 4：直接互换 → 战士@4、原 4（军医）@2、3 位不动
+        ex.Execute(skills.Get("move"), UnitId.Of("warrior"), d.Player, d.Enemy,
             new ScriptedRng(), chosenTargets: new[] { 4 });
 
         Assert.AreEqual("warrior", d.Player.UnitRuntimeAt(4)!.Id.Value, "自身到目标位 4");
-        Assert.AreEqual("medic", d.Player.UnitRuntimeAt(2)!.Id.Value, "原 4 位军医到自身原位 2（直接互换）");
+        Assert.AreEqual("medic", d.Player.UnitRuntimeAt(2)!.Id.Value, "原 4 位军医到自身原位 2");
         Assert.AreEqual(slot3Before, d.Player.UnitRuntimeAt(3)!.Id.Value, "途经 3 位不动");
-        Assert.IsTrue(log.Events.OfType<DisplaceEvent>().Any(e => e.PassedResist), "移动事件（不过抗性）计入位移 KPI");
-        Assert.IsFalse(log.Events.OfType<DamageEvent>().Any(), "移动无伤害");
-        Assert.IsFalse(log.Events.OfType<MoraleEvent>().Any(), "移动无士气变化");
-        Assert.IsFalse(log.Events.OfType<DeathDoorEvent>().Any(), "移动不触发死门（#117）");
+        Assert.IsTrue(log.Events.OfType<DisplaceEvent>().Any(e => e.PassedResist), "移动事件（不过抗性）");
+        Assert.AreEqual(0, log.Events.OfType<DamageEvent>().Count(), "移动无伤害");
+        Assert.AreEqual(0, log.Events.OfType<MoraleEvent>().Count(), "移动无士气变化");
+        Assert.AreEqual(0, log.Events.OfType<DeathDoorEvent>().Count(), "移动不触发死门（#117）");
     }
 
     [TestMethod]
-    public void Move_Execution_ChosenOutsideCandidates_IgnoredOrFallback()
+    public void Move_Execution_ChosenOutsideCandidates_UsesOnlyCandidate()
     {
         (BattleDirector d, SkillsConfig skills, SkillRuntimeState rt) = World();
-        var executor = new SkillExecutor(skills, BalanceTable.FromTuning(TuningConfig.Parse(ReadData("tuning.json"))),
-            MoraleEventsConfig.Parse(ReadData("morale_events.json")), d.Log, rt);
+        SkillExecutor ex = Executor(d, skills, rt);
         string slot1Before = d.Player.UnitRuntimeAt(1)!.Id.Value;
 
-        // 坦克（1 位，距离 1）候选唯一（仅 2）→ 不进入选一分支，指定非法目标 4 被忽略（按唯一候选执行）
-        executor.Execute(skills.Get("tank_move"), UnitId.Of("tank"), d.Player, d.Enemy,
+        // 坦克唯一候选 2；指定非法 4 → 按唯一候选执行
+        ex.Execute(skills.Get("move"), UnitId.Of("tank"), d.Player, d.Enemy,
             new ScriptedRng(0.0), chosenTargets: new[] { 4 });
 
         Assert.AreEqual("warrior", d.Player.UnitRuntimeAt(1)!.Id.Value, "唯一候选 2 → 2 位战士到 1");

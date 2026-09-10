@@ -34,28 +34,34 @@ public sealed class DataGateTests
     }
 
     [TestMethod]
-    public void SkillsJson_ImportsAll47_NoException()
+    public void SkillsJson_ImportsAll44_NoException()
     {
         SkillsConfig cfg = LoadSkills();
-        Assert.AreEqual(47, cfg.Skills.Count, "v0.45：技能数 = 47（36 池内我方 + 4 池外移动 + 7 敌方，#180）");
+        Assert.AreEqual(44, cfg.Skills.Count, "F1（#191）：技能数 = 44（36 池内我方 + 1 通用池外 move + 7 敌方）");
     }
 
     [TestMethod]
-    public void Sampling_MoveSkills_Fieldwise_P12()
+    public void Sampling_GenericMove_Fieldwise_P12_P14()
     {
         SkillsConfig cfg = LoadSkills();
-        SkillTemplateConfig tankMove = cfg.Get("tank_move");
-        Assert.AreEqual("移动", tankMove.Name);
-        Assert.IsTrue(tankMove.PoolExternal, "池外常备");
-        Assert.AreEqual(SkillTargetScope.MoveRange, tankMove.Target.Scope);
-        Assert.AreEqual(1, tankMove.Target.Distance, "坦克距离 1（character §7.1b）");
-        CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, tankMove.SelfSlots.Slots.ToArray());
-        Assert.IsNull(tankMove.Damage, "无伤害（不触发死门 #117）");
-        Assert.AreEqual(UseLimitType.None, tankMove.UseLimit.Type);
-        Assert.AreEqual(2, cfg.Get("warrior_move").Target.Distance, "战士距离 2");
-        Assert.AreEqual(2, cfg.Get("medic_move").Target.Distance);
-        Assert.AreEqual(2, cfg.Get("commissar_move").Target.Distance);
-        Assert.AreEqual(4, cfg.Skills.Count(s => s.PoolExternal), "池外恰 4 条（P12）");
+        SkillTemplateConfig move = cfg.Get("move");
+        Assert.AreEqual("移动", move.Name);
+        Assert.IsTrue(move.PoolExternal, "池外常备");
+        Assert.IsNull(move.OwnerUnit, "F1：通用 move 不绑 owner_unit（人人可用）");
+        Assert.AreEqual(SkillTargetScope.MoveRange, move.Target.Scope);
+        Assert.IsNull(move.Target.Distance, "F1/P14：距离从 units.move_distance 读，技能不得自带 distance");
+        CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, move.SelfSlots.Slots.ToArray());
+        Assert.IsNull(move.Damage, "无伤害（不触发死门 #117）");
+        Assert.AreEqual(UseLimitType.None, move.UseLimit.Type);
+        Assert.AreEqual(1, cfg.Skills.Count(s => s.PoolExternal), "池外恰 1 条（P12/F1）");
+        Assert.AreEqual(0, cfg.Skills.Count(s => s.Id.EndsWith("_move", StringComparison.Ordinal)), "禁止 _move 后缀命名");
+
+        // P14：每原型移动距离（单位属性，坦克 1 / 战医政 2）
+        UnitsConfig units = UnitsConfig.Parse(File.ReadAllText(FindDataFile("units.json")));
+        Assert.AreEqual(1, units.Get("tank").MoveDistance, "坦克移动距离 1");
+        Assert.AreEqual(2, units.Get("warrior").MoveDistance, "战士移动距离 2");
+        Assert.AreEqual(2, units.Get("medic").MoveDistance, "军医移动距离 2");
+        Assert.AreEqual(2, units.Get("commissar").MoveDistance, "政委移动距离 2");
     }
 
     [TestMethod]
