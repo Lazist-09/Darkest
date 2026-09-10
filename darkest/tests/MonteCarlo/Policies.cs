@@ -54,32 +54,156 @@ public static class Policies
         return actions;
     }
 
-    /// <summary>单单位决策（导演 actor 节拍用）：SemiRandom 含基础智能增援（#181 两步）+ 移动（#180）；Baseline 指定最低血目标。</summary>
+    /// <summary>单单位决策（P2/O-42 规则化启发式；Baseline 保持独立对照）。rng 保留以兼容 actor 节拍签名。</summary>
     public static PlayerDecision DecideForUnit(PolicyKind kind, UnitRuntime unit, BattleDirector director, IRngProvider rng)
     {
-        if (kind == PolicyKind.SemiRandom)
-        {
-            (int bSlot, int xSlot)? reinf = ReinforceNeeded(unit, director);
-            if (reinf is { } r)
-            {
-                return PlayerDecision.Reinforce(r.bSlot, r.xSlot);
-            }
-        }
-
+        _ = rng; // P2：SemiRandom 不再权重随机，改为可解释规则
         if (kind == PolicyKind.Baseline)
         {
             string? skillId = PickBaseline(unit, director);
-            int? target = LowestHpTargetSlot(skillId, unit, director);
-            return PlayerDecision.Skill(skillId ?? "", target);
+            return PlayerDecision.Skill(skillId ?? "", LowestHpTargetSlot(skillId, unit, director));
         }
 
-        return PlayerDecision.Skill(PickSemiRandom(unit, director, rng) ?? "");
+        return DecideRuleBased(unit, director);
     }
 
-    /// <summary>基础智能增援（#176/#181）：战斗位虚弱者 A → 换入健康支援位（优先军医/政委）到 A 的槽位。</summary>
+    /// <summary>
+    /// P2 启发式（规则化、可解释，不做全局最优搜索）：
+    /// ④ 增援（虚弱 / HP%<30% 拉起）→ ③ 治疗（仅真伤员，最低 HP%）→ ① 输出（集火最低 HP；AOE 全池）
+    /// → ② 移动条件化（无输出可用且换位能提升可用技能数）→ ⑤ 控制（打攻击力最高者）→ 兜底支援。
+    /// </summary>
+    private static PlayerDecision DecideRuleBased(UnitRuntime unit, BattleDirector director)
+    {
+        if (ReinforceNeeded(unit, director) is { } r)
+        {
+            return PlayerDecision.Reinforce(r.bSlot, r.xSlot);
+        }
+
+        List<string> usable = UsableSkills(unit, director);
+        if (usable.Count == 0)
+        {
+            return PlayerDecision.None;
+        }
+
+        // ③ 治疗：只救真伤员（HP% < 60%），目标 = 最低 HP% 友方；全体健康 → 治疗不入池
+        string? heal = usable.FirstOrDefault(id => C.Skills.Get(id).HealFixed is not null);
+        if (heal is not null && LowestHpPctAlly(director) is { } wounded)
+        {
+            return PlayerDecision.Skill(heal, wounded);
+        }
+
+        List<string> nonHeal = usable.Where(id => C.Skills.Get(id).HealFixed is null).ToList();
+
+        // ① 输出：优先"能打到全场最低 HP 敌人"的单体（集火收残）；否则 AOE（≥2 目标时全池）；目标平局取槽号小
+        List<string> outputs = nonHeal.Where(id => C.Skills.Get(id).Damage is not null).ToList();
+        if (outputs.Count > 0)
+        {
+            UnitRuntime? weakest = director.Enemy.UnitsInSlotOrder()
+                .OrderBy(u => u.CurrentHp)
+                .ThenBy(u => director.Enemy.UnitAtPosition(u.Id) ?? 9)
+                .FirstOrDefault();
+            int? weakestSlot = weakest is null ? null : director.Enemy.UnitAtPosition(weakest.Id);
+
+            foreach (string id in outputs)
+            {
+                SkillTemplateConfig s = C.Skills.Get(id);
+                if (s.Tags.Contains(FuncTag.Aoe))
+                {
+                    continue;
+                }
+
+                IReadOnlyList<int> cand = SkillTargetResolver.Resolve(s, unit.Id, director.Player, director.Enemy);
+                if (weakestSlot is { } ws && cand.Contains(ws))
+                {
+                    return PlayerDecision.Skill(id, ws); // 集火
+                }
+            }
+
+            string? aoe = outputs.FirstOrDefault(id => C.Skills.Get(id).Tags.Contains(FuncTag.Aoe));
+            if (aoe is not null)
+            {
+                return PlayerDecision.Skill(aoe, null); // AOE 全池（无需指定）
+            }
+
+            string any = outputs[0];
+            IReadOnlyList<int> cands = SkillTargetResolver.Resolve(C.Skills.Get(any), unit.Id, director.Player, director.Enemy);
+            int? fallbackTarget = cands.OrderBy(p => director.Enemy.UnitRuntimeAt(p)?.CurrentHp ?? int.MaxValue)
+                .ThenBy(p => p).Select(p => (int?)p).FirstOrDefault();
+            return PlayerDecision.Skill(any, fallbackTarget);
+        }
+
+        // ② 移动条件化：无输出可用时才考虑，且落点须"可用技能数更多"
+        string moveId = $"{unit.ArchetypeId}_move";
+        if (usable.Contains(moveId) && BestMovePos(unit, director, usable) is { } mv)
+        {
+            return PlayerDecision.Skill(moveId, mv);
+        }
+
+        // ⑤ 控制/位移：对己方威胁最高（攻击力最高）的敌人
+        string? ctrl = nonHeal.FirstOrDefault(id => C.Skills.Get(id).Tags.Contains(FuncTag.Control));
+        if (ctrl is not null)
+        {
+            IReadOnlyList<int> cand = SkillTargetResolver.Resolve(C.Skills.Get(ctrl), unit.Id, director.Player, director.Enemy);
+            int? tough = cand.OrderBy(p => -(director.Enemy.UnitRuntimeAt(p)?.Base.Attack ?? 0))
+                .ThenBy(p => p).Select(p => (int?)p).FirstOrDefault();
+            return PlayerDecision.Skill(ctrl, tough);
+        }
+
+        return PlayerDecision.Skill(nonHeal.FirstOrDefault() ?? usable[0], null);
+    }
+
+    /// <summary>③ 最低 HP% 友方（含自身）；无真伤员（HP% ≥ 60%）→ null。</summary>
+    private static int? LowestHpPctAlly(BattleDirector director)
+    {
+        int? best = null;
+        double bestPct = 0.6;
+        foreach (UnitRuntime ally in director.Player.UnitsInSlotOrder())
+        {
+            double pct = ally.MaxHp > 0 ? (double)ally.CurrentHp / ally.MaxHp : 1.0;
+            int? slot = director.Player.UnitAtPosition(ally.Id);
+            if (slot is null || pct >= bestPct)
+            {
+                continue;
+            }
+
+            bestPct = pct;
+            best = slot;
+        }
+
+        return best;
+    }
+
+    /// <summary>② 移动条件化：候选落点中"可用技能数"最大且严格优于当前位；无收益 → null。</summary>
+    private static int? BestMovePos(UnitRuntime unit, BattleDirector director, List<string> usable)
+    {
+        int cur = director.Player.UnitAtPosition(unit.Id) ?? -1;
+        if (cur < 1)
+        {
+            return null;
+        }
+
+        int CountAt(int pos) => usable.Count(id =>
+            !id.EndsWith("_move", StringComparison.Ordinal) && C.Skills.Get(id).SelfSlots.Allows(pos));
+
+        int bestCount = CountAt(cur);
+        int? bestPos = null;
+        foreach (int pos in SkillTargetResolver.Resolve(C.Skills.Get($"{unit.ArchetypeId}_move"), unit.Id, director.Player, director.Enemy))
+        {
+            int c = CountAt(pos);
+            if (c > bestCount)
+            {
+                bestCount = c;
+                bestPos = pos;
+            }
+        }
+
+        return bestPos;
+    }
+
+    /// <summary>增援（#176/#181 + P2④）：战斗位【虚弱 或 HP% &lt; 30%】→ 换入健康支援位（优先军医）到其槽位。</summary>
     private static (int bSlot, int xSlot)? ReinforceNeeded(UnitRuntime unit, BattleDirector director)
     {
-        if (director.SwappedThisRound || !unit.Weak)
+        if (director.SwappedThisRound)
         {
             return null;
         }
@@ -90,12 +214,18 @@ public static class Policies
             return null; // 发起者须在战斗位
         }
 
+        bool critical = unit.MaxHp > 0 && (double)unit.CurrentHp / unit.MaxHp < 0.30;
+        if (!unit.Weak && !critical)
+        {
+            return null;
+        }
+
         int priority(string archetype) => archetype switch { "medic" => 0, "commissar" => 1, _ => 2 };
         int? best = null;
         foreach (int slot in director.Player.Layout.SupportSlots)
         {
             UnitRuntime? ally = director.Player.UnitRuntimeAt(slot);
-            if (ally is null || ally.Weak)
+            if (ally is null || ally.Weak || ally.Id == unit.Id)
             {
                 continue;
             }
@@ -123,7 +253,7 @@ public static class Policies
             return null;
         }
 
-        IReadOnlyList<int> candidates = SkillTargetResolver.Resolve(s, unit.Id, director.Enemy, director.Player);
+        IReadOnlyList<int> candidates = SkillTargetResolver.Resolve(s, unit.Id, director.Player, director.Enemy); // 参数序：player 板在前
         UnitRuntime? lowest = director.Enemy.UnitsInSlotOrder().OrderBy(u => u.CurrentHp).FirstOrDefault();
         if (lowest is null)
         {
@@ -132,67 +262,6 @@ public static class Policies
 
         int? lowestSlot = director.Enemy.UnitAtPosition(lowest.Id);
         return lowestSlot is { } ls && candidates.Contains(ls) ? ls : null;
-    }
-
-    /// <summary>
-    /// 基础智能换位（拍板）：战斗位虚弱者发起 → 换入健康支援位（优先军医/政委；同回合 ≤1 次）。
-    /// 返回支援位槽位（无可换 → null）。
-    /// </summary>
-    private static int? SwapSupportNeeded(UnitRuntime unit, BattleDirector director)
-    {
-        if (director.SwappedThisRound || !unit.Weak)
-        {
-            return null;
-        }
-
-        int pos = director.Player.UnitAtPosition(unit.Id) ?? -1;
-        if (pos is < 1 or > 4)
-        {
-            return null; // 发起者须在战斗位
-        }
-
-        // 支援位占用者，优先军医/政委（按原型匹配；实例 id 已唯一化）
-        int priority(string archetype) => archetype switch { "medic" => 0, "commissar" => 1, _ => 2 };
-        int? best = null;
-        foreach (int slot in director.Player.Layout.SupportSlots)
-        {
-            UnitRuntime? ally = director.Player.UnitRuntimeAt(slot);
-            if (ally is null || ally.Weak)
-            {
-                continue;
-            }
-
-            if (best is null || priority(ally.ArchetypeId) < priority(director.Player.UnitRuntimeAt(best.Value)!.ArchetypeId))
-            {
-                best = slot;
-            }
-        }
-
-        return best;
-    }
-
-    private static string? PickSemiRandom(UnitRuntime unit, BattleDirector director, IRngProvider rng)
-    {
-        List<string> usable = UsableSkills(unit, director);
-        if (usable.Count == 0)
-        {
-            return null;
-        }
-
-        // 标签权重：output ×3 / displacement ×2 / 其余 ×1（避免只集火单调）
-        var pool = new List<string>();
-        foreach (string id in usable)
-        {
-            SkillTemplateConfig s = C.Skills.Get(id);
-            int weight = s.Tags.Contains(FuncTag.Output) ? 3
-                : s.Tags.Contains(FuncTag.Displacement) ? 2 : 1;
-            for (int i = 0; i < weight; i++)
-            {
-                pool.Add(id);
-            }
-        }
-
-        return pool[rng.NextInt(0, pool.Count)];
     }
 
     private static string? PickBaseline(UnitRuntime unit, BattleDirector director)
@@ -210,7 +279,7 @@ public static class Policies
                     return false;
                 }
 
-                IReadOnlyList<int> targets = SkillTargetResolver.Resolve(s, unit.Id, director.Enemy, director.Player);
+                IReadOnlyList<int> targets = SkillTargetResolver.Resolve(s, unit.Id, director.Player, director.Enemy); // 参数序：player 板在前
                 return targets.Contains(lowestSlot);
             });
             if (covering is not null)

@@ -87,6 +87,7 @@ public sealed class SkillExecutor
             {
                 pick = candidates[rng.NextInt(0, candidates.Length)];
                 _log.Append(new RngDraw(rng.DrawCount, pick));
+                _log.Append(new EffectEvent(caster, "no_policy_fallback", 100.0, true)); // P2：无策略目标时的兜底标注（便于识别测量口径缺陷）
             }
 
             execTargets = new[] { pick };
