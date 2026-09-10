@@ -336,21 +336,33 @@ public sealed class BattleDirector
             return;
         }
 
-        int emptySlot = Enumerable.Range(1, _enemy.SlotCount).FirstOrDefault(s => _enemy.GetSlot(s) == SlotState.Empty, 0);
-        if (emptySlot == 0)
+        // F3（#194）：首波 trigger_round，此后每 wave_interval_rounds 一波（6/9/12…）
+        int interval = Math.Max(1, o.WaveIntervalRounds);
+        if ((_round - o.TriggerRound) % interval != 0)
         {
-            // 满编分支：不给新单位，改为给在场敌人上 +攻/+速（O-20 占位数值）——"有空位才填、无空位才上增益"
+            return; // 非波次回合：不触发（修复"每回合都触发"偏差）
+        }
+
+        int[] empties = Enumerable.Range(1, _enemy.SlotCount)
+            .Where(s => _enemy.GetSlot(s) == SlotState.Empty)
+            .ToArray();
+        if (empties.Length == 0)
+        {
+            // 满编分支：给在场全体敌人 +攻/+速（O-20 占位数值；每波叠加一次）
             BuffAllEnemies(_enemy);
             return;
         }
 
-        // 有空位分支：按原型轮换填入（默认起手值，无随机分布；不超 4 位上限）
-        string archetype = _reinforcePool[_reinforcementCount % _reinforcePool.Length];
-        _reinforcementCount++;
-        var unit = new UnitRuntime(UnitId.Of(archetype), FormationSide.Enemy,
-            UnitStatsMapper.From(_units.Get(archetype)));
-        _enemy.PlaceUnitAt(emptySlot, unit);
-        _log.Append(new ReinforcementEvent("Fill", unit.Id, emptySlot));
+        // 有空位分支：**一次性补齐当时全部空位**（按原型轮换，默认起手值；不超 4 位上限）
+        foreach (int slot in empties)
+        {
+            string archetype = _reinforcePool[_reinforcementCount % _reinforcePool.Length];
+            _reinforcementCount++;
+            var unit = new UnitRuntime(UnitId.Of(archetype), FormationSide.Enemy,
+                UnitStatsMapper.From(_units.Get(archetype)));
+            _enemy.PlaceUnitAt(slot, unit);
+            _log.Append(new ReinforcementEvent("Fill", unit.Id, slot));
+        }
     }
 
     private void BuffAllEnemies(FormationBoard board)

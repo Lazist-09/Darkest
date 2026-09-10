@@ -48,12 +48,13 @@ public sealed record TuningGuardRedirect(
     [property: JsonPropertyName("max_per_turn")] int MaxPerTurn,
     [property: JsonPropertyName("physical_only")] bool PhysicalOnly);
 
-/// <summary>超时增援（GDD §1.5.2，第 6 回合；O-20 增益数值占位可配，禁止拍死在内核）。</summary>
+/// <summary>超时增援（GDD §1.5.2；#194：首波 trigger_round、此后每 wave_interval_rounds 一波、每波补齐全部空位）。</summary>
 public sealed record TuningOvertimeReinforcement(
     [property: JsonPropertyName("trigger_round")] int TriggerRound,
     [property: JsonPropertyName("fill_or_buff")] string FillOrBuff,
     [property: JsonPropertyName("buff_attack_delta")] int BuffAttackDelta,
-    [property: JsonPropertyName("buff_speed_delta")] int BuffSpeedDelta);
+    [property: JsonPropertyName("buff_speed_delta")] int BuffSpeedDelta,
+    [property: JsonPropertyName("wave_interval_rounds")] int WaveIntervalRounds = 3);
 
 /// <summary>敌方每回合行动次数（默认 1；M6 探针验证行动不对称调节，数据可表达，不做代码拍死）。</summary>
 public sealed record EnemyActionsPerTurn(int Value);
