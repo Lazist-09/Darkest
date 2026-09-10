@@ -1,5 +1,6 @@
 using System.Linq;
 using Darkest.Core.Contracts;
+using Darkest.Core.Events;
 using Darkest.Core.Rng;
 using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
@@ -24,20 +25,41 @@ public partial class BattleRoot : Node2D
     private bool _awaitingPlayer;
     private UnitId _activeActor = new("-");
     private bool _gameOver;
+    private long _seed = 20260909L;
 
     public override void _Ready()
+    {
+        NewGame();
+        GD.Print("[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算；R 重开（新 seed）。");
+    }
+
+    public override void _UnhandledInput(InputEvent e)
+    {
+        if (e is InputEventKey { Pressed: true, PhysicalKeycode: Key.R })
+        {
+            NewGame();
+            GD.Print($"[BattleRoot] 重开（seed={_seed}）");
+        }
+    }
+
+    private void NewGame()
     {
         var handle = DirectorBridge.BuildFromRes(this);
         Director = handle.Core;
         Projector = handle.Projector;
-        _rng = new RngProvider(20260909L);
+        _rng = new RngProvider(++_seed);
+        _awaitingPlayer = false;
+        _gameOver = false;
+        _activeActor = new("-");
 
-        _ui = GetNode<BattleUi>("BattleUi");
+        if (_ui is null)
+        {
+            _ui = GetNode<BattleUi>("BattleUi");
+        }
+
         _ui.Bind(host: this, useSkill: (actor, skillId) => DoUseSkill(actor, skillId),
             swap: (actor, supportPos) => DoSwap(actor, supportPos),
             retreat: () => DoRetreat());
-
-        GD.Print("[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算。关闭自动演示，玩家驱动。");
     }
 
     public override void _Process(double delta)
@@ -135,7 +157,17 @@ public partial class BattleRoot : Node2D
     {
         _gameOver = true;
         _awaitingPlayer = false;
-        GD.Print($"[BattleRoot] 战斗结束：{what}（第 {Director.Round} 回合）");
+        // T-M6-07 系统触发日志（供试玩报告填写）
+        var events = Director.Log.Events;
+        int collapse = events.OfType<CollapseResultEvent>().Count();
+        int weak = events.OfType<WeakEnterEvent>().Count();
+        int dd = events.OfType<DeathDoorEvent>().Count();
+        bool retreat = events.OfType<RetreatEvent>().Any();
+        int virtue = events.OfType<CollapseResultEvent>().Count(e => e.Kind == "Virtue");
+        int aff = events.OfType<CollapseResultEvent>().Count(e => e.Kind == "Affliction");
+        int disp = events.OfType<DisplaceEvent>().Count();
+        GD.Print($"[BattleRoot] 战斗结束：{what}（第 {Director.Round} 回合）。系统触发：士气触底 {collapse} / 虚弱 {weak} / 死门 {dd} / " +
+                 $"撤退出现 {retreat} / 美德 {virtue} / 折磨 {aff} / 位移 {disp}。按 R 重开。");
     }
 
     private UnitRuntime? FindPlayerUnit(UnitId id)
