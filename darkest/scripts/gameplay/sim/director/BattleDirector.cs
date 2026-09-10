@@ -111,15 +111,19 @@ public sealed class BattleDirector
     public void PlayerUseSkill(UnitId actor, string skillId, IRngProvider rng)
         => _executor.Execute(_skills.Get(skillId), actor, _player, _enemy, rng);
 
-    /// <summary>敌方阶段：槽位升序逐敌经 EnemyAi 决策并执行（与 headless 基线同源 #9.10）。</summary>
+    /// <summary>敌方阶段：槽位升序逐敌经 EnemyAi 决策并执行（行动次数读 tuning.enemy_actions_per_round，探针可调）。</summary>
     public void EnemyPhase(IRngProvider rng)
     {
-        foreach (UnitRuntime enemyUnit in _enemy.UnitsInSlotOrder())
+        int actions = Math.Max(1, _balance.Tuning.EnemyActionsPerRound);
+        for (int k = 0; k < actions; k++)
         {
-            SkillChoice? choice = _ai.Choose(enemyUnit, _enemy, _player, _buffs, rng, _log);
-            if (choice is not null)
+            foreach (UnitRuntime enemyUnit in _enemy.UnitsInSlotOrder().ToArray())
             {
-                _executor.Execute(_skills.Get(choice.SkillId), enemyUnit.Id, _player, _enemy, rng);
+                SkillChoice? choice = _ai.Choose(enemyUnit, _enemy, _player, _buffs, rng, _log);
+                if (choice is not null)
+                {
+                    _executor.Execute(_skills.Get(choice.SkillId), enemyUnit.Id, _player, _enemy, rng);
+                }
             }
         }
     }

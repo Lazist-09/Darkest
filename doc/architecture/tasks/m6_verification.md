@@ -264,4 +264,18 @@ M6 整体通过 = 下列全部满足（对应 verification §5 验收清单）�
 2. **KPI 单场下限**：胜率回到带内后，死门≥3/场需要把"进入虚弱后再被集火"场景增多——建议在 B 区迭代后复测；同动作死亡靠齐已由内核保证（无软锁）。
 3. 峰值验证命令（本机）：`dotnet test --filter Name~M6Acceptance`（300 场 ~1.5s）；修改建议的 override 可在 `HeadlessDriver.RunMany(..., tweak)` 中逐组试跑，找到带内组合后再落 data JSON（由数值迭代方执行）。
 
+### override 组合探针（2026-09-09，150 场/组合，SemiRandom，seedBase=20260909；`tests/OverrideProbeTests.cs`）
+
+| 组合 | 胜率 | avgRounds | 备注 |
+|---|---|---|---|
+| P0 当前数据 | 100% | 2.95 | 基线 |
+| P1 敌方 HP+20%（60/46/41） | 100% | 3.30 | 拉长但胜率不动 |
+| P2 =P1+玩家倍率下调（cleave0.9/lunge0.8/doubleHit0.5/charge1.0） | 100% | 3.29 | 效应微弱 |
+| P3 =P2+施法者 CD1 | 100% | 3.29 | 施法者 3 回合内基本不打第二发，无感 |
+| P4 敌方每回合行动×2（新增 tuning.enemy_actions_per_round=2） | 100% | 3.09 | 敌方压力明显上升（weak 41→301） |
+| P5 =P4+玩家倍率下调 | 100% | 3.12 | — |
+| P6 =P5+敌方 HP+20% | **97%** | **4.01** | 首阶有效组合；weak 437/150≈2.9/场（接近单场下限） |
+
+**结论**：主导变量 = **行动不对称**（我方 6 对敌方 4 × 行动次数）；HP/倍率为次要叠加。首阶 override 建议 = { `enemy_actions_per_round: 2`；enemy HP 60/46/41；cleave 0.9 / lunge 0.8 / doubleHit 0.5 / charge 1.0 }（当前胜率仍 97% 高于带内，欲压向 40~70% 需行动×3 或移除我方支援位作战权重——策略位，二选一并由策划拍板）。
+
 > 共 7 张任务卡（T-M6-01 ~ T-M6-07），均遵守 _conventions.md §6 模板。

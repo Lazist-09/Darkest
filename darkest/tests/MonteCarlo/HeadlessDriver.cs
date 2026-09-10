@@ -34,14 +34,16 @@ public sealed record SimulationReport(int Runs, double WinRate, double AvgRounds
 /// </summary>
 public static class HeadlessDriver
 {
-    public static BattleDirector NewDirector(CombatLog log) => DirectorBuilders.Build(log);
+    public static BattleDirector NewDirector(CombatLog log) => DirectorBuilders.Build(log, null, null, null);
 
-    /// <summary>单场模拟：返回结果 + 事件日志（供确定性留档）。</summary>
+    /// <summary>单场模拟：返回结果 + 事件日志（供确定性留档）。支持三类数据覆盖（探针/override 语义）。</summary>
     public static (GameOutcome outcome, CombatLog log) Run(long seed, PolicyKind policy,
-        Func<TuningConfig, TuningConfig>? tweak = null)
+        Func<TuningConfig, TuningConfig>? tweak = null,
+        Func<UnitsConfig, UnitsConfig>? unitsTweak = null,
+        Func<SkillsConfig, SkillsConfig>? skillsTweak = null)
     {
         CombatLog log = new();
-        BattleDirector director = DirectorBuilders.Build(log, tweak);
+        BattleDirector director = DirectorBuilders.Build(log, tweak, unitsTweak, skillsTweak);
         var rng = new RngProvider(seed);
         var skillUses = new Dictionary<string, int>();
         var moraleHistogram = new Dictionary<int, int>();
@@ -107,14 +109,16 @@ public static class HeadlessDriver
 
     /// <summary>批量（含并行分片：Des Epoch 每场独立 seed；T-M6-01 要点 6）。</summary>
     public static SimulationReport RunMany(int runs, PolicyKind policy, long seedBase = 20260909,
-        Func<TuningConfig, TuningConfig>? tweak = null)
+        Func<TuningConfig, TuningConfig>? tweak = null,
+        Func<UnitsConfig, UnitsConfig>? unitsTweak = null,
+        Func<SkillsConfig, SkillsConfig>? skillsTweak = null)
     {
         var outcomes = new List<GameOutcome>();
         CombatLog? lastLog = null;
         var playerDamage = new Dictionary<string, int>();
         for (int i = 0; i < runs; i++)
         {
-            (GameOutcome o, CombatLog log) = Run(seedBase + i, policy, tweak);
+            (GameOutcome o, CombatLog log) = Run(seedBase + i, policy, tweak, unitsTweak, skillsTweak);
             outcomes.Add(o);
             foreach (DamageEvent d in log.Events.OfType<DamageEvent>().Where(d => d.Attacker is not null))
             {
@@ -182,7 +186,8 @@ public static class HeadlessDriver
 
     private static class DirectorBuilders
     {
-        public static BattleDirector Build(CombatLog log, Func<TuningConfig, TuningConfig>? tweak = null)
+        public static BattleDirector Build(CombatLog log, Func<TuningConfig, TuningConfig>? tweak,
+            Func<UnitsConfig, UnitsConfig>? unitsTweak, Func<SkillsConfig, SkillsConfig>? skillsTweak)
         {
             TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
             if (tweak is not null)
@@ -190,10 +195,22 @@ public static class HeadlessDriver
                 tuning = tweak(tuning);
             }
 
+            UnitsConfig units = UnitsConfig.Parse(ReadData("units.json"));
+            if (unitsTweak is not null)
+            {
+                units = unitsTweak(units);
+            }
+
+            SkillsConfig skills = SkillsConfig.Parse(ReadData("skills.json"));
+            if (skillsTweak is not null)
+            {
+                skills = skillsTweak(skills);
+            }
+
             return new BattleDirector(
                 FormationConfig.Parse(ReadData("formation.json")),
-                UnitsConfig.Parse(ReadData("units.json")),
-                SkillsConfig.Parse(ReadData("skills.json")),
+                units,
+                skills,
                 BalanceTable.FromTuning(tuning),
                 MoraleEventsConfig.Parse(ReadData("morale_events.json")),
                 BuffDefsConfig.Parse(ReadData("buff_defs.json")),

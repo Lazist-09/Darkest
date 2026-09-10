@@ -21,6 +21,7 @@
   "affliction_proc_percent": 33,
   "guard_redirect": { "max_per_turn": 1, "physical_only": true },
   "overtime_reinforcement": { "trigger_round": 6, "fill_or_buff": "fill_empty_then_buff_present", "buff_attack_delta": 3, "buff_speed_delta": 3 },
+  "enemy_actions_per_round": 1,
   "bleed": { "per_round_damage": 3, "rounds": 2 },
   "stat_debuff_default": { "delta": -3, "rounds": 2 },
   "stun": { "effect": "skip_own_action" },

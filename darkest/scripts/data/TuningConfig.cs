@@ -55,6 +55,9 @@ public sealed record TuningOvertimeReinforcement(
     [property: JsonPropertyName("buff_attack_delta")] int BuffAttackDelta,
     [property: JsonPropertyName("buff_speed_delta")] int BuffSpeedDelta);
 
+/// <summary>敌方每回合行动次数（默认 1；M6 探针验证行动不对称调节，数据可表达，不做代码拍死）。</summary>
+public sealed record EnemyActionsPerTurn(int Value);
+
 /// <summary>流血（combat_math §4）：每回合 3 / 2 回合；须与 buff_defs 一致（P6）。</summary>
 public sealed record TuningBleed(
     [property: JsonPropertyName("per_round_damage")] int PerRoundDamage,
@@ -122,6 +125,7 @@ public sealed record TuningConfig(
     [property: JsonPropertyName("affliction_proc_percent")] int AfflictionProcPercent,
     [property: JsonPropertyName("guard_redirect")] TuningGuardRedirect GuardRedirect,
     [property: JsonPropertyName("overtime_reinforcement")] TuningOvertimeReinforcement OvertimeReinforcement,
+    [property: JsonPropertyName("enemy_actions_per_round")] int EnemyActionsPerRound,
     [property: JsonPropertyName("bleed")] TuningBleed Bleed,
     [property: JsonPropertyName("stat_debuff_default")] TuningStatDebuffDefault StatDebuffDefault,
     [property: JsonPropertyName("stun")] TuningStun Stun,
