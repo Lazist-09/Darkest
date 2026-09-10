@@ -43,6 +43,9 @@ public partial class BattleUi : CanvasLayer
     private Button _retreatButton = null!;
     // 卡序：0..3=我方 4,3,2,1；4..7=敌方 1,2,3,4；8..9=支援位 5,6
     private readonly List<(Panel card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer)> _cards = new();
+    private readonly List<Label> _portraits = new();          // 立绘占位框文字（与 _cards 同序）
+    private readonly List<(Panel panel, Label glyph)> _orderIcons = new(); // 顶部回合条头像
+    private string _orderFor = "";
     private readonly List<Button> _skillButtons = new();
     private Button _reinforceButton = null!;
     private Button _moveButton = null!;
@@ -71,6 +74,9 @@ public partial class BattleUi : CanvasLayer
         }
 
         _cards.Clear();
+        _portraits.Clear();
+        _orderIcons.Clear();
+        _orderFor = "";
         _skillButtons.Clear();
         _skillBarFor = "";
         _skillBarWaiting = false;
@@ -92,8 +98,8 @@ public partial class BattleUi : CanvasLayer
         _retreatButton = new Button { Position = new Vector2(1076, 6), Size = new Vector2(184, 32), Text = "撤退 0%" };
         _retreatButton.Pressed += () => _retreat?.Invoke();
         AddChild(_retreatButton);
-        _actionOrderLabel = new Label { Position = new Vector2(16, 38), CustomMinimumSize = new Vector2(1248, 22) };
-        _actionOrderLabel.AddThemeFontSizeOverride("font_size", 13);
+        _actionOrderLabel = new Label { Position = new Vector2(16, 40), CustomMinimumSize = new Vector2(88, 24), Text = "回合条" };
+        _actionOrderLabel.AddThemeFontSizeOverride("font_size", 12);
         AddChild(_actionOrderLabel);
 
         AddRowTitle("我方　4 · 3 · 2 · 1", HeroX0, StageY - 22);
@@ -125,10 +131,10 @@ public partial class BattleUi : CanvasLayer
         _hintLabel.AddThemeColorOverride("font_color", new Color(1, 0.85f, 0.5f));
         AddChild(_hintLabel);
 
-        _reinforceButton = new Button { Position = new Vector2(1004, SkillBarY), Size = new Vector2(116, 44), Text = "增援" };
+        _reinforceButton = new Button { Position = new Vector2(1004, SkillBarY), Size = new Vector2(116, 88), Text = "增援" };
         _reinforceButton.Pressed += () => _reinforce?.Invoke();
         AddChild(_reinforceButton);
-        _moveButton = new Button { Position = new Vector2(1132, SkillBarY), Size = new Vector2(116, 44), Text = "移动" };
+        _moveButton = new Button { Position = new Vector2(1132, SkillBarY), Size = new Vector2(116, 88), Text = "移动" };
         _moveButton.Pressed += () => _move?.Invoke();
         AddChild(_moveButton);
 
@@ -150,12 +156,21 @@ public partial class BattleUi : CanvasLayer
     private Control BuildCard(float x, float y, float w, float h)
     {
         var card = new Panel { Position = new Vector2(x, y), Size = new Vector2(w, h) };
-        var name = new Label { Position = new Vector2(8, 6), CustomMinimumSize = new Vector2(w - 16, 24), Text = "[-]" };
+
+        // ② 立绘占位框（色块 + 首字）
+        var portraitBox = new Panel { Position = new Vector2(8, 6), Size = new Vector2(44, 44) };
+        var glyph = new Label { Position = new Vector2(0, 8), CustomMinimumSize = new Vector2(44, 30), Text = "—", HorizontalAlignment = HorizontalAlignment.Center };
+        glyph.AddThemeFontSizeOverride("font_size", 20);
+        glyph.AddThemeColorOverride("font_color", new Color(1, 1, 1));
+        portraitBox.AddChild(glyph);
+        card.AddChild(portraitBox);
+
+        var name = new Label { Position = new Vector2(58, 8), CustomMinimumSize = new Vector2(w - 66, 24), Text = "[-]" };
         name.AddThemeFontSizeOverride("font_size", 15);
-        var stats = new Label { Position = new Vector2(8, 32), CustomMinimumSize = new Vector2(w - 16, 20), Text = "" };
+        var stats = new Label { Position = new Vector2(58, 30), CustomMinimumSize = new Vector2(w - 66, 20), Text = "" };
         stats.AddThemeFontSizeOverride("font_size", 12);
-        var hp = new ProgressBar { Position = new Vector2(8, 56), Size = new Vector2(w - 16, 14), MinValue = 0, MaxValue = 100, ShowPercentage = false };
-        var morale = new ProgressBar { Position = new Vector2(8, 76), Size = new Vector2(w - 16, 12), MinValue = 0, MaxValue = 100, ShowPercentage = false };
+        var hp = new ProgressBar { Position = new Vector2(8, 58), Size = new Vector2(w - 16, 14), MinValue = 0, MaxValue = 100, ShowPercentage = false };
+        var morale = new ProgressBar { Position = new Vector2(8, 78), Size = new Vector2(w - 16, 12), MinValue = 0, MaxValue = 100, ShowPercentage = false };
         var tag = new Label { Position = new Vector2(8, h - 28), CustomMinimumSize = new Vector2(w - 16, 20), Text = "" };
         tag.AddThemeFontSizeOverride("font_size", 12);
         card.AddChild(name);
@@ -163,6 +178,7 @@ public partial class BattleUi : CanvasLayer
         card.AddChild(hp);
         card.AddChild(morale);
         card.AddChild(tag);
+        _portraits.Add(glyph);
 
         int slot = _cards.Count < 4 ? 4 - _cards.Count
             : _cards.Count < 8 ? _cards.Count - 3
@@ -205,16 +221,18 @@ public partial class BattleUi : CanvasLayer
 
         for (int i = 0; i < 4; i++)
         {
-            FillCard(_cards[i], player[3 - i]); // 我方 4,3,2,1
+            FillCard(_cards[i], player[3 - i], _portraits[i]); // 我方 4,3,2,1
         }
 
         for (int i = 0; i < 4; i++)
         {
-            FillCard(_cards[4 + i], enemy[i]); // 敌方 1,2,3,4
+            FillCard(_cards[4 + i], enemy[i], _portraits[4 + i]); // 敌方 1,2,3,4
         }
 
-        FillCard(_cards[8], player[4]);
-        FillCard(_cards[9], player[5]);
+        FillCard(_cards[8], player[4], _portraits[8]);
+        FillCard(_cards[9], player[5], _portraits[9]);
+
+        RefreshOrderStrip(support.ActionOrderThisRound, d);
 
         int[] pending = _host.PendingCandidates;
         bool targeting = _host.IsTargeting;
@@ -269,11 +287,68 @@ public partial class BattleUi : CanvasLayer
         _hintTimer = 3.0;
     }
 
-    private static void FillCard((Panel card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c, UnitProjection u)
+    private static Color ArchetypeColor(string archetype, bool isPlayer) => archetype switch
+    {
+        "tank" => new Color(0.42f, 0.52f, 0.62f),
+        "warrior" => new Color(0.62f, 0.35f, 0.32f),
+        "commissar" => new Color(0.66f, 0.58f, 0.3f),
+        "medic" => new Color(0.34f, 0.55f, 0.42f),
+        "melee_soldier" => new Color(0.5f, 0.28f, 0.3f),
+        "ranged_archer" => new Color(0.42f, 0.44f, 0.28f),
+        "caster" => new Color(0.45f, 0.32f, 0.58f),
+        _ => isPlayer ? new Color(0.4f, 0.45f, 0.55f) : new Color(0.5f, 0.35f, 0.35f),
+    };
+
+    /// <summary>① 顶部回合条：头像格（首字 + 阵营色，当前行动者金框），替代纯文字。</summary>
+    private void RefreshOrderStrip(IReadOnlyList<string> order, BattleDirector d)
+    {
+        int activePos = d.Player.UnitAtPosition(_host!.ActiveActor) ?? d.Enemy.UnitAtPosition(_host.ActiveActor) ?? 0;
+        string key = string.Join(",", order) + "|" + activePos + "|" + _host.IsAwaitingPlayer;
+        if (key == _orderFor)
+        {
+            return;
+        }
+
+        _orderFor = key;
+        foreach ((Panel panel, Label glyph) icon in _orderIcons)
+        {
+            icon.panel.QueueFree();
+        }
+
+        _orderIcons.Clear();
+        float x = 96f;
+        foreach (string id in order)
+        {
+            var unitId = new UnitId(id);
+            bool isPlayer = d.Player.UnitAtPosition(unitId) is not null;
+            string archetype = _host.ArchetypeOf(unitId);
+            var panel = new Panel { Position = new Vector2(x, 34), Size = new Vector2(36, 30) };
+            var glyph = new Label { Position = new Vector2(0, 2), CustomMinimumSize = new Vector2(36, 26), Text = NameOf(archetype).Substring(0, 1), HorizontalAlignment = HorizontalAlignment.Center };
+            glyph.AddThemeFontSizeOverride("font_size", 14);
+            panel.AddChild(glyph);
+            bool isActive = _host.IsAwaitingPlayer && id == _host.ActiveActor.Value;
+            panel.Modulate = isActive
+                ? new Color(1.25f, 1.25f, 0.7f)
+                : isPlayer ? new Color(0.62f, 0.72f, 0.95f) : new Color(0.95f, 0.6f, 0.6f);
+            AddChild(panel);
+            _orderIcons.Add((panel, glyph));
+            x += 40f;
+        }
+    }
+
+    private static void FillCard((Panel card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c, UnitProjection u, Label portrait)
     {
         bool empty = u.UnitId == "-";
-        c.name.Text = empty ? $"[{u.Slot}] 空位" : $"[{u.Slot}] {NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId)}";
+        string display = NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId);
+        c.name.Text = empty ? $"[{u.Slot}] 空位" : $"[{u.Slot}] {display}";
         c.stats.Text = empty ? "" : $"HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
+        // ② 立绘占位框：首字 + 阵营/原型色块
+        portrait.Text = empty ? "—" : display.Substring(0, 1);
+        if (portrait.GetParent() is Panel box)
+        {
+            box.Modulate = empty ? new Color(0.35f, 0.35f, 0.35f) : ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, c.isPlayer);
+        }
+
         c.hp.MaxValue = u.MaxHp > 0 ? u.MaxHp : 1;
         c.hp.Value = u.Hp;
         c.hp.Modulate = u.Weak ? new Color(1, 0.5f, 0.5f) : new Color(0.5f, 1, 0.6f);
@@ -316,19 +391,21 @@ public partial class BattleUi : CanvasLayer
         string archetype = _host.ActiveArchetype;
         var pool = new HashSet<string>(SkillPool(archetype));
         string[] poolIds = SkillPool(archetype);
-        const int perRow = 6;
+        const int perRow = 8; // ③ 技能栏图标格（首 2 字为图标，悬停看全名/原因）
         for (int i = 0; i < poolIds.Length; i++)
         {
             string skillId = poolIds[i];
             SkillProjection sp = p.Skill(skillId, actor, d.Player, d.Enemy, pool);
+            string full = SkillName(skillId);
             var b = new Button
             {
-                Position = new Vector2(24f + (i % perRow) * 158f, SkillBarY + (i / perRow) * 52f),
-                Size = new Vector2(150, 44),
-                Text = SkillName(skillId),
+                Position = new Vector2(24f + (i % perRow) * 94f, SkillBarY + (i / perRow) * 94f),
+                Size = new Vector2(88, 88),
+                Text = full.Length <= 2 ? full : full.Substring(0, 2),
                 Disabled = sp.Reason != AvailabilityReason.Ok,
-                TooltipText = sp.Reason == AvailabilityReason.Ok ? "" : sp.Tooltip,
+                TooltipText = sp.Reason == AvailabilityReason.Ok ? full : $"{full}（{sp.Tooltip}）",
             };
+            b.AddThemeFontSizeOverride("font_size", 20);
             string captured = skillId;
             b.Pressed += () => _useSkill?.Invoke(actor, captured);
             AddChild(b);
