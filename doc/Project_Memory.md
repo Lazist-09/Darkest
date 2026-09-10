@@ -21,6 +21,26 @@
 11. **命名**：C# 类型 PascalCase、文件/资源 snake_case、配置字段名以 data_schema.md 为准（_conventions §3）；术语用 glossary §9 建议（Morale/Resilience/Weak/DeathsDoor/…）。
 12. **目标语义（#178/#179，v0.44）**：技能范围=候选池——单体/`any_ally` 池内**选一**（玩家③b / AI / 策略）、AOE 全中、`team` 全体、双段=同一目标两段；数据 JSON 零改动（data_schema §3.2 生效语义 + P11）；**旧"范围全命中"口径已废（O-38）**——改造中，完成前不重新基线。
 13. **池外「移动」（#180，v0.45）**：每原型常备 1 条 `*_move`（`pool_external:true` + `target.scope=move_range` + `distance`：坦克 1 / 战医政 2）；仅战斗位 1~4、目标=自身±N 格内**被占用**战斗位并交换（空位不可选，#21）；**不过位移抗性、无伤害 → 不触发死门**；技能总量 **47**（36 池内 + 4 移动 + 7 敌）；增援=单按钮两步 `Reinforce(A,B,X)`（#181）；技能栏不内联要求文字、候选高亮必需（#182）。
+    > ⚠️ **v0.48 已被 #190/#191 取代**：改为 **1 条通用 `move`**（不绑 `owner_unit`）+ `units.json` 的 `move_distance`（坦克 1 / 战医政 2），技能总量 **44**；过滤一律用 **`pool_external` 标志**，**禁止**再用 `_move` 后缀（可插拔契约）。
+14. **文档回读纪律（数量／次数／频率专项）🔥 v0.48 新增**：
+    **每完成一个里程碑、或合入一批改动后，实现方必须拿着文档当验收清单，逐条回读实现**——
+    不是"读代码找 bug"，而是"**逐条核对文档写的规则，实现是否真的一样**"，并当场把不一致登记为 O-nn。
+    **重点核 4 类规则**：
+    ① **命中几个**（范围 = 池内选一 vs 全命中）
+    ② **补几个**（超时增援 = 一波补齐全部空位 vs 每回合补 1 个）
+    ③ **隔几回合**（波次间隔 M / CD / buff 持续回合 / 触发回合）
+    ④ **判哪一方胜负**（胜 / 负是否**分别**判定，还是硬编码一方）
+    > 🔴 **为什么单独立一条**：本项目已**连续 5 次**出现「**文档对、实现错**」——
+    > O-38 目标语义（范围当全命中）、#177 换位增援口径缺失、O-48 交换链误用于增援/移动、
+    > O-47 胜负硬编码 `"胜利：敌方全灭"`、O-52 超时增援每回合只补 1 个。
+    > **这 5 次全部命中上述 4 类**。
+    >
+    > ⚠️ **为什么测试抓不到**：既有单测是**照着实现写的**，实现错了测试也跟着错，
+    > 所以套件一直是绿的（最近一次 156/157），偏差只会让**设计意图静默失效**——
+    > 直到**用户实机**发现（5 次里有 4 次是用户发现的）。
+    > 故本条与第 8 条「测试钩子前置」互补：**第 8 条防"没测"，本条防"测错了对象"**。
+    >
+    > ✅ **策划侧对应动作**：验收/走查时**优先抽查这 4 类**规则，而不是抽查公式（公式有单测兜底）。
 
 ---
 
@@ -29,9 +49,9 @@
 ### 策划交付层（doc/，只读源，禁止改动）
 | 文件 | 作用 | 备注 |
 |---|---|---|
-| README.md / GDD.md / state.md / CHANGELOG.md | 入口 / 主文档 / 决策表 #1~#165 / 演进史 | state.md = #N 溯源 |
+| README.md / GDD.md / state.md / CHANGELOG.md | 入口 / 主文档 / 决策表 **#1~#194** / 演进史（v0.48） | state.md = #N 溯源 |
 | modules/combat_math.md | 全公式 + 9 层随机 + #157/#158/#163 口径 | 挡在所有代码前 |
-| modules/skill_data.md | **47 条技能实值（36 池内 + 4 池外移动 + 7 敌方，#180）** | 数据抄录唯一来源 |
+| modules/skill_data.md | **44 条技能实值（36 池内 + 1 通用移动 + 7 敌方，#191）** | 数据抄录唯一来源 |
 | modules/{glossary,skill,character,morale,formation,buff,enemy,ui_spec,verification,review}.md | 各系统规格 | modules 层为准 |
 
 ### 架构拆分层（doc/architecture/）
@@ -40,15 +60,15 @@
 | _conventions.md | 写作规范 / 任务卡模板 | 定稿 v1 |
 | blueprint.md | 总体蓝图（五层/目录/接口/确定性/测试钩子/风险） | 草案 v0.1 |
 | data_schema.md | 数据 Schema + P1~P12 校验 | 草案 v0.1→随实现滚动 |
-| open_issues.md | 开放题 O-01~O-41（O-35~O-41 为 v0.40~v0.45 实现期登记） | 滚动维护 |
+| open_issues.md | 开放题 O-01~O-48（O-35 起为实现期登记；**O-49~O-52 为策划提案编号，待架构师确认/改号**） | 滚动维护 |
 | README.md | 架构入口 + 看板 + 交付清单 | 本套入口 |
-| tasks/m0~m6 共 7 个文件 | **54 张任务卡**（M6 含 T-M6-08 重新基线） | 草案→随实现滚动 |
+| tasks/m0~m6 共 7 个文件 + **`m6_fix_pack.md`（ARCH-T-FIX-PACK-01）** + **`feat_pack_01.md`（ARCH-T-FEAT-PACK-01）** | **54 张任务卡** + 两张**执行包卡**（修复包 P0~P4 口径链 / 功能包 F0~F3 点击·可插拔·士气 buff·增援） | 草案→随实现滚动 |
 
 ### Godot 工程（darkest/ = res://）
 | 路径 | 状态 | 备注 |
 |---|---|---|
 | project.godot | 存在（Godot 4.6 .NET / assembly_name=Darkest，main_scene=Battle.tscn） | 只读实况 |
-| scenes/ scripts/ data/ resources/ tests/ | ✅ **已实现（M0~M6 主程序迭代，压测 141/142 绿）** | 关键文件：`sim/skill/SkillTargetResolver.cs` / `SkillExecutor.cs`（**O-38 改造中：候选池+选一**）、`pipeline/DamagePipeline.cs`、`director/BattleDirector.cs`、`turn/TurnSequencer.cs`、`enemy/EnemyAi.cs`、`sim/buffs/ShieldGuard.cs`、`tests/MonteCarlo/{HeadlessDriver,Policies}.cs` |
+| scenes/ scripts/ data/ resources/ tests/ | ✅ **已实现（M0~M6 主程序迭代，最近一次 156/157 绿；判据 A 诚实红）** | 关键文件：`sim/skill/SkillTargetResolver.cs` / `SkillExecutor.cs`（O-38 已落地：候选池+选一）、`pipeline/DamagePipeline.cs`、`director/BattleDirector.cs`（**O-47 胜负判定待修**）、`turn/TurnSequencer.cs`、`enemy/EnemyAi.cs`（**O-46 目标偏好待接；`"tank"` 硬编码待去**）、`sim/buffs/{BuffLedger,ShieldGuard}.cs`（**buff `modifiers` 零消费者**）、`tests/MonteCarlo/{HeadlessDriver,Policies}.cs`（**O-42 策略待改造**） |
 | darkest/data/*.json（7 个） | ✅ 生效值：#171/#173（敌 HP 60/60/46/41、收割 0.4/0.5、横扫 0.6 等） | 与 skill_data/enemy 起手值表并存（README §6-5 口径） |
 
 ---
@@ -92,3 +112,7 @@
 - `2026-09-09: [fix-pack P0~P3 完成·主程序] 依 doc/architecture/tasks/m6_fix_pack.md 按序落地（一步一提交，红线：不调数值）：**P0/O-47**（6a1124e）BattleOutcome{Ongoing,Victory,Defeat}+Outcome 投影（我方优先判负）+RunFullRound 胜负前置守卫+BattleRoot 每轮先查结果+结算面板+BattleOutcomeTests(7)；**P1/O-46**（96bec90）敌人池内选一三层（taunt 加权抽取写 RngDraw → 原型偏好 lowest_hp/backmost/lowest_morale → 槽号兜底；AOE 全池；唯一候选不掷骰）+enemy_ai 新键 target_preference/taunt_weight=3+恐惧低语 slots[1]→[1,2,3,4]+buff_defs taunt 改加权+EnemyAiConfig P13 校验+EnemyTargetingTests(9)；🔴 顺带修 EnemyAi/玩家侧共 4 处 SkillTargetResolver **参数序颠倒**（敌方候选池按敌板解析恒打 1 位 = O-44 退化根因）；**P2/O-42**（2239916）策略规则化（集火最低 HP／治疗仅真伤员 HP%<60%／移动条件化／增援虚弱或 HP%<30% 拉起／控制打攻击力最高）+兜底标注 no_policy_fallback+PolicyTests(5)；**P3 复测**（bbea6c1）300 场数据零改动：终局 **敌灭 0 / 我灭 234 / 撤退成功 58 / 强切 8；胜率 19%、avg 18.25**；**口径健康度全绿**（敌方命中 1位17% 2位26% 3位11% 4位18% 5位15% 6位14%；移动使用 0/17368）→ P1 真生效；结论 **复测偏难**（正面 0 胜），按 P4.2 待拍板回补玩家输出；M6FixPackTests 固化诊断。全套 178/179（唯一红=判据 A 诚实红）。_`
 
 - `2026-09-09: [reconcile·架构师·v0.46] 流程与镜像收口（#183~#187 / O-42~O-48）：① 立"写者与转写流程"——策划/主程序提交、架构师统一编号转写（O-42~O-47 原稿系直写，已复核：编号连续、归属格式统一）；② 反向指针：O-42→`tasks/m6_fix_pack.md` P2/P3、O-44/O-45/O-46→P1、O-47→P0；③ data_schema 镜像：§2.1 新增 TargetPreference 枚举、§3.2 生效语义补"增援/移动=两点直接互换 SwapSlots，逐级交换链仅 push/pull"（**O-48**/d290e10）、§3.4 taunt 改加权、§3.5 新增 `target_preference`+`taunt_weight` 与"池内选一"三层语义（taunt 加权抽 RngDraw → 原型偏好 → 槽号兜底）、§5.3 恐惧低语 `slots`→`[1,2,3,4]`（#186）、§4.2 新增 **P13** + P7 增补；④ 状态回写：O-38 已落地但其 27% 基线因 O-42 作废、O-39 被 #185/#187 修订（槽号最小降兜底）、O-40/O-41 v0.45 已落地；⑤ `tasks/m6_fix_pack.md` 追加 §7 架构镜像回执；⑥ 未代写项：glossary §2「池内选人」与 GDD §1.3.1 移动表述待策划同步（架构侧不代写策划文档）。接口基线不变。_`
+
+- `2026-09-09: [纪律新增·策划·v0.48] 新增 §0 原则第 14 条「文档回读纪律（数量／次数／频率专项）」：每完成一个里程碑或合入一批改动后，实现方须**拿着文档当验收清单逐条回读实现**，重点核 4 类规则——① 命中几个 ② 补几个 ③ 隔几回合 ④ 判哪一方胜负；不一致当场登记 O-nn。**立条依据**：本项目已连续 5 次「文档对、实现错」——O-38 目标语义（范围当全命中）、#177 换位增援口径缺失、O-48 交换链误用于增援/移动、O-47 胜负硬编码、O-52 超时增援每回合只补 1 个，**5 次全部命中这 4 类**；且**单测抓不到**（测试照错实现写，套件一直绿），偏差只会让设计意图静默失效，5 次里 4 次由**用户实机**发现。本条与第 8 条「测试钩子前置」互补：第 8 条防"没测"，本条防"测错了对象"。同时同步 §1 文件注册表（state.md 决策表 #1~#194、skill_data 44 条 = 36 池内 + 1 通用移动 + 7 敌、open_issues O-01~O-48 + O-49~O-52 待编号、tasks 增两张执行包卡、darkest/ 实测 156/157 与各待修项）。策划 v0.48 另落 #189~#194（强制目标点击／可插拔契约／通用 move+move_distance／嘲讽挂自己／士气 buff 效果+O-27 定值 +3／超时增援每 3 回合一波全补）+ 新任务卡 `tasks/feat_pack_01.md`。_`
+
+- `2026-09-09: [修订·策划·v0.48] P3 复测结果解读与顺序约束修正：P0~P3 已由主程序执行（bbea6c1），结果 **胜率 19%（终局 敌灭 0／我灭 234／撤退成功 58／强切 8）、avg 18.25、口径健康度全绿**。策划解读两点：① 🔴 **「正面胜利 0 次」是最严重的平衡事实**——19% 全部来自撤退与强切，玩家从未靠打光敌人取胜；② 🔴 **该 19% 不得用于调数值**——`feat_pack_01` 的 F0~F3 尚未落地，其中 #193（士气 buff 效果＝纯玩家增益）与 #194（超时增援改一波全补＝改变敌方压力）**必然会改动结果**，落地后须重跑复测（P3 v3）。已在 `tasks/m6_fix_pack.md` §P3.2 追加该约束，并记录 P3.1.1 查明的新事实：**O-44 的真根因是 `SkillTargetResolver` 参数序颠倒（4 处，敌方候选池按敌板解析）**，"槽号最小"只是放大器——此类"参数序/方向写反"被归入第 14 条回读纪律的高危类（编译不报错、测试也照错实现写）。_`
