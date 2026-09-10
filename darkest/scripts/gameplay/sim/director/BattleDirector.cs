@@ -83,6 +83,9 @@ public sealed class BattleDirector
     public CombatLog Log => _log;
     public MoraleLedger Morale => _pipeline.Morale;
 
+    /// <summary>buff 台账（只读面；F2 起 UI/测试需按 buff 查询美德/折磨效果）。</summary>
+    public Darkest.Core.Contracts.IBuffLedger Buffs => _buffs;
+
     /// <summary>本回合行动序列（StartTurn 固定点构建；UI 只读，不新增抽取）。</summary>
     public IReadOnlyList<UnitId> LastRoundOrder => _lastRoundOrder;
 
@@ -100,6 +103,16 @@ public sealed class BattleDirector
             if (_player.GetSlot(slot) == SlotState.Occupied)
             {
                 _pipeline.Morale.Apply(_player.UnitRuntimeAt(slot)!, _moraleEvents.Get("support_slot_turn_start").Delta, "support_slot_turn_start", _log);
+            }
+        }
+
+        // F2（#193）：美德「振奋」回合钩子——每个持有者令全队 +3 士气（O-27 定值，读 tuning）
+        int inspired = _balance.Tuning.Collapse.VirtueInspiredMoralePerTurn;
+        foreach (UnitRuntime holder in _player.UnitsInSlotOrder())
+        {
+            if (_buffs.Has(holder.Id, "virtue_inspired"))
+            {
+                _pipeline.Morale.ApplyTeamOnce(_player.UnitsInSlotOrder(), "virtue_inspired_round", _log, overrideDelta: inspired);
             }
         }
 

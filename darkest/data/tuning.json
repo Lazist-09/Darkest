@@ -32,7 +32,8 @@
   "speed_float": { "enabled": true, "percent": 10 },
   "collapse": {
     "affliction_pool": ["affliction_fear", "affliction_selfish", "affliction_uncontrolled"],
-    "virtue_pool": ["virtue_brave"],
+    "virtue_pool": ["virtue_brave", "virtue_resolute", "virtue_inspired", "virtue_focused"],
+    "virtue_inspired_morale_per_turn": 3,
     "proc": "morale drop >0→0 event"
   }
 }

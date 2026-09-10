@@ -104,11 +104,12 @@ public sealed record TuningSpeedFloat(
     [property: JsonPropertyName("enabled")] bool Enabled,
     [property: JsonPropertyName("percent")] int Percent);
 
-/// <summary>崩溃判定池（morale §4~§6；美德池切片默认仅勇猛）。</summary>
+/// <summary>崩溃判定池（morale §4~§6；F2/#193：美德池 4 个全量，振奋 +3/回合为 O-27 本包定值）。</summary>
 public sealed record TuningCollapse(
     [property: JsonPropertyName("affliction_pool")] IReadOnlyList<string> AfflictionPool,
     [property: JsonPropertyName("virtue_pool")] IReadOnlyList<string> VirtuePool,
-    [property: JsonPropertyName("proc")] string Proc);
+    [property: JsonPropertyName("proc")] string Proc,
+    [property: JsonPropertyName("virtue_inspired_morale_per_turn")] int VirtueInspiredMoralePerTurn = 3);
 
 /// <summary>
 /// tuning.json 绑定模型（data_schema §3.7 唯一权威；每键带出处）。启动一次性解析 → 冻结只读。

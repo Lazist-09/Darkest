@@ -44,6 +44,7 @@ public sealed class DamagePipeline
     private readonly MoraleEventsConfig _moraleEvents;
     private readonly CombatLog _log;
     private readonly MoraleLedger _ledger;
+    private readonly Darkest.Core.Contracts.IBuffLedger? _buffs;
     private readonly Darkest.Gameplay.Sim.Buffs.ShieldGuard? _shield;
 
     public DamagePipeline(BalanceTable balance, MoraleEventsConfig moraleEvents, CombatLog log,
@@ -54,6 +55,7 @@ public sealed class DamagePipeline
         _moraleEvents = moraleEvents ?? throw new ArgumentNullException(nameof(moraleEvents));
         _log = log ?? throw new ArgumentNullException(nameof(log));
         _ledger = new MoraleLedger(balance, moraleEvents, buffs);
+        _buffs = buffs;
         _shield = shield;
     }
 
@@ -125,7 +127,7 @@ public sealed class DamagePipeline
                 }
             }
 
-            DamageOutcome dmg = DamageStep.Deal(caster, victim, skill.Axis, skill.Segments, skill.CritMod, rng, _log, _balance);
+            DamageOutcome dmg = DamageStep.Deal(caster, victim, skill.Axis, skill.Segments, skill.CritMod, rng, _log, _balance, _buffs);
             anyCritThisAction |= dmg.AnyCrit;
 
             int moraleBefore = victim.Morale;
@@ -165,7 +167,7 @@ public sealed class DamagePipeline
                     if (dmg.TotalDealt > 0)
                     {
                         _ = _ledger.TryApplyWeakHitPenalty(victim, _log); // 虚弱 −5（每回合≤1）
-                        bool survived = WeakDeathsDoor.Roll(victim, afflicted: false, rng, _log, _balance);
+                        bool survived = WeakDeathsDoor.Roll(victim, afflicted: _buffs?.AnyOfKind(victim.Id, "affliction_") == true, rng, _log, _balance, _buffs);
                         if (!survived)
                         {
                             KillAt(targetBoard, victimSlot, victim, isPlayer: true);

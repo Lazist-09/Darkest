@@ -27,18 +27,25 @@ public static class DamageStep
         int critMod,
         IRngProvider rng,
         CombatLog log,
-        BalanceTable balance)
+        BalanceTable balance,
+        Darkest.Core.Contracts.IBuffLedger? buffs = null)
     {
         if (multipliers is null || multipliers.Count == 0)
         {
             throw new ArgumentException("damage.segments 不可为空（M2 夹具必填）。");
         }
 
+        // F2（#193）：buff modifiers 通用消费——暴击 +15pp（专注）/ 伤害 +25%（勇猛）/ 下次攻击 +20%（突进，消耗后移除）
+        int critBonus = buffs?.PercentMod(attacker.Id, "crit_bonus") ?? 0;
+        int dealtMult = buffs?.PercentMod(attacker.Id, "dealt_damage_mult") ?? 0;
+        int nextAttackMult = buffs?.PercentMod(attacker.Id, "next_attack_mult") ?? 0;
+        double buffDamageMult = 1.0 + (dealtMult + nextAttackMult) / 100.0;
+
         int total = 0;
         bool anyCrit = false;
         for (int i = 0; i < multipliers.Count; i++)
         {
-            int critRate = Math.Clamp(attacker.Base.Crit + critMod, 0, 100);
+            int critRate = Math.Clamp(attacker.Base.Crit + critMod + critBonus, 0, 100);
             double critRoll = rng.NextPercent();
             log.Append(new RngDraw(rng.DrawCount, critRoll));
             bool crit = critRoll < critRate;
@@ -61,12 +68,12 @@ public static class DamageStep
             {
                 double mitig = BattleMath.MentalMitigation(
                     target.EffectiveResilience, balance.MentalReductionDivisor, balance.MentalReductionCapPercent);
-                raw = attacker.EffectiveAttack * multipliers[i] * (1.0 - mitig) * critMult * dmgFloat; // §2.2
+                raw = attacker.EffectiveAttack * multipliers[i] * (1.0 - mitig) * critMult * dmgFloat * buffDamageMult; // §2.2 + F2 buff 乘法阶段
             }
             else
             {
                 double mitig = BattleMath.PhysicalMitigation(target.EffectivePhysDef);
-                raw = attacker.EffectiveAttack * multipliers[i] * (1.0 - mitig) * critMult * dmgFloat; // §2.1
+                raw = attacker.EffectiveAttack * multipliers[i] * (1.0 - mitig) * critMult * dmgFloat * buffDamageMult; // §2.1 + F2
             }
 
             if (attacker.Weak)
@@ -84,6 +91,11 @@ public static class DamageStep
             log.Append(new DamageEvent(target.Id, damage, raw, crit, i, axis, attacker.Id));
         }
 
-        return new DamageOutcome(total, anyCrit, target.Weak, multipliers.Count);
-    }
+        // F2：下次攻击增伤为一次性——本动作命中后移除
+        if (buffs is not null && nextAttackMult > 0)
+        {
+            buffs.Remove(attacker.Id, "next_attack_boost");
+        }
+
+        return new DamageOutcome(total, anyCrit, target.Weak, multipliers.Count);    }
 }

@@ -32,12 +32,15 @@ public static class WeakDeathsDoor
 
     /// <summary>死门判定：仅虚弱中受伤时调用；返回是否存活（失败 = 真死）。</summary>
     public static bool Roll(UnitRuntime unit, bool afflicted,
-        IRngProvider rng, CombatLog log, BalanceTable balance)
+        IRngProvider rng, CombatLog log, BalanceTable balance,
+        Darkest.Core.Contracts.IBuffLedger? buffs = null)
     {
         int survivePercent = BattleMath.DeathDoorSurvivePercent(
             unit.Base.DeathsDoorResist ?? 0,
             afflicted,
-            balance.DeathsDoorAfflictionPenaltyPercent); // #123 折磨 −10%
+            balance.DeathsDoorAfflictionPenaltyPercent) // #123 折磨 −10%
+            + (buffs?.PercentMod(unit.Id, "deaths_door_resist_bonus") ?? 0); // F2（#193）：坚韧 +20pp
+        survivePercent = Math.Clamp(survivePercent, 0, 100);
 
         double roll = rng.NextPercent();
         log.Append(new RngDraw(rng.DrawCount, roll));

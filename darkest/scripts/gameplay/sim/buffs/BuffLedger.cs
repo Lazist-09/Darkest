@@ -201,7 +201,7 @@ public sealed class BuffLedger : IBuffLedger
             BuffDefConfig def = _defs.Get(b.BuffId);
             foreach (BuffModifierSpec m in def.Modifiers ?? Array.Empty<BuffModifierSpec>())
             {
-                if (m.Kind == BuffModifierKind.DamageMod && m.Effect == effect)
+                if (m.Kind is BuffModifierKind.DamageMod or BuffModifierKind.ProbMod && m.Effect == effect)
                 {
                     total += m.Percent ?? 0;
                 }

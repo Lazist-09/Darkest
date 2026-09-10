@@ -104,11 +104,12 @@ public sealed class MoraleLedger
     }
 
     /// <summary>团队事件一次（O-14：同动作内合并一次逐成员施加）。</summary>
-    public void ApplyTeamOnce(IEnumerable<UnitRuntime> team, string sourceId, CombatLog log)
+    public void ApplyTeamOnce(IEnumerable<UnitRuntime> team, string sourceId, CombatLog log, int? overrideDelta = null)
     {
         foreach (UnitRuntime unit in team)
         {
-            Apply(unit, _events.Get(sourceId).Delta, sourceId, log);
+            // F2（#193）：overrideDelta 供"振奋"等非表驱动来源使用（默认读 morale_events 表）
+            Apply(unit, overrideDelta ?? _events.Get(sourceId).Delta, sourceId, log);
         }
     }
 
