@@ -95,6 +95,26 @@ public sealed class SkillExecutor
 
         MoraleEffectRequest[] explicitMorale = MapMoraleEffects(skill);
 
+        // F2（#193）失控 proc：支援位 → 改「捆缚」（无法行动）；战斗位 → 33% 在合法候选池内随机换目标
+        if (_buffs is not null && _buffs.Has(caster, "affliction_uncontrolled"))
+        {
+            int casterPos = allyBoard.UnitAtPosition(caster) ?? -1;
+            if (allyBoard.Layout.SupportSlots.Contains(casterPos))
+            {
+                _buffs.Add(caster, "bound", source: null);
+                _log.Append(new EffectEvent(caster, "uncontrolled_bound", 100.0, true));
+                return; // 支援位失控 = 捆缚（#48）
+            }
+
+            if (Darkest.Gameplay.Sim.Buffs.AfflictionProcs.Triggered(_buffs, _balance, caster, "affliction_uncontrolled", rng, _log))
+            {
+                int wild = candidates[rng.NextInt(0, candidates.Length)];
+                _log.Append(new RngDraw(rng.DrawCount, wild));
+                _log.Append(new EffectEvent(caster, "uncontrolled_retarget", 100.0, true));
+                execTargets = new[] { wild }; // 仍在合法候选池内（受站位/技能目标位约束）
+            }
+        }
+
         if (skill.Damage is null && skill.Target.Scope == SkillTargetScope.MoveRange)
         {
             ExecuteMovePath(skill, caster, allyBoard, execTargets, rng); // 池外移动（#180）
@@ -190,6 +210,13 @@ public sealed class SkillExecutor
                 UnitRuntime? target = ResolveRuntime(allyBoard, targetBoard, slot);
                 if (target is not null)
                 {
+                    // F2（#193）自私 proc：33% 拒绝这一次治疗/鼓舞（本次无效；施法者行动照常消耗）
+                    if (Darkest.Gameplay.Sim.Buffs.AfflictionProcs.Triggered(_buffs, _balance, target.Id, "affliction_selfish", rng, _log))
+                    {
+                        _log.Append(new EffectEvent(target.Id, "selfish_refuse", 100.0, true));
+                        continue;
+                    }
+
                     int healed = Math.Min(target.MaxHp - target.CurrentHp, heal);
                     target.CurrentHp += healed;
                     _log.Append(new HealEvent(target.Id, healed));

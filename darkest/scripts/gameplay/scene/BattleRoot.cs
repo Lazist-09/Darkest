@@ -147,6 +147,13 @@ public partial class BattleRoot : Node2D
             return;
         }
 
+        // F2（#193）恐惧 proc：拒放时技能灰掉、不消耗行动、须重选
+        if (Director.TryFearRefusal(actor, _rng))
+        {
+            _ui.FlashHint("恐惧发作：技能被拒绝（不消耗行动，请重选）");
+            return;
+        }
+
         SkillTemplateConfig skill = _skills.Get(skillId);
         int[] candidates = SkillTargetResolver.Resolve(skill, actor, Director.Player, Director.Enemy).ToArray();
 

@@ -186,6 +186,10 @@ public sealed class BattleDirector
         return true;
     }
 
+    /// <summary>F2（#193）恐惧 proc：使用技能前 33% 拒放（技能灰掉、**不消耗行动**、须重选）；勇猛 immune_fear 豁免。</summary>
+    public bool TryFearRefusal(UnitId actor, IRngProvider rng)
+        => Darkest.Gameplay.Sim.Buffs.AfflictionProcs.Triggered(_buffs, _balance, actor, "affliction_fear", rng, _log);
+
     /// <summary>本回合是否已换位（策略护栏；StartTurn 重置）。</summary>
     public bool SwappedThisRound => _swappedThisRound;
 
@@ -245,6 +249,11 @@ public sealed class BattleDirector
                 }
                 else if (decision.SkillId is not null)
                 {
+                    if (TryFearRefusal(actor.Value, rng))
+                    {
+                        continue; // 恐惧拒放：不消耗行动（本回合跳过；实机为"技能灰掉须重选"）
+                    }
+
                     int[]? chosen = decision.SkillTargetSlot is { } ts ? new[] { ts } : null;
                     PlayerUseSkill(actor.Value, decision.SkillId, rng, chosen);
                 }
