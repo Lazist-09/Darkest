@@ -12,22 +12,28 @@ using Godot;
 namespace Darkest.UI;
 
 /// <summary>
-/// BattleUi：四分区控件层（blueprint §5d / ui_spec §1）。
-/// 布局 = 手动绝对定位（CanvasLayer 直挂 Control 用视口坐标系，避免 container 尺寸漂移）：
-///   A 顶栏（y≈8）：状态文本（回合/轮到谁/结束）· 行动序列 · 撤退按钮
-///   B 战场（y≈48 起）：我方六卡左列（x≈16）· 敌方四卡右列（x≈336）；卡 = 单位名/HP 文本 + HP 条 + 士气条 + 状态标
-///   D 技能栏（y≈632）：当前行动者技能按钮（随行动者重建，平时只更新禁用态）+ 换位←5/←6
-/// 刷新为增量：槽位卡与顶栏每帧更新文本；技能栏仅当行动者/等待态变化时重建一次。
+/// BattleUi：战斗界面（1280×720，canvas_items 伸展；文字中文）。
+/// 对峙式横向布局（用户方案）：
+///   A 顶栏（y≈8 状态 · y≈44 行动序列整行 · 右上撤退按钮）
+///   敌方行：1 2 3 4（左→右，y≈96）
+///   我方行：4 3 2 1（左→右，y≈236）——两军前排相对，视觉对峙
+///   支援位：5 6 小卡（y≈376）
+///   D 技能栏（y≈500 起）：当前轮次角色的技能横排 + 换位←5/←6
+/// 增量刷新（技能栏仅行动者变化时重建）；每帧只更新文案/条/禁用态。
 /// </summary>
 public partial class BattleUi : CanvasLayer
 {
-    private const float CardW = 300f;
-    private const float CardH = 86f;
-    private const float CardGap = 8f;
-    private const float LeftX = 20f;
-    private const float RightX = 350f;
-    private const float TopY = 46f;
-    private const float SkillBarY = 636f;
+    private const float CardW = 236f;
+    private const float CardH = 96f;
+    private const float CardGap = 14f;
+    private const float RowLeft = 24f;
+    private const float EnemyRowY = 96f;
+    private const float PlayerRowY = 240f;
+    private const float SupportRowY = 384f;
+    private const float MinorW = 180f;
+    private const float MinorH = 72f;
+    private const float SkillTitleY = 500f;
+    private const float SkillBarY = 530f;
 
     private BattleRoot? _host;
     private Action<UnitId, string>? _useSkill;
@@ -37,14 +43,16 @@ public partial class BattleUi : CanvasLayer
     private Label _statusLabel = null!;
     private Label _actionOrderLabel = null!;
     private Button _retreatButton = null!;
+    // 卡片槽位顺序：0..3=敌方1..4，4..7=我方4,3,2,1（我方读投影按槽1→4再逆序放置），8,9=支援位5,6
     private readonly List<(Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag)> _cards = new();
     private readonly List<Button> _skillButtons = new();
     private Button _swap5 = null!;
     private Button _swap6 = null!;
     private Label _skillTitle = null!;
-    private string _skillBarFor = "";   // 技能栏当前渲染的行动者
+    private string _skillBarFor = "";
     private bool _skillBarWaiting;
-    private static readonly Dictionary<string, string[]> _poolCache = new();
+    private static readonly Dictionary<string, string> _unitNames = new();
+    private static readonly Dictionary<string, string> _skillNames = new();
 
     public void Bind(BattleRoot host, Action<UnitId, string> useSkill, Action<UnitId, int> swap, Action retreat)
     {
@@ -52,7 +60,6 @@ public partial class BattleUi : CanvasLayer
         _useSkill = useSkill;
         _swap = swap;
         _retreat = retreat;
-        // 幂等：重开（R）时清掉旧控件再重建，避免叠加残留
         foreach (Node child in GetChildren().ToArray())
         {
             child.QueueFree();
@@ -63,55 +70,70 @@ public partial class BattleUi : CanvasLayer
         _skillBarFor = "";
         _skillBarWaiting = false;
         Build();
-        GD.Print("[BattleUi] 四分区控件就绪（手动布局，增量刷新）。");
+        GD.Print("[BattleUi] 对峙布局就绪（敌方 1234 / 我方 4321，中文）。");
     }
 
     private void Build()
     {
-        // 背景（承接整体排版感，MouseFilter=Stop 不影响子控件事件）
         var bg = new Panel { OffsetLeft = 0, OffsetTop = 0, OffsetRight = 1280, OffsetBottom = 720 };
-        bg.Modulate = new Color(0.16f, 0.16f, 0.2f, 0.92f);
+        bg.Modulate = new Color(0.15f, 0.15f, 0.19f, 0.95f);
         AddChild(bg);
 
-        // A 顶栏
-        _statusLabel = new Label { Position = new Vector2(16, 10), CustomMinimumSize = new Vector2(320, 28) };
+        _statusLabel = new Label { Position = new Vector2(16, 10), CustomMinimumSize = new Vector2(420, 26) };
         _statusLabel.AddThemeColorOverride("font_color", new Color(1, 1, 0.85f));
         AddChild(_statusLabel);
-        _actionOrderLabel = new Label { Position = new Vector2(360, 10), CustomMinimumSize = new Vector2(560, 28) };
-        AddChild(_actionOrderLabel);
-        _retreatButton = new Button { Position = new Vector2(1080, 6), Size = new Vector2(180, 32), Text = "撤退 0%" };
+        _retreatButton = new Button { Position = new Vector2(1076, 6), Size = new Vector2(184, 34), Text = "撤退 0%" };
         _retreatButton.Pressed += () => _retreat?.Invoke();
         AddChild(_retreatButton);
+        _actionOrderLabel = new Label { Position = new Vector2(16, 44), CustomMinimumSize = new Vector2(1248, 22) };
+        _actionOrderLabel.AddThemeFontSizeOverride("font_size", 13);
+        AddChild(_actionOrderLabel);
 
-        // B 战场卡片（我方 6 + 敌方 4，按索引排列）
-        for (int i = 0; i < 6; i++)
-        {
-            AddChild(BuildCard(LeftX, TopY + i * (CardH + CardGap)));
-        }
-
+        AddRowTitle("敌方（1 2 3 4）", RowLeft, EnemyRowY - 26);
         for (int i = 0; i < 4; i++)
         {
-            AddChild(BuildCard(RightX, TopY + i * (CardH + CardGap)));
+            AddChild(BuildCard(RowLeft + i * (CardW + CardGap), EnemyRowY));
         }
 
-        // D 技能栏
-        _skillTitle = new Label { Position = new Vector2(16, SkillBarY - 26), CustomMinimumSize = new Vector2(320, 24), Text = "技能（轮到行动者时可用）" };
+        AddRowTitle("我方（4 3 2 1）", RowLeft, PlayerRowY - 26);
+        for (int i = 0; i < 4; i++)
+        {
+            AddChild(BuildCard(RowLeft + i * (CardW + CardGap), PlayerRowY));
+        }
+
+        AddRowTitle("支援位", RowLeft, SupportRowY - 26);
+        for (int i = 0; i < 2; i++)
+        {
+            AddChild(BuildCard(RowLeft + i * (MinorW + CardGap), SupportRowY, MinorW, MinorH));
+        }
+
+        _skillTitle = new Label { Position = new Vector2(16, SkillTitleY), CustomMinimumSize = new Vector2(600, 26), Text = "技能栏（轮到行动者时可用）" };
+        _skillTitle.AddThemeColorOverride("font_color", new Color(0.9f, 1, 0.9f));
         AddChild(_skillTitle);
-        _swap5 = new Button { Position = new Vector2(1000, SkillBarY), Size = new Vector2(120, 44), Text = "换位←5" };
+        _swap5 = new Button { Position = new Vector2(1010, SkillBarY), Size = new Vector2(118, 44), Text = "换位 ←5" };
         _swap5.Pressed += () => _swap?.Invoke(_host!.ActiveActor, 5);
         AddChild(_swap5);
-        _swap6 = new Button { Position = new Vector2(1130, SkillBarY), Size = new Vector2(120, 44), Text = "换位←6" };
+        _swap6 = new Button { Position = new Vector2(1138, SkillBarY), Size = new Vector2(118, 44), Text = "换位 ←6" };
         _swap6.Pressed += () => _swap?.Invoke(_host!.ActiveActor, 6);
         AddChild(_swap6);
     }
 
-    private Control BuildCard(float x, float y)
+    private void AddRowTitle(string title, float x, float y)
     {
-        var card = new Panel { Position = new Vector2(x, y), Size = new Vector2(CardW, CardH) };
-        var text = new Label { Position = new Vector2(10, 6), CustomMinimumSize = new Vector2(CardW - 20, 24) };
-        var hp = new ProgressBar { Position = new Vector2(10, 34), Size = new Vector2(CardW - 20, 14), MinValue = 0, MaxValue = 100, ShowPercentage = false };
-        var morale = new ProgressBar { Position = new Vector2(10, 52), Size = new Vector2(CardW - 20, 14), MinValue = 0, MaxValue = 100, ShowPercentage = false };
-        var tag = new Label { Position = new Vector2(10, 70), CustomMinimumSize = new Vector2(CardW - 20, 14) };
+        var label = new Label { Position = new Vector2(x, y), CustomMinimumSize = new Vector2(300, 24), Text = title };
+        label.AddThemeColorOverride("font_color", new Color(0.75f, 0.85f, 1f));
+        AddChild(label);
+    }
+
+    private Control BuildCard(float x, float y, float w = CardW, float h = CardH)
+    {
+        var card = new Panel { Position = new Vector2(x, y), Size = new Vector2(w, h) };
+        var text = new Label { Position = new Vector2(10, 6), CustomMinimumSize = new Vector2(w - 20, 26) };
+        text.AddThemeFontSizeOverride("font_size", 15);
+        var hp = new ProgressBar { Position = new Vector2(10, 36), Size = new Vector2(w - 20, 14), MinValue = 0, MaxValue = 100, ShowPercentage = false };
+        var morale = new ProgressBar { Position = new Vector2(10, 54), Size = new Vector2(w - 20, 14), MinValue = 0, MaxValue = 100, ShowPercentage = false };
+        var tag = new Label { Position = new Vector2(10, 72), CustomMinimumSize = new Vector2(w - 20, 18) };
+        tag.AddThemeFontSizeOverride("font_size", 12);
         card.AddChild(text);
         card.AddChild(hp);
         card.AddChild(morale);
@@ -120,7 +142,6 @@ public partial class BattleUi : CanvasLayer
         return card;
     }
 
-    /// <summary>增量刷新（每帧）：文本/条只更新内容；技能栏仅行动者变化时重建。无抽取、零写。</summary>
     public void Refresh(string status = "")
     {
         if (_host is null || _host.Director is null || _host.Projector is null)
@@ -135,43 +156,46 @@ public partial class BattleUi : CanvasLayer
         _statusLabel.Text = _host.GameOver
             ? $"战斗结束（第 {support.Round} 回合）：{status}"
             : status.Length > 0 ? status : $"回合 {support.Round}";
-        _actionOrderLabel.Text = $"行动序列: {string.Join(" → ", support.ActionOrderThisRound)}";
+        _actionOrderLabel.Text = "行动序列: " + string.Join(" → ", support.ActionOrderThisRound.Select(NameOf));
         _retreatButton.Text = support.CanRetreat && !_host.GameOver ? $"撤退 {support.RetreatRatePercent}%" : "本回合不可撤退";
         _retreatButton.Disabled = !support.CanRetreat || _host.GameOver;
 
-        int activeSlot = -1;
-        if (_host.IsAwaitingPlayer)
+        int activeSlot = _host.IsAwaitingPlayer ? (d.Player.UnitAtPosition(_host.ActiveActor) ?? -1) : -1;
+
+        // 敌方 1..4 → 卡 0..3
+        UnitProjection[] enemy = p.Units(player: false).ToArray();
+        for (int i = 0; i < 4; i++)
         {
-            activeSlot = d.Player.UnitAtPosition(_host.ActiveActor) ?? -1;
+            FillCard(_cards[i], enemy[i], isPlayer: false, false);
         }
 
-        int idx = 0;
-        foreach (UnitProjection u in p.Units(player: true))
+        // 我方 4 3 2 1 → 卡 4..7（投影按槽 1..6 升序；战斗位取前 4 逆序摆放）
+        UnitProjection[] playerUnits = p.Units(player: true).ToArray();
+        for (int i = 0; i < 4; i++)
         {
-            FillCard(_cards[idx], u, isPlayer: true, u.Slot == activeSlot);
-            idx++;
+            UnitProjection u = playerUnits[i]; // 槽 1..4
+            FillCard(_cards[4 + (3 - i)], u, isPlayer: true, u.Slot == activeSlot);
         }
 
-        foreach (UnitProjection u in p.Units(player: false))
-        {
-            FillCard(_cards[idx], u, isPlayer: false, false);
-            idx++;
-        }
+        // 支援位 5、6 → 卡 8、9
+        FillCard(_cards[8], playerUnits[4], isPlayer: true, false);
+        FillCard(_cards[9], playerUnits[5], isPlayer: true, false);
 
         RefreshSkillBar(d, p);
     }
 
     private static void FillCard((Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag) c, UnitProjection u, bool isPlayer, bool active)
     {
-        c.text.Text = u.UnitId == "-" ? $"[{u.Slot}] 空位" : $"[{u.Slot}] {u.UnitId}  HP {u.Hp}/{u.MaxHp}  士气 {u.Morale}";
+        string title = u.UnitId == "-" ? $"[{u.Slot}] 空位" : $"[{u.Slot}] {NameOf(u.UnitId)}  HP {u.Hp}/{u.MaxHp}  士气 {u.Morale}";
+        c.text.Text = title;
         c.hp.MaxValue = u.MaxHp > 0 ? u.MaxHp : 1;
         c.hp.Value = u.Hp;
-        c.hp.Modulate = u.Weak ? new Color(1, 0.55f, 0.55f) : new Color(0.55f, 1, 0.6f);
+        c.hp.Modulate = u.Weak ? new Color(1, 0.55f, 0.55f) : new Color(0.5f, 1, 0.6f);
         c.morale.MaxValue = 100;
         c.morale.Value = u.Morale;
         c.morale.Modulate = isPlayer ? new Color(1, 0.95f, 0.55f) : new Color(0.55f, 0.55f, 0.55f);
         c.tag.Text = u.UnitId == "-" ? "" : (u.Weak ? "虚弱（换位/治疗/回升可救）" : (isPlayer ? "我方" : "敌方"));
-        c.card.Modulate = active ? new Color(1.1f, 1.1f, 0.75f) : new Color(1, 1, 1);
+        c.card.Modulate = active ? new Color(1.1f, 1.1f, 0.72f) : new Color(1, 1, 1);
     }
 
     private void RefreshSkillBar(BattleDirector d, BattleProjector p)
@@ -179,7 +203,6 @@ public partial class BattleUi : CanvasLayer
         bool waiting = _host!.IsAwaitingPlayer;
         UnitId actor = _host.ActiveActor;
 
-        // 换位按钮：仅等待玩家且本回合未换且支援位占用时可用（每帧更新，不重建）
         _swap5.Disabled = !waiting || d.SwappedThisRound || d.Player.UnitRuntimeAt(5) is null;
         _swap6.Disabled = !waiting || d.SwappedThisRound || d.Player.UnitRuntimeAt(6) is null;
 
@@ -195,8 +218,7 @@ public partial class BattleUi : CanvasLayer
             return;
         }
 
-        _skillTitle.Text = $"{actor} 的行动 — 选择技能或换位";
-        // 行动者变化才重建一次（修复"每帧重建导致点击无反应"）
+        _skillTitle.Text = $"轮到 {NameOf(actor.ToString())} — 选择技能或换位";
         if (_skillBarFor == actor.ToString() && _skillBarWaiting)
         {
             return;
@@ -206,22 +228,25 @@ public partial class BattleUi : CanvasLayer
         _skillBarWaiting = true;
         ClearSkillButtons();
         var pool = new HashSet<string>(SkillPool(actor.ToString()));
-        float x = 20f;
-        foreach (string skillId in SkillPool(actor.ToString()))
+        string[] poolIds = SkillPool(actor.ToString());
+        int perRow = 6; // (990−24)/158
+        float startX = 24f;
+        for (int i = 0; i < poolIds.Length; i++)
         {
+            string skillId = poolIds[i];
             SkillProjection sp = p.Skill(skillId, actor, d.Player, d.Enemy, pool);
+            string name = SkillName(skillId);
             var b = new Button
             {
-                Position = new Vector2(x, SkillBarY),
+                Position = new Vector2(startX + (i % perRow) * 158f, SkillBarY + (i / perRow) * 52f),
                 Size = new Vector2(150, 44),
-                Text = sp.Reason == AvailabilityReason.Ok ? skillId : $"{skillId}（{sp.Tooltip}）",
+                Text = sp.Reason == AvailabilityReason.Ok ? name : $"{name}（{sp.Tooltip}）",
                 Disabled = sp.Reason != AvailabilityReason.Ok,
             };
             string captured = skillId;
             b.Pressed += () => _useSkill?.Invoke(actor, captured);
             AddChild(b);
             _skillButtons.Add(b);
-            x += 158f;
         }
     }
 
@@ -235,7 +260,41 @@ public partial class BattleUi : CanvasLayer
         _skillButtons.Clear();
     }
 
-    /// <summary>原型技能池（静态缓存；实机携带 5 由后续 BattleSetup 替换，当前全池）。</summary>
+    // ---------- 中文名映射（数据驱动，静态缓存） ----------
+
+    private static string NameOf(string unitId)
+    {
+        if (_unitNames.Count == 0)
+        {
+            LoadNames();
+        }
+
+        return _unitNames.TryGetValue(unitId, out string? n) ? n : unitId;
+    }
+
+    private static string SkillName(string skillId)
+    {
+        if (_skillNames.Count == 0)
+        {
+            LoadNames();
+        }
+
+        return _skillNames.TryGetValue(skillId, out string? n) ? n : skillId;
+    }
+
+    private static void LoadNames()
+    {
+        foreach (UnitConfig u in UnitsConfig.Parse(ReadData("units.json")).Units)
+        {
+            _unitNames[u.Id] = u.Name;
+        }
+
+        foreach (SkillTemplateConfig s in SkillsConfig.Parse(ReadData("skills.json")).Skills)
+        {
+            _skillNames[s.Id] = s.Name;
+        }
+    }
+
     private static string[] SkillPool(string owner)
     {
         if (_poolCache.TryGetValue(owner, out string[]? cached))
@@ -248,6 +307,8 @@ public partial class BattleUi : CanvasLayer
         _poolCache[owner] = pool;
         return pool;
     }
+
+    private static readonly Dictionary<string, string[]> _poolCache = new();
 
     private static string ReadData(string name)
     {
