@@ -270,6 +270,10 @@ public partial class BattleRoot : Node2D
 
     public bool IsTargeting => _pendingSkill is not null;
 
+    /// <summary>待选目标是否在敌方侧（高亮分阵营用：敌方技能=true；any_ally/move 等友方=false）。</summary>
+    public bool PendingTargetsEnemy
+        => _pendingSkill is not null && _skills.Get(_pendingSkill).Target.Side == "enemy";
+
     private void ExecutePlayerSkill(UnitId actor, string skillId, int[]? chosen)
     {
         _pendingSkill = null;
