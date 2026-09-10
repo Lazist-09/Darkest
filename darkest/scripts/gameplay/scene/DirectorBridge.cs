@@ -26,19 +26,21 @@ public static class DirectorBridge
         string Read(string name) => FileAccess.GetFileAsString($"res://data/{name}");
 
         BalanceTable balance = BalanceTable.FromTuning(TuningConfig.Parse(Read("tuning.json")));
+        UnitsConfig unitsCfg = UnitsConfig.Parse(Read("units.json"));
+        // F1（#190）：我方原型集合由 units.json 数据派生 → 新增角色零代码改动
+        SkillsConfig skillsCfg = SkillsConfig.Parse(Read("skills.json"), unitsCfg.PlayerArchetypes);
         var director = new BattleDirector(
             FormationConfig.Parse(Read("formation.json")),
-            UnitsConfig.Parse(Read("units.json")),
-            SkillsConfig.Parse(Read("skills.json")),
+            unitsCfg,
+            skillsCfg,
             balance,
             MoraleEventsConfig.Parse(Read("morale_events.json")),
             BuffDefsConfig.Parse(Read("buff_defs.json")),
             EnemyAiConfig.Parse(Read("enemy_ai.json")),
             new CombatLog());
 
-        var projector = new BattleProjector(director, balance,
-            SkillsConfig.Parse(Read("skills.json")), new SkillRuntimeState());
+        var projector = new BattleProjector(director, balance, skillsCfg, new SkillRuntimeState());
 
-        return new DirectorHandle { Core = director, Projector = projector, Skills = SkillsConfig.Parse(Read("skills.json")) };
+        return new DirectorHandle { Core = director, Projector = projector, Skills = skillsCfg };
     }
 }

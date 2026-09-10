@@ -217,7 +217,17 @@ public sealed class SkillExecutor
                         _log.Append(new EffectEvent(target.Id, "shield", 100.0, true));
                     }
                 }
-                // taunt/guard_attach/next_attack_boost：数据已录，钩子执行归 M5 动作层（buff 生命周期在岗）
+                if (effect.Type is SkillEffectType.Taunt)
+                {
+                    // F1（#192）：嘲讽挂到【自己】身上（target.scope=self）；敌方 AI 按 buff holder 识别 → 可插拔
+                    UnitRuntime? target = ResolveRuntime(allyBoard, targetBoard, slot);
+                    if (target is not null)
+                    {
+                        _buffs?.Add(target.Id, "taunt", source: null);
+                        _log.Append(new EffectEvent(target.Id, "taunt", 100.0, true));
+                    }
+                }
+                // guard_attach/next_attack_boost：数据已录，钩子执行归后续包
             }
         }
 

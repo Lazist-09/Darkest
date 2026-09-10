@@ -177,22 +177,44 @@ public sealed class EnemyAi
             return pool; // AOE 全池；唯一/空池无抽取（确定性基线保护）
         }
 
-        // ① taunt 加权抽取（嘲讽者必须在池内；唯一候选已在上面返回）
-        UnitRuntime? taunter = player.UnitsInSlotOrder().FirstOrDefault(u => u.ArchetypeId == "tank");
-        if (buffs is not null && taunter is not null && buffs.Has(unit.Id, "taunt")
-            && player.UnitAtPosition(taunter.Id) is { } ts && pool.Contains(ts))
+        // ① taunt：按"我方带 taunt buff 者"识别（#192，可插拔——不再猜 tank 原型）；多个嘲讽者各 ×taunt_weight
+        var tauntSlots = new List<int>();
+        if (buffs is not null)
+        {
+            foreach (UnitRuntime ally in player.UnitsInSlotOrder())
+            {
+                if (buffs.Has(ally.Id, "taunt") && player.UnitAtPosition(ally.Id) is { } s && pool.Contains(s))
+                {
+                    tauntSlots.Add(s);
+                }
+            }
+        }
+
+        if (tauntSlots.Count > 0)
         {
             int tauntW = Math.Max(1, _config.TauntWeight);
-            int total = pool.Count - 1 + tauntW;
+            var others = pool.Where(p => !tauntSlots.Contains(p)).ToList();
+            int total = tauntSlots.Count * tauntW + others.Count;
             int roll = rng.NextInt(0, total);
             log.Append(new RngDraw(rng.DrawCount, roll)); // 确定性红线：抽取必写日志
-            if (roll < tauntW)
+            int acc = 0;
+            foreach (int s in tauntSlots)
             {
-                return new[] { ts };
+                acc += tauntW;
+                if (roll < acc)
+                {
+                    return new[] { s };
+                }
             }
 
-            List<int> others = pool.Where(p => p != ts).ToList();
-            return new[] { others[roll - tauntW] };
+            foreach (int p in others)
+            {
+                acc += 1;
+                if (roll < acc)
+                {
+                    return new[] { p };
+                }
+            }
         }
 
         // ② 原型固定偏好（③ 兜底：槽号小者优先）

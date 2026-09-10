@@ -108,12 +108,14 @@ public sealed record SkillsConfig(
         throw new InvalidDataException($"{ResPath}: 引用了不存在的技能 \"{id}\"。");
     }
 
-    public static SkillsConfig Parse(string json)
+    public static SkillsConfig Parse(string json, IReadOnlyCollection<string>? playerArchetypes = null)
     {
         if (string.IsNullOrWhiteSpace(json))
         {
             throw new InvalidDataException($"{ResPath}: 内容为空。");
         }
+
+        _playerSet = playerArchetypes; // F1（#190）：注入数据派生的我方原型集合（null = 旧白名单行为，兼容既有测试）
 
         SkillsConfig cfg;
         try
@@ -242,7 +244,10 @@ public sealed record SkillsConfig(
     }
 
     private static bool PlayerOwner(string owner)
-        => owner is "warrior" or "tank" or "medic" or "commissar";
+        => _playerSet is not null ? _playerSet.Contains(owner) : owner is "warrior" or "tank" or "medic" or "commissar";
+
+    /// <summary>F1（#190）：调用方注入的数据派生我方原型集合（null = 未注入，按旧白名单；用于 self_slots 上限与池内计数）。</summary>
+    private static IReadOnlyCollection<string>? _playerSet;
 
     private static void ValidateEffectPairing(SkillTemplateConfig s)
     {
@@ -296,6 +301,32 @@ public sealed record SkillsConfig(
 
     private static void ValidateCounts(SkillsConfig cfg)
     {
+        if (_playerSet is not null)
+        {
+            // F1（#190）：按数据分组——每个我方原型池内恰 9（不写死 4 个键）；其余 owner 组不得为空
+            var groups = cfg.Skills.Where(s => !s.PoolExternal)
+                .GroupBy(s => s.OwnerUnit)
+                .ToDictionary(g => g.Key, g => g.Count());
+            foreach (string owner in _playerSet)
+            {
+                if (!groups.TryGetValue(owner, out int n) || n != 9)
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: 我方原型 \"{owner}\" 池内技能数必须为 9（实际 {(groups.TryGetValue(owner, out int m) ? m : 0)}，P3/F1）。");
+                }
+            }
+
+            foreach ((string owner, int n) in groups.Where(kv => !_playerSet.Contains(kv.Key)))
+            {
+                if (n < 1)
+                {
+                    throw new InvalidDataException($"{ResPath}: \"{owner}\" 池内技能数为 0（P3）。");
+                }
+            }
+
+            return;
+        }
+
         int[] player = { 0, 0, 0, 0 };
         int[] enemy = { 0, 0, 0 };
         foreach (SkillTemplateConfig s in cfg.Skills)

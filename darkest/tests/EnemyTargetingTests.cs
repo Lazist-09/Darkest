@@ -121,7 +121,7 @@ public sealed class EnemyTargetingTests
         UnitRuntime melee = d.Enemy.UnitRuntimeAt(1)!;
         d.Morale.Initialize(d.Player.UnitsInSlotOrder());
         var ledger = new BuffLedger(buffs);
-        ledger.Add(melee.Id, "taunt", source: null); // 嘲讽：候选池 {1,2} 中 1 位（坦克）权重 3、2 位权重 1
+        ledger.Add(UnitId.Of("tank"), "taunt", source: null); // F1/#192：嘲讽挂在【我方嘲讽者】身上（不再打给敌人）；池 {1,2} 中 1 位权重 3
 
         EnemyAi ai = NewAi(cfg, skills);
         var rng = new RngProvider(20260909);
@@ -148,7 +148,7 @@ public sealed class EnemyTargetingTests
         UnitRuntime melee = d.Enemy.UnitRuntimeAt(1)!;
         d.Player.RemoveUnitAt(2); // 池内只剩 1 位（坦克）
         var ledger = new BuffLedger(buffs);
-        ledger.Add(melee.Id, "taunt", source: null);
+        ledger.Add(UnitId.Of("tank"), "taunt", source: null);
 
         var rng = new RngProvider(5);
         ulong before = rng.DrawCount;
@@ -167,7 +167,7 @@ public sealed class EnemyTargetingTests
         d.Player.SwapSlots(1, 4); // 坦克移到 4（近战技能池 [1,2] 之外）
         d.Player.UnitRuntimeAt(2)!.CurrentHp = 10; // 我 2 位残血
         var ledger = new BuffLedger(buffs);
-        ledger.Add(melee.Id, "taunt", source: null);
+        ledger.Add(UnitId.Of("tank"), "taunt", source: null); // 嘲讽者在 4 位（池 [1,2] 之外）
 
         SkillChoice c = NewAi(cfg, skills).Choose(melee, d.Enemy, d.Player, ledger, new RngProvider(3), log)!;
         CollectionAssert.AreEqual(new[] { 2 }, c.TargetSlots.ToArray(), "嘲讽者在池外 → 忽略 taunt，走 lowest_hp 偏好");

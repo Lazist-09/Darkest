@@ -34,10 +34,10 @@ public sealed record UnitsConfig(
     [property: JsonPropertyName("units")] IReadOnlyList<UnitConfig> Units)
 {
     public const string ResPath = "res://data/units.json";
-    private static readonly string[] PlayerIds =
-        { "warrior", "tank", "medic", "commissar" };
-    private static readonly string[] EnemyIds =
-        { "melee_soldier", "ranged_archer", "caster" };
+
+    /// <summary>F1（#190）：我方原型集合 = 数据派生（side == "player"），不再硬编码白名单——新增角色只改数据。</summary>
+    public IReadOnlyCollection<string> PlayerArchetypes
+        => Units.Where(u => u.IsPlayer).Select(u => u.Id).ToArray();
 
     public static UnitsConfig Parse(string json)
     {
@@ -124,14 +124,10 @@ public sealed record UnitsConfig(
             }
         }
 
-        // 原型集合必须包含切片要求的 7 原型（P1 完整性）
-        string[] required = PlayerIds.Concat(EnemyIds).ToArray();
-        foreach (string id in required)
+        // F1（#190）：不再硬编码"必选 7 原型"——只要求两侧各至少 1 个（新增角色零代码改动）
+        if (!cfg.Units.Any(u => u.IsPlayer) || !cfg.Units.Any(u => !u.IsPlayer))
         {
-            if (!ids.Contains(id))
-            {
-                throw new InvalidDataException($"{ResPath}: 缺少必选原型 \"{id}\"。");
-            }
+            throw new InvalidDataException($"{ResPath}: 至少各需 1 个我方/敌方原型（P1 完整性，改为数据派生）。");
         }
     }
 
