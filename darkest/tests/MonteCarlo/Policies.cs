@@ -44,9 +44,7 @@ public static class Policies
         var actions = new List<PlayerAction>();
         foreach (UnitRuntime unit in director.Player.UnitsInSlotOrder())
         {
-            string? skillId = kind == PolicyKind.SemiRandom
-                ? PickSemiRandom(unit, director, rng)
-                : PickBaseline(unit, director);
+            string? skillId = ChooseForUnit(kind, unit, director, rng);
             if (skillId is not null)
             {
                 actions.Add(new PlayerAction(unit.Id, skillId));
@@ -55,6 +53,10 @@ public static class Policies
 
         return actions;
     }
+
+    /// <summary>单单位决策（导演 actor 节拍用：一方行动时按该单位决策一次）。</summary>
+    public static string? ChooseForUnit(PolicyKind kind, UnitRuntime unit, BattleDirector director, IRngProvider rng)
+        => kind == PolicyKind.SemiRandom ? PickSemiRandom(unit, director, rng) : PickBaseline(unit, director);
 
     private static string? PickSemiRandom(UnitRuntime unit, BattleDirector director, IRngProvider rng)
     {

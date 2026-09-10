@@ -77,9 +77,10 @@ public sealed class MonteCarloTests
     [TestMethod]
     public void InspiredRisk_HpNeverNegative_MoraleClamped_SlotsValid()
     {
-        // 长篇冒烟（50 场）边界扫描：无崩溃/无越界（HP、士气钳制由内核保证）；胜率带宽属验收判据 A（见 M6Acceptance）
+        // 长篇冒烟（50 场）软锁审计：100 回合强切局（RoundLimit）占比须 ≤20%；HP/士气钳制由内核保证
         SimulationReport r = HeadlessDriver.RunMany(50, PolicyKind.SemiRandom, seedBase: 55);
-        Assert.IsTrue(r.MaxRounds <= 100, "无 100 回合强切（软锁回归）");
+        Assert.IsTrue(r.MaxRounds <= 100, "回合计数钳制在 100（无越界）");
+        Assert.IsTrue(r.RoundLimitGames <= 10, $"软锁回归：50 场中 {r.RoundLimitGames} 场打满 100 回合（>20% 需数值干预）");
         Assert.IsTrue(r.TotalWeak + r.TotalCollapse >= 1, "系统事件发生");
     }
 

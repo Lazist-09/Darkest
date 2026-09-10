@@ -131,8 +131,8 @@ public sealed class SkillExecutionTests
         Assert.IsTrue(log.Events.OfType<HitEvent>().All(h => !h.Hit), "两目标均未命中");
         Assert.IsFalse(log.Events.OfType<DamageEvent>().Any());
         Assert.IsFalse(log.Events.OfType<MoraleEvent>().Any());
-        Assert.AreEqual(50, enemy.UnitRuntimeAt(1)!.CurrentHp);
-        Assert.AreEqual(50, enemy.UnitRuntimeAt(2)!.CurrentHp);
+        Assert.AreEqual(60, enemy.UnitRuntimeAt(1)!.CurrentHp);
+        Assert.AreEqual(60, enemy.UnitRuntimeAt(2)!.CurrentHp);
     }
 
     [TestMethod]
@@ -194,13 +194,13 @@ public sealed class SkillExecutionTests
         var executor = NewExecutor(log, new SkillRuntimeState(), balance, skills, morale);
         FormationBoard rebuilt = RebuildPlayer((1, "medic"), (2, "tank"));
 
-        enemy.UnitRuntimeAt(1)!.CurrentHp = 25; // 近战小兵 50 → 已失血 50%
+        enemy.UnitRuntimeAt(1)!.CurrentHp = 25; // 近战小兵 60 → 已失血 58.3%
         executor.Execute(skills.Get("medic_lethal_injection"), UnitId.Of("medic"), rebuilt, enemy, new ScriptedRng(0.0, 100.0, 0.0, 100.0));
-        // 两目标（敌 1、2 同型同 HP 25）：各 倍率 = 1.0 + 0.5×0.8 = 1.4 → round(11×1.4×(1−8/38))=12
+        // 两目标（敌 1、2 同型 HP 60，敌1 设 25 → 失血 58.3%）：倍率 = 1.0 + 0.583×0.4 = 1.233
         DamageEvent[] damages = log.Events.OfType<DamageEvent>().ToArray();
         Assert.AreEqual(2, damages.Length, "两目标各一条伤害");
-        // 敌 1（失血 50%）倍率 1.4 → 12；敌 2（满血）倍率 1.0 → 9 —— 已失血% 按目标实际 HP 逐目标计算
-        Assert.AreEqual(12, damages.Max(d => d.Amount), "失血目标倍率 1.4 → 12");
+        // 敌 1（失血 58.3%）倍率 1.233 → 11；敌 2（满血）倍率 1.0 → 9 —— 已失血% 按目标实际 HP 逐目标计算（#171 系数 0.4）
+        Assert.AreEqual(11, damages.Max(d => d.Amount), "失血目标 11（1.233 倍）");
         Assert.AreEqual(9, damages.Min(d => d.Amount), "满血目标倍率 1.0 → 9");
         Assert.IsTrue(damages.Any(d => d.Raw > 11 * 1.0 * (1 - 8 / 38.0)), "失血目标伤害高于基础 1.0 情形");
     }

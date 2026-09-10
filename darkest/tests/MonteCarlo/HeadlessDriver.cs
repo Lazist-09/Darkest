@@ -12,8 +12,8 @@ using Darkest.Gameplay.Sim.Skill;
 
 namespace Darkest.Tests.MonteCarlo;
 
-/// <summary>单场结果（T-M6-01/03 输出）。</summary>
-public enum GameResult { PlayerVictory, EnemyVictory, DrawRetreat }
+/// <summary>单场结果（T-M6-01/03 输出）。RoundLimit = 100 回合强切（软锁审计，不计胜）。</summary>
+public enum GameResult { PlayerVictory, EnemyVictory, DrawRetreat, RoundLimit }
 
 /// <summary>单场统计（从内核事件流聚合，与表现零耦合）。</summary>
 public sealed record GameOutcome(long Seed, GameResult Result, int Rounds, int CollapseCount, int WeakCount,
@@ -25,7 +25,7 @@ public sealed record SimulationReport(int Runs, double WinRate, double AvgRounds
     int TotalCollapse, int TotalWeak, int TotalDeathDoorRolls, double AvgDeathDoorRolls,
     int GamesWithRetreat, int TotalVirtue, int TotalAffliction, int TotalDisplacements,
     IReadOnlyDictionary<string, int> SkillUses, IReadOnlyDictionary<int, int> MoraleHistogram,
-    IReadOnlyDictionary<string, int> PlayerDamage, string? LastLogDump);
+    IReadOnlyDictionary<string, int> PlayerDamage, int RoundLimitGames, string? LastLogDump);
 
 /// <summary>
 /// HeadlessDriver（T-M6-01）：直驱 BattleDirector（无场景树/无窗口/零 Godot）——
@@ -34,6 +34,13 @@ public sealed record SimulationReport(int Runs, double WinRate, double AvgRounds
 /// </summary>
 public static class HeadlessDriver
 {
+    private static readonly int MaxRoundsCap = 100;
+
+    private static GameResult SideWinner(BattleDirector director)
+        => director.Enemy.OccupiedPositions(false).Count == 0
+            ? GameResult.PlayerVictory
+            : GameResult.EnemyVictory;
+
     public static BattleDirector NewDirector(CombatLog log) => DirectorBuilders.Build(log, null, null, null);
 
     /// <summary>单场模拟：返回结果 + 事件日志（供确定性留档）。支持三类数据覆盖（探针/override 语义）。</summary>
@@ -52,26 +59,12 @@ public static class HeadlessDriver
         int round;
         for (round = 1; round <= 100; round++)
         {
-            director.StartTurn(rng);
-            IReadOnlyList<PlayerAction> actions = Policies.Choose(policy, director, rng);
-            foreach (PlayerAction a in actions)
-            {
-                director.PlayerUseSkill(a.Actor, a.SkillId, rng);
-                skillUses[a.SkillId] = skillUses.GetValueOrDefault(a.SkillId) + 1;
-            }
+            director.StartTurn(rng); // 回合钩子（增援/支援位+3/虚弱回升）+ 构建行动序列
 
             // 士气直方图（回合初采样，供「士气触底/分布」统计）
             foreach (UnitRuntime u in director.Player.UnitsInSlotOrder())
             {
                 moraleHistogram[u.Morale / 10] = moraleHistogram.GetValueOrDefault(u.Morale / 10) + 1;
-            }
-
-            if (director.IsBattleOver)
-            {
-                result = director.Enemy.OccupiedPositions(false).Count == 0
-                    ? GameResult.PlayerVictory
-                    : GameResult.EnemyVictory;
-                break;
             }
 
             // 每回合偶发撤退尝试（策略随机注入，满足「撤退≥1 整场」自然发生）
@@ -82,12 +75,27 @@ public static class HeadlessDriver
                 break;
             }
 
-            director.EnemyPhase(rng);
+            // actor 节拍（M6 前置立卡）：行动序列/眩晕/减速生效，我方逐个决策、敌方经 AI
+            director.RunFullRound(rng, unit =>
+            {
+                string? skillId = Policies.ChooseForUnit(policy, unit, director, rng);
+                if (skillId is not null)
+                {
+                    skillUses[skillId] = skillUses.GetValueOrDefault(skillId) + 1;
+                }
+
+                return skillId;
+            });
+
             if (director.IsBattleOver)
             {
-                result = director.Enemy.OccupiedPositions(false).Count == 0
-                    ? GameResult.PlayerVictory
-                    : GameResult.EnemyVictory;
+                result = SideWinner(director);
+                break;
+            }
+
+            if (round >= MaxRoundsCap)
+            {
+                result = GameResult.RoundLimit; // 100 回合强切：软锁审计，不计胜
                 break;
             }
         }
@@ -128,7 +136,7 @@ public static class HeadlessDriver
             lastLog = log;
         }
 
-        // 胜 = 敌方全灭（PlayerVictory）或 撤退成功（DrawRetreat 口径按玩家撤离胜出）
+        // 胜 = 敌方全灭（PlayerVictory）或 撤退成功（DrawRetreat 口径按玩家撤离胜出）；RoundLimit 不计胜
         double win = outcomes.Count(o => o.Result == GameResult.PlayerVictory || o.Result == GameResult.DrawRetreat);
         double avg = outcomes.Average(o => o.Rounds);
         var report = new SimulationReport(
@@ -148,6 +156,7 @@ public static class HeadlessDriver
             MergeSkills(outcomes),
             MergeHistogram(outcomes),
             playerDamage,
+            outcomes.Count(o => o.Result == GameResult.RoundLimit),
             lastLog is null ? null : Dump(lastLog));
         return report;
     }

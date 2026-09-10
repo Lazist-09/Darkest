@@ -64,13 +64,13 @@ public sealed class SpecialSkillTests
     }
 
     [TestMethod]
-    public void MissingHpSegments_0_8And0_9_Exactly2()
+    public void MissingHpSegments_0_4And0_5_Exactly2()
     {
         SkillTemplateConfig[] missing = Skills().Skills
             .Where(s => s.Damage?.Segments.Any(x => x.Type == DamageSegmentType.MissingHp) == true).ToArray();
         Assert.AreEqual(2, missing.Length);
-        Assert.AreEqual(0.8, missing.Single(s => s.Id == "medic_lethal_injection").Damage!.Segments[0].Coefficient);
-        Assert.AreEqual(0.9, missing.Single(s => s.Id == "commissar_execution_order").Damage!.Segments[0].Coefficient);
+        Assert.AreEqual(0.4, missing.Single(s => s.Id == "medic_lethal_injection").Damage!.Segments[0].Coefficient);
+        Assert.AreEqual(0.5, missing.Single(s => s.Id == "commissar_execution_order").Damage!.Segments[0].Coefficient);
     }
 
     [TestMethod]
@@ -80,7 +80,7 @@ public sealed class SpecialSkillTests
             .Where(s => s.Damage?.Segments.Count >= 2 && s.Damage.Segments.All(x => x.Type == DamageSegmentType.Flat))
             .ToArray();
         Assert.AreEqual(2, multi.Length);
-        Assert.AreEqual(0.55, multi.Single(s => s.Id == "medic_double_hit").Damage!.Segments[0].Multiplier, "双连击 0.55×2");
+        Assert.AreEqual(0.5, multi.Single(s => s.Id == "medic_double_hit").Damage!.Segments[0].Multiplier, "双连击 0.5×2");
         Assert.AreEqual(0.5, multi.Single(s => s.Id == "commissar_burst_fire").Damage!.Segments[0].Multiplier, "连射 0.5×2");
     }
 

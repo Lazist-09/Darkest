@@ -111,7 +111,59 @@ public sealed class BattleDirector
     public void PlayerUseSkill(UnitId actor, string skillId, IRngProvider rng)
         => _executor.Execute(_skills.Get(skillId), actor, _player, _enemy, rng);
 
-    /// <summary>敌方阶段：槽位升序逐敌经 EnemyAi 决策并执行（行动次数读 tuning.enemy_actions_per_round，探针可调）。</summary>
+    /// <summary>下一位行动者（M6 前置立卡：行动序列/眩晕/减速生效——排序与眩晕跳过均在内核 TurnSequencer）。</summary>
+    public UnitId? NextActor() => _sequencer.NextActor();
+
+    /// <summary>敌方单位行动一次（actor 节拍内调用；AI 同源）。</summary>
+    public void EnemyAct(UnitId actor, IRngProvider rng)
+    {
+        UnitRuntime? u = _enemy.UnitsInSlotOrder().FirstOrDefault(x => x.Id == actor);
+        if (u is null)
+        {
+            return;
+        }
+
+        SkillChoice? choice = _ai.Choose(u, _enemy, _player, _buffs, rng, _log);
+        if (choice is not null)
+        {
+            _executor.Execute(_skills.Get(choice.SkillId), actor, _player, _enemy, rng);
+        }
+    }
+
+    /// <summary>
+    /// 完整一回合（策划拍板 M6 前置）：StartTurn 后按行动序列逐个 NextActor——
+    /// 我方单位由 choosePlayerSkill 回调用例决策，敌方经 EnemyAi；眩晕单位被 NextActor 跳过
+    /// （清除标记），减速经行动序列排序生效。队列耗尽或胜负分定即回合结束。
+    /// enemy_actions_per_round（默认 1）为「策划保留否决」探针键：&gt;1 时走旧 EnemyPhase 路径。
+    /// </summary>
+    public void RunFullRound(IRngProvider rng, System.Func<UnitRuntime, string?> choosePlayerSkill)
+    {
+        StartTurn(rng);
+        while (!IsBattleOver)
+        {
+            UnitId? actor = _sequencer.NextActor();
+            if (actor is null)
+            {
+                break;
+            }
+
+            UnitRuntime? playerUnit = _player.UnitsInSlotOrder().FirstOrDefault(x => x.Id == actor);
+            if (playerUnit is not null)
+            {
+                string? skillId = choosePlayerSkill(playerUnit);
+                if (skillId is not null)
+                {
+                    PlayerUseSkill(actor.Value, skillId, rng);
+                }
+            }
+            else if (_enemy.UnitsInSlotOrder().Any(x => x.Id == actor))
+            {
+                EnemyAct(actor.Value, rng);
+            }
+        }
+    }
+
+    /// <summary>敌方阶段（探针/旧入口保留：bulk 模式，供 enemy_actions_per_round&gt;1 调试与既有测试）。</summary>
     public void EnemyPhase(IRngProvider rng)
     {
         int actions = Math.Max(1, _balance.Tuning.EnemyActionsPerRound);
