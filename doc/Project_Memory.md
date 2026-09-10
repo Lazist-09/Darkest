@@ -20,6 +20,7 @@
 10. **先读后写**：改任何文件前 read 全文；同文件禁止并行编辑（本轮已踩过坑，策划纪律第 4 条）。
 11. **命名**：C# 类型 PascalCase、文件/资源 snake_case、配置字段名以 data_schema.md 为准（_conventions §3）；术语用 glossary §9 建议（Morale/Resilience/Weak/DeathsDoor/…）。
 12. **目标语义（#178/#179，v0.44）**：技能范围=候选池——单体/`any_ally` 池内**选一**（玩家③b / AI / 策略）、AOE 全中、`team` 全体、双段=同一目标两段；数据 JSON 零改动（data_schema §3.2 生效语义 + P11）；**旧"范围全命中"口径已废（O-38）**——改造中，完成前不重新基线。
+13. **池外「移动」（#180，v0.45）**：每原型常备 1 条 `*_move`（`pool_external:true` + `target.scope=move_range` + `distance`：坦克 1 / 战医政 2）；仅战斗位 1~4、目标=自身±N 格内**被占用**战斗位并交换（空位不可选，#21）；**不过位移抗性、无伤害 → 不触发死门**；技能总量 **47**（36 池内 + 4 移动 + 7 敌）；增援=单按钮两步 `Reinforce(A,B,X)`（#181）；技能栏不内联要求文字、候选高亮必需（#182）。
 
 ---
 
@@ -30,7 +31,7 @@
 |---|---|---|
 | README.md / GDD.md / state.md / CHANGELOG.md | 入口 / 主文档 / 决策表 #1~#165 / 演进史 | state.md = #N 溯源 |
 | modules/combat_math.md | 全公式 + 9 层随机 + #157/#158/#163 口径 | 挡在所有代码前 |
-| modules/skill_data.md | 43 条技能实值（36 我方 + 7 敌方） | 数据抄录唯一来源 |
+| modules/skill_data.md | **47 条技能实值（36 池内 + 4 池外移动 + 7 敌方，#180）** | 数据抄录唯一来源 |
 | modules/{glossary,skill,character,morale,formation,buff,enemy,ui_spec,verification,review}.md | 各系统规格 | modules 层为准 |
 
 ### 架构拆分层（doc/architecture/）
@@ -38,8 +39,8 @@
 |---|---|---|
 | _conventions.md | 写作规范 / 任务卡模板 | 定稿 v1 |
 | blueprint.md | 总体蓝图（五层/目录/接口/确定性/测试钩子/风险） | 草案 v0.1 |
-| data_schema.md | 数据 Schema + P1~P10 校验 | 草案 v0.1 |
-| open_issues.md | 开放题 O-01~O-39（O-35~O-39 为 v0.40~v0.44 实现期登记） | 滚动维护 |
+| data_schema.md | 数据 Schema + P1~P12 校验 | 草案 v0.1→随实现滚动 |
+| open_issues.md | 开放题 O-01~O-41（O-35~O-41 为 v0.40~v0.45 实现期登记） | 滚动维护 |
 | README.md | 架构入口 + 看板 + 交付清单 | 本套入口 |
 | tasks/m0~m6 共 7 个文件 | **54 张任务卡**（M6 含 T-M6-08 重新基线） | 草案→随实现滚动 |
 
@@ -82,4 +83,6 @@
 
 - `2026-09-09: [修订·架构师] v0.44 目标语义同步（#178/#179，O-38）：策划拍板"范围=候选池、单体选一"——旧实现（SkillTargetResolver 全命中 / SkillExecutor 全结算）与 #176 46% 基线、combat_math §7.3 实测全部作废。架构文档已对齐：data_schema P11（aoe 标签一致性）+ §3.2 生效语义、blueprint §5b 时序/§9.3/§9.10、m2 §2 目标数量语义 + O-32~34 收口（#166~#168）、m3 T-M3-05/06 改造清单（候选池+选一、双段同目标 #179）、m5 T-M5-02/06/07（AI 选一 O-39 / UI ③b）+ 撤退 #169、m6 T-M6-08 重新基线（含 SimSanity：劈砍·精准射击·急救恰 1 目标）、open_issues O-01~O-39 收口（O-11=#169、O-21=#170、O-31 关闭、O-36 ×2 否决）。主程序待办：SkillTargetResolver/SkillExecutor 改造 → M5 ③b/AI 选目标 → 重跑 300 场新基线（T-M6-08）。数据 JSON 零改动。_`
 
-- `2026-09-09: [主程序·v0.44 改造完成] #178/#179 目标语义全链路落地：SkillExecutor.Execute(chosenTargets)（单体伤害/any_ally 候选池选一——实机=玩家点候选卡+蓝卡高亮+OnCardClicked，headless=固定调用点随机选一+RngDraw）；AOE（横扫/精神震荡，P11 入 SkillsConfig.Validate）全范围；双段同目标两段；敌方按 O-39 裁定=候选槽序首个非空+taunt 优先（无 RNG，EnemyAct 传首槽）；Policies.Baseline 指定最低血目标。SimSanity 全绿；**M6-08 新基线（300 场，数据零改动）：胜率 27%、平均回合 18.03**（旧 46%/13.51 全打基线作废，combat_math §7.3 作废）；KPI 六项全达标；调整建议三案待拍板（敌 HP 58/44/41 / cleave 1.0 或 lethal 0.5 回抬 / Baseline 集火增益探针量化实机点选价值）。全套 147/147（判据 A 按新口径红）。_`
+- `2026-09-09: [主程序·v0.45 改造完成] #180~#182 全链路落地（O-40/O-41）：skills.json 增 4 条 *_move（pool_external + move_range + distance 坦克1/战医政2；其余 43 条零改动）→ 47 断言 + P12 校验；SkillTargetResolver 支持 move_range（候选=自身±N 被占用战斗位、空位 NoTarget、障碍可交换）；SkillExecutor.ExecuteMovePath（交换、不过抗性、无伤害/士气/死门、DisplaceEvent 计入位移 KPI）；增援改单按钮两步 Reinforce(A,B,X)（#181 推翻双按钮：X 有人交换/空直入、发起者消耗行动、同回合≤1、UI 两步高亮 5/6→1~4）；「移动」常驻按钮（战斗位行动者、move_range 候选高亮复用 ③b）；技能栏去内联原因文字（#182，走悬停 tooltip、候选高亮保留）。测试：MoveSkill P12 抽样 / ReinforceTests / 47 断言 / P3 池内口径。**M6-08 v0.45 含移动复测（300 场）：胜率 20%、avg 17.48**（v0.44 27%/18.03 无移动口径作废）；151/152（判据 A 诚实红）。_`
+
+- `2026-09-09: [修订·架构师] v0.45 同步（#180~#182，O-40/O-41）：策划新增通用「移动」（池外常备 `pool_external` + `move_range` + distance 坦克1/战医政2；目标=自身±N 格内被占用位并交换、空位不可选、不过抗性、不死门；技能总量 43→**47**）、增援改单按钮两步 `Reinforce(A,B,X)`（推翻双按钮）、技能栏去内联要求文字但候选高亮必需。架构落盘：data_schema §2.1/§3.2（`pool_external`/`move_range`/`distance`）+ **P12 校验** + §5.4 移动示例 + 47 口径；m2 T-M2-07（自我移动不过抗性）；m3 T-M3-01/02（47/P12）/05（move_range）/07（4 条移动）/08（P3 池内口径）；m5 T-M5-05/06/07（增援两步、去文字、候选高亮必需，判据 M-E）；m6 T-M6-02（SemiRandom 含移动 + 两步增援）/04（移动计入位移 KPI）/08（复测含移动；#180 平衡提醒——胜率预计略升，旧 27%/18.03 待复测）；open_issues O-40（落地指针）/O-41（移动细节）。`

@@ -54,15 +54,15 @@ public static class Policies
         return actions;
     }
 
-    /// <summary>单单位决策（导演 actor 节拍用）：SemiRandom 含基础智能换位；Baseline 对单体系指定最低血目标。</summary>
+    /// <summary>单单位决策（导演 actor 节拍用）：SemiRandom 含基础智能增援（#181 两步）+ 移动（#180）；Baseline 指定最低血目标。</summary>
     public static PlayerDecision DecideForUnit(PolicyKind kind, UnitRuntime unit, BattleDirector director, IRngProvider rng)
     {
         if (kind == PolicyKind.SemiRandom)
         {
-            int? swapPos = SwapSupportNeeded(unit, director);
-            if (swapPos is { } sp)
+            (int bSlot, int xSlot)? reinf = ReinforceNeeded(unit, director);
+            if (reinf is { } r)
             {
-                return new PlayerDecision(null, sp);
+                return PlayerDecision.Reinforce(r.bSlot, r.xSlot);
             }
         }
 
@@ -70,10 +70,43 @@ public static class Policies
         {
             string? skillId = PickBaseline(unit, director);
             int? target = LowestHpTargetSlot(skillId, unit, director);
-            return new PlayerDecision(skillId, null, target);
+            return PlayerDecision.Skill(skillId ?? "", target);
         }
 
-        return new PlayerDecision(PickSemiRandom(unit, director, rng), null);
+        return PlayerDecision.Skill(PickSemiRandom(unit, director, rng) ?? "");
+    }
+
+    /// <summary>基础智能增援（#176/#181）：战斗位虚弱者 A → 换入健康支援位（优先军医/政委）到 A 的槽位。</summary>
+    private static (int bSlot, int xSlot)? ReinforceNeeded(UnitRuntime unit, BattleDirector director)
+    {
+        if (director.SwappedThisRound || !unit.Weak)
+        {
+            return null;
+        }
+
+        int aPos = director.Player.UnitAtPosition(unit.Id) ?? -1;
+        if (aPos is < 1 or > 4)
+        {
+            return null; // 发起者须在战斗位
+        }
+
+        int priority(string archetype) => archetype switch { "medic" => 0, "commissar" => 1, _ => 2 };
+        int? best = null;
+        foreach (int slot in director.Player.Layout.SupportSlots)
+        {
+            UnitRuntime? ally = director.Player.UnitRuntimeAt(slot);
+            if (ally is null || ally.Weak)
+            {
+                continue;
+            }
+
+            if (best is null || priority(ally.ArchetypeId) < priority(director.Player.UnitRuntimeAt(best.Value)!.ArchetypeId))
+            {
+                best = slot;
+            }
+        }
+
+        return best is { } bSlot ? (bSlot, aPos) : null;
     }
 
     /// <summary>基线：若该技能是单体伤害（非 aoe）且候选含最低血敌方槽 → 指定之（#178 玩家集火）。</summary>

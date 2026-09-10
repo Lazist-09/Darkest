@@ -11,7 +11,7 @@ namespace Darkest.Data;
 // 枚举（data_schema §2.1，JSON 存小写 ASCII；B1 数据层类型，sim 侧可读）
 // ----------------------------------------------------------------------
 
-public enum SkillTargetScope { Slots, Self, AnyAlly, Team, AdjacentAllyAndSelf }
+public enum SkillTargetScope { Slots, Self, AnyAlly, Team, AdjacentAllyAndSelf, MoveRange }
 public enum SkillDamageAxis { Physical, Mental, None }
 public enum SkillRangeAxis { Melee, Ranged, None }
 public enum FuncTag { Output, Control, Displacement, Support, Heal, Aoe, Debuff }
@@ -34,7 +34,8 @@ public sealed record SelfSlots(bool IsAll, IReadOnlyList<int> Slots)
 public sealed record TargetSpec(
     [property: JsonPropertyName("scope")] SkillTargetScope Scope,
     [property: JsonPropertyName("side")] string? Side,
-    [property: JsonPropertyName("slots")] IReadOnlyList<int>? Slots);
+    [property: JsonPropertyName("slots")] IReadOnlyList<int>? Slots,
+    [property: JsonPropertyName("distance")] int? Distance = null);
 
 public sealed record DamageSegment(
     [property: JsonPropertyName("type")] DamageSegmentType Type,
@@ -83,14 +84,15 @@ public sealed record SkillTemplateConfig(
     [property: JsonPropertyName("range_axis")] SkillRangeAxis RangeAxis,
     [property: JsonPropertyName("damage_axis")] SkillDamageAxis DamageAxis,
     [property: JsonPropertyName("heal_fixed")] int? HealFixed = null,
-    [property: JsonPropertyName("self_damage_fixed")] int? SelfDamageFixed = null);
+    [property: JsonPropertyName("self_damage_fixed")] int? SelfDamageFixed = null,
+    [property: JsonPropertyName("pool_external")] bool PoolExternal = false);
 
 /// <summary>skills.json 根模型 + fail-fast 校验（P2/O-24/O-16/43 断言；P1/P3 跨文件在 Validators）。</summary>
 public sealed record SkillsConfig(
     [property: JsonPropertyName("skills")] IReadOnlyList<SkillTemplateConfig> Skills)
 {
     public const string ResPath = "res://data/skills.json";
-    public const int ExpectedCount = 43; // 36 我方 + 7 敌方（O-16：README「42」为笔误）
+    public const int ExpectedCount = 47; // 36 池内我方 + 4 池外移动 + 7 敌方（v0.45 #180）
 
     /// <summary>按 id 取技能（缺失抛异常——fail-fast）。</summary>
     public SkillTemplateConfig Get(string id)
@@ -145,7 +147,8 @@ public sealed record SkillsConfig(
         o.Converters.Add(new LowerEnumJsonConverter<SkillTargetScope>(
             ("slots", SkillTargetScope.Slots), ("self", SkillTargetScope.Self),
             ("any_ally", SkillTargetScope.AnyAlly), ("team", SkillTargetScope.Team),
-            ("adjacent_ally_and_self", SkillTargetScope.AdjacentAllyAndSelf)));
+            ("adjacent_ally_and_self", SkillTargetScope.AdjacentAllyAndSelf),
+            ("move_range", SkillTargetScope.MoveRange)));
         o.Converters.Add(new LowerEnumJsonConverter<SkillDamageAxis>(
             ("physical", SkillDamageAxis.Physical), ("mental", SkillDamageAxis.Mental), ("none", SkillDamageAxis.None)));
         o.Converters.Add(new LowerEnumJsonConverter<SkillRangeAxis>(
@@ -198,9 +201,11 @@ public sealed record SkillsConfig(
             ValidateEffectPairing(s);
             ValidateUseLimit(s);
             ValidateSegments(s);
+            ValidatePoolExternalMove(s); // P12（v0.45 #180）
         }
 
         ValidateCounts(cfg);
+        ValidateMoveCount(cfg); // P12：池外移动恰 4 条
     }
 
     private static void ValidateTarget(SkillTemplateConfig s)
@@ -307,10 +312,61 @@ public sealed record SkillsConfig(
             }
         }
 
-        if (player.Any(c => c != 9) || enemy is not [2, 3, 2])
+        // v0.45（#180）：我方各原型 10 = 9 池内 + 1 池外移动；敌方 7 不变
+        if (player.Any(c => c != 10) || enemy is not [2, 3, 2])
         {
             throw new InvalidDataException(
-                $"{ResPath}: 各原型技能数必须为 9/9/9/9 + 2/3/2（实际 {string.Join("/", player)} + {string.Join("/", enemy)}）。");
+                $"{ResPath}: 各原型技能数必须为 10/10/10/10 + 2/3/2（含池外移动；实际 {string.Join("/", player)} + {string.Join("/", enemy)}）。");
+        }
+    }
+
+    /// <summary>P12（#180）：池外移动一致性——pool_external ⇒ move_range+战斗位+无伤害+无效果+无 CD+distance∈{1,2}；反之亦然。</summary>
+    private static void ValidatePoolExternalMove(SkillTemplateConfig s)
+    {
+        bool isMove = s.Id.EndsWith("_move", StringComparison.Ordinal);
+        if (s.PoolExternal)
+        {
+            if (!isMove || s.Target.Scope != SkillTargetScope.MoveRange)
+            {
+                throw new InvalidDataException($"{ResPath}: \"{s.Id}\" 池外技能必须是 * _move 且 target.scope=move_range（P12）。");
+            }
+
+            if (!s.SelfSlots.IsAll && s.SelfSlots.Slots is { Count: 4 } sl && sl[0] == 1 && sl[3] == 4)
+            {
+                // 通过
+            }
+            else if (s.SelfSlots.IsAll)
+            {
+                throw new InvalidDataException($"{ResPath}: \"{s.Id}\" 移动 self_slots 必须为 [1,2,3,4]（P12）。");
+            }
+            else
+            {
+                throw new InvalidDataException($"{ResPath}: \"{s.Id}\" 移动 self_slots 必须为 [1,2,3,4]（P12）。");
+            }
+
+            if (s.Damage is not null || s.Effects.Count > 0 || s.Displacement is not null
+                || s.UseLimit.Type != UseLimitType.None)
+            {
+                throw new InvalidDataException($"{ResPath}: \"{s.Id}\" 移动必须无伤害/无效果/无位移/无 CD（P12）。");
+            }
+
+            if (s.Target.Distance is not (1 or 2))
+            {
+                throw new InvalidDataException($"{ResPath}: \"{s.Id}\" move_range.distance 必须为 1 或 2（P12）。");
+            }
+        }
+        else if (s.Target.Scope == SkillTargetScope.MoveRange)
+        {
+            throw new InvalidDataException($"{ResPath}: \"{s.Id}\" 非池外技能不得使用 move_range（P12）。");
+        }
+    }
+
+    private static void ValidateMoveCount(SkillsConfig cfg)
+    {
+        int moves = cfg.Skills.Count(s => s.PoolExternal && s.Id.EndsWith("_move", StringComparison.Ordinal));
+        if (moves != 4)
+        {
+            throw new InvalidDataException($"{ResPath}: 池外移动必须恰 4 条（实际 {moves}，P12）。");
         }
     }
 

@@ -64,10 +64,10 @@ public sealed class SkillExecutor
             return; // NoTarget（防御性；导演层任务应已灰显）
         }
 
-        // 选一（#178/#179）：单体伤害（非 aoe）或 any_ally 单体支援 → 玩家指定（须合法）优先，否则随机固定调用点
+        // 选一（#178/#179）：单体伤害（非 aoe）、any_ally 单体支援、或 move_range 移动 → 玩家指定/随机固定调用点
         int[] execTargets = candidates;
         bool isSingleton = skill.Damage is not null && !IsAoe(skill)
-                           || skill.Damage is null && skill.Target.Scope == SkillTargetScope.AnyAlly;
+                           || skill.Damage is null && skill.Target.Scope is SkillTargetScope.AnyAlly or SkillTargetScope.MoveRange;
         if (isSingleton && candidates.Length > 1)
         {
             int pick = -1;
@@ -94,7 +94,11 @@ public sealed class SkillExecutor
 
         MoraleEffectRequest[] explicitMorale = MapMoraleEffects(skill);
 
-        if (skill.Damage is null)
+        if (skill.Damage is null && skill.Target.Scope == SkillTargetScope.MoveRange)
+        {
+            ExecuteMovePath(skill, caster, allyBoard, execTargets, rng); // 池外移动（#180）
+        }
+        else if (skill.Damage is null)
         {
             ExecuteSupportPath(skill, caster, allyBoard, targetBoard, execTargets, rng, explicitMorale);
         }
@@ -104,6 +108,28 @@ public sealed class SkillExecutor
         }
 
         _runtime.RecordUse(caster, skill); // CD 置位 / per_battle 计数
+    }
+
+    /// <summary>池外「移动」（#180）：与目标位交换（逐级交换链）、不过抗性、无伤害/士气/死门（#117）；渡桥=Failured 事件计入位移 KPI（O-41）。</summary>
+    private void ExecuteMovePath(SkillTemplateConfig skill, UnitId caster, FormationBoard allyBoard,
+        int[] execTargets, IRngProvider rng)
+    {
+        _ = rng; // 移动不过抗性、无随机（固定调用点无骰）
+        if (execTargets.Length == 0 || allyBoard.GetSlot(execTargets[0]) == SlotState.Empty)
+        {
+            return; // NoTarget（空位不可选，#21）
+        }
+
+        int from = allyBoard.UnitAtPosition(caster) ?? -1;
+        int to = execTargets[0];
+        if (from < 1)
+        {
+            return;
+        }
+
+        _log.Append(new SwapEvent(caster, from, to)); // 移动事件（计入位移 KPI，O-41）
+        DisplaceResult result = allyBoard.TrySwapChain(caster, from, to, Math.Abs(to - from));
+        _log.Append(new DisplaceEvent(caster, from, to, PassedResist: true, result.Success, result.Success ? "" : "move_chain_failed"));
     }
 
     // ------------------------------------------------------------------

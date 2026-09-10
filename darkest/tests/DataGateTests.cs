@@ -34,10 +34,28 @@ public sealed class DataGateTests
     }
 
     [TestMethod]
-    public void SkillsJson_ImportsAll43_NoException()
+    public void SkillsJson_ImportsAll47_NoException()
     {
         SkillsConfig cfg = LoadSkills();
-        Assert.AreEqual(43, cfg.Skills.Count, "O-16：技能数 = 43（36 我方 + 7 敌方）");
+        Assert.AreEqual(47, cfg.Skills.Count, "v0.45：技能数 = 47（36 池内我方 + 4 池外移动 + 7 敌方，#180）");
+    }
+
+    [TestMethod]
+    public void Sampling_MoveSkills_Fieldwise_P12()
+    {
+        SkillsConfig cfg = LoadSkills();
+        SkillTemplateConfig tankMove = cfg.Get("tank_move");
+        Assert.AreEqual("移动", tankMove.Name);
+        Assert.IsTrue(tankMove.PoolExternal, "池外常备");
+        Assert.AreEqual(SkillTargetScope.MoveRange, tankMove.Target.Scope);
+        Assert.AreEqual(1, tankMove.Target.Distance, "坦克距离 1（character §7.1b）");
+        CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, tankMove.SelfSlots.Slots.ToArray());
+        Assert.IsNull(tankMove.Damage, "无伤害（不触发死门 #117）");
+        Assert.AreEqual(UseLimitType.None, tankMove.UseLimit.Type);
+        Assert.AreEqual(2, cfg.Get("warrior_move").Target.Distance, "战士距离 2");
+        Assert.AreEqual(2, cfg.Get("medic_move").Target.Distance);
+        Assert.AreEqual(2, cfg.Get("commissar_move").Target.Distance);
+        Assert.AreEqual(4, cfg.Skills.Count(s => s.PoolExternal), "池外恰 4 条（P12）");
     }
 
     [TestMethod]
@@ -155,6 +173,6 @@ public sealed class DataGateTests
         CollectionAssert.AreEqual(
             cfg.Skills.Select(s => s.Id).ToArray(),
             again.Skills.Select(s => s.Id).ToArray(),
-            "roundtrip 后 43 条技能 id 序列一致（逐条强相等见抽样对照）");
+            "roundtrip 后 47 条技能 id 序列一致（逐条强相等见抽样对照）");
     }
 }

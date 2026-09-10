@@ -46,10 +46,11 @@ public sealed class SkillCoverageTests
 
     private static int CountUsable(SkillsConfig skills, string owner, int pos)
     {
+        // P3 池内口径（#180）：只数非 pool_external 技能；移动为池外常驻按钮，不占覆盖
         int count = 0;
         foreach (SkillTemplateConfig s in skills.Skills)
         {
-            if (s.OwnerUnit == owner && s.SelfSlots.Allows(pos))
+            if (s.OwnerUnit == owner && !s.PoolExternal && s.SelfSlots.Allows(pos))
             {
                 count++;
             }

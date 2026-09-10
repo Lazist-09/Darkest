@@ -16,8 +16,13 @@ using Darkest.Gameplay.Sim.Turn;
 
 namespace Darkest.Gameplay.Sim.Director;
 
-/// <summary>玩家行动决策（actor 节拍回调产物）：技能（含单体内核随机选一/基线指定目标）或换位（二选一）。</summary>
-public sealed record PlayerDecision(string? SkillId, int? SwapSupportPos, int? SkillTargetSlot = null);
+/// <summary>玩家行动决策（actor 节拍回调产物）：技能 / 增援两步（ReinforceB+ReinforceX）/ 目标指定（互斥）。</summary>
+public sealed record PlayerDecision(string? SkillId, int? ReinforceB, int? ReinforceX, int? SkillTargetSlot = null)
+{
+    public static PlayerDecision None => new(null, null, null);
+    public static PlayerDecision Skill(string id, int? target = null) => new(id, null, null, target);
+    public static PlayerDecision Reinforce(int slotB, int slotX) => new(null, slotB, slotX);
+}
 
 /// <summary>
 /// BattleDirector：一场战斗的确定性编排（blueprint §4 B3 / §8.3，T-M5-02/03/04/09）——
@@ -117,34 +122,52 @@ public sealed class BattleDirector
         => _executor.Execute(_skills.Get(skillId), actor, _player, _enemy, rng, chosenTargets);
 
     /// <summary>
-    /// 换位/增援（#41a/CHANGELOG §1.4.1）：战斗位角色发起 → 与指定支援位角色交换（交换链结算）。
-    /// 消耗发起者本次行动（actor 节拍内换位后不再放技能）。同回合至多 1 次（SwappedThisRound 护栏，
-    /// 防换位空转抽行动；#41a 无冷却但行动即代价）。
-    /// </summary>
-    public bool PlayerSwap(UnitId actor, int supportPos)
+/// 增援（#181 单按钮两步，推翻旧双按钮 PlayerSwap）：发起者 A（战斗位，消耗本次行动）指定
+/// 支援位角色 B（5/6 占用者）与目标战斗位 X（1~4）——X 有人 → B 与 X 上单位交换（沿链）；
+/// X 空 → B 直接进入并（若需）前移。同回合至多 1 次。
+/// </summary>
+    public bool Reinforce(UnitId a, int bSlot, int x)
     {
         if (_swappedThisRound)
         {
             return false;
         }
 
-        UnitRuntime? actorUnit = _player.UnitsInSlotOrder().FirstOrDefault(x => x.Id == actor);
-        int actorPos = _player.UnitAtPosition(actor) ?? -1;
-        if (actorUnit is null || actorPos < 1 || actorPos > _player.SlotCount
-            || _player.GetSlot(supportPos) != SlotState.Occupied)
+        int aPos = _player.UnitAtPosition(a) ?? -1;
+        if (aPos is < 1 or > 4) // 发起者须在战斗位
         {
             return false;
         }
 
-        // 交换链：发起者向目标位逐位交换（途经单位后移），目标必须是支援位占用者
-        DisplaceResult result = _player.TrySwapChain(actor, actorPos, supportPos, Math.Abs(supportPos - actorPos));
-        if (!result.Success)
+        UnitRuntime? b = _player.UnitRuntimeAt(bSlot);
+        if (b is null || !_player.Layout.SupportSlots.Contains(bSlot))
         {
             return false;
+        }
+
+        if (x is < 1 or > 4 || _player.GetSlot(x) == SlotState.Empty && aPos == x)
+        {
+            return false;
+        }
+
+        if (_player.GetSlot(x) == SlotState.Occupied)
+        {
+            // X 有人：B 与 X 上单位逐级交换（沿链，含途经单位后移）
+            DisplaceResult r = _player.TrySwapChain(b.Id, bSlot, x, Math.Abs(x - bSlot));
+            if (!r.Success)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            // X 空：B 直接进入（原支援位槽位随之空出，靠齐由链外显式处理——移动自不产生空位语义仅在链内）
+            _player.RemoveUnitAt(bSlot);
+            _player.PlaceUnitAt(x, b);
         }
 
         _swappedThisRound = true;
-        _log.Append(new SwapEvent(actor, actorPos, supportPos));
+        _log.Append(new SwapEvent(a, bSlot, x));
         return true;
     }
 
@@ -193,9 +216,9 @@ public sealed class BattleDirector
             if (playerUnit is not null)
             {
                 PlayerDecision decision = decide(playerUnit);
-                if (decision.SwapSupportPos is { } swapPos)
+                if (decision.ReinforceB is { } bSlot && decision.ReinforceX is { } xSlot)
                 {
-                    PlayerSwap(actor.Value, swapPos); // 换位消耗本次行动（不再放技能）
+                    Reinforce(actor.Value, bSlot, xSlot); // 增援消耗发起者本次行动（#181）
                 }
                 else if (decision.SkillId is not null)
                 {

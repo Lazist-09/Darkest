@@ -10,7 +10,7 @@
 
 ## 0. 里程碑目标与判据对齐
 
-**一句话目标**：把 `skills.json` 的 **43 条技能**（36 我方 + 7 敌方，13 字段模板全量落模型）做成只读强类型数据送入确定性内核，落地「技能栏 9 选 5 → 可用性判定（灰显 + tooltip 原因）→ **目标=可选池（#178/#179：单体选一 / AOE 全中 / 双段同目标）** → 在 M2 DamagePipeline 上执行技能」，并保证**每角色每位置 ≥2 个可用技能（换位不废人）**。
+**一句话目标**：把 `skills.json` 的 **47 条技能**（36 池内 + 4 池外移动 + 7 敌方，13 字段模板全量落模型）做成只读强类型数据送入确定性内核，落地「技能栏 9 选 5 → 可用性判定（灰显 + tooltip 原因）→ **目标=可选池（#178/#179：单体选一 / AOE 全中 / 双段同目标）** → 在 M2 DamagePipeline 上执行技能」，并保证**每角色每位置 ≥2 个可用技能（换位不废人）**。
 
 **与策划 README M3 判据对齐**：
 
@@ -18,7 +18,7 @@
 |---|---|---|
 | doc/README.md §2（M3 行） | 4 个角色在每个位置都**至少 2 个可用技能** | T-M3-02 校验门禁 P3 + T-M3-08 覆盖率回归 |
 | doc/architecture/blueprint.md §11（M3 行） | M3 = 13 字段数据结构、站位门槛/目标位/灰显；判据用 skill_data §6 覆盖校验表 + 灰显原因正确 | T-M3-01 / T-M3-03 / T-M3-05 |
-| doc/README.md §2 M3 行"42 条技能数据" | 与 skill_data.md 36+7=43 不符，按 **O-16** 以 **43 条**为准（README 疑笔误，不阻塞） | T-M3-01 / T-M3-02 断言 43 |
+| doc/README.md §2 M3 行"42 条技能数据" | 与 skill_data.md 36+7=43 不符，按 **O-16** 以 **47 条**（36 池内 + 4 池外移动 + 7 敌方，#180）为准（README 疑笔误，不阻塞） | T-M3-01 / T-M3-02 断言 47 |
 
 > **前置假设**：`units.json`（data_schema §3.1：7 原型属性 + 技能池 id 列表，我方每原型 9、敌方 melee_soldier 2 / ranged_archer 3 / caster 2）的加载与注册表由 T-M2 系列/B1 数据任务交付；若未交付，须在 T-M3-01 前补一张 data_schema §3.1 的 units.json 导入子卡（不改变本文件卡片结构）。
 
@@ -32,12 +32,14 @@
 |---|---|---|---|
 | **O-12** | 一次技能内部步骤与 AOE 次序（附加/位移相对位置、中途死亡剔除、未命中子效果） | 策划拍板/架构裁定；蓝图 §5b/§8 有工作次序草案 | T-M3-06：骨架按"附加/位移在本技能全部目标结算后执行"组装，拍板后回填 |
 | **O-13** | 多段倍率（0.55×2 / 0.5×2）各段是否分别过命中/暴击/护盾 | ✅ **已定形**：#179 双段=**同一目标两段、目标只选一次**；各段独立结算实例（架构裁定） | T-M3-01 落库、T-M3-06 逐段（同目标）、T-M3-07 标注 |
-| **O-16** | 数据口径冲突：character.md 草案 vs skill_data.md 实值；README「42」疑笔误 | **架构裁定·已定**：以 skill_data.md/combat_math 为准；导入校验断言 43 | T-M3-01/02/07/08 全程遵循 |
+| **O-16** | 数据口径冲突：character.md 草案 vs skill_data.md 实值；README「42」疑笔误 | **架构裁定·已定**：以 skill_data.md/combat_math 为准；导入校验断言 47 | T-M3-01/02/07/08 全程遵循 |
 | **O-23** | 属性减益"固定 −3"与技能韧性 −15/−10 并存口径 | 策划拍板；现状=专属减益（韧性 −15/−10）走技能标注值，通用 −3 只用于攻/防/速 | T-M3-02 校验不强制统一 |
 | **O-24** | 无概率标注的属性减益/嘲讽是否过抗性 | **架构裁定·已定**：有概率才过抗性、无概率直挂 | T-M3-01 字段成对、T-M3-02 校验、T-M3-06 执行 |
 | **O-29** | 战斗中能否换携带 / 配装硬约束 / 支援位技能池 9 选 5 | 策划拍板；现状按"**战前定 5、战中不可换**"实现 | T-M3-03、T-M3-04 |
 | **O-21** | 威吓箭士气 −4 vs 精神伤害 −8 的关系 | 策划拍板（不阻塞数据录入） | T-M3-06/07 仅标注、不裁决 |
 | **O-38** | 技能目标语义：范围=可选池、单体选一 / AOE 全中 / any_ally 选一 / 双段同目标（**#178/#179，v0.44 拍板**） | **策划拍板·已定**；旧实现（"范围全命中"：劈砍 0.9×2、精准射击 0.9×4、急救全员回血）需改造 | T-M3-05/06 全量改口径、T-M3-07 标注、M3 冒烟记录重跑、M6 重新基线 |
+| **O-40** | 通用移动 / 增援两步 / 技能栏去要求文字（**#180~#182，v0.45**） | 策划拍板·已定；池外移动 = 47 条口径 + P12 校验 | T-M3-01/02（47/P12）、T-M3-05（move_range）、T-M3-07（4 条移动） |
+| **O-41** | 移动执行细节：障碍位可否为移动目标 / 计入位移 KPI / UI 展示 | **架构裁定·已定（可推翻）**：移动可选障碍位（#22 交换）、计入位移 KPI、战斗位常驻按钮 | T-M3-05（move_range 含障碍） |
 
 ---
 
@@ -45,7 +47,7 @@
 
 | 卡 | 名称 | 一句话 | 主要产出（res://） |
 |---|---|---|---|
-| T-M3-01 | SkillTemplate 强类型模型与 skills.json 全量导入 | 43 条技能逐字段落模型、加载进只读注册表 | data/skills.json、scripts/data 模型+Loaders、resources/skills/ |
+| T-M3-01 | SkillTemplate 强类型模型与 skills.json 全量导入 | 47 条技能（36 池内 + 4 池外移动 + 7 敌方）逐字段落模型、加载进只读注册表 | data/skills.json、scripts/data 模型+Loaders、resources/skills/ |
 | T-M3-02 | 数据校验门禁 P1~P3 | 引用完整 / 技能数=43 / 覆盖每位置 ≥2 | scripts/data/Validators.cs、tests/DataGateTests.cs |
 | T-M3-03 | 技能可用性判定 ISkillUseResolver | 四步判定顺序 + AvailabilityReason + 灰显 tooltip | scripts/core/contracts、scripts/gameplay/sim/skill/SkillUseResolver.cs |
 | T-M3-04 | 战前配装 9 选 5 数据流 | 战前冻结携带 5、战斗中不可换 | scripts/core/contracts（SkillLoadout/BattleSetup） |
@@ -59,11 +61,11 @@
 ## 3. 任务卡
 
 ### T-M3-01 SkillTemplate 强类型模型与 skills.json 全量导入
-- **上游**：[设计] doc/modules/skill.md §2（13 字段模板）/§3（三轴）/§4（使用限制）；skill_data.md §0~§5（43 条填实）· doc/architecture/data_schema.md §3.2（skills.json 字段表与记录索引）/§5（三条完整 JSON 示例）· 决策：#153、#156
+- **上游**：[设计] doc/modules/skill.md §2（13 字段模板）/§3（三轴）/§4（使用限制）；skill_data.md §0~§5（47 条填实，#180）· doc/architecture/data_schema.md §3.2（skills.json 字段表与记录索引）/§5（三条完整 JSON 示例）· 决策：#153、#156
 - **依赖**：T-M2 系列（B1 加载管线与只读注册表就绪）+ data_schema.md §3.1（units.json 原型 id 全集，供 owner_unit 落库）
-- **产出**：`res://data/skills.json`（43 条，逐字转写 skill_data §1~§5）；`res://scripts/data/` 下强类型模型（SkillTemplate 及子结构 record，字段名与 data_schema §3.2 逐 key 一致）与 Loaders（JSON→校验→绑定→只读快照）；`res://resources/skills/*.tres`（编辑器导入派生，blueprint §7）
+- **产出**：`res://data/skills.json`（47 条，逐字转写 skill_data §1~§5 + §4.5 池外移动）；`res://scripts/data/` 下强类型模型（SkillTemplate 及子结构 record，字段名与 data_schema §3.2 逐 key 一致）与 Loaders（JSON→校验→绑定→只读快照）；`res://resources/skills/*.tres`（编辑器导入派生，blueprint §7）
 - **要点**：
-  1. **数据总量**：43 条 = 我方 4 原型（战士/坦克/军医/政委）各 9 + 敌方 3 原型 7 条（melee_soldier 2 / ranged_archer 3 / caster 2），行号对齐 skill_data §1~§5；记录 id 以 data_schema §3.2「记录索引」为唯一来源（43 个 id，如 `warrior_cleave`…`caster_mental_shock`）。
+  1. **数据总量**：**47 条 = 我方 4 原型各 9 池内 + 4 池外移动（skill_data §4.5）+ 敌方 7 条**（melee_soldier 2 / ranged_archer 3 / caster 2），行号对齐 skill_data §1~§5；记录 id 以 data_schema §3.2「记录索引」为唯一来源（47 个 id，如 `warrior_cleave`…`caster_mental_shock`）。
   2. **13 字段逐字段落模型**（JSON key 一律照 data_schema §3.2/§2.1，C# 类型 PascalCase，下行为契约清单非实现）：
 
      | skill.md 字段 | JSON key | 类型/语义 | skill_data 出处 |
@@ -76,7 +78,7 @@
      | 6 暴击修正 | `crit_mod` | int 百分点 | 暴击列 |
      | 7 附加效果 | `effects` | Effect[]（type/probability/resist_axis/stat/delta/duration_rounds/charges/apply_to） | 附加列 |
      | 8 位移效果 | `displacement` | `{type: push/pull/self_forward/self_backward, count}` | 位移列 |
-     | 9 使用限制 | `use_limit` | `{type: none/cooldown/per_battle/every_n_rounds, value}`；**切片 43 条仅用前三型**，`every_n_rounds` 为模板预留（data_schema §2.1/§3.2） | 限制列 |
+     | 9 使用限制 | `use_limit` | `{type: none/cooldown/per_battle/every_n_rounds, value}`；**切片 47 条仅用前三型**，`every_n_rounds` 为模板预留（data_schema §2.1/§3.2） | 限制列 |
      | 10 士气影响 | `morale_effects` | MoraleEffect[]（scope: self/targets/team/ally_targets + delta） | 士气列 |
      | 11 功能标签 | `tags` | FuncTag[]（output/control/displacement/support/heal/aoe/debuff，skill_data 标签列以"·"拆入数组） | 标签列 |
      | 12 距离轴 | `range_axis` | melee/ranged/none（无伤害类写 none） | 轴列 |
@@ -89,29 +91,29 @@
   7. **同名技能独立记录**：战士喘息（heal_fixed 8）/坦克喘息（heal_fixed 10）、战士盾击（0.6）/坦克盾击（0.7）为不同记录，禁止按技能名合并、禁止串数值（data_schema §3.2 首注）。
   8. **敌方技能同模板**：owner_unit 指向敌方原型（melee_soldier/ranged_archer/caster），`heal_fixed`/`self_damage_fixed` 为 null；目标 side=player（skill_data §5"我 X"映射），范围 1~4 我方位（我方 6 槽中前 4 战斗位为射程常态，但 target.slots 合法值仍按 side=player→1..6 建模，具体取值照表）。
 - **完成判据（可测）**：
-  - Loaders 全量导入无异常；断言 `skills` 记录数 **= 43**，且 = skill_data §1~§5 行数合计（9+9+9+9+7）；
+  - Loaders 全量导入无异常；断言 `skills` 记录数 **= 47**（36 池内 + 4 池外移动 + 7 敌方），数据源行数合计（9×4 池内 + 4 池外 §4.5 + 7 敌）；
   - 抽样复算：data_schema §5.1（劈砍）/§5.2（铁壁）/§5.3（恐惧低语）三条完整 JSON 与导入结果**逐字段一致**；
   - 倍率 round-trip：致命注射 `missing_hp base 1.0 / coefficient 0.8`、处决令 `coefficient 0.9`、双连击/连射各拆两条 flat（0.55/0.5）与 skill_data 原文行一致；
   - 任一枚举越界（target.side=friend、range_axis=air、probability 无 resist_axis 等）导入即 fail-fast 报"文件+记录 id+规则"（data_schema §4.1），不带病进战斗。
 - **风险/开放**：O-16（character.md §3~§6 草案表**不参与运行**、数值一律以 skill_data.md 为准）；O-13（多段逐段执行语义不影响落库，见 T-M3-06）
 
-### T-M3-02 数据校验门禁 P1~P3（含技能数=43 断言）
+### T-M3-02 数据校验门禁 P1~P3/P12（含技能数=47 断言）
 - **上游**：[设计] doc/architecture/data_schema.md §4.2（P1~P3 判定式）；skill_data.md §6（覆盖校验表）；character.md §2（每位置可用技能硬要求）· doc/README.md §2 M3 判据 · 决策：#153；开放题 O-16、O-23、O-24
 - **依赖**：T-M3-01（skills.json 导入）+ units.json 注册表（T-M2/B1）+ buff_defs.id 集合（引用完整用；记录本可先空，M4 前不得引用未定义 buff_id）
-- **产出**：`res://scripts/data/Validators.cs`（P1~P3 + 43 断言，判定式照 data_schema §4.2）；`tests/DataGateTests.cs`（数据门禁用例，含扰动反例）
+- **产出**：`res://scripts/data/Validators.cs`（P1~P3/P12 + 47 断言，判定式照 data_schema §4.2）；`tests/DataGateTests.cs`（数据门禁用例，含扰动反例）
 - **要点**：
   1. **P1 引用完整**：`∀f∈{units,skills,enemy_ai,buff_defs}: ids(f) 无重复`，且 `skills.owner_unit ∪ formation.initial_roster[].unit ⊆ units.id`（data_schema §4.2 P1 逐字）。
-  2. **技能数=43 硬断言**（O-16）：导入校验断言 `count(skills)==43`；README §2 M3 行的"42"按笔误不采用；character.md 草案数值不参与任何校验输入。
+  2. **技能数=47 硬断言**（O-16 / #180）：导入校验断言 `count(skills)==47`（36 池内 + 4 池外移动 + 7 敌方）；README §2 M3 行的"42"按笔误不采用；character.md 草案数值不参与任何校验输入。
   3. **P2 技能引用完整**：`target.side ∈ {player,enemy}`；`scope=slots ⇒ 0≤slot≤(side=player?6:4)`（敌方 4 位无支援，GDD §1.5）；`effects[].buff_id`（若有）∈ buff_defs.id；`owner_unit` ∈ units.id（data_schema §4.2 P2）。
-  4. **P3 覆盖校验**：`∀u∈player_units: ∀pos∈1..6: count{s∈skills(u): s.self_slots="all" ∨ pos∈s.self_slots} ≥ 2`（位 1~4 战斗位与 5、6 支援位分别计入），且每角色 ≥1 个 `self_slots="all"` 兜底（战吼×2 / 急救 / 战场鼓舞）——判据基准 = skill_data §6 覆盖表。
+  4. **P3 覆盖校验（#180 起只数池内）**：`∀u∈player_units: ∀pos∈1..6: count{s∈skills(u) ∧ ¬pool_external: s.self_slots="all" ∨ pos∈s.self_slots} ≥ 2`（位 1~4 战斗位与 5、6 支援位分别计入），且每角色 ≥1 个 `self_slots="all"` 池内兜底（战吼×2 / 急救 / 战场鼓舞）；**池外移动兜底（#180）**：`∀u: 存在 pool_external 的 *_move`（战斗位 1~4 恒 ≥1 可用技能）——判据基准 = skill_data §6 覆盖表（池内口径）。
   5. **口径差异处理（P3 注，勿误伤）**：skill_data §6 表声明数（战士 5/5/4/3、坦克 7/6/2/2、军医 6/6/4/4、政委 5/5/4/4）与"逐行自数"存在差异（把殊死一搏/战吼/总动员等计入后自数更多为合法），**只按 ≥2 硬校验、以表声明数为下限判据，禁止用"相等"断言**（否则战士位 1/2、坦克位 1/2、政委位 1/3 等格会误红）；细账不阻塞。
   6. **O-23 属性减益口径进校验**：`stat_mod` 的 `delta` 对韧性减益只允许 skill_data 标注值（投掷药瓶韧性 −15、督战/恐惧低语韧性 −10，各 2 回合），**不得**被 tuning `stat_debuff_default`(−3/2回合) 覆盖或强改；通用 −3 仅适用攻/防/速。检测到同技能 stat/delta 与 skill_data 行不符 → 启动报错。
   7. **O-24 成对规则进 schema 校验**：effects 条目 `probability` 与 `resist_axis` 必须同有同无；只有其一 → 报错（无概率效果代表直挂，见 T-M3-06）。
   8. 校验失败处理：启动报错含"文件 + 记录 id + 规则 + 期望 vs 实际"，阻断进战斗（data_schema §4.1 / blueprint §10"数据启动门禁"）。
 - **完成判据（可测）**：
-  - 对当前 43 条数据跑 Validators：P1/P2/P3 全绿；43 断言输出 == 43；
+  - 对当前 47 条数据跑 Validators：P1/P2/P3/**P12** 全绿；47 断言输出 == 47；池外移动 4 条过 P12（scope=move_range、self_slots=[1,2,3,4]、无 damage/无 CD、distance∈{1,2}）；
   - 覆盖率输出（角色×位置×可用技能名清单）与 skill_data §6 表逐格对账：自数 ≥ 表声明数且 ≥2，4 角色 × 6 位置全部成立；
-  - 扰动反例逐条触发阻断：删 1 条技能→"计数 42"；某技能 self_slots 含 7→"slot 越界（P2）"；把军医急救 self_slots 从 "all" 改成 [1] → 位 5/6 可用数 <2→"覆盖不足（P3）"；
+  - 扰动反例逐条触发阻断：删 1 条池内技能→"计数 46"；某技能 self_slots 含 7→"slot 越界（P2）"；把军医急救 self_slots 从 "all" 改成 [1] → 位 5/6 可用数 <2→"覆盖不足（P3）"；
   - grep 证据：Loaders/Validators 源码无任何对 character.md §3~§6 草案数值的引用。
 - **风险/开放**：O-16、O-23、O-24（均已按现状基线执行，无新增阻塞）
 
@@ -120,7 +122,7 @@
 - **依赖**：T-M3-01（SkillTemplate 读入）+ T-M2/M1（IFormation 槽位三态快照、单位运行时台账）+ T-M3-04（携带 5 冻结集）
 - **产出**：`res://scripts/core/contracts/`（`ISkillUseResolver` + `Availability`/`AvailabilityReason` 接口与枚举声明，**照 blueprint §9.3 逐字**）；`res://scripts/gameplay/sim/skill/SkillUseResolver.cs`（实现：只读快照判定，零随机、零写状态）；`tests/SkillAvailabilityTests.cs`
 - **要点**：
-  1. 判定顺序固定四步、不可调换（skill.md §5 编号 1→4）：① 技能 ∈ 战前携带 5 ② 施法者当前站位 ∈ `self_slots`（或 `"all"`）③ 目标范围内"部分非空"（全空 → NoTarget）④ 使用限制余量（CD 冷却中 / per_battle 次数用尽）。返回**首个**不通过原因。
+  1. 判定顺序固定四步、不可调换（skill.md §5 编号 1→4）：① 技能 ∈ 战前携带 5 ② 施法者当前站位 ∈ `self_slots`（或 `"all"`）③ 目标范围内"部分非空"（全空 → NoTarget）④ 使用限制余量（CD 冷却中 / per_battle 次数用尽）。返回**首个**不通过原因。（**#180 池外「移动」例外**：`pool_external:true` 跳过第①步携带检查——恒常备不占名额；移动的第③步 = 自身左右 N 格内是否存在**被占用**战斗位，不存在 → NoTarget（空位不可选，#21））
   2. 返回值契约（blueprint §9.3 逐字）：`enum AvailabilityReason { Ok, NotCarried, BadStance, NoTarget, OnCooldown, UsesExhausted }`；`Availability Resolve(UnitId caster, SkillId skill, IFormation snapshot)`。
   3. **UI tooltip 映射**（ui_spec §4 / 必显 #3，文案逐字）：
 
@@ -165,7 +167,7 @@
 - **依赖**：T-M3-01（target 五类 scope 数据）+ T-M3-03（NoTarget 判定同源，全空灰显）+ M1（IFormation 槽位三态快照：角色/空/障碍）
 - **产出**：`res://scripts/gameplay/sim/skill/SkillTargetResolver.cs`（scope→候选槽位→占用过滤→**有序**目标列表）
 - **要点**：
-  1. scope 五类解析规则（输出**候选池**，槽号升序）：`slots` → side+slots 展开（无 `aoe` 标签 = 候选池、池内选一；带 `aoe` = 池即命中集）；`self` → 施法者当前槽；`any_ally` → 任意友方（**候选池 = 全体友方非空，选一单体**）；`team` → 本方全队（含支援位 5、6，战吼/群体绷带/动员令）；`adjacent_ally_and_self` → 施法时刻按 formation 相邻语义展开"相邻友方 + 自身"（坦克盾墙，**多目标有意**，#159）。
+  1. scope 五类解析规则（输出**候选池**，槽号升序）：`slots` → side+slots 展开（无 `aoe` 标签 = 候选池、池内选一；带 `aoe` = 池即命中集）；`self` → 施法者当前槽；`any_ally` → 任意友方（**候选池 = 全体友方非空，选一单体**）；`team` → 本方全队（含支援位 5、6，战吼/群体绷带/动员令）；`adjacent_ally_and_self` → 施法时刻按 formation 相邻语义展开"相邻友方 + 自身"（坦克盾墙，**多目标有意**，#159）；**`move_range`（池外移动，#180）→ 候选池 = 施法者侧战斗位 1~4 中"自身 ±1..N 且被占用"的槽位**（不含自身与支援位；障碍位按 **O-41** 允许——与障碍交换 = 推动障碍，#22/#114；**空位不可选 → NoTarget**，#21）。
   2. **目标数量语义（#178/#179，v0.44，推翻旧"范围全命中"读法）**：命中数量**不经数据声明**、由引擎按 `scope` + `tags.aoe` 派生：
      - `slots` 且 tags 含 `aoe`（切片仅：横扫、精神震荡）→ 候选池 == 命中集（范围内全部非空）；
      - `slots` 无 `aoe`（劈砍/短矛/重劈/精准射击/威吓箭/盾击…）→ 候选池 = 范围内全部非空位置，**由"目标选择者"在其中选一**（玩家③b / EnemyAi / 模拟策略），**Executor 只结算被选中的 1 个**；
@@ -234,6 +236,7 @@
   4. **多段（恰 2 条）**：双连击（军医 #5，0.55×2）、连射（政委 #8，0.5×2）→ segments 各拆两条 flat（skill_data §0"两段各 0.55/0.5"）；**执行语义 = 同一目标两段、目标只选一次（#179）**，各段独立结算实例（O-13），见 T-M3-06。
   5. **公式型"已失血%"（恰 2 条）**：致命注射（军医 #7，missing_hp base 1.0 / coefficient **0.8**）；处决令（政委 #7，base 1.0 / coefficient **0.9**）；语义 = `base + (最大HP−当前HP)/最大HP × coefficient`，满血加成 0（skill_data §3 注）；0.8/0.9 逐字，禁止换算或调整。
   6. **精神轴抽查（士气压力源清单）**：我方 36 技能 `damage_axis=mental` **恰 0 条**；敌方 7 条中 mental 恰 3 条 = 威吓箭（射手，士气 targets−4、CD 2、#165）、恐惧低语（施法者，韧性−10、CD 1）、精神震荡（施法者，AOE）——防止 13 字段抄串轴。
+  6b. **池外「移动」（#180，恰 4 条）**：`warrior_move`/`tank_move`/`medic_move`/`commissar_move`——`pool_external:true`、`target.scope=move_range`、self_slots=[1,2,3,4]、无 damage/无 CD；`distance` 逐字：**坦克 1 / 战士 2 / 军医 2 / 政委 2**（skill_data §4.5 / character §7.1b）；断言恰 4 条、无其它 pool_external 技能（P12）。
   7. 上述标注只为"数值/轴/标签/限制逐字入库且可被断言引用"，**不新增运行逻辑**（执行语义在 T-M3-05/06 及其它里程碑）；任一断言失败即阻断（防"顺手改数字"）。
 - **完成判据（可测）**：
   - SpecialSkillTests 逐条断言（对已导入数据）：per_battle=1 恰 3 条（殊死一搏/舍身/总动员）；self_damage_fixed=6/8 恰 2 条且绑定上述技能；self_slots="all" 恰 4 条（战吼×2、急救、战场鼓舞）；missing_hp 段恰 2 条（0.8/0.9）；0.55×2/0.5×2 多段恰 2 条；我方 mental 0 条 / 敌方 mental 3 条；
@@ -246,7 +249,7 @@
 - **依赖**：T-M3-01/02（skills.json + units.json 导入与 P3 门禁）+ T-M3-03（ISkillUseResolver 快照判定，供场景级回归）
 - **产出**：`tests/SkillCoverageTests.cs`（数据驱动：读 skills.json/units.json → 覆盖率矩阵断言）
 - **要点**：
-  1. **数据驱动矩阵**：对 4 个 player 原型 × 位置 1~6，计算可用技能数 = `count{s ∈ 池: s.self_slots="all" ∨ pos ∈ s.self_slots}`，期望下限取 skill_data §6 覆盖表：
+  1. **数据驱动矩阵（#180 起只数池内）**：对 4 个 player 原型 × 位置 1~6，计算可用技能数 = `count{s ∈ 池 ∧ ¬pool_external: s.self_slots="all" ∨ pos ∈ s.self_slots}`，期望下限取 skill_data §6 覆盖表；**池外「移动」不参与矩阵计数**（另行断言：战斗位 1~4 每角色恒有 ≥1 可用=移动自身，#180 兜底"换位不废人"）：
 
      | 角色 | 位 1 | 位 2 | 位 3 | 位 4 | 位 5、6 |
      |---|---|---|---|---|---|
@@ -274,8 +277,8 @@
 
 | 卡 | 判据 | 验证 |
 |---|---|---|
-| T-M3-01 | 43 条导入 + 抽样逐字段 + 越界 fail-fast | ✅ DataGateTests（劈砍/铁壁/恐惧低语/威吓箭−4/段/-反例） |
-| T-M3-02 | P1/P2/P3 + 43 断言 + 扰动反例 | ✅ 计数 43 / slot 越界 / O-24 破对 / 删 1 条；Coverage 测试补 P3 |
+| T-M3-01 | 47 条导入（36 池内 + 4 移动 + 7 敌） + 抽样逐字段 + 越界 fail-fast | ✅ DataGateTests（劈砍/铁壁/恐惧低语/威吓箭−4/段/-反例） |
+| T-M3-02 | P1/P2/P3/P12 + 47 断言 + 扰动反例 | ✅ 计数 47 / slot 越界 / O-24 破对 / 删 1 条；Coverage 测试补 P3 |
 | T-M3-03/04/05 | 四步判定 + tooltip + 敌方跳过 + 幂等；配装冻结；目标解析含障碍升序 | ✅ SkillAvailabilityTests 8 用例 |
 | T-M3-06 | 执行骨架次序 / 多段 / 未命中 / 位移 / DrawCount | ✅ SkillExecutionTests（双连击两段、missing_hp 逐目标 12/9、威吓箭 −4、战吼 team+5、急救 12、位移殿后） |
 | T-M3-07 | 特殊标注逐字（per_battle 3 / self_damage 6·8 / all 4 / missing 0.8·0.9 / 多段 2 / 我方 mental 0·敌方 3） | ✅ SpecialSkillTests + 构造性反例 |
@@ -305,3 +308,4 @@
 | 3 | 既有 M3 冒烟/单测按新语义重审重跑（旧"范围全命中"断言作废） | `dotnet test` 全绿；`SkillExecutionTests` 改后口径 |
 | 4 | 与 M5 联动：玩家③b 目标选择步、EnemyAi 目标选择、UI 高亮口径 | UI ③b 可用（见 tasks/m5），AI 单体选目标确定性 |
 | 5 | M6 重新基线：combat_math §7.3 / #176 旧基线（46%）作废 | 重跑 ≥300 场，见 tasks/m6 |
+| 6 | **v0.45（#180~#182，O-40）二次改造**：`skills.json` 增 4 条池外移动（总量 47）+ `pool_external` 字段 + `move_range` 目标解析；P3 改池内口径、新增 P12 校验；`SkillTargetResolver` 支持 `move_range`（自身 ±N 被占用位，空位 NoTarget） | 47 断言 + P12 全绿；移动执行 = 与目标位交换（不过抗性、不触发死门 #117）；配合 m5 增援两步命令 `Reinforce(A,B,X)` 与技能栏去内联要求文字 |

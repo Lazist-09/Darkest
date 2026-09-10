@@ -37,7 +37,8 @@ public partial class BattleUi : CanvasLayer
 
     private BattleRoot? _host;
     private Action<UnitId, string>? _useSkill;
-    private Action<UnitId, int>? _swap;
+    private Action? _reinforce;
+    private Action? _move;
     private Action? _retreat;
 
     private Label _statusLabel = null!;
@@ -46,8 +47,8 @@ public partial class BattleUi : CanvasLayer
     // 卡片槽位顺序：0..3=敌方1..4，4..7=我方4,3,2,1（我方读投影按槽1→4再逆序放置），8,9=支援位5,6
     private readonly List<(Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer)> _cards = new();
     private readonly List<Button> _skillButtons = new();
-    private Button _swap5 = null!;
-    private Button _swap6 = null!;
+    private Button _reinforceButton = null!;
+    private Button _moveButton = null!;
     private Label _skillTitle = null!;
     private Label _hintLabel = null!;
     private double _hintTimer;
@@ -56,11 +57,12 @@ public partial class BattleUi : CanvasLayer
     private static readonly Dictionary<string, string> _unitNames = new();
     private static readonly Dictionary<string, string> _skillNames = new();
 
-    public void Bind(BattleRoot host, Action<UnitId, string> useSkill, Action<UnitId, int> swap, Action retreat)
+    public void Bind(BattleRoot host, Action<UnitId, string> useSkill, Action reinforce, Action move, Action retreat)
     {
         _host = host;
         _useSkill = useSkill;
-        _swap = swap;
+        _reinforce = reinforce;
+        _move = move;
         _retreat = retreat;
         foreach (Node child in GetChildren().ToArray())
         {
@@ -72,7 +74,7 @@ public partial class BattleUi : CanvasLayer
         _skillBarFor = "";
         _skillBarWaiting = false;
         Build();
-        GD.Print("[BattleUi] 对峙布局就绪（敌方 1234 / 我方 4321，中文）。");
+        GD.Print("[BattleUi] 对峙布局就绪（敌方 1234 / 我方 4321，中文；增援两步 + 移动常驻）。");
     }
 
     private void Build()
@@ -115,12 +117,12 @@ public partial class BattleUi : CanvasLayer
         _hintLabel = new Label { Position = new Vector2(16, SkillTitleY + 26), CustomMinimumSize = new Vector2(900, 24), Text = "" };
         _hintLabel.AddThemeColorOverride("font_color", new Color(1, 0.85f, 0.5f));
         AddChild(_hintLabel);
-        _swap5 = new Button { Position = new Vector2(1010, SkillBarY), Size = new Vector2(118, 44), Text = "换位 ←5" };
-        _swap5.Pressed += () => _swap?.Invoke(_host!.ActiveActor, 5);
-        AddChild(_swap5);
-        _swap6 = new Button { Position = new Vector2(1138, SkillBarY), Size = new Vector2(118, 44), Text = "换位 ←6" };
-        _swap6.Pressed += () => _swap?.Invoke(_host!.ActiveActor, 6);
-        AddChild(_swap6);
+        _reinforceButton = new Button { Position = new Vector2(1004, SkillBarY), Size = new Vector2(116, 44), Text = "增援" };
+        _reinforceButton.Pressed += () => _reinforce?.Invoke();
+        AddChild(_reinforceButton);
+        _moveButton = new Button { Position = new Vector2(1132, SkillBarY), Size = new Vector2(116, 44), Text = "移动" };
+        _moveButton.Pressed += () => _move?.Invoke();
+        AddChild(_moveButton);
     }
 
     private void AddRowTitle(string title, float x, float y)
@@ -200,12 +202,23 @@ public partial class BattleUi : CanvasLayer
         FillCard(_cards[8], playerUnits[4], isPlayer: true, false);
         FillCard(_cards[9], playerUnits[5], isPlayer: true, false);
 
-        // 单体/any_ally 选一（#178/#179）：候选目标卡高亮蓝色并接收点击
+        // 单体/any_ally/move 选一（#178/#180）与增援两步（#181）：候选目标卡高亮蓝色并接收点击
         int[] pending = _host.PendingCandidates;
+        int reinfPhase = _host.ReinforcePhase;
         foreach ((Panel card, Label text, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c in _cards)
         {
             c.card.MouseFilter = Control.MouseFilterEnum.Stop; // 卡片收点击（目标选择/无操作）
-            if (_host.IsTargeting && System.Array.IndexOf(pending, c.slot) >= 0)
+            bool highlight = _host.IsTargeting && System.Array.IndexOf(pending, c.slot) >= 0;
+            if (reinfPhase == 1 && (c.slot is 5 or 6) && d.Player.UnitRuntimeAt(c.slot) is not null)
+            {
+                highlight = true; // 选 B：高亮被占用的支援位
+            }
+            else if (reinfPhase == 2 && c.slot is >= 1 and <= 4)
+            {
+                highlight = true; // 选 X：高亮战斗位
+            }
+
+            if (highlight)
             {
                 c.card.Modulate = new Color(0.7f, 0.85f, 1.2f);
             }
@@ -250,8 +263,10 @@ public partial class BattleUi : CanvasLayer
         bool waiting = _host!.IsAwaitingPlayer;
         UnitId actor = _host.ActiveActor;
 
-        _swap5.Disabled = !waiting || d.SwappedThisRound || d.Player.UnitRuntimeAt(5) is null;
-        _swap6.Disabled = !waiting || d.SwappedThisRound || d.Player.UnitRuntimeAt(6) is null;
+        // 常驻按钮（#180/#181）：增援任何时候可发起（两步）；移动仅战斗位行动者且候选非空
+        bool combatActor = waiting && (d.Player.UnitAtPosition(actor) ?? -1) is >= 1 and <= 4;
+        _reinforceButton.Disabled = !waiting || d.SwappedThisRound;
+        _moveButton.Disabled = !combatActor || d.SwappedThisRound || MoveCandidates(actor, d).Length == 0;
 
         if (!waiting)
         {
@@ -265,7 +280,7 @@ public partial class BattleUi : CanvasLayer
             return;
         }
 
-        _skillTitle.Text = $"轮到 {NameOf(_host.ActiveArchetype)} — 选择技能或换位";
+        _skillTitle.Text = $"轮到 {NameOf(_host.ActiveArchetype)} — 点技能 / 移动 / 增援（灰起不可用）";
         if (_skillBarFor == actor.ToString() && _skillBarWaiting)
         {
             return;
@@ -288,8 +303,9 @@ public partial class BattleUi : CanvasLayer
             {
                 Position = new Vector2(startX + (i % perRow) * 158f, SkillBarY + (i / perRow) * 52f),
                 Size = new Vector2(150, 44),
-                Text = sp.Reason == AvailabilityReason.Ok ? name : $"{name}（{sp.Tooltip}）",
+                Text = name, // #182：不内联要求原因文字；灰显即不可用，原因走悬停 tooltip
                 Disabled = sp.Reason != AvailabilityReason.Ok,
+                TooltipText = sp.Reason == AvailabilityReason.Ok ? "" : sp.Tooltip,
             };
             string captured = skillId;
             b.Pressed += () => _useSkill?.Invoke(actor, captured);
@@ -351,12 +367,36 @@ public partial class BattleUi : CanvasLayer
         }
 
         SkillsConfig skills = SkillsConfig.Parse(ReadData("skills.json"));
-        string[] pool = skills.Skills.Where(s => s.OwnerUnit == owner).Select(s => s.Id).ToArray();
+        string[] pool = skills.Skills
+            .Where(s => s.OwnerUnit == owner && !s.Id.EndsWith("_move", StringComparison.Ordinal)) // 池内口径（移动为常驻按钮，#180）
+            .Select(s => s.Id).ToArray();
         _poolCache[owner] = pool;
         return pool;
     }
 
     private static readonly Dictionary<string, string[]> _poolCache = new();
+    private static SkillsConfig? _skillsCfg;
+
+    private static SkillsConfig SkillsCfg
+    {
+        get
+        {
+            _skillsCfg ??= SkillsConfig.Parse(ReadData("skills.json"));
+            return _skillsCfg;
+        }
+    }
+
+    /// <summary>移动候选（#180，常驻按钮启用判断）：当前行动者在战斗位时自身 ±N 被占用位。</summary>
+    private int[] MoveCandidates(UnitId actor, BattleDirector d)
+    {
+        if (d.Player.UnitAtPosition(actor) is not (>= 1 and <= 4))
+        {
+            return System.Array.Empty<int>();
+        }
+
+        string archetype = _host!.ArchetypeOf(actor);
+        return SkillTargetResolver.Resolve(SkillsCfg.Get($"{archetype}_move"), actor, d.Player, d.Enemy).ToArray();
+    }
 
     private static string ReadData(string name)
     {

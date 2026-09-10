@@ -31,6 +31,12 @@ public partial class BattleRoot : Node2D
     private bool _gameOver;
     private long _seed = 20260909L;
     private string? _pendingSkill; // 实机单体选一：选定技能后等待玩家点目标
+    private int _reinforcePhase;   // 增援两步（#181）：0=无 1=选B(支援位) 2=选X(战斗位)
+    private int _reinforceB;
+
+    /// <summary>增援两步阶段（0 none / 1 选B / 2 选X）与已选 B 槽（UI 高亮与点击路由）。</summary>
+    public int ReinforcePhase => _reinforcePhase;
+    public int ReinforceB => _reinforceB;
 
     public override void _Ready()
     {
@@ -58,6 +64,7 @@ public partial class BattleRoot : Node2D
         _gameOver = false;
         _activeActor = new("-");
         _pendingSkill = null;
+        _reinforcePhase = 0;
 
         if (_ui is null)
         {
@@ -65,7 +72,8 @@ public partial class BattleRoot : Node2D
         }
 
         _ui.Bind(host: this, useSkill: (actor, skillId) => DoUseSkill(actor, skillId),
-            swap: (actor, supportPos) => DoSwap(actor, supportPos),
+            reinforce: () => OnReinforceClicked(),
+            move: () => OnMoveClicked(),
             retreat: () => DoRetreat());
     }
 
@@ -135,10 +143,94 @@ public partial class BattleRoot : Node2D
         ExecutePlayerSkill(actor, skillId, null);
     }
 
-    /// <summary>卡片点击（UI 回调）：单体/any_ally 选一阶段点中候选目标 → 执行。</summary>
+    /// <summary>「增援」按钮（#181 两步）：未开始 → 选 B（高亮支援位）；再点 → 取消。</summary>
+    public void OnReinforceClicked()
+    {
+        if (!_awaitingPlayer)
+        {
+            return;
+        }
+
+        _pendingSkill = null;
+        _reinforcePhase = _reinforcePhase == 0 ? 1 : 0;
+        _ui.FlashHint(_reinforcePhase == 1 ? "增援：先选支援位 B（点 5/6 槽）" : "增援已取消");
+    }
+
+    /// <summary>「移动」按钮（#180 常驻）：当前战斗位行动者 → 进入移动目标选择（move_range 候选高亮）。</summary>
+    public void OnMoveClicked()
+    {
+        if (!_awaitingPlayer)
+        {
+            return;
+        }
+
+        int pos = Director.Player.UnitAtPosition(_activeActor) ?? -1;
+        if (pos is < 1 or > 4)
+        {
+            _ui.FlashHint("仅战斗位（1~4）可移动");
+            return;
+        }
+
+        string moveId = $"{ActiveArchetype}_move";
+        SkillTemplateConfig move = _skills.Get(moveId);
+        if (SkillTargetResolver.Resolve(move, _activeActor, Director.Player, Director.Enemy).Count == 0)
+        {
+            _ui.FlashHint("移动：周围无可交换位置");
+            return;
+        }
+
+        _pendingSkill = moveId;
+        _reinforcePhase = 0;
+        _ui.FlashHint("选择移动目标（交换位置）");
+    }
+
+    /// <summary>卡片点击（UI 回调）：增援两步（#181）优先；否则单体/移动选一（#178/#180）。</summary>
     public void OnCardClicked(int slot, bool isPlayer)
     {
-        if (_pendingSkill is null || !_awaitingPlayer)
+        if (!_awaitingPlayer)
+        {
+            return;
+        }
+
+        // 增援两步路由
+        if (_reinforcePhase == 1)
+        {
+            if (slot is 5 or 6 && Director.Player.UnitRuntimeAt(slot) is not null && !isPlayer == false)
+            {
+                _reinforceB = slot;
+                _reinforcePhase = 2;
+                _ui.FlashHint($"增援：已选支援位 {slot}，再选目标战斗位 X（点 1~4）");
+            }
+            else
+            {
+                _ui.FlashHint("增援：请点支援位 5/6 中被占用的槽");
+            }
+
+            return;
+        }
+
+        if (_reinforcePhase == 2)
+        {
+            if (slot is >= 1 and <= 4)
+            {
+                bool ok = Director.Reinforce(_activeActor, _reinforceB, slot);
+                _ui.FlashHint(ok ? $"增援完成（{_reinforceB} → {slot}）" : "增援被拒（槽位/此回合已增援）");
+                if (ok || Director.SwappedThisRound)
+                {
+                    _awaitingPlayer = false; // 发起者消耗本次行动
+                }
+            }
+            else
+            {
+                _ui.FlashHint("增援：目标 X 须为战斗位 1~4");
+            }
+
+            _reinforcePhase = 0;
+            return;
+        }
+
+        // 单体/移动选一
+        if (_pendingSkill is null)
         {
             return;
         }
@@ -152,14 +244,6 @@ public partial class BattleRoot : Node2D
         }
 
         ExecutePlayerSkill(_activeActor, skillId, new[] { slot });
-    }
-
-    private void ExecutePlayerSkill(UnitId actor, string skillId, int[]? chosen)
-    {
-        _pendingSkill = null;
-        Director.PlayerUseSkill(actor, skillId, _rng, chosen);
-        _awaitingPlayer = false;
-        GD.Print($"[BattleRoot] {actor} 使用 {skillId}" + (chosen is not null ? $" → 槽 {chosen[0]}" : ""));
     }
 
     /// <summary>单体选一阶段的候选槽（UI 高亮用）。</summary>
@@ -178,24 +262,13 @@ public partial class BattleRoot : Node2D
 
     public bool IsTargeting => _pendingSkill is not null;
 
-    private void DoSwap(UnitId actor, int supportPos)
+    private void ExecutePlayerSkill(UnitId actor, string skillId, int[]? chosen)
     {
-        if (!_awaitingPlayer || actor != _activeActor)
-        {
-            return;
-        }
-
-        bool ok = Director.PlayerSwap(actor, supportPos);
-        if (!ok)
-        {
-            // 被拒（支援位空/本回合已换/发起者不在战斗位）：不吞行动，提示原因
-            _ui.FlashHint("换位被拒（支援位空或本回合已换位）");
-            return;
-        }
-
-        GD.Print($"[BattleRoot] {actor} 与支援位 {supportPos} 换位");
+        _pendingSkill = null;
+        _reinforcePhase = 0;
+        Director.PlayerUseSkill(actor, skillId, _rng, chosen);
         _awaitingPlayer = false;
-        _ui.Refresh(status: $"回合 {Director.Round} · 换位完成");
+        GD.Print($"[BattleRoot] {actor} 使用 {skillId}" + (chosen is not null ? $" → 槽 {chosen[0]}" : ""));
     }
 
     private void DoRetreat()

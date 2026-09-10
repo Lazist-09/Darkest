@@ -67,7 +67,7 @@
 | 选型 | 理由（含出处） | 备注 |
 |---|---|---|
 | **C# / .NET**（Godot 4.6 .NET 版） | 与"确定性内核 + headless 模拟 + 单测复算"强匹配：C# 便于把结算做成纯类库并脱离场景树单测（verification §2 由实现方跑 Monte Carlo，README §6-7）；类型安全支撑 13 字段技能/多 buff 强类型绑定 | 与 GDScript 相比更适合 M6 的长跑模拟与公式复算 |
-| **JSON（res://data/）→ 强类型绑定（resources/*.tres）→ 只读 C# record**，而非手工节点配置 | ① 43 条技能、3 折磨/4 美德、士气增减表全是"表"，配置驱动才能与策划表一一对应并做导入校验（buff.md §1「加 buff 只写配置」的用户硬要求）；② Monte Carlo 需要"改起手值不改代码"（README §4「数值不当即改」）；③ 手工把数值填进场景节点会让数据/规则/表现三者焊死，headless 模拟拿不到干净数据 | 字段细节全部归 data_schema.md；本章只给管线（§7） |
+| **JSON（res://data/）→ 强类型绑定（resources/*.tres）→ 只读 C# record**，而非手工节点配置 | ① **47 条技能**（36 池内 + 4 池外移动 + 7 敌）、3 折磨/4 美德、士气增减表全是"表"，配置驱动才能与策划表一一对应并做导入校验（buff.md §1「加 buff 只写配置」的用户硬要求）；② Monte Carlo 需要"改起手值不改代码"（README §4「数值不当即改」）；③ 手工把数值填进场景节点会让数据/规则/表现三者焊死，headless 模拟拿不到干净数据 | 字段细节全部归 data_schema.md；本章只给管线（§7） |
 | **战斗表现用 2D（Node2D/Control/CanvasLayer），不用物理引擎 / Jolt** | ① 战斗是"顺序 + 状态"博弈而非连续空间模拟：槽位/交换链是**离散索引**，没有刚体运动学语义（formation.md §2）；② 物理步进（tick/浮点/约束求解）会引入不确定性，与 §8 确定性铁律直接冲突；③ 位移"演出"是沿交换链的 tween 滑动（ui_spec §6），属表现层，不需要碰撞 | project.godot 建议（仅建议，不改代码）：不挂任何 PhysicsBody/Area/CollisionShape；留空物理默认层；主场景指向 `scenes/Battle.tscn`（M0 后）；渲染用 2D 最小管线，可考虑 `renderer/rendering_method` 保守档以覆盖老显卡 |
 | **渲染与画面最小集** | 立绘/动画/特效不做（GDD §15.3）：色块表示单位、图标表示状态、飘字表示数值；镜头固定全景 + 单位高亮（ui_spec §9 建议）；支援位被使用/被攻击时镜头短暂移过去（GDD §1.1/§1.4） | 能分辨位置、士气、技能可用性、位移预览即可（ui_spec §8 MVP） |
 | **项目骨架一次搭对**（M0） | Godot 4.6 .NET 的解决方案/导入/测试三件套若不先冒烟，M1 之后每层都踩一遍工具链坑 | 见 §3 目录与 §10 测试钩子 |
@@ -343,7 +343,7 @@ flowchart TD
     BattleUI --> TopBar["A TopBar: 回合数+行动序列条+撤退按钮(成功率数字)"]
     BattleUI --> Overlay["B BoardOverlay: 目标范围高亮+位移预览(整条交换链)"]
     BattleUI --> Card["C CharacterCard: HP/士气条/护盾次数/buff图标/虚弱标记"]
-    BattleUI --> SkillBar["D SkillBar: 5携带技能+灰显原因tooltip+增援入口(非技能)"]
+    BattleUI --> SkillBar["D SkillBar: 5携带技能 + 池外移动常驻(#180) + 增援单按钮两步(#181)；灰显不内联原因文字(#182)、候选高亮必需(③b)"]
 ```
 
 > 位移预览 = 内核同源 dry-run：UI 请求"预览 = 对当前只读快照跑一次同一内核的交换链计算"，保证"预览结果"与"确认后结算"永远一致（ui_spec 必显示 #6）。
@@ -485,6 +485,7 @@ public interface ITurnSequencer {
 // 关键规则：判定顺序=①战前携带5个内 ②自身站位要求 ③目标位部分非空(全空灰显) ④使用限制(CD/每场次数)
 //          [skill.md §5；GDD §4/#23]；灰显原因须给 UI tooltip(ui_spec §4/必显示#3)
 //          目标数量=候选池派生（#178/#179，O-38）：单体/any_ally 池内选一、AOE 全中、双段同目标两段
+//          池外「移动」（#180，O-40）：pool_external 恒常备、self_slots 1~4、目标=自身±N 格内被占用战斗位（scope=move_range+distance）；空位→NoTarget（#21）；不过抗性、无伤害→不死门；47 条总量（36 池内+4 移动+7 敌）
 // ---------------------------------------------------------------
 public interface ISkillUseResolver {
     Availability Resolve(UnitId caster, SkillId skill, IFormation snapshot);
@@ -595,9 +596,9 @@ public interface IPlayerPolicy {
 | M0 工程引导 | _conventions.md §3；本蓝图 §2/§3 | §2、§3 | `darkest/` 在 Godot 4.6 .NET 可打开，测试工程跑通冒烟（含公式 1 例） |
 | M1 阵型骨架 | formation.md / glossary §1 | §3、§4、§5a/5c/5d、§9.1 | 推一个人能看到整条交换链结果且不产生空位；死亡靠齐同一时刻完成（formation.md §6） |
 | M2 结算核心 | combat_math.md | §4、§5b、§8、§9、§10 | 用文档 §7.1 试算样例能复算出同样数字 |
-| M3 技能与角色 | skill.md / skill_data.md / character.md | §3、§7、§9.3 | 4 个角色在每个位置都至少 2 个可用技能（skill_data §6 覆盖校验表；灰显原因正确）；**目标=候选池选一（#178/#179，data_schema P11）** |
+| M3 技能与角色 | skill.md / skill_data.md / character.md | §3、§7、§9.3 | 4 个角色在每个位置都至少 2 个可用技能（skill_data §6 覆盖校验表；灰显原因正确）；**目标=候选池选一（#178/#179，data_schema P11）；47 条=36 池内 + 4 池外移动 + 7 敌（#180，P12）** |
 | M4 士气与生存 | morale.md / buff.md / GDD §3 | §5c、§6、§9.4~9.6 | 走通"受伤→虚弱→死门→死亡/靠齐"全链，且只被精神伤害掉士气（#157） |
-| M5 敌人与 UI | enemy.md / ui_spec.md | §5d、§6、§9.7 | 玩家不看代码就能预判位移结果（位移预览=内核 dry-run）；9 条必显示齐全；**③b 目标点选（#178）与敌方 AI 单体选一（T-M5-02/06/07）** |
+| M5 敌人与 UI | enemy.md / ui_spec.md | §5d、§6、§9.7 | 玩家不看代码就能预判位移结果（位移预览=内核 dry-run）；9 条必显示齐全；**③b 目标点选（#178）与敌方 AI 单体选一（T-M5-02/06/07）；增援单按钮两步（#181）、技能栏去内联要求文字且候选高亮必需（#182）、池外移动常驻（#180）** |
 | M6 验收 | verification.md | §8、§10、§12 | 同内核 headless 跑 ≥300 场，胜率 40~70%、KPI 全达标、手感 3 指标过；**v0.44 目标语义改造后重新基线（旧 46% 作废，T-M6-08）** |
 
 ---

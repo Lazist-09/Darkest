@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Contracts;
@@ -100,6 +101,35 @@ public static class SkillTargetResolver
                 }
 
                 return list.ToArray();
+            }
+
+            case SkillTargetScope.MoveRange:
+            {
+                // 池外移动（#180/O-41）：候选 = 施法者侧【战斗位】中自身 ±1..N 且【被占用】的槽位
+                // （障碍位可选中=推动障碍 #22；空位不可选 → NoTarget #21；不含自身与支援位；升序）
+                int? fromSlot = allyBoard.UnitAtPosition(caster);
+                if (fromSlot is not { } from)
+                {
+                    return System.Array.Empty<int>();
+                }
+
+                int n = skill.Target.Distance ?? 0;
+                var moves = new List<int>();
+                for (int pos = 1; pos <= allyBoard.SlotCount; pos++)
+                {
+                    if (allyBoard.SlotKindAt(pos) != SlotKind.Combat || pos == from)
+                    {
+                        continue;
+                    }
+
+                    int dist = Math.Abs(pos - from);
+                    if (dist >= 1 && dist <= n && allyBoard.GetSlot(pos) != SlotState.Empty)
+                    {
+                        moves.Add(pos);
+                    }
+                }
+
+                return moves; // 槽升序
             }
 
             default:

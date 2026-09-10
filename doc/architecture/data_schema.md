@@ -9,6 +9,7 @@
 | `heal_fixed`（any_ally） | 候选池内 **选一**（单体治疗） | 急救/战场鼓舞 |
 | `scope=team` | 全体（逐成员施加） | 战吼/群体绷带/动员令 |
 | `scope=self / adjacent_ally_and_self` | 自指/邻近 | 喘息/盾墙 |
+| `scope=move_range` + `pool_external:true`（通用移动，#180） | 自身左右 N 格内**被占用**战斗位**选一**（空位不可选，#21；不过抗性、无伤害） | `warrior_move`/`tank_move`/`medic_move`/`commissar_move`（N=2/1/2/2） |
 
 - **P11 校验（新增，已入 SkillsConfig.Validate）**：带 `aoe` 标签的伤害技能仅允许 `warrior_sweep`、`caster_mental_shock`；其余伤害技能必须走"选一"路径。
 - **备注 4（执行期生效值）**：units.json（敌方 60/60/46/41）与 skills.json（#173 主杠杆净值：cleave 0.9/lunge 0.8/收割 0.4/0.5/横扫 0.6/双段 0.5×2/charge 1.0）为**执行期生效值**；策划文档表（combat_math §7.1 速查、§7.3 实测行 v0.41）为旧口径引用，改数值只走这两份 JSON。
@@ -35,14 +36,14 @@
 | 配置文件（`res://data/` 下） | 策划表出处 | 用途 | 变更归属 |
 |---|---|---|---|
 | `units.json` | glossary §7.1 单位属性 / combat_math §0 / character §7 / enemy §5.2 | 7 个原型（4 我方 + 3 敌方）静态属性 + 技能池引用 | 数值迭代：按 `verification.md` §2 Monte Carlo（≥300 场）只改 JSON，**不改代码** |
-| `skills.json` | skill_data.md（36 我方 + 7 敌方 = **43 条**）按 skill.md 13 字段模板 | 技能定义：灰显判定、命中/暴击、伤害、附加效果、位移、使用限制、士气、三轴标签 | 同上；**新增/改名 id、改枚举、改结构**须架构师评审并同步本文与 C# 模型 |
+| `skills.json` | skill_data.md（**36 池内我方 + 4 池外移动 + 7 敌方 = 47 条**，#180）按 skill.md 13 字段模板 + 池外字段 | 技能定义：灰显判定、命中/暴击、伤害、附加效果、位移、**移动（move_range）**、使用限制、士气、三轴标签 | 同上；**新增/改名 id、改枚举、改结构**须架构师评审并同步本文与 C# 模型 |
 | `morale_events.json` | combat_math §5.2 士气增减表 / morale §2 | 系统级士气增减事件（delta / 对象 / 触发频次 / 出处） | 数值迭代按 §5.2 表；事件增减需同步 morale_events.json 与 morale.md §2 |
 | `buff_defs.json` | buff.md §7/§7.1 / morale §5~§8 / combat_math §4 | 可挂状态（buff 与部分控制类）定义：类型/数值/持续/叠层/驱散/钩子 | 加新 buff = 加一条数据（buff.md §1 设计目标），不改代码 |
 | `enemy_ai.json` | enemy.md §5.4 AI 优先级表（固定 + 随机） | 每敌人原型的技能优先级规则（切片关闭随机 #112） | 改 AI 规则只改 JSON；切片只 1 套编成（#89） |
 | `formation.json` | GDD §1.1/§1.3/§1.6 / formation.md / character.md §1 / enemy.md §5.1 | 槽位常量（我方 6 = 4 战斗 + 2 支援、敌方 4）、初始编成、编号/边界/障碍规则标记 | 编成属内容配置，切片固定 1 套；改编成只改此文件 |
 | `tuning.json` | combat_math / morale / GDD 各节（每字段单独标出处） | 系统级过程常量（钳制、公式系数、回合/次数参数、减益默认值） | 数值迭代按 verification.md；结构变更须架构师评审 |
 
-> 备注 1：README §2（M3 行）写"42 条技能数据"，与 skill_data.md 的"36 + 7"= 43 条不符；本文与 skill_data 以 **43 条**为准，README 数值疑为笔误，不阻塞。
+> 备注 1：README §2（M3 行）写"42 条技能数据"为更早笔误；skill_data.md 现为 **36 池内 + 4 池外移动 + 7 敌方 = 47 条**（#180），本文与 skill_data 以 **47 条**为准。
 > 备注 2：所有配置 JSON 存放于 `res://data/`（工程根 `darkest/data/`，_conventions §3）；C# 模型/加载/校验代码归属 `res://scripts/data/`；导入后的只读资源按蓝图约定放 `res://resources/`。
 > 备注 3：切片 **没有**装备/营地/招募/存档等外部数据（GDD §15），故数据文件仅上表 7 个，不再新增。
 > 备注 4：**执行期生效值 ≠ 策划表起手值**（#171/#173 已落地）：敌 HP **60/60/46/41**、横扫 0.6、cleave 0.9 / lunge 0.8 / doubleHit 0.5、冲锋令 1.0、失血收割系数 **0.4/0.5**（combat_math §7.2/§7.3）。`skill_data.md`/`enemy.md` 表保持起手值口径（README §6-5「数值不当即改」），**运行以 `units.json`/`skills.json` 实值为准**；改动仍走 override/数据迭代、不改代码。
@@ -65,7 +66,7 @@ JSON 一律存小写 ASCII 字符串，C# 用对应 PascalCase 枚举（由 `Jso
 | 槽位三态 SlotState | `occupied` / `empty` / `blocked` | `Occupied` / `Empty` / `Blocked` | 有角色 / 空 / 被障碍占据 | GDD §1.1 / glossary §1 |
 | 使用限制类型 UseLimitType | `none` / `cooldown` / `per_battle` / `every_n_rounds` | `None` / `Cooldown` / `PerBattle` / `EveryNRounds` | 无限制 / 冷却 N 回合 / 每场 N 次 / 每 N 回合一次 | skill.md §4 / glossary §2；切片仅用前三者，`every_n_rounds` 为模板预留 |
 | 位移方向 DisplacementType | `push` / `pull` / `self_forward` / `self_backward` | `Push` / `Pull` / `SelfForward` / `SelfBackward` | 推（目标向"后排/编号增大"方向位移）/ 拉（向"前排/编号减小"方向，切片未用）/ 自我前移 / 自我后移 | skill.md 字段8 / skill_data 位移列（"推 1 / 自我前移 1 / 自我后移 1"） |
-| 技能目标范围 TargetScope | `slots` / `self` / `any_ally` / `team` / `adjacent_ally_and_self` | `Slots` / `Self` / `AnyAlly` / `Team` / `AdjacentAllyAndSelf` | 位置列表 / 自身 / 任意友方 / 本方全队 / 相邻友方 + 自身 | skill_data 目标列（"敌 1、2 / 自身 / 任意友方 / 我方全队 / 相邻友方 + 自身"） |
+| 技能目标范围 TargetScope | `slots` / `self` / `any_ally` / `team` / `adjacent_ally_and_self` / **`move_range`** | `Slots` / `Self` / `AnyAlly` / `Team` / `AdjacentAllyAndSelf` / **`MoveRange`** | 位置列表 / 自身 / 任意友方 / 本方全队 / 相邻友方 + 自身 / **自身左右 N 格内被占用战斗位（池外移动，#180）** | skill_data 目标列 + skill.md §1.1 |
 | 士气影响对象 MoraleScope | `self` / `targets` / `team` / `ally_targets` | `Self` / `Targets` / `Team` / `AllyTargets` | 本人 / 本次技能目标 / 全队 / 目标中的友方（盾墙"被守护者 +3"用） | skill_data 士气列（"自身 +3 / 全队 +5 / 目标 +15 / 被守护者 +3"） |
 | 士气事件对象 EventScope | `self` / `team` / `per_target` | `Self` / `Team` / `PerTarget` | 本人 / 全队 / 每个被命中目标（AOE 精神 −5/目标） | combat_math §5.2 |
 | 状态类别 StatusClass | `buff` / `unit_state` | `Buff` / `UnitState` | 数据驱动可挂 buff / 机制性单位状态（虚弱、崩溃余烬） | 见 §3.4 分类说明 |
@@ -153,11 +154,11 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 > 敌方死门抗性必须为 `null`（不允许省略后按 0 处理，便于校验区分"敌方无此系统"与"数值漏填"）。
 > 原型 vs 实例：6 人编成中重复原型（战士×2、军医×2、近战小兵×2）共享同一原型定义，初始位置由 formation.json 编成引用（§3.6），不在此文件复制。
 
-### 3.2 `skills.json` —— 43 条技能（36 我方 + 7 敌方）
+### 3.2 `skills.json` —— 47 条技能（36 池内 + 4 池外移动 + 7 敌方）
 
 **用途**：skill.md 13 字段模板的落盘实现（skill_data 为"填实版"）。技能按"施法者原型"归属；同名技能数值不同时是**独立记录**（如战士喘息 回 HP 8、坦克喘息 回 HP 10；战士盾击 0.6 / 坦克盾击 0.7）。
 
-**记录索引（id / 中文名 / owner / skill_data 出处）**——数值列一律以 skill_data.md 对应行**逐字抄录**进 JSON，本文不重复展开 43 条数值（避免转录漂移），仅在 §5 给出三条完整示例。
+**记录索引（id / 中文名 / owner / skill_data 出处）**——数值列一律以 skill_data.md 对应行**逐字抄录**进 JSON，本文不重复展开 47 条数值（避免转录漂移），仅在 §5 给出三条示例 + 1 条池外移动示例。
 
 | 原型 | 记录（id — 中文名） | skill_data 出处 |
 |---|---|---|
@@ -165,6 +166,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | 坦克 tank | `tank_guard_wall`盾墙 / `tank_taunt`嘲讽 / `tank_shield_bash`盾击 / `tank_heavy_ram`重盾猛撞 / `tank_iron_wall`铁壁 / `tank_war_cry`战吼 / `tank_hunker`坚守 / `tank_catch_breath`喘息 / `tank_selfless_charge`舍身 | §2 行 1~9 |
 | 军医 medic | `medic_scalpel`手术刀 / `medic_cross_slash`十字斩 / `medic_anesthetic`麻醉针 / `medic_medicine_flask`投掷药瓶 / `medic_double_hit`双连击 / `medic_field_strike`战地搏击 / `medic_lethal_injection`致命注射 / `medic_first_aid`急救 / `medic_group_bandage`群体绷带 | §3 行 1~9 |
 | 政委 commissar | `commissar_command_blade`指挥刀 / `commissar_charge_order`冲锋令 / `commissar_pistol_shot`手枪射击 / `commissar_supervise`督战 / `commissar_battle_inspiration`战场鼓舞 / `commissar_mobilize`动员令 / `commissar_execution_order`处决令 / `commissar_burst_fire`连射 / `commissar_total_mobilization`总动员 | §4 行 1~9 |
+| **池外移动（各原型，#180）** | `tank_move`移动（距离 1）/ `warrior_move`移动（距离 2）/ `medic_move`移动（距离 2）/ `commissar_move`移动（距离 2） | skill_data §4.5 |
 | 近战小兵 melee_soldier | `melee_heavy_slash`重劈 / `melee_charge`突进 | §5 行 1~2 |
 | 远程射手 ranged_archer | `ranged_precise_shot`精准射击 / `ranged_intimidating_shot`威吓箭（#165）/ `ranged_retreat`后撤 | §5 行 3~5 |
 | 施法者 caster | `caster_fear_whisper`恐惧低语 / `caster_mental_shock`精神震荡 | §5 行 6~7 |
@@ -178,6 +180,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `id` | string | ASCII，全局唯一 | ✅ | 【新命名】 | `<原型>_<动作>` 蛇形 |
 | `name` | string | 中文名 | ✅ | skill_data | 13 字段之 1（技能名） |
 | `owner_unit` | string | units.json id | ✅ | 【新命名】 | 归属原型（技能池归属 + 校验用） |
+| `pool_external` | bool | 默认 false | ✅ | skill.md §1（#180） | **池外常备**：true = 不进 9 选 5 池、人人可用（切片仅 4 条 `*_move`）；加载/校验见 P12 |
 | `self_slots` | string \| int[] | `"all"` 或位置数组 | ✅ | 13 字段之 2 | **自身站位要求**。`"all"`=任意位置可用（战吼/急救/战场鼓舞等兜底）；数组元素：我方 1~6（含支援位 5、6）、敌方 1~4（相对本方编号） |
 | `target` | object(TargetSpec) | 见下 | ✅ | 13 字段之 3 | **目标位置**：技能不直接选目标、只选位置（glossary §2） |
 | `damage` | object? | 见下 | ⬜ | 13 字段之 4 | **伤害倍率**；治疗/纯增益类为 null |
@@ -197,9 +200,10 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 
 | 字段 | C# 类型 | 说明 | 备注 |
 |---|---|---|---|
-| `scope` | TargetScope | `slots`/`self`/`any_ally`/`team`/`adjacent_ally_and_self` | skill_data 目标列逐条映射 |
+| `scope` | TargetScope | `slots`/`self`/`any_ally`/`team`/`adjacent_ally_and_self`/**`move_range`** | skill_data 目标列逐条映射；`move_range` = 池外移动专用（skill.md §1.1） |
 | `side` | Side? | `scope=slots` 时必填：`player`/`enemy` | 敌方技能目标写我方（skill_data §5"我 X"）；我方技能目标可写敌方或己方 |
 | `slots` | int[]? | `scope=slots` 时必填 | 取值须合法：`side=player` → 1~6；`side=enemy` → 1~4 |
+| `distance` | int? | `scope=move_range` 时必填 | **移动距离 N**：自身左右 N 格内（坦克 1 / 战士 2 / 军医 2 / 政委 2，character §7.1b / skill_data §4.5）；目标槽解析 = 自身槽 ±1..N 且**被占用**（空位不可选，#21） |
 
 映射示例：`敌 1、2`→`{"scope":"slots","side":"enemy","slots":[1,2]}`；`我方全队`→`{"scope":"team"}`；`任意友方`→`{"scope":"any_ally"}`；`自身`→`{"scope":"self"}`；`相邻友方 + 自身`→`{"scope":"adjacent_ally_and_self"}`（施法时刻按所在槽位展开相邻己方，formation 相邻语义）。
 > 生效语义（**#178/#179 已拍板**，推翻旧"部分非空→全部生效"读法；出处 GDD §1.2 / skill.md §2 字段3 / O-38）：
@@ -212,8 +216,9 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 > | `scope=any_ally`（急救/战场鼓舞） | **选一**单体友方 |
 > | `scope=team`（战吼/动员令/群体绷带） | 全体友方（含支援位） |
 > | `scope=self` / `adjacent_ally_and_self` | 自身 / 自身+相邻（盾墙多目标**有意**，#159） |
+> | `scope=move_range` + `pool_external:true`（移动，#180） | 自身左右 N 格内**被占用**战斗位**选一**（空位不可选 → NoTarget，#21） |
 >
-> 范围内**全部为空 → 灰显不可释放**（NoTarget）；**部分非空 → 单体选其一、AOE 打全部非空**（不浪费、不落空）。**双段（0.55×2 / 0.5×2）= 同一目标两段，目标只选一次（#179）**。此为引擎规则、不入数据——**43 条技能 JSON 无需改动**。
+> 范围内**全部为空 → 灰显不可释放**（NoTarget）；**部分非空 → 单体选其一、AOE 打全部非空**（不浪费、不落空）。**双段（0.55×2 / 0.5×2）= 同一目标两段，目标只选一次（#179）**。此为引擎规则、不入数据——**池内 43 条技能 JSON 无需改动；v0.45 新增 4 条池外「移动」（总量 47）**：自我移动**不过位移抗性**、无伤害 → 不触发死门（#117），结算 = 与目标位**交换**（走逐级交换链，M1 / M2 位移步）。
 
 **`damage`（DamageSpec）子结构 —— 多段倍率与公式型倍率的 JSON 表达**：
 
@@ -498,7 +503,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 |---|---|---|---|---|
 | P1 | 全库 id 唯一 | `∀f∈{units,skills,enemy_ai,buff_defs}: ids(f) 无重复`，且 `skills.owner_unit ∪ formation.initial_roster[].unit ⊆ units.id` | 引用完整性 | 启动报错 |
 | P2 | 技能引用完整性 | `∀s∈skills: s.target.side ∈ {player,enemy}`；`s.target.scope=slots ⇒ 0≤slot≤(side=player?6:4)`；`s.effects[].buff_id（若有）∈ buff_defs.id`；`s.owner_unit ∈ units.id` | glossary §1 位置编号 / enemy §1（敌方只有 4 位） | 同上 |
-| P3 | **覆盖校验（skill_data §6"每角色每位置 ≥2 可用技能"）** | `∀u∈player_units: ∀pos∈1..6: count{s∈skills(u): s.self_slots="all" ∨ pos∈s.self_slots} ≥ 2`（位置 1~4 战斗位与 5、6 支援位分别计入）；且每角色至少 1 个 `self_slots="all"` 兜底技能（战吼/急救/战场鼓舞） | skill_data §6 / character §2 | 启动报错；§6 表内"位 1、2"声明数字与逐行自数存在口径差异（含殊死一搏/战吼后自数更多），仅按"≥2"硬校验，细账不阻塞 |
+| P3 | **覆盖校验（skill_data §6 接口口径：只数池内技能）** | `∀u∈player_units: ∀pos∈1..6: count{s∈skills(u) ∧ ¬pool_external: s.self_slots="all" ∨ pos∈s.self_slots} ≥ 2`（战斗位与支援位分别计入）；且每角色 ≥1 个 `self_slots="all"` 池内兜底（战吼/急救/战场鼓舞）；**池外移动兜底**：`∀u: count{s∈skills(u) ∧ pool_external: 移动} ≥ 1`（任何战斗位 1~4 恒有可用技能） | skill_data §6 / character §2 / GDD §1.3.1（#180） | 启动报错；§6 表声明数与逐行自数口径差异仍按"≥2 硬校验、禁相等断言"；**v0.45 起仅数池内，池外另计** |
 | P4 | 派生量不入库 | `∀u∈units: u 不含 mental_reduction 与 virtue_rate 字段`（schema 级白名单校验，反序列化模型无此属性即可） | glossary §7.1 注 | 结构校验（建模即满足） |
 | P5 | 士气事件 ↔ 技能对账 | `∀e∈morale_events: e.source 指向技能 ⇒ skills 中对应技能 morale_effects 含同 delta/scope`（战场鼓舞 +15 与 morale_events `battle_inspiration`） | morale §2 与 skill_data §4 | 启动报错（防止双源漂移） |
 | P6 | tuning ↔ buff/技能常量一致 | `tuning.bleed.per_round_damage == buff_defs(bleed).modifiers.damage` 且 `tuning.bleed.rounds == buff_defs(bleed).duration.value`；`tuning.weak.*` 与相关技能/状态无矛盾 | combat_math §4 与 §3.4 | 启动报错（同一数值两处定义，改动须同步） |
@@ -507,6 +512,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | P9 | 士气事件表完整性 | morale_events 必须包含 §5.2 全部 14 行 id（缺失=实现期士气数值静默丢来源） | combat_math §5.2 | 启动告警/报错（缺失即失败） |
 | P10 | 派生一致性抽查 | 运行时复算样例（combat_math §7.1 单次伤害表）应复现文档数字（如战士→近战小兵 = 9）；该样例验证属 M2 验收而非启动校验 | verification §1 / README M2 | 测试阶段断言 |
 | P11 | **目标语义一致性（#178/#179）** | `∀s∈skills: (tags 含 aoe) ⇒ scope=slots`（aoe 只允许"范围型多格目标"）；切片 aoe 集 = {`warrior_sweep`, `caster_mental_shock`}；非 aoe 的 `slots`/`any_ally` 技能在执行层必须走**选一**路径（SkillTargetResolver 输出候选池 + 调用方选择，禁止"范围内全命中"） | GDD §1.2 / skill.md §2 字段3 / O-38 | 启动报错（aoe 标签越界）+ 执行层行为断言（单体技能单次结算） |
+| P12 | **池外移动一致性（#180）** | `∀s∈skills: s.pool_external=true ⇒ scope=move_range ∧ self_slots=[1,2,3,4] ∧ damage==null ∧ effects==∅ ∧ use_limit.type=none ∧ distance∈{1,2}`；`scope=move_range ⇒ pool_external=true`；池外移动恰 4 条（id 以 `_move` 结尾） | skill.md §1/§1.1 / skill_data §4.5 / GDD §1.3.1 | 启动报错（池外滥用/移动越界）+ 执行断言（移动不过抗性、空位 NoTarget） |
 
 > 校验失败时日志给出"文件 / 记录 id / 规则 / 期望 vs 实际"，便于追到策划原文行（每条规则带 §/行号出处，如上表"依据"列）。
 
@@ -595,6 +601,33 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 > 对应表：站位 2、3、4；目标 我 1 位；倍率 0.8；附加 = 目标韧性 −10（2 回合）；限制 CD 1（#165 后持续压力源）；轴 远程·精神；标签 输出·减益。
 > 士气衔接：`damage_axis=mental` 单目标命中 → 按 morale_events `mental_hit` 对目标 −8（精神暴击 −12）；韧性 −10 使精神减免与美德率同降（#158 双威胁）。"点名最低韧性单位"（enemy §5.4）与固定目标"我 1 位"冲突见 **O-21**。
 
+### 5.4 池外通用「移动」——战士（skill_data §4.5 / character §7.1b，单词示例）
+
+```json
+{
+  "id": "warrior_move",
+  "name": "移动",
+  "owner_unit": "warrior",
+  "pool_external": true,
+  "self_slots": [1, 2, 3, 4],
+  "target": { "scope": "move_range", "distance": 2 },
+  "damage": null,
+  "hit_mod": 0,
+  "crit_mod": 0,
+  "effects": [],
+  "displacement": null,
+  "use_limit": { "type": "none" },
+  "morale_effects": [],
+  "tags": [ "displacement" ],
+  "range_axis": "none",
+  "damage_axis": "none",
+  "heal_fixed": null,
+  "self_damage_fixed": null
+}
+```
+
+> 对应表：池外常备（#180，不占 9 选 5）；仅战斗位 1~4（self_slots）；目标 = 自身左右 **2** 格内**被占用**战斗位（`move_range` + distance 2，空位不可选 #21）；结算 = 与目标位**交换**（走逐级交换链）；无 CD；**自我移动不过位移抗性**、无伤害 → 不触发死门（#117）。坦克 `tank_move` 仅此一处不同：`distance: 1`。
+
 ---
 
 ## 6. 命名速查表（中文 → 英文标识）
@@ -634,6 +667,8 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | 敌方原型（近战小兵/远程射手/施法者） | `melee_soldier` / `ranged_archer` / `caster` | enemy.md【新命名】 |
 | 我方原型（战士/坦克/军医/政委） | `warrior` / `tank` / `medic` / `commissar` | character.md【新命名】 |
 | 每场 N 次 | `per_battle`（UseLimitType） | skill.md §4 / glossary §2【新命名】 |
+| 池外常备（不进 9 选 5） | `pool_external`（bool） | skill.md §1 / #180【新命名】 |
+| 移动范围（自身左右 N 格内被占用） | `target.scope = "move_range"` + `distance`（坦克 1 / 战医政 2） | skill.md §1.1 / skill_data §4.5【新命名】 |
 | 槽位三态 | `occupied` / `empty` / `blocked`（SlotState） | GDD §1.1【新命名】 |
 | 空气（间隙） | `air_gap` | glossary §1【新命名】 |
 | 换人 / 增援 | `reinforce`（战斗位发起，GDD §1.4.1） | #41【新命名】 |
@@ -644,7 +679,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 
 ## 7. 开放问题（已并入 open_issues.md B 节，编号与其一致）
 
-> 按 _conventions §5：O-01~O-10 已被策划 README §5 的 10 条占用；以下为 schema 侧新增疑问，**编号即 open_issues.md B 节的权威编号（O-11~O-39）**，标注【策划拍板】/【架构裁定】/【实现期待定】与阻塞范围。**本文不改 open_issues.md**，以下仅供架构师归档与任务卡引用。
+> 按 _conventions §5：O-01~O-10 已被策划 README §5 的 10 条占用；以下为 schema 侧新增疑问，**编号即 open_issues.md B 节的权威编号（O-11~O-41）**，标注【策划拍板】/【架构裁定】/【实现期待定】与阻塞范围。**本文不改 open_issues.md**，以下仅供架构师归档与任务卡引用。
 
 | 编号 | 议题 | 描述 | 阻塞什么 | 建议 |
 |---|---|---|---|---|
@@ -661,5 +696,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | O-20 | 【实现期待定】超时增援"无空位上增益（+攻/+速）"的具体数值 | GDD §1.5.2 / #71 只写"给在场敌人上增益"，+攻/+速值未给；增援强度与波次频率亦待数值阶段 | tuning `overtime_reinforcement` 增益数值 | 按 verification 调节；切片该分支仅在满编拖到 6 回合后出现 |
 | O-13 | 【架构裁定】多段倍率（0.55×2 / 0.5×2）各段是否分别过命中/暴击/护盾 | ✅ **已定形（#179 + 架构裁定）**：双段 = **同一目标两段、目标只选一次**；各段独立结算实例（各自过命中/暴击/护盾）——与 M3 执行骨架、M2 §7.3 一致 | 已关闭 | 双连击/连射逐段结算 |
 | O-31 | 【架构裁定】威吓箭伤害表达式 vs 远程射手攻击 13 | ✅ **已修正**：enemy.md §5.3 已改为 `13 × 0.5`（#170 同批更新）；skills.json 倍率 0.5 不变，攻击 13 × 0.5 自洽 | 已关闭 | 无 |
+| O-40 | 通用「移动」/ 增援单按钮两步 / 技能栏去使用要求（**#180/#181/#182**） | ✅ **策划拍板·已定（v0.45）**：4 条 `*_move`（`pool_external` + `move_range` + distance 坦克1/战医政2）；增援命令 `Reinforce(A,B,X)` 单按钮两步；技能栏移除内联要求文字、候选高亮必需。落地：m3（47 断言/P12/移动卡）、m5（③b 高亮必需 + 增援两步 + 去文字）、m6（SemiRandom 含移动/增援两步 + T-M6-08 复测含移动） | 策划拍板·已定 | M3/M5/M6（改造进行中） |
+| O-41 | 通用「移动」执行细节：① 移动目标是否含障碍位（建议**允许**——与障碍交换 = 推动障碍，#22/#114，非"清除"）；② 移动是否计入"位移实际使用"KPI（建议**计入**——移动=自我交换链位移，verification §3 位移 ≥2 复测）；③ 移动可用性展示（支援位 5/6 不可用） | **架构裁定·已定（可推翻）**：① 允许选障碍位（走交换链，#22）；② 计入位移 KPI 统计（重新基线 T-M6-08 一并复测）；③ 战斗位常驻按钮、支援位灰显/不显示 | 架构裁定·已定 | M3/M5/M6 |
 
-> 非阻塞说明（不挂开放题，仅记录）：README §2 M3 行"42 条技能"应为 43 之笔误（以 skill_data 36+7 为准）；skill_data §6 覆盖表"位 1、2"的计数与逐行自数存在口径差异，校验按 ≥2 硬规则执行（P3）。
+> 非阻塞说明（不挂开放题，仅记录）：README §2 M3 行"42 条技能"为更早笔误，**v0.45 总量 = 47**（36 池内 + 4 池外移动 + 7 敌方，#180）；skill_data §6 覆盖表计数与逐行自数存在口径差异，P3 只数池内、按 ≥2 硬规则执行（池外移动另计兜底）。
