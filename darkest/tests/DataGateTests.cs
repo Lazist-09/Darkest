@@ -75,7 +75,7 @@ public sealed class DataGateTests
         Assert.AreEqual(SkillTargetScope.Slots, cleave.Target.Scope);
         Assert.AreEqual("enemy", cleave.Target.Side);
         CollectionAssert.AreEqual(new[] { 1, 2 }, cleave.Target.Slots!.ToArray());
-        Assert.AreEqual(0.9, cleave.Damage!.Segments[0].Multiplier);
+        Assert.AreEqual(1.0, cleave.Damage!.Segments[0].Multiplier); // F4（#195）：劈砍 0.9→1.0
         Assert.AreEqual(DamageSegmentType.Flat, cleave.Damage.Segments[0].Type);
         Assert.AreEqual(0, cleave.HitMod);
         Assert.AreEqual(0, cleave.CritMod);
@@ -130,9 +130,9 @@ public sealed class DataGateTests
         DamageSegment seg = lethal.Damage!.Segments.Single();
         Assert.AreEqual(DamageSegmentType.MissingHp, seg.Type);
         Assert.AreEqual(1.0, seg.Base);
-        Assert.AreEqual(0.4, seg.Coefficient, "致命注射 coefficient 0.4（#171 主杠杆）");
+        Assert.AreEqual(0.6, seg.Coefficient, "致命注射 coefficient 0.6（F4/#195 回补，#173 部分撤回）");
 
-        Assert.AreEqual(0.5, cfg.Get("commissar_execution_order").Damage!.Segments.Single().Coefficient, "处决令 0.5（#171）");
+        Assert.AreEqual(0.7, cfg.Get("commissar_execution_order").Damage!.Segments.Single().Coefficient, "处决令 0.7（F4/#195）");
         Assert.AreEqual(0.5, cfg.Get("commissar_burst_fire").Damage!.Segments[0].Multiplier, "连射 0.5×2");
     }
 

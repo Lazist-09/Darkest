@@ -64,13 +64,13 @@ public sealed class SpecialSkillTests
     }
 
     [TestMethod]
-    public void MissingHpSegments_0_4And0_5_Exactly2()
+    public void MissingHpSegments_0_6And0_7_Exactly2()
     {
         SkillTemplateConfig[] missing = Skills().Skills
             .Where(s => s.Damage?.Segments.Any(x => x.Type == DamageSegmentType.MissingHp) == true).ToArray();
         Assert.AreEqual(2, missing.Length);
-        Assert.AreEqual(0.4, missing.Single(s => s.Id == "medic_lethal_injection").Damage!.Segments[0].Coefficient);
-        Assert.AreEqual(0.5, missing.Single(s => s.Id == "commissar_execution_order").Damage!.Segments[0].Coefficient);
+        Assert.AreEqual(0.6, missing.Single(s => s.Id == "medic_lethal_injection").Damage!.Segments[0].Coefficient);
+        Assert.AreEqual(0.7, missing.Single(s => s.Id == "commissar_execution_order").Damage!.Segments[0].Coefficient);
     }
 
     [TestMethod]

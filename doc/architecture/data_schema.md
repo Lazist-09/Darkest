@@ -12,7 +12,7 @@
 | `scope=move_range` + `pool_external:true`（通用移动，#180/#191） | 自身 ±`units.move_distance` 格内**被占用**战斗位**选一**（空位不可选，#21；不过抗性、无伤害） | 1 条通用 `move`（坦 1 / 战医政 2，距离读单位） |
 
 - **P11 校验（新增，已入 SkillsConfig.Validate）**：带 `aoe` 标签的伤害技能仅允许 `warrior_sweep`、`caster_mental_shock`；其余伤害技能必须走"选一"路径。
-- **备注 4（执行期生效值）**：units.json（敌方 60/60/46/41）与 skills.json（#173 主杠杆净值：cleave 0.9/lunge 0.8/收割 0.4/0.5/横扫 0.6/双段 0.5×2/charge 1.0）为**执行期生效值**；策划文档表（combat_math §7.1 速查、§7.3 实测行 v0.41）为旧口径引用，改数值只走这两份 JSON。
+- **备注 4（执行期生效值 + v0.49 补偿目标）**：**现生效** units.json 敌 HP **60/60/46/41**、skills.json `#173` 净值（cleave 0.9 / lunge 0.8 / 收割 **0.4/0.5** / 横扫 0.6 / 双段 0.5×2 / charge 1.0）；**v0.49/F4（#195）目标值（待主程序落地）**：敌 HP **48/48/37/33（总 166）**、收割 **0.6/0.7**、劈砍 **1.0**（横扫**仍 0.6**）。策划文档表为起手值引用，改数值只走 JSON；**M（增援波次）是导出量**（#196，见 §3.7）。
 - 执行器落点：`SkillExecutor.Execute(skill, caster, …, chosenTargets)`（选一）；**敌方池内选人按 #185/#187 三层语义**（taunt **加权抽取** `taunt_weight`=3 → `target_preference` 原型偏好 → 槽号兜底；taunt 抽取必须写 `RngDraw`）——O-39 原「槽号最小」已降为兜底（§3.5 / P13）。
 
 > **编号**：ARCH-DS · **类型**：schema · **状态**：草案 v0.1
@@ -46,7 +46,10 @@
 > 备注 1：README §2（M3 行）写"42 条技能数据"为更早笔误；skill_data.md 现为 **36 池内 + 4 池外移动 + 7 敌方 = 47 条**（#180），本文与 skill_data 以 **47 条**为准。
 > 备注 2：所有配置 JSON 存放于 `res://data/`（工程根 `darkest/data/`，_conventions §3）；C# 模型/加载/校验代码归属 `res://scripts/data/`；导入后的只读资源按蓝图约定放 `res://resources/`。
 > 备注 3：切片 **没有**装备/营地/招募/存档等外部数据（GDD §15），故数据文件仅上表 7 个，不再新增。
-> 备注 4：**执行期生效值 ≠ 策划表起手值**（#171/#173 已落地）：敌 HP **60/60/46/41**、横扫 0.6、cleave 0.9 / lunge 0.8 / doubleHit 0.5、冲锋令 1.0、失血收割系数 **0.4/0.5**（combat_math §7.2/§7.3）。`skill_data.md`/`enemy.md` 表保持起手值口径（README §6-5「数值不当即改」），**运行以 `units.json`/`skills.json` 实值为准**；改动仍走 override/数据迭代、不改代码。
+> 备注 4：**执行期生效值 ≠ 策划表起手值**，且 **v0.49 起有"现生效 / 补偿目标"两档**：
+> - **现生效**（#171/#173）：敌 HP **60/60/46/41**、cleave 0.9 / lunge 0.8 / doubleHit 0.5 / 冲锋令 1.0、失血收割系数 **0.4/0.5**、横扫 0.6。
+> - **v0.49/F4 目标（#195，待主程序落地）**：敌 HP **48/48/37/33（总 166）**、收割 **0.6/0.7**、劈砍 **1.0**（**横扫仍 0.6，不得顺带改**）。
+> - `skill_data.md`/`enemy.md` 表保持起手值口径（README §6-5「数值不当即改」），**运行以 `units.json`/`skills.json` 实值为准**；**增援波次 M 是导出量**（#196，§3.7），改 HP/输出后必须重算。
 
 ---
 
@@ -137,7 +140,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `id` | string | ASCII，唯一 | ✅ | 【新命名】 | 原型标识：`warrior`/`tank`/`medic`/`commissar`/`melee_soldier`/`ranged_archer`/`caster` |
 | `name` | string | 中文名 | ✅ | skill_data/character/enemy | 显示名（战士/坦克/军医/政委/近战小兵/远程射手/施法者） |
 | `side` | string(Side) | `player`/`enemy` | ✅ | §2.1 | 敌方无士气/虚弱/死门（enemy §1） |
-| `hp` | int | >0 | ✅ | glossary §7.1 | 战士40/坦克55/军医32/政委33；近战小兵50/远程射手38/施法者34（#154 上调后） |
+| `hp` | int | >0 | ✅ | glossary §7.1 | 我方 战士40/坦克55/军医32/政委33（不变）；敌方**现生效 60/60/46/41**（#171/#173）→ **v0.49/F4 目标 48/48/37/33（总 166，−20%，#195）待落地** |
 | `attack` | int | >0 | ✅ | 同上 | 12/8/11/11；12/13/12 |
 | `phys_def` | int | ≥0 | ✅ | 同上 | 物防（减免走 `物防/(物防+30)`，combat_math §2.1） |
 | `speed` | int | >0 | ✅ | 同上 | 8/5/10/10；8/12/9 |
@@ -232,6 +235,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 
 - 定值倍率段：`{"type":"flat","multiplier":1.0}` —— 段伤害 = 攻击 × multiplier。
 - **"已失血%"公式段**（军医致命注射 / 政委处决令）：`{"type":"missing_hp","base":1.0,"coefficient":0.8}`，语义 `倍率 = base + (最大HP − 当前HP)/最大HP × coefficient`，即 skill_data 原文 `1.0 + 目标已失血% × 0.8`（处决令 0.9）；满血时加成 0（skill_data §3 注：`已失血% = (最大HP − 当前HP)/最大HP`）。
+  - 🔴 **v0.49/F4（#195）目标系数：`0.6 / 0.7`**（现生效 `0.4/0.5`，属 #173 削减；本次回补）；**同时劈砍 `warrior_cleave` 倍率 0.9 → 1.0**，**横扫 `warrior_sweep` 保持 0.6**（不得顺带改动）。
 
 例：致命注射 → `{"segments":[{"type":"missing_hp","base":1.0,"coefficient":0.8}]}`；双连击 → `{"segments":[{"type":"flat","multiplier":0.55},{"type":"flat","multiplier":0.55}]}`。
 
@@ -494,7 +498,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `support_slot_morale_per_turn` | int | `3` | #60 | 站支援位每回合 +3（本人） |
 | `affliction_proc_percent` | int | `33` | #57 | 折磨各状态统一触发概率 33%（自私/恐惧/失控；失控建议后续最低档） |
 | `guard_redirect` | object | `{max_per_turn:1, physical_only:true}` | #159 / buff.md §7.1 | 护卫每回合最多重定向 1 次；"只挡物理"见 O-22 |
-| `overtime_reinforcement` | object | `{trigger_round:6, wave_interval_rounds:3, refill:"all_empty_slots", full_branch:"buff_all_each_wave", fill_or_buff:"fill_empty_then_buff_present"}` | GDD §1.5.2 / **#194 / O-52** | **首波第 6 回合**、此后**每 3 回合**一波（6/9/12/15…）；**每波一次性补齐当时全部空位**；无空位→全体在场敌人 +攻/+速（**每波叠加**）；**否决 M=1**（满编 207 > 单回合输出 27~58 → 永不可胜）；增援强度按原型轮换（O-20 原裁定） |
+| `overtime_reinforcement` | object | `{trigger_round:6, refill:"all_empty_slots", full_branch:"buff_all_each_wave", safety_factor:0.8, wave_interval_min:3, wave_interval_rounds:"导出值（非手填常数）"}` | GDD §1.5.2 / enemy §4 / **#194+#196 / O-52 / O-54** | **首波第 6 回合**；此后**每 M 回合**一波，**`M = max(wave_interval_min, ceil(敌方满编总HP ÷ (D × safety_factor)))`**（`D` = 我方每回合对敌总伤害**实测值**＝`DamageEvent` 求和 ÷ 回合数；`safety_factor=0.8` 留 20% 余量；护栏 **M ≥ 3**）。**当前推导：敌总 166、D≈24 → M≈9**（第二波落在第 15 回合 > 战斗约 10 回合 → **实际只有首波生效**，机制收敛为"一波补齐+增益递增"）。**每波一次性补齐当时全部空位**；无空位→全体在场敌人 +攻/+速（每波叠加）；上限 4 位不扩编；增援强度按原型轮换（O-20）。⚠️ **改敌 HP 或我方输出必须重算 M**（#195 即属此类）；`wave_interval_rounds` 是**校准产物**，不是可手填的调参常数 |
 | `bleed` | object | `{per_round_damage:3, rounds:2}` | combat_math §4 | **流血每回合 3 / 2 回合**（回合结束结算）；须与 buff_defs `bleed` 一致（校验 P6） |
 | `stat_debuff_default` | object | `{delta:-3, rounds:2}` | combat_math §4 / §10 | **属性减益固定 −3 / 2 回合**（速度也走固定值）；与技能韧性 −15/−10 的张力见 O-23 |
 | `stun` | object | `{effect:"skip_own_action"}` | GDD §2.5 | 眩晕跳过本次行动，随后状态结束 |
@@ -537,6 +541,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | P13 | **敌人目标选择一致性（#185/#186/#187/#192，v0.46/v0.48）** | `∀a∈enemy_ai: a.target_preference ∈ {lowest_hp,backmost,lowest_morale}` 且与原型映射一致；`a.taunt_weight ≥ 1`（起手 3，全局同值）；`skills(caster_fear_whisper).target.slots == [1,2,3,4]`（#186）；**taunt 来源 = 我方带 `taunt` buff 者**（`buff_defs(taunt).polarity=="positive"` ∧ `dispellable==false` ∧ 施加=自身；EnemyAi **禁止**依赖 `ArchetypeId`）；taunt 抽取写 `RngDraw`（无 `System.Random`/时间源） | state #185/#186/#187/**#192** / O-44 / O-46 / **O-53** | 启动报错 + 执行层确定性断言（taunt 加权抽取入日志） |
 | P14 | **单位移动距离与池外数据化（#191）** | `∀u∈player_units: u.move_distance ≥ 1`（切片 1~2）；`count{s∈skills: s.pool_external} == 1`（通用 `move`）；`move_range` 候选解析用例：距离取自**施法单位** `move_distance`，`target.distance` 必须为 null | feat_pack F1.3 / state #191 | 启动报错 + 执行断言（±N 候选/空位 NoTarget/两点互换） |
 | P15 | **士气 buff 消费白名单（#193，v0.48）** | `∀b∈buff_defs: b.modifiers[].kind ∈ {stat_mod,state_flag,damage_mod,prob_mod}`；`damage_mod`/`prob_mod` 槽位 ∈ {`dealt_damage_mult`,`next_attack_mult`,`crit_bonus`,`deaths_door_resist_bonus`,`immune_fear`}；`tuning.affliction_proc_percent` 是折磨 proc **唯一**概率源（禁硬编码 33）；`collapse.virtue_pool` 恰好 4 项；折磨 proc 与失控换目标的新随机**必须写 `RngDraw`** | feat_pack F2.2~F2.4 / state #193 / O-51 | 启动报错（modifier 越界/美德池不全）+ 执行层确定性断言（无双重计算） |
+| P16 | **增援 M 导出契约 + 复测 D 输出（#196，v0.49）** | 启动：`tuning.overtime_reinforcement` 必须含 `safety_factor > 0`（起手 0.8）与 `wave_interval_min ≥ 1`（起手 3）；**禁止**把 `wave_interval_rounds` 当手填常数使用（若存在，仅作"校准留痕"，运行时 M 一律按公式导出）。运行时/复测：`M == max(wave_interval_min, ceil(enemy_full_hp ÷ (D × safety_factor)))` 且 `M ≥ 3`；**Monte Carlo 报告必须输出实测 `D`（我方每回合对敌总伤害）+ 口径健康度（1 号位占比 < 50%）**，否则该次基线不成立（无法校准 M、无法判定是否需要第二轮补偿） | GDD §1.5.2 / enemy §4 / feat_pack F3+F4 / state #195/#196 / O-54 | 启动报错（缺键/常量化 M）+ 复测报告缺 `D` 即判基线无效 |
 
 > 校验失败时日志给出"文件 / 记录 id / 规则 / 期望 vs 实际"，便于追到策划原文行（每条规则带 §/行号出处，如上表"依据"列）。
 

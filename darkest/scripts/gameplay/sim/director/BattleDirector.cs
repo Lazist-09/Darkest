@@ -52,6 +52,8 @@ public sealed class BattleDirector
     private bool _retreatDisabledThisRound;
     private bool _swappedThisRound;
     private int _reinforcementCount;
+    private int _lastWaveRound; // #196：上一波增援的回合（0 = 尚未触发）
+    private readonly string[] _enemyRoster; // 满编原型（算满编总 HP）
     private readonly string[] _reinforcePool = { "melee_soldier", "ranged_archer", "caster" }; // O-20 占位轮换
     private readonly TurnSequencer _sequencer;
     private IReadOnlyList<UnitId> _lastRoundOrder = Array.Empty<UnitId>();
@@ -73,6 +75,7 @@ public sealed class BattleDirector
         _ai = new EnemyAi(enemyAi, skills, _runtime);
         _player = FormationBoardFactory.CreatePlayerBoard(formation, units);
         _enemy = FormationBoardFactory.CreateEnemyBoard(formation, units);
+        _enemyRoster = formation.InitialRoster.Enemy.Select(e => e.Unit).ToArray(); // #196：满编原型（算总 HP）
         _pipeline.InitializeMorale(_player);
         _sequencer = new TurnSequencer(_player, _enemy, balance);
     }
@@ -358,11 +361,19 @@ public sealed class BattleDirector
             return;
         }
 
-        // F3（#194）：首波 trigger_round，此后每 wave_interval_rounds 一波（6/9/12…）
-        int interval = Math.Max(1, o.WaveIntervalRounds);
-        if ((_round - o.TriggerRound) % interval != 0)
+        // #196：M 不是常数，改为**导出量** M = ceil(敌方满编总HP ÷ (D × 0.8))，护栏 M ≥ 3；
+        // D = 我方每回合对敌方造成的总伤害（事件流实测）。无输出（D≈0）时回落到 tuning 的 M 下限。
+        int interval = DeriveWaveInterval(o);
+        if (_lastWaveRound == 0)
         {
-            return; // 非波次回合：不触发（修复"每回合都触发"偏差）
+            if (_round != o.TriggerRound)
+            {
+                return; // 首波严格在 trigger_round
+            }
+        }
+        else if (_round - _lastWaveRound < interval)
+        {
+            return; // 未到下一波
         }
 
         int[] empties = Enumerable.Range(1, _enemy.SlotCount)
@@ -372,6 +383,7 @@ public sealed class BattleDirector
         {
             // 满编分支：给在场全体敌人 +攻/+速（O-20 占位数值；每波叠加一次）
             BuffAllEnemies(_enemy);
+            _lastWaveRound = _round;
             return;
         }
 
@@ -385,7 +397,45 @@ public sealed class BattleDirector
             _enemy.PlaceUnitAt(slot, unit);
             _log.Append(new ReinforcementEvent("Fill", unit.Id, slot));
         }
+
+        _lastWaveRound = _round;
     }
+
+    /// <summary>
+    /// #196：增援波次间隔 M = ceil(敌方满编总HP ÷ (D × 0.8))，护栏 ≥ tuning.wave_interval_rounds（默认 3，即 M 下限）。
+    /// D = 我方每回合对敌方造成的总伤害（事件流 DamageEvent 实测均值）；D≈0（无输出）时回落 M 下限。
+    /// </summary>
+    private int DeriveWaveInterval(TuningOvertimeReinforcement o)
+    {
+        int minM = Math.Max(3, o.WaveIntervalRounds);
+        int rounds = Math.Max(1, _round - 1);
+        int dealt = _log.Events.OfType<DamageEvent>()
+            .Where(e => e.Attacker is { } a && IsPlayerId(a))
+            .Sum(e => e.Amount);
+        double d = (double)dealt / rounds;
+        if (d <= 0.01)
+        {
+            return minM;
+        }
+
+        int fullHp = 0;
+        foreach (string archetype in _enemyRoster)
+        {
+            fullHp += _units.Get(archetype).Hp;
+        }
+
+        if (fullHp <= 0)
+        {
+            return minM;
+        }
+
+        return Math.Max(minM, (int)Math.Ceiling(fullHp / (d * 0.8)));
+    }
+
+    /// <summary>实例 id 是否属于我方原型（含 _2 等实例后缀；用于从事件流统计我方输出）。</summary>
+    private bool IsPlayerId(UnitId id)
+        => _units.PlayerArchetypes.Any(p =>
+            id.Value == p || id.Value.StartsWith(p + "_", StringComparison.Ordinal));
 
     private void BuffAllEnemies(FormationBoard board)
     {
