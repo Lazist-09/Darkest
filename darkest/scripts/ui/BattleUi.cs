@@ -6,6 +6,7 @@ using Darkest.Core.Contracts;
 using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Scene;
+using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
@@ -295,6 +296,20 @@ public partial class BattleUi : CanvasLayer
 
             // G3（O-56）：悬停单位卡 → 详情（属性/士气/buff/技能表；敌方同样全暴露）
             c.card.TooltipText = DetailTooltip(c.isPlayer, c.slot);
+
+            // D7（#209）三态可读性：普通物理（默认掉血条）/ 精神（紫）/ 被暴击（橙·震慑）
+            UnitRuntime? runtime = c.isPlayer ? d.Player.UnitRuntimeAt(c.slot) : d.Enemy.UnitRuntimeAt(c.slot);
+            (Color barColor, string? tagOverride) = RecentHitFeedback(runtime?.Id);
+            if (barColor != default)
+            {
+                c.morale.Modulate = barColor;
+            }
+
+            if (tagOverride is not null)
+            {
+                c.tag.Text = tagOverride;
+                c.tag.AddThemeColorOverride("font_color", new Color(1f, 0.6f, 0.2f));
+            }
         }
 
         RefreshSkillBar(d, p);
@@ -468,6 +483,47 @@ public partial class BattleUi : CanvasLayer
             AddChild(b);
             _skillButtons.Add(b);
         }
+    }
+
+    /// <summary>
+    /// D7（#209）三态反馈：按本回合事件流判定该单位刚承受的伤害类型——
+    /// 精神伤害 = 紫（掉士气）／被暴击 = 橙·震慑（掉士气，独立标识）／普通物理 = 默认（不掉士气）。
+    /// 只读事件流，不产生任何抽取。
+    /// </summary>
+    private (Color Bar, string? Tag) RecentHitFeedback(UnitId? id)
+    {
+        if (id is not { } unit || _host?.Director is null)
+        {
+            return (default, null);
+        }
+
+        int round = _host.Director.Round;
+        bool mental = false;
+        bool shock = false;
+        foreach (BattleEvent e in _host.Director.Log.Events)
+        {
+            if (e.Round != round)
+            {
+                continue;
+            }
+
+            if (e is DamageEvent d && d.Target is { } t && t == unit && d.Amount > 0 && d.Axis == "mental")
+            {
+                mental = true;
+            }
+
+            if (e is EffectEvent ef && ef.EffectType == "crit_shock" && ef.Target is { } et && et == unit)
+            {
+                shock = true;
+            }
+        }
+
+        if (shock)
+        {
+            return (new Color(1f, 0.62f, 0.25f), "震慑");
+        }
+
+        return mental ? (new Color(0.78f, 0.55f, 1f), null) : (default, null);
     }
 
     /// <summary>G3（O-56）：单位详情文本（含敌方全暴露：物防/速度/四抗/死门/buff/技能表）。</summary>

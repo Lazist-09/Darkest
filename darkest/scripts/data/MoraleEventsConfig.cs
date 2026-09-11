@@ -46,6 +46,7 @@ public sealed record MoraleEventsConfig(
         "critical_strike_dealt", "kill_enemy", "ally_enters_weak", "ally_death",
         "support_slot_turn_start", "battle_inspiration", "morale_full_100",
         "retreat_success", "retreat_fail", "weak_hit_any_damage",
+        "physical_crit_hit_self", "physical_crit_hit_ally", "critical_heal", // D7（#209）
     });
 
     /// <summary>按 id 取事件（缺失抛异常——fail-fast，P9 之外还防运行时引用漂移）。</summary>

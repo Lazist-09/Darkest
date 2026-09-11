@@ -312,6 +312,56 @@ public sealed class DdAdoptionTests
     }
 
     [TestMethod]
+    public void D7_CritHit_ShocksSelfMinus10_AndAllies50PercentMinus5()
+    {
+        (BattleDirector d, BalanceTable balance) = World();
+        var skills = SkillsConfig.Parse(ReadData("skills.json"));
+        var rt = new Darkest.Gameplay.Sim.Skill.SkillRuntimeState();
+        var executor = new Darkest.Gameplay.Sim.Skill.SkillExecutor(skills, balance,
+            MoraleEventsConfig.Parse(ReadData("morale_events.json")), new CombatLog(), rt, d.Buffs);
+
+        // 敌方近战小兵暴击打我方 1 位（坦克）：暴击掷 0、队友震慑掷 0（全部触发）
+        var execLog = new CombatLog();
+        var executor2 = new Darkest.Gameplay.Sim.Skill.SkillExecutor(skills, balance,
+            MoraleEventsConfig.Parse(ReadData("morale_events.json")), execLog, rt, d.Buffs);
+        executor2.Execute(skills.Get("melee_heavy_slash"), UnitId.Of("melee_soldier"), d.Player, d.Enemy,
+            new ScriptedRng(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0), chosenTargets: new[] { 1 });
+
+        MoraleEvent[] shocks = execLog.Events.OfType<MoraleEvent>()
+            .Where(e => e.Source is "physical_crit_hit_self" or "physical_crit_hit_ally").ToArray();
+        Assert.AreEqual(1, shocks.Count(e => e.Source == "physical_crit_hit_self"), "被暴击者自身恰 −10 一次");
+        Assert.AreEqual(-10, shocks.Single(e => e.Source == "physical_crit_hit_self").Delta);
+        Assert.IsTrue(shocks.Any(e => e.Source == "physical_crit_hit_ally" && e.Delta == -5), "队友 50% 触发 → −5");
+        Assert.IsTrue(execLog.Events.OfType<RngDraw>().Count() >= 5, "队友震慑判定写 RngDraw（确定性红线）");
+        Assert.IsTrue(execLog.Events.OfType<EffectEvent>().Any(e => e.EffectType == "crit_shock"), "震慑事件（UI 三态用）");
+    }
+
+    [TestMethod]
+    public void D7_CritHeal_DoublesHealAndPlus4Morale_FixedChance()
+    {
+        (BattleDirector d, BalanceTable balance) = World();
+        var skills = SkillsConfig.Parse(ReadData("skills.json"));
+        var rt = new Darkest.Gameplay.Sim.Skill.SkillRuntimeState();
+
+        // 单体治疗、暴击治疗判定掷 0（<12%）→ 治疗 ×2 + 目标 +4
+        UnitRuntime warrior = d.Player.UnitRuntimeAt(2)!;
+        warrior.CurrentHp = warrior.MaxHp - 30;
+        int hpBefore = warrior.CurrentHp;
+        int moraleBefore = warrior.Morale;
+        var log = new CombatLog();
+        var executor = new Darkest.Gameplay.Sim.Skill.SkillExecutor(skills, balance,
+            MoraleEventsConfig.Parse(ReadData("morale_events.json")), log, rt, d.Buffs);
+        executor.Execute(skills.Get("medic_first_aid"), UnitId.Of("medic"), d.Player, d.Enemy,
+            new ScriptedRng(0.0), chosenTargets: new[] { 2 });
+
+        HealEvent heal = log.Events.OfType<HealEvent>().Single();
+        Assert.AreEqual(24, heal.Amount, "暴击治疗 → 12 × 2（单体 12% 判定命中）");
+        Assert.AreEqual(hpBefore + 24, warrior.CurrentHp);
+        Assert.AreEqual(moraleBefore + 4, warrior.Morale, "被治疗者 +4 士气");
+        Assert.IsTrue(log.Events.OfType<MoraleEvent>().Any(e => e.Source == "critical_heal"));
+    }
+
+    [TestMethod]
     public void D5_Requires_GatesAvailability_WithReason()
     {
         (BattleDirector d, BalanceTable _) = World();

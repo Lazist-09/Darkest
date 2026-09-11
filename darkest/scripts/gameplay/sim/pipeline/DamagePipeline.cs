@@ -160,6 +160,27 @@ public sealed class DamagePipeline
                 _ledger.HandleMoraleMax(victim, playerTeam, rng, _log);
             }
 
+            // D7（#209）被暴击 = 震慑：自身 −10；队友各 50% −5（每名独立抽样、必写 RngDraw）
+            if (victim.IsPlayer && dmg.AnyCrit && dmg.TotalDealt > 0)
+            {
+                _ledger.Apply(victim, _moraleEvents.Get("physical_crit_hit_self").Delta, "physical_crit_hit_self", _log);
+                _log.Append(new EffectEvent(victim.Id, "crit_shock", 100.0, true, caster?.Id));
+                foreach (UnitRuntime mate in playerTeam)
+                {
+                    if (mate.Id == victim.Id || mate.CurrentHp <= 0)
+                    {
+                        continue;
+                    }
+
+                    double shockRoll = rng.NextPercent();
+                    _log.Append(new RngDraw(rng.DrawCount, shockRoll));
+                    if (shockRoll < 50.0)
+                    {
+                        _ledger.Apply(mate, _moraleEvents.Get("physical_crit_hit_ally").Delta, "physical_crit_hit_ally", _log);
+                    }
+                }
+            }
+
             int victimSlot = targetBoard.UnitAtPosition(victim.Id) ?? slot; // 重定向后按保护者槽移除/靠齐
             if (victim.IsPlayer)
             {

@@ -13,6 +13,9 @@
     { "id": "morale_full_100", "name": "士气冲满 100", "delta": 10, "scope": "team", "occurrence": "once_per_battle", "source": "#104/#151/#155", "note": "一次性；附加效果：自身回 50" },
     { "id": "retreat_success", "name": "撤退成功", "delta": -10, "scope": "team", "occurrence": "normal", "source": "#126/#43" },
     { "id": "retreat_fail", "name": "撤退失败", "delta": -5, "scope": "team", "occurrence": "normal", "source": "#126/#43", "note": "失败当回合不可再试 #118" },
-    { "id": "weak_hit_any_damage", "name": "虚弱状态下受伤（任意类型）", "delta": -5, "scope": "self", "occurrence": "once_per_turn_max1", "source": "#157", "note": "物理不掉士气的唯一例外；每回合最多 1 次；可改仅精神（O-03）" }
+    { "id": "weak_hit_any_damage", "name": "虚弱状态下受伤（任意类型）", "delta": -5, "scope": "self", "occurrence": "once_per_turn_max1", "source": "#157", "note": "物理不掉士气的唯一例外；每回合最多 1 次；可改仅精神（O-03）" },
+    { "id": "physical_crit_hit_self", "name": "被暴击（震慑）", "delta": -10, "scope": "self", "occurrence": "normal", "source": "dd_reference §2 / #209", "note": "物理暴击的情绪冲击：自身 −10；与精神伤害（紫）区分，用橙·震慑标识" },
+    { "id": "physical_crit_hit_ally", "name": "队友被暴击（震慑波及）", "delta": -5, "scope": "self", "occurrence": "normal", "source": "dd_reference §2 / #209", "note": "每名队友独立 50% 判定（抽样必写 RngDraw）" },
+    { "id": "critical_heal", "name": "暴击治疗", "delta": 4, "scope": "self", "occurrence": "normal", "source": "dd_reference §2 / #209", "note": "治疗量 ×2 且被治疗者 +4；概率固定（单体 12% / 多目标 5%，不受任何修正影响）" }
   ]
 }

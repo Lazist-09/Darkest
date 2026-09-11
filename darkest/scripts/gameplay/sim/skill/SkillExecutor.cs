@@ -222,9 +222,19 @@ public sealed class SkillExecutor
                         continue;
                     }
 
-                    int healed = Math.Min(target.MaxHp - target.CurrentHp, heal);
+                    // D7（#209）暴击治疗：概率固定（单体 12% / 多目标 5%，不受任何修正影响）→ 治疗量 ×2 + 目标 +4 士气
+                    double critRoll = rng.NextPercent();
+                    _log.Append(new RngDraw(rng.DrawCount, critRoll));
+                    bool critHeal = critRoll < (targets.Length > 1 ? 5.0 : 12.0);
+
+                    int healed = Math.Min(target.MaxHp - target.CurrentHp, critHeal ? heal * 2 : heal);
                     target.CurrentHp += healed;
                     _log.Append(new HealEvent(target.Id, healed, caster, skill.Id)); // G0：治疗来源 + 技能
+                    if (critHeal)
+                    {
+                        _pipeline.Morale.Apply(target, _moraleEvents.Get("critical_heal").Delta, "critical_heal", _log);
+                        _log.Append(new EffectEvent(target.Id, "critical_heal", 100.0, true, caster));
+                    }
                 }
             }
 
