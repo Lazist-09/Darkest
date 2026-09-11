@@ -135,7 +135,7 @@ public sealed class CombatResolutionTests
             Effects: Array.Empty<EffectRequest>(), Displacement: null),
             player, enemy, new ScriptedRng(0.0, 100.0));
 
-        Assert.AreEqual(32, player.UnitRuntimeAt(2)!.CurrentHp, "战士 40−8");
+        Assert.AreEqual(30, player.UnitRuntimeAt(2)!.CurrentHp, "战士 40−10（v0.62：施法者攻击 12→15）");
         MoraleEvent morale = Last<MoraleEvent>(pipeline.Log);
         Assert.AreEqual("mental_hit", morale.Source);
         Assert.AreEqual(-8, morale.Delta);

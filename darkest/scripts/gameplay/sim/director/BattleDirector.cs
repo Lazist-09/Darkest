@@ -183,7 +183,10 @@ public sealed class BattleDirector
     public bool PlayerUseSkill(UnitId actor, string skillId, IRngProvider rng, IReadOnlyList<int>? chosenTargets = null)
     {
         SkillTemplateConfig skill = _skills.Get(skillId);
-        if (IsSupportSlotActor(actor) && !TrySpendSupportPoints(SupportCostSkill, "skill"))
+        // #211（S0）：SP 消耗**按技能声明优先**（`support_point_cost: 0` = 豁免，如【喘息】）；
+        // 未声明时沿用"支援位技能扣 cost_skill、战斗位不扣"的默认规则
+        int spCost = skill.SupportPointCost ?? (IsSupportSlotActor(actor) ? SupportCostSkill : 0);
+        if (spCost > 0 && !TrySpendSupportPoints(spCost, "skill"))
         {
             _log.Append(new SkillRefusedEvent(actor, skillId, "support_points")); // 不足 = 不可用（非失败）
             return false;

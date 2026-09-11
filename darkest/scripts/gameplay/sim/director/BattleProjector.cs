@@ -76,10 +76,12 @@ public sealed class BattleProjector
         IReadOnlySet<string>? carried)
     {
         bool supportSlot = _director.IsSupportSlotActor(caster);
-        Availability av = _resolver.Resolve(new SkillUseContext(_skills.Get(skillId), caster, ally, target,
+        SkillTemplateConfig skill = _skills.Get(skillId);
+        int cost = skill.SupportPointCost ?? (supportSlot ? _director.SupportCostSkill : 0); // #211：技能声明优先
+        Availability av = _resolver.Resolve(new SkillUseContext(skill, caster, ally, target,
             carried, _runtime, IsEnemy: false,
             SupportPoints: _director.SupportPoints,
-            SupportCost: supportSlot ? _director.SupportCostSkill : 0,
+            SupportCost: cost,
             IsSupportSlotActor: supportSlot));
         return new SkillProjection(skillId, av.Reason, av.Tooltip);
     }

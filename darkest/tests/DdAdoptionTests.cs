@@ -249,7 +249,7 @@ public sealed class DdAdoptionTests
         }
 
         double rate = (double)markedPicked / runs;
-        Assert.IsTrue(rate is > 0.60 and < 0.75, $"被标记者权重 ×2 → 约 2/3 挨打（实测 {rate:P1}）");
+        Assert.IsTrue(rate is > 0.33 and < 0.47, $"被标记者权重 ×2 → 2/(2+1+1+1) ≈40%（C 轴后池 4 人；实测 {rate:P1}）");
     }
 
     [TestMethod]
@@ -355,8 +355,8 @@ public sealed class DdAdoptionTests
             new ScriptedRng(0.0), chosenTargets: new[] { 2 });
 
         HealEvent heal = log.Events.OfType<HealEvent>().Single();
-        Assert.AreEqual(24, heal.Amount, "暴击治疗 → 12 × 2（单体 12% 判定命中）");
-        Assert.AreEqual(hpBefore + 24, warrior.CurrentHp);
+        Assert.AreEqual(16, heal.Amount, "暴击治疗 → 8 × 2（v0.62：急救 12→8 HP / CD 1→2）");
+        Assert.AreEqual(hpBefore + 16, warrior.CurrentHp);
         Assert.AreEqual(moraleBefore + 4, warrior.Morale, "被治疗者 +4 士气");
         Assert.IsTrue(log.Events.OfType<MoraleEvent>().Any(e => e.Source == "critical_heal"));
     }

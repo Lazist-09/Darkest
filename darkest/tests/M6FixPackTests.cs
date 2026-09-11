@@ -75,6 +75,7 @@ public sealed class M6FixPackTests
         int playerHealTotal = 0; // #218：我方自愈总量（① 生效证据 + ③ 剂量基准）
         int enemyDamageToPlayer = 0; // ① 实测 E
         int spRegenApplied = 0;      // ③ SP 供给侧
+        int playerDeaths = 0;        // v0.62：我方阵亡总数
         var healBySkill = new Dictionary<string, int>();
         var spValueDistribution = new Dictionary<int, int>();
 
@@ -156,7 +157,10 @@ public sealed class M6FixPackTests
                                 && e.Target is { } et && PlayerArchetypes.Any(p => et.Value == p || et.Value.StartsWith(p + "_", StringComparison.Ordinal)))
                     .Sum(e => e.Amount);
 
-                // ③ SP 供给側：实际入账的恢复总量（cap 后未入账的不计）
+                // v0.62：死亡人数（我方阵亡，来自 DeathEvent）
+                playerDeaths += l.Events.OfType<DeathEvent>().Count(e => e.IsPlayer);
+
+                // ③ SP 供给侧：实际入账的恢复总量（cap 后未入账的不计）
                 spRegenApplied += l.Events.OfType<SupportPointEvent>().Where(e => e.Reason == "regen").Sum(e => e.Delta);
             }
         }
@@ -186,6 +190,7 @@ public sealed class M6FixPackTests
         string coreReport =
             $"[M6v4] 实测 D={measuredD:F2}/回合　实测 E={measuredE:F2}/回合（敌方对我方，D 的对侧口径）\n" +
             $"[M6v4] 我方自愈 {playerHealTotal / (double)runs:F1} HP/场　拆解：{healBreak}\n" +
+            $"[M6v4] 我方阵亡 {playerDeaths}（{(double)playerDeaths / runs:F2}/场）\n" +
             $"[M6v4] SP 对账：起手 {spSupply} + 恢复入账 {spRegenApplied}（撞 cap 未入账 ≈ {spWastedAtCap:F0}，总回合 {totalRounds}）" +
             $" = 可用 {spSupply + spRegenApplied}；花费 {spSpend}（技能 {spSpentOnSkill} + 增援 {spSpentOnReinforce}）；" +
             $"结余 = {spSupply + spRegenApplied - spSpend}（跨 300 场）";

@@ -84,7 +84,7 @@ public sealed class EnemyTargetingTests
 
         SkillChoice? c = NewAi(cfg, skills).Choose(archer, d.Enemy, d.Player, null, new RngProvider(1), log);
         Assert.AreEqual("ranged_precise_shot", c!.SkillId);
-        CollectionAssert.AreEqual(new[] { 4 }, c.TargetSlots.ToArray(), "射手 backmost → 打最深我 4 位");
+        CollectionAssert.AreEqual(new[] { 6 }, c.TargetSlots.ToArray(), "射手 backmost → 打最深的我方单位（C 轴后 = 6 位）");
     }
 
     [TestMethod]
@@ -111,7 +111,7 @@ public sealed class EnemyTargetingTests
 
         SkillChoice? c = NewAi(cfg, skills).Choose(caster, d.Enemy, d.Player, null, new RngProvider(1), log);
         Assert.AreEqual("caster_mental_shock", c!.SkillId);
-        Assert.AreEqual(2, c.TargetSlots.Count, "AOE 不受选一影响：命中池内全部非空位");
+        Assert.AreEqual(4, c.TargetSlots.Count, "AOE 不受选一影响：命中池内全部非空位（C 轴后池 = 1,2,5,6）");
     }
 
     [TestMethod]
@@ -121,7 +121,8 @@ public sealed class EnemyTargetingTests
         UnitRuntime melee = d.Enemy.UnitRuntimeAt(1)!;
         d.Morale.Initialize(d.Player.UnitsInSlotOrder());
         var ledger = new BuffLedger(buffs);
-        ledger.Add(UnitId.Of("tank"), "taunt", source: null); // F1/#192：嘲讽挂在【我方嘲讽者】身上（不再打给敌人）；池 {1,2} 中 1 位权重 3
+        ledger.Add(UnitId.Of("tank"), "taunt", source: null); // 嘲讽挂在我方嘲讽者身上；C 轴后近战池 = {1,2,5,6}
+        // 权重：嘲讽者 3，其余候选各 1 → 3/6 = 50%
 
         EnemyAi ai = NewAi(cfg, skills);
         var rng = new RngProvider(20260909);
@@ -137,7 +138,7 @@ public sealed class EnemyTargetingTests
         }
 
         double rate = (double)tankPicked / runs;
-        Assert.IsTrue(rate is > 0.70 and < 0.80, $"taunt 加权 ≈75%（实测 {rate:P1}）");
+        Assert.IsTrue(rate is > 0.45 and < 0.56, $"taunt 加权 = 3/(3+1+1+1) ≈50%（C 轴后池 4 人；实测 {rate:P1}）");
         Assert.IsTrue(log.Events.OfType<RngDraw>().Count() >= runs, "taunt 加权抽取必写 RngDraw（确定性红线）");
     }
 
@@ -146,7 +147,9 @@ public sealed class EnemyTargetingTests
     {
         BattleDirector d = NewDirector(out SkillsConfig skills, out BuffDefsConfig buffs, out EnemyAiConfig cfg, out CombatLog log);
         UnitRuntime melee = d.Enemy.UnitRuntimeAt(1)!;
-        d.Player.RemoveUnitAt(2); // 池内只剩 1 位（坦克）
+        d.Player.RemoveUnitAt(2); // C 轴后近战池 = {1,2,5,6} → 清掉 2/5/6 才能造出「唯一候选」
+        d.Player.RemoveUnitAt(5);
+        d.Player.RemoveUnitAt(6);
         var ledger = new BuffLedger(buffs);
         ledger.Add(UnitId.Of("tank"), "taunt", source: null);
 
@@ -197,8 +200,8 @@ public sealed class EnemyTargetingTests
     public void Data_P13_FearWhisperSlots_And_Preferences()
     {
         SkillsConfig skills = SkillsConfig.Parse(ReadData("skills.json"));
-        CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 },
-            skills.Get("caster_fear_whisper").Target.Slots!.ToArray(), "#186：恐惧低语目标位 [1,2,3,4]");
+        CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6 },
+            skills.Get("caster_fear_whisper").Target.Slots!.ToArray(), "C 轴（v0.62）：敌方攻击范围覆盖 5/6 → [1..6]");
 
         EnemyAiConfig cfg = EnemyAiConfig.Parse(ReadData("enemy_ai.json"));
         Assert.AreEqual(3, cfg.TauntWeight, "taunt_weight 起手 3");

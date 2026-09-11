@@ -91,9 +91,17 @@ public static class Policies
         {
             // 支援位：只做"值得花 SP"的事；否则攒点/待命
             string? healSkill = usable.FirstOrDefault(id => C.Skills.Get(id).HealFixed is not null);
+            string? groupHeal = usable.FirstOrDefault(id =>
+                C.Skills.Get(id).HealFixed is not null && C.Skills.Get(id).Target.Scope == SkillTargetScope.Team);
             if (sp >= costSkill && healSkill is not null)
             {
-                // ① 保命：HP% < 30% → 必花 1 点
+                // S5（v0.62）群体判据：伤员 ≥3 → 优先【群体绷带】（5×N/2SP 优于 8/2SP，一次覆盖全队）
+                if (groupHeal is not null && CountWounded(director, 0.60) >= 3)
+                {
+                    return PlayerDecision.Skill(groupHeal, null);
+                }
+
+                // ① 保命：HP% < 30% → 必花（cost 点）
                 int? critical = LowestHpPctAlly(director, threshold: 0.30);
                 if (critical is { } crit)
                 {
@@ -189,6 +197,11 @@ public static class Policies
 
         return PlayerDecision.Skill(nonHeal.FirstOrDefault() ?? usable[0], null);
     }
+
+    /// <summary>S5（v0.62）群体判据用：我方 HP% 低于 threshold 的伤员数。</summary>
+    private static int CountWounded(BattleDirector director, double threshold)
+        => director.Player.UnitsInSlotOrder()
+            .Count(u => u.MaxHp > 0 && (double)u.CurrentHp / u.MaxHp < threshold);
 
     /// <summary>S5（#211）②：支援位中有健康者（HP% ≥ 60%）→ 返回其槽位，供"救崩溃"增援换下虚弱战斗位。</summary>
     private static int? SupportHealthyAlly(BattleDirector director)

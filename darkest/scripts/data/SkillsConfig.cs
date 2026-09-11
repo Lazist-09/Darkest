@@ -87,7 +87,8 @@ public sealed record SkillTemplateConfig(
     [property: JsonPropertyName("self_damage_fixed")] int? SelfDamageFixed = null,
     [property: JsonPropertyName("pool_external")] bool PoolExternal = false,
     [property: JsonPropertyName("requires")] RequiresSpec? Requires = null,
-    [property: JsonPropertyName("bonus_vs_marked_percent")] int BonusVsMarkedPercent = 0);
+    [property: JsonPropertyName("bonus_vs_marked_percent")] int BonusVsMarkedPercent = 0,
+    [property: JsonPropertyName("support_point_cost")] int? SupportPointCost = null);
 
 /// <summary>D5（#207）技能前置条件：不满足 → 灰显 + tooltip；不改携带集（O-50 契约不受影响）。</summary>
 public sealed record RequiresSpec(

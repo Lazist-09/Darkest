@@ -125,7 +125,7 @@ public sealed class ShieldGuardTests
             Effects: Array.Empty<EffectRequest>(), Displacement: null), player, enemy, new ScriptedRng(0.0, 100.0));
 
         Assert.AreEqual(2, buffs.Charges(tank.Id, "shield"), "精神不消耗次数（#156）");
-        Assert.AreEqual(48, tank.CurrentHp, "精神伤害照常（坦克韧 55 → 减免 22% → 7）");
+        Assert.AreEqual(46, tank.CurrentHp, "精神伤害照常（v0.62：施法者攻击 12→15 → 伤 9）");
         Assert.IsTrue(log.Events.OfType<DamageEvent>().Any());
     }
 
@@ -154,7 +154,7 @@ public sealed class ShieldGuardTests
         Assert.AreEqual(55, tank.CurrentHp);
 
         pipeline.Execute(skill, player, enemy, new ScriptedRng(0.0, 100.0)); // 无盾：伤害照常
-        Assert.AreEqual(46, tank.CurrentHp, "无盾受击 55−9=46");
+        Assert.AreEqual(44, tank.CurrentHp, "无盾受击 55−11=44（v0.62：近战攻击 12→15）");
     }
 
     [TestMethod]
@@ -180,7 +180,7 @@ public sealed class ShieldGuardTests
             new[] { 2 }, HitMod: 0, CritMod: 0, Axis: "physical", Segments: new[] { 1.0 }, IsAoe: false,
             Effects: Array.Empty<EffectRequest>(), Displacement: null), player, enemy, new ScriptedRng(0.0, 100.0));
 
-        Assert.AreEqual(55 - 9, tank.CurrentHp, "坦克替挡按坦克防御受伤（9）");
+        Assert.AreEqual(55 - 11, tank.CurrentHp, "坦克替挡按坦克防御受伤（11）");
         Assert.AreEqual(40, warrior.CurrentHp, "战士未被打");
         Assert.IsTrue(log.Events.OfType<EffectEvent>().Any(e => e.EffectType == "guard_redirect"));
     }
@@ -205,12 +205,12 @@ public sealed class ShieldGuardTests
 
         pipeline.Execute(skill, player, enemy, new ScriptedRng(0.0, 100.0)); // 第 1 次：重定向坦克
         UnitRuntime tank1 = player.UnitRuntimeAt(1)!;
-        Assert.AreEqual(46, tank1.CurrentHp);
+        Assert.AreEqual(44, tank1.CurrentHp);
         Assert.AreEqual(40, player.UnitRuntimeAt(2)!.CurrentHp);
 
         pipeline.Execute(skill, player, enemy, new ScriptedRng(0.0, 100.0)); // 同回合第 2 次：不再重定向
-        Assert.AreEqual(46, tank1.CurrentHp, "每回合最多重定向 1 次（#159）：第二次直打战士");
-        Assert.AreEqual(31, player.UnitRuntimeAt(2)!.CurrentHp, "战士 40−9");
+        Assert.AreEqual(44, tank1.CurrentHp, "每回合最多重定向 1 次（#159）：第二次直打战士");
+        Assert.AreEqual(28, player.UnitRuntimeAt(2)!.CurrentHp, "战士 40−12（v0.62：近战攻击 12→15）");
     }
 
     private static FormationBoard playerBoard()
