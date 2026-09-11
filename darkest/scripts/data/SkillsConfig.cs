@@ -85,7 +85,16 @@ public sealed record SkillTemplateConfig(
     [property: JsonPropertyName("damage_axis")] SkillDamageAxis DamageAxis,
     [property: JsonPropertyName("heal_fixed")] int? HealFixed = null,
     [property: JsonPropertyName("self_damage_fixed")] int? SelfDamageFixed = null,
-    [property: JsonPropertyName("pool_external")] bool PoolExternal = false);
+    [property: JsonPropertyName("pool_external")] bool PoolExternal = false,
+    [property: JsonPropertyName("requires")] RequiresSpec? Requires = null,
+    [property: JsonPropertyName("bonus_vs_marked_percent")] int BonusVsMarkedPercent = 0);
+
+/// <summary>D5（#207）技能前置条件：不满足 → 灰显 + tooltip；不改携带集（O-50 契约不受影响）。</summary>
+public sealed record RequiresSpec(
+    [property: JsonPropertyName("self_hp_below_percent")] int? SelfHpBelowPercent = null,
+    [property: JsonPropertyName("target_hp_below_percent")] int? TargetHpBelowPercent = null,
+    [property: JsonPropertyName("self_weak")] bool? SelfWeak = null,
+    [property: JsonPropertyName("self_deaths_door")] bool? SelfDeathsDoor = null);
 
 /// <summary>skills.json 根模型 + fail-fast 校验（P2/O-24/O-16/43 断言；P1/P3 跨文件在 Validators）。</summary>
 public sealed record SkillsConfig(

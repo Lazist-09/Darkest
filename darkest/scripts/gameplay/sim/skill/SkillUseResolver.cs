@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Darkest.Core.Contracts;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Board;
@@ -54,6 +55,40 @@ public sealed class SkillUseResolver
         if (targets.Count == 0)
         {
             return new Availability(AvailabilityReason.NoTarget, Availability.TooltipFor(AvailabilityReason.NoTarget));
+        }
+
+        // ③.5 D5（#207）前置条件：自身/目标血量阈值、自身虚弱、自身死门 → 不满足则灰显
+        if (skill.Requires is { } req)
+        {
+            UnitRuntime caster = ctx.AllyBoard.UnitRuntimeAt(slot)!;
+            if (req.SelfHpBelowPercent is { } selfPct
+                && (caster.MaxHp <= 0 || 100.0 * caster.CurrentHp / caster.MaxHp >= selfPct))
+            {
+                return new Availability(AvailabilityReason.RequiresUnmet, $"需要自身 HP 低于 {selfPct}%");
+            }
+
+            if (req.SelfWeak == true && !caster.Weak)
+            {
+                return new Availability(AvailabilityReason.RequiresUnmet, "需要自身处于虚弱");
+            }
+
+            if (req.SelfDeathsDoor == true && !caster.Weak)
+            {
+                return new Availability(AvailabilityReason.RequiresUnmet, "需要自身处于死门");
+            }
+
+            if (req.TargetHpBelowPercent is { } targetPct)
+            {
+                bool ok = targets.Any(s =>
+                {
+                    UnitRuntime? t = ctx.TargetBoard.UnitRuntimeAt(s) ?? ctx.AllyBoard.UnitRuntimeAt(s);
+                    return t is not null && t.MaxHp > 0 && 100.0 * t.CurrentHp / t.MaxHp < targetPct;
+                });
+                if (!ok)
+                {
+                    return new Availability(AvailabilityReason.RequiresUnmet, $"需要目标 HP 低于 {targetPct}%");
+                }
+            }
         }
 
         // ④ 使用限制（只读运行台账）

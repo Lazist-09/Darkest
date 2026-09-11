@@ -184,6 +184,27 @@ public sealed class DdAdoptionTests
     }
 
     [TestMethod]
+    public void D5_Requires_GatesAvailability_WithReason()
+    {
+        (BattleDirector d, BalanceTable _) = World();
+        var skills = SkillsConfig.Parse(ReadData("skills.json"));
+        var resolver = new Darkest.Gameplay.Sim.Skill.SkillUseResolver(skills);
+        var carried = new HashSet<string> { "warrior_last_stand" };
+        var rt = new Darkest.Gameplay.Sim.Skill.SkillRuntimeState();
+        var ctx = new Darkest.Gameplay.Sim.Skill.SkillUseContext(
+            skills.Get("warrior_last_stand"), UnitId.Of("warrior"), d.Player, d.Enemy, carried, rt, IsEnemy: false);
+
+        // 满血 → 前置不满足（需自身 HP < 50%）→ 灰显 + 原因
+        Availability unmet = resolver.Resolve(ctx);
+        Assert.AreEqual(AvailabilityReason.RequiresUnmet, unmet.Reason, "不满足 requires → 灰显");
+        Assert.IsTrue(unmet.Tooltip.Contains("50"), $"tooltip 说明阈值（实际 {unmet.Tooltip}）");
+
+        // 压到 45% → 可点
+        d.Player.UnitRuntimeAt(2)!.CurrentHp = d.Player.UnitRuntimeAt(2)!.MaxHp * 45 / 100;
+        Assert.AreEqual(AvailabilityReason.Ok, resolver.Resolve(ctx).Reason, "满足 requires → 可点");
+    }
+
+    [TestMethod]
     public void D6_AoeMultiCrit_TeamMoraleAppliedOnce()
     {
         (BattleDirector d, BalanceTable balance) = World();

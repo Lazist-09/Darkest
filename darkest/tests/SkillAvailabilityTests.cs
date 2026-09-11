@@ -120,9 +120,10 @@ public sealed class SkillAvailabilityTests
         var carried = new HashSet<string> { "warrior_last_stand" };
         var runtime = new SkillRuntimeState();
         runtime.RecordUse(UnitId.Of("warrior"), Skills().Get("warrior_last_stand")); // per_battle 1 → 已用 1
+        Darkest.Gameplay.Sim.Board.FormationBoard board = PlayerBoard(new[] { (1, "warrior") });
+        board.UnitRuntimeAt(1)!.CurrentHp = 10; // D5（#207）：殊死一搏 需自身 HP < 50%，先满足前置
         Availability a = new SkillUseResolver(Skills()).Resolve(
-            Ctx(Skills(), "warrior_last_stand", UnitId.Of("warrior"),
-                PlayerBoard(new[] { (1, "warrior") }), PlayerBoard(), carried, runtime));
+            Ctx(Skills(), "warrior_last_stand", UnitId.Of("warrior"), board, PlayerBoard(), carried, runtime));
         Assert.AreEqual(AvailabilityReason.UsesExhausted, a.Reason);
         Assert.AreEqual("每场次数用尽", a.Tooltip);
     }
