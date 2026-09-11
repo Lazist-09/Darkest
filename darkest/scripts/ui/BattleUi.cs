@@ -39,6 +39,7 @@ public partial class BattleUi : CanvasLayer
     private Action? _reinforce;
     private Action? _move;
     private Action? _retreat;
+    private Action? _pass;
 
     private Label _statusLabel = null!;
     private Label _actionOrderLabel = null!;
@@ -51,6 +52,7 @@ public partial class BattleUi : CanvasLayer
     private readonly List<Button> _skillButtons = new();
     private Button _reinforceButton = null!;
     private Button _moveButton = null!;
+    private Button _passButton = null!; // S5.2 待命
     private Panel _resultPanel = null!;
     private Label _resultLabel = null!;
     private Panel _devLogPanel = null!;   // G2：开发者日志面板（F1 开关）
@@ -68,13 +70,15 @@ public partial class BattleUi : CanvasLayer
     private static readonly Dictionary<string, string[]> _poolCache = new();
     private static SkillsConfig? _skillsCfg;
 
-    public void Bind(BattleRoot host, Action<UnitId, string> useSkill, Action reinforce, Action move, Action retreat)
+    public void Bind(BattleRoot host, Action<UnitId, string> useSkill, Action reinforce, Action move, Action retreat,
+        Action? pass = null)
     {
         _host = host;
         _useSkill = useSkill;
         _reinforce = reinforce;
         _move = move;
         _retreat = retreat;
+        _pass = pass;
         foreach (Node child in GetChildren().ToArray())
         {
             child.QueueFree();
@@ -145,6 +149,11 @@ public partial class BattleUi : CanvasLayer
         _moveButton.Pressed += () => _move?.Invoke();
         AddChild(_moveButton);
 
+        // S5.2 待命（放弃本次行动；不消耗 SP）
+        _passButton = new Button { Position = new Vector2(1132, SkillBarY + 96), Size = new Vector2(116, 44), Text = "待命" };
+        _passButton.Pressed += () => _pass?.Invoke();
+        AddChild(_passButton);
+
         _resultPanel = new Panel { Position = new Vector2(340, 210), Size = new Vector2(600, 260), Visible = false };        _resultPanel.Modulate = new Color(0.1f, 0.1f, 0.14f, 0.98f);
         AddChild(_resultPanel);
         _resultLabel = new Label { Position = new Vector2(24, 20), CustomMinimumSize = new Vector2(552, 220) };
@@ -163,6 +172,9 @@ public partial class BattleUi : CanvasLayer
         _devLogLabel.AddThemeFontSizeOverride("font_size", 12);
         _devLogPanel.AddChild(_devLogLabel);
     }
+
+    /// <summary>供 BattleRoot 的提示文案使用（单位原型中文名）。</summary>
+    public string ArchetypeNameOf(UnitId actor) => NameOf(_host?.ArchetypeOf(actor) ?? actor.Value);
 
     /// <summary>G2：开发者日志开/关（每次打开重绘整个事件流尾部）。</summary>
     public void ToggleDevLog()
@@ -245,6 +257,8 @@ public partial class BattleUi : CanvasLayer
         _statusLabel.Text = _host.GameOver
             ? $"战斗结束（第 {support.Round} 回合）：{status}"
             : status.Length > 0 ? status : $"回合 {support.Round}";
+        // #211（S0）必显 #10：支援点常驻显示（含本回合恢复预览）；数字只来自投影（UI 不得自行扣点）
+        _statusLabel.Text += $"　　支援点 {support.SupportPoints}/{support.SupportCap}（下回合 {support.SupportRegenPreview}）";
         // 队列只保留头像方块（下方 RefreshOrderStrip）；原文字队列与方块重合已移除
         _actionOrderLabel.Text = "本回合顺序";
         _retreatButton.Text = support.CanRetreat && !_host.GameOver ? $"撤退 {support.RetreatRatePercent}%" : "本回合不可撤退";
@@ -436,7 +450,12 @@ public partial class BattleUi : CanvasLayer
         UnitId actor = _host.ActiveActor;
 
         bool combatActor = waiting && (d.Player.UnitAtPosition(actor) ?? -1) is >= 1 and <= 4;
-        _reinforceButton.Disabled = !waiting || d.SwappedThisRound;
+        _reinforceButton.Disabled = !waiting || d.SwappedThisRound || d.SupportPoints < d.SupportCostReinforce;
+        _reinforceButton.TooltipText = d.SupportPoints < d.SupportCostReinforce
+            ? $"支援点不足（当前 {d.SupportPoints} / 需要 {d.SupportCostReinforce}）"
+            : $"增援：调动支援位上场（消耗 {d.SupportCostReinforce} 点）";
+        _passButton.Disabled = !waiting;
+        _passButton.TooltipText = $"待命：放弃本次行动（不消耗支援点）";
         _moveButton.Disabled = !combatActor || d.SwappedThisRound || MoveCandidates(actor, d).Length == 0;
 
         if (!waiting)

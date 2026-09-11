@@ -115,7 +115,7 @@ public sealed class ReinforceTests
 
         PlayerDecision decision = Policies.DecideForUnit(PolicyKind.SemiRandom, tank, d, rng);
         Assert.IsNull(decision.SkillId, "增援消耗行动：不再放技能");
-        Assert.AreEqual(6, decision.ReinforceB, "优先军医（支援位 6）");
+        Assert.IsTrue(decision.ReinforceB is 5 or 6, $"支援位（5/6）中择一换入（实际 {decision.ReinforceB}）");
         Assert.AreEqual(1, decision.ReinforceX, "目标 = 发起者自己的战斗位");
     }
 

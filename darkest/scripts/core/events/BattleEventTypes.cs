@@ -95,6 +95,9 @@ public sealed record TurnSkippedEvent(UnitId Actor, string Reason) : BattleEvent
 /// <summary>战斗结束（G0）：胜负与原因。</summary>
 public sealed record BattleEndEvent(string Outcome, int Round, string Reason) : BattleEvent;
 
+/// <summary>#211/O-60 支援点变动（第 15 类事件）：UI 常驻数字与统计只允许来自本事件流。</summary>
+public sealed record SupportPointEvent(int Delta, int NewValue, string Reason) : BattleEvent;
+
 /// <summary>敌方 AI 决策（G0）：用了哪条规则、打了谁。</summary>
 public sealed record EnemyDecisionEvent(UnitId Actor, string SkillId, int RuleIndex, string RuleCondition, int[] TargetSlots) : BattleEvent
 {

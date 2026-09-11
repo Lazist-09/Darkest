@@ -85,7 +85,23 @@ public partial class BattleRoot : Node2D
         _ui.Bind(host: this, useSkill: (actor, skillId) => DoUseSkill(actor, skillId),
             reinforce: () => OnReinforceClicked(),
             move: () => OnMoveClicked(),
-            retreat: () => DoRetreat());
+            retreat: () => DoRetreat(),
+            pass: () => OnPassClicked());
+    }
+
+    /// <summary>S5.2 待命：显式结束该单位本次行动（不消耗 SP、不算技能、不结算任何效果）。</summary>
+    public void OnPassClicked()
+    {
+        if (!_awaitingPlayer)
+        {
+            return;
+        }
+
+        Director.PassTurn(_activeActor);
+        _pendingSkill = null;
+        _reinforcePhase = 0;
+        _awaitingPlayer = false; // 放弃本次行动
+        _ui.FlashHint($"{_ui.ArchetypeNameOf(_activeActor)} 待命（不消耗支援点）");
     }
 
     public override void _Process(double delta)

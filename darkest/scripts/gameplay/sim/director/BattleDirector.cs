@@ -55,6 +55,7 @@ public sealed class BattleDirector
     private int _lastWaveRound; // #196：上一波增援的回合（0 = 尚未触发）
     private bool _endEmitted;   // G0：战斗结束事件幂等
     private IRngProvider? _lastRng; // D3：回合开始钩子（流血致死进死门）需要 RNG
+    private int _supportPoints;     // #211（S0）：支援点 SP（战斗级资源，全队共享）
     private int _elasticBonus;  // #198：弹性浮动（0..max_bonus，叠加在 M_base 上）
     private readonly HashSet<UnitId> _outputUsersThisRound = new(); // #198：本回合用过 output 技能的我方单位
     private readonly Queue<bool> _recentNotFull = new();           // #198：最近 K 回合"未全力进攻"标记
@@ -77,6 +78,8 @@ public sealed class BattleDirector
         _runtime = new SkillRuntimeState();
         _pipeline = new DamagePipeline(balance, moraleEvents, log, _buffs, _shield);
         _executor = new SkillExecutor(skills, balance, moraleEvents, log, _runtime, _buffs);
+        // #211（S0）：支援点 SP = 战斗级状态（全队共享、不挂单位、不吃驱散）；起手值来自 tuning
+        _supportPoints = balance.Tuning.SupportPoints.Start;
         _ai = new EnemyAi(enemyAi, skills, _runtime);
         _player = FormationBoardFactory.CreatePlayerBoard(formation, units);
         _enemy = FormationBoardFactory.CreateEnemyBoard(formation, units);
@@ -104,6 +107,18 @@ public sealed class BattleDirector
         _log.Round = _round; // G0/O-55：此后 append 的事件自动带回合号
         _lastRng = rng;
         _log.Append(new RoundStartEvent(_round));
+
+        // #211（S0）硬提醒③：regen 必须在【消耗判定之前】，且 cap 在 regen 后立即钳制（否则第 1 回合起手值会算错）
+        int spRegen = _balance.Tuning.SupportPoints.RegenPerRound;
+        if (spRegen > 0)
+        {
+            int beforeRegen = _supportPoints;
+            _supportPoints = Math.Min(_supportPoints + spRegen, _balance.Tuning.SupportPoints.Cap);
+            if (_supportPoints != beforeRegen)
+            {
+                _log.Append(new SupportPointEvent(_supportPoints - beforeRegen, _supportPoints, "regen"));
+            }
+        }
 
         // #198 弹性：先评估"刚结束的回合"是否未全力进攻（存活战斗位中未用 output 技能者 ≥ 阈值），再清空本回合记录
         if (_round > 1)
@@ -160,16 +175,27 @@ public sealed class BattleDirector
         _lastRoundOrder = _sequencer.BuildRoundOrder(rng); // 每回合固定点重掷（#163）；UI 读缓存
     }
 
-    /// <summary>玩家命令：释放技能（SkillExecutor 桥接管线；chosenTargets 供实机单体选一，headless 默认随机选一 #178/#179）。</summary>
-    public void PlayerUseSkill(UnitId actor, string skillId, IRngProvider rng, IReadOnlyList<int>? chosenTargets = null)
+    /// <summary>
+    /// 玩家命令：释放技能（SkillExecutor 桥接管线；chosenTargets 供实机单体选一，headless 默认随机选一 #178/#179）。
+    /// #211（S0）：**支援位（5/6）技能 −1 SP**；不足 → 拒（返回 false，调用方保持该单位行动，不吞回合）；
+    /// **战斗位技能永不因 SP 被拒**（硬提醒①）。
+    /// </summary>
+    public bool PlayerUseSkill(UnitId actor, string skillId, IRngProvider rng, IReadOnlyList<int>? chosenTargets = null)
     {
         SkillTemplateConfig skill = _skills.Get(skillId);
+        if (IsSupportSlotActor(actor) && !TrySpendSupportPoints(SupportCostSkill, "skill"))
+        {
+            _log.Append(new SkillRefusedEvent(actor, skillId, "support_points")); // 不足 = 不可用（非失败）
+            return false;
+        }
+
         if (skill.Tags.Contains(FuncTag.Output))
         {
             _outputUsersThisRound.Add(actor); // #198：攻击类技能 = tags 含 output（玩家可见的"输出"类）
         }
 
         _executor.Execute(skill, actor, _player, _enemy, rng, chosenTargets);
+        return true;
     }
 
     /// <summary>
@@ -197,6 +223,12 @@ public sealed class BattleDirector
         }
 
         if (x is < 1 or > 4 || _player.GetSlot(x) == SlotState.Empty && aPos == x)
+        {
+            return false;
+        }
+
+        // #211（S0）：增援 = 调动一个人上场 → 比放技能重（−2）；不足 → 被拒，且**不得吞掉发起者行动**
+        if (!TrySpendSupportPoints(_balance.Tuning.SupportPoints.CostReinforce, "reinforce"))
         {
             return false;
         }
@@ -236,6 +268,51 @@ public sealed class BattleDirector
 
     /// <summary>本回合是否已换位（策略护栏；StartTurn 重置）。</summary>
     public bool SwappedThisRound => _swappedThisRound;
+
+    // ------------------------------------------------------------------
+    // #211（S0）支援点 SP：战斗级资源（全队共享；不挂单位、不吃驱散、不随死亡改变）
+    // ------------------------------------------------------------------
+
+    /// <summary>当前支援点（投影只读；UI 不得自行扣点/缓存）。</summary>
+    public int SupportPoints => _supportPoints;
+
+    /// <summary>支援点上限。</summary>
+    public int SupportCap => _balance.Tuning.SupportPoints.Cap;
+
+    /// <summary>下回合开始的恢复预览（UI 必显 #10：含本回合恢复预览）。</summary>
+    public int SupportRegenPreview
+        => Math.Min(_supportPoints + _balance.Tuning.SupportPoints.RegenPerRound, _balance.Tuning.SupportPoints.Cap);
+
+    /// <summary>支援位技能消耗。</summary>
+    public int SupportCostSkill => _balance.Tuning.SupportPoints.CostSkill;
+
+    /// <summary>增援消耗。</summary>
+    public int SupportCostReinforce => _balance.Tuning.SupportPoints.CostReinforce;
+
+    /// <summary>
+    /// 扣点（#211）：不足 → 返回 false 并记 `rejected`（调用方负责"被拒不吞行动"）。
+    /// 硬提醒②：**每次变动必须写 SupportPointEvent**（UI 数字与统计的唯一来源）。
+    /// </summary>
+    public bool TrySpendSupportPoints(int cost, string reason)
+    {
+        if (_supportPoints < cost)
+        {
+            _log.Append(new SupportPointEvent(0, _supportPoints, "rejected"));
+            return false;
+        }
+
+        _supportPoints -= cost;
+        _log.Append(new SupportPointEvent(-cost, _supportPoints, reason));
+        return true;
+    }
+
+    /// <summary>该单位是否位于支援位（5/6）——只有支援位技能与增援消耗 SP。</summary>
+    public bool IsSupportSlotActor(UnitId actor)
+        => _player.UnitAtPosition(actor) is { } pos && _player.Layout.SupportSlots.Contains(pos);
+
+    /// <summary>显式「待命」（S5.2）：放弃本次行动，不消耗 SP、不结算任何效果、不进技能栏。</summary>
+    public void PassTurn(UnitId actor)
+        => _log.Append(new TurnSkippedEvent(actor, "passed"));
 
     /// <summary>下一位行动者（M6 前置立卡：行动序列/眩晕/减速生效——排序与眩晕跳过均在内核 TurnSequencer）。</summary>
     public UnitId? NextActor()
@@ -381,7 +458,11 @@ public sealed class BattleDirector
                 PlayerDecision decision = decide(playerUnit);
                 if (decision.ReinforceB is { } bSlot && decision.ReinforceX is { } xSlot)
                 {
-                    Reinforce(actor.Value, bSlot, xSlot); // 增援消耗发起者本次行动（#181）
+                    if (!Reinforce(actor.Value, bSlot, xSlot))
+                    {
+                        // #211（S0）：SP 不足 → 被拒不吞行动（本回合视为待命；实机保持该单位行动）
+                        PassTurn(actor.Value);
+                    }
                 }
                 else if (decision.SkillId is not null)
                 {
@@ -391,7 +472,14 @@ public sealed class BattleDirector
                     }
 
                     int[]? chosen = decision.SkillTargetSlot is { } ts ? new[] { ts } : null;
-                    PlayerUseSkill(actor.Value, decision.SkillId, rng, chosen);
+                    if (!PlayerUseSkill(actor.Value, decision.SkillId, rng, chosen))
+                    {
+                        PassTurn(actor.Value); // 支援点不足 → 不消耗行动（S5.2 待命出口）
+                    }
+                }
+                else
+                {
+                    PassTurn(actor.Value); // S5.2：显式待命（不消耗 SP、不算技能）
                 }
             }
             else if (_enemy.UnitsInSlotOrder().Any(x => x.Id == actor))

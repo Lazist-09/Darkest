@@ -101,12 +101,17 @@ public sealed class PolicyTests
         BattleDirector d = NewDirector(out _);
         d.Player.UnitRuntimeAt(1)!.Weak = true; // 战斗位虚弱
         PlayerDecision weak = Decide(d, "tank");
-        Assert.IsNotNull(weak.ReinforceB, "虚弱战斗位 → 触发增援换下");
+        Assert.IsNotNull(weak.ReinforceB, "虚弱战斗位 + SP≥2 → 触发增援换下（S5 ② 救崩溃）");
 
+        // S5 ①：濒死（HP%<30%）走【保命治疗】分支（支援位军医），不再由濒死者自己发起增援
         BattleDirector d2 = NewDirector(out _);
-        d2.Player.UnitRuntimeAt(2)!.CurrentHp = 1; // 战斗位濒死（HP% <30%）
+        d2.Player.UnitRuntimeAt(2)!.CurrentHp = 1;
         PlayerDecision crit = Decide(d2, "warrior");
-        Assert.IsNotNull(crit.ReinforceB, "HP%<30% → 触发增援拉起");
+        Assert.IsNull(crit.ReinforceB, "濒死不触发增援（改由支援位保命治疗）");
+
+        PlayerDecision medic = Decide(d2, "medic_2"); // 支援位军医
+        Assert.IsTrue(medic.SkillId is "medic_first_aid" or "medic_group_bandage", $"保命：支援位军医治疗（实际 {medic.SkillId}）");
+        Assert.AreEqual(2, medic.SkillTargetSlot, "治疗目标 = 濒死的 2 位战士");
     }
 
     [TestMethod]

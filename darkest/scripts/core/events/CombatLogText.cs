@@ -68,6 +68,7 @@ public static class CombatLogText
             EnemyDecisionEvent ed => $"{R(ed)}敌方 {U(ed.Actor)} 决策：{S(ed.SkillId)} → {Slots(ed.TargetSlots)}",
             RetreatEvent rt => $"{R(rt)}撤退判定：{(rt.Success ? "成功" : "失败")}（{rt.Rate:F0}%）",
             BattleEndEvent be => $"— 战斗结束：{Outcome(be.Outcome)}（{Reason(be.Reason)}）—",
+            SupportPointEvent sp => $"{R(sp)}支援点 {(sp.Delta >= 0 ? "+" : "")}{sp.Delta} → {sp.NewValue}（{Reason(sp.Reason)}）",
             RngDraw rd => $"{R(rd)}随机抽取 #{rd.DrawCount} = {rd.Value:F2}",
             _ => $"{R(e)}{e.GetType().Name}",
         };
@@ -106,6 +107,11 @@ public static class CombatLogText
         "enemy_wiped" => "敌方全灭",
         "player_wiped" => "我方全灭",
         "table_pick" => "技能表选取",
+        "skill" => "支援位技能",
+        "reinforce" => "增援",
+        "regen" => "回合恢复",
+        "rejected" => "点数不足（被拒）",
+        "passed" => "待命",
         "unknown" => "未知",
         _ => reason,
     };

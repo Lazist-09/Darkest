@@ -68,28 +68,66 @@ public static class Policies
     }
 
     /// <summary>
-    /// P2 启发式（规则化、可解释，不做全局最优搜索）：
-    /// ④ 增援（虚弱 / HP%<30% 拉起）→ ③ 治疗（仅真伤员，最低 HP%）→ ① 输出（集火最低 HP；AOE 全池）
-    /// → ② 移动条件化（无输出可用且换位能提升可用技能数）→ ⑤ 控制（打攻击力最高者）→ 兜底支援。
+    /// P2 + S5（#211/#212）启发式：**SP 花费必须有目的，禁止无条件花**。
+    /// ①保命（HP%&lt;30% 且 SP≥1）→ ②救崩溃（战斗位虚弱 且 SP≥2 → 增援 −2）→ ③续航（HP%&lt;60% 且 SP≥2，
+    /// 治后保留 ≥1）→ ④士气（不消耗 SP）→ ⑤攒点/待命（支援位无可用时不花）。
+    /// **战斗位技能永不消耗 SP**，因此战斗位仍按"输出集火 → 移动"照常行动。
     /// </summary>
     private static PlayerDecision DecideRuleBased(UnitRuntime unit, BattleDirector director)
     {
-        if (ReinforceNeeded(unit, director) is { } r)
+        bool supportSlot = director.IsSupportSlotActor(unit.Id);
+        int sp = director.SupportPoints;
+        int costSkill = director.SupportCostSkill;
+
+        // ② 救崩溃：战斗位有虚弱者且支援位有健康者且 SP ≥ cost_reinforce → 花 2 点换下（保留 #176 意图 + SP 门槛）
+        if (!supportSlot && sp >= director.SupportCostReinforce && unit.Weak
+            && SupportHealthyAlly(director) is { } healthy)
         {
-            return PlayerDecision.Reinforce(r.bSlot, r.xSlot);
+            return PlayerDecision.Reinforce(healthy, director.Player.UnitAtPosition(unit.Id) ?? 1);
         }
 
         List<string> usable = UsableSkills(unit, director);
+        if (supportSlot)
+        {
+            // 支援位：只做"值得花 SP"的事；否则攒点/待命
+            string? healSkill = usable.FirstOrDefault(id => C.Skills.Get(id).HealFixed is not null);
+            if (sp >= costSkill && healSkill is not null)
+            {
+                // ① 保命：HP% < 30% → 必花 1 点
+                int? critical = LowestHpPctAlly(director, threshold: 0.30);
+                if (critical is { } crit)
+                {
+                    return PlayerDecision.Skill(healSkill, crit);
+                }
+
+                // ③ 续航：HP% < 60% 且 SP ≥ 2（花后保留 ≥1）
+                int? wounded = LowestHpPctAlly(director, threshold: 0.60);
+                if (wounded is { } w && sp >= 2)
+                {
+                    return PlayerDecision.Skill(healSkill, w);
+                }
+            }
+
+            // ④ 士气：不消耗 SP 的支援（鼓舞类）→ 直接做
+            string? morale = usable.FirstOrDefault(id => C.Skills.Get(id).MoraleEffects.Count > 0 && C.Skills.Get(id).HealFixed is null);
+            if (morale is not null)
+            {
+                return PlayerDecision.Skill(morale, null);
+            }
+
+            return PlayerDecision.None; // ⑤ 攒点 → 待命（不花 SP）
+        }
+
         if (usable.Count == 0)
         {
             return PlayerDecision.None;
         }
 
-        // ③ 治疗：只救真伤员（HP% < 60%），目标 = 最低 HP% 友方；全体健康 → 治疗不入池
+        // 战斗位：技能零 SP 消耗 → 治疗/输出照常
         string? heal = usable.FirstOrDefault(id => C.Skills.Get(id).HealFixed is not null);
-        if (heal is not null && LowestHpPctAlly(director) is { } wounded)
+        if (heal is not null && LowestHpPctAlly(director) is { } woundedAlly)
         {
-            return PlayerDecision.Skill(heal, wounded);
+            return PlayerDecision.Skill(heal, woundedAlly);
         }
 
         List<string> nonHeal = usable.Where(id => C.Skills.Get(id).HealFixed is null).ToList();
@@ -152,11 +190,26 @@ public static class Policies
         return PlayerDecision.Skill(nonHeal.FirstOrDefault() ?? usable[0], null);
     }
 
-    /// <summary>③ 最低 HP% 友方（含自身）；无真伤员（HP% ≥ 60%）→ null。</summary>
-    private static int? LowestHpPctAlly(BattleDirector director)
+    /// <summary>S5（#211）②：支援位中有健康者（HP% ≥ 60%）→ 返回其槽位，供"救崩溃"增援换下虚弱战斗位。</summary>
+    private static int? SupportHealthyAlly(BattleDirector director)
+    {
+        foreach (int slot in director.Player.Layout.SupportSlots)
+        {
+            UnitRuntime? u = director.Player.UnitRuntimeAt(slot);
+            if (u is not null && !u.Weak && u.MaxHp > 0 && (double)u.CurrentHp / u.MaxHp >= 0.6)
+            {
+                return slot;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>③ 最低 HP% 友方（含自身）；无真伤员（低于 threshold）→ null。</summary>
+    private static int? LowestHpPctAlly(BattleDirector director, double threshold = 0.6)
     {
         int? best = null;
-        double bestPct = 0.6;
+        double bestPct = threshold;
         foreach (UnitRuntime ally in director.Player.UnitsInSlotOrder())
         {
             double pct = ally.MaxHp > 0 ? (double)ally.CurrentHp / ally.MaxHp : 1.0;

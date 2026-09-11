@@ -71,6 +71,8 @@ public sealed class M6FixPackTests
         int totalHits = 0;
         int playerDamageToEnemy = 0;
         var skillUseById = new Dictionary<string, int>();
+        int supportSlotSkillUses = 0, spSpentOnSkill = 0, spSpentOnReinforce = 0, successfulReinforces = 0, passCount = 0;
+        var spValueDistribution = new Dictionary<int, int>();
 
         for (int i = 0; i < runs; i++)
         {
@@ -109,7 +111,29 @@ public sealed class M6FixPackTests
                 foreach (SkillUseEvent su in l.Events.OfType<SkillUseEvent>())
                 {
                     skillUseById[su.SkillId] = skillUseById.GetValueOrDefault(su.SkillId) + 1;
+                    if (su.CasterSlot is 5 or 6)
+                    {
+                        supportSlotSkillUses++;
+                    }
                 }
+
+                // S5.3：SP 存量分布 / 花费分布 / 待命次数（全部来自事件流）
+                foreach (SupportPointEvent sp in l.Events.OfType<SupportPointEvent>())
+                {
+                    spValueDistribution[sp.NewValue] = spValueDistribution.GetValueOrDefault(sp.NewValue) + 1;
+                    if (sp.Reason == "skill")
+                    {
+                        spSpentOnSkill += -sp.Delta;
+                    }
+
+                    if (sp.Reason == "reinforce")
+                    {
+                        spSpentOnReinforce += -sp.Delta;
+                        successfulReinforces++;
+                    }
+                }
+
+                passCount += l.Events.OfType<TurnSkippedEvent>().Count(e => e.Reason == "passed");
             }
         }
 
@@ -128,8 +152,14 @@ public sealed class M6FixPackTests
         string topSkills = string.Join("、", skillUseById.OrderByDescending(kv => kv.Value).Take(5)
             .Select(kv => $"{kv.Key} {(skillUseEvents == 0 ? 0 : 100.0 * kv.Value / skillUseEvents):F0}%"));
         string usageReport = $"[M6v3] 实测 D={measuredD:F2}/回合　技能使用事件={skillUseEvents}（Top5：{topSkills}）　池外移动占比={(skillUseEvents == 0 ? 0 : 100.0 * moveUses / Math.Max(1, skillUseEvents)):F1}%";
+        string spReport = $"[M6v3] SP：存量分布 " +
+            string.Join(" ", Enumerable.Range(0, 5).Select(v => $"{v}点 {spValueDistribution.GetValueOrDefault(v)}")) +
+            $"　花费 治疗{spSpentOnSkill} 增援{spSpentOnReinforce}（成功增援 {successfulReinforces} 次）" +
+            $"　支援位技能次数 {supportSlotSkillUses}　待命次数 {passCount}";
         Console.WriteLine(usageReport);
+        Console.WriteLine(spReport);
         TestContext.WriteLine(usageReport);
+        TestContext.WriteLine(spReport);
 
         string dist = string.Join(" ", Enumerable.Range(1, 6)
             .Select(s =>

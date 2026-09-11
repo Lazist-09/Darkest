@@ -496,11 +496,13 @@ public interface ITurnSequencer {
 //          池外「移动」（#180，O-40）：pool_external 恒常备、self_slots 1~4、目标=自身±N 格内被占用战斗位（scope=move_range）；空位→NoTarget（#21）；不过抗性、无伤害→不死门；**v0.48 起总量 44（36 池内+1 通用 move+7 敌）**
 //          条件解锁（#207，v0.52/feat_pack_03 D5）：skills 可声明 requires{self_hp_below_percent/target_hp_below_percent/self_weak/self_deaths_door}
 //          → 不满足=灰显 + AvailabilityReason.RequirementNotMet（**不改变"携带 5 个"口径**）
+//          支援点（#211，v0.55/feat_pack_04）：**支援位（5/6）技能**在 SP 不足时 → AvailabilityReason.SupportPointsNotEnough
+//          （**战斗位技能永不因 SP 被拒**；不足只是"不可用"，不是"失败"）
 // ---------------------------------------------------------------
 public interface ISkillUseResolver {
     Availability Resolve(UnitId caster, SkillId skill, IFormation snapshot);
 }
-public enum AvailabilityReason { Ok, NotCarried, BadStance, NoTarget, OnCooldown, UsesExhausted, RequirementNotMet }
+public enum AvailabilityReason { Ok, NotCarried, BadStance, NoTarget, OnCooldown, UsesExhausted, RequirementNotMet, SupportPointsNotEnough }
 
 // ---------------------------------------------------------------
 // 9.4 士气台账
@@ -580,9 +582,28 @@ public interface IShieldGuard {
 public interface IPlayerPolicy {
     BattleCommand Choose(IPlayerSideView view, IRngProvider rng); // 合法技能+合法目标内决策
 }
+
+// ---------------------------------------------------------------
+// 9.11 战斗级资源：支援点 SP（v0.55 / #211 / O-60）
+// 归属：**B3 BattleDirector 持有的"战斗级"状态**（与 IRngProvider 同级）——**不是单位属性、不是 UI 状态、
+//       不进 formation/units JSON**；投影层只读暴露（IBattleView），UI 常驻显示（ui_spec 必显 #10）。
+// 关键规则：起手 3（tuning.support_points.start）；**每回合开始 +regen 并钳 cap 4**；
+//          支援位（5/6）技能结算前扣 cost_skill(1)、Reinforce 扣 cost_reinforce(2)；
+//          **战斗位技能 / 被动（支援位回士气 +3）/ 撤退 零消耗**；
+//          **不足 → 拒绝该行动 + 灰显原因，但不消耗发起者行动**（沿用"被拒不吞行动"既有口径）；
+//          **每次变动必须写 SupportPointEvent（Delta/NewValue/Reason）**——UI 的数字与统计只能来自事件流；
+//          **待命（Pass）** = TurnSkippedEvent(Reason:"passed")，非技能、不耗 SP（#212/S5.2）。
+// 纯计数、零随机 → 不引入新抽取（确定性不受影响）。
+// ---------------------------------------------------------------
+public interface IBattleResources {
+    int SupportPoints { get; }        // 当前值
+    int SupportCap { get; }           // 上限（tuning.cap）
+    int RegenPreview { get; }         // 本回合恢复预览（UI 必显 #10）
+    bool TrySpend(int cost);          // 不足返回 false（调用方不得吞掉行动）
+}
 ```
 
-> 注：§9 清单覆盖任务要求的 9 个接口（IFormation / ITurnSequencer / ISkillUseResolver / IMoraleLedger / IDeathsDoor / IBuffLedger / IEnemyAi / IRngProvider / IShieldGuard），另附 IPlayerPolicy 作为 M6 模拟命令源。IBuffLedger 管"buff 数据与生命周期"，IShieldGuard 管"受到伤害前拦截裁决"，两者在 DamagePipeline 内先后协作。
+> 注：§9 清单覆盖任务要求的 9 个接口（IFormation / ITurnSequencer / ISkillUseResolver / IMoraleLedger / IDeathsDoor / IBuffLedger / IEnemyAi / IRngProvider / IShieldGuard），另附 IPlayerPolicy 作为 M6 模拟命令源，**并新增 IBattleResources（战斗级资源：支援点 SP，#211/O-60）**。IBuffLedger 管"buff 数据与生命周期"，IShieldGuard 管"受到伤害前拦截裁决"，两者在 DamagePipeline 内先后协作。
 
 ---
 

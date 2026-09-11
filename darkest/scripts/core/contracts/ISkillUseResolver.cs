@@ -12,6 +12,7 @@ public enum AvailabilityReason
     OnCooldown,
     UsesExhausted,
     RequiresUnmet, // D5（#207）：前置条件不满足（自身/目标血量阈值、自身虚弱、自身死门）
+    SupportPointsNotEnough, // #211（S0）：支援位技能 SP 不足（战斗位技能永不因此被拒）
 }
 
 /// <summary>可用性判定结果（reason + UI tooltip 文案，ui_spec §4 逐字）。</summary>

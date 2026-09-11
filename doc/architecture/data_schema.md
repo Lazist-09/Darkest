@@ -500,6 +500,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `deaths_door` | object | `{affliction_penalty_percent:10}` | #123 | 折磨状态下死门抗性 −10%（基础抗性在 units.json 各原型） |
 | `retreat` | object | `{success_morale:-10, fail_morale:-5}` | #126/#43 | 撤退成功/失败士气代价（数值同 morale_events，供展示与对账） |
 | `support_slot_morale_per_turn` | int | `3` | #60 | 站支援位每回合 +3（本人） |
+| `support_points` | object | `{start:3, regen_per_round:1, cap:4, cost_skill:1, cost_reinforce:2}` | GDD §1.4.2 / **#211 / O-60（v0.55）** | **支援点 SP（战斗级资源）**：起手 **3**、每回合开始 **+1（钳 cap 4）**；**支援位（5/6）用技能 −`cost_skill`(1)**、**增援 −`cost_reinforce`(2)**；**战斗位技能 / 被动（支援位回士气 +3）/ 撤退 均 0 消耗**；不足 → **灰显 + `AvailabilityReason.SupportPointsNotEnough` 且不吞行动**；每次变动写 **`SupportPointEvent`**（§8.2）。旋钮 = `regen_per_round` / `cost_skill`；🔴 **结构天花板**：治疗一半来自战斗位军医、不受 SP 约束 → 对总治疗削减上限 ≈ −50% |
 | `affliction_proc_percent` | int | `33` | #57 | 折磨各状态统一触发概率 33%（自私/恐惧/失控；失控建议后续最低档） |
 | `guard_redirect` | object | `{max_per_turn:1, physical_only:true}` | #159 / buff.md §7.1 | 护卫每回合最多重定向 1 次；"只挡物理"见 O-22 |
 | `overtime_reinforcement` | object | `{trigger_round:6, refill:"all_empty_slots", full_branch:"buff_all_each_wave", safety_factor:0.8, wave_interval_min:3, elastic:{enabled:true, k_rounds:2, idle_output_slots:3, max_bonus:3}, wave_interval_rounds:"导出值（非手填常数）"}` | GDD §1.5.2 / enemy §4 / **#194+#196+#198 / O-52 / O-54** | **首波固定第 6 回合**；此后间隔为 **M（自适应，v0.50/#198）**：<br>**基准** `M_base = max(wave_interval_min, ceil(敌方满编总HP ÷ (D × safety_factor)))`（`D`=我方每回合对敌总伤害**实测值**；`safety_factor=0.8`；🔴 **`D` 待实测**——现有 **24 与 35 两个估算互相矛盾**（架构 v0.49 估 D≈24→M≈9；策划 v0.50 由"M≈6"反推 D≈35→M_base≈6），**两者都未实测**，**`M_base` 必须按 P16 用实测 `D` 锁死后才落地**）。<br>**弹性（取代 #196 的固定 M）**：观察**存活我方战斗位（1~4）**在**最近 K=2 回合**内是否用过 `tags` 含 **`output`** 的技能；**≥3/4 个未用过 → 判"不全力进攻" → `M += 1`**；达标 → **回落 `M = M_base`**；浮动区 **`M ∈ [M_base, M_base+3]`**。**弹性只作用于后续波次，首波不受影响**。<br>**每波一次性补齐当时全部空位**；无空位→全体在场敌人 +攻/+速（**每波叠加、无上限——防苟活兜底，#198 要求不可删**）；上限 4 位不扩编；增援强度按原型轮换（O-20）。⚠️ **改敌 HP 或我方输出必须重算 `M_base`**；`wave_interval_rounds` 是**校准产物**，不是可手填的调参常数 |
@@ -552,6 +553,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | P15 | **士气 buff 消费白名单（#193，v0.48）** | `∀b∈buff_defs: b.modifiers[].kind ∈ {stat_mod,state_flag,damage_mod,prob_mod}`；`damage_mod`/`prob_mod` 槽位 ∈ {`dealt_damage_mult`,`next_attack_mult`,`crit_bonus`,`deaths_door_resist_bonus`,`immune_fear`}；`tuning.affliction_proc_percent` 是折磨 proc **唯一**概率源（禁硬编码 33）；`collapse.virtue_pool` 恰好 4 项；折磨 proc 与失控换目标的新随机**必须写 `RngDraw`** | feat_pack F2.2~F2.4 / state #193 / O-51 | 启动报错（modifier 越界/美德池不全）+ 执行层确定性断言（无双重计算） |
 | P16 | **增援 M 导出契约 + 复测 D 输出（#196+#198，v0.49/v0.50）** | 启动：`tuning.overtime_reinforcement` 必须含 `safety_factor > 0`（0.8）、`wave_interval_min ≥ 1`（3）与 `elastic{k_rounds ≥ 1, idle_output_slots ≥ 1, max_bonus ≥ 0}`；**禁止**把 `wave_interval_rounds` 当手填常数（若存在仅作校准留痕）。运行时：`M_base == max(wave_interval_min, ceil(enemy_full_hp ÷ (D × safety_factor)))` 且 `M_base ≥ 3`，其中 🔴 **`D` 必须取实测值**（**现有 24 与 35 两个估算互相矛盾、都不可用**；`M_base` 未按实测 `D` 锁死前**不得落地 `wave_interval_rounds`**）；**`M ∈ [M_base, M_base + max_bonus]`**，且**首波固定 `trigger_round`（不受弹性影响）**；每次 M 变动写 **`ReinforcementElasticEvent(MFrom, MTo, Reason)`**（级 2）。复测：**报告必须输出实测 `D` + 口径健康度（1 号位占比 < 50%）**，否则该次基线不成立（无法校准 M、无法判定是否需要第二轮补偿） | GDD §1.5.2 / enemy §4 / feat_pack F3+F4 / state #195/#196/**#198** / O-54 | 启动报错（缺键/常量化 M/弹性参数越界）+ 复测报告缺 `D` 即判基线无效 |
 | P18 | **DD 借鉴包一致性（#202~#209，v0.52）** | ① `buff_defs(mark)` 存在、`polarity=negative`、**无数值**、`stack=refresh`、`dispellable=true`；② `skills.*.bonus_vs_marked_percent ∈ [0,100]`（起手 25），且**受益技能必须声明**（**军医【致命注射】/ 政委【处决令】**；"失血收割"仅为二者通称，不是技能名）；③ `skills.*.requires` 字段名 ∈ {`self_hp_below_percent`,`target_hp_below_percent`,`self_weak`,`self_deaths_door`}、百分比 ∈ (0,100]、且不满足时 `AvailabilityReason == RequirementNotMet`；④ `tuning.bleed` 四规则齐备（`ignores_phys_def` / `crit_rounds` / `resolve_at:"target_turn_start"` / `can_crit:false`）且**至少 2 条技能能施加流血**（突刺/致命注射）；⑤ `tuning.miss_compensation.hidden == true` 且 **`HitRateFor` 不读补偿**；⑥ `morale_events` 含 `physical_crit_hit_self` 与 `physical_crit_hit_ally`（50%/队友），且 `critical_strike_dealt`（team）**每动作只结算一次**（AOE 多暴击不重复）；⑦ `deaths_door_recovery.stack=="none"` | dd_reference §1.1~§1.7 + §2 / state #202~#209 / O-58 / O-59 | 启动报错（mark/requires/tuning 缺项或越界）+ 执行层断言（隐藏补偿不入显示、AOE 暴击只 +5 一次、死门后遗症只一层） |
+| P19 | **支援点一致性（#211/#212，v0.55）** | ① `tuning.support_points` 存在且 `start ≥ 0`、`cap ≥ start`、`regen_per_round ≥ 0`、`cost_skill ≥ 1`、`cost_reinforce ≥ 1`；② **零消耗断言**：**战斗位（1~4）技能 / 被动（支援位回士气 +3）/ 撤退** 执行前后 SP 不变（回归用例锁死）；③ **不足拒绝且不吞行动**：支援位技能 SP 不足 → `AvailabilityReason.SupportPointsNotEnough` 灰显；`Reinforce` SP 不足 → **拒绝且不消耗发起者行动**；④ **每次变动写 `SupportPointEvent`**（含 regen/花费/拒因），否则 UI 常驻 SP 与"SP 存量/花费分布"无法从事件流算出（P17 可重建性）；⑤ 待命走 `TurnSkippedEvent(Reason:"passed")`，**不是技能、不耗 SP**（与 #189 不冲突） | GDD §1.4.2 / ui_spec 必显 #10 / feat_pack_04 S0~S5 / state #211+#212 / O-60 | 启动报错（键缺失/值域越界）+ 执行层断言（战斗位零消耗、不足不吞行动、SP 变动有事件） |
 
 > 校验失败时日志给出"文件 / 记录 id / 规则 / 期望 vs 实际"，便于追到策划原文行（每条规则带 §/行号出处，如上表"依据"列）。
 
@@ -762,13 +764,14 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `SwapEvent(Actor, FromPos, ToPos)` | **未记被调动者 B**（#181 实际移动的是 B）→ 增援日志半盲 |
 | `DamageEvent` 无 `SkillId`、`EffectEvent` 无 `Source`、`DeathEvent` 无 `Cause` | 多段伤害/状态/死因无法归属 |
 
-### 8.2 新增事件（14 类，字段为**最小必需集**：实现可加、不可减）
+### 8.2 新增事件（15 类，字段为**最小必需集**：实现可加、不可减）
 
 | 事件 | 字段 | 级 | 备注 |
 |---|---|---|---|
 | `BattleEndEvent` | `Outcome(Victory/Defeat/Retreat)` · `Round` · `Reason` | 1 | 取代 `BattleRoot.EndGame` 的 `GD.Print` |
 | `TurnStartEvent` | `Actor` · `Slot` · `EffectiveSpeed` | 1 | 回合内"轮到谁" |
-| `TurnSkippedEvent` | `Actor` · `Reason(stunned/bound/no_usable_skill)` | 1 | 眩晕/捆缚/全不可用空过 |
+| `TurnSkippedEvent` | `Actor` · `Reason(stunned/bound/no_usable_skill/**passed**)` | 1 | 眩晕/捆缚/全不可用空过；**`passed` = 显式「待命」**（#212/S5.2，非技能、不耗 SP） |
+| **`SupportPointEvent`** | `Delta` · `NewValue` · `Reason(skill/reinforce/regen/rejected)` | 2 | 🔴 **v0.55 新增（第 15 类）**：SP 每次变动（#211/O-60）——**UI 常驻 SP 与 Monte Carlo「SP 存量/花费分布」都只能从此事件统计**（logging 纪律） |
 | **`SkillUseEvent`** | `Actor` · `CasterSlot` · `SkillId` · `TargetSlots[]` | 1 | 🔴 **技能使用率 KPI 的唯一来源** |
 | `SkillRefusedEvent` | `Actor` · `SkillId` · `Reason(affliction_fear/no_target/cooldown/per_battle)` | 1 | 折磨·恐惧拒绝 / 不可用 |
 | **`BuffAppliedEvent`** | `Source` · `Target` · `BuffId` · `DurationRounds` · `Stacks` | 1 | buff 台账 `Add/AddCharged` |

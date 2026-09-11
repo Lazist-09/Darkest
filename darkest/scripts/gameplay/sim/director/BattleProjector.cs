@@ -26,7 +26,10 @@ public sealed record DecisionSupportProjection(
     int RetreatRatePercent,
     bool CanRetreat,
     IReadOnlyList<int> OccupiedPlayerSlots,
-    IReadOnlyList<int> OccupiedEnemySlots);
+    IReadOnlyList<int> OccupiedEnemySlots,
+    int SupportPoints = 0,        // #211（S0）必显 #10：当前支援点
+    int SupportCap = 0,           // 上限
+    int SupportRegenPreview = 0); // 恢复预览：min(cur + regen, cap)
 
 /// <summary>
 /// BattleProjector：把内核（板/士气/行动序列/技能可用性）投影为 UI 只读视图 / IBattleView 数据源
@@ -68,12 +71,16 @@ public sealed class BattleProjector
         return list;
     }
 
-    /// <summary>技能可用性（D 栏；携带集由 BattleSetup 冻结）。</summary>
+    /// <summary>技能可用性（D 栏；携带集由 BattleSetup 冻结）。#211：支援位技能接入 SP 判定。</summary>
     public SkillProjection Skill(string skillId, UnitId caster, FormationBoard ally, FormationBoard target,
         IReadOnlySet<string>? carried)
     {
+        bool supportSlot = _director.IsSupportSlotActor(caster);
         Availability av = _resolver.Resolve(new SkillUseContext(_skills.Get(skillId), caster, ally, target,
-            carried, _runtime, IsEnemy: false));
+            carried, _runtime, IsEnemy: false,
+            SupportPoints: _director.SupportPoints,
+            SupportCost: supportSlot ? _director.SupportCostSkill : 0,
+            IsSupportSlotActor: supportSlot));
         return new SkillProjection(skillId, av.Reason, av.Tooltip);
     }
 
@@ -89,7 +96,10 @@ public sealed class BattleProjector
             (int)Math.Round(_director.CurrentRetreatRate(), MidpointRounding.AwayFromZero),
             _director.CanRetreatThisRound,
             _director.Player.OccupiedPositions(false).ToArray(),
-            _director.Enemy.OccupiedPositions(false).ToArray());
+            _director.Enemy.OccupiedPositions(false).ToArray(),
+            _director.SupportPoints,
+            _director.SupportCap,
+            _director.SupportRegenPreview);
     }
 
     /// <summary>命中率（必显 #4）：100 − 目标闪避 + 技能 hit_mod 钳制 [55,100]（combat_math §1，纯函数）。</summary>

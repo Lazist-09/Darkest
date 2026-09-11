@@ -17,7 +17,10 @@ public sealed record SkillUseContext(
     FormationBoard TargetBoard,
     IReadOnlySet<string>? Carried,
     SkillRuntimeState Runtime,
-    bool IsEnemy);
+    bool IsEnemy,
+    int SupportPoints = int.MaxValue,   // #211（S0）：战斗级 SP（默认不可耗尽 → 旧调用不受影响）
+    int SupportCost = 0,                // 支援位技能消耗（战斗位恒 0）
+    bool IsSupportSlotActor = false);   // 只有支援位技能会因 SP 被拒
 
 /// <summary>
 /// 技能可用性判定（T-M3-03 / skill.md §5，顺序固定不可调换）：
@@ -101,6 +104,13 @@ public sealed class SkillUseResolver
             && ctx.Runtime.UsedPerBattle(ctx.Caster, skill.Id) >= skill.UseLimit.Value.GetValueOrDefault())
         {
             return new Availability(AvailabilityReason.UsesExhausted, Availability.TooltipFor(AvailabilityReason.UsesExhausted));
+        }
+
+        // ⑤ #211（S0）支援点：**只有支援位技能**会因 SP 不足被拒（战斗位永不因 SP 被拒；"不足"是"不可用"而非"失败"）
+        if (ctx.IsSupportSlotActor && ctx.SupportCost > 0 && ctx.SupportPoints < ctx.SupportCost)
+        {
+            return new Availability(AvailabilityReason.SupportPointsNotEnough,
+                $"支援点不足（当前 {ctx.SupportPoints} / 需要 {ctx.SupportCost}）");
         }
 
         return Availability.Ok;

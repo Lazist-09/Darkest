@@ -59,6 +59,15 @@ public sealed record TuningOvertimeReinforcement(
     [property: JsonPropertyName("m_value")] int? MValue = null,
     [property: JsonPropertyName("elastic")] TuningElasticSpec? Elastic = null);
 
+/// <summary>#211/O-60 支援点 SP（战斗级资源，全队共享）：起手 3 / 每回合 +1 / 上限 4；
+/// 支援位技能 −1、增援 −2；**战斗位技能与被动、撤退零消耗**。纯计数、零随机。</summary>
+public sealed record TuningSupportPoints(
+    [property: JsonPropertyName("start")] int Start,
+    [property: JsonPropertyName("regen_per_round")] int RegenPerRound,
+    [property: JsonPropertyName("cap")] int Cap,
+    [property: JsonPropertyName("cost_skill")] int CostSkill,
+    [property: JsonPropertyName("cost_reinforce")] int CostReinforce);
+
 /// <summary>#198 弹性增援（橡胶筋）：窗口 K 回合内「未使用 output 技能的存活战斗位 ≥ idle_output_slots」→ M+1；
 /// 达标 → M 回落 M_base；浮区 M ∈ [M_base, M_base+max_bonus]（首波固定 trigger_round 不受弹性影响）。</summary>
 public sealed record TuningElasticSpec(
@@ -135,6 +144,7 @@ public sealed record TuningConfig(
     [property: JsonPropertyName("deaths_door")] TuningDeathsDoor DeathsDoor,
     [property: JsonPropertyName("retreat")] TuningRetreat Retreat,
     [property: JsonPropertyName("support_slot_morale_per_turn")] int SupportSlotMoralePerTurn,
+    [property: JsonPropertyName("support_points")] TuningSupportPoints SupportPoints,
     [property: JsonPropertyName("affliction_proc_percent")] int AfflictionProcPercent,
     [property: JsonPropertyName("guard_redirect")] TuningGuardRedirect GuardRedirect,
     [property: JsonPropertyName("overtime_reinforcement")] TuningOvertimeReinforcement OvertimeReinforcement,
