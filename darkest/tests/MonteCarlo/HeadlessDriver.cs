@@ -8,6 +8,7 @@ using Darkest.Core.Rng;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
+using Darkest.Gameplay.Sim.Run;
 using Darkest.Gameplay.Sim.Skill;
 
 namespace Darkest.Tests.MonteCarlo;
@@ -44,106 +45,50 @@ public static class HeadlessDriver
 
     public static BattleDirector NewDirector(CombatLog log) => DirectorBuilders.Build(log, null, null, null);
 
-    /// <summary>3 连战（campaign）中单场结束时的快照：存活数与全队平均 HP%/士气%。</summary>
-    public sealed record BattleSnapshot(int Battle, int Rounds, GameResult Result, int AliveCount,
-        double AvgHpPercent, double AvgMoralePercent);
-
-    /// <summary>campaign 结果：是否 3 场全存活 + 每场结束曲线（HP%/士气%）。</summary>
-    public sealed record CampaignOutcome(bool Completed, IReadOnlyList<BattleSnapshot> Curve);
-
     /// <summary>
-    /// **3 连战**（v0.66）：HP 与士气**跨战斗完全保留**、**场间无任何恢复**；
-    /// 任一场我方全灭 → campaign 判失败（Completed=false）并停止；敌灭/撤退/强切视为该场存活并继续。
-    /// 每场结束记录 HP%/士气% 曲线（用于看斜率是否 ≈33%/场）。
+    /// **3 连战（run）**（v0.67 / O-63）：交给内核侧 <see cref="RunSession"/> 持有跨场状态
+    /// （HP/士气/虚弱保留；buff/CD/per_battle/SP 每场重置），**`BattleDirector` 保持单场纯**。
+    /// 逐场返回曲线；完成率两种口径见 <see cref="RunOutcome"/>。
     /// </summary>
-    public static CampaignOutcome RunCampaign(long seed, PolicyKind policy, int battles = 3)
+    public static RunOutcome RunCampaign(long seed, PolicyKind policy, int battles = 3)
     {
-        // 跨场携带：实例 id → (HP, 士气, 虚弱)（实例 id 由工厂确定性生成，场间一致）
-        var carry = new Dictionary<string, (int Hp, int Morale, bool Weak)>();
-        var curve = new List<BattleSnapshot>();
+        var session = new RunSession(NewDirector, battles);
+        bool anyRetreat = false;
 
         for (int battle = 1; battle <= battles; battle++)
         {
             CombatLog log = new();
-            BattleDirector director = NewDirector(log);
-            // 🔴 关键：携带必须按**整编名册**（含阵亡者）——否则阵亡者在下一场会满血复活
-            List<string> roster = director.Player.UnitsInSlotOrder().Select(u => u.Id.Value).ToList();
-
-            // 场间无恢复：直接套用上一场结束时数值；上一场阵亡者（HP ≤ 0）本场**保持阵亡并下场**
-            if (carry.Count > 0)
-            {
-                foreach (string id in roster)
-                {
-                    if (!carry.TryGetValue(id, out (int Hp, int Morale, bool Weak) c))
-                    {
-                        continue;
-                    }
-
-                    UnitRuntime? u = director.Player.UnitsInSlotOrder().FirstOrDefault(x => x.Id.Value == id);
-                    if (u is null)
-                    {
-                        continue;
-                    }
-
-                    if (c.Hp <= 0)
-                    {
-                        director.Player.RemoveUnitAt(director.Player.UnitAtPosition(u.Id) ?? -1); // 阵亡者不复活
-                        continue;
-                    }
-
-                    u.CurrentHp = Math.Min(c.Hp, u.MaxHp);
-                    u.Morale = c.Morale;
-                    u.Weak = c.Weak;
-                }
-            }
-
+            BattleDirector director = session.BeginBattle(battle, log);
             var rng = new RngProvider(seed + battle * 1000L);
-            GameResult result = GameResult.DrawRetreat;
+            string result = "RoundLimit";
             int round;
+
             for (round = 1; round <= MaxRoundsCap; round++)
             {
-                double retreatRoll = rng.NextPercent();
-                if (retreatRoll < 6.0 && director.PlayerRetreat(rng))
+                if (rng.NextPercent() < 6.0 && director.PlayerRetreat(rng))
                 {
-                    result = GameResult.DrawRetreat;
+                    result = "DrawRetreat";
+                    anyRetreat = true;
                     break;
                 }
 
                 director.RunFullRound(rng, unit => Policies.DecideForUnit(policy, unit, director, rng));
                 if (director.IsBattleOver)
                 {
-                    result = SideWinner(director);
+                    result = director.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
                     break;
                 }
             }
 
-            if (round > MaxRoundsCap)
-            {
-                result = GameResult.RoundLimit;
-            }
+            session.EndBattle(director, battle, result, Math.Min(round, MaxRoundsCap));
 
-            List<UnitRuntime> players = director.Player.UnitsInSlotOrder().ToList();
-            int alive = players.Count(u => u.CurrentHp > 0);
-            // 快照：分母固定为**整编 6 人**（阵亡者计 0%），才能看出真实衰减
-            double hpPct = roster.Count == 0 ? 0 : 100.0 * players.Sum(u => Math.Max(0, u.CurrentHp)) / Math.Max(1, players.Sum(u => u.MaxHp));
-            double moralePct = roster.Count == 0 ? 0 : players.Sum(u => u.Morale) / (double)(roster.Count * 100) * 100.0;
-            curve.Add(new BattleSnapshot(battle, Math.Min(round, MaxRoundsCap), result, alive, hpPct, moralePct));
-
-            // 携带（按整编名册：场上者为当前值，已下场者记 0 HP = 阵亡）
-            carry.Clear();
-            foreach (string id in roster)
+            if (result == "EnemyVictory")
             {
-                UnitRuntime? u = director.Player.UnitsInSlotOrder().FirstOrDefault(x => x.Id.Value == id);
-                carry[id] = u is null ? (0, 0, false) : (u.CurrentHp, u.Morale, u.Weak);
-            }
-
-            if (result == GameResult.EnemyVictory || alive == 0)
-            {
-                return new CampaignOutcome(false, curve);
+                break; // run 结束：我方全灭
             }
         }
 
-        return new CampaignOutcome(true, curve);
+        return session.Outcome(anyRetreat);
     }
 
     /// <summary>单场模拟：返回结果 + 事件日志（供确定性留档）。支持三类数据覆盖（探针/override 语义）。</summary>

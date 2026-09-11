@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Darkest.Gameplay.Sim.Run;
 using Darkest.Tests.MonteCarlo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -20,8 +21,8 @@ public sealed class CampaignTests
         const long seedBase = 20260909;
         const int battles = 3;
 
-        int completed = 0;
-        int totalBattlesPlayed = 0;
+        int survived = 0;   // 口径 A：3 场都没全灭（撤退成功也算活下来）
+        int strict = 0;     // 口径 B：撤退 = 放弃 run → 出现撤退即不算完成
         var hpByBattle = new double[battles + 1];
         var moraleByBattle = new double[battles + 1];
         var aliveByBattle = new double[battles + 1];
@@ -30,27 +31,32 @@ public sealed class CampaignTests
 
         for (int i = 0; i < runs; i++)
         {
-            HeadlessDriver.CampaignOutcome c = HeadlessDriver.RunCampaign(seedBase + i, PolicyKind.SemiRandom, battles);
-            if (c.Completed)
+            RunOutcome c = HeadlessDriver.RunCampaign(seedBase + i, PolicyKind.SemiRandom, battles);
+            if (c.CompletedCountingRetreat)
             {
-                completed++;
+                survived++;
             }
 
-            foreach (HeadlessDriver.BattleSnapshot s in c.Curve)
+            if (c.CompletedStrict)
+            {
+                strict++;
+            }
+
+            foreach (RunBattleSnapshot s in c.Curve)
             {
                 hpByBattle[s.Battle] += s.AvgHpPercent;
                 moraleByBattle[s.Battle] += s.AvgMoralePercent;
                 aliveByBattle[s.Battle] += s.AliveCount;
                 roundsByBattle[s.Battle] += s.Rounds;
                 counted[s.Battle]++;
-                totalBattlesPlayed++;
             }
         }
 
-        double rate = (double)completed / runs;
         var lines = new List<string>
         {
-            $"[M6v5] 3 连战：runs={runs} 完成率={rate:P0}（完成 {completed}） 场次合计={totalBattlesPlayed}",
+            $"[M6v5] 3 连战（O-63 未裁定 → 仅作参考，不作验收基线）：runs={runs}",
+            $"[M6v5] 完成率（口径 A 含撤退）：{(double)survived / runs:P0}（{survived}/{runs}）" +
+            $"　｜口径 B 撤退即放弃：{(double)strict / runs:P0}（{strict}/{runs}）",
         };
 
         for (int b = 1; b <= battles; b++)
@@ -72,8 +78,8 @@ public sealed class CampaignTests
         Console.WriteLine(report);
         TestContext.WriteLine(report);
 
-        Assert.AreEqual(runs, completed + (runs - completed), "计数自检");
-        Assert.IsTrue(hpByBattle[1] > 0 && counted[1] == runs, "第 1 场曲线必须记录（判据 A 的判定在 M6Acceptance，本用例只出曲线）");
+        Assert.IsTrue(counted[1] == runs, "第 1 场曲线必须全量记录");
+        Assert.IsTrue(hpByBattle[1] > 0, "曲线非空（判据 A2 的判定待 O-63 裁定后在 M6Acceptance 挂载）");
     }
 
     public TestContext TestContext { get; set; } = null!;

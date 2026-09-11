@@ -87,33 +87,39 @@ public sealed class MonteCarloTests
     [TestMethod]
     public void M6Acceptance_WinRateBand_And_Rhythm()
     {
-        // 🔴 v0.66 口径变更：正式判据 = **3 连战完成率 ∈ [40%,70%]**（HP/士气跨战斗保留、场间无恢复）。
-        // 单场胜率降级为参考输出（单场 100% 不再构成判据 A 失败）。
+        // 🔴 v0.67 两层判据：
+        //   A1 单场（战斗层）= **胜率 ≥85% / 阵亡 ≤0.5 场 / 回合 8~12** → 本用例的判定闸（消耗战不该"死光"）
+        //   A2 跑图（run 层）= 3 连战完成率 [40,70] → **O-63 未裁定前只输出、不判定**（不得当验收基线）
         const int runs = 300;
+        SimulationReport r = HeadlessDriver.RunMany(runs, PolicyKind.SemiRandom, seedBase: 20260909);
+
+        int deaths = 0;
+        for (int i = 0; i < runs; i++)
+        {
+            (_, Darkest.Core.Events.CombatLog log) = HeadlessDriver.Run(20260909 + i, PolicyKind.SemiRandom);
+            deaths += log.Events.OfType<Darkest.Core.Events.DeathEvent>().Count(e => e.IsPlayer);
+        }
+
+        double deathsPerBattle = (double)deaths / runs;
         int completed = 0;
         for (int i = 0; i < runs; i++)
         {
-            if (HeadlessDriver.RunCampaign(20260909 + i, PolicyKind.SemiRandom, battles: 3).Completed)
+            if (HeadlessDriver.RunCampaign(20260909 + i, PolicyKind.SemiRandom, battles: 3).CompletedCountingRetreat)
             {
                 completed++;
             }
         }
 
-        SimulationReport r = HeadlessDriver.RunMany(300, PolicyKind.SemiRandom, seedBase: 20260909);
-        double rate = (double)completed / runs;
-        string report = $"[M6] 3 连战完成率={rate:P0}（完成 {completed}/{runs}）｜参考：单场胜率={r.WinRate:P0} " +
-                        $"avgRounds={r.AvgRounds:F2} coll={r.TotalCollapse} weak={r.TotalWeak} dd={r.TotalDeathDoorRolls} " +
-                        $"retreat={r.GamesWithRetreat} virtue={r.TotalVirtue} affliction={r.TotalAffliction} displace={r.TotalDisplacements}";
+        string report = $"[M6] A1 单场：胜率={r.WinRate:P0} 阵亡={deathsPerBattle:F2}/场 回合={r.AvgRounds:F2} " +
+                        $"（门槛 ≥85% / ≤0.5 / 8~12）｜参考 KPI coll={r.TotalCollapse} weak={r.TotalWeak} " +
+                        $"dd={r.TotalDeathDoorRolls} retreat={r.GamesWithRetreat} virtue={r.TotalVirtue} " +
+                        $"affliction={r.TotalAffliction} displace={r.TotalDisplacements}\n" +
+                        $"[M6] A2 run（仅参考·O-63 未裁定不作基线）：3 连战完成率={(double)completed / runs:P0}（{completed}/{runs}）";
         Console.WriteLine(report);
 
-        string advice = "数值调整建议（只改数据/override，不改代码）：" +
-                        "① 完成率 <40%（偏难）：回调敌方压力（敌攻/敌 HP）或上调自愈；" +
-                        "② 完成率 >70%（偏易）：按 v0.62 剂量包方向加压（敌攻 / 自愈 / C 轴）；" +
-                        "③ 每场结束 HP%/士气% 曲线见 CampaignTests（斜率参考 ≈33%/场）。";
-        Assert.IsTrue(rate is >= 0.40 and <= 0.70,
-            $"判据 A（v0.66）未过：3 连战完成率 {rate:P0} 不在 [40%,70%]。{report}\n{advice}");
-        Assert.IsTrue(r.AvgRounds >= 6,
-            $"节奏告警：平均回合 {r.AvgRounds:F2} < 6。{report}\n{advice}");
+        Assert.IsTrue(r.WinRate >= 0.85, $"判据 A1 未过：单场胜率 {r.WinRate:P0} < 85%。{report}");
+        Assert.IsTrue(deathsPerBattle <= 0.5, $"判据 A1 未过：阵亡 {deathsPerBattle:F2}/场 > 0.5。{report}");
+        Assert.IsTrue(r.AvgRounds is >= 8 and <= 12, $"判据 A1 未过：平均回合 {r.AvgRounds:F2} 不在 8~12。{report}");
     }
 
     [TestMethod]
