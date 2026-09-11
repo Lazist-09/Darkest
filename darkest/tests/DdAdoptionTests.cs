@@ -182,4 +182,23 @@ public sealed class DdAdoptionTests
         Assert.IsFalse(sawMook, "被晕 → 本次不行动（跳过）");
         Assert.AreEqual(50, mook.StunResistBuildup, "跳过不清理递增（DD 同：直到拿到未被晕的回合）");
     }
+
+    [TestMethod]
+    public void D6_AoeMultiCrit_TeamMoraleAppliedOnce()
+    {
+        (BattleDirector d, BalanceTable balance) = World();
+        var skills = SkillsConfig.Parse(ReadData("skills.json"));
+        var rt = new Darkest.Gameplay.Sim.Skill.SkillRuntimeState();
+        var executor = new Darkest.Gameplay.Sim.Skill.SkillExecutor(skills, balance,
+            MoraleEventsConfig.Parse(ReadData("morale_events.json")), d.Log, rt, d.Buffs);
+
+        // 横扫（AOE，命中敌 1/2）双目标全暴击 → 全队 +5 只结算一次（6 人 × 1 条，而不是 12 条）
+        executor.Execute(skills.Get("warrior_sweep"), UnitId.Of("warrior"), d.Player, d.Enemy,
+            new ScriptedRng(0.0, 0.0, 0.0, 0.0, 0.0, 0.0), chosenTargets: new[] { 1, 2 });
+
+        int crit = d.Log.Events.OfType<CritEvent>().Count(e => e.Crit);
+        int teamMorale = d.Log.Events.OfType<MoraleEvent>().Count(e => e.Source == "critical_strike_dealt");
+        Assert.IsTrue(crit >= 2, $"AOE 双目标都暴击（实际 {crit}）");
+        Assert.AreEqual(6, teamMorale, "全队 6 人各 +5 一次（不是按目标数 ×N 重复结算）");
+    }
 }
