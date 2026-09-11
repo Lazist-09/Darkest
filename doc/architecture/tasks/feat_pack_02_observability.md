@@ -2,7 +2,7 @@
 
 > **编号**：ARCH-T-FEAT-PACK-02 · **类型**：task · **状态**：可开工
 > **上游**：[设计] `doc/modules/logging.md`（全文）· `doc/modules/ui_spec.md` §8（详情框）/ §6（反馈）· `doc/Project_Memory.md` §0-5（事件流 = 唯一事实来源）
-> **决策引用**：#199（日志系统）/ #200（详情框）/ #201（敌方意图预留）
+> **决策引用**：#199（日志系统）/ #200（详情框）/ #201（敌方意图预留）/ **#217（G0a/G0b 拆分 + 执行顺序，v0.59）**
 > **开放项**：~~O-54（日志事件字典补全）/ O-55（详情框）/ O-56（敌方意图预留）~~ → ⚠️ **架构师已改号（v0.50）**：**O-55（日志事件字典补全 G0）/ O-56（详情框 G3）/ O-57（敌方意图预留 G4）**——原 O-54 与 v0.49「数值补偿与 M 校准契约」重号（先到先得，pack02 引用面小者顺延）。见 `open_issues.md` 表头重号说明与 §6 回执。
 > **依赖**：T-M2~T-M5（事件族/投影/UI 骨架）；与 `m6_fix_pack` / `feat_pack_01` **互不冲突，可并行**
 > **最近更新**：2026-09-09
@@ -13,7 +13,8 @@
 
 | 子包 | 要解决的问题 | 用户原话 |
 |---|---|---|
-| **G0** | **内核里没有"谁用了什么技能"这个事件**；buff 生命周期零事件 → 日志读不出完整流程 | 「完整的日志系统能够完整描述游戏流程的日志，每个步骤比如谁获得buff，谁对谁用技能造成什么效果」 |
+| **G0a**🔴 | **复测必需事件**：`SkillUseEvent`（"谁用了什么技能"）+ `TurnSkippedEvent`（含待命 `passed`）+ **基类补 `Round`** | 「完整的日志系统…谁对谁用技能」 |
+| **G0b** | 其余 **12 类事件** + 补字段 6 处（buff 生命周期 / 回合开始 / 靠齐 / 胜负 / 敌方 AI 决策 / 折磨 proc / 属性减益 / 增援弹性 …） | 同上 |
 | **G1** | 事件 → 中文可读文本，没有这一层 | 同上 |
 | **G2** | 日志在 UI 上没有呈现 | 「开发者模式那种日志呗」 |
 | **G3** | 悬停技能/单位/buff 看不到详情 | 「ui上需要有一个详情框，技能鼠标悬停或者敌人悬停的时候能看到相关详情」 |
@@ -22,14 +23,29 @@
 > 🔴 **总纪律（`logging.md` §1）**：任何"UI 要显示的数字"**必须先从事件流能算出来**。
 > 算不出来 = **事件字典缺项**——**不得为某个消费者单独造数据**。
 
-> 🔴 **顺序约束（架构师 v0.50，采纳策划排序）**：**G0（事件字典）优先于 G1/G2 落地**——
-> ① G1 文本层与 G2 DevLog **都以 G0 的事件为输入**，字典未定就先写文本/面板必然返工；
-> ② **M6 复测统计口径依赖 G0**：没有 `SkillUseEvent` 就无法统计"谁用了什么技能" → **「技能使用率」KPI 为空**（`m6_verification` T-M6-01/04 已挂依赖）。
-> G3/G4 与 G0~G2 无依赖，可与 `m6_fix_pack` / `feat_pack_01` 并行。
+> 🔴 **顺序约束（v0.59 / #217 重写）：G0 拆两批，G0a 前置、G0b 后置**
+> - **G0a（复测必需，🔴 前置）**＝ **`SkillUseEvent` + `TurnSkippedEvent` + 基类 `Round`** —— P3 v3 报告字段直接依赖：
+>   **技能使用率 ← `SkillUseEvent`**、**待命次数 ← `TurnSkippedEvent:passed`**（SP 分布 ← `SupportPointEvent` 已在 `feat_pack_04` S1；实测 D/E ← `DamageEvent` 已有）。
+>   ⚠️ **不得用"策略侧单独计数"顶替**——违反 `logging.md` §1（*任何要显示的数字必须先从事件流能算出来*），且**实机没有策略层 → 与实机日志必然对不上**。
+> - **G0b（其余 12 类 + 补字段）与 G1~G4 → 后置**（在 P3 v3 之后）。
+> - **理由：复测是当前瓶颈，应尽量少拦它。**
+> - **修正后执行顺序**：`m6_fix_pack P0~P3`（✅ 已完成，勿重做）→ **`feat_pack_02` G0a** → `feat_pack_03` D0~D7 → `feat_pack_04` S0~S9 → `feat_pack_01` F0~F4 → **P3 v3 复测** → `feat_pack_02` **G0b + G1~G4**。
+> - **依赖关系**：G1/G2 以 G0a+G0b 的事件为输入；G3/G4 与 G0 无依赖，可随时并行。
 
 ---
 
 # G0 · 事件字典补全（`logging.md` §3）
+
+## G0.0 🔴 拆分：G0a（前置）/ G0b（后置）—— v0.59 / #217
+
+| 批次 | 内容 | 为什么 | 时机 |
+|---|---|---|---|
+| **G0a** | ① **`SkillUseEvent`**（`Actor`·`CasterSlot`·`SkillId`·`TargetSlots[]`）② **`TurnSkippedEvent`**（`Reason` 含 **`passed`** = 待命）③ **基类 `BattleEvent` 补 `Round`** | **P3 v3 报告字段直接依赖**：技能使用率 ← `SkillUseEvent`；待命次数 ← `TurnSkippedEvent:passed` | 🔴 **前置**（P0~P3 之后立刻做，早于 D/S/F） |
+| **G0b** | 其余 **12 类事件** + **补字段 6 处**（`SwapEvent`/`DamageEvent`/`EffectEvent`/`DeathEvent`/`HealEvent`/`DisplaceEvent`） | 完整日志与 DevLog 需要，但**不拦复测** | 复测后（G0b + G1~G4 一批） |
+
+> ⚠️ **禁止用"策略侧单独计数"顶替 G0a**：违反 `logging.md` §1（*任何 UI 要显示的数字必须先从事件流能算出来；算不出来＝事件字典缺项，不得为某消费者单独造数据*）——且**实机没有策略层，单独计数与实机日志必然对不上**。
+> ⚠️ **基类 `Round` 属于 G0a**：没有它，技能使用与待命统计**无法按回合归一**（技能使用率/待命次数都是"每回合"口径）。
+> ✅ **验收（G0a 单列）**：任意一场对局，`count(SkillUseEvent) == 实际技能结算次数`（含支援/无伤害技能）；待命走 `TurnSkippedEvent(Reason:"passed")` 且**不消耗 SP、不是技能**（与 #189 不冲突）；按 `Round` 分组与 `RoundStartEvent` 完全一致；**新增事件不引入抽取**（同 seed 同命令流 `DrawCount` 一致）。
 
 ## G0.1 现状缺陷（代码依据）
 
@@ -48,36 +64,37 @@
 
 ## G0.2 规格
 
-**新增 14 类事件**（字段为最小必需集，实现可加不可减）：
+**新增 14 类事件**（字段为最小必需集，实现可加不可减；**批 = G0a/G0b**）：
 
-| 事件 | 字段 | 级 |
+| 事件 | 字段 | 级 | 批 |
+|---|---|---|---|
+| `BattleEndEvent` | `Outcome` · `Round` · `Reason` | 1 | G0b |
+| `TurnStartEvent` | `Actor` · `Slot` · `EffectiveSpeed` | 1 | G0b |
+| `TurnSkippedEvent` | `Actor` · `Reason`(`stunned`/`bound`/`no_usable_skill`/**`passed`**) | 1 | 🔴 **G0a** |
+| **`SkillUseEvent`** | `Actor` · `CasterSlot` · `SkillId` · `TargetSlots[]` | 1 | 🔴 **G0a** |
+| `SkillRefusedEvent` | `Actor` · `SkillId` · `Reason`(`affliction_fear`/`no_target`/`cooldown`/`per_battle`) | 1 | G0b |
+| **`BuffAppliedEvent`** | `Source` · `Target` · `BuffId` · `DurationRounds` · `Stacks` | 1 | G0b |
+| **`BuffRemovedEvent`** | `Target` · `BuffId` · `Reason`(`expired`/`dispelled`/`consumed`/`morale_reset`/`death`) | 1 | G0b |
+| `AfflictionProcEvent` | `Unit` · `AfflictionId` · `ProcKind` · `Roll` · `Triggered` · `NewTargetSlot` | 1 | G0b |
+| `CloseUpEvent` | `Moves[]`(`Unit` · `From` · `To`) | 2 | G0b |
+| `MoraleEmberEvent` | `Unit` · `Kind`(`enter`/`exit`) | 2 | G0b |
+| `EnemyDecisionEvent` | `Actor` · `SkillId` · `RuleIndex` · `RuleCondition` · `TargetSlots[]` | 2 | G0b |
+| `ReinforcementElasticEvent` | `MFrom` · `MTo` · `Reason` | 2 | G0b |
+| `StatModEvent` | `Target` · `Stat` · `Delta` · `DurationRounds` | 3 | G0b |
+| `ObstacleEvent` | `Slot` · `Kind` | 3 | G0b |
+| **`SupportPointEvent`** | `Delta` · `NewValue` · `Reason` | 2 | **`feat_pack_04` S1（不属本包，已在 SP 包实现）** |
+
+**补字段 7 处**（`BattleEvent.Round` = **G0a**，其余 6 处 = G0b）：
+
+| 事件 | 补 | 批 |
 |---|---|---|
-| `BattleEndEvent` | `Outcome` · `Round` · `Reason` | 1 |
-| `TurnStartEvent` | `Actor` · `Slot` · `EffectiveSpeed` | 1 |
-| `TurnSkippedEvent` | `Actor` · `Reason`(`stunned`/`bound`/`no_usable_skill`) | 1 |
-| **`SkillUseEvent`** | `Actor` · `CasterSlot` · `SkillId` · `TargetSlots[]` | 1 |
-| `SkillRefusedEvent` | `Actor` · `SkillId` · `Reason`(`affliction_fear`/`no_target`/`cooldown`/`per_battle`) | 1 |
-| **`BuffAppliedEvent`** | `Source` · `Target` · `BuffId` · `DurationRounds` · `Stacks` | 1 |
-| **`BuffRemovedEvent`** | `Target` · `BuffId` · `Reason`(`expired`/`dispelled`/`consumed`/`morale_reset`/`death`) | 1 |
-| `AfflictionProcEvent` | `Unit` · `AfflictionId` · `ProcKind` · `Roll` · `Triggered` · `NewTargetSlot` | 1 |
-| `CloseUpEvent` | `Moves[]`(`Unit` · `From` · `To`) | 2 |
-| `MoraleEmberEvent` | `Unit` · `Kind`(`enter`/`exit`) | 2 |
-| `EnemyDecisionEvent` | `Actor` · `SkillId` · `RuleIndex` · `RuleCondition` · `TargetSlots[]` | 2 |
-| `ReinforcementElasticEvent` | `MFrom` · `MTo` · `Reason` | 2 |
-| `StatModEvent` | `Target` · `Stat` · `Delta` · `DurationRounds` | 3 |
-| `ObstacleEvent` | `Slot` · `Kind` | 3 |
-
-**补字段 7 处**：
-
-| 事件 | 补 |
-|---|---|
-| `BattleEvent`（基类） | **`Round`**（导演 append 时盖章；`Sequence` 语义不变） |
-| `SwapEvent` | `MovedUnit` + `Kind`(`swap`/`reinforce`) |
-| `DamageEvent` | `SkillId` |
-| `EffectEvent` | `Source` |
-| `DeathEvent` | `Cause` |
-| `HealEvent` | `Source` · `SkillId` |
-| `DisplaceEvent` | `SkillId` · `Source` |
+| `BattleEvent`（基类） | **`Round`**（导演 append 时盖章；`Sequence` 语义不变） | 🔴 **G0a** |
+| `SwapEvent` | `MovedUnit` + `Kind`(`swap`/`reinforce`) | G0b |
+| `DamageEvent` | `SkillId` | G0b |
+| `EffectEvent` | `Source` | G0b |
+| `DeathEvent` | `Cause` | G0b |
+| `HealEvent` | `Source` · `SkillId` | G0b |
+| `DisplaceEvent` | `SkillId` · `Source` | G0b |
 
 > ⚠️ **兼容性**：基类加 `Round`、位置参数加尾参**不得破坏既有测试**（新增字段一律**默认值 + 追加在末尾**）。
 
@@ -252,7 +269,7 @@
 | **不为消费者造数据** | UI 要的数字必须能从事件流算出；算不出＝补事件字典 |
 | **确定性不受影响** | 新增事件**不得**引入新抽取；预览路径必须无 rng |
 | **加字段向后兼容** | 一律尾部追加 + 默认值，不破坏既有 178/179 测试 |
-| **一步一提交** | G0 / G1 / G2 / G3 / G4 独立提交 |
+| **一步一提交** | **`G0a` / `G0b` / `G1` / `G2` / `G3` / `G4` 独立提交**（v0.59：G0 拆两批，便于"复测前 / 复测后"二分） |
 | **架构侧需镜像** | ✅ **已完成（v0.50，见 §6）**：`data_schema` **§8 事件族清单**（14 新事件 + 补字段 7 处 + 4 级 + 消费者红线）+ **P17 事件字典完整性校验**；`blueprint` **§6.2 事件流说明**（事件字典指向 + 只读/不造数据/`Round`/`SkillUseEvent` 统计前提 + 兼容性）；`open_issues` **O-55/O-56/O-57**（原 O-54~O-56 顺延，见卡头改号说明） |
 
 ---
@@ -270,3 +287,18 @@
 | **data_schema 连带** | ✅ §3.7 `overtime_reinforcement` 增 `elastic{enabled,k_rounds:2,idle_output_slots:3,max_bonus:3}` 与 `ReinforcementElasticEvent`（级 2）；**P16** 扩展为"#196+#198"（弹性参数范围、`M ∈ [M_base, M_base+max_bonus]`、首波不受弹性影响、每次变动写事件） |
 | **G0 优先（采纳）** | ✅ 已写入本包卡头顺序约束 + README §4 红线/§6 交接语：**G0 → G1/G2**；理由 = G1/G2 以事件为输入 + **M6「技能使用率」KPI 依赖 `SkillUseEvent`**；`m6_verification` T-M6-01/04 已挂该依赖 |
 | **未代写项（留给策划）** | `ui_spec.md` §9「强烈建议做敌方意图」需改为「预留不启用」（#201）；`verification.md` 的「技能使用率」KPI 建议注明"依赖 `SkillUseEvent`（O-55）"；玩家向叙事化战斗记录切片不做（已定） |
+
+---
+
+# 7. 架构镜像记录（v0.59 增补，架构师）
+
+> 回执 `CHANGELOG v0.59` / `state.md` **#217**（G0 拆 G0a/G0b + 执行顺序）。
+
+| 项 | 回执 |
+|---|---|
+| **拆分落点** | ✅ 卡头**顺序约束已重写**（G0a 前置 / G0b 后置）；**§0 范围表** G0 → **G0a/G0b** 两行；新增 **§G0.0 拆分表**（内容 / 理由 / 时机 / 单列验收）；**§G0.2 事件表加「批」列**（`SkillUseEvent`、`TurnSkippedEvent` = **G0a**，其余 12 类 = G0b；并补记 `SupportPointEvent` 属 `feat_pack_04` S1，不重复实现）；**§G0.2 补字段表加「批」列**（**`BattleEvent.Round` = G0a**，其余 6 处 = G0b） |
+| **为什么 `Round` 属 G0a** | 技能使用率与待命次数都是**"每回合"口径**；无基类 `Round` 只能靠 `RoundStartEvent` 反推，**统计无法按回合归一** → 与复测报告字段直接相关 |
+| **G0a 的真实工作量（重要澄清）** | 代码侧 **G0 第一批/第二批已提交**（`cd90cca` / `63139de`，随后 `008eacf` G1、`554c7ae` G2~G4）。故 **G0a 的实质 = 确认这三件事成立**：① `SkillUseEvent` 已由内核发射且**报告读事件流**（此前报的"技能使用事件 17522"**疑为策略侧单独计数** → 必须排除，否则实机对不上）；② 基类 `Round` 已盖章且按回合分组一致；③ `TurnSkippedEvent` 的 **`Reason:"passed"` 发射点随 `feat_pack_04` **S5.2（待命）** 落地** —— 事件类型/枚举属 G0a，**发射点属 SP 包**，两边文件不同**可并行、不得互相等待** |
+| **镜像同步** | `data_schema` **§8.2** 已把 `TurnSkippedEvent.Reason` 记为含 `passed`、`SupportPointEvent` 为第 15 类；**P17** 的"技能可读/buff 可读/Round 单调/不引入抽取"即 G0a 的校验落点；`m6_verification` T-M6-01 已注明"**技能使用率 ← `SkillUseEvent`**、**缺它时 KPI 不得以空值通过**" |
+| **执行顺序（已写入 README）** | `m6_fix_pack P0~P3`（✅ 已完成，勿重做）→ **`feat_pack_02` G0a** → `feat_pack_03` D0~D7 → `feat_pack_04` S0~S9 → `feat_pack_01` F0~F4 → **P3 v3 复测** → `feat_pack_02` **G0b + G1~G4** |
+| **红线补充** | 本包 §5「一步一提交」由 `G0/G1/G2/G3/G4` 细化为 **`G0a / G0b / G1 / G2 / G3 / G4`** 独立提交（便于复测前后二分） |
