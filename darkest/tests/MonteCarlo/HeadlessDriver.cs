@@ -60,8 +60,9 @@ public static class HeadlessDriver
         int round;
         for (round = 1; round <= 100; round++)
         {
-            director.StartTurn(rng); // 回合钩子（增援/支援位+3/虚弱回升）+ 构建行动序列
-
+            // 🔴 修复（P3 v3 对账抓出）：**不得**在此手动 StartTurn——`RunFullRound` 内部已调用 StartTurn。
+            // 之前重复调用导致每回合的回合钩子（SP 恢复 / 增援判定 / 支援位 +3 / 虚弱回升）执行**两次**，
+            // 供应侧虚高（SP 每回合 +2）并污染全部历史基线。
             // 士气直方图（回合初采样，供「士气触底/分布」统计）
             foreach (UnitRuntime u in director.Player.UnitsInSlotOrder())
             {

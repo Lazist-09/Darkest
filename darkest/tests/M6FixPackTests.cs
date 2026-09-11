@@ -73,6 +73,9 @@ public sealed class M6FixPackTests
         var skillUseById = new Dictionary<string, int>();
         int supportSlotSkillUses = 0, spSpentOnSkill = 0, spSpentOnReinforce = 0, successfulReinforces = 0, passCount = 0;
         int playerHealTotal = 0; // #218：我方自愈总量（① 生效证据 + ③ 剂量基准）
+        int enemyDamageToPlayer = 0; // ① 实测 E
+        int spRegenApplied = 0;      // ③ SP 供给侧
+        var healBySkill = new Dictionary<string, int>();
         var spValueDistribution = new Dictionary<int, int>();
 
         for (int i = 0; i < runs; i++)
@@ -136,14 +139,25 @@ public sealed class M6FixPackTests
 
                 passCount += l.Events.OfType<TurnSkippedEvent>().Count(e => e.Reason == "passed");
 
-                // #218：我方自愈总量（HealEvent 求和；目标为我方原型）
+                // #218：我方自愈总量（HealEvent 求和；目标为我方原型）+ 按技能拆解
                 foreach (HealEvent he in l.Events.OfType<HealEvent>())
                 {
                     if (he.Target is { } ht && PlayerArchetypes.Any(p => ht.Value == p || ht.Value.StartsWith(p + "_", StringComparison.Ordinal)))
                     {
                         playerHealTotal += he.Amount;
+                        string key = he.SkillId ?? "unknown";
+                        healBySkill[key] = healBySkill.GetValueOrDefault(key) + he.Amount;
                     }
                 }
+
+                // ① 实测 E = 敌方每回合对我方造成的总伤害（D 的对侧口径）
+                enemyDamageToPlayer += l.Events.OfType<DamageEvent>()
+                    .Where(e => e.Attacker is { } ea && IsEnemy(ea)
+                                && e.Target is { } et && PlayerArchetypes.Any(p => et.Value == p || et.Value.StartsWith(p + "_", StringComparison.Ordinal)))
+                    .Sum(e => e.Amount);
+
+                // ③ SP 供给側：实际入账的恢复总量（cap 后未入账的不计）
+                spRegenApplied += l.Events.OfType<SupportPointEvent>().Where(e => e.Reason == "regen").Sum(e => e.Delta);
             }
         }
 
@@ -162,9 +176,25 @@ public sealed class M6FixPackTests
         string topSkills = string.Join("、", skillUseById.OrderByDescending(kv => kv.Value).Take(5)
             .Select(kv => $"{kv.Key} {(skillUseEvents == 0 ? 0 : 100.0 * kv.Value / skillUseEvents):F0}%"));
         string usageReport = $"[M6v3] 实测 D={measuredD:F2}/回合　技能使用事件={skillUseEvents}（Top5：{topSkills}）　池外移动占比={(skillUseEvents == 0 ? 0 : 100.0 * moveUses / Math.Max(1, skillUseEvents)):F1}%";
+        // ① 实测 E（敌方每回合对我方总伤害）+ ② 自愈来源拆解 + ③ SP 供给/花费对账
+        double measuredE = totalRounds == 0 ? 0 : (double)enemyDamageToPlayer / totalRounds;
+        string healBreak = string.Join("、", healBySkill.OrderByDescending(kv => kv.Value)
+            .Select(kv => $"{kv.Key} {(double)kv.Value / runs:F1} HP/场"));
+        int spSupply = 900; // 起手 3 × 300 场
+        int spSpend = spSpentOnSkill + spSpentOnReinforce;
+        double spWastedAtCap = totalRounds - spRegenApplied; // 每回合 +1；未入账部分 = 撞 cap 被吞
+        string coreReport =
+            $"[M6v4] 实测 D={measuredD:F2}/回合　实测 E={measuredE:F2}/回合（敌方对我方，D 的对侧口径）\n" +
+            $"[M6v4] 我方自愈 {playerHealTotal / (double)runs:F1} HP/场　拆解：{healBreak}\n" +
+            $"[M6v4] SP 对账：起手 {spSupply} + 恢复入账 {spRegenApplied}（撞 cap 未入账 ≈ {spWastedAtCap:F0}，总回合 {totalRounds}）" +
+            $" = 可用 {spSupply + spRegenApplied}；花费 {spSpend}（技能 {spSpentOnSkill} + 增援 {spSpentOnReinforce}）；" +
+            $"结余 = {spSupply + spRegenApplied - spSpend}（跨 300 场）";
+        Console.WriteLine(coreReport);
+        TestContext.WriteLine(coreReport);
+
         string spReport = $"[M6v3] SP：存量分布 " +
             string.Join(" ", Enumerable.Range(0, 5).Select(v => $"{v}点 {spValueDistribution.GetValueOrDefault(v)}")) +
-            $"　花费 治疗{spSpentOnSkill} 增援{spSpentOnReinforce}（成功增援 {successfulReinforces} 次）" +
+            $"　花费 技能{spSpentOnSkill} 增援{spSpentOnReinforce}（成功增援 {successfulReinforces} 次）" +
             $"　支援位技能次数 {supportSlotSkillUses}　待命次数 {passCount}" +
             $"　我方自愈总量/场 {(double)playerHealTotal / runs:F1}";
         Console.WriteLine(usageReport);

@@ -45,7 +45,7 @@ public sealed class DataGateTests
     {
         // P16（#196/#198）：增援间隔 M 不得写成常数——必须 = ceil(满编总HP ÷ (实测 D × safety_factor))。
         // 实测 D 来自 P3 v3 复测（300 场，含 D0~D7 / F0~F4 / G0）：我方每回合对敌总伤害 = 20.81。
-        const double measuredD = 22.13; // P3 v3 最新复测（含 S0~S5）：我方每回合对敌总伤害
+        const double measuredD = 21.65; // P3 v3 最新复测（修复 harness 重复 StartTurn 后）：我方每回合对敌总伤害
         const int enemyFullHp = 166; // 48 + 48 + 37 + 33（#195 数值补偿）
 
         TuningConfig t = TuningConfig.Parse(File.ReadAllText(FindDataFile("tuning.json")));
