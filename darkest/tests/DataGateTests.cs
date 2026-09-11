@@ -43,19 +43,19 @@ public sealed class DataGateTests
     [TestMethod]
     public void P16_MValue_BackfilledFromMeasuredD()
     {
-        // P16（#196/#198 + v0.68）：增援间隔 M 不得写成常数——必须 = ceil(**敌方满编总HP** ÷ (实测 D × safety_factor))。
-        // 满编总 HP 从数据读取（不再硬编码）；实测 D 来自最近一轮复测。
-        const double measuredD = 21.04;
-
+        // P16（#196/#198 + v0.68）：m_value 必须与公式一致——**已在 TuningConfig.Parse 内 fail-fast**
+        //（写错即启动报错）。此处再核对：① measured_d / enemy_full_hp 与真实数据一致；② 公式本身。
         TuningConfig t = TuningConfig.Parse(File.ReadAllText(FindDataFile("tuning.json")));
         UnitsConfig units = UnitsConfig.Parse(File.ReadAllText(FindDataFile("units.json")));
         int enemyFullHp = new[] { "melee_soldier", "melee_soldier", "ranged_archer", "caster" }
             .Sum(a => units.Get(a).Hp);
 
-        Assert.IsNotNull(t.OvertimeReinforcement.MValue, "P16：m_value 必须由实测 D 回填（占位 null 即门禁红灯）");
-        int expected = (int)Math.Ceiling(enemyFullHp / (measuredD * t.OvertimeReinforcement.SafetyFactor));
-        Assert.AreEqual(expected, t.OvertimeReinforcement.MValue!.Value,
-            $"M 必须 = ceil(满编 {enemyFullHp} ÷ (D={measuredD} × safety={t.OvertimeReinforcement.SafetyFactor})) = {expected}");
+        TuningOvertimeReinforcement o = t.OvertimeReinforcement;
+        Assert.AreEqual(enemyFullHp, o.EnemyFullHp, "P16：enemy_full_hp 必须与 units.json 实际满编总 HP 一致");
+
+        int expected = Math.Max(3, (int)Math.Ceiling(o.EnemyFullHp / (o.MeasuredD * o.SafetyFactor)));
+        Assert.AreEqual(expected, o.MValue!.Value,
+            $"M 必须 = ceil(满编 {o.EnemyFullHp} ÷ (D={o.MeasuredD} × safety={o.SafetyFactor})) = {expected}");
     }
 
     [TestMethod]

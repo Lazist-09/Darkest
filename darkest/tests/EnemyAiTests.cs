@@ -130,19 +130,20 @@ public sealed class EnemyAiTests
     }
 
     [TestMethod]
-    public void RandomDisabled_Deterministic_NoDraws()
+    public void RandomTargeting_DrawsAndVaries_WritesRngDraw()
     {
         (FormationBoard player, FormationBoard enemy, EnemyAi ai, _) = World();
         UnitRuntime m1 = enemy.UnitRuntimeAt(1)!;
         var log = new CombatLog();
-        var results = new HashSet<string>();
+        var targets = new HashSet<int>();
         for (int i = 0; i < 100; i++)
         {
             SkillChoice? c = ai.Choose(m1, enemy, player, null, new ScriptedRng(), log);
-            results.Add(c!.SkillId);
+            targets.Add(c!.TargetSlots[0]);
         }
 
-        Assert.AreEqual(1, results.Count, "default off 下 100 次决策相同（纯确定性）");
-        Assert.AreEqual(0, log.Events.OfType<RngDraw>().Count(), "未启用随机 → 无抽取");
+        // v0.68：原型偏好取消 → 池内随机（ScriptedRng 恒返回下限 → 恒取池首，但**必须写 RngDraw**）
+        Assert.AreEqual(1, targets.Count, "固定 RNG 下目标确定（可复现）");
+        Assert.IsTrue(log.Events.OfType<RngDraw>().Count() >= 100, "池内随机必写 RngDraw（确定性红线）");
     }
 }

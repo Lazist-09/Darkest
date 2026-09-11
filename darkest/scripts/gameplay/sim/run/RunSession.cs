@@ -22,14 +22,17 @@ public sealed record RunBattleSnapshot(
     public bool PlayerWiped => Result == "EnemyVictory" || AliveCount == 0;
 }
 
-/// <summary>一趟 run 的结果：逐场曲线 + 两种完成口径。</summary>
+/// <summary>一趟 run 的结果：逐场曲线 + 完成口径（v0.68）。</summary>
 public sealed record RunOutcome(IReadOnlyList<RunBattleSnapshot> Curve, bool SurvivedAllBattles, bool CompletedIgnoreRetreat)
 {
-    /// <summary>口径 A：只判"有没有全灭"（撤退成功也算活下来）。</summary>
+    /// <summary>口径 ①：**未全灭**（撤退也算活下来；仅用于诊断）。</summary>
     public bool CompletedCountingRetreat => SurvivedAllBattles && Curve.Count > 0;
 
-    /// <summary>口径 B：撤退 = 放弃 run（DD 语义）→ 出现撤退即不算完成。</summary>
-    public bool CompletedStrict => CompletedIgnoreRetreat && Curve.All(s => s.Result != "DrawRetreat");
+    /// <summary>口径 ②/③（v0.68 起二者应相等）：**打满 run 长度且每场皆胜**——
+    /// 撤退 = 该场判负 + run 立即结束（不再计入），故"打满 3 场且未全灭" ≡ "3 场皆胜"。</summary>
+    public bool CompletedStrict => CompletedIgnoreRetreat
+                                   && Curve.Count >= 3
+                                   && Curve.All(s => s.Result == "PlayerVictory");
 }
 
 /// <summary>

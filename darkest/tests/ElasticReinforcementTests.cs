@@ -117,15 +117,15 @@ public sealed class ElasticReinforcementTests
     }
 
     [TestMethod]
-    public void FirstWave_StillAtRound6_NotAffectedByElastic()
+    public void FirstWave_StillAtTriggerRound_NotAffectedByElastic()
     {
         BattleDirector d = NewDirector(out CombatLog log);
         var rng = new RngProvider(14);
         d.Enemy.RemoveUnitAt(4); // 留空位以便首波填充
 
-        for (int r = 1; r <= 6; r++)
+        for (int r = 1; r <= 7; r++)
         {
-            d.StartTurn(rng); // 全程不全力（弹性会把后续 M 拉长，但首波固定在 6）
+            d.StartTurn(rng); // 全程不全力（弹性会把后续 M 拉长，但首波固定在 trigger_round=7）
         }
 
         ReinforcementEvent fill = log.Events.OfType<ReinforcementEvent>().First(e => e.Kind == "Fill");

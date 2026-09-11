@@ -82,14 +82,14 @@ public static class HeadlessDriver
 
             session.EndBattle(director, battle, result, Math.Min(round, MaxRoundsCap));
 
-            if (result == "EnemyVictory")
+            // 🔴 v0.68 撤退口径：撤退成功 = 该场判负 + **run 立即结束**（不进入下一场）
+            if (result is "EnemyVictory" or "DrawRetreat")
             {
-                break; // run 结束：我方全灭
+                break;
             }
         }
 
-        return session.Outcome(anyRetreat);
-    }
+        return session.Outcome(anyRetreat);    }
 
     /// <summary>单场模拟：返回结果 + 事件日志（供确定性留档）。支持三类数据覆盖（探针/override 语义）。</summary>
     public static (GameOutcome outcome, CombatLog log) Run(long seed, PolicyKind policy,

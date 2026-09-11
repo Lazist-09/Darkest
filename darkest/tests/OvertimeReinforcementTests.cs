@@ -68,13 +68,13 @@ public sealed class OvertimeReinforcementTests
         d.Enemy.RemoveUnitAt(4); // 2 个空位
 
         var rng = new RngProvider(1);
-        for (int r = 1; r <= 6; r++)
+        for (int r = 1; r <= 7; r++)
         {
             d.StartTurn(rng);
         }
 
         ReinforcementEvent[] fills = log.Events.OfType<ReinforcementEvent>().Where(e => e.Kind == "Fill").ToArray();
-        Assert.AreEqual(2, fills.Length, "第 6 回合【一波补齐 2 个空位】（不是两回合各补 1 个）");
+        Assert.AreEqual(2, fills.Length, "第 7 回合【一波补齐 2 个空位】（不是两回合各补 1 个；v0.68 trigger_round=7）");
         Assert.AreEqual(4, d.Enemy.OccupiedPositions(false).Count, "补位后满编 4");
     }
 
@@ -85,23 +85,23 @@ public sealed class OvertimeReinforcementTests
         d.Enemy.RemoveUnitAt(4);
         var rng = new RngProvider(2);
 
-        for (int r = 1; r <= 5; r++)
+        for (int r = 1; r <= 6; r++)
         {
             d.StartTurn(rng);
         }
 
-        Assert.AreEqual(0, log.Events.OfType<ReinforcementEvent>().Count(), "第 6 回合前不触发");
+        Assert.AreEqual(0, log.Events.OfType<ReinforcementEvent>().Count(), "第 7 回合前不触发（v0.68：trigger_round=7）");
 
-        d.StartTurn(rng); // 6
-        Assert.AreEqual(1, log.Events.OfType<ReinforcementEvent>().Count(), "第 6 回合触发首波");
+        d.StartTurn(rng); // 7
+        Assert.AreEqual(1, log.Events.OfType<ReinforcementEvent>().Count(), "第 7 回合触发首波");
 
         d.Enemy.RemoveUnitAt(4); // 再空出一个
-        d.StartTurn(rng); // 7
         d.StartTurn(rng); // 8
-        Assert.AreEqual(1, log.Events.OfType<ReinforcementEvent>().Count(), "第 7/8 回合不触发（间隔 3）");
-
         d.StartTurn(rng); // 9
-        Assert.AreEqual(2, log.Events.OfType<ReinforcementEvent>().Count(), "第 9 回合触发第二波");
+        Assert.AreEqual(1, log.Events.OfType<ReinforcementEvent>().Count(), "第 8/9 回合不触发（间隔 3）");
+
+        d.StartTurn(rng); // 10
+        Assert.AreEqual(2, log.Events.OfType<ReinforcementEvent>().Count(), "第 10 回合触发第二波（M=3）");
     }
 
     [TestMethod]
@@ -110,7 +110,7 @@ public sealed class OvertimeReinforcementTests
         BattleDirector d = NewDirector(out CombatLog log);
         var rng = new RngProvider(3);
 
-        for (int r = 1; r <= 6; r++)
+        for (int r = 1; r <= 7; r++)
         {
             d.StartTurn(rng);
         }
@@ -118,7 +118,7 @@ public sealed class OvertimeReinforcementTests
         Assert.AreEqual(4, log.Events.OfType<ReinforcementEvent>().Count(e => e.Kind == "Buff"), "满编 → 全体 4 人各上增益");
         Assert.IsTrue(d.Enemy.UnitsInSlotOrder().All(u => u.AttackMod == 3 && u.SpeedMod == 3), "第一波 +攻/+速 = 3");
 
-        for (int r = 7; r <= 9; r++)
+        for (int r = 8; r <= 10; r++)
         {
             d.StartTurn(rng);
         }

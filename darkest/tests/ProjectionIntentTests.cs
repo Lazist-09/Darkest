@@ -125,7 +125,7 @@ public sealed class ProjectionIntentTests
         UnitDetail enemy = p.Detail(player: false, 1);
 
         Assert.AreEqual("melee_soldier", enemy.Archetype, "敌方原型暴露");
-        Assert.AreEqual(48, enemy.MaxHp, "敌方精确 HP 暴露（48，#195）");
+        Assert.AreEqual(32, enemy.MaxHp, "敌方精确 HP 暴露（v0.68：近战小兵 48→32）");
         Assert.IsTrue(enemy.PhysDef > 0 && enemy.Speed > 0, "物防/速度暴露");
         Assert.IsTrue(enemy.StunResist >= 0 && enemy.BleedResist >= 0 && enemy.DisplaceResist >= 0, "四类抗性暴露");
         Assert.AreEqual(2, enemy.SkillIds.Count, "敌方技能表暴露（近战小兵 2 条）");

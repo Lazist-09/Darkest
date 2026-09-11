@@ -21,7 +21,7 @@
   "support_points": { "start": 3, "regen_per_round": 1, "cap": 4, "cost_skill": 2, "cost_reinforce": 2 },
   "affliction_proc_percent": 33,
   "guard_redirect": { "max_per_turn": 1, "physical_only": true },
-  "overtime_reinforcement": { "trigger_round": 6, "fill_or_buff": "fill_empty_then_buff_present", "buff_attack_delta": 3, "buff_speed_delta": 3, "safety_factor": 0.8, "m_value": 10, "elastic": { "enabled": true, "k_rounds": 2, "idle_output_slots": 3, "max_bonus": 3 } },
+  "overtime_reinforcement": { "trigger_round": 7, "fill_or_buff": "fill_empty_then_buff_present", "buff_attack_delta": 3, "buff_speed_delta": 3, "safety_factor": 0.8, "m_value": 7, "measured_d": 22.88, "enemy_full_hp": 110, "elastic": { "enabled": true, "k_rounds": 2, "idle_output_slots": 3, "max_bonus": 3 } },
   "enemy_actions_per_round": 1,
   "bleed": { "per_round_damage": 3, "rounds": 2 },
   "stat_debuff_default": { "delta": -3, "rounds": 2 },

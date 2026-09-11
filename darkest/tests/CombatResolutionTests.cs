@@ -103,7 +103,7 @@ public sealed class CombatResolutionTests
         Assert.AreEqual(90, hit.HitRate);
         Assert.IsFalse(log.Events.OfType<DamageEvent>().Any(), "未命中不得产生伤害事件");
         Assert.IsFalse(log.Events.OfType<MoraleEvent>().Any(), "未命中不得产生士气事件");
-        Assert.AreEqual(48, enemy.UnitRuntimeAt(1)!.CurrentHp); // F4（#195）：近战小兵 HP 60→48
+        Assert.AreEqual(32, enemy.UnitRuntimeAt(1)!.CurrentHp); // v0.68：近战小兵 HP 48→32
     }
 
     [TestMethod]
@@ -118,7 +118,7 @@ public sealed class CombatResolutionTests
             player, enemy, new ScriptedRng(0.0, 100.0)); // hit roll 0<90 命中；暴击 roll 100≥5 不暴击
 
         Assert.AreEqual(9, Last<DamageEvent>(pipeline.Log).Amount, "战士→近战小兵 = 9（§7.1）");
-        Assert.AreEqual(39, enemy.UnitRuntimeAt(1)!.CurrentHp); // F4：48 − 9 = 39
+        Assert.AreEqual(23, enemy.UnitRuntimeAt(1)!.CurrentHp); // v0.68：32 − 9 = 23
         Assert.IsFalse(pipeline.Log.Events.OfType<MoraleEvent>().Any(), "物理不掉士气（#157）");
     }
 
@@ -135,7 +135,7 @@ public sealed class CombatResolutionTests
             Effects: Array.Empty<EffectRequest>(), Displacement: null),
             player, enemy, new ScriptedRng(0.0, 100.0));
 
-        Assert.AreEqual(32, player.UnitRuntimeAt(2)!.CurrentHp, "战士 40−8（数值撤回：施法者攻击 12）");
+        Assert.AreEqual(20, player.UnitRuntimeAt(2)!.CurrentHp, "战士 28−8（v0.68：我方 HP 40→28）");
         MoraleEvent morale = Last<MoraleEvent>(pipeline.Log);
         Assert.AreEqual("mental_hit", morale.Source);
         Assert.AreEqual(-8, morale.Delta);

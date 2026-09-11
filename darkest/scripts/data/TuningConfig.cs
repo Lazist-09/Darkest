@@ -57,6 +57,8 @@ public sealed record TuningOvertimeReinforcement(
     [property: JsonPropertyName("wave_interval_rounds")] int WaveIntervalRounds = 3,
     [property: JsonPropertyName("safety_factor")] double SafetyFactor = 0.8,
     [property: JsonPropertyName("m_value")] int? MValue = null,
+    [property: JsonPropertyName("measured_d")] double MeasuredD = 0,
+    [property: JsonPropertyName("enemy_full_hp")] int EnemyFullHp = 0,
     [property: JsonPropertyName("elastic")] TuningElasticSpec? Elastic = null);
 
 /// <summary>#211/O-60 支援点 SP（战斗级资源，全队共享）：起手 3 / 每回合 +1 / 上限 4；
@@ -206,6 +208,28 @@ public sealed record TuningConfig(
         if (t.Morale.Min >= t.Morale.Max)
         {
             throw new InvalidDataException($"{ResPath}: morale.min 必须 < morale.max。");
+        }
+
+        // 🔴 P16（#196/#198 + v0.68）：`m_value` 必须与公式一致，**写错即启动报错**。
+        //    M = ceil(敌方满编总HP ÷ (实测 D × safety_factor))；护栏 M ≥ 3。
+        TuningOvertimeReinforcement o = t.OvertimeReinforcement;
+        if (o.MValue is not { } mValue)
+        {
+            throw new InvalidDataException($"{ResPath}: overtime_reinforcement.m_value 必填（不得为 null；P16）。");
+        }
+
+        if (o.MeasuredD <= 0 || o.EnemyFullHp <= 0 || o.SafetyFactor <= 0)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: overtime_reinforcement 需 measured_d > 0 / enemy_full_hp > 0 / safety_factor > 0（P16）。");
+        }
+
+        int expectedM = Math.Max(3, (int)Math.Ceiling(o.EnemyFullHp / (o.MeasuredD * o.SafetyFactor)));
+        if (mValue != expectedM)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: m_value={mValue} 与公式不符（P16）：ceil({o.EnemyFullHp} ÷ ({o.MeasuredD} × {o.SafetyFactor})) = {expectedM}。" +
+                "改数值后必须重算 m_value（或同步 measured_d / enemy_full_hp）。");
         }
 
         if (t.MentalReduction.CapPercent is <= 0 or > 100 || t.MentalReduction.ResilienceDivisor <= 0)

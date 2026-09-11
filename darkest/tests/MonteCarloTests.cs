@@ -96,12 +96,33 @@ public sealed class MonteCarloTests
 
         int deaths = 0;
         int reinforcements = 0;
+        var hitsBySlot = new Dictionary<int, int>();
+        int totalHits = 0;
+        var slotOf = new Dictionary<string, int>
+        {
+            ["tank"] = 1, ["warrior"] = 2, ["commissar"] = 3, ["medic"] = 4, ["warrior_2"] = 5, ["medic_2"] = 6,
+        };
         for (int i = 0; i < runs; i++)
         {
             (_, Darkest.Core.Events.CombatLog log) = HeadlessDriver.Run(20260909 + i, PolicyKind.SemiRandom);
             deaths += log.Events.OfType<Darkest.Core.Events.DeathEvent>().Count(e => e.IsPlayer);
             reinforcements += log.Events.OfType<Darkest.Core.Events.ReinforcementEvent>().Count();
+
+            foreach (Darkest.Core.Events.DamageEvent e in log.Events.OfType<Darkest.Core.Events.DamageEvent>())
+            {
+                bool enemyAttacker = e.Attacker is { } a
+                    && (a.Value.StartsWith("melee_soldier", StringComparison.Ordinal)
+                        || a.Value.StartsWith("ranged_archer", StringComparison.Ordinal)
+                        || a.Value.StartsWith("caster", StringComparison.Ordinal));
+                if (enemyAttacker && e.Target is { } t && slotOf.TryGetValue(t.Value, out int slot))
+                {
+                    hitsBySlot[slot] = hitsBySlot.GetValueOrDefault(slot) + 1;
+                    totalHits++;
+                }
+            }
         }
+
+        double maxSlotSharePercent = totalHits == 0 ? 0 : 100.0 * hitsBySlot.Values.Max() / totalHits;
 
         int survived = 0, fullThree = 0, allWon = 0;
         for (int i = 0; i < runs; i++)
@@ -112,12 +133,12 @@ public sealed class MonteCarloTests
                 survived++;
             }
 
-            if (c.Curve.Count >= 3 && c.Curve.All(s => !s.PlayerWiped))
+            if (c.Curve.Count >= 3 && c.Curve.All(s => !s.PlayerWiped && s.Result != "DrawRetreat"))
             {
                 fullThree++;
             }
 
-            if (c.Curve.Count >= 3 && c.Curve.All(s => s.Result == "PlayerVictory"))
+            if (c.CompletedStrict)
             {
                 allWon++;
             }
@@ -127,9 +148,11 @@ public sealed class MonteCarloTests
         double ddPerBattle = (double)r.TotalDeathDoorRolls / runs;
         string report = $"[M6] A1 单场：胜率={r.WinRate:P0} 死门={ddPerBattle:F2}/场 阵亡={deathsPerBattle:F2}/场 回合={r.AvgRounds:F2} " +
                         $"（门槛 ≥85% / ≤0.3 / ≤0.1 / 4~6）\n" +
-                        $"[M6] A2 run（v0.68 新口径）：打满3场且未全灭={fullThree}/{runs}（{(double)fullThree / runs:P0}）" +
+                        $"[M6] A2 run（v0.68 撤退=判负且 run 结束）：打满3场且未全灭={fullThree}/{runs}（{(double)fullThree / runs:P0}）" +
                         $"｜未全灭={survived}（{(double)survived / runs:P0}）｜3场皆胜={allWon}（{(double)allWon / runs:P0}）\n" +
-                        $"[M6] 新读数：增援事件={reinforcements}（预期 ≈0）｜参考 KPI coll={r.TotalCollapse} weak={r.TotalWeak} " +
+                        $"[M6] 新读数：增援事件={reinforcements}（预期 ≈0）｜单一位置最高承伤占比={maxSlotSharePercent:F0}%（预期 ≤40%）" +
+                        $"｜m_value 一致性=已过 P16 启动校验（m_value=7 / measured_d=22.88 / enemy_full_hp=110）\n" +
+                        $"[M6] 参考 KPI coll={r.TotalCollapse} weak={r.TotalWeak} " +
                         $"retreat={r.GamesWithRetreat} virtue={r.TotalVirtue} affliction={r.TotalAffliction} displace={r.TotalDisplacements}";
         Console.WriteLine(report);
 

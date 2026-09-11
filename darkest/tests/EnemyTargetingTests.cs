@@ -72,23 +72,46 @@ public sealed class EnemyTargetingTests
 
         SkillChoice? c = NewAi(cfg, skills).Choose(melee, d.Enemy, d.Player, null, new RngProvider(1), log);
         Assert.AreEqual("melee_heavy_slash", c!.SkillId);
-        CollectionAssert.AreEqual(new[] { 2 }, c.TargetSlots.ToArray(), "近战 lowest_hp → 打残血的我 2 位");
+        // v0.68：原型偏好已取消 → **池内均匀随机**（近战池 = {1,2}）
+        var rng = new RngProvider(20260909);
+        var counts = new Dictionary<int, int>();
+        const int runs = 1000;
+        for (int i = 0; i < runs; i++)
+        {
+            SkillChoice choice = NewAi(cfg, skills).Choose(d.Enemy.UnitRuntimeAt(1)!, d.Enemy, d.Player, null, rng, log)!;
+            counts[choice.TargetSlots[0]] = counts.GetValueOrDefault(choice.TargetSlots[0]) + 1;
+        }
+
+        Assert.IsTrue(counts.ContainsKey(1) && counts.ContainsKey(2), "池内两个候选都被选到（不是固定槽）");
+        foreach (int slot in new[] { 1, 2 })
+        {
+            double rate = (double)counts[slot] / runs;
+            Assert.IsTrue(rate is > 0.40 and < 0.60, $"{slot} 位占比 ≈50%（池内随机；实测 {rate:P1}）");
+        }
     }
 
     [TestMethod]
-    public void Archer_Backmost_PicksHighestSlot()
+    public void Archer_RandomInPool_NotFixedSlot()
     {
         BattleDirector d = NewDirector(out SkillsConfig skills, out _, out EnemyAiConfig cfg, out CombatLog log);
         UnitRuntime archer = d.Enemy.UnitRuntimeAt(3)!;
         d.Morale.Initialize(d.Player.UnitsInSlotOrder());
 
-        SkillChoice? c = NewAi(cfg, skills).Choose(archer, d.Enemy, d.Player, null, new RngProvider(1), log);
-        Assert.AreEqual("ranged_precise_shot", c!.SkillId);
-        CollectionAssert.AreEqual(new[] { 6 }, c.TargetSlots.ToArray(), "射手 backmost → 打最深的我方单位（C 轴后 = 6 位）");
+        // v0.68：射手偏好取消 → 精准射击池 = [1..6]，目标应分散（不再恒为 6 位）
+        var rng = new RngProvider(7);
+        var seen = new HashSet<int>();
+        for (int i = 0; i < 200; i++)
+        {
+            SkillChoice c = NewAi(cfg, skills).Choose(archer, d.Enemy, d.Player, null, rng, log)!;
+            Assert.AreEqual("ranged_precise_shot", c.SkillId);
+            seen.Add(c.TargetSlots[0]);
+        }
+
+        Assert.IsTrue(seen.Count >= 3, $"池内随机 → 命中多个不同槽位（实际 {seen.Count} 个：{string.Join(",", seen.OrderBy(x => x))}）");
     }
 
     [TestMethod]
-    public void Caster_LowestMorale_PicksLowestMoraleSlot()
+    public void Caster_RandomInPool_NotLowestMorale()
     {
         BattleDirector d = NewDirector(out SkillsConfig skills, out _, out EnemyAiConfig cfg, out CombatLog log);
         UnitRuntime caster = d.Enemy.UnitRuntimeAt(4)!;
@@ -97,9 +120,17 @@ public sealed class EnemyTargetingTests
         d.Player.UnitRuntimeAt(1)!.Morale = 70;
         d.Player.UnitRuntimeAt(4)!.Morale = 30;
 
-        SkillChoice? c = NewAi(cfg, skills).Choose(caster, d.Enemy, d.Player, null, new RngProvider(1), log);
-        Assert.AreEqual("caster_fear_whisper", c!.SkillId, "恐惧低语目标位已扩为 [1,2,3,4]（#186）");
-        CollectionAssert.AreEqual(new[] { 4 }, c.TargetSlots.ToArray(), "施法者 lowest_morale → 打我 4 位");
+        // v0.68：施法者偏好取消 → 恐惧低语池覆盖 5/6，目标应分散（不再恒打最低士气）
+        var rng = new RngProvider(3);
+        var seen = new HashSet<int>();
+        for (int i = 0; i < 200; i++)
+        {
+            SkillChoice c = NewAi(cfg, skills).Choose(caster, d.Enemy, d.Player, null, rng, log)!;
+            Assert.AreEqual("caster_fear_whisper", c.SkillId, "恐惧低语（AOE 规则不可用时）");
+            seen.Add(c.TargetSlots[0]);
+        }
+
+        Assert.IsTrue(seen.Count >= 3, $"池内随机 → 命中多个不同槽位（实际 {seen.Count} 个：{string.Join(",", seen.OrderBy(x => x))}）");
     }
 
     [TestMethod]
@@ -205,8 +236,9 @@ public sealed class EnemyTargetingTests
 
         EnemyAiConfig cfg = EnemyAiConfig.Parse(ReadData("enemy_ai.json"));
         Assert.AreEqual(3, cfg.TauntWeight, "taunt_weight 起手 3");
-        Assert.AreEqual("lowest_hp", cfg.For("melee_soldier")!.TargetPreference);
-        Assert.AreEqual("backmost", cfg.For("ranged_archer")!.TargetPreference);
-        Assert.AreEqual("lowest_morale", cfg.For("caster")!.TargetPreference);
+        // v0.68：三原型偏好统一为**池内随机**（原 lowest_hp / backmost / lowest_morale 已作废）
+        Assert.AreEqual("random", cfg.For("melee_soldier")!.TargetPreference);
+        Assert.AreEqual("random", cfg.For("ranged_archer")!.TargetPreference);
+        Assert.AreEqual("random", cfg.For("caster")!.TargetPreference);
     }
 }

@@ -96,7 +96,7 @@ public sealed class ShieldGuardTests
             new[] { 1 }, HitMod: 0, CritMod: 0, Axis: "physical", Segments: new[] { 1.0 }, IsAoe: false,
             Effects: Array.Empty<EffectRequest>(), Displacement: null), player, enemy, new ScriptedRng(0.0, 100.0));
 
-        Assert.AreEqual(55, tank.CurrentHp, "被挡不扣 HP");
+        Assert.AreEqual(38, tank.CurrentHp, "被挡不扣 HP（v0.68：坦克 55→38）");
         Assert.AreEqual(1, buffs.Charges(tank.Id, "shield"), "次数 2→1");
         Assert.IsFalse(log.Events.OfType<DamageEvent>().Any(), "被挡无伤害事件");
         Assert.IsFalse(log.Events.OfType<MoraleEvent>().Any(), "被挡士气不变");
@@ -125,7 +125,7 @@ public sealed class ShieldGuardTests
             Effects: Array.Empty<EffectRequest>(), Displacement: null), player, enemy, new ScriptedRng(0.0, 100.0));
 
         Assert.AreEqual(2, buffs.Charges(tank.Id, "shield"), "精神不消耗次数（#156）");
-        Assert.AreEqual(48, tank.CurrentHp, "精神伤害照常（撤回：施法者攻击 12 → 伤 7）");
+        Assert.AreEqual(31, tank.CurrentHp, "精神伤害照常（v0.68：坦克 38 − 7）");
         Assert.IsTrue(log.Events.OfType<DamageEvent>().Any());
     }
 
@@ -151,10 +151,10 @@ public sealed class ShieldGuardTests
         pipeline.Execute(skill, player, enemy, new ScriptedRng(0.0, 100.0)); // 挡 2（1→0 移除）
         Assert.AreEqual(0, buffs.Charges(tank.Id, "shield"));
         Assert.IsFalse(buffs.Has(tank.Id, "shield"));
-        Assert.AreEqual(55, tank.CurrentHp);
+        Assert.AreEqual(38, tank.CurrentHp);
 
         pipeline.Execute(skill, player, enemy, new ScriptedRng(0.0, 100.0)); // 无盾：伤害照常
-        Assert.AreEqual(46, tank.CurrentHp, "无盾受击 55−9=46（撤回：近战攻击 12）");
+        Assert.AreEqual(29, tank.CurrentHp, "无盾受击 38−9=29（v0.68：坦克 HP 55→38）");
     }
 
     [TestMethod]
@@ -180,8 +180,8 @@ public sealed class ShieldGuardTests
             new[] { 2 }, HitMod: 0, CritMod: 0, Axis: "physical", Segments: new[] { 1.0 }, IsAoe: false,
             Effects: Array.Empty<EffectRequest>(), Displacement: null), player, enemy, new ScriptedRng(0.0, 100.0));
 
-        Assert.AreEqual(55 - 9, tank.CurrentHp, "坦克替挡按坦克防御受伤（9）");
-        Assert.AreEqual(40, warrior.CurrentHp, "战士未被打");
+        Assert.AreEqual(38 - 9, tank.CurrentHp, "坦克替挡按坦克防御受伤（9）");
+        Assert.AreEqual(28, warrior.CurrentHp, "战士未被打（v0.68：战士 HP 40→28）");
         Assert.IsTrue(log.Events.OfType<EffectEvent>().Any(e => e.EffectType == "guard_redirect"));
     }
 
@@ -205,12 +205,12 @@ public sealed class ShieldGuardTests
 
         pipeline.Execute(skill, player, enemy, new ScriptedRng(0.0, 100.0)); // 第 1 次：重定向坦克
         UnitRuntime tank1 = player.UnitRuntimeAt(1)!;
-        Assert.AreEqual(46, tank1.CurrentHp);
-        Assert.AreEqual(40, player.UnitRuntimeAt(2)!.CurrentHp);
+        Assert.AreEqual(29, tank1.CurrentHp);
+        Assert.AreEqual(28, player.UnitRuntimeAt(2)!.CurrentHp);
 
         pipeline.Execute(skill, player, enemy, new ScriptedRng(0.0, 100.0)); // 同回合第 2 次：不再重定向
-        Assert.AreEqual(46, tank1.CurrentHp, "每回合最多重定向 1 次（#159）：第二次直打战士");
-        Assert.AreEqual(31, player.UnitRuntimeAt(2)!.CurrentHp, "战士 40−9（撤回：近战攻击 12）");
+        Assert.AreEqual(29, tank1.CurrentHp, "每回合最多重定向 1 次（#159）：第二次直打战士");
+        Assert.AreEqual(19, player.UnitRuntimeAt(2)!.CurrentHp, "战士 28−9=19（v0.68：HP 40→28）");
     }
 
     private static FormationBoard playerBoard()

@@ -271,7 +271,7 @@ public sealed class MoraleTests
         u.Morale = 50;
         Assert.IsTrue(WeakDeathsDoor.TryRecover(u, balance), "#164 士气回初始值归队");
         Assert.IsFalse(u.Weak);
-        Assert.AreEqual(4, u.CurrentHp, "HP = 最大血量 10%（40×0.1=4）");
+        Assert.AreEqual(3, u.CurrentHp, "HP = 最大血量 10%（v0.68：战士 28×0.1=2.8 → 3）");
     }
 
     private static UnitRuntime UnitRuntimeAlias(string id)

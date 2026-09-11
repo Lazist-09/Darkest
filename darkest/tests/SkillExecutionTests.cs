@@ -131,8 +131,8 @@ public sealed class SkillExecutionTests
         Assert.IsTrue(log.Events.OfType<HitEvent>().All(h => !h.Hit), "两目标均未命中");
         Assert.IsFalse(log.Events.OfType<DamageEvent>().Any());
         Assert.IsFalse(log.Events.OfType<MoraleEvent>().Any());
-        Assert.AreEqual(48, enemy.UnitRuntimeAt(1)!.CurrentHp); // F4（#195）
-        Assert.AreEqual(48, enemy.UnitRuntimeAt(2)!.CurrentHp);
+        Assert.AreEqual(32, enemy.UnitRuntimeAt(1)!.CurrentHp); // v0.68：近战小兵 HP 48→32
+        Assert.AreEqual(32, enemy.UnitRuntimeAt(2)!.CurrentHp);
     }
 
     [TestMethod]
@@ -208,7 +208,7 @@ public sealed class SkillExecutionTests
             new ScriptedRng(0.0, 100.0), chosenTargets: new[] { 1 });
         DamageEvent[] damages = log.Events.OfType<DamageEvent>().ToArray();
         Assert.AreEqual(1, damages.Length, "单体选一 → 单条伤害");
-        Assert.AreEqual(11, damages[0].Amount, "失血目标 11（1.233 倍）");
+        Assert.AreEqual(10, damages[0].Amount, "失血目标 10（v0.68：敌方 MaxHp 变小 → 缺失比例变化）");
         Assert.IsTrue(damages[0].Raw > 11 * 1.0 * (1 - 8 / 38.0), "失血目标伤害高于基础 1.0 情形");
 
         // 再指定满血敌 2 → 倍率 1.0 → 9（逐目标按实际 HP 计算，#171 系数 0.4）

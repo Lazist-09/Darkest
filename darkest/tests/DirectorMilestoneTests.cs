@@ -71,19 +71,19 @@ public sealed class DirectorMilestoneTests
             log);
 
     [TestMethod]
-    public void Reinforcement_FillsFirstEmptyAtRound6_NotBefore()
+    public void Reinforcement_FillsFirstEmptyAtTriggerRound_NotBefore()
     {
         var log = new CombatLog();
         BattleDirector director = NewDirector(log);
         director.Enemy.RemoveUnitAt(4); // 留一个空位（施法者先被杀）
 
         var rng = new ScriptedRng();
-        for (int r = 1; r <= 5; r++)
+        for (int r = 1; r <= 6; r++)
         {
             director.StartTurn(rng);
         }
 
-        Assert.AreEqual(0, log.Events.OfType<ReinforcementEvent>().Count(), "第 6 回合前无增援");
+        Assert.AreEqual(0, log.Events.OfType<ReinforcementEvent>().Count(), "第 7 回合前无增援（v0.68 trigger_round=7）");
 
         director.StartTurn(rng);
         ReinforcementEvent fill = log.Events.OfType<ReinforcementEvent>().Single();
@@ -99,7 +99,7 @@ public sealed class DirectorMilestoneTests
         var log = new CombatLog();
         BattleDirector director = NewDirector(log);
         var rng = new ScriptedRng();
-        for (int r = 1; r <= 6; r++)
+        for (int r = 1; r <= 7; r++)
         {
             director.StartTurn(rng);
         }
