@@ -206,7 +206,7 @@ public sealed class DamagePipeline
             UnitRuntime target = targetBoard.UnitRuntimeAt(slot)!;
             foreach (EffectRequest effect in skill.Effects)
             {
-                bool applied = EffectsStep.Apply(target, effect, rng, _log, _balance);
+                bool applied = EffectsStep.Apply(target, effect, rng, _log, _balance, crit: anyCritThisAction);
                 // D2（#204）标记：buff 台账在此层可用 → 落 mark（施加技能本身仍可 miss，标记不可被抵抗）
                 if (applied && effect.Type == "mark")
                 {

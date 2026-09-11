@@ -253,6 +253,36 @@ public sealed class DdAdoptionTests
     }
 
     [TestMethod]
+    public void D3_Bleed_TicksAtTargetTurnStart_NoPhysDef_NoCrit_AndCritExtends()
+    {
+        (BattleDirector d, BalanceTable balance) = World();
+        var skills = SkillsConfig.Parse(ReadData("skills.json"));
+        var rt = new Darkest.Gameplay.Sim.Skill.SkillRuntimeState();
+        var executor = new Darkest.Gameplay.Sim.Skill.SkillExecutor(skills, balance,
+            MoraleEventsConfig.Parse(ReadData("morale_events.json")), d.Log, rt, d.Buffs);
+
+        // 突刺（追加流血 3×2）命中敌 1；暴击（暴击掷 0）→ 时长 2→4
+        executor.Execute(skills.Get("warrior_lunge"), UnitId.Of("warrior"), d.Player, d.Enemy,
+            new ScriptedRng(0.0, 0.0, 0.0, 0.0), chosenTargets: new[] { 1 });
+        UnitRuntime mook = d.Enemy.UnitRuntimeAt(1)!;
+        Assert.AreEqual(4, mook.BleedRoundsRemaining, "暴击施加流血 → 时长 2 → 4（D3）");
+
+        // 目标回合开始结算：固定 3 点、不吃物防、不暴击
+        int hpBefore = mook.CurrentHp;
+        d.StartTurn(new RngProvider(51));
+        while (d.NextActor() is { } a && a != mook.Id)
+        {
+            // 推进到该单位回合开始
+        }
+
+        DamageEvent tick = d.Log.Events.OfType<DamageEvent>().Last(e => e.Axis == "bleed");
+        Assert.AreEqual(balance.BleedPerRound, tick.Amount, "流血每回合固定伤害（tuning 值）");
+        Assert.IsFalse(tick.Crit, "流血每回合伤害不暴击");
+        Assert.AreEqual(hpBefore - balance.BleedPerRound, mook.CurrentHp, "在目标回合开始结算");
+        Assert.AreEqual(3, mook.BleedRoundsRemaining, "结算一次后剩余回合 −1");
+    }
+
+    [TestMethod]
     public void D5_Requires_GatesAvailability_WithReason()
     {
         (BattleDirector d, BalanceTable _) = World();

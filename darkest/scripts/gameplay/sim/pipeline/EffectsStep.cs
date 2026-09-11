@@ -22,7 +22,7 @@ public sealed record EffectRequest(string Type, int? LabeledPercent, string? Res
 public static class EffectsStep
 {
     public static bool Apply(UnitRuntime target, EffectRequest req,
-        IRngProvider rng, CombatLog log, BalanceTable balance)
+        IRngProvider rng, CombatLog log, BalanceTable balance, bool crit = false)
     {
         int resist = req.ResistAxis switch
         {
@@ -57,7 +57,8 @@ public static class EffectsStep
                     target.StunResistBuildup = Math.Clamp(target.StunResistBuildup + 50, 0, 100); // D0（#202）：成功施加 → +50%
                     break;
                 case "bleed":
-                    target.BleedRoundsRemaining = balance.BleedRounds; // 每回合 3 点（tuning bleed）
+                    // D3（#205）：暴击施加 → 时长 ×2（2 → 4）；在目标回合开始结算、不吃物防、不暴击
+                    target.BleedRoundsRemaining = crit ? balance.BleedRounds * 2 : balance.BleedRounds;
                     break;
                 case "stat_mod":
                     ApplyStatMod(target, req.Stat, req.Delta);

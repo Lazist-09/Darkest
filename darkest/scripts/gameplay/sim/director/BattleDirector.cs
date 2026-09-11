@@ -54,6 +54,7 @@ public sealed class BattleDirector
     private int _reinforcementCount;
     private int _lastWaveRound; // #196：上一波增援的回合（0 = 尚未触发）
     private bool _endEmitted;   // G0：战斗结束事件幂等
+    private IRngProvider? _lastRng; // D3：回合开始钩子（流血致死进死门）需要 RNG
     private int _elasticBonus;  // #198：弹性浮动（0..max_bonus，叠加在 M_base 上）
     private readonly HashSet<UnitId> _outputUsersThisRound = new(); // #198：本回合用过 output 技能的我方单位
     private readonly Queue<bool> _recentNotFull = new();           // #198：最近 K 回合"未全力进攻"标记
@@ -101,6 +102,7 @@ public sealed class BattleDirector
     {
         _round++;
         _log.Round = _round; // G0/O-55：此后 append 的事件自动带回合号
+        _lastRng = rng;
         _log.Append(new RoundStartEvent(_round));
 
         // #198 弹性：先评估"刚结束的回合"是否未全力进攻（存活战斗位中未用 output 技能者 ≥ 阈值），再清空本回合记录
@@ -281,7 +283,41 @@ public sealed class BattleDirector
         }
 
         int slot = _player.UnitAtPosition(actor) ?? _enemy.UnitAtPosition(actor) ?? 0;
+        TickBleedAtTurnStart(u);
         _log.Append(new TurnStartEvent(actor, slot, u.EffectiveSpeed(_balance.WeakSpeedMult)));
+    }
+
+    /// <summary>
+    /// D3（#205）流血四规则：**目标回合开始结算**、**不受物防减免**（固定值）、**每回合不暴击**、
+    /// 致死走既有死亡/死门链（敌人无死门 → 直接死）。伤害 = tuning.bleed.per_round_damage。
+    /// </summary>
+    private void TickBleedAtTurnStart(UnitRuntime u)
+    {
+        if (u.BleedRoundsRemaining <= 0 || u.CurrentHp <= 0)
+        {
+            return;
+        }
+
+        int dmg = _balance.BleedPerRound;
+        u.CurrentHp -= dmg;
+        u.BleedRoundsRemaining--;
+        _log.Append(new DamageEvent(u.Id, dmg, dmg, Crit: false, SegmentIndex: 0, Axis: "bleed",
+            Attacker: null, SkillId: "bleed"));
+
+        if (u.CurrentHp > 0)
+        {
+            return;
+        }
+
+        if (u.IsPlayer && _lastRng is { } rng)
+        {
+            WeakDeathsDoor.EnterWeak(u, _pipeline.Morale, rng, _log, _balance);
+        }
+        else if (!u.IsPlayer)
+        {
+            _enemy.RemoveUnitAt(_enemy.UnitAtPosition(u.Id) ?? -1);
+            _log.Append(new DeathEvent(u.Id, IsPlayer: false, Cause: "bleed"));
+        }
     }
 
     /// <summary>敌方单位行动一次（actor 节拍内调用；AI 同源）。

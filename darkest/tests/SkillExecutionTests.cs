@@ -225,9 +225,10 @@ public sealed class SkillExecutionTests
         var executor = NewExecutor(log, new SkillRuntimeState(), balance, skills, morale);
         FormationBoard rebuilt = RebuildPlayer((2, "warrior"), (1, "tank"));
 
-        // 战士突刺（self_slots [2,3]，候选 敌1/2，推1，单体 #178/#179）：指定敌 1，[命中0 暴击100 位移55]（55 ≥ melee 抗性 55）
+        // 战士突刺（self_slots [2,3]，候选 敌1/2，推1，单体 #178/#179）：指定敌 1
+        // D3 起突刺追加流血 → 抽取序列 [命中0 暴击100 流血0 位移55]（55 ≥ melee 抗性 55）
         executor.Execute(skills.Get("warrior_lunge"), UnitId.Of("warrior"), rebuilt, enemy,
-            new ScriptedRng(0.0, 100.0, 55.0), chosenTargets: new[] { 1 });
+            new ScriptedRng(0.0, 100.0, 0.0, 55.0), chosenTargets: new[] { 1 });
         Assert.IsTrue(log.Events.OfType<DamageEvent>().Any(), "位移失败与否不影响伤害");
         DisplaceEvent[] displaces = log.Events.OfType<DisplaceEvent>().ToArray();
         Assert.AreEqual(1, displaces.Length, "单体选一 → 单目标位移判定");
