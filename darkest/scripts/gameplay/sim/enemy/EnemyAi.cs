@@ -88,6 +88,7 @@ public sealed class EnemyAi
         }
 
         IReadOnlyList<int> targets = ResolveTargets(_skills.Get(chosen.SkillId), enemyUnit, enemy, player, buffs, rng, log);
+        log.Append(new EnemyDecisionEvent(enemyUnit.Id, chosen.SkillId, 0, "table_pick", targets.ToArray())); // G0/O-55
         return new SkillChoice(chosen.SkillId, targets);
     }
 

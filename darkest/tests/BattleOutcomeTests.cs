@@ -118,7 +118,9 @@ public sealed class BattleOutcomeTests
         int before = log.Events.Count;
         d.RunFullRound(new RngProvider(1), _ => PlayerDecision.None);
 
-        Assert.AreEqual(before, log.Events.Count, "我方全灭后不得再有任何行动事件（含回合开始）");
+        // P0/O-47 + G0/O-55：不得再有行动事件；仅允许补记一条战斗结束事件（幂等）
+        Assert.IsTrue(log.Events.Skip(before).All(e => e is BattleEndEvent),
+            $"我方全灭后不得再有行动事件（新增 {log.Events.Count - before} 条，只允许 BattleEndEvent）");
     }
 
     [TestMethod]

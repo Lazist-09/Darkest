@@ -53,6 +53,7 @@ public sealed class BattleDirector
     private bool _swappedThisRound;
     private int _reinforcementCount;
     private int _lastWaveRound; // #196：上一波增援的回合（0 = 尚未触发）
+    private bool _endEmitted;   // G0：战斗结束事件幂等
     private int _elasticBonus;  // #198：弹性浮动（0..max_bonus，叠加在 M_base 上）
     private readonly HashSet<UnitId> _outputUsersThisRound = new(); // #198：本回合用过 output 技能的我方单位
     private readonly Queue<bool> _recentNotFull = new();           // #198：最近 K 回合"未全力进攻"标记
@@ -236,6 +237,19 @@ public sealed class BattleDirector
         return actor;
     }
 
+    /// <summary>G0/O-55：战斗结束事件（幂等；胜负与原因入日志）。</summary>
+    public void EmitBattleEnd(string? reason = null)
+    {
+        if (_endEmitted)
+        {
+            return;
+        }
+
+        _endEmitted = true;
+        string why = reason ?? (Outcome == BattleOutcome.Victory ? "enemy_wiped" : "player_wiped");
+        _log.Append(new BattleEndEvent(Outcome.ToString(), _round, why));
+    }
+
     /// <summary>G0/O-55：回合开始事件（谁行动、在哪号位、有效速度）。</summary>
     private void EmitTurnStart(UnitId actor)
     {
@@ -281,7 +295,8 @@ public sealed class BattleDirector
     {
         if (IsBattleOver)
         {
-            return; // P0/O-47：胜负已定 → 不开启回合、不产生任何事件（含回合钩子）
+            EmitBattleEnd(); // G0/O-55：已分出胜负时补记结束事件（幂等）
+            return; // P0/O-47：胜负已定 → 不开启回合、不产生任何战斗事件
         }
 
         StartTurn(rng);
@@ -318,6 +333,11 @@ public sealed class BattleDirector
             {
                 EnemyAct(actor.Value, rng);
             }
+        }
+
+        if (IsBattleOver)
+        {
+            EmitBattleEnd(); // G0/O-55：整回合跑完即结算胜负入日志
         }
     }
 
