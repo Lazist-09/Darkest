@@ -13,4 +13,10 @@ public abstract record BattleEvent
     /// Immutable once appended (log is the only writer).
     /// </summary>
     public ulong Sequence { get; init; }
+
+    /// <summary>
+    /// 回合号（G0/O-55）：由 <see cref="CombatLog"/> 在 append 时按当前回合盖章（1 起）。
+    /// 0 = append 时尚无回合（如初始化期）。语义只增不改，便于按回合分组读日志。
+    /// </summary>
+    public int Round { get; init; }
 }

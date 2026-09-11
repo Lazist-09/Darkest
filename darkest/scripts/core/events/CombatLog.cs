@@ -26,6 +26,9 @@ public sealed class CombatLog
     /// <summary>Read-only projection of every event, in append order (live view).</summary>
     public IReadOnlyList<BattleEvent> Events { get; }
 
+    /// <summary>当前回合号（G0/O-55）：导演在 StartTurn 设置，Append 时盖章到每个事件。</summary>
+    public int Round { get; set; }
+
     /// <summary>
     /// Appends an immutable copy of <paramref name="e"/> stamped with the next
     /// sequence number and returns the stamped instance. Events already appended
@@ -38,7 +41,7 @@ public sealed class CombatLog
             throw new ArgumentNullException(nameof(e));
         }
 
-        T stamped = e with { Sequence = _nextSequence };
+        T stamped = e with { Sequence = _nextSequence, Round = Round };
         _nextSequence++;
         _events.Add(stamped);
         return stamped;

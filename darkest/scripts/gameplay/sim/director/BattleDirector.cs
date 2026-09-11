@@ -70,7 +70,7 @@ public sealed class BattleDirector
         _balance = balance ?? throw new ArgumentNullException(nameof(balance));
         _moraleEvents = moraleEvents ?? throw new ArgumentNullException(nameof(moraleEvents));
         _log = log ?? throw new ArgumentNullException(nameof(log));
-        _buffs = new BuffLedger(buffDefs);
+        _buffs = new BuffLedger(buffDefs, log); // G0/O-55：buff 生命周期事件接入事件流
         _shield = new ShieldGuard(_buffs);
         _runtime = new SkillRuntimeState();
         _pipeline = new DamagePipeline(balance, moraleEvents, log, _buffs, _shield);
@@ -99,6 +99,7 @@ public sealed class BattleDirector
     public void StartTurn(IRngProvider rng)
     {
         _round++;
+        _log.Round = _round; // G0/O-55：此后 append 的事件自动带回合号
         _log.Append(new RoundStartEvent(_round));
 
         // #198 弹性：先评估"刚结束的回合"是否未全力进攻（存活战斗位中未用 output 技能者 ≥ 阈值），再清空本回合记录
@@ -210,13 +211,44 @@ public sealed class BattleDirector
 
     /// <summary>F2（#193）恐惧 proc：使用技能前 33% 拒放（技能灰掉、**不消耗行动**、须重选）；勇猛 immune_fear 豁免。</summary>
     public bool TryFearRefusal(UnitId actor, IRngProvider rng)
-        => Darkest.Gameplay.Sim.Buffs.AfflictionProcs.Triggered(_buffs, _balance, actor, "affliction_fear", rng, _log);
+    {
+        bool refused = Darkest.Gameplay.Sim.Buffs.AfflictionProcs.Triggered(_buffs, _balance, actor, "affliction_fear", rng, _log);
+        if (refused)
+        {
+            _log.Append(new SkillRefusedEvent(actor, "-", "affliction_fear")); // G0/O-55
+        }
+
+        return refused;
+    }
 
     /// <summary>本回合是否已换位（策略护栏；StartTurn 重置）。</summary>
     public bool SwappedThisRound => _swappedThisRound;
 
     /// <summary>下一位行动者（M6 前置立卡：行动序列/眩晕/减速生效——排序与眩晕跳过均在内核 TurnSequencer）。</summary>
-    public UnitId? NextActor() => _sequencer.NextActor();
+    public UnitId? NextActor()
+    {
+        UnitId? actor = _sequencer.NextActor();
+        if (actor is not null)
+        {
+            EmitTurnStart(actor.Value);
+        }
+
+        return actor;
+    }
+
+    /// <summary>G0/O-55：回合开始事件（谁行动、在哪号位、有效速度）。</summary>
+    private void EmitTurnStart(UnitId actor)
+    {
+        UnitRuntime? u = _player.UnitsInSlotOrder().FirstOrDefault(x => x.Id == actor)
+                         ?? _enemy.UnitsInSlotOrder().FirstOrDefault(x => x.Id == actor);
+        if (u is null)
+        {
+            return;
+        }
+
+        int slot = _player.UnitAtPosition(actor) ?? _enemy.UnitAtPosition(actor) ?? 0;
+        _log.Append(new TurnStartEvent(actor, slot, u.EffectiveSpeed(_balance.WeakSpeedMult)));
+    }
 
     /// <summary>敌方单位行动一次（actor 节拍内调用；AI 同源）。
     /// 目标选择按 O-39 架构裁定：候选池槽序【首个非空】+ taunt 优先（EnemyAi 已重排），不含 RNG。</summary>
@@ -260,6 +292,8 @@ public sealed class BattleDirector
             {
                 break;
             }
+
+            EmitTurnStart(actor.Value);
 
             UnitRuntime? playerUnit = _player.UnitsInSlotOrder().FirstOrDefault(x => x.Id == actor);
             if (playerUnit is not null)

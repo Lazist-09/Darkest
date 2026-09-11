@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Darkest.Core.Contracts;
 
 namespace Darkest.Core.Events;
@@ -58,3 +61,50 @@ public sealed record SwapEvent(UnitId? Actor, int FromPos, int ToPos) : BattleEv
 
 /// <summary>#198 弹性增援间隔变动（M：MFrom → MTo；Reason = not_full_attack / reset）。</summary>
 public sealed record ReinforcementElasticEvent(int MFrom, int MTo, string Reason) : BattleEvent;
+
+// ---------------------------------------------------------------------------
+// G0（O-55）事件字典补全：谁用了什么技能 / buff 生命周期 / 回合 / 胜负 / AI 决策
+// ---------------------------------------------------------------------------
+
+/// <summary>技能使用事件（G0）：统计「技能使用率」KPI 的前提。</summary>
+public sealed record SkillUseEvent(UnitId Actor, int CasterSlot, string SkillId, int[] TargetSlots) : BattleEvent
+{
+    // int[] 默认按引用比较 → 逐条日志比对（T-M6-05）会误判；按值比较
+    public bool Equals(SkillUseEvent? other)
+        => other is not null && Actor == other.Actor && CasterSlot == other.CasterSlot
+           && SkillId == other.SkillId && TargetSlots.SequenceEqual(other.TargetSlots);
+
+    public override int GetHashCode() => HashCode.Combine(Actor, CasterSlot, SkillId, TargetSlots.Length);
+}
+
+/// <summary>技能被拒（G0）：恐惧拒放 / 无可选目标 / CD 中 / 每战已用尽。</summary>
+public sealed record SkillRefusedEvent(UnitId Actor, string SkillId, string Reason) : BattleEvent;
+
+/// <summary>buff 施加（G0）。</summary>
+public sealed record BuffAppliedEvent(UnitId? Source, UnitId Target, string BuffId, int DurationRounds, int Stacks) : BattleEvent;
+
+/// <summary>buff 移除（G0）：expired / dispelled / consumed / morale_reset / death。</summary>
+public sealed record BuffRemovedEvent(UnitId Target, string BuffId, string Reason) : BattleEvent;
+
+/// <summary>回合开始（G0）：谁先动、有效速度。</summary>
+public sealed record TurnStartEvent(UnitId Actor, int Slot, double EffectiveSpeed) : BattleEvent;
+
+/// <summary>跳过行动（G0）：stunned / bound / no_usable_skill。</summary>
+public sealed record TurnSkippedEvent(UnitId Actor, string Reason) : BattleEvent;
+
+/// <summary>战斗结束（G0）：胜负与原因。</summary>
+public sealed record BattleEndEvent(string Outcome, int Round, string Reason) : BattleEvent;
+
+/// <summary>敌方 AI 决策（G0）：用了哪条规则、打了谁。</summary>
+public sealed record EnemyDecisionEvent(UnitId Actor, string SkillId, int RuleIndex, string RuleCondition, int[] TargetSlots) : BattleEvent
+{
+    public bool Equals(EnemyDecisionEvent? other)
+        => other is not null && Actor == other.Actor && SkillId == other.SkillId
+           && RuleIndex == other.RuleIndex && RuleCondition == other.RuleCondition
+           && TargetSlots.SequenceEqual(other.TargetSlots);
+
+    public override int GetHashCode() => HashCode.Combine(Actor, SkillId, RuleIndex, RuleCondition, TargetSlots.Length);
+}
+
+/// <summary>属性增减（G0）：绕过 buff 台账的 AttackMod/ResilienceMod/SpeedMod 也在此留痕。</summary>
+public sealed record StatModEvent(UnitId Target, string Stat, int Delta, int DurationRounds) : BattleEvent;

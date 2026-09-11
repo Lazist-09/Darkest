@@ -14,6 +14,7 @@ namespace Darkest.Gameplay.Sim.Buffs;
 public sealed class BuffLedger : IBuffLedger
 {
     private readonly BuffDefsConfig _defs;
+    private readonly Darkest.Core.Events.CombatLog? _log;
     private readonly Dictionary<UnitId, List<BuffInstance>> _byUnit = new();
 
     private sealed record BuffInstance(string BuffId, int RemainingRounds, int Charges)
@@ -22,12 +23,18 @@ public sealed class BuffLedger : IBuffLedger
         public BuffInstance WithCharges(int c) => this with { Charges = c };
     }
 
-    public BuffLedger(BuffDefsConfig defs)
+    public BuffLedger(BuffDefsConfig defs, Darkest.Core.Events.CombatLog? log = null)
     {
+        _log = log; // G0/O-55：buff 生命周期事件（可空——纯台账测试可不带日志）
         _defs = defs ?? throw new ArgumentNullException(nameof(defs));
     }
 
     public void Add(UnitId u, string buffId, UnitId? source)
+    {
+        AddCore(u, buffId, source);
+    }
+
+    private void AddCore(UnitId u, string buffId, UnitId? source)
     {
         BuffDefConfig def = _defs.Get(buffId);
         if (!_byUnit.TryGetValue(u, out List<BuffInstance>? list))
@@ -67,6 +74,9 @@ public sealed class BuffLedger : IBuffLedger
                 list.Add(new BuffInstance(buffId, rounds, charges));
                 break;
         }
+
+        // G0/O-55：buff 施加事件（谁给谁上了什么、持续几回合、叠几层）
+        _log?.Append(new Darkest.Core.Events.BuffAppliedEvent(source, u, buffId, rounds, charges > 0 ? charges : 1));
     }
 
     public void AddCharged(UnitId u, string buffId, int charges)
@@ -79,13 +89,17 @@ public sealed class BuffLedger : IBuffLedger
 
         list.RemoveAll(b => b.BuffId == buffId);
         list.Add(new BuffInstance(buffId, RemainingRounds: 0, charges));
+        _log?.Append(new Darkest.Core.Events.BuffAppliedEvent(null, u, buffId, 0, charges)); // G0
     }
 
     public void Remove(UnitId u, string buffId)
+        => Remove(u, buffId, "consumed"); // G0：默认原因为消耗（驱散走 Remove(u,buffId,"dispelled")）
+
+    public void Remove(UnitId u, string buffId, string reason)
     {
-        if (_byUnit.TryGetValue(u, out List<BuffInstance>? list))
+        if (_byUnit.TryGetValue(u, out List<BuffInstance>? list) && list.RemoveAll(b => b.BuffId == buffId) > 0)
         {
-            list.RemoveAll(b => b.BuffId == buffId);
+            _log?.Append(new Darkest.Core.Events.BuffRemovedEvent(u, buffId, reason)); // G0
         }
     }
 

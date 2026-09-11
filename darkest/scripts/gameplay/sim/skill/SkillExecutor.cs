@@ -61,8 +61,12 @@ public sealed class SkillExecutor
         int[] candidates = SkillTargetResolver.Resolve(skill, caster, player, enemy).ToArray();
         if (candidates.Length == 0)
         {
+            _log.Append(new SkillRefusedEvent(caster, skill.Id, "no_target")); // G0/O-55
             return; // NoTarget（防御性；导演层任务应已灰显）
         }
+
+        // G0/O-55：技能使用事件（谁用了什么技能、打了哪些目标位）——「技能使用率」KPI 的唯一前提
+        _log.Append(new SkillUseEvent(caster, player.UnitAtPosition(caster) ?? 0, skill.Id, candidates.ToArray()));
 
         // 选一（#178/#179）：单体伤害（非 aoe）、any_ally 单体支援、或 move_range 移动 → 玩家指定/随机固定调用点
         int[] execTargets = candidates;
