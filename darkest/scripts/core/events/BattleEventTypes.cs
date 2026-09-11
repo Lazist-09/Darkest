@@ -55,3 +55,6 @@ public sealed record RetreatEvent(bool Success, double Rate) : BattleEvent;
 
 /// <summary>换位/增援事件（#41a：战斗位角色发起，消耗其本次行动；交换链结算）。</summary>
 public sealed record SwapEvent(UnitId? Actor, int FromPos, int ToPos) : BattleEvent;
+
+/// <summary>#198 弹性增援间隔变动（M：MFrom → MTo；Reason = not_full_attack / reset）。</summary>
+public sealed record ReinforcementElasticEvent(int MFrom, int MTo, string Reason) : BattleEvent;

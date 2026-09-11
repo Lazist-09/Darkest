@@ -54,7 +54,16 @@ public sealed record TuningOvertimeReinforcement(
     [property: JsonPropertyName("fill_or_buff")] string FillOrBuff,
     [property: JsonPropertyName("buff_attack_delta")] int BuffAttackDelta,
     [property: JsonPropertyName("buff_speed_delta")] int BuffSpeedDelta,
-    [property: JsonPropertyName("wave_interval_rounds")] int WaveIntervalRounds = 3);
+    [property: JsonPropertyName("wave_interval_rounds")] int WaveIntervalRounds = 3,
+    [property: JsonPropertyName("elastic")] TuningElasticSpec? Elastic = null);
+
+/// <summary>#198 弹性增援（橡胶筋）：窗口 K 回合内「未使用 output 技能的存活战斗位 ≥ idle_output_slots」→ M+1；
+/// 达标 → M 回落 M_base；浮区 M ∈ [M_base, M_base+max_bonus]（首波固定 trigger_round 不受弹性影响）。</summary>
+public sealed record TuningElasticSpec(
+    [property: JsonPropertyName("enabled")] bool Enabled,
+    [property: JsonPropertyName("k_rounds")] int KRounds,
+    [property: JsonPropertyName("idle_output_slots")] int IdleOutputSlots,
+    [property: JsonPropertyName("max_bonus")] int MaxBonus);
 
 /// <summary>敌方每回合行动次数（默认 1；M6 探针验证行动不对称调节，数据可表达，不做代码拍死）。</summary>
 public sealed record EnemyActionsPerTurn(int Value);

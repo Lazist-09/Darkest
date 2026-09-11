@@ -324,7 +324,7 @@ int emptySlot = Enumerable.Range(1, _enemy.SlotCount)
 | 参数 | 值 |
 |---|---|
 | 首波回合 | **6**（既有 `trigger_round`） |
-| **波次间隔 M** | 🔴 **导出量，不是常数**：<br>`M = ceil( 敌方满编总HP ÷ (D × 0.8) )`，**护栏 M ≥ 3**<br>`D` = 我方每回合对敌总伤害（事件流 `DamageEvent` 求和 ÷ 回合数，**实测值**）<br>`0.8` = 安全系数（留 20% 余量，吸收过量伤害/治疗走位占回合/减员）<br>**当前推导值：敌总 166、D≈24 → M ≈ 9**（复测后用实测 D 校准） |
+| **波次间隔 M** | 🔴 **基准 + 自适应弹性**（#196 基准 / **#198 弹性**）：<br>**基准** `M_base = ceil(敌方满编总HP ÷ (D × 0.8))`，护栏 `≥3`；`D` = 我方每回合对敌总伤害（**实测**）；`0.8` 安全系数<br>**弹性**：最近 K 回合（起手 `K=2`）内【未使用任何 `output` 技能】的**存活战斗位 ≥ 3**（4 个里的"大部分"）→ 判「不全力进攻」→ `M += 1`；达标 → `M = M_base`；浮区 `[M_base, M_base+3]`<br>**首波固定第 6 回合，不受弹性影响**<br>当前基准：敌总 166、实测 **D ≈ 35** → **M_base ≈ 6** |
 | 每波补位 | **全部空位**（循环，不是 `FirstOrDefault`） |
 | 满编分支 | 全体 +攻/+速，**每波**叠加 |
 | 增援强度 | 沿用 O-20（切片不走随机分布，按原型轮换） |
@@ -342,25 +342,30 @@ int emptySlot = Enumerable.Range(1, _enemy.SlotCount)
 - **P3 实测佐证**：**300 场正面胜利 0 次**——正是"补位速度（≈49/回合）快过击杀速度（≈24/回合）"的必然结果，**不是** M 差一档的问题。
 - **推论（关键纪律）**：**M 是导出量**。任何改动敌方 HP 或我方输出的决策（如 #195 降敌 HP）**都必须重算 M**；拍成常数会在下次调数值时立刻失衡——本项目已反复踩这个坑。
 
-**当前数值代入（#195 之后）**：
+**当前数值代入（#195 之后，含 #198 弹性）**：
 
 | 项 | 值 |
 |---|---|
 | 敌方满编总 HP | 48+48+37+33 = **166** |
-| D（我方每回合对敌总伤害） | ≈ **24**（推导；待实测锁死） |
-| 需求 M | ceil(166 ÷ (24×0.8)) = ceil(8.65) = **9** |
+| D（我方每回合对敌总伤害） | **≈ 35**（由导出 M≈6 反推；待复测实测锁死） |
+| `M_base` | ceil(166 ÷ (35×0.8)) = ceil(5.93) = **6** |
+| 浮区 | **[6, 9]**（不全力进攻则 +1，达标回落；首波不受弹性影响） |
 
-> ⚠️ **副作用（须知）**：M=9 时第二波落在第 15 回合，而战斗约在第 10 回合结束
-> → **实际只有首波生效**，机制收敛为"**一波补齐 + 增益递增**"。**这是算术的必然结果，不是设计退让。**
+> ✅ **#198 弹性把本节的"锐利阈值"问题解掉了**：
+> 原先 `D×M < 满编总HP` → **永远赢不了**（拖到 20 回合），`≥` → 快速清场、波次失去意义，
+> 而 M=5 的余量只有 **5%**（175 vs 166），卡在刀刃上。
+> 弹性让"打不过"变成 `M+1 → M+2 → …`，**必然收敛到可解**；同时
+> **`M_base` 不再需要精确校准**（公式"大致对"即可，误差由弹性吸收）。
 
 ## F3.4 改动点
 
 | 文件 | 改动 |
 |---|---|
-| `darkest/scripts/gameplay/sim/director/BattleDirector.cs` | `ApplyReinforcement`：`FirstOrDefault` → **遍历所有 Empty 槽逐个补齐**；新增**波次间隔判定**（`_round >= trigger && (_round - trigger) % M == 0`）；**M 由公式计算**（读 `D` 与 `safety_factor`） |
-| `darkest/data/tuning.json` | `overtime_reinforcement`：增 `safety_factor: 0.8` + `wave_interval_min: 3`；`wave_interval_rounds` **不再是手填常数**（或注明"由公式导出/校准值"） |
-| `darkest/tests/MonteCarlo` | 复测须**输出实测 D**（我方每回合对敌总伤害），供 M 校准 |
-| `darkest/tests/**` | 新增 `OvertimeReinforcementTests` |
+| `darkest/scripts/gameplay/sim/director/BattleDirector.cs` | ① `ApplyReinforcement`：`FirstOrDefault` → **遍历所有 Empty 槽逐个补齐**；② **波次间隔判定**（`_round >= trigger && (_round - trigger) % M == 0`）；③ **`M` 由基准公式 + 弹性维护**（`M_base` 读 `D` 与 `safety_factor`；波动由下面的"弹性评估器"驱动） |
+| **新增：弹性评估器** | 每波到来时评估**上一窗口**：统计**存活战斗位**中有几个**未使用过 `output` 技能**；`≥3` → `M += 1`（上限 `M_base+3`）；否则 `M = M_base`。**每次调整写 `ReinforcementEvent`（含 M 旧值/新值/判定依据）**，供复测统计"弹性触发率" |
+| `darkest/data/tuning.json` | `overtime_reinforcement`：增 `safety_factor: 0.8`、`elastic_lookback_rounds: 2`、`elastic_min_idle_combat_slots: 3`、`elastic_max_bonus: 3`；`wave_interval_rounds` 改为**基准值**（非手填常数） |
+| `darkest/tests/MonteCarlo` | 复测须输出：**实测 D**、**无增援自然收敛回合数**、**弹性触发率**、M 的分布 |
+| `darkest/tests/**` | 新增 `OvertimeReinforcementTests` + `ReinforcementElasticTests` |
 
 ## F3.5 验收
 
@@ -372,7 +377,12 @@ int emptySlot = Enumerable.Range(1, _enemy.SlotCount)
 | 满编（无空位） | 全体 +攻/+速；**下一波再叠一次** |
 | 第 6 回合前 | 不触发 |
 | 上限 | 补位后敌人 ≤ 4 |
-| **M 公式** | 给定 `D` 与敌总 HP → `M = ceil(HP ÷ (D×0.8))`，且 **M ≥ 3**；改动敌 HP 后 M 自动变化 |
+| **M 公式** | 给定 `D` 与敌总 HP → `M_base = ceil(HP ÷ (D×0.8))`，且 **≥ 3**；改动敌 HP 后自动变化 |
+| **弹性·触发** | 构造"4 个战斗位连续 2 回合全部只用支援/治疗技能" → **M += 1**（上限 `M_base+3`） |
+| **弹性·回落** | 构造"达标进攻" → **M 回落到 `M_base`**（双向） |
+| **弹性·口径** | 判定只看 **`output` 标签**，不看伤害数值；用**控制/位移/治疗**技能**不计**为进攻 |
+| **弹性·可胜性** | 构造 `D×M_base < 166` 的边界局面 → 连续不全力进攻后 M 增长 → **最终仍能收敛到胜利**（防死循环） |
+| **防苟活兜底** | 长期龟缩 → 每波"满编上增益"持续叠加 → 敌方输出单调上升（**这条不可删**） |
 | **可胜性回归** | 构造"D ≈ 满编总HP ÷ M"的边界局面 → 战斗**仍能收敛到胜利**（防 M 过小退化） |
 
 ---

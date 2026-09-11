@@ -37,11 +37,22 @@ public sealed class OvertimeReinforcementTests
     private static BattleDirector NewDirector(out CombatLog log)
     {
         log = new CombatLog();
+
+        // 本组只测 #194/#196 波次机制 → 关闭 #198 弹性（弹性单测见 ElasticReinforcementTests）
+        TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
+        tuning = tuning with
+        {
+            OvertimeReinforcement = tuning.OvertimeReinforcement with
+            {
+                Elastic = new TuningElasticSpec(false, 2, 3, 3),
+            },
+        };
+
         return new BattleDirector(
             FormationConfig.Parse(ReadData("formation.json")),
             UnitsConfig.Parse(ReadData("units.json")),
             SkillsConfig.Parse(ReadData("skills.json")),
-            BalanceTable.FromTuning(TuningConfig.Parse(ReadData("tuning.json"))),
+            BalanceTable.FromTuning(tuning),
             MoraleEventsConfig.Parse(ReadData("morale_events.json")),
             BuffDefsConfig.Parse(ReadData("buff_defs.json")),
             EnemyAiConfig.Parse(ReadData("enemy_ai.json")),

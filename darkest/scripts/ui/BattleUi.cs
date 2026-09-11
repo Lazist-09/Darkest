@@ -98,7 +98,7 @@ public partial class BattleUi : CanvasLayer
         _retreatButton = new Button { Position = new Vector2(1076, 6), Size = new Vector2(184, 32), Text = "撤退 0%" };
         _retreatButton.Pressed += () => _retreat?.Invoke();
         AddChild(_retreatButton);
-        _actionOrderLabel = new Label { Position = new Vector2(16, 40), CustomMinimumSize = new Vector2(88, 24), Text = "回合条" };
+        _actionOrderLabel = new Label { Position = new Vector2(16, 40), CustomMinimumSize = new Vector2(80, 24), Text = "本回合顺序" };
         _actionOrderLabel.AddThemeFontSizeOverride("font_size", 12);
         AddChild(_actionOrderLabel);
 
@@ -211,7 +211,8 @@ public partial class BattleUi : CanvasLayer
         _statusLabel.Text = _host.GameOver
             ? $"战斗结束（第 {support.Round} 回合）：{status}"
             : status.Length > 0 ? status : $"回合 {support.Round}";
-        _actionOrderLabel.Text = "行动序列: " + string.Join(" → ", support.ActionOrderThisRound.Select(id => NameOf(_host.ArchetypeOf(new UnitId(id)))));
+        // 队列只保留头像方块（下方 RefreshOrderStrip）；原文字队列与方块重合已移除
+        _actionOrderLabel.Text = "本回合顺序";
         _retreatButton.Text = support.CanRetreat && !_host.GameOver ? $"撤退 {support.RetreatRatePercent}%" : "本回合不可撤退";
         _retreatButton.Disabled = !support.CanRetreat || _host.GameOver;
 

@@ -498,7 +498,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `support_slot_morale_per_turn` | int | `3` | #60 | 站支援位每回合 +3（本人） |
 | `affliction_proc_percent` | int | `33` | #57 | 折磨各状态统一触发概率 33%（自私/恐惧/失控；失控建议后续最低档） |
 | `guard_redirect` | object | `{max_per_turn:1, physical_only:true}` | #159 / buff.md §7.1 | 护卫每回合最多重定向 1 次；"只挡物理"见 O-22 |
-| `overtime_reinforcement` | object | `{trigger_round:6, refill:"all_empty_slots", full_branch:"buff_all_each_wave", safety_factor:0.8, wave_interval_min:3, wave_interval_rounds:"导出值（非手填常数）"}` | GDD §1.5.2 / enemy §4 / **#194+#196 / O-52 / O-54** | **首波第 6 回合**；此后**每 M 回合**一波，**`M = max(wave_interval_min, ceil(敌方满编总HP ÷ (D × safety_factor)))`**（`D` = 我方每回合对敌总伤害**实测值**＝`DamageEvent` 求和 ÷ 回合数；`safety_factor=0.8` 留 20% 余量；护栏 **M ≥ 3**）。**当前推导：敌总 166、D≈24 → M≈9**（第二波落在第 15 回合 > 战斗约 10 回合 → **实际只有首波生效**，机制收敛为"一波补齐+增益递增"）。**每波一次性补齐当时全部空位**；无空位→全体在场敌人 +攻/+速（每波叠加）；上限 4 位不扩编；增援强度按原型轮换（O-20）。⚠️ **改敌 HP 或我方输出必须重算 M**（#195 即属此类）；`wave_interval_rounds` 是**校准产物**，不是可手填的调参常数 |
+| `overtime_reinforcement` | object | `{trigger_round:6, refill:"all_empty_slots", full_branch:"buff_all_each_wave", safety_factor:0.8, wave_interval_min:3, elastic:{enabled:true, k_rounds:2, idle_output_slots:3, max_bonus:3}, wave_interval_rounds:"导出值（非手填常数）"}` | GDD §1.5.2 / enemy §4 / **#194+#196+#198 / O-52 / O-54** | **首波固定第 6 回合**；此后间隔为 **M（自适应，v0.50/#198）**：<br>**基准** `M_base = max(wave_interval_min, ceil(敌方满编总HP ÷ (D × safety_factor)))`（`D`=我方每回合对敌总伤害**实测值**；`safety_factor=0.8`；当前推导敌总 166、D≈24 → **M_base≈9**）。<br>**弹性（取代 #196 的固定 M）**：观察**存活我方战斗位（1~4）**在**最近 K=2 回合**内是否用过 `tags` 含 **`output`** 的技能；**≥3/4 个未用过 → 判"不全力进攻" → `M += 1`**；达标 → **回落 `M = M_base`**；浮动区 **`M ∈ [M_base, M_base+3]`**。**弹性只作用于后续波次，首波不受影响**。<br>**每波一次性补齐当时全部空位**；无空位→全体在场敌人 +攻/+速（**每波叠加、无上限——防苟活兜底，#198 要求不可删**）；上限 4 位不扩编；增援强度按原型轮换（O-20）。⚠️ **改敌 HP 或我方输出必须重算 `M_base`**；`wave_interval_rounds` 是**校准产物**，不是可手填的调参常数 |
 | `bleed` | object | `{per_round_damage:3, rounds:2}` | combat_math §4 | **流血每回合 3 / 2 回合**（回合结束结算）；须与 buff_defs `bleed` 一致（校验 P6） |
 | `stat_debuff_default` | object | `{delta:-3, rounds:2}` | combat_math §4 / §10 | **属性减益固定 −3 / 2 回合**（速度也走固定值）；与技能韧性 −15/−10 的张力见 O-23 |
 | `stun` | object | `{effect:"skip_own_action"}` | GDD §2.5 | 眩晕跳过本次行动，随后状态结束 |
@@ -541,7 +541,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | P13 | **敌人目标选择一致性（#185/#186/#187/#192，v0.46/v0.48）** | `∀a∈enemy_ai: a.target_preference ∈ {lowest_hp,backmost,lowest_morale}` 且与原型映射一致；`a.taunt_weight ≥ 1`（起手 3，全局同值）；`skills(caster_fear_whisper).target.slots == [1,2,3,4]`（#186）；**taunt 来源 = 我方带 `taunt` buff 者**（`buff_defs(taunt).polarity=="positive"` ∧ `dispellable==false` ∧ 施加=自身；EnemyAi **禁止**依赖 `ArchetypeId`）；taunt 抽取写 `RngDraw`（无 `System.Random`/时间源） | state #185/#186/#187/**#192** / O-44 / O-46 / **O-53** | 启动报错 + 执行层确定性断言（taunt 加权抽取入日志） |
 | P14 | **单位移动距离与池外数据化（#191）** | `∀u∈player_units: u.move_distance ≥ 1`（切片 1~2）；`count{s∈skills: s.pool_external} == 1`（通用 `move`）；`move_range` 候选解析用例：距离取自**施法单位** `move_distance`，`target.distance` 必须为 null | feat_pack F1.3 / state #191 | 启动报错 + 执行断言（±N 候选/空位 NoTarget/两点互换） |
 | P15 | **士气 buff 消费白名单（#193，v0.48）** | `∀b∈buff_defs: b.modifiers[].kind ∈ {stat_mod,state_flag,damage_mod,prob_mod}`；`damage_mod`/`prob_mod` 槽位 ∈ {`dealt_damage_mult`,`next_attack_mult`,`crit_bonus`,`deaths_door_resist_bonus`,`immune_fear`}；`tuning.affliction_proc_percent` 是折磨 proc **唯一**概率源（禁硬编码 33）；`collapse.virtue_pool` 恰好 4 项；折磨 proc 与失控换目标的新随机**必须写 `RngDraw`** | feat_pack F2.2~F2.4 / state #193 / O-51 | 启动报错（modifier 越界/美德池不全）+ 执行层确定性断言（无双重计算） |
-| P16 | **增援 M 导出契约 + 复测 D 输出（#196，v0.49）** | 启动：`tuning.overtime_reinforcement` 必须含 `safety_factor > 0`（起手 0.8）与 `wave_interval_min ≥ 1`（起手 3）；**禁止**把 `wave_interval_rounds` 当手填常数使用（若存在，仅作"校准留痕"，运行时 M 一律按公式导出）。运行时/复测：`M == max(wave_interval_min, ceil(enemy_full_hp ÷ (D × safety_factor)))` 且 `M ≥ 3`；**Monte Carlo 报告必须输出实测 `D`（我方每回合对敌总伤害）+ 口径健康度（1 号位占比 < 50%）**，否则该次基线不成立（无法校准 M、无法判定是否需要第二轮补偿） | GDD §1.5.2 / enemy §4 / feat_pack F3+F4 / state #195/#196 / O-54 | 启动报错（缺键/常量化 M）+ 复测报告缺 `D` 即判基线无效 |
+| P16 | **增援 M 导出契约 + 复测 D 输出（#196+#198，v0.49/v0.50）** | 启动：`tuning.overtime_reinforcement` 必须含 `safety_factor > 0`（0.8）、`wave_interval_min ≥ 1`（3）与 `elastic{k_rounds ≥ 1, idle_output_slots ≥ 1, max_bonus ≥ 0}`；**禁止**把 `wave_interval_rounds` 当手填常数（若存在仅作校准留痕）。运行时：`M_base == max(wave_interval_min, ceil(enemy_full_hp ÷ (D × safety_factor)))` 且 `M_base ≥ 3`；**`M ∈ [M_base, M_base + max_bonus]`**，且**首波固定 `trigger_round`（不受弹性影响）**；每次 M 变动写 **`ReinforcementElasticEvent(MFrom, MTo, Reason)`**（级 2）。复测：**报告必须输出实测 `D` + 口径健康度（1 号位占比 < 50%）**，否则该次基线不成立（无法校准 M、无法判定是否需要第二轮补偿） | GDD §1.5.2 / enemy §4 / feat_pack F3+F4 / state #195/#196/**#198** / O-54 | 启动报错（缺键/常量化 M/弹性参数越界）+ 复测报告缺 `D` 即判基线无效 |
 
 > 校验失败时日志给出"文件 / 记录 id / 规则 / 期望 vs 实际"，便于追到策划原文行（每条规则带 §/行号出处，如上表"依据"列）。
 
@@ -707,7 +707,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 
 ## 7. 开放问题（已并入 open_issues.md B 节，编号与其一致）
 
-> 按 _conventions §5：O-01~O-10 已被策划 README §5 的 10 条占用；以下为 schema 侧新增疑问，**编号即 open_issues.md B 节的权威编号（O-11~O-41）**，标注【策划拍板】/【架构裁定】/【实现期待定】与阻塞范围。**本文不改 open_issues.md**，以下仅供架构师归档与任务卡引用。
+> 按 _conventions §5：O-01~O-10 已被策划 README §5 的 10 条占用；以下为 schema 侧新增疑问，**编号即 open_issues.md B 节的权威编号（O-11~O-57）**，标注【策划拍板】/【架构裁定】/【实现期待定】与阻塞范围。**本文不改 open_issues.md**，以下仅供架构师归档与任务卡引用。
 
 | 编号 | 议题 | 描述 | 阻塞什么 | 建议 |
 |---|---|---|---|---|
@@ -727,4 +727,98 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | O-40 | 通用「移动」/ 增援单按钮两步 / 技能栏去使用要求（**#180/#181/#182**） | ✅ **策划拍板·已定（v0.45）**：4 条 `*_move`（`pool_external` + `move_range` + distance 坦克1/战医政2）；增援命令 `Reinforce(A,B,X)` 单按钮两步；技能栏移除内联要求文字、候选高亮必需。落地：m3（47 断言/P12/移动卡）、m5（③b 高亮必需 + 增援两步 + 去文字）、m6（SemiRandom 含移动/增援两步 + T-M6-08 复测含移动） | 策划拍板·已定 | M3/M5/M6（改造进行中） |
 | O-41 | 通用「移动」执行细节：① 移动目标是否含障碍位（建议**允许**——与障碍交换 = 推动障碍，#22/#114，非"清除"）；② 移动是否计入"位移实际使用"KPI（建议**计入**——移动=自我交换链位移，verification §3 位移 ≥2 复测）；③ 移动可用性展示（支援位 5/6 不可用） | **架构裁定·已定（可推翻）**：① 允许选障碍位（走交换链，#22）；② 计入位移 KPI 统计（重新基线 T-M6-08 一并复测）；③ 战斗位常驻按钮、支援位灰显/不显示 | 架构裁定·已定 | M3/M5/M6 |
 
-> 非阻塞说明（不挂开放题，仅记录）：README §2 M3 行"42 条技能"为更早笔误，**v0.45 总量 = 47**（36 池内 + 4 池外移动 + 7 敌方，#180）；skill_data §6 覆盖表计数与逐行自数存在口径差异，P3 只数池内、按 ≥2 硬规则执行（池外移动另计兜底）。
+> 非阻塞说明（不挂开放题，仅记录）：README §2 M3 行"42 条技能"为更早笔误，**v0.48 起总量 = 44**（36 池内 + 1 通用 `move` + 7 敌方，#191）；skill_data §6 覆盖表计数与逐行自数存在口径差异，P3 只数池内、按 ≥2 硬规则执行（池外 `move` 另计兜底）。事件族见 **§8**。
+
+---
+
+## 8. 事件族清单（运行时契约，**不是** JSON 配置；v0.50 镜像 #199）
+
+> **来源**：[设计] `doc/modules/logging.md`（全文）· 落地卡 `doc/architecture/tasks/feat_pack_02_observability.md` G0 · 决策 **#199**。
+> **定位**：`CombatLog` 是 append-only 不可变事件流、`Sequence` 单调递增，**一处写入、处处只读**（blueprint §6.2/§8.3）；
+> 三消费者共用同一份——**UI（DevLog）/ 回放 / 统计（Monte Carlo）**。
+> 🔴 **纪律（原文 logging.md §1）**：任何"UI 要显示的数字"**必须先从事件流能算出来**；算不出来 = **事件字典缺项**，
+> **不得为某个消费者单独造数据**。
+
+### 8.1 现状与缺口（核实 2026-09-09）
+
+`core/events/BattleEventTypes.cs` 现有 **18 类**；硬缺口：
+
+| 缺口 | 后果 |
+|---|---|
+| **无 `SkillUseEvent`** | **没有任何事件记录"谁用了哪个技能"**——`HitEvent` 仅 `(Hit, HitRate, Attacker, Target)`、**无 `SkillId`** → **M6「技能使用率」KPI 目前是空的** |
+| **buff 生命周期零事件** | `BuffLedger.Add/Remove/TickRounds` 无事件；`EffectEvent` 只记掷骰 → "谁给谁上了什么、几层、多久"全无 |
+| 无 `TurnStartEvent` / 跳过行动 / 靠齐 / `BattleEndEvent` / 敌方 AI 决策 / 折磨 proc / 属性减益 / 增援弹性 | 对应流程在日志中**无声消失** |
+| 基类只有 `Sequence`、**无 `Round`** | 无法按回合分组，只能靠 `RoundStartEvent` 反推 |
+| `SwapEvent(Actor, FromPos, ToPos)` | **未记被调动者 B**（#181 实际移动的是 B）→ 增援日志半盲 |
+| `DamageEvent` 无 `SkillId`、`EffectEvent` 无 `Source`、`DeathEvent` 无 `Cause` | 多段伤害/状态/死因无法归属 |
+
+### 8.2 新增事件（14 类，字段为**最小必需集**：实现可加、不可减）
+
+| 事件 | 字段 | 级 | 备注 |
+|---|---|---|---|
+| `BattleEndEvent` | `Outcome(Victory/Defeat/Retreat)` · `Round` · `Reason` | 1 | 取代 `BattleRoot.EndGame` 的 `GD.Print` |
+| `TurnStartEvent` | `Actor` · `Slot` · `EffectiveSpeed` | 1 | 回合内"轮到谁" |
+| `TurnSkippedEvent` | `Actor` · `Reason(stunned/bound/no_usable_skill)` | 1 | 眩晕/捆缚/全不可用空过 |
+| **`SkillUseEvent`** | `Actor` · `CasterSlot` · `SkillId` · `TargetSlots[]` | 1 | 🔴 **技能使用率 KPI 的唯一来源** |
+| `SkillRefusedEvent` | `Actor` · `SkillId` · `Reason(affliction_fear/no_target/cooldown/per_battle)` | 1 | 折磨·恐惧拒绝 / 不可用 |
+| **`BuffAppliedEvent`** | `Source` · `Target` · `BuffId` · `DurationRounds` · `Stacks` | 1 | buff 台账 `Add/AddCharged` |
+| **`BuffRemovedEvent`** | `Target` · `BuffId` · `Reason(expired/dispelled/consumed/morale_reset/death)` | 1 | buff 台账 `Remove/Tick` |
+| `AfflictionProcEvent` | `Unit` · `AfflictionId` · `ProcKind(refuse_skill/refuse_heal/randomize_target)` · `Roll` · `Triggered` · `NewTargetSlot` | 1 | #193 折磨 proc |
+| `CloseUpEvent` | `Moves[]`(`Unit` · `From` · `To`) | 2 | 靠齐逐槽 From→To |
+| `MoraleEmberEvent` | `Unit` · `Kind(enter/exit)` | 2 | 崩溃余烬 |
+| `EnemyDecisionEvent` | `Actor` · `SkillId` · `RuleIndex` · `RuleCondition` · `TargetSlots[]` | 2 | 敌方 AI 决策透明化 |
+| `ReinforcementElasticEvent` | `MFrom` · `MTo` · `Reason(not_all_out/recovered)` | 2 | #198 自适应 M（见 §3.7/P16） |
+| `StatModEvent` | `Target` · `Stat` · `Delta` · `DurationRounds` | 3 | 属性减益（**当前绕过 buff 台账**） |
+| `ObstacleEvent` | `Slot` · `Kind(placed/destroyed/pushed)` | 3 | 障碍 |
+
+### 8.3 补字段（既有事件，**7 处**；一律**尾部追加 + 默认值**，不得破坏既有测试）
+
+| 事件 | 补 |
+|---|---|
+| `BattleEvent`（基类） | **`Round`**（导演 append 时盖章；`Sequence` 语义不变） |
+| `SwapEvent` | `MovedUnit`（被调动者 B）+ `Kind(swap/reinforce)` |
+| `DamageEvent` | `SkillId` |
+| `EffectEvent` | `Source` |
+| `DeathEvent` | `Cause`（`killed_by:<unit>` / `deaths_door` / `self_damage` / `bleed`） |
+| `HealEvent` | `Source` · `SkillId` |
+| `DisplaceEvent` | `SkillId` · `Source` |
+
+### 8.4 分级（DevLog 默认只显示 1~2）
+
+| 级 | 名称 | 内容 | 默认 |
+|---|---|---|---|
+| 1 | 叙事 | 回合开始 / 轮到谁 / 技能使用 / 命中伤害 / buff 施加·移除 / 士气 / 死门·崩溃·死亡 / 增援 / 胜负 | ✅ |
+| 2 | 关键判定 | 暴击 / 位移（含失败原因）/ 抗性命中 / 敌方 AI 决策 / 靠齐 / 余烬 / **增援弹性** | ✅ |
+| 3 | 机制细节 | 逐段伤害 / 属性减益逐项 / 障碍 | ⬜ 折叠 |
+| 4 | 调试 | `RngDraw`（掷骰 + DrawCount）/ 序列号 / 状态快照 | ⬜ 隐藏（按键开） |
+
+> 🔴 **级 4 与确定性**：`RngDraw` **必须记录**（回放/审计），只是**默认不显示**——**"不显示" ≠ "不记录"**。
+
+### 8.5 消费者与只读红线
+
+| 消费者 | 用途 | 红线 |
+|---|---|---|
+| UI DevLog | 开发/调试/复盘 | **只读**：开关/滚动/过滤/导出**不得**改变事件流内容与顺序（`Sequence` 连续）、不得产生任何抽取；**不得每帧重建全量文本**（增量 append + 文本缓存） |
+| 回放 | 同 seed 逐事件比对 | 必须含**全部掷骰**与 `Round` |
+| 统计（Monte Carlo） | KPI / 平衡数据 | 可程序化查询、字段完整（**技能使用率依赖 `SkillUseEvent`**） |
+
+### 8.6 校验 **P17 · 事件字典完整性（#199，v0.50；测试阶段断言，不阻塞启动）**
+
+| 断言 | 判定式 |
+|---|---|
+| 技能可读 | 对局中 `count(SkillUseEvent) == 实际技能结算次数`（含支援/无伤害技能）；且每次 `DamageEvent/HealEvent/DisplaceEvent` 均可回溯到所属 `SkillUseEvent` |
+| buff 可读 | `BuffLedger` 每次 `Add/AddCharged/Remove/TickRounds` 均有对应 `BuffApplied/BuffRemoved`；仅凭事件流可**重建任一时刻 buff 集合与层数/次数** |
+| Round 分组 | 每个事件 `Round` 已盖章且**单调不减**；按 `Round` 分组与 `RoundStartEvent` 完全一致 |
+| 确定性 | 新增事件**不得引入抽取**：同 seed 同命令流 `DrawCount` 序列与事件流均**逐条一致** |
+| 可重建性 | 仅凭事件流可重建终态（位置 / HP / 士气 / buff / 虚弱 / 死门） |
+
+> 失败处理：CI 测试红（不进启动门禁）；修复前**不得**用"技能使用率/完整日志"类 KPI 作验收依据。
+
+### 8.7 边界
+
+| 模块 | 关系 |
+|---|---|
+| `ui_spec.md` §10 / §8 详情框 | 详情框读**投影**（当前状态）；DevLog 读**事件流**（历史）——数据源不同、互不替代 |
+| `combat_math.md` §9 | 每次掷骰先 `RngDraw` 再业务事件（既有约定），级 4 可见 |
+| `verification.md` | KPI 统计直接查事件流；**§8 是"KPI 能否算出来"的前提** |
+| `Project_Memory.md` §0-5 | 事件流 = 战斗日志 = 回放源 = 统计源（一处写入、处处只读） |
