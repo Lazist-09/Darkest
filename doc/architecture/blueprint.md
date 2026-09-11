@@ -338,7 +338,7 @@ flowchart TD
     Battle --> RngProvider["RngProvider(Node)<br/>每场一个种子, 组装并注入 IRngProvider"]
     Battle --> EventLog["EventLogSink<br/>事件流 → battle.&lt;seed&gt;.log(回放/审计)"]
     Battle --> Effects["EffectsPlayer<br/>飘字/逐格滑动/死门判定演出(tween)"]
-    Battle --> Camera2D["Camera2D: 固定全景; 支援位被用时短暂入镜"]
+    Battle --> Camera2D["BattleCamera(Camera2D)<br/>随操作上下文平移（#223/O-62）<br/>默认=战斗位1~4+敌1~4；支援位5/6在镜头左侧之外"]
     Battle --> BattleUI["BattleUI(CanvasLayer) = scripts/ui/BattleUi.cs<br/>四分区(ui_spec §1)"]
     BattleUI --> TopBar["A TopBar: 回合数+行动序列条+撤退按钮(成功率数字)"]
     BattleUI --> Overlay["B BoardOverlay: 目标范围高亮+位移预览(整条交换链)"]
@@ -347,6 +347,49 @@ flowchart TD
 ```
 
 > 位移预览 = 内核同源 dry-run：UI 请求"预览 = 对当前只读快照跑一次同一内核的交换链计算"，保证"预览结果"与"确认后结算"永远一致（ui_spec 必显示 #6）。
+
+#### 5d.1 镜头 / 视口（🔴 结构事实，v0.65 / #223 / O-62）
+
+> 🔴 **新的结构事实：场景比视口宽**——我方**支援位 5/6 位于战斗位 4 的左侧、默认在镜头之外**。
+> 这不是"美术运镜"，而是**布局契约**：它决定了屏幕左右顺序、HUD 归属与镜头的驱动方式。
+
+**屏幕左右顺序（权威，ui_spec §1.3）**：
+
+```
+（左） 我 6 · 我 5 │ 我 4 · 我 3 · 我 2 · 我 1 │ 敌 1 · 敌 2 · 敌 3 · 敌 4 （右）
+       └─ 支援位 ─┘ └──── 战斗位（前→后即 1 最靠敌）────┘ └──── 敌方 ────┘
+```
+
+- **`1` 号位最靠敌方（最右）**；支援位在最左，且 **6 在 5 之左**。
+- **位置色块（ui_spec §1.3）必须按此顺序渲染**（`我 6 5 │ 4 3 2 1 │ 敌 1 2 3 4`），**不得写 1→6**；分隔线标出**支援/战斗位分界**。
+
+**节点归属（本次镜像的核心裁定）**：
+
+| 层 | 承载 | 是否随镜头 |
+|---|---|---|
+| **世界层**（`Node2D`：`FormationView` 各 `SlotView`、`EffectsPlayer` 飘字/滑动） | 战斗单位与演出 | ✅ **随 `BattleCamera` 平移** |
+| **HUD 层**（`CanvasLayer`：`BattleUI` 四分区 + **位置色块**） | 9 条必显 / 技能栏 / 色块 | ❌ **固定不动**——**色块永远显示全部 6 个我方位**，即使 5/6 在镜头外（它是 HUD，不是世界物件） |
+
+**镜头行为（ui_spec §1.0 七条，此处只记"由什么驱动"）**：
+
+| # | 情形 | 镜头 | 驱动来源（**只读**，不得反查规则） |
+|---|---|---|---|
+| ① | 默认视野 | 框住战斗位 1~4 + 敌 1~4 | 场景初始化 / 回到默认 |
+| ② | 轮到**战斗位** | 不动 | `TurnStartEvent.Slot ∈ 1..4` |
+| ③ | 轮到**支援位** | **左移到 5/6** | `TurnStartEvent.Slot ∈ 5..6` |
+| ④ | **开始选目标** | **移回目标区**（敌/友） | 表现层输入状态（`IsTargeting`），不涉内核 |
+| ⑤ | 支援位**被攻击/治疗/调动** | **短暂移过去** | `DamageEvent`/`HealEvent`/`SwapEvent`（含 `MovedUnit`）的**目标槽**——**禁止"屏幕外掉血"** |
+| ⑥ | **增援两步**（#181） | 选 B(5/6) → ③；选 X(1~4) → ④ | 同一套规则，**不另立** |
+| ⑦ | 移动方式 | **平滑缓动，禁止瞬移**（同位移"逐格滑动"标准 §6） | 表现层 tween |
+
+**红线**：
+
+1. **镜头属表现层 B4**：不得读内核私有状态、不得参与任何判定；③④ 的输入只能是**事件 + 表现层输入态**。
+2. **不得新增随机**：缓动与镜头决策**不得消耗 `IRngProvider`**（回放逐字节一致的前提）。
+3. **不得影响事件流**：镜头移动不产生、不排序、不改写任何事件（`Sequence` 连续性不受影响）。
+4. **HUD 与镜头解耦**（上表）：色块/四分区**不随镜头平移**——否则"5/6 在镜头外"会导致 HUD 缺格。
+5. **⑤ 是硬要求**：屏幕外发生伤害/治疗/调动必须把镜头带过去（ui_spec §7 已有条目），**不得以"节省演出时间"为由省略**。
+6. **视口/场景尺寸属工程配置**（`project.godot` 视口宽 < 场景宽 + 槽位间距常量）；**不得在代码里散落魔法坐标**——槽位布局常量集中一处，供 `FormationView` 与色块共用（**同源**，避免"色块顺序正确但单位位置不同"类的漂移）。
 
 ---
 
@@ -604,6 +647,25 @@ public interface IBattleResources {
 ```
 
 > 注：§9 清单覆盖任务要求的 9 个接口（IFormation / ITurnSequencer / ISkillUseResolver / IMoraleLedger / IDeathsDoor / IBuffLedger / IEnemyAi / IRngProvider / IShieldGuard），另附 IPlayerPolicy 作为 M6 模拟命令源，**并新增 IBattleResources（战斗级资源：支援点 SP，#211/O-60）**。IBuffLedger 管"buff 数据与生命周期"，IShieldGuard 管"受到伤害前拦截裁决"，两者在 DamagePipeline 内先后协作。
+
+// ---------------------------------------------------------------
+// 9.12 run（跑图）级状态：跨场持有者（v0.67 / #225 / O-63）
+// 背景：难度分两层——单场＝消耗战（不该被压）、跑图＝损耗累积 + 资源决策（3 连战完成率 [40,70]）。
+//       战后【不自动恢复】：HP 与士气跨战斗完全保留；场间无恢复（切片无扎营/回城/战后回血）。
+// 归属：**新增 run 级外层持有者**（建议 `RunSession`/`RunDirector`，位于 BattleDirector 之外、
+//       与 BattleRoot 同级或更外），承载**跨场状态**并逐场驱动战斗；`BattleDirector` 保持【单场纯】
+//       （不得因为 3 连战而变成"跨场有状态"——那会破坏"同 seed 可复现单场"的既有契约）。
+// 跨场传递（已定）：HP、士气。
+// 跨场语义（⬜ 待裁定，见 O-63；裁定前实现方不得自行扩展）：
+//       虚弱 / deaths_door_recovery / 战斗内 buff（taunt·mark·shield·眩晕）/ per_battle 次数 / CD / SP
+// 驱动：headless 亦须支持 run——`Run(runSeed, policy)` = 连续 3 场、场间不重置 HP/士气、逐场落盘 KPI。
+// 记录：每场结束的 HP% / 士气曲线（看斜率是否接近 33%/场）。
+// ---------------------------------------------------------------
+public interface IRunSession {
+    RunState State { get; }                       // 跨场状态（HP/士气 + 待裁定字段）
+    BattleResult PlayBattle(int index);           // 驱动第 index 场（1..N），用同一 runSeed 派生每场 seed
+    bool IsRunComplete { get; }                   // 3 场都活下来（"活下来"是否含撤退成功 → O-63）
+}
 
 ---
 

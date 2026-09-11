@@ -180,7 +180,7 @@ public sealed class SkillExecutionTests
     }
 
     [TestMethod]
-    public void FirstAid_HealFixed8_NotAttackScaled()
+    public void FirstAid_HealFixed12_NotAttackScaled()
     {
         (FormationBoard player, FormationBoard enemy, BalanceTable balance, SkillsConfig skills, MoraleEventsConfig morale) = World();
         var log = new CombatLog();
@@ -190,8 +190,8 @@ public sealed class SkillExecutionTests
 
         executor.Execute(skills.Get("medic_first_aid"), UnitId.Of("medic"), rebuilt, enemy, new ScriptedRng(), chosenTargets: new[] { 2 });
         HealEvent heal = log.Events.OfType<HealEvent>().First(e => e.Target == UnitId.Of("warrior"));
-        Assert.AreEqual(8, heal.Amount, "急救固定值 8（v0.62：12→8；不吃攻击力，combat_math §8）");
-        Assert.AreEqual(9, rebuilt.UnitRuntimeAt(2)!.CurrentHp);
+        Assert.AreEqual(12, heal.Amount, "急救固定值 12（数值撤回；不吃攻击力，combat_math §8）");
+        Assert.AreEqual(13, rebuilt.UnitRuntimeAt(2)!.CurrentHp);
     }
 
     [TestMethod]

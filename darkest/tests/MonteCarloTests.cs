@@ -87,21 +87,31 @@ public sealed class MonteCarloTests
     [TestMethod]
     public void M6Acceptance_WinRateBand_And_Rhythm()
     {
-        // 判据 A（verification §1）：300 场胜率须落 40~70%，且平均回合 ≥6（<6 节奏告警）。
-        // 当前起手值下结果可能偏离 → Fail 消息给出报告 + 数值调整建议（M6 只验收不调数值，README §6-5）。
+        // 🔴 v0.66 口径变更：正式判据 = **3 连战完成率 ∈ [40%,70%]**（HP/士气跨战斗保留、场间无恢复）。
+        // 单场胜率降级为参考输出（单场 100% 不再构成判据 A 失败）。
+        const int runs = 300;
+        int completed = 0;
+        for (int i = 0; i < runs; i++)
+        {
+            if (HeadlessDriver.RunCampaign(20260909 + i, PolicyKind.SemiRandom, battles: 3).Completed)
+            {
+                completed++;
+            }
+        }
+
         SimulationReport r = HeadlessDriver.RunMany(300, PolicyKind.SemiRandom, seedBase: 20260909);
-        string report = $"[M6] runs={r.Runs} win={r.WinRate:P0} avgRounds={r.AvgRounds:F2} coll={r.TotalCollapse} " +
-                        $"weak={r.TotalWeak} dd={r.TotalDeathDoorRolls} retreat={r.GamesWithRetreat} " +
-                        $"virtue={r.TotalVirtue} affliction={r.TotalAffliction} displace={r.TotalDisplacements}";
+        double rate = (double)completed / runs;
+        string report = $"[M6] 3 连战完成率={rate:P0}（完成 {completed}/{runs}）｜参考：单场胜率={r.WinRate:P0} " +
+                        $"avgRounds={r.AvgRounds:F2} coll={r.TotalCollapse} weak={r.TotalWeak} dd={r.TotalDeathDoorRolls} " +
+                        $"retreat={r.GamesWithRetreat} virtue={r.TotalVirtue} affliction={r.TotalAffliction} displace={r.TotalDisplacements}";
         Console.WriteLine(report);
 
         string advice = "数值调整建议（只改数据/override，不改代码）：" +
-                        "① 节奏：avgRounds<6 表明战斗过短——敌方每回合行动数低于我方（4 vs 6 回合行动），" +
-                        "可经 enemy_ai 时序/我方支援位攻击权重下调（tuning）或 enemy HP 上调（units override）拉长战线；" +
-                        "② 胜率 100% 超标：先小幅上调 melee_soldier/ranged_archer HP 并下调 warrior_cleave/lunge 倍率，按 README §6-5 走 override 迭代；" +
-                        "③ KPI 单场下限（虚弱≥1/死门≥3/撤退≥1/美德折磨各≥1/位移≥2）需在胜率回到带内后复测。";
-        Assert.IsTrue(r.WinRate >= 0.40 && r.WinRate <= 0.70,
-            $"判据 A 未过：胜率 {r.WinRate:P0} 不在 [40%,70%]。{report}\n{advice}");
+                        "① 完成率 <40%（偏难）：回调敌方压力（敌攻/敌 HP）或上调自愈；" +
+                        "② 完成率 >70%（偏易）：按 v0.62 剂量包方向加压（敌攻 / 自愈 / C 轴）；" +
+                        "③ 每场结束 HP%/士气% 曲线见 CampaignTests（斜率参考 ≈33%/场）。";
+        Assert.IsTrue(rate is >= 0.40 and <= 0.70,
+            $"判据 A（v0.66）未过：3 连战完成率 {rate:P0} 不在 [40%,70%]。{report}\n{advice}");
         Assert.IsTrue(r.AvgRounds >= 6,
             $"节奏告警：平均回合 {r.AvgRounds:F2} < 6。{report}\n{advice}");
     }

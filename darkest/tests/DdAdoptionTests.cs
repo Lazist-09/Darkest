@@ -355,8 +355,8 @@ public sealed class DdAdoptionTests
             new ScriptedRng(0.0), chosenTargets: new[] { 2 });
 
         HealEvent heal = log.Events.OfType<HealEvent>().Single();
-        Assert.AreEqual(16, heal.Amount, "暴击治疗 → 8 × 2（v0.62：急救 12→8 HP / CD 1→2）");
-        Assert.AreEqual(hpBefore + 16, warrior.CurrentHp);
+        Assert.AreEqual(24, heal.Amount, "暴击治疗 → 12 × 2（数值撤回）");
+        Assert.AreEqual(hpBefore + 24, warrior.CurrentHp);
         Assert.AreEqual(moraleBefore + 4, warrior.Morale, "被治疗者 +4 士气");
         Assert.IsTrue(log.Events.OfType<MoraleEvent>().Any(e => e.Source == "critical_heal"));
     }

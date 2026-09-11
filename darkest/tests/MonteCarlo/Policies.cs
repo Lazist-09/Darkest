@@ -95,8 +95,8 @@ public static class Policies
                 C.Skills.Get(id).HealFixed is not null && C.Skills.Get(id).Target.Scope == SkillTargetScope.Team);
             if (sp >= costSkill && healSkill is not null)
             {
-                // S5（v0.62）群体判据：伤员 ≥3 → 优先【群体绷带】（5×N/2SP 优于 8/2SP，一次覆盖全队）
-                if (groupHeal is not null && CountWounded(director, 0.60) >= 3)
+                // S5（v0.66）群体判据：伤员 ≥2 → 优先【群体绷带】（5×N/2SP 优于 12/2SP，一次覆盖全队）
+                if (groupHeal is not null && CountWounded(director, 0.60) >= 2)
                 {
                     return PlayerDecision.Skill(groupHeal, null);
                 }
