@@ -81,38 +81,44 @@ public sealed class SupportPointTests
         d.StartTurn(rng); // 3 → 4
 
         UnitId medic2 = d.Player.UnitRuntimeAt(6)!.Id; // 支援位军医
+        int cost = d.SupportCostSkill;
+        Assert.AreEqual(2, cost, "#213（v0.57）：cost_skill = 2");
         Assert.IsTrue(d.PlayerUseSkill(medic2, "medic_first_aid", rng, new[] { 1 }), "支援位技能可用");
-        Assert.AreEqual(3, d.SupportPoints, "支援位技能 −1");
+        Assert.AreEqual(2, d.SupportPoints, $"支援位技能 −{cost}");
 
-        // 下一回合开始先 +1（→4）再判定消耗：不因"先扣后加"而算错
+        // 下一回合开始先 +1（→3）再判定消耗：不因"先扣后加"而算错
         d.StartTurn(rng);
-        Assert.AreEqual(4, d.SupportPoints, "第 2 回合开始恢复后恰为 cap 4（先 regen 后消耗）");
+        Assert.AreEqual(3, d.SupportPoints, "第 2 回合开始恢复后为 3（先 regen 后消耗）");
     }
 
     [TestMethod]
-    public void P19_SupportSlotSkill_Costs1_AndBlocksWhenInsufficient()
+    public void P19_SupportSlotSkill_Costs2_AndBlocksWhenInsufficient()
     {
         BattleDirector d = NewDirector(out CombatLog log);
         var rng = new RngProvider(73);
         UnitId medic2 = d.Player.UnitRuntimeAt(6)!.Id;
+        int cost = d.SupportCostSkill;
 
-        for (int i = 0; i < 3; i++)
+        d.StartTurn(rng); // 3 → 4（cap）
+        Assert.IsTrue(d.PlayerUseSkill(medic2, "medic_first_aid", rng, new[] { 1 }), "第一次可用");
+        Assert.AreEqual(4 - cost, d.SupportPoints, $"−{cost}");
+
+        if (d.SupportPoints >= cost)
         {
-            d.StartTurn(rng);
-            Assert.IsTrue(d.PlayerUseSkill(medic2, "medic_first_aid", rng, new[] { 1 }), $"第 {i + 1} 次可用");
+            Assert.IsTrue(d.PlayerUseSkill(medic2, "medic_first_aid", rng, new[] { 1 }), "本回合第二次可用（若点数够）");
         }
 
-        d.StartTurn(rng); // 恢复 1 → 至多再 1 次
-        Assert.IsTrue(d.PlayerUseSkill(medic2, "medic_first_aid", rng, new[] { 1 }));
-        d.StartTurn(rng);
-        Assert.IsTrue(d.PlayerUseSkill(medic2, "medic_first_aid", rng, new[] { 1 }));
-
-        // 连续消耗到 0 后：再试 → 被拒（返回 false）且写 rejected 事件
+        // 点数不足 → 拒（返回 false），并写 rejected + SkillRefusedEvent
         while (d.SupportPoints > 0)
         {
             d.PlayerUseSkill(medic2, "medic_first_aid", rng, new[] { 1 });
+            if (d.SupportPoints < cost)
+            {
+                break;
+            }
         }
 
+        Assert.IsTrue(d.SupportPoints < cost, $"点数已低于消耗（{d.SupportPoints} < {cost}）");
         Assert.IsFalse(d.PlayerUseSkill(medic2, "medic_first_aid", rng, new[] { 1 }), "SP 不足 → 拒");
         Assert.IsTrue(log.Events.OfType<SupportPointEvent>().Any(e => e.Reason == "rejected"), "拒绝写事件");
         Assert.IsTrue(log.Events.OfType<SkillRefusedEvent>().Any(e => e.Reason == "support_points"), "不可用原因入日志");
@@ -152,12 +158,11 @@ public sealed class SupportPointTests
         d.StartTurn(rng);
         Assert.AreEqual(2, d.SupportPoints, "回合恢复 +1");
 
-        // 用支�援位技能把 SP 抽到 1（< cost_reinforce=2），且本回合尚未增援 → 增援应被拒（新导演确保无历史标记）
+        // 用支援位技能把 SP 降到 1（< cost_reinforce=2），且本回合尚未增援 → 增援应被拒
         BattleDirector d2 = NewDirector(out CombatLog log2);
         UnitId medic2 = d2.Player.UnitRuntimeAt(6)!.Id;
         d2.PlayerUseSkill(medic2, "medic_first_aid", rng, new[] { 1 });
-        d2.PlayerUseSkill(medic2, "medic_first_aid", rng, new[] { 1 });
-        Assert.AreEqual(1, d2.SupportPoints, "两次支援位技能 → SP 3−2=1");
+        Assert.AreEqual(1, d2.SupportPoints, $"一次支援位技能（−{d2.SupportCostSkill}）→ SP=1");
 
         Assert.IsFalse(d2.Reinforce(UnitId.Of("tank"), 5, 1), "SP=1 < 2 → 增援被拒");
         Assert.IsTrue(log2.Events.OfType<SupportPointEvent>().Any(e => e.Reason == "rejected"), "拒增援写事件");

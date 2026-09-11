@@ -80,11 +80,6 @@ public static class HeadlessDriver
             director.RunFullRound(rng, unit =>
             {
                 PlayerDecision decision = Policies.DecideForUnit(policy, unit, director, rng);
-                if (decision.SkillId is not null)
-                {
-                    skillUses[decision.SkillId] = skillUses.GetValueOrDefault(decision.SkillId) + 1;
-                }
-
                 return decision;
             });
 
@@ -104,6 +99,15 @@ public static class HeadlessDriver
         // 从事件流聚合 KPI（T-M6-04）：崩溃判定数 = CollapseResultEvent 数（每次判定一个产物）
         var events = log.Events;
         int collapse = events.OfType<CollapseResultEvent>().Count();
+
+        // 🔴 G0a 口径修正：SkillUses 必须**从事件流**聚合（此前统计的是"策略决策"，会把
+        // SP 不足/恐惧拒放/无目标等**被拒**的技能也算进来，且与内核执行结果不一致）。
+        // 口径：我方技能使用 = SkillUseEvent 且 CasterSlot > 0（敌方 CasterSlot = 0）。
+        skillUses = events.OfType<SkillUseEvent>()
+            .Where(e => e.CasterSlot > 0)
+            .GroupBy(e => e.SkillId)
+            .ToDictionary(g => g.Key, g => g.Count());
+
         GameOutcome outcome = new(seed, result, round,
             collapse,
             events.OfType<WeakEnterEvent>().Count(),

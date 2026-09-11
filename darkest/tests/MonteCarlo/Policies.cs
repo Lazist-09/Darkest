@@ -100,9 +100,9 @@ public static class Policies
                     return PlayerDecision.Skill(healSkill, crit);
                 }
 
-                // ③ 续航：HP% < 60% 且 SP ≥ 2（花后保留 ≥1）
+                // ③ 续航：HP% < 60% 且 SP ≥ cost + 1（治完保留 ≥1 点）
                 int? wounded = LowestHpPctAlly(director, threshold: 0.60);
-                if (wounded is { } w && sp >= 2)
+                if (wounded is { } w && sp >= costSkill + 1)
                 {
                     return PlayerDecision.Skill(healSkill, w);
                 }

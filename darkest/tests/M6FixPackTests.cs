@@ -72,6 +72,7 @@ public sealed class M6FixPackTests
         int playerDamageToEnemy = 0;
         var skillUseById = new Dictionary<string, int>();
         int supportSlotSkillUses = 0, spSpentOnSkill = 0, spSpentOnReinforce = 0, successfulReinforces = 0, passCount = 0;
+        int playerHealTotal = 0; // #218：我方自愈总量（① 生效证据 + ③ 剂量基准）
         var spValueDistribution = new Dictionary<int, int>();
 
         for (int i = 0; i < runs; i++)
@@ -134,6 +135,15 @@ public sealed class M6FixPackTests
                 }
 
                 passCount += l.Events.OfType<TurnSkippedEvent>().Count(e => e.Reason == "passed");
+
+                // #218：我方自愈总量（HealEvent 求和；目标为我方原型）
+                foreach (HealEvent he in l.Events.OfType<HealEvent>())
+                {
+                    if (he.Target is { } ht && PlayerArchetypes.Any(p => ht.Value == p || ht.Value.StartsWith(p + "_", StringComparison.Ordinal)))
+                    {
+                        playerHealTotal += he.Amount;
+                    }
+                }
             }
         }
 
@@ -155,7 +165,8 @@ public sealed class M6FixPackTests
         string spReport = $"[M6v3] SP：存量分布 " +
             string.Join(" ", Enumerable.Range(0, 5).Select(v => $"{v}点 {spValueDistribution.GetValueOrDefault(v)}")) +
             $"　花费 治疗{spSpentOnSkill} 增援{spSpentOnReinforce}（成功增援 {successfulReinforces} 次）" +
-            $"　支援位技能次数 {supportSlotSkillUses}　待命次数 {passCount}";
+            $"　支援位技能次数 {supportSlotSkillUses}　待命次数 {passCount}" +
+            $"　我方自愈总量/场 {(double)playerHealTotal / runs:F1}";
         Console.WriteLine(usageReport);
         Console.WriteLine(spReport);
         TestContext.WriteLine(usageReport);

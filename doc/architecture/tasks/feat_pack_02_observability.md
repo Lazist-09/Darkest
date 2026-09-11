@@ -302,3 +302,29 @@
 | **镜像同步** | `data_schema` **§8.2** 已把 `TurnSkippedEvent.Reason` 记为含 `passed`、`SupportPointEvent` 为第 15 类；**P17** 的"技能可读/buff 可读/Round 单调/不引入抽取"即 G0a 的校验落点；`m6_verification` T-M6-01 已注明"**技能使用率 ← `SkillUseEvent`**、**缺它时 KPI 不得以空值通过**" |
 | **执行顺序（已写入 README）** | `m6_fix_pack P0~P3`（✅ 已完成，勿重做）→ **`feat_pack_02` G0a** → `feat_pack_03` D0~D7 → `feat_pack_04` S0~S9 → `feat_pack_01` F0~F4 → **P3 v3 复测** → `feat_pack_02` **G0b + G1~G4** |
 | **红线补充** | 本包 §5「一步一提交」由 `G0/G1/G2/G3/G4` 细化为 **`G0a / G0b / G1 / G2 / G3 / G4`** 独立提交（便于复测前后二分） |
+
+---
+
+# 8. G0a 完成回执（主程序 `282d073`，架构师登记 v0.60）
+
+> 回执"G0a 确认"提交：**236/237 绿**（唯一红 = `M6Acceptance` 判据 A，胜率超带 → 属**平衡问题，非本项问题**）。
+
+| 项 | 取证（已核实） |
+|---|---|
+| **① 在核心里** | `darkest/scripts/core/events/BattleEventTypes.cs:70` — `SkillUseEvent(Actor, CasterSlot, SkillId, TargetSlots)`，继承基类（带 `Round`/`Sequence`），**零 Godot** |
+| **② 真的发射** | `darkest/scripts/gameplay/sim/skill/SkillExecutor.cs:69` — 每次 `Execute` **恰一条**、**位于伤害结算之前**；发射点在 **sim 层**（UI 不参与） |
+| **③ 报告只从事件流取数** | `tests/M6FixPackTests.cs`：技能使用率 = `Log.Events.OfType<SkillUseEvent>()`；待命次数 = `OfType<TurnSkippedEvent>()`（`Reason=="passed"`）；SP 分布 = `OfType<SupportPointEvent>()` —— **无任何其它数据源** |
+
+**新增门禁 `G0aEventSourcingGateTests`（3 条）**：① 每次技能使用恰一条 + **自带施法位**（支援位统计前提）+ 先于伤害 + 带回合号；② **待命次数唯一来源** = `TurnSkippedEvent(passed)`；③ 真实一场（headless）：技能使用率**非空**且**逐技能计数与运行台账完全一致**、支援位技能次数非空、SP 花费分布非空。
+
+> ## 🔴 顺带查出的**统计口径坑**（已升级为契约，见 `data_schema` §8.5）
+> 门禁首跑即红：**事件流 73 条 vs 运行台账 51 条**——因为 **`SkillUseEvent` 覆盖双方**（敌方 `CasterSlot = 0`），而运行台账只记我方。
+> **若报告直接拿"事件流总数"当技能使用率，会高估约 43%。**
+> 已在门禁锁死：**报告口径必须按 `CasterSlot > 0` 过滤**，并**另断言事件流确实含敌方使用**（完整流程可读）。
+> ⚠️ **这正是"确认模式"的价值**：它把"看起来能统计"变成了"**口径已被证明正确**"——若不确认，P3 v3 的技能使用率会带 43% 系统性偏差。
+
+| 结论 | 内容 |
+|---|---|
+| **G0a 状态** | ✅ **已完成并关闭**（`282d073`）；**两栏报告字段（技能使用率 / 待命次数）口径已钉死** |
+| **G0b 状态** | ⬜ **仍后置**（P3 v3 之后，与 G1~G4 一批）——本项完成**不改变** §G0.0 的拆分与顺序 |
+| **对顺序的影响** | 前置链现状：**F0~F4 ✅（`e88273a`→`410364f`）/ D0~D7 ✅（`181d00e`→`ad856f9`）/ S0~S5 ✅（`d8646d8`）/ G0a ✅（`282d073`）** → **P3 v3 的全部前置条件已满足**（详见 `m6_verification` §5 与 README 交接语） |

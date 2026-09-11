@@ -87,20 +87,24 @@ public sealed class G0aEventSourcingGateTests
         // 用真实一场（headless 驱动、SemiRandom + SP 策略）验证两项报告字段非空且可由事件流复算
         (GameOutcome outcome, CombatLog log) = HeadlessDriver.Run(20260909, PolicyKind.SemiRandom);
 
-        // ① 技能使用率：**我方**事件流逐技能计数必须与运行台账一致（等价 → 报告可完全由事件流构建）
-        // ⚠️ 口径：SkillUseEvent 覆盖**双方**（敌方 CasterSlot=0）；运行台账只记我方 → 比较时按 CasterSlot>0 过滤
-        Dictionary<string, int> fromEvents = log.Events.OfType<SkillUseEvent>()
+        // ① 技能使用率：报告必须能**完全**由事件流构建（G0a 修正后 GameOutcome.SkillUses 亦为事件源）
+        // ⚠️ 口径 A：SkillUseEvent 覆盖**双方**（敌方 CasterSlot=0）——我方口径须按 CasterSlot>0 过滤
+        // ⚠️ 口径 B（G0a 抓到的真 bug）：此前 SkillUses 统计的是**策略决策**（含 SP 不足/恐惧拒放等**被拒**项），
+        //            与内核执行结果不一致；现已改为事件流聚合（本次门禁即为该修正的锁）
+        Dictionary<string, int> playerEvents = log.Events.OfType<SkillUseEvent>()
             .Where(e => e.CasterSlot > 0)
             .GroupBy(e => e.SkillId)
             .ToDictionary(g => g.Key, g => g.Count());
-        int eventTotal = fromEvents.Values.Sum();
-        Assert.IsTrue(eventTotal > 0, "「技能使用率」字段非空（SkillUseEvent 有数据）");
-        Assert.AreEqual(outcome.SkillUses.Values.Sum(), eventTotal,
-            "我方事件流技能次数 == 运行台账总次数（报告取数同源）");
+        int playerTotal = playerEvents.Values.Sum();
+        Assert.IsTrue(playerTotal > 0, "「技能使用率」字段非空（SkillUseEvent 有数据）");
+        Assert.AreEqual(outcome.SkillUses.Values.Sum(), playerTotal, "GameOutcome.SkillUses == 事件流我方口径（同源）");
         foreach ((string skillId, int count) in outcome.SkillUses)
         {
-            Assert.AreEqual(count, fromEvents.GetValueOrDefault(skillId), $"\"{skillId}\" 计数一致");
+            Assert.AreEqual(count, playerEvents.GetValueOrDefault(skillId), $"\"{skillId}\" 计数与事件流一致");
         }
+
+        Assert.IsTrue(log.Events.OfType<SkillUseEvent>().Any(e => e.CasterSlot == 0),
+            "事件流同时记录敌方技能使用（CasterSlot=0）——完整流程可读");
 
         Assert.IsTrue(log.Events.OfType<SkillUseEvent>().Any(e => e.CasterSlot == 0),
             "事件流同时记录敌方技能使用（CasterSlot=0）——完整流程可读");
