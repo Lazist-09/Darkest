@@ -81,7 +81,7 @@ public sealed class BattleDirector
         _enemy = FormationBoardFactory.CreateEnemyBoard(formation, units);
         _enemyRoster = formation.InitialRoster.Enemy.Select(e => e.Unit).ToArray(); // #196：满编原型（算总 HP）
         _pipeline.InitializeMorale(_player);
-        _sequencer = new TurnSequencer(_player, _enemy, balance);
+        _sequencer = new TurnSequencer(_player, _enemy, balance, log); // G0：跳过行动事件接入
     }
 
     public int Round => _round;
@@ -206,7 +206,8 @@ public sealed class BattleDirector
         }
 
         _swappedThisRound = true;
-        _log.Append(new SwapEvent(a, bSlot, x));
+        // G0/O-55：SwapEvent 补被调动者（B）与种类（#181 增援）
+        _log.Append(new SwapEvent(a, bSlot, x, b.Id, "reinforce"));
         return true;
     }
 
@@ -247,7 +248,16 @@ public sealed class BattleDirector
 
         _endEmitted = true;
         string why = reason ?? (Outcome == BattleOutcome.Victory ? "enemy_wiped" : "player_wiped");
-        _log.Append(new BattleEndEvent(Outcome.ToString(), _round, why));
+        // 显式传入原因时按原因定结局（战斗可能尚未投影为已结束，例如撤退收束路径）
+        string outcome = Outcome != BattleOutcome.Ongoing
+            ? Outcome.ToString()
+            : why switch
+            {
+                "enemy_wiped" => "Victory",
+                "player_wiped" => "Defeat",
+                _ => "Ongoing",
+            };
+        _log.Append(new BattleEndEvent(outcome, _round, why));
     }
 
     /// <summary>G0/O-55：回合开始事件（谁行动、在哪号位、有效速度）。</summary>

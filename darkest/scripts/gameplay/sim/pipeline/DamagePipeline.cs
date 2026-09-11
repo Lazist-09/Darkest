@@ -127,7 +127,7 @@ public sealed class DamagePipeline
                 }
             }
 
-            DamageOutcome dmg = DamageStep.Deal(caster, victim, skill.Axis, skill.Segments, skill.CritMod, rng, _log, _balance, _buffs);
+            DamageOutcome dmg = DamageStep.Deal(caster, victim, skill.Axis, skill.Segments, skill.CritMod, rng, _log, _balance, _buffs, skill.Id);
             anyCritThisAction |= dmg.AnyCrit;
 
             int moraleBefore = victim.Morale;

@@ -154,7 +154,8 @@ public sealed class SkillExecutor
         }
 
         bool ok = allyBoard.SwapSlots(from, to); // 两点直接互换（非逐级推移）
-        _log.Append(new SwapEvent(caster, from, to)); // 移动事件（计入位移 KPI，O-41）
+        UnitRuntime? other = allyBoard.UnitRuntimeAt(to);
+        _log.Append(new SwapEvent(caster, from, to, other?.Id, "move")); // G0：移动事件 + 被换者（O-41 位移 KPI）
         _log.Append(new DisplaceEvent(caster, from, to, PassedResist: true, ok, ok ? "" : "move_swap_failed"));
     }
 
@@ -223,7 +224,7 @@ public sealed class SkillExecutor
 
                     int healed = Math.Min(target.MaxHp - target.CurrentHp, heal);
                     target.CurrentHp += healed;
-                    _log.Append(new HealEvent(target.Id, healed));
+                    _log.Append(new HealEvent(target.Id, healed, caster, skill.Id)); // G0：治疗来源 + 技能
                 }
             }
 
@@ -235,7 +236,8 @@ public sealed class SkillExecutor
                     if (target is not null)
                     {
                         ApplyStatMod(target, effect);
-                        _log.Append(new EffectEvent(target.Id, "stat_mod", 100.0, true));
+                        _log.Append(new EffectEvent(target.Id, "stat_mod", 100.0, true, caster));
+                        _log.Append(new StatModEvent(target.Id, effect.Stat ?? "?", effect.Delta ?? 0, effect.DurationRounds ?? 0)); // G0
                     }
                 }
 

@@ -63,7 +63,13 @@ public sealed class MoraleLedger
         int newValue = Math.Clamp(unit.Morale + delta, _balance.MoraleMin, _balance.MoraleMax);
         int actual = newValue - unit.Morale;
         unit.Morale = newValue;
-        unit.CollapseEmber = newValue == 0; // morale §4.0 余烬标记；>0 清除
+        bool ember = newValue == 0;
+        if (unit.CollapseEmber != ember)
+        {
+            log.Append(new Darkest.Core.Events.MoraleEmberEvent(unit.Id, ember ? "enter" : "exit")); // G0/O-55
+        }
+
+        unit.CollapseEmber = ember; // morale §4.0 余烬标记；>0 清除
         log.Append(new MoraleEvent(unit.Id, delta, sourceId, newValue));
 
         // T-M4-04 折磨结束点 == 恢复判定资格点（士气回初始值 50，morale §4.0；捆缚同）

@@ -28,7 +28,8 @@ public static class DamageStep
         IRngProvider rng,
         CombatLog log,
         BalanceTable balance,
-        Darkest.Core.Contracts.IBuffLedger? buffs = null)
+        Darkest.Core.Contracts.IBuffLedger? buffs = null,
+        string? skillId = null)
     {
         if (multipliers is null || multipliers.Count == 0)
         {
@@ -88,7 +89,7 @@ public static class DamageStep
             }
 
             total += damage;
-            log.Append(new DamageEvent(target.Id, damage, raw, crit, i, axis, attacker.Id));
+            log.Append(new DamageEvent(target.Id, damage, raw, crit, i, axis, attacker.Id, skillId)); // G0：技能来源
         }
 
         // F2：下次攻击增伤为一次性——本动作命中后移除

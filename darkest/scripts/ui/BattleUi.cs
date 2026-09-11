@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Darkest.Core.Contracts;
+using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Director;
@@ -51,6 +52,10 @@ public partial class BattleUi : CanvasLayer
     private Button _moveButton = null!;
     private Panel _resultPanel = null!;
     private Label _resultLabel = null!;
+    private Panel _devLogPanel = null!;   // G2：开发者日志面板（F1 开关）
+    private Label _devLogLabel = null!;
+    private Button _devLogButton = null!;
+    private int _devLogRendered = -1;
     private Label _skillTitle = null!;
     private Label _hintLabel = null!;
     private double _hintTimer;
@@ -58,6 +63,7 @@ public partial class BattleUi : CanvasLayer
     private bool _skillBarWaiting;
     private static readonly Dictionary<string, string> _unitNames = new();
     private static readonly Dictionary<string, string> _skillNames = new();
+    private static readonly Dictionary<string, string> _buffNames = new();
     private static readonly Dictionary<string, string[]> _poolCache = new();
     private static SkillsConfig? _skillsCfg;
 
@@ -138,12 +144,39 @@ public partial class BattleUi : CanvasLayer
         _moveButton.Pressed += () => _move?.Invoke();
         AddChild(_moveButton);
 
-        _resultPanel = new Panel { Position = new Vector2(340, 210), Size = new Vector2(600, 260), Visible = false };
-        _resultPanel.Modulate = new Color(0.1f, 0.1f, 0.14f, 0.98f);
+        _resultPanel = new Panel { Position = new Vector2(340, 210), Size = new Vector2(600, 260), Visible = false };        _resultPanel.Modulate = new Color(0.1f, 0.1f, 0.14f, 0.98f);
         AddChild(_resultPanel);
         _resultLabel = new Label { Position = new Vector2(24, 20), CustomMinimumSize = new Vector2(552, 220) };
         _resultLabel.AddThemeFontSizeOverride("font_size", 18);
         _resultPanel.AddChild(_resultLabel);
+
+        // G2（O-55）：开发者日志面板（默认隐藏，F1 开关）——直接读事件流（唯一事实来源）
+        _devLogButton = new Button { Position = new Vector2(890, 6), Size = new Vector2(180, 32), Text = "日志 F1" };
+        _devLogButton.Pressed += ToggleDevLog;
+        AddChild(_devLogButton);
+
+        _devLogPanel = new Panel { Position = new Vector2(16, 96), Size = new Vector2(1248, 326), Visible = false };
+        _devLogPanel.Modulate = new Color(0.06f, 0.07f, 0.1f, 0.97f);
+        AddChild(_devLogPanel);
+        _devLogLabel = new Label { Position = new Vector2(12, 8), CustomMinimumSize = new Vector2(1224, 310) };
+        _devLogLabel.AddThemeFontSizeOverride("font_size", 12);
+        _devLogPanel.AddChild(_devLogLabel);
+    }
+
+    /// <summary>G2：开发者日志开/关（每次打开重绘整个事件流尾部）。</summary>
+    public void ToggleDevLog()
+    {
+        _devLogPanel.Visible = !_devLogPanel.Visible;
+        _devLogRendered = -1;
+        _devLogButton.Text = _devLogPanel.Visible ? "日志 F1（开）" : "日志 F1";
+    }
+
+    public override void _UnhandledInput(InputEvent e)
+    {
+        if (e is InputEventKey { Pressed: true, PhysicalKeycode: Key.F1 })
+        {
+            ToggleDevLog();
+        }
     }
 
     private void AddRowTitle(string title, float x, float y)
@@ -270,6 +303,20 @@ public partial class BattleUi : CanvasLayer
             _resultLabel.Text =
                 $"{_host.ResultText}\n\n回合数：{_host.ResultRound}\n\n系统触发计数：\n" +
                 $"　士气触底 {c[0]}　虚弱 {c[1]}　死门 {c[2]}\n　撤退 {c[3]}　美德 {c[4]}　折磨 {c[5]}\n　位移 {c[6]}\n\n按 R 重开（新 seed）";
+        }
+
+        // G2：日志面板可见时，仅在事件数变化时重绘（取尾部 20 行，避免每帧重建）
+        if (_devLogPanel.Visible && _host.Director is { } dir)
+        {
+            int count = dir.Log.Count;
+            if (count != _devLogRendered)
+            {
+                _devLogRendered = count;
+                IReadOnlyList<string> lines = CombatLogText.Render(dir.Log.Events, includeRng: false, NameOf, SkillName, BuffNameOf);
+                _devLogLabel.Text = lines.Count <= 20
+                    ? string.Join("\n", lines)
+                    : string.Join("\n", lines.Skip(lines.Count - 20));
+            }
         }
 
         if (_hintTimer > 0)
@@ -466,6 +513,20 @@ public partial class BattleUi : CanvasLayer
         }
 
         return _skillNames.TryGetValue(skillId, out string? n) ? n : skillId;
+    }
+
+    /// <summary>G2：buff 中文名（buff_defs.json；缺失回落 id）。</summary>
+    private static string BuffNameOf(string buffId)
+    {
+        if (_buffNames.Count == 0)
+        {
+            foreach (BuffDefConfig b in BuffDefsConfig.Parse(ReadData("buff_defs.json")).Buffs)
+            {
+                _buffNames[b.Id] = b.Name;
+            }
+        }
+
+        return _buffNames.TryGetValue(buffId, out string? n) ? n : buffId;
     }
 
     private static void LoadNames()

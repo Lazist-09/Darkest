@@ -22,10 +22,13 @@ public sealed class TurnSequencer : ITurnSequencer
     private readonly FormationBoard _enemy;
     private readonly BalanceTable _balance;
     private readonly double _weakSpeedMult;
+    private readonly Darkest.Core.Events.CombatLog? _log; // G0/O-55：跳过行动事件
     private Queue<UnitId> _order = new();
 
-    public TurnSequencer(FormationBoard player, FormationBoard enemy, BalanceTable balance)
+    public TurnSequencer(FormationBoard player, FormationBoard enemy, BalanceTable balance,
+        Darkest.Core.Events.CombatLog? log = null)
     {
+        _log = log;
         _player = player ?? throw new ArgumentNullException(nameof(player));
         _enemy = enemy ?? throw new ArgumentNullException(nameof(enemy));
         _balance = balance ?? throw new ArgumentNullException(nameof(balance));
@@ -86,6 +89,7 @@ public sealed class TurnSequencer : ITurnSequencer
             if (unit.Stunned)
             {
                 unit.Stunned = false; // 跳过本次行动，状态随即结束（GDD §2.5）
+                _log?.Append(new Darkest.Core.Events.TurnSkippedEvent(id, "stunned")); // G0/O-55
                 continue;
             }
 

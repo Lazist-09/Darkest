@@ -15,13 +15,13 @@ public sealed record HitEvent(bool Hit, int HitRate, UnitId? Attacker, UnitId? T
 public sealed record CritEvent(bool Crit, UnitId? Attacker, UnitId? Target) : BattleEvent;
 
 /// <summary>单段伤害事件（T-M2-05；多段=多条，SegmentIndex 从 0 起；Attacker 供 M6 输出统计）。</summary>
-public sealed record DamageEvent(UnitId? Target, int Amount, double Raw, bool Crit, int SegmentIndex, string Axis, UnitId? Attacker = null) : BattleEvent;
+public sealed record DamageEvent(UnitId? Target, int Amount, double Raw, bool Crit, int SegmentIndex, string Axis, UnitId? Attacker = null, string? SkillId = null) : BattleEvent;
 
 /// <summary>士气变动事件（T-M2-08；Delta 为净变动，NewValue 为钳制后值）。</summary>
 public sealed record MoraleEvent(UnitId Unit, int Delta, string Source, int NewValue) : BattleEvent;
 
 /// <summary>附加效果判定/施加事件（T-M2-06；无概率直挂 ActualChance=100 且无 RngDraw）。</summary>
-public sealed record EffectEvent(UnitId? Target, string EffectType, double ActualChance, bool Triggered) : BattleEvent;
+public sealed record EffectEvent(UnitId? Target, string EffectType, double ActualChance, bool Triggered, UnitId? Source = null) : BattleEvent;
 
 /// <summary>位移判定事件（T-M2-07；唯一 >= 例外）。</summary>
 public sealed record DisplaceEvent(UnitId? Mover, int FromPos, int ToPos, bool PassedResist, bool ChainSucceeded, string Failure) : BattleEvent;
@@ -33,13 +33,13 @@ public sealed record DeathDoorEvent(UnitId? Unit, int SurvivePercent, double Rol
 public sealed record WeakEnterEvent(UnitId? Unit) : BattleEvent;
 
 /// <summary>真死/离场事件（T-M2-09）。</summary>
-public sealed record DeathEvent(UnitId? Unit, bool IsPlayer) : BattleEvent;
+public sealed record DeathEvent(UnitId? Unit, bool IsPlayer, string Cause = "unknown") : BattleEvent;
 
 /// <summary>崩溃判定调用点（T-M2-09；完整池解析归 M4，本事件仅记录抽取）。</summary>
 public sealed record CollapseRollEvent(UnitId? Unit, double Roll) : BattleEvent;
 
 /// <summary>固定值治疗（combat_math §8，不吃攻击力；急救 12 / 群体绷带 5 / 喘息 8、10）。</summary>
-public sealed record HealEvent(UnitId? Target, int Amount) : BattleEvent;
+public sealed record HealEvent(UnitId? Target, int Amount, UnitId? Source = null, string? SkillId = null) : BattleEvent;
 
 /// <summary>自我伤害固定值（殊死一搏 6 / 舍身 8；可致死走死门，M4 接线）。</summary>
 public sealed record SelfDamageEvent(UnitId? Unit, int Amount) : BattleEvent;
@@ -57,7 +57,7 @@ public sealed record ReinforcementEvent(string Kind, UnitId? Unit, int? Slot) : 
 public sealed record RetreatEvent(bool Success, double Rate) : BattleEvent;
 
 /// <summary>换位/增援事件（#41a：战斗位角色发起，消耗其本次行动；交换链结算）。</summary>
-public sealed record SwapEvent(UnitId? Actor, int FromPos, int ToPos) : BattleEvent;
+public sealed record SwapEvent(UnitId? Actor, int FromPos, int ToPos, UnitId? MovedUnit = null, string Kind = "swap") : BattleEvent;
 
 /// <summary>#198 弹性增援间隔变动（M：MFrom → MTo；Reason = not_full_attack / reset）。</summary>
 public sealed record ReinforcementElasticEvent(int MFrom, int MTo, string Reason) : BattleEvent;
@@ -108,3 +108,9 @@ public sealed record EnemyDecisionEvent(UnitId Actor, string SkillId, int RuleIn
 
 /// <summary>属性增减（G0）：绕过 buff 台账的 AttackMod/ResilienceMod/SpeedMod 也在此留痕。</summary>
 public sealed record StatModEvent(UnitId Target, string Stat, int Delta, int DurationRounds) : BattleEvent;
+
+/// <summary>士气余烬标记进出（G0，级 2）：enter = 士气触底 0，exit = 回升脱离。</summary>
+public sealed record MoraleEmberEvent(UnitId Unit, string Kind) : BattleEvent;
+
+/// <summary>靠齐（G0，级 2）：死亡后队列收拢的每个位移。</summary>
+public sealed record CloseUpEvent(IReadOnlyList<(UnitId Unit, int From, int To)> Moves) : BattleEvent;
