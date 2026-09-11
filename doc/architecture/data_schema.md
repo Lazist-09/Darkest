@@ -12,8 +12,8 @@
 | `scope=move_range` + `pool_external:true`（通用移动，#180/#191） | 自身 ±`units.move_distance` 格内**被占用**战斗位**选一**（空位不可选，#21；不过抗性、无伤害） | 1 条通用 `move`（坦 1 / 战医政 2，距离读单位） |
 
 - **P11 校验（新增，已入 SkillsConfig.Validate）**：带 `aoe` 标签的伤害技能仅允许 `warrior_sweep`、`caster_mental_shock`；其余伤害技能必须走"选一"路径。
-- **备注 4（执行期生效值 + v0.49 补偿目标）**：**现生效** units.json 敌 HP **60/60/46/41**、skills.json `#173` 净值（cleave 0.9 / lunge 0.8 / 收割 **0.4/0.5** / 横扫 0.6 / 双段 0.5×2 / charge 1.0）；**v0.49/F4（#195）目标值（待主程序落地）**：敌 HP **48/48/37/33（总 166）**、收割 **0.6/0.7**、劈砍 **1.0**（横扫**仍 0.6**）。策划文档表为起手值引用，改数值只走 JSON；**M（增援波次）是导出量**（#196，见 §3.7）。
-- 执行器落点：`SkillExecutor.Execute(skill, caster, …, chosenTargets)`（选一）；**敌方池内选人按 #185/#187 三层语义**（taunt **加权抽取** `taunt_weight`=3 → `target_preference` 原型偏好 → 槽号兜底；taunt 抽取必须写 `RngDraw`）——O-39 原「槽号最小」已降为兜底（§3.5 / P13）。
+- **备注 4（两档口径，v0.72 更新）**：**现生效** = 敌 HP **48/48/37/33（166）**、cleave 0.9 / lunge 0.8 / 收割 **0.4/0.5** / 横扫 0.6 / 双段 0.5×2 / charge 1.0、**敌攻 12/13/12**、**急救 12 HP/CD 1**、**死门抗性 `80/85/70/70`（+10pp 已落地）**；🔴 **目标 = 决策值**：**敌 HP `32/32/25/21`（总 110，−34%，#230）**、收割 **0.6/0.7**、劈砍 **1.0**（横扫**仍 0.6**）、**近战/射手 `target_preference = random`**。策划文档表为决策值引用，改数值只走 JSON；**M（增援波次）是导出量**（#196，见 §3.7）；**回合目标带 4~6**（#230）。
+- 执行器落点：`SkillExecutor.Execute(skill, caster, …, chosenTargets)`（选一）；**敌方池内选人＝三层语义**（taunt **加权抽取** `taunt_weight`=3 → `target_preference` 原型偏好【**#230：近战/射手＝`random` 池内随机，写 `RngDraw`；唯一候选不掷骰**】 → 槽号兜底）。
 
 > **编号**：ARCH-DS · **类型**：schema · **状态**：草案 v0.1
 > **上游**：[设计] doc/modules/{glossary, skill, skill_data, combat_math, character, enemy, morale, buff, formation, ui_spec}.md · **决策引用**：#106, #110, #112, #123, #126, #136, #143, #149, #153, #154, #155, #156, #157, #158, #159, #163, #164, #165
@@ -46,10 +46,10 @@
 > 备注 1：README §2（M3 行）写"42 条技能数据"为更早笔误；skill_data.md 现为 **36 池内 + 4 池外移动 + 7 敌方 = 47 条**（#180），本文与 skill_data 以 **47 条**为准。
 > 备注 2：所有配置 JSON 存放于 `res://data/`（工程根 `darkest/data/`，_conventions §3）；C# 模型/加载/校验代码归属 `res://scripts/data/`；导入后的只读资源按蓝图约定放 `res://resources/`。
 > 备注 3：切片 **没有**装备/营地/招募/存档等外部数据（GDD §15），故数据文件仅上表 7 个，不再新增。
-> 🔴 **备注 5（C 轴，v0.67+ 部分收回）**：**C 轴 = 敌方攻击范围是否覆盖我方支援位 5/6**（#214 的 ②）。**裁定：重劈（近战小兵 `melee_heavy_slash`）`[1,2,5,6] → [1,2]`（收回对 5/6 的覆盖）**；**其余敌方技能保留覆盖 5/6**（C 轴其余部分保留）。→ `skills.json` 仅此一条敌方技能需要改判据；`skill_data.md` §5 本表即写 `我 1、2`（**收回后与策划表一致**，此前是实现侧单方面扩展）。
+> 🔴 **备注 5（C 轴，v0.67+ 部分收回）**：**C 轴 = 敌方攻击范围是否覆盖我方支援位 5/6**（#214 的 ②）。**裁定：重劈（近战小兵 `melee_heavy_slash`）`[1,2,5,6] → [1,2]`（收回对 5/6 的覆盖）**；🔴 **其余敌方技能（威吓箭 / 精神震荡 / 精准射击 / 恐惧低语）保留覆盖 5/6** —— 即"**敌方覆盖 5/6 = 除重劈外**"。→ `skills.json` 仅此一条敌方技能需要改判据；`skill_data.md` §5 本表即写 `我 1、2`（**收回后与策划表一致**，此前是实现侧单方面扩展）。⚠️ `enemy.md` 中"覆盖 5/6"的描述需改为"**除重劈外**"（**策划侧待同步**）。
 > 备注 4：**口径约定（v0.54 起，取代旧"起手值/生效值"读法）**：**策划表（`skill_data.md`/`enemy.md`/`combat_math.md`）记录的是「最新决策值」**——即"策划已拍板、可能尚未落地"；**实现滞后时由本文件记两档**（**现生效** / **目标（决策值）**），落地后两档合并。
-> - **现生效**（#171/#173）：敌 HP **60/60/46/41**、cleave 0.9 / lunge 0.8 / doubleHit 0.5 / 冲锋令 1.0、收割系数 **0.4/0.5**、横扫 0.6；**敌攻 12/13/12**、**急救 12 HP/CD 1**（见下） 。
-> - **目标 = 决策值**：敌 HP **48/48/37/33（总 166，#195）**、收割 **0.6/0.7**、劈砍 **1.0**（**横扫仍 0.6，不得顺带改**）。
+> - **现生效**（#171/#173 → #195 已落地）：敌 HP **48/48/37/33（总 166）**、cleave 0.9 / lunge 0.8 / doubleHit 0.5 / 冲锋令 1.0、收割系数 **0.4/0.5**、横扫 0.6；**敌攻 12/13/12**、**急救 12 HP/CD 1**、**死门抗性 80/85/70/70**（+10pp，#v0.71）。
+> - **目标 = 决策值**：🔴 **敌 HP `32/32/25/21`（总 110，−34%，#230）**、收割 **0.6/0.7**、劈砍 **1.0**（**横扫仍 0.6，不得顺带改**）、**近战/射手 `target_preference = random`**。
 > - 🔴 **v0.67/#225 撤回 v0.62 剂量包**：**急救回到 `12 HP / CD 1`**、**敌攻回到 `12/13/12`**（与本文件 §3.1/§3.2 已记录值一致，**无需改数据**——撤回 = 撤销 v0.62 那次改动）；**`(a) 敌攻 17/19/17` 正式作废**（它是为"压单场胜率"服务的，而 **#225 判定单场不该被压**）；**保留**：C 轴、喘息 SP 豁免（修 bug）、群体绷带阈值 ≥2。
 > - 🔴 **跨场状态不属 JSON**：**HP/士气跨战斗完全保留、场间无恢复**（#225）是 **run 级状态契约**，落点在 `blueprint` **§9.12**（`IRunSession`）与 **O-63**——**不得写进 `units.json`/`tuning.json` 当数据项**。
 > - 🔴 **实现方不得把策划表当"当前生效值"照抄**（`skill_data.md` 已加同等警示）；**运行以 `units.json`/`skills.json` 实值与本文件两档比对为准**；**增援波次 M 是导出量**（#196，§3.7），改 HP/输出后必须重算。
@@ -75,7 +75,7 @@ JSON 一律存小写 ASCII 字符串，C# 用对应 PascalCase 枚举（由 `Jso
 | 技能目标范围 TargetScope | `slots` / `self` / `any_ally` / `team` / `adjacent_ally_and_self` / **`move_range`** | `Slots` / `Self` / `AnyAlly` / `Team` / `AdjacentAllyAndSelf` / **`MoveRange`** | 位置列表 / 自身 / 任意友方 / 本方全队 / 相邻友方 + 自身 / **自身左右 N 格内被占用战斗位（池外移动，#180）** | skill_data 目标列 + skill.md §1.1 |
 | 士气影响对象 MoraleScope | `self` / `targets` / `team` / `ally_targets` | `Self` / `Targets` / `Team` / `AllyTargets` | 本人 / 本次技能目标 / 全队 / 目标中的友方（盾墙"被守护者 +3"用） | skill_data 士气列（"自身 +3 / 全队 +5 / 目标 +15 / 被守护者 +3"） |
 | 士气事件对象 EventScope | `self` / `team` / `per_target` | `Self` / `Team` / `PerTarget` | 本人 / 全队 / 每个被命中目标（AOE 精神 −5/目标） | combat_math §5.2 |
-| 敌人目标偏好 TargetPreference | `lowest_hp` / `backmost` / `lowest_morale` | `LowestHp` / `Backmost` / `LowestMorale` | 池内选人偏好（#185，v0.46）：最低 HP（近战收残）/ 槽号最大即后排（射手点军医·政委）/ 最低士气（施法者压士气） | state #185 / O-44 / O-46 |
+| 敌人目标偏好 TargetPreference | **`random`（默认）** / `lowest_hp` / `backmost` / `lowest_morale` | `Random` / `LowestHp` / `Backmost` / `LowestMorale` | **池内选人偏好**：🔴 **`random` = 池内均匀随机、必须写 `RngDraw`；池内唯一候选不掷骰**（#230：近战小兵与远程射手均改此档，**治"趁伤收残＝集火"**）；`lowest_hp`/`backmost`/`lowest_morale` 保留为可选（`backmost` 曾用于射手点后排） | **state #230 / O-44 / O-46** |
 | 状态类别 StatusClass | `buff` / `unit_state` | `Buff` / `UnitState` | 数据驱动可挂 buff / 机制性单位状态（虚弱、崩溃余烬） | 见 §3.4 分类说明 |
 | 状态极性 Polarity | `positive` / `negative` | `Positive` / `Negative` | 正面（不可驱散）/ 负面（可驱散） | buff.md §5.1 |
 | 持续时间类型 DurationType | `rounds` / `action_skip` / `charges` / `until_morale_50` / `until_battle_end_or_morale_zero` / `next_attack_within_rounds` / `until_battle_end` / **`until_run_end`** | `Rounds` / `ActionSkip` / `Charges` / `UntilMorale50` / `UntilBattleEndOrMoraleZero` / `NextAttackWithinRounds` / `UntilBattleEnd` / **`UntilRunEnd`** | 回合数 / 跳过 1 次行动即结束（眩晕）/ 次数（护盾）/ 到士气回初始值（折磨）/ 战斗结束或士气再归 0（美德）/ 下次攻击且 ≤N 回合（突进增伤）/ 到本次战斗结束 / **到本次「跑图」结束（跨场保留，#225/O-63；M7 有扎营/回城后改为"到下次恢复"）** | buff.md §6 / GDD §2.5 / combat_math §4 / morale §8 / **dd_reference §1.5** / **#225** |
@@ -143,7 +143,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `id` | string | ASCII，唯一 | ✅ | 【新命名】 | 原型标识：`warrior`/`tank`/`medic`/`commissar`/`melee_soldier`/`ranged_archer`/`caster` |
 | `name` | string | 中文名 | ✅ | skill_data/character/enemy | 显示名（战士/坦克/军医/政委/近战小兵/远程射手/施法者） |
 | `side` | string(Side) | `player`/`enemy` | ✅ | §2.1 | 敌方无士气/虚弱/死门（enemy §1） |
-| `hp` | int | >0 | ✅ | glossary §7.1 | 我方 战士40/坦克55/军医32/政委33（不变）；敌方**现生效 60/60/46/41**（#171/#173）→ **v0.49/F4 目标 48/48/37/33（总 166，−20%，#195）待落地** |
+| `hp` | int | >0 | ✅ | glossary §7.1 | 我方 战士40/坦克55/军医32/政委33（不变）；敌方**现生效 48/48/37/33（总 166，#195 已落地）** → 🔴 **v0.72/#230 目标 32/32/25/21（总 110，−34%）待落地**（为把单场压到 **4~6 回合**、并让首波增援成为"拖太久"的惩罚） |
 | `attack` | int | >0 | ✅ | 同上 | 12/8/11/11；12/13/12 |
 | `phys_def` | int | ≥0 | ✅ | 同上 | 物防（减免走 `物防/(物防+30)`，combat_math §2.1） |
 | `speed` | int | >0 | ✅ | 同上 | 8/5/10/10；8/12/9 |
@@ -154,7 +154,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `bleed_resist` | int（百分数） | 0~100 | ✅ | 同上 | 流血抗性：30/40/30/30；30/30/30 |
 | `stat_debuff_resist` | int（百分数） | 0~100 | ✅ | 同上 | 属性减益抗性：25/35/30/35；25/25/30 |
 | `displace_resist` | int（百分数） | 0~100 | ✅ | 同上 | 位移抗性（glossary §9 `DisplaceResist`）：40/60/25/30；55/25/30（#154 补入） |
-| `deaths_door_resist` | int?（百分数） | 0~100，**仅我方** | 我方 ✅ / 敌方 null | 同上 | 死门抗性（glossary §9 `DeathsDoor`）：70/75/60/60；**敌方为 null**（敌方无死门，enemy §1） |
+| `deaths_door_resist` | int?（百分数） | 0~100，**仅我方** | 我方 ✅ / 敌方 null | 同上 | 死门抗性（glossary §9 `DeathsDoor`）：🔴 **v0.71 起 `80/85/70/70`**（原 70/75/60/60，**+10pp**，`5892da0` 已落地——用"减少死门失败率"压阵亡）；**敌方为 null**（敌方无死门，enemy §1）。⚠️ 该 +10 的落点是**单位属性直改**（非技能/buff，故 **O-64 按此关闭**） |
 | `skills` | string[] | 技能 id 列表 | ✅ | skill_data | 我方每原型 9 个 id；敌方：melee_soldier 2 个 / ranged_archer 3 个 / caster 2 个 |
 | `move_distance` | int | ≥1 | 我方 ✅ | #191 / feat_pack F1.3 | **移动距离**：坦克 1 / 战士 2 / 军医 2 / 政委 2；**`move` 技能不再自带 distance**，`move_range` 解析时从**施法单位**读取；校验见 **P14** |
 
@@ -395,7 +395,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 {
   "archetype_id": "caster",
   "random": { "enabled": false, "fallback_probability": 0.15 },   // #112 切片不做随机；0.15 见 enemy §5.4
-  "target_preference": "lowest_morale",                            // #185：池内选人偏好（lowest_hp / backmost / lowest_morale）
+  "target_preference": "lowest_morale",                            // #185 → #230：池内选人偏好（random / lowest_hp / backmost / lowest_morale）；近战与射手 = random
   "taunt_weight": 3,                                               // #187：嘲讽者相对权重（起手 3；其余候选各 1）
   "rules": [ { "skill_id": "...", "when": { /* 条件谓词 */ } }, ... ]
 }
@@ -419,17 +419,17 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | 层 | 条件 | 选谁 | 出处 |
 |---|---|---|---|
 | ① taunt 优先 | 嘲讽 buff 生效且嘲讽者在候选池内 | **加权抽取**：嘲讽者权重 = `taunt_weight`（起手 3），其余每个候选 = 1 → 池内 2 人 P=75% / 3 人 60% / 4 人 50%；唯一候选 = 100%。**抽取必须写 `RngDraw` 日志**（确定性/可回放） | #187 |
-| ② 原型偏好 | 否则 | `target_preference`：`lowest_hp`（近战收残）/ `backmost`（射手点后排 = 槽号最大）/ `lowest_morale`（施法者压士气） | #185 |
+| ② 原型偏好 | 否则 | 🔴 **v0.72/#230**：**近战小兵 = `random`（池内随机）** / **远程射手 = `random`（池内随机，仍只打 5/6）** / 施法者 = `lowest_morale`（保留；#230 未提 → **待确认**）；**随机必须写 `RngDraw`，池内唯一候选不掷骰** | #230（改写 #185） |
 | ③ 兜底 | 平局或未声明 | 槽号最小 | #185（原 O-39「槽号最小」降为兜底） |
 
 **新增字段表**：
 
 | JSON key | C# 类型 | 必填 | 值 / 说明 | 出处 |
 |---|---|---|---|---|
-| `target_preference` | string(TargetPreference) | ✅ | 每原型一条：`melee_soldier=lowest_hp` / `ranged_archer=backmost` / `caster=lowest_morale` | state #185 / O-44 / O-46 |
+| `target_preference` | string(TargetPreference) | ✅ | 每原型一条（🔴 v0.72 起）：**`melee_soldier = random`** / **`ranged_archer = random`**（仍只打 5/6 后排）/ **`caster = lowest_morale`**（#230 未提，待确认）；`random` 必须写 `RngDraw` | **state #230** / O-44 / O-46 |
 | `taunt_weight` | int（≥1） | ✅ | 全局键（起手 **3**）；仅当 taunt 生效且有嘲讽者在池内时参与加权抽取 | state #187 / O-46 |
 
-> 大前提：**目标位仍由技能 `target` 决定**（#186 后恐惧低语 `[1,2,3,4]`），AI 只在池内选人；保留 enemy.md §2「固定偏好、可预判 > 每回合算最优解」。**推翻** O-39 原「槽号最小」默认与 §5.3「重劈 前排优先」的人选语义。
+> 大前提：**目标位仍由技能 `target` 决定**（#186 后恐惧低语 `[1,2,3,4]`），AI 只在池内选人。🔴 **v0.72 / #230 改写**：**近战小兵与远程射手改为「池内随机」**（`target_preference: random`，**写 `RngDraw`；池内唯一候选不掷骰**）——推翻 `lowest_hp`（"趁伤收残"**恰好就是集火**，实测 2 位 46% + 6 位 31% = **77% 伤害集中在两个位置**）与 `backmost`（射手点后排仍是集火）；**射手保留"只能打 5/6 后排"的目标位限制**（改的是**池内选谁**，不是**能打哪**）。原「槽号最小」兜底仍保留为**最后**兜底。
 
 **切片 3 原型规则（逐字对应 enemy.md §5.4）**：
 
@@ -544,13 +544,13 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | P4 | 派生量不入库 | `∀u∈units: u 不含 mental_reduction 与 virtue_rate 字段`（schema 级白名单校验，反序列化模型无此属性即可） | glossary §7.1 注 | 结构校验（建模即满足） |
 | P5 | 士气事件 ↔ 技能对账 | `∀e∈morale_events: e.source 指向技能 ⇒ skills 中对应技能 morale_effects 含同 delta/scope`（战场鼓舞 +15 与 morale_events `battle_inspiration`） | morale §2 与 skill_data §4 | 启动报错（防止双源漂移） |
 | P6 | tuning ↔ buff/技能常量一致 | `tuning.bleed.per_round_damage == buff_defs(bleed).modifiers.damage` 且 `tuning.bleed.rounds == buff_defs(bleed).duration.value`；`tuning.weak.*` 与相关技能/状态无矛盾 | combat_math §4 与 §3.4 | 启动报错（同一数值两处定义，改动须同步） |
-| P7 | 敌人数据边界 | `∀e∈units(side=enemy): e.deaths_door_resist == null`；enemy_ai 的 rules[].skill_id 属于该原型且 `self_slots` 与 AI 触发位置不矛盾（如后撤 self_slots=[1,2] 与 ranged rule1 一致）；`target_preference` 与原型一致（melee_soldier=lowest_hp / ranged_archer=backmost / caster=lowest_morale） | enemy §1 / §5.4 / #185 | 同上 |
+| P7 | 敌人数据边界 | `∀e∈units(side=enemy): e.deaths_door_resist == null`；enemy_ai 的 rules[].skill_id 属于该原型且 `self_slots` 与 AI 触发位置不矛盾（如后撤 self_slots=[1,2] 与 ranged rule1 一致）；`target_preference` 与原型一致（**🔴 v0.72：melee_soldier=`random` / ranged_archer=`random` / caster=`lowest_morale`**） | enemy §1 / §5.4 / **#230** | 同上 |
 | P8 | 数值范围 | 百分比 ∈ [0,100]；`resilience ∈ [0,100]`；`hp/attack/speed > 0`；`damage.segments` 非空（当 damage 非 null）；`use_limit.cooldown.value ≥ 1` | glossary §7.1 / 通用约定 | 同上 |
 | P9 | 士气事件表完整性 | morale_events 必须包含 §5.2 全部 14 行 id（缺失=实现期士气数值静默丢来源） | combat_math §5.2 | 启动告警/报错（缺失即失败） |
 | P10 | 派生一致性抽查 | 运行时复算样例（combat_math §7.1 单次伤害表）应复现文档数字（如战士→近战小兵 = 9）；该样例验证属 M2 验收而非启动校验 | verification §1 / README M2 | 测试阶段断言 |
 | P11 | **目标语义一致性（#178/#179）** | `∀s∈skills: (tags 含 aoe) ⇒ scope=slots`（aoe 只允许"范围型多格目标"）；切片 aoe 集 = {`warrior_sweep`, `caster_mental_shock`}；非 aoe 的 `slots`/`any_ally` 技能在执行层必须走**选一**路径（SkillTargetResolver 输出候选池 + 调用方选择，禁止"范围内全命中"） | GDD §1.2 / skill.md §2 字段3 / O-38 | 启动报错（aoe 标签越界）+ 执行层行为断言（单体技能单次结算） |
 | P12 | **池外通用技能一致性（#180/#191）** | `∀s∈skills: s.pool_external=true ⇒ id=="move" ∧ scope=move_range ∧ self_slots=[1,2,3,4] ∧ damage==null ∧ effects==∅ ∧ use_limit.type=none ∧ owner_unit==null ∧ target.distance==null`；`scope=move_range ⇒ pool_external=true`；**池外技能恰 1 条**；**过滤一律按 `pool_external` 标志，禁止 `id.EndsWith("_move")`** | skill.md §1/§1.1 / feat_pack F1.3 / #191 | 启动报错（池外滥用 / 残留 `*_move` / 误填 distance） |
-| P13 | **敌人目标选择一致性（#185/#186/#187/#192，v0.46/v0.48）** | `∀a∈enemy_ai: a.target_preference ∈ {lowest_hp,backmost,lowest_morale}` 且与原型映射一致；`a.taunt_weight ≥ 1`（起手 3，全局同值）；`skills(caster_fear_whisper).target.slots == [1,2,3,4]`（#186）；**taunt 来源 = 我方带 `taunt` buff 者**（`buff_defs(taunt).polarity=="positive"` ∧ `dispellable==false` ∧ 施加=自身；EnemyAi **禁止**依赖 `ArchetypeId`）；taunt 抽取写 `RngDraw`（无 `System.Random`/时间源） | state #185/#186/#187/**#192** / O-44 / O-46 / **O-53** | 启动报错 + 执行层确定性断言（taunt 加权抽取入日志） |
+| P13 | **敌人目标选择一致性（#185 → 🔴 #230 改写 / #186/#187/#192）** | `∀a∈enemy_ai: a.target_preference ∈ {**random**,lowest_hp,backmost,lowest_morale}` 且与原型映射一致（**melee=`random` / archer=`random` / caster=`lowest_morale`**）；**`random` 的抽取必须写 `RngDraw`，且池内唯一候选时不得掷骰**（#230）；`a.taunt_weight ≥ 1`（起手 3，全局同值）；`skills(caster_fear_whisper).target.slots == [1,2,3,4]`（#186）；**taunt 来源 = 我方带 `taunt` buff 者**（`polarity=="positive"` ∧ `dispellable==false` ∧ 施加=自身；EnemyAi **禁止**依赖 `ArchetypeId`）；taunt 抽取写 `RngDraw`（无 `System.Random`/时间源） | state **#230**/#186/#187/**#192** / O-44 / O-46 / **O-53** | 启动报错 + 执行层确定性断言（**池内随机抽取入日志**） |
 | P14 | **单位移动距离与池外数据化（#191）** | `∀u∈player_units: u.move_distance ≥ 1`（切片 1~2）；`count{s∈skills: s.pool_external} == 1`（通用 `move`）；`move_range` 候选解析用例：距离取自**施法单位** `move_distance`，`target.distance` 必须为 null | feat_pack F1.3 / state #191 | 启动报错 + 执行断言（±N 候选/空位 NoTarget/两点互换） |
 | P15 | **士气 buff 消费白名单（#193，v0.48）** | `∀b∈buff_defs: b.modifiers[].kind ∈ {stat_mod,state_flag,damage_mod,prob_mod}`；`damage_mod`/`prob_mod` 槽位 ∈ {`dealt_damage_mult`,`next_attack_mult`,`crit_bonus`,`deaths_door_resist_bonus`,`immune_fear`}；`tuning.affliction_proc_percent` 是折磨 proc **唯一**概率源（禁硬编码 33）；`collapse.virtue_pool` 恰好 4 项；折磨 proc 与失控换目标的新随机**必须写 `RngDraw`** | feat_pack F2.2~F2.4 / state #193 / O-51 | 启动报错（modifier 越界/美德池不全）+ 执行层确定性断言（无双重计算） |
 | P16 | **增援 M 导出契约 + 复测 D 输出（#196+#198，v0.49/v0.50）** | 启动：`tuning.overtime_reinforcement` 必须含 `safety_factor > 0`（0.8）、`wave_interval_min ≥ 1`（3）与 `elastic{k_rounds ≥ 1, idle_output_slots ≥ 1, max_bonus ≥ 0}`；**禁止**把 `wave_interval_rounds` 当手填常数（若存在仅作校准留痕）。运行时：`M_base == max(wave_interval_min, ceil(enemy_full_hp ÷ (D × safety_factor)))` 且 `M_base ≥ 3`，其中 🔴 **`D` 取实测值**——**实测 `D` = 20.81**（**已有一次实测**；**估算 `D` 24 / 35 均已作废**，#216）→ **`M_base` = 10**（`ceil(166 ÷ (20.81 × 0.8)) = ceil(9.97)`），**仍须 P3 v3 复核后才落地**（**用词纪律**：文档必须区分「实测 D」/「估算 D」，禁止只写"D"）；**`M ∈ [M_base, M_base + max_bonus]`**，且**首波固定 `trigger_round`（不受弹性影响）**；每次 M 变动写 **`ReinforcementElasticEvent(MFrom, MTo, Reason)`**（级 2）。复测：**报告必须输出实测 `D` + 实测 `E`（敌方每回合对我方总伤害，v0.57 强制）+ 口径健康度（1 号位占比 < 50%）**，否则该次基线不成立（无法校准 M、无法判定是否需要第二轮补偿） | GDD §1.5.2 / enemy §4 / feat_pack F3+F4 / state #195/#196/**#198**/**#213** / O-54 / **O-60** | 启动报错（缺键/常量化 M/弹性参数越界）+ 复测报告缺 `D` 或 `E` 即判基线无效 |

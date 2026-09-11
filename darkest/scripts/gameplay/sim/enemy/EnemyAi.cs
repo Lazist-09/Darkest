@@ -258,8 +258,17 @@ public sealed class EnemyAi
             }
         }
 
-        // ② 原型固定偏好（③ 兜底：槽号小者优先）
-        string pref = _config.For(unit.ArchetypeId)?.TargetPreference ?? "lowest_hp";
+        // ② 目标偏好（v0.68）：**池内均匀随机**（写 RngDraw；池内唯一候选已在上面直接返回、不掷骰）
+        //    taunt（①）与 mark（①.5）为**显式优先级规则**，仍在其之前生效；其余一律等概率。
+        string pref = _config.For(unit.ArchetypeId)?.TargetPreference ?? "random";
+        if (pref == "random")
+        {
+            int idx = rng.NextInt(0, pool.Count);
+            log.Append(new RngDraw(rng.DrawCount, idx)); // 确定性红线：抽取必写日志
+            return new[] { pool[idx] };
+        }
+
+        // 兼容保留：若数据仍声明具体偏好（非 random），按原语义执行（③ 兜底：槽号小者优先）
         int picked = pref switch
         {
             "backmost" => pool.Max(),

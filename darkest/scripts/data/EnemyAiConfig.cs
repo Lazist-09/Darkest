@@ -42,12 +42,12 @@ public sealed record EnemyAiConfig(
 {
     public const string ResPath = "res://data/enemy_ai.json";
 
-    /// <summary>P13：目标偏好白名单与原型固定映射（#185/#187）。</summary>
+    /// <summary>P13（v0.68）：目标偏好白名单——三原型统一为 **池内随机**（taunt/mark 仍为显式优先级规则）。</summary>
     public static readonly IReadOnlyDictionary<string, string> PreferenceByArchetype = new Dictionary<string, string>
     {
-        ["melee_soldier"] = "lowest_hp",
-        ["ranged_archer"] = "backmost",
-        ["caster"] = "lowest_morale",
+        ["melee_soldier"] = "random",
+        ["ranged_archer"] = "random",
+        ["caster"] = "random",
     };
 
     public ArchetypeAiConfig? For(string archetypeId)

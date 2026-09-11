@@ -43,17 +43,19 @@ public sealed class DataGateTests
     [TestMethod]
     public void P16_MValue_BackfilledFromMeasuredD()
     {
-        // P16（#196/#198）：增援间隔 M 不得写成常数——必须 = ceil(满编总HP ÷ (实测 D × safety_factor))。
-        // 实测 D 来自 P3 v3 复测（300 场，含 D0~D7 / F0~F4 / G0）：我方每回合对敌总伤害 = 20.81。
-        const double measuredD = 18.85; // P3 v3（v0.62 剂量包落地后）：我方每回合对敌总伤害
-        const int enemyFullHp = 166; // 48 + 48 + 37 + 33（#195 数值补偿）
+        // P16（#196/#198 + v0.68）：增援间隔 M 不得写成常数——必须 = ceil(**敌方满编总HP** ÷ (实测 D × safety_factor))。
+        // 满编总 HP 从数据读取（不再硬编码）；实测 D 来自最近一轮复测。
+        const double measuredD = 21.04;
 
         TuningConfig t = TuningConfig.Parse(File.ReadAllText(FindDataFile("tuning.json")));
-        Assert.IsNotNull(t.OvertimeReinforcement.MValue, "P16：m_value 必须由实测 D 回填（占位 null 即门禁红灯）");
+        UnitsConfig units = UnitsConfig.Parse(File.ReadAllText(FindDataFile("units.json")));
+        int enemyFullHp = new[] { "melee_soldier", "melee_soldier", "ranged_archer", "caster" }
+            .Sum(a => units.Get(a).Hp);
 
+        Assert.IsNotNull(t.OvertimeReinforcement.MValue, "P16：m_value 必须由实测 D 回填（占位 null 即门禁红灯）");
         int expected = (int)Math.Ceiling(enemyFullHp / (measuredD * t.OvertimeReinforcement.SafetyFactor));
         Assert.AreEqual(expected, t.OvertimeReinforcement.MValue!.Value,
-            $"M 必须 = ceil(166 ÷ (D={measuredD} × safety={t.OvertimeReinforcement.SafetyFactor})) = {expected}");
+            $"M 必须 = ceil(满编 {enemyFullHp} ÷ (D={measuredD} × safety={t.OvertimeReinforcement.SafetyFactor})) = {expected}");
     }
 
     [TestMethod]

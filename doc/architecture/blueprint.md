@@ -590,7 +590,10 @@ public interface IBuffLedger {
 // 9.7 敌方 AI
 // 关键规则：固定优先级表(每原型一张，enemy.md §5.4)是配置非逻辑；可用性判定与玩家一致(skill.md §5)；
 //          #112 切片不做"少量随机"，15% 改次优先留数据开关(default off，O-19)；预留"标记权重"字段(#96)
-//          池内选人（#185/#187/#192）：taunt 加权抽取(taunt_weight) → target_preference(lowest_hp/backmost/lowest_morale) → 槽号兜底
+//          池内选人（#185/#187/#192 → 🔴 #230 改写）：taunt 加权抽取(taunt_weight) → target_preference → 槽号兜底
+//          🔴 v0.72（#230）：**近战小兵 与 远程射手 = `random`（池内均匀随机）**；**射手仍只打 5/6 后排**（改的是"池内选谁"，不是"能打哪"）；
+//          施法者 `lowest_morale` 保留（#230 未提，待确认）。**随机抽取必须写 `RngDraw`；池内唯一候选不掷骰**。
+//          动因：`lowest_hp`（趁伤收残）**就是集火** —— 实测 2 位 46% + 6 位 31% = 77% 伤害集中在两个位置。
 //          v0.52（#204）：候选池内含带 **mark** 的我方 → 按同一权重制 **×2**（防守=嘲讽 / 进攻=标记，职责分离）
 // ---------------------------------------------------------------
 public interface IEnemyAi {
@@ -655,10 +658,12 @@ public interface IBattleResources {
 // 归属：**新增 run 级外层持有者**（建议 `RunSession`/`RunDirector`，位于 BattleDirector 之外、
 //       与 BattleRoot 同级或更外），承载**跨场状态**并逐场驱动战斗；`BattleDirector` 保持【单场纯】
 //       （不得因为 3 连战而变成"跨场有状态"——那会破坏"同 seed 可复现单场"的既有契约）。
-// 跨场传递（已定）：HP、士气、**deaths_door_recovery（死门后遗症，v0.67 改跨场保留 → duration `until_run_end`）**。
-// 跨场语义（⬜ 其余待裁定，见 O-63；裁定前实现方不得自行扩展）：
-//       虚弱 / 战斗内 buff（taunt·mark·shield·眩晕）/ per_battle 次数 / CD / SP（架构侧建议：前两者按"损耗"评估、
-//       per_battle 与 CD 每场重置、SP 每场重置为 start——**以 O-63 裁定为准**）
+// 跨场传递（已定，**主程序 `5892da0` 已落地**，`scripts/gameplay/sim/run/RunSession.cs`）：
+//       保留 = **HP · 士气 · 虚弱 · `deaths_door_recovery`（死门后遗症，含速度 −1）**；
+//       每场重置 = **其余 buff（taunt·mark·shield·眩晕…）· CD · per_battle 次数 · SP**。
+//       🔴 **注意一处"看似矛盾"的例外**：O-63 里"战斗内 buff 跨场清除"**与** "`deaths_door_recovery` 跨场保留"
+//          **是并列关系，不是冲突**——死门后遗症**不是战斗内 buff**，它是**run 级损耗状态**（duration `until_run_end`）。
+//          实现/验收时**不要把它当成"buff 未清干净"的实现偏差**。
 // 驱动：headless 亦须支持 run——`Run(runSeed, policy)` = 连续 3 场、场间不重置 HP/士气、逐场落盘 KPI。
 // 记录：每场结束的 HP% / 士气曲线（看斜率是否接近 33%/场）。
 // ---------------------------------------------------------------

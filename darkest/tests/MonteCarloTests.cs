@@ -87,39 +87,56 @@ public sealed class MonteCarloTests
     [TestMethod]
     public void M6Acceptance_WinRateBand_And_Rhythm()
     {
-        // 🔴 v0.67 两层判据：
-        //   A1 单场（战斗层）= **胜率 ≥85% / 阵亡 ≤0.5 场 / 回合 8~12** → 本用例的判定闸（消耗战不该"死光"）
-        //   A2 跑图（run 层）= 3 连战完成率 [40,70] → **O-63 未裁定前只输出、不判定**（不得当验收基线）
+        // 🔴 v0.68 判据（用户给数）：
+        //   A1 单场 = 胜率 ≥85% / **死门 ≤0.3** / **阵亡 ≤0.1** / **回合 4~6**
+        //   A2 run  = **打满 3 场且未全灭**（新口径）；同报三个数：①未全灭 ②打满3场且未全灭 ③3 场皆胜
+        //   新读数：增援事件数（预期 ≈0）· 口径健康度（预期无单一位置 >40%）
         const int runs = 300;
         SimulationReport r = HeadlessDriver.RunMany(runs, PolicyKind.SemiRandom, seedBase: 20260909);
 
         int deaths = 0;
+        int reinforcements = 0;
         for (int i = 0; i < runs; i++)
         {
             (_, Darkest.Core.Events.CombatLog log) = HeadlessDriver.Run(20260909 + i, PolicyKind.SemiRandom);
             deaths += log.Events.OfType<Darkest.Core.Events.DeathEvent>().Count(e => e.IsPlayer);
+            reinforcements += log.Events.OfType<Darkest.Core.Events.ReinforcementEvent>().Count();
         }
 
-        double deathsPerBattle = (double)deaths / runs;
-        int completed = 0;
+        int survived = 0, fullThree = 0, allWon = 0;
         for (int i = 0; i < runs; i++)
         {
-            if (HeadlessDriver.RunCampaign(20260909 + i, PolicyKind.SemiRandom, battles: 3).CompletedCountingRetreat)
+            Darkest.Gameplay.Sim.Run.RunOutcome c = HeadlessDriver.RunCampaign(20260909 + i, PolicyKind.SemiRandom, battles: 3);
+            if (c.CompletedCountingRetreat)
             {
-                completed++;
+                survived++;
+            }
+
+            if (c.Curve.Count >= 3 && c.Curve.All(s => !s.PlayerWiped))
+            {
+                fullThree++;
+            }
+
+            if (c.Curve.Count >= 3 && c.Curve.All(s => s.Result == "PlayerVictory"))
+            {
+                allWon++;
             }
         }
 
-        string report = $"[M6] A1 单场：胜率={r.WinRate:P0} 阵亡={deathsPerBattle:F2}/场 回合={r.AvgRounds:F2} " +
-                        $"（门槛 ≥85% / ≤0.5 / 8~12）｜参考 KPI coll={r.TotalCollapse} weak={r.TotalWeak} " +
-                        $"dd={r.TotalDeathDoorRolls} retreat={r.GamesWithRetreat} virtue={r.TotalVirtue} " +
-                        $"affliction={r.TotalAffliction} displace={r.TotalDisplacements}\n" +
-                        $"[M6] A2 run（仅参考·O-63 未裁定不作基线）：3 连战完成率={(double)completed / runs:P0}（{completed}/{runs}）";
+        double deathsPerBattle = (double)deaths / runs;
+        double ddPerBattle = (double)r.TotalDeathDoorRolls / runs;
+        string report = $"[M6] A1 单场：胜率={r.WinRate:P0} 死门={ddPerBattle:F2}/场 阵亡={deathsPerBattle:F2}/场 回合={r.AvgRounds:F2} " +
+                        $"（门槛 ≥85% / ≤0.3 / ≤0.1 / 4~6）\n" +
+                        $"[M6] A2 run（v0.68 新口径）：打满3场且未全灭={fullThree}/{runs}（{(double)fullThree / runs:P0}）" +
+                        $"｜未全灭={survived}（{(double)survived / runs:P0}）｜3场皆胜={allWon}（{(double)allWon / runs:P0}）\n" +
+                        $"[M6] 新读数：增援事件={reinforcements}（预期 ≈0）｜参考 KPI coll={r.TotalCollapse} weak={r.TotalWeak} " +
+                        $"retreat={r.GamesWithRetreat} virtue={r.TotalVirtue} affliction={r.TotalAffliction} displace={r.TotalDisplacements}";
         Console.WriteLine(report);
 
         Assert.IsTrue(r.WinRate >= 0.85, $"判据 A1 未过：单场胜率 {r.WinRate:P0} < 85%。{report}");
-        Assert.IsTrue(deathsPerBattle <= 0.5, $"判据 A1 未过：阵亡 {deathsPerBattle:F2}/场 > 0.5。{report}");
-        Assert.IsTrue(r.AvgRounds is >= 8 and <= 12, $"判据 A1 未过：平均回合 {r.AvgRounds:F2} 不在 8~12。{report}");
+        Assert.IsTrue(ddPerBattle <= 0.3, $"判据 A1 未过：死门 {ddPerBattle:F2}/场 > 0.3。{report}");
+        Assert.IsTrue(deathsPerBattle <= 0.1, $"判据 A1 未过：阵亡 {deathsPerBattle:F2}/场 > 0.1。{report}");
+        Assert.IsTrue(r.AvgRounds is >= 4 and <= 6, $"判据 A1 未过：平均回合 {r.AvgRounds:F2} 不在 4~6。{report}");
     }
 
     [TestMethod]
