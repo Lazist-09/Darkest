@@ -45,6 +45,7 @@ public sealed class OvertimeReinforcementTests
             OvertimeReinforcement = tuning.OvertimeReinforcement with
             {
                 Elastic = new TuningElasticSpec(false, 2, 3, 3),
+                MValue = 3, // 本组只验波次机制 → 固定 M=3（校准值 10 见 P16 门禁用例）
             },
         };
 

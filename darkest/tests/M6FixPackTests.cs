@@ -55,6 +55,8 @@ public sealed class M6FixPackTests
            || id.Value.StartsWith("ranged_archer", StringComparison.Ordinal)
            || id.Value.StartsWith("caster", StringComparison.Ordinal);
 
+    private static readonly string[] PlayerArchetypes = { "tank", "warrior", "medic", "commissar" };
+
     [TestMethod]
     public void ReMeasure_v2_JudgementAB_Kpi_And_CaliberHealth()
     {
@@ -67,6 +69,8 @@ public sealed class M6FixPackTests
         var skillUses = new Dictionary<string, int>();
         int totalRounds = 0, collapse = 0, weak = 0, dd = 0, retreat = 0, virtue = 0, aff = 0, disp = 0, swaps = 0;
         int totalHits = 0;
+        int playerDamageToEnemy = 0;
+        var skillUseById = new Dictionary<string, int>();
 
         for (int i = 0; i < runs; i++)
         {
@@ -95,6 +99,18 @@ public sealed class M6FixPackTests
 
             retreat += log.Events.OfType<RetreatEvent>().Count();
             swaps += log.Events.OfType<SwapEvent>().Count();
+
+            // P3 v3 新增报告要素：D（我方每回合对敌总伤害，用于 #196/#198 的 M）与技能使用率（G0 SkillUseEvent）
+            foreach (CombatLog l in new[] { log })
+            {
+                playerDamageToEnemy += l.Events.OfType<DamageEvent>()
+                    .Where(e => e.Attacker is { } at && PlayerArchetypes.Any(p => at.Value == p || at.Value.StartsWith(p + "_", StringComparison.Ordinal)))
+                    .Sum(e => e.Amount);
+                foreach (SkillUseEvent su in l.Events.OfType<SkillUseEvent>())
+                {
+                    skillUseById[su.SkillId] = skillUseById.GetValueOrDefault(su.SkillId) + 1;
+                }
+            }
         }
 
         int victory = results.GetValueOrDefault(GameResult.PlayerVictory);
@@ -105,6 +121,15 @@ public sealed class M6FixPackTests
         double avg = (double)totalRounds / runs;
         int moveUses = skillUses.Where(kv => kv.Key == "move").Sum(kv => kv.Value); // F1：池外通用 move
         int allUses = skillUses.Values.Sum();
+
+        // P3 v3：实测 D（我方每回合对敌伤害）+ 技能使用率（技能使用 event 口径）
+        double measuredD = totalRounds == 0 ? 0 : (double)playerDamageToEnemy / totalRounds;
+        int skillUseEvents = skillUseById.Values.Sum();
+        string topSkills = string.Join("、", skillUseById.OrderByDescending(kv => kv.Value).Take(5)
+            .Select(kv => $"{kv.Key} {(skillUseEvents == 0 ? 0 : 100.0 * kv.Value / skillUseEvents):F0}%"));
+        string usageReport = $"[M6v3] 实测 D={measuredD:F2}/回合　技能使用事件={skillUseEvents}（Top5：{topSkills}）　池外移动占比={(skillUseEvents == 0 ? 0 : 100.0 * moveUses / Math.Max(1, skillUseEvents)):F1}%";
+        Console.WriteLine(usageReport);
+        TestContext.WriteLine(usageReport);
 
         string dist = string.Join(" ", Enumerable.Range(1, 6)
             .Select(s =>

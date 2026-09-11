@@ -598,7 +598,8 @@ public sealed class BattleDirector
     /// </summary>
     private int DeriveWaveInterval(TuningOvertimeReinforcement o)
     {
-        int minM = Math.Max(3, o.WaveIntervalRounds);
+        // P16 门禁：m_value 未回填时以 tuning 下限为占位（复测出实测 D 后回填，见 tasks/m6_fix_pack P3 v3）
+        int minM = Math.Max(3, o.MValue ?? o.WaveIntervalRounds);
         int rounds = Math.Max(1, _round - 1);
         int dealt = _log.Events.OfType<DamageEvent>()
             .Where(e => e.Attacker is { } a && IsPlayerId(a))
@@ -620,7 +621,8 @@ public sealed class BattleDirector
             return minM;
         }
 
-        return Math.Max(minM, (int)Math.Ceiling(fullHp / (d * 0.8)));
+        double safety = o.SafetyFactor > 0 ? o.SafetyFactor : 0.8;
+        return Math.Max(minM, (int)Math.Ceiling(fullHp / (d * safety)));
     }
 
     /// <summary>实例 id 是否属于我方原型（含 _2 等实例后缀；用于从事件流统计我方输出）。</summary>

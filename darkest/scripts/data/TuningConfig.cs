@@ -55,6 +55,8 @@ public sealed record TuningOvertimeReinforcement(
     [property: JsonPropertyName("buff_attack_delta")] int BuffAttackDelta,
     [property: JsonPropertyName("buff_speed_delta")] int BuffSpeedDelta,
     [property: JsonPropertyName("wave_interval_rounds")] int WaveIntervalRounds = 3,
+    [property: JsonPropertyName("safety_factor")] double SafetyFactor = 0.8,
+    [property: JsonPropertyName("m_value")] int? MValue = null,
     [property: JsonPropertyName("elastic")] TuningElasticSpec? Elastic = null);
 
 /// <summary>#198 弹性增援（橡胶筋）：窗口 K 回合内「未使用 output 技能的存活战斗位 ≥ idle_output_slots」→ M+1；

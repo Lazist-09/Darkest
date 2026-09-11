@@ -41,6 +41,22 @@ public sealed class DataGateTests
     }
 
     [TestMethod]
+    public void P16_MValue_BackfilledFromMeasuredD()
+    {
+        // P16（#196/#198）：增援间隔 M 不得写成常数——必须 = ceil(满编总HP ÷ (实测 D × safety_factor))。
+        // 实测 D 来自 P3 v3 复测（300 场，含 D0~D7 / F0~F4 / G0）：我方每回合对敌总伤害 = 20.81。
+        const double measuredD = 20.81;
+        const int enemyFullHp = 166; // 48 + 48 + 37 + 33（#195 数值补偿）
+
+        TuningConfig t = TuningConfig.Parse(File.ReadAllText(FindDataFile("tuning.json")));
+        Assert.IsNotNull(t.OvertimeReinforcement.MValue, "P16：m_value 必须由实测 D 回填（占位 null 即门禁红灯）");
+
+        int expected = (int)Math.Ceiling(enemyFullHp / (measuredD * t.OvertimeReinforcement.SafetyFactor));
+        Assert.AreEqual(expected, t.OvertimeReinforcement.MValue!.Value,
+            $"M 必须 = ceil(166 ÷ (D={measuredD} × safety={t.OvertimeReinforcement.SafetyFactor})) = {expected}");
+    }
+
+    [TestMethod]
     public void Sampling_GenericMove_Fieldwise_P12_P14()
     {
         SkillsConfig cfg = LoadSkills();
