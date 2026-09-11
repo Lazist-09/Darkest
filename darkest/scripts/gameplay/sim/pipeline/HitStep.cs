@@ -15,12 +15,15 @@ namespace Darkest.Gameplay.Sim.Pipeline;
 public static class HitStep
 {
     public static bool Resolve(UnitRuntime attacker, UnitRuntime target, int hitMod,
-        IRngProvider rng, CombatLog log, BalanceTable balance)
+        IRngProvider rng, CombatLog log, BalanceTable balance,
+        Darkest.Core.Contracts.IBuffLedger? buffs = null)
     {
         int shown = BattleMath.HitRate(target.Base.Dodge, hitMod, balance.HitClampMin, balance.HitClampMax);
         // D1（#203）：连续未命中补偿 = max(0, 连续未命中−1) × 4，**隐藏**（不改面板显示值）
         int hidden = Math.Max(0, attacker.ConsecutiveMisses - 1) * 4;
-        int rate = Math.Clamp(shown + hidden, 0, 100);
+        // D4（#206）：死门后遗症 命中 −5（约定：effect=hit_mod 的 percent 视为"点"）
+        int aftereffect = buffs?.PercentMod(attacker.Id, "hit_mod") ?? 0;
+        int rate = Math.Clamp(shown + hidden + aftereffect, 0, 100);
         double roll = rng.NextPercent();
         log.Append(new RngDraw(rng.DrawCount, roll));
         bool hit = roll < rate;

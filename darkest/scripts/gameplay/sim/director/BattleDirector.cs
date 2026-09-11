@@ -141,7 +141,16 @@ public sealed class BattleDirector
             {
                 int regen = _pipeline.Morale.SupportSlotRegen(u, _player);
                 _pipeline.Morale.Apply(u, regen, "weak_recovery", _log);
-                _ = WeakDeathsDoor.TryRecover(u, _balance);
+                if (WeakDeathsDoor.TryRecover(u, _balance))
+                {
+                    // D4（#206）死门后遗症：归队后受伤 +10% / 命中 −5 / 速度 −1，到战斗结束且**不叠加**
+                    if (!_buffs.Has(u.Id, "deaths_door_recovery"))
+                    {
+                        _buffs.Add(u.Id, "deaths_door_recovery", source: null);
+                        u.SpeedMod -= 1;
+                        _log.Append(new EffectEvent(u.Id, "deaths_door_recovery", 100.0, true, u.Id));
+                    }
+                }
             }
         }
 

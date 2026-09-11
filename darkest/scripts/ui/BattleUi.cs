@@ -387,7 +387,7 @@ public partial class BattleUi : CanvasLayer
         }
     }
 
-    private static void FillCard((Panel card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c, UnitProjection u, Label portrait)
+    private void FillCard((Panel card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c, UnitProjection u, Label portrait)
     {
         bool empty = u.UnitId == "-";
         string display = NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId);
@@ -407,6 +407,12 @@ public partial class BattleUi : CanvasLayer
         c.morale.Value = u.Morale;
         c.morale.Modulate = c.isPlayer ? new Color(1, 0.92f, 0.5f) : new Color(0.55f, 0.55f, 0.55f);
         c.tag.Text = empty ? "" : (u.Weak ? "虚弱" : (c.isPlayer ? "我方" : "敌方"));
+        // D4（#206）：死门后遗症必须显著标注（橙字）
+        if (!empty && _host?.Director is { } dir && dir.Buffs.Has(new UnitId(u.UnitId), "deaths_door_recovery"))
+        {
+            c.tag.Text = "死门后遗症（伤+10% 命中−5 速−1）";
+            c.tag.AddThemeColorOverride("font_color", new Color(1f, 0.55f, 0.2f));
+        }
     }
 
     private void RefreshSkillBar(BattleDirector d, BattleProjector p)

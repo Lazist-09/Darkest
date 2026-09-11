@@ -283,6 +283,35 @@ public sealed class DdAdoptionTests
     }
 
     [TestMethod]
+    public void D4_DeathsDoorRecovery_GrantsPenalty_OnceSpeedAndMods()
+    {
+        (BattleDirector d, BalanceTable balance) = World();
+        UnitRuntime w = d.Player.UnitRuntimeAt(2)!;
+        w.Weak = true;
+        w.Morale = 60;   // ≥ 初始值 → 触发归队判定
+        w.CurrentHp = 1;
+
+        d.StartTurn(new RngProvider(61));
+
+        Assert.IsTrue(d.Buffs.Has(w.Id, "deaths_door_recovery"), "死门存活归队 → 获得后遗症");
+        Assert.AreEqual(-1, w.SpeedMod, "速度 −1");
+        Assert.AreEqual(10, d.Buffs.PercentMod(w.Id, "taken_damage_mult"), "承受伤害 +10%");
+        Assert.AreEqual(-5, d.Buffs.PercentMod(w.Id, "hit_mod"), "命中 −5");
+
+        // 命中 −5 生效：战士显示命中 90 → 后遗症下 85，掷 87 变 miss
+        UnitRuntime mook = d.Enemy.UnitRuntimeAt(1)!;
+        var log = new CombatLog();
+        bool hit = HitStep.Resolve(w, mook, 0, new ScriptedRng(87.0), log, balance, d.Buffs);
+        Assert.IsFalse(hit, "命中 −5 → 掷 87 未命中（无后遗症时为 90 命中）");
+
+        // 不叠加：再次进出死门只保留一层
+        w.Weak = true;
+        w.Morale = 60;
+        d.StartTurn(new RngProvider(62));
+        Assert.AreEqual(-1, w.SpeedMod, "多次进出死门不叠加（防死亡螺旋）");
+    }
+
+    [TestMethod]
     public void D5_Requires_GatesAvailability_WithReason()
     {
         (BattleDirector d, BalanceTable _) = World();

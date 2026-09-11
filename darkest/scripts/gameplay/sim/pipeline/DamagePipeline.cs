@@ -99,7 +99,7 @@ public sealed class DamagePipeline
                 continue;
             }
 
-            bool hit = HitStep.Resolve(caster, target, skill.HitMod, rng, _log, _balance);
+            bool hit = HitStep.Resolve(caster, target, skill.HitMod, rng, _log, _balance, _buffs);
             if (!hit)
             {
                 continue; // 未命中：该目标无伤害/士气/效果/位移（技能自位移殿后照常，§2 O-12 默认）

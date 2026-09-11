@@ -49,6 +49,13 @@ public static class DamageStep
             buffDamageMult *= 1.0 + bonusVsMarkedPercent / 100.0;
         }
 
+        // D4（#206）死门后遗症：承受伤害 +10%
+        int takenMult = buffs?.PercentMod(target.Id, "taken_damage_mult") ?? 0;
+        if (takenMult != 0)
+        {
+            buffDamageMult *= 1.0 + takenMult / 100.0;
+        }
+
         int total = 0;
         bool anyCrit = false;
         for (int i = 0; i < multipliers.Count; i++)
