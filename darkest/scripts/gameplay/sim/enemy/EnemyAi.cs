@@ -218,6 +218,46 @@ public sealed class EnemyAi
             }
         }
 
+        // ①.5 D2（#204）Mark：我方被标记者权重 ×2（复用 #187 权重制；嘲讽优先、两者互不干扰）
+        var markedSlots = new List<int>();
+        if (buffs is not null)
+        {
+            foreach (UnitRuntime ally in player.UnitsInSlotOrder())
+            {
+                if (buffs.Has(ally.Id, "mark") && player.UnitAtPosition(ally.Id) is { } ms && pool.Contains(ms))
+                {
+                    markedSlots.Add(ms);
+                }
+            }
+        }
+
+        if (markedSlots.Count > 0)
+        {
+            const int markWeight = 2;
+            var unmarked = pool.Where(p => !markedSlots.Contains(p)).ToList();
+            int totalM = markedSlots.Count * markWeight + unmarked.Count;
+            int rollM = rng.NextInt(0, totalM);
+            log.Append(new RngDraw(rng.DrawCount, rollM)); // 确定性红线：抽取必写日志
+            int accM = 0;
+            foreach (int s in markedSlots)
+            {
+                accM += markWeight;
+                if (rollM < accM)
+                {
+                    return new[] { s };
+                }
+            }
+
+            foreach (int p in unmarked)
+            {
+                accM += 1;
+                if (rollM < accM)
+                {
+                    return new[] { p };
+                }
+            }
+        }
+
         // ② 原型固定偏好（③ 兜底：槽号小者优先）
         string pref = _config.For(unit.ArchetypeId)?.TargetPreference ?? "lowest_hp";
         int picked = pref switch

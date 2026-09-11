@@ -62,6 +62,8 @@ public static class EffectsStep
                 case "stat_mod":
                     ApplyStatMod(target, req.Stat, req.Delta);
                     break;
+                case "mark":
+                    break; // D2（#204）：buff 落库在 DamagePipeline（持有 buff 台账）；此处只报告触发
                 default:
                     throw new ArgumentOutOfRangeException(nameof(req.Type), $"未知效果类型 {req.Type}。");
             }

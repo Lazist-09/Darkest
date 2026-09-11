@@ -17,7 +17,7 @@ public enum SkillRangeAxis { Melee, Ranged, None }
 public enum FuncTag { Output, Control, Displacement, Support, Heal, Aoe, Debuff }
 public enum UseLimitType { None, Cooldown, PerBattle, EveryNRounds }
 public enum DisplacementType { Push, Pull, SelfForward, SelfBackward }
-public enum SkillEffectType { Stun, Taunt, Bleed, StatMod, Shield, GuardAttach, NextAttackBoost }
+public enum SkillEffectType { Stun, Taunt, Bleed, StatMod, Shield, GuardAttach, NextAttackBoost, Mark }
 public enum MoraleEffectScope { Self, Targets, Team, AllyTargets }
 public enum DamageSegmentType { Flat, MissingHp }
 
@@ -176,7 +176,8 @@ public sealed record SkillsConfig(
         o.Converters.Add(new LowerEnumJsonConverter<SkillEffectType>(
             ("stun", SkillEffectType.Stun), ("taunt", SkillEffectType.Taunt), ("bleed", SkillEffectType.Bleed),
             ("stat_mod", SkillEffectType.StatMod), ("shield", SkillEffectType.Shield),
-            ("guard_attach", SkillEffectType.GuardAttach), ("next_attack_boost", SkillEffectType.NextAttackBoost)));
+            ("guard_attach", SkillEffectType.GuardAttach), ("next_attack_boost", SkillEffectType.NextAttackBoost),
+            ("mark", SkillEffectType.Mark)));
         o.Converters.Add(new LowerEnumJsonConverter<MoraleEffectScope>(
             ("self", MoraleEffectScope.Self), ("targets", MoraleEffectScope.Targets),
             ("team", MoraleEffectScope.Team), ("ally_targets", MoraleEffectScope.AllyTargets)));

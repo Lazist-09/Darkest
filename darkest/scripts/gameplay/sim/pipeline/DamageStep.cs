@@ -29,7 +29,8 @@ public static class DamageStep
         CombatLog log,
         BalanceTable balance,
         Darkest.Core.Contracts.IBuffLedger? buffs = null,
-        string? skillId = null)
+        string? skillId = null,
+        int bonusVsMarkedPercent = 0)
     {
         if (multipliers is null || multipliers.Count == 0)
         {
@@ -41,6 +42,12 @@ public static class DamageStep
         int dealtMult = buffs?.PercentMod(attacker.Id, "dealt_damage_mult") ?? 0;
         int nextAttackMult = buffs?.PercentMod(attacker.Id, "next_attack_mult") ?? 0;
         double buffDamageMult = 1.0 + (dealtMult + nextAttackMult) / 100.0;
+
+        // D2（#204）Mark：目标带 mark → 声明 bonus_vs_marked_percent 的技能加伤（乘法阶段）
+        if (bonusVsMarkedPercent > 0 && buffs is not null && buffs.Has(target.Id, "mark"))
+        {
+            buffDamageMult *= 1.0 + bonusVsMarkedPercent / 100.0;
+        }
 
         int total = 0;
         bool anyCrit = false;

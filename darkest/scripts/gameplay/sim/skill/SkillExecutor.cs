@@ -178,7 +178,7 @@ public sealed class SkillExecutor
                 skill.HitMod, skill.CritMod, AxisString(skill.DamageAxis),
                 FlatMultipliers(skill), IsAoe(skill),
                 MapEffects(skill), MapDisplacement(skill, selfOnly: true),
-                explicitMorale.Length > 0 ? explicitMorale : null);
+                explicitMorale.Length > 0 ? explicitMorale : null, skill.BonusVsMarkedPercent);
             _pipeline.Execute(fixture, player, enemy, rng);
             return;
         }
@@ -199,7 +199,7 @@ public sealed class SkillExecutor
                 skill.Id, caster, TargetSide(skill), new[] { slot },
                 skill.HitMod, skill.CritMod, AxisString(skill.DamageAxis),
                 ResolvedMultipliers(skill, targetBoard, slot), IsAoe(skill),
-                MapEffects(skill), disp, explicitMorale.Length > 0 ? explicitMorale : null);
+                MapEffects(skill), disp, explicitMorale.Length > 0 ? explicitMorale : null, skill.BonusVsMarkedPercent);
             _pipeline.Execute(fixture, player, enemy, rng);
         }
     }
@@ -318,12 +318,13 @@ public sealed class SkillExecutor
 
     private static IReadOnlyList<EffectRequest> MapEffects(SkillTemplateConfig skill)
         => skill.Effects
-            .Where(e => e.Type is SkillEffectType.Stun or SkillEffectType.Bleed or SkillEffectType.StatMod)
+            .Where(e => e.Type is SkillEffectType.Stun or SkillEffectType.Bleed or SkillEffectType.StatMod or SkillEffectType.Mark)
             .Select(e => new EffectRequest(
                 e.Type switch
                 {
                     SkillEffectType.Stun => "stun",
                     SkillEffectType.Bleed => "bleed",
+                    SkillEffectType.Mark => "mark", // D2（#204）
                     _ => "stat_mod",
                 },
                 e.Probability,

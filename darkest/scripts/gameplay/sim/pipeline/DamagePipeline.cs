@@ -23,7 +23,8 @@ public sealed record SkillFixture(
     bool IsAoe,
     IReadOnlyList<EffectRequest> Effects,
     SkillDisplace? Displacement,
-    IReadOnlyList<MoraleEffectRequest>? ExplicitMoraleEffects = null);
+    IReadOnlyList<MoraleEffectRequest>? ExplicitMoraleEffects = null,
+    int BonusVsMarkedPercent = 0); // D2（#204）：对带 mark 目标加伤（%）
 
 /// <summary>显式士气影响（data_schema §3.2 morale_effects 的最小形态；O-21 威吓箭 −4 属此类）。</summary>
 public sealed record MoraleEffectRequest(string Scope, int Delta);
@@ -127,7 +128,7 @@ public sealed class DamagePipeline
                 }
             }
 
-            DamageOutcome dmg = DamageStep.Deal(caster, victim, skill.Axis, skill.Segments, skill.CritMod, rng, _log, _balance, _buffs, skill.Id);
+            DamageOutcome dmg = DamageStep.Deal(caster, victim, skill.Axis, skill.Segments, skill.CritMod, rng, _log, _balance, _buffs, skill.Id, skill.BonusVsMarkedPercent);
             anyCritThisAction |= dmg.AnyCrit;
 
             int moraleBefore = victim.Morale;
@@ -205,7 +206,12 @@ public sealed class DamagePipeline
             UnitRuntime target = targetBoard.UnitRuntimeAt(slot)!;
             foreach (EffectRequest effect in skill.Effects)
             {
-                EffectsStep.Apply(target, effect, rng, _log, _balance);
+                bool applied = EffectsStep.Apply(target, effect, rng, _log, _balance);
+                // D2（#204）标记：buff 台账在此层可用 → 落 mark（施加技能本身仍可 miss，标记不可被抵抗）
+                if (applied && effect.Type == "mark")
+                {
+                    _buffs?.Add(target.Id, "mark", caster?.Id);
+                }
             }
         }
 

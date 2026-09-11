@@ -184,6 +184,75 @@ public sealed class DdAdoptionTests
     }
 
     [TestMethod]
+    public void D2_Mark_Applied_AndBoostsDeclaredSkills()
+    {
+        (BattleDirector d, BalanceTable balance) = World();
+        var skills = SkillsConfig.Parse(ReadData("skills.json"));
+        var rt = new Darkest.Gameplay.Sim.Skill.SkillRuntimeState();
+        var executor = new Darkest.Gameplay.Sim.Skill.SkillExecutor(skills, balance,
+            MoraleEventsConfig.Parse(ReadData("morale_events.json")), d.Log, rt, d.Buffs);
+
+        // 督战（政委）→ 对敌 1 施加 mark
+        executor.Execute(skills.Get("commissar_supervise"), UnitId.Of("commissar"), d.Player, d.Enemy,
+            new ScriptedRng(0.0, 0.0), chosenTargets: new[] { 1 });
+        Assert.IsTrue(d.Buffs.Has(UnitId.Of("melee_soldier"), "mark"), "督战 → 目标带 mark（不可被抵抗，无掷骰）");
+
+        // 致命注射（声明 bonus_vs_marked_percent 25）对带 mark 目标加伤 25%
+        d.Enemy.UnitRuntimeAt(1)!.CurrentHp = 24; // 48 → 缺失 50%
+        double baselineRaw = MarkedDamageRaw(d, skills, balance, marked: false);
+        double markedRaw = MarkedDamageRaw(d, skills, balance, marked: true);
+        Assert.AreEqual(1.25, markedRaw / baselineRaw, 0.02, "mark 加伤 ×1.25（乘法阶段）");
+    }
+
+    private static double MarkedDamageRaw(BattleDirector d, SkillsConfig skills, BalanceTable balance, bool marked)
+    {
+        var rt = new Darkest.Gameplay.Sim.Skill.SkillRuntimeState();
+        var log = new CombatLog();
+        var buf = BuffDefsConfig.Parse(ReadData("buff_defs.json"));
+        var ledger = new Darkest.Gameplay.Sim.Buffs.BuffLedger(buf, log);
+        if (marked)
+        {
+            ledger.Add(UnitId.Of("melee_soldier"), "mark", null);
+        }
+
+        var executor = new Darkest.Gameplay.Sim.Skill.SkillExecutor(skills, balance,
+            MoraleEventsConfig.Parse(ReadData("morale_events.json")), log, rt, ledger);
+        executor.Execute(skills.Get("medic_lethal_injection"), UnitId.Of("medic"), d.Player, d.Enemy,
+            new ScriptedRng(0.0, 100.0), chosenTargets: new[] { 1 });
+        DamageEvent dmg = log.Events.OfType<DamageEvent>().First();
+        d.Enemy.UnitRuntimeAt(1)!.CurrentHp = 24; // 复位，供下一次对照
+        return dmg.Raw;
+    }
+
+    [TestMethod]
+    public void D2_EnemyAi_RaisesWeight_OnMarkedAlly()
+    {
+        (BattleDirector d, BalanceTable _) = World();
+        var cfg = EnemyAiConfig.Parse(ReadData("enemy_ai.json"));
+        var ai = new Darkest.Gameplay.Sim.Enemy.EnemyAi(cfg, SkillsConfig.Parse(ReadData("skills.json")), new Darkest.Gameplay.Sim.Skill.SkillRuntimeState());
+        var buf = BuffDefsConfig.Parse(ReadData("buff_defs.json"));
+        var ledger = new Darkest.Gameplay.Sim.Buffs.BuffLedger(buf);
+        ledger.Add(UnitId.Of("warrior"), "mark", null); // 我 2 位（战士）被标记
+
+        UnitRuntime mook = d.Enemy.UnitRuntimeAt(1)!;
+        var log = new CombatLog();
+        var rng = new RngProvider(20260909);
+        int markedPicked = 0;
+        const int runs = 1000;
+        for (int i = 0; i < runs; i++)
+        {
+            Darkest.Gameplay.Sim.Enemy.SkillChoice c = ai.Choose(mook, d.Enemy, d.Player, ledger, rng, log)!;
+            if (c.TargetSlots[0] == 2)
+            {
+                markedPicked++;
+            }
+        }
+
+        double rate = (double)markedPicked / runs;
+        Assert.IsTrue(rate is > 0.60 and < 0.75, $"被标记者权重 ×2 → 约 2/3 挨打（实测 {rate:P1}）");
+    }
+
+    [TestMethod]
     public void D5_Requires_GatesAvailability_WithReason()
     {
         (BattleDirector d, BalanceTable _) = World();
