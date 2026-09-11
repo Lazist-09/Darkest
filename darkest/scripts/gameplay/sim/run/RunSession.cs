@@ -65,6 +65,7 @@ public sealed class RunSession : IRunSession
     private readonly int _battles;
     private readonly List<RunBattleSnapshot> _curve = new();
     private readonly Dictionary<string, (int Hp, int Morale, bool Weak)> _retained = new();
+    private readonly HashSet<string> _retainedRecovery = new(); // #227：deaths_door_recovery 跨场保留
     private readonly List<string> _roster = new();
     private readonly Dictionary<string, int> _rosterMaxHp = new(); // 整编最大 HP 分母（第一场记录，跨场固定）
 
@@ -115,6 +116,13 @@ public sealed class RunSession : IRunSession
             u.CurrentHp = Math.Min(c.Hp, u.MaxHp);
             u.Morale = c.Morale;
             u.Weak = c.Weak; // O-63 建议：虚弱保留（属损耗累积）
+
+            // #227：死门后遗症跨场保留（它是"活下来付出的代价"，跨场继续生效）
+            if (_retainedRecovery.Contains(id))
+            {
+                director.Buffs.Add(u.Id, "deaths_door_recovery", source: null);
+                u.SpeedMod -= 1;
+            }
         }
 
         return director;
@@ -133,10 +141,17 @@ public sealed class RunSession : IRunSession
         _curve.Add(snapshot);
 
         _retained.Clear();
+        _retainedRecovery.Clear();
         foreach (string id in _roster)
         {
             UnitRuntime? u = director.Player.UnitsInSlotOrder().FirstOrDefault(x => x.Id.Value == id);
             _retained[id] = u is null ? (0, 0, false) : (u.CurrentHp, u.Morale, u.Weak);
+
+            // #227：本场结束时仍持有死门后遗症 → 记入跨场保留（阵亡者不记）
+            if (u is not null && director.Buffs.Has(u.Id, "deaths_door_recovery"))
+            {
+                _retainedRecovery.Add(id);
+            }
         }
 
         return snapshot;

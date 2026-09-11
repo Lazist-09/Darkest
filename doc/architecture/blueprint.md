@@ -655,16 +655,17 @@ public interface IBattleResources {
 // 归属：**新增 run 级外层持有者**（建议 `RunSession`/`RunDirector`，位于 BattleDirector 之外、
 //       与 BattleRoot 同级或更外），承载**跨场状态**并逐场驱动战斗；`BattleDirector` 保持【单场纯】
 //       （不得因为 3 连战而变成"跨场有状态"——那会破坏"同 seed 可复现单场"的既有契约）。
-// 跨场传递（已定）：HP、士气。
-// 跨场语义（⬜ 待裁定，见 O-63；裁定前实现方不得自行扩展）：
-//       虚弱 / deaths_door_recovery / 战斗内 buff（taunt·mark·shield·眩晕）/ per_battle 次数 / CD / SP
+// 跨场传递（已定）：HP、士气、**deaths_door_recovery（死门后遗症，v0.67 改跨场保留 → duration `until_run_end`）**。
+// 跨场语义（⬜ 其余待裁定，见 O-63；裁定前实现方不得自行扩展）：
+//       虚弱 / 战斗内 buff（taunt·mark·shield·眩晕）/ per_battle 次数 / CD / SP（架构侧建议：前两者按"损耗"评估、
+//       per_battle 与 CD 每场重置、SP 每场重置为 start——**以 O-63 裁定为准**）
 // 驱动：headless 亦须支持 run——`Run(runSeed, policy)` = 连续 3 场、场间不重置 HP/士气、逐场落盘 KPI。
 // 记录：每场结束的 HP% / 士气曲线（看斜率是否接近 33%/场）。
 // ---------------------------------------------------------------
 public interface IRunSession {
     RunState State { get; }                       // 跨场状态（HP/士气 + 待裁定字段）
     BattleResult PlayBattle(int index);           // 驱动第 index 场（1..N），用同一 runSeed 派生每场 seed
-    bool IsRunComplete { get; }                   // 3 场都活下来（"活下来"是否含撤退成功 → O-63）
+    bool IsRunComplete { get; }                   // 3 场都活下来（**含撤退成功**，见 O-63 ②）
 }
 
 ---

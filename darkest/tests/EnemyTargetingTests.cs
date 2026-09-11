@@ -111,7 +111,7 @@ public sealed class EnemyTargetingTests
 
         SkillChoice? c = NewAi(cfg, skills).Choose(caster, d.Enemy, d.Player, null, new RngProvider(1), log);
         Assert.AreEqual("caster_mental_shock", c!.SkillId);
-        Assert.AreEqual(4, c.TargetSlots.Count, "AOE 不受选一影响：命中池内全部非空位（C 轴后池 = 1,2,5,6）");
+        Assert.AreEqual(4, c.TargetSlots.Count, "AOE 不受选一影响：命中池内全部非空位（= 1,2,5,6）");
     }
 
     [TestMethod]
@@ -138,7 +138,7 @@ public sealed class EnemyTargetingTests
         }
 
         double rate = (double)tankPicked / runs;
-        Assert.IsTrue(rate is > 0.45 and < 0.56, $"taunt 加权 = 3/(3+1+1+1) ≈50%（C 轴后池 4 人；实测 {rate:P1}）");
+        Assert.IsTrue(rate is > 0.70 and < 0.80, $"taunt 加权 = 3/(3+1) = 75%（重劈回 [1,2] → 近战池 2 人；实测 {rate:P1}）");
         Assert.IsTrue(log.Events.OfType<RngDraw>().Count() >= runs, "taunt 加权抽取必写 RngDraw（确定性红线）");
     }
 
@@ -201,7 +201,7 @@ public sealed class EnemyTargetingTests
     {
         SkillsConfig skills = SkillsConfig.Parse(ReadData("skills.json"));
         CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6 },
-            skills.Get("caster_fear_whisper").Target.Slots!.ToArray(), "C 轴（v0.62）：敌方攻击范围覆盖 5/6 → [1..6]");
+            skills.Get("caster_fear_whisper").Target.Slots!.ToArray(), "C 轴（#223）：恐惧低语覆盖 [1..6]（只有重劈回 [1,2]）");
 
         EnemyAiConfig cfg = EnemyAiConfig.Parse(ReadData("enemy_ai.json"));
         Assert.AreEqual(3, cfg.TauntWeight, "taunt_weight 起手 3");

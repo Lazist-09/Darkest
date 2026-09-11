@@ -262,35 +262,35 @@ public sealed class CombatResolutionTests
         Assert.IsTrue(pipeline.Log.Events.OfType<WeakEnterEvent>().Any());
         Assert.IsTrue(pipeline.Log.Events.OfType<MoraleEvent>().Any(m => m.Source == "ally_enters_weak"));
 
-        // 第 2 击：虚弱受伤 → weak_hit −5（先）→ 死门 roll=69 < 70 → 存活、HP 仍 1
+        // 第 2 击：虚弱受伤 → weak_hit −5（先）→ 死门 roll=79 < 80 → 存活、HP 仍 1
         var pipe2 = NewPipeline(balance);
         FormationBoard p2 = DefaultBoards().player;
         p2.UnitRuntimeAt(2)!.CurrentHp = 1;
         p2.UnitRuntimeAt(2)!.Weak = true;
         pipe2.Morale.ResetTurnCounters();
-        pipe2.Execute(skill, p2, enemy, new ScriptedRng(0.0, 100.0, 69.0));
+        pipe2.Execute(skill, p2, enemy, new ScriptedRng(0.0, 100.0, 79.0));
         UnitRuntime w2 = p2.UnitRuntimeAt(2)!;
         Assert.IsTrue(w2.Weak);
         Assert.AreEqual(1, w2.CurrentHp, "O-15：虚弱中伤害不改 HP");
         DeathDoorEvent dd = Last<DeathDoorEvent>(pipe2.Log);
-        Assert.IsTrue(dd.Survived, "69 < 70 → 存活");
+        Assert.IsTrue(dd.Survived, "79 < 80 → 存活");
         int weakHitIdx = pipe2.Log.Events.ToList().FindIndex(e => e is MoraleEvent { Source: "weak_hit_any_damage" });
         int ddIdx = pipe2.Log.Events.ToList().FindIndex(e => e == dd);
         Assert.IsTrue(weakHitIdx >= 0 && ddIdx > weakHitIdx, "死门判定在 −5 士气之后（combat_math §6）");
 
-        // 第 3 击：死门 roll=70 → 失败 → 真死 → 移除+靠齐+ally_death −15
+        // 第 3 击：死门 roll=80 → 失败 → 真死 → 移除+靠齐+ally_death −15
         var pipe3 = NewPipeline(balance);
         FormationBoard p3 = DefaultBoards().player;
         p3.UnitRuntimeAt(2)!.CurrentHp = 1;
         p3.UnitRuntimeAt(2)!.Weak = true;
         pipe3.Morale.ResetTurnCounters();
-        pipe3.Execute(skill, p3, enemy, new ScriptedRng(0.0, 100.0, 70.0));
-        Assert.IsFalse(Last<DeathDoorEvent>(pipe3.Log).Survived, "70 < 70 不成立 → 死亡");
+        pipe3.Execute(skill, p3, enemy, new ScriptedRng(0.0, 100.0, 80.0));
+        Assert.IsFalse(Last<DeathDoorEvent>(pipe3.Log).Survived, "80 < 80 不成立 → 死亡");
         Assert.IsTrue(pipe3.Log.Events.OfType<DeathEvent>().Any(e => e.IsPlayer));
         Assert.AreEqual(5, p3.OccupiedPositions(false).Count, "真死单位已移除（靠齐收敛，人数 −1）");
         Assert.AreNotEqual(UnitId.Of("warrior"), p3.UnitAt(2), "2 号位已由后方补位");
         Assert.IsTrue(pipe3.Log.Events.OfType<MoraleEvent>().Any(m => m.Source == "ally_death"));
-        Assert.AreEqual(70, Last<DeathDoorEvent>(pipe3.Log).SurvivePercent);
+        Assert.AreEqual(80, Last<DeathDoorEvent>(pipe3.Log).SurvivePercent, "战士死门抗性 80（v0.67 提死门抗性 +10）");
     }
 
     [TestMethod]

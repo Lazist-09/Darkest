@@ -249,7 +249,7 @@ public sealed class DdAdoptionTests
         }
 
         double rate = (double)markedPicked / runs;
-        Assert.IsTrue(rate is > 0.33 and < 0.47, $"被标记者权重 ×2 → 2/(2+1+1+1) ≈40%（C 轴后池 4 人；实测 {rate:P1}）");
+        Assert.IsTrue(rate is > 0.60 and < 0.75, $"被标记者权重 ×2 → 2/(2+1) ≈67%（重劈池 {{1,2}}；实测 {rate:P1}）");
     }
 
     [TestMethod]
