@@ -65,6 +65,12 @@ public sealed class UnitRuntime
     /// <summary>崩溃余烬（morale §4.0）：士气停在 0 的标记，期间不再触发崩溃判定（事件触发，#67）。</summary>
     public bool CollapseEmber { get; set; }
 
+    /// <summary>D1（#203）：连续未命中计数（命中清零）。补偿 = max(0, 计数−1) × 4，仅用于命中判定、不进面板。</summary>
+    public int ConsecutiveMisses { get; set; }
+
+    /// <summary>D0（#202）：眩晕抗性递增（每次成功被晕 +50%，完成一次未被晕的行动后清零；抗性上限 100）。</summary>
+    public int StunResistBuildup { get; set; }
+
     // ------------------------------------------------------------------
     // 生效口（加法先于乘法；M4 由 IBuffLedger.FinalStats 汇总后仍走这些口）
     // ------------------------------------------------------------------

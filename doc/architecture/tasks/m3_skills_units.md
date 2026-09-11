@@ -13,6 +13,12 @@
 > - 校验：**P12 改写**（池外恰 1 条 = `id=="move"`、`owner_unit==null`、`target.distance==null`）+ 新增 **P14**（`move_distance ≥1`）/ **P15**（士气 buff 消费白名单，F2 相关）。
 > - 本文其余处出现"47 条 / 4 条池外移动 / `*_move`"均为 v0.45 口径残留，**随 F1.3 落地一并替换**（决策映射：#191）。
 
+> ## 🔴 v0.52 口径公告（DD 借鉴包 `feat_pack_03` D2/D3/D5 —— 与下列行冲突时**以本公告为准**）
+> - **D5 条件解锁（#207）**：技能新增可选 **`requires`**（`self_hp_below_percent` / `target_hp_below_percent` / `self_weak` / `self_deaths_door`）；不满足 → **灰显 + tooltip 原因**（`AvailabilityReason.RequirementNotMet`）；起手 2 处：**殊死一搏 `self_hp_below_percent:50`**、**致命注射 / 处决令 `target_hp_below_percent:50`**。⚠️ `requires` **不改变"携带 5 个"口径**（只在可用性层灰显）。
+> - **D2 Mark 加伤字段（#204）**：技能新增可选 **`bonus_vs_marked_percent`**（起手 **25**，乘法阶段）；**受益技能起手 2 条：军医【致命注射】、政委【处决令】**（⚠️ 曾误写"战士【失血收割】"——该技能**不存在**，"失血收割"是两条 `missing_hp` 技能的通称，见 `dd_reference` §1.3 术语澄清）；上游施加：**政委【督战】追加 `mark`**（buff_defs 新增 `mark`，无数值）。
+> - **D3 DoT 施加者（#205）**：**战士【突刺】、军医【致命注射】各追加流血 3×2**；流血规则见 `tuning.bleed` 四键（不吃物防 / 暴击 2→4 / 目标回合开始结算 / 不可暴击）。
+> - 校验：**新增 P18**（mark/requires/bonus_vs_marked/bleed 四规则/AOE 暴击只一次）；`skill_data.md` 追加行待策划同步（架构侧不代写）。
+
 ---
 
 ## 0. 里程碑目标与判据对齐
@@ -91,7 +97,7 @@
      | 12 距离轴 | `range_axis` | melee/ranged/none（无伤害类写 none） | 轴列 |
      | 13 伤害轴 | `damage_axis` | physical/mental/none | 轴列 |
      - 另含标识字段 `id`、`owner_unit`（units.json id）与两个补充字段：`heal_fixed`（治疗固定值，不吃攻击力，combat_math §8）、`self_damage_fixed`（自我伤害固定值）。
-  3. **多段与公式型倍率**（data_schema §3.2 DamageSpec）：`0.55×2`/`0.5×2` → `segments` 两条 `{"type":"flat","multiplier":0.55}`（skill_data §0"两段各 0.55"）；「已失血%」公式段 `{"type":"missing_hp","base":1.0,"coefficient":0.8}` 语义 = `1.0 + 目标已失血% × 0.8`（致命注射），处决令 coefficient **0.9**；满血加成 0（skill_data §3 注）。倍率一律 double，百分比一律整数百分数（data_schema §2.2）。
+  3. **多段与公式型倍率**（data_schema §3.2 DamageSpec）：`0.55×2`/`0.5×2` → `segments` 两条 `{"type":"flat","multiplier":0.55}`（skill_data §0"两段各 0.55"）；「已失血%」公式段 `{"type":"missing_hp","base":1.0,"coefficient":0.6}` 语义 = `1.0 + 目标已失血% × coefficient`——**两档口径（v0.54）**：**现生效 0.4/0.5（#173）→ 目标 = 决策值 0.6/0.7（#195）**（致命注射 **0.6** / 处决令 **0.7**；`skill_data` 现记决策值），落地前不得把决策值当现生效值；满血加成 0（skill_data §3 注）。倍率一律 double，百分比一律整数百分数（data_schema §2.2）。
   4. **附加效果概率/抗性成对**（O-24 已定口径）：带 `probability` 的效果必须带 `resist_axis`（眩晕→`stun_resist`、流血→`bleed_resist`、属性减益→`stat_debuff_resist`）；**无概率的效果（嘲讽、护盾、守护、stat_mod、突进增伤）不填 probability**——无概率=直挂、不过抗性。眩晕概率逐字：战士盾击 35 / 坦克盾击 40 / 麻醉针 30。
   5. **护盾次数型**（#156 按次数不按点数）：铁壁 → `effects:[{type:"shield", charges:2, apply_to:"self"}]` + `use_limit:{type:"cooldown", value:4}`（data_schema §5.2 完整示例即铁壁，可直接对照）。shield 生命周期/buff 记录归 buff_defs（M4 链），本卡只保证 `charges:2` 逐字入库。
   6. **士气衔接边界**：技能显式 `morale_effects`（战吼 team+5、喘息 self+8、战场鼓舞 targets+15 等）与"精神伤害派生士气"（mental 命中 −8/暴击 −12/AOE −5，由引擎按 morale_events 行结算，**不入技能数据**）两类，加载器**不得**要求精神技能必须自带士气字段（data_schema §3.2"士气扣减衔接"）；威吓箭 targets−4 是唯一同时显式声明 morale_effects 的精神伤害技能（#165），关系口径见 O-21，本卡只落数据。
@@ -241,12 +247,12 @@
   2. **自我伤害固定值**：`self_damage_fixed` 殊死一搏 **6** / 舍身 **8**（glossary §3 / combat_math §8），逐字入库、可致死走死门；总动员无自我伤害。注：glossary §3"可被护盾吸收"与 data_schema §3.2"不被护盾吸收"存在文字口径差异，吸收语义属护盾生命周期（M4/O-15 叠层议题），**本卡只保证 6/8 固定值落库、不裁决吸收**。
   3. **"所有位置"兜底（self_slots="all"，恰 4 条）**：战士战吼、坦克战吼（CD 2 / 全队 +5）；军医急救（治疗 **12 HP** / CD 1 / 任意友方）；政委战场鼓舞（**无限制** / 目标 +15 / 任意友方）——4 原型各 ≥1 兜底（skill_data §6 末注），是"换位不废人"的最后保险。
   4. **多段（恰 2 条）**：双连击（军医 #5，0.55×2）、连射（政委 #8，0.5×2）→ segments 各拆两条 flat（skill_data §0"两段各 0.55/0.5"）；**执行语义 = 同一目标两段、目标只选一次（#179）**，各段独立结算实例（O-13），见 T-M3-06。
-  5. **公式型"已失血%"（恰 2 条）**：致命注射（军医 #7，missing_hp base 1.0 / coefficient **0.8**）；处决令（政委 #7，base 1.0 / coefficient **0.9**）；语义 = `base + (最大HP−当前HP)/最大HP × coefficient`，满血加成 0（skill_data §3 注）；0.8/0.9 逐字，禁止换算或调整。
+  5. **公式型"已失血%"（恰 2 条）**：致命注射（军医 #7，missing_hp base 1.0 / coefficient **0.6**）；处决令（政委 #7，base 1.0 / coefficient **0.7**）；语义 = `base + (最大HP−当前HP)/最大HP × coefficient`，满血加成 0（skill_data §3 注）；**0.6/0.7 逐字（#195 决策值），禁止换算或调整**；⚠️ **现生效仍为 0.4/0.5（#173）**——落地前以 data_schema §3.2 两档为准。
   6. **精神轴抽查（士气压力源清单）**：我方 36 技能 `damage_axis=mental` **恰 0 条**；敌方 7 条中 mental 恰 3 条 = 威吓箭（射手，士气 targets−4、CD 2、#165）、恐惧低语（施法者，韧性−10、CD 1）、精神震荡（施法者，AOE）——防止 13 字段抄串轴。
   6b. **池外「移动」（#180，恰 4 条）**：`warrior_move`/`tank_move`/`medic_move`/`commissar_move`——`pool_external:true`、`target.scope=move_range`、self_slots=[1,2,3,4]、无 damage/无 CD；`distance` 逐字：**坦克 1 / 战士 2 / 军医 2 / 政委 2**（skill_data §4.5 / character §7.1b）；断言恰 4 条、无其它 pool_external 技能（P12）。
   7. 上述标注只为"数值/轴/标签/限制逐字入库且可被断言引用"，**不新增运行逻辑**（执行语义在 T-M3-05/06 及其它里程碑）；任一断言失败即阻断（防"顺手改数字"）。
 - **完成判据（可测）**：
-  - SpecialSkillTests 逐条断言（对已导入数据）：per_battle=1 恰 3 条（殊死一搏/舍身/总动员）；self_damage_fixed=6/8 恰 2 条且绑定上述技能；self_slots="all" 恰 4 条（战吼×2、急救、战场鼓舞）；missing_hp 段恰 2 条（0.8/0.9）；0.55×2/0.5×2 多段恰 2 条；我方 mental 0 条 / 敌方 mental 3 条；
+  - SpecialSkillTests 逐条断言（对已导入数据）：per_battle=1 恰 3 条（殊死一搏/舍身/总动员）；self_damage_fixed=6/8 恰 2 条且绑定上述技能；self_slots="all" 恰 4 条（战吼×2、急救、战场鼓舞）；missing_hp 段恰 2 条（**决策值 0.6/0.7**；现生效 0.4/0.5）；0.55×2/0.5×2 多段恰 2 条；我方 mental 0 条 / 敌方 mental 3 条；
   - 与 skill_data §1~§5 原文行逐条比对输出一致（可复算）；
   - 构造性反例：把殊死一搏 per_battle 改成 2 → 断言红，证明测试真实覆盖。
 - **风险/开放**：O-13、O-16、O-21（威吓箭士气口径不阻塞数据）；glossary §3 vs data_schema §3.2 自我伤害×护盾文字差异 → 归 M4 护盾生命周期（相关 O-15），非本卡裁决范围

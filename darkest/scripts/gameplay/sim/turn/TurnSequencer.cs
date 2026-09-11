@@ -93,6 +93,8 @@ public sealed class TurnSequencer : ITurnSequencer
                 continue;
             }
 
+            // D0（#202）：完成一次"未被晕的行动" → 眩晕抗性递增清零（与 DD 同）
+            unit.StunResistBuildup = 0;
             return id;
         }
 

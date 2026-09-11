@@ -427,7 +427,7 @@ flowchart TD
 
 | 层 | 可规划性(原文) | 内核调用点 | 判定式（逐字） |
 |---|---|---|---|
-| 命中 | ✅ 可规划 | DamagePipeline 命中步 | `rand(0,100) < 命中率`（§1） |
+| 命中 | ✅ 可规划 | DamagePipeline 命中步 | `rand(0,100) < 命中率`（§1）；**v0.52 隐藏补偿**：命中率 += `max(0, 连续miss−1)×4`（#203，**不入面板显示**，P18 ⑤） |
 | 暴击 | ✅ 可规划 | DamagePipeline 暴击步 | `rand(0,100) < 暴击率`（§2，倍率 1.5） |
 | 附加效果触发 | ✅ 可规划 | 附加效果判定（§4） | `rand(0,100) < 技能概率×(1−目标抗性)` |
 | 位移过抗性 | ✅ 可规划 | 位移结算步（§3） | `rand(0,100) >= 目标位移抗性` 即成功 |
@@ -478,8 +478,9 @@ public interface IFormation {
 
 // ---------------------------------------------------------------
 // 9.2 行动序列：速度排序 + 破平局 + 眩晕跳过
-// 关键规则：实际速度=基础×(1+0~10%)每回合重掷(#163)；同速编号小者先动(#80)；
+// 关键规则：实际速度=基础×(1+0~10%)每回合重掷(#163)；同速编号小者先动(#80)；跨阵营同速我方先动(#168)
 //          眩晕=跳过本次行动、状态随即结束(GDD §2.5)；行动序列条须显示本回合+下回合(ui_spec 必显示#1)
+//          v0.52：眩晕抗性递增（#202）——每次成功眩晕 +50% 可叠、上限 100%、**完成一次未被眩晕的行动即清除**（unit_state，不入基础属性）
 // ---------------------------------------------------------------
 public interface ITurnSequencer {
     IReadOnlyList<ActorId> BuildRoundOrder(IRngProvider rng); // 每回合开始重掷并排序
@@ -492,18 +493,22 @@ public interface ITurnSequencer {
 // 关键规则：判定顺序=①战前携带5个内 ②自身站位要求 ③目标位部分非空(全空灰显) ④使用限制(CD/每场次数)
 //          [skill.md §5；GDD §4/#23]；灰显原因须给 UI tooltip(ui_spec §4/必显示#3)
 //          目标数量=候选池派生（#178/#179，O-38）：单体/any_ally 池内选一、AOE 全中、双段同目标两段
-//          池外「移动」（#180，O-40）：pool_external 恒常备、self_slots 1~4、目标=自身±N 格内被占用战斗位（scope=move_range+distance）；空位→NoTarget（#21）；不过抗性、无伤害→不死门；47 条总量（36 池内+4 移动+7 敌）
+//          池外「移动」（#180，O-40）：pool_external 恒常备、self_slots 1~4、目标=自身±N 格内被占用战斗位（scope=move_range）；空位→NoTarget（#21）；不过抗性、无伤害→不死门；**v0.48 起总量 44（36 池内+1 通用 move+7 敌）**
+//          条件解锁（#207，v0.52/feat_pack_03 D5）：skills 可声明 requires{self_hp_below_percent/target_hp_below_percent/self_weak/self_deaths_door}
+//          → 不满足=灰显 + AvailabilityReason.RequirementNotMet（**不改变"携带 5 个"口径**）
 // ---------------------------------------------------------------
 public interface ISkillUseResolver {
     Availability Resolve(UnitId caster, SkillId skill, IFormation snapshot);
 }
-public enum AvailabilityReason { Ok, NotCarried, BadStance, NoTarget, OnCooldown, UsesExhausted }
+public enum AvailabilityReason { Ok, NotCarried, BadStance, NoTarget, OnCooldown, UsesExhausted, RequirementNotMet }
 
 // ---------------------------------------------------------------
 // 9.4 士气台账
 // 关键规则：范围 0~100、初始 50、钳制；只精神伤害降士气(-8/暴击-12/AOE精神-5)，物理不掉(#157)；
 //          判定按事件触发(仅>0降到0)；崩溃后留在0=崩溃余烬，余烬中不再判定；折磨回50解脱==恢复判定资格
 //          [morale.md §1/§4/§4.0/§8；combat_math §5.2]
+//          v0.52 暴击情绪链（#209，**修正 #157**）：**被暴击=「震慑」例外** → 自身 −10、队友各 50% −5；
+//          打出暴击仍全队 +5 且 **AOE 只结算一次**（#208/O-59）；暴击治疗 ×2 + 目标 +4（单体12%/多目标5%，固定）
 // ---------------------------------------------------------------
 public interface IMoraleLedger {
     int Morale(UnitId u);
@@ -540,6 +545,8 @@ public interface IBuffLedger {
 // 9.7 敌方 AI
 // 关键规则：固定优先级表(每原型一张，enemy.md §5.4)是配置非逻辑；可用性判定与玩家一致(skill.md §5)；
 //          #112 切片不做"少量随机"，15% 改次优先留数据开关(default off，O-19)；预留"标记权重"字段(#96)
+//          池内选人（#185/#187/#192）：taunt 加权抽取(taunt_weight) → target_preference(lowest_hp/backmost/lowest_morale) → 槽号兜底
+//          v0.52（#204）：候选池内含带 **mark** 的我方 → 按同一权重制 **×2**（防守=嘲讽 / 进攻=标记，职责分离）
 // ---------------------------------------------------------------
 public interface IEnemyAi {
     SkillChoice Choose(EnemyId e, BattleSnapshot s, IRngProvider rng); // 读 AiPriorityTable 决策

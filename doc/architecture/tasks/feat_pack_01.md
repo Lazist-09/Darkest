@@ -409,7 +409,7 @@ int emptySlot = Enumerable.Range(1, _enemy.SlotCount)
 
 | # | 必做项 | 理由 |
 |---|---|---|
-| 1 | **重算 M** | #196 的 `M = ceil(满编总HP ÷ (D×0.8))` —— 敌总 HP 由 207→166，**M 必须重算**（当前推导 M≈9）。**改了 HP 不重算 M = 机制立刻失衡** |
+| 1 | **重算 M** | #196 的 `M_base = max(3, ceil(满编总HP ÷ (D×0.8)))` —— 敌总 HP 由 207→166，**M_base 必须重算**；🔴 **`D` 待实测**（**现有 24 与 35 两个估算互相矛盾**，均未实测）→ **不得按任一估算落地 M**（按 P16 用实测 D 锁死）。**改了 HP 不重算 M = 机制立刻失衡** |
 | 2 | **落地顺序：F4 必须在复测之前** | 与 F0~F3 同批；数值改动晚于复测 = 基线再次作废（已踩 4 次） |
 | 3 | **复测必须输出实测 D** | M 是导出量，没有实测 D 就无法校准；D 也是判断"是否需要第二轮补偿"的唯一依据 |
 | 4 | 架构侧镜像 | `data_schema` §3.1 敌方 HP、§3.2 收割/劈砍倍率、§3.7 M 口径 |
@@ -471,7 +471,7 @@ int emptySlot = Enumerable.Range(1, _enemy.SlotCount)
 
 | 项 | 回执 |
 |---|---|
-| **§3.7 M 口径（修正旧版）** | ✅ 已把旧的 `wave_interval_rounds: 3` **替换为公式口径**：`{trigger_round:6, refill:"all_empty_slots", full_branch:"buff_all_each_wave", safety_factor:0.8, wave_interval_min:3, wave_interval_rounds:"导出值（非手填常数）"}`；语义 = `M = max(wave_interval_min, ceil(敌满编总HP ÷ (D × safety_factor)))`，护栏 **M ≥ 3**；当前推导 **M≈9**；并注明"第二波第 15 回合 > 战斗约 10 回合 → 实际只有首波生效"（GDD §1.5.2 / enemy §4 / #196） |
+| **§3.7 M 口径（修正旧版，v0.54 再更正）** | ✅ 已把旧的 `wave_interval_rounds: 3` **替换为公式口径**：`{trigger_round:6, refill:"all_empty_slots", full_branch:"buff_all_each_wave", safety_factor:0.8, wave_interval_min:3, wave_interval_rounds:"导出值（非手填常数）"}`；语义 = `M_base = max(wave_interval_min, ceil(敌满编总HP ÷ (D × safety_factor)))`，护栏 **M_base ≥ 3**；🔴 **`D` 待实测**——**现有 24（架构 v0.49）与 35（策划 v0.50 由 M≈6 反推）两个估算互相矛盾**，**两者都未实测**，故 **M_base 不得按任一估算落地**（P16 要求实测锁死） |
 | **§3.1 敌 HP** | ✅ 已写成两档：**现生效 60/60/46/41（#171/#173）** → **F4 目标 48/48/37/33（总 166，#195）待落地** |
 | **§3.2 收割 / 劈砍倍率** | ✅ 已写：`missing_hp` 系数**现 0.4/0.5 → F4 目标 0.6/0.7**；**劈砍 0.9 → 1.0**；**横扫保持 0.6（不得顺带改动）** |
 | **新增校验 P16** | ✅ **增援 M 导出契约 + 复测 D 输出**：启动须有 `safety_factor>0`（0.8）与 `wave_interval_min≥1`（3），**禁止把 `wave_interval_rounds` 当手填常数**；运行时/复测 `M == max(min, ceil(enemy_full_hp ÷ (D×safety_factor)))`；**复测报告缺实测 `D`（与口径健康度 1 号位 <50%）即判基线无效** |

@@ -6,6 +6,12 @@
 > **依赖**：T-M2（结算核心：DamagePipeline「伤害→士气→虚弱/死门」次序）、T-M3（数据导入：morale_events.json / buff_defs.json / tuning.json / 韧性属性 / IBuffLedger）+ doc/architecture/{blueprint,data_schema,open_issues}.md
 > **最近更新**：2026-09-09
 
+> ## 🔴 v0.52 口径公告（DD 借鉴包 `feat_pack_03` D0/D2/D4/D7 —— 与下列行冲突时**以本公告为准**）
+> - **D2 Mark（#204）**：`buff_defs` 新增 **`mark`**（negative / 3 回合 / refresh / 可驱散 / **无数值**）；`buff.md` 早已裁决"加伤 + 改 AI"，本次落地；🔴 **与嘲讽职责分离**（嘲讽=防守 / 标记=进攻）。
+> - **D4 死门后遗症（#206）**：死门**存活并归队**后获得 `deaths_door_recovery` —— **受伤 +10% · 命中 −5 · 速度 −1**，**到战斗结束**、**多次进出只一层**；UI 必须显著标注。
+> - **D0 眩晕抗性递增（#202）**：unit_state —— 每次成功眩晕 **+50%（可叠）**、抗性上限 **100%**（= 实际概率 0）、**完成一次未被眩晕的行动即清除**；**不写入基础属性**。
+> - **D7 暴击情绪链（#209）**：`morale_events` 新增 **`physical_crit_hit_self`（自身 −10）** 与 **`physical_crit_hit_ally`（队友各 50% −5）**；**普通物理仍不掉士气**（#157 保留，被暴击＝「震慑」例外）；AOE 暴击 `critical_strike_dealt` **只 +5 一次**（D6/O-59）；新增随机写 `RngDraw`（P18 ⑥）。
+
 ---
 
 ## 0. 里程碑目标（一句话）

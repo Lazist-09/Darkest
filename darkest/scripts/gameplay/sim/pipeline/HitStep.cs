@@ -1,3 +1,4 @@
+using System;
 using Darkest.Core.Contracts;
 using Darkest.Core.Events;
 using Darkest.Core.Math;
@@ -16,11 +17,15 @@ public static class HitStep
     public static bool Resolve(UnitRuntime attacker, UnitRuntime target, int hitMod,
         IRngProvider rng, CombatLog log, BalanceTable balance)
     {
-        int rate = BattleMath.HitRate(target.Base.Dodge, hitMod, balance.HitClampMin, balance.HitClampMax);
+        int shown = BattleMath.HitRate(target.Base.Dodge, hitMod, balance.HitClampMin, balance.HitClampMax);
+        // D1（#203）：连续未命中补偿 = max(0, 连续未命中−1) × 4，**隐藏**（不改面板显示值）
+        int hidden = Math.Max(0, attacker.ConsecutiveMisses - 1) * 4;
+        int rate = Math.Clamp(shown + hidden, 0, 100);
         double roll = rng.NextPercent();
         log.Append(new RngDraw(rng.DrawCount, roll));
         bool hit = roll < rate;
-        log.Append(new HitEvent(hit, rate, attacker.Id, target.Id));
+        attacker.ConsecutiveMisses = hit ? 0 : attacker.ConsecutiveMisses + 1;
+        log.Append(new HitEvent(hit, shown, attacker.Id, target.Id)); // 事件记显示值（补偿对玩家隐藏）
         return hit;
     }
 }
