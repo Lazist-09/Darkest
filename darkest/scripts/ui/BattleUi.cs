@@ -292,6 +292,9 @@ public partial class BattleUi : CanvasLayer
             c.card.Modulate = isActive
                 ? new Color(1.2f, 1.2f, 0.7f)
                 : hl ? new Color(0.6f, 0.88f, 1.3f) : new Color(1, 1, 1);
+
+            // G3（O-56）：悬停单位卡 → 详情（属性/士气/buff/技能表；敌方同样全暴露）
+            c.card.TooltipText = DetailTooltip(c.isPlayer, c.slot);
         }
 
         RefreshSkillBar(d, p);
@@ -451,7 +454,7 @@ public partial class BattleUi : CanvasLayer
                 Size = new Vector2(88, 88),
                 Text = full.Length <= 2 ? full : full.Substring(0, 2),
                 Disabled = sp.Reason != AvailabilityReason.Ok,
-                TooltipText = sp.Reason == AvailabilityReason.Ok ? full : $"{full}（{sp.Tooltip}）",
+                TooltipText = sp.Reason == AvailabilityReason.Ok ? SkillTooltip(skillId, actor, d) : $"{full}（{sp.Tooltip}）",
             };
             b.AddThemeFontSizeOverride("font_size", 20);
             string captured = skillId;
@@ -459,6 +462,58 @@ public partial class BattleUi : CanvasLayer
             AddChild(b);
             _skillButtons.Add(b);
         }
+    }
+
+    /// <summary>G3（O-56）：单位详情文本（含敌方全暴露：物防/速度/四抗/死门/buff/技能表）。</summary>
+    private string DetailTooltip(bool player, int slot)
+    {
+        if (_host?.Projector is null || _host.Director is null)
+        {
+            return string.Empty;
+        }
+
+        UnitDetail d = _host.Projector.Detail(player, slot);
+        if (d.UnitId == "-")
+        {
+            return $"[{slot}] 空位";
+        }
+
+        string buffs = string.Join("、", _host.Director.Buffs.Buffs(new UnitId(d.UnitId)).Select(BuffNameOf));
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"[{d.Slot}] {NameOf(d.Archetype)}（{(player ? "我方" : "敌方")}）");
+        sb.AppendLine($"HP {d.Hp}/{d.MaxHp}　士气 {d.Morale}{(d.Weak ? "　虚弱" : string.Empty)}");
+        sb.AppendLine($"攻击 {d.Attack}　物防 {d.PhysDef}　速度 {d.Speed}　移动 {d.MoveDistance}");
+        sb.AppendLine($"韧性 {d.Resilience}　眩晕 {d.StunResist}　流血 {d.BleedResist}　减益 {d.StatDebuffResist}　位移 {d.DisplaceResist}　死门 {d.DeathsDoorResist}");
+        sb.AppendLine($"Buff：{(buffs.Length > 0 ? buffs : "无")}");
+        sb.Append($"技能：{string.Join("、", d.SkillIds.Select(SkillName))}");
+        return sb.ToString();
+    }
+
+    /// <summary>G3（O-56）：技能详情 + 对候选池每个目标的命中率/预估伤害（预估不掷骰、零副作用）。</summary>
+    private string SkillTooltip(string skillId, UnitId actor, BattleDirector d)
+    {
+        SkillTemplateConfig s = SkillsCfg.Get(skillId);
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"{SkillName(skillId)}");
+        sb.AppendLine($"目标：{s.Target.Scope}{(s.Target.Side is { } side ? $"（{side}）" : string.Empty)}　命中+{s.HitMod}　暴击+{s.CritMod}");
+        sb.AppendLine($"限用：{s.UseLimit.Type}{(s.UseLimit.Value is { } v ? $"（{v}）" : string.Empty)}　段数：{s.Damage?.Segments.Count ?? 0}");
+        if (s.Damage is not null)
+        {
+            string segs = string.Join(" + ", s.Damage.Segments.Select(seg => seg.Type == DamageSegmentType.MissingHp
+                ? $"失血 {seg.Base}+{seg.Coefficient}×已失"
+                : $"×{seg.Multiplier}"));
+            sb.AppendLine($"伤害：{segs}（{s.DamageAxis}）");
+        }
+
+        bool targetsEnemy = s.Target.Side == "enemy";
+        int[] candidates = SkillTargetResolver.Resolve(s, actor, d.Player, d.Enemy).ToArray();
+        foreach (int slot in candidates)
+        {
+            TargetEstimate est = _host!.Projector!.Estimate(skillId, actor, slot, targetIsPlayer: !targetsEnemy);
+            sb.AppendLine($"　→ {slot} 位：命中 {est.HitRatePercent}%　预估 {est.EstimatedDamage} 伤害{(est.Segments > 1 ? $"（{est.Segments} 段）" : string.Empty)}");
+        }
+
+        return sb.ToString().TrimEnd();
     }
 
     private void ClearSkillButtons()

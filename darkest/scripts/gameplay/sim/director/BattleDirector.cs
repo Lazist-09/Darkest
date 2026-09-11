@@ -260,6 +260,16 @@ public sealed class BattleDirector
         _log.Append(new BattleEndEvent(outcome, _round, why));
     }
 
+    /// <summary>
+    /// G4（O-57）：敌方意图预览（供后续「侦察」技能调用）。用**调用方提供的独立 RNG/日志**跑同源决策，
+    /// 绝不消耗战斗随机数、不写战斗事件流（确定性红线：#201）。
+    /// </summary>
+    public SkillChoice? PreviewEnemyIntent(UnitId actor, IRngProvider scratchRng, CombatLog scratchLog)
+    {
+        UnitRuntime? unit = _enemy.UnitsInSlotOrder().FirstOrDefault(u => u.Id == actor);
+        return unit is null ? null : _ai.Choose(unit, _enemy, _player, _buffs, scratchRng, scratchLog);
+    }
+
     /// <summary>G0/O-55：回合开始事件（谁行动、在哪号位、有效速度）。</summary>
     private void EmitTurnStart(UnitId actor)
     {
