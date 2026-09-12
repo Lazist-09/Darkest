@@ -161,10 +161,12 @@ public sealed record TuningScouting(
     [property: JsonPropertyName("base_pct")] double BasePct,
     [property: JsonPropertyName("reveal")] string Reveal);
 
-/// <summary>背包（D2）：12 格；口粮不堆叠 ⇒ 默认装不下（**P21 ⑥ 不许把 slot_cap 调到 15**）。</summary>
+/// <summary>背包（D2）：12 格；口粮不堆叠 ⇒ 默认推荐配置恰满 12；**包满禁止静默丢弃**。</summary>
 public sealed record TuningInventory(
     [property: JsonPropertyName("slot_cap")] int SlotCap,
-    [property: JsonPropertyName("food_stackable")] bool FoodStackable);
+    [property: JsonPropertyName("food_stackable")] bool FoodStackable,
+    [property: JsonPropertyName("recommended_loadout")] Dictionary<string, int>? RecommendedLoadout = null,
+    [property: JsonPropertyName("full_policy")] string? FullPolicy = null);
 
 public sealed record TuningDifficultyTier(
     [property: JsonPropertyName("battle_from")] int BattleFrom,
@@ -457,6 +459,25 @@ public sealed record TuningConfig(
         {
             throw new InvalidDataException(
                 $"{ResPath}: inventory.slot_cap 必须 = 12（P21 ⑥：**不许调到 15 来「修好」设计取舍**）。");
+        }
+
+        // P21 ⑥/⑬（v1.04）：推荐配置必须 ≤ slot_cap 且**恰满**（作默认）；包满策略必须是"选择丢弃"（禁止静默丢）
+        if (t.Inventory.RecommendedLoadout is null)
+        {
+            throw new InvalidDataException($"{ResPath}: inventory.recommended_loadout 必填（P21 ⑥「整备」默认配置）。");
+        }
+
+        int recommended = t.Inventory.RecommendedLoadout.Values.Sum();
+        if (recommended > t.Inventory.SlotCap)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: recommended_loadout 合计 {recommended} > slot_cap {t.Inventory.SlotCap}（P21 ⑥）。");
+        }
+
+        if (t.Inventory.FullPolicy != "choose_what_to_discard")
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: inventory.full_policy 必须 = choose_what_to_discard（P21 ⑬：**禁止静默丢弃**，否则光照计收益端闭环会漏）。");
         }
 
         // 🔴 P20（M7 远征层）：①②③ —— 键齐备与值域，**加载级 fail-fast**

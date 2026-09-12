@@ -33,7 +33,13 @@
     "note": "#258 / D0：柴火 = Torch + Firewood 合一；P21 ③ 效果表**不得出现任何 HP 字段**（否则把 #255 已否决的杠杆搬回来）"
   },
   "scouting": { "base_pct": 25, "reveal": "next_node_type_only" },
-  "inventory": { "slot_cap": 12, "food_stackable": false },
+  "inventory": {
+    "slot_cap": 12,
+    "food_stackable": false,
+    "recommended_loadout": { "firewood": 2, "food": 9, "support_crate": 1 },
+    "full_policy": "choose_what_to_discard",
+    "note": "P21 ⑥⑬：推荐配置 2/9/1 恰满 12 格（作默认）；**背包满禁止静默丢弃** → 必须让玩家【选择丢弃哪一格】（否则摸黑搏到的补给拿不回来，光照计收益端闭环会漏）；整备仅出发前、**局内不可改**"
+  },
   "expedition": {
     "n_battles": 6,
     "ambush_chance": 0.33,
