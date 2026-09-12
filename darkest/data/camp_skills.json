@@ -1,7 +1,31 @@
 {
   "camp_skills": [
-    { "id": "camp_inspire", "name": "鼓舞", "cost": 2, "target": "single_ally", "effect": "morale_plus_15", "source": "expedition.md §3.2 / E3" },
-    { "id": "camp_bandage", "name": "包扎", "cost": 2, "target": "single_ally", "effect": "heal_15_percent_and_clear_bleed", "source": "expedition.md §3.2 / E3" },
-    { "id": "camp_pep_talk", "name": "打气", "cost": 2, "target": "single_ally", "effect": "morale_damage_minus_15_for_4_battles", "source": "expedition.md §3.2 / E3" }
+    { "id": "camp_warrior_sharpen", "name": "磨刀", "owner_unit": "warrior", "cost": 2, "target": "single_ally",
+      "effect": "grant_buff:next_battle_sharpen", "source": "expedition.md §3.2 / v0.84" },
+    { "id": "camp_warrior_watch", "name": "轮流守夜", "owner_unit": "warrior", "cost": 3, "target": "team",
+      "effect": "ambush_immunity_once", "source": "expedition.md §3.2 / v0.84" },
+    { "id": "camp_warrior_joke", "name": "笑谈", "owner_unit": "warrior", "cost": 1, "target": "single_ally",
+      "effect": "morale_plus_8", "source": "expedition.md §3.2 / v0.84" },
+
+    { "id": "camp_tank_armor", "name": "加固甲胄", "owner_unit": "tank", "cost": 2, "target": "single_ally",
+      "effect": "grant_buff:next_battle_armor", "source": "expedition.md §3.2 / v0.84" },
+    { "id": "camp_tank_stand_guard", "name": "站岗", "owner_unit": "tank", "cost": 3, "target": "team",
+      "effect": "ambush_immunity_once", "source": "expedition.md §3.2 / v0.84" },
+    { "id": "camp_tank_cook", "name": "埋锅造饭", "owner_unit": "tank", "cost": 2, "target": "team",
+      "effect": "morale_plus_5_team", "source": "expedition.md §3.2 / v0.84" },
+
+    { "id": "camp_medic_bandage", "name": "包扎", "owner_unit": "medic", "cost": 2, "target": "single_ally",
+      "effect": "heal_15_percent_and_clear_bleed", "source": "expedition.md §3.2 / v0.84" },
+    { "id": "camp_medic_treat", "name": "配药", "owner_unit": "medic", "cost": 3, "target": "single_ally",
+      "effect": "clear_weak_and_deaths_door_recovery", "source": "expedition.md §3.2 / v0.84" },
+    { "id": "camp_medic_care", "name": "照料", "owner_unit": "medic", "cost": 1, "target": "single_ally",
+      "effect": "heal_5_percent", "source": "expedition.md §3.2 / v0.84" },
+
+    { "id": "camp_commissar_pep_talk", "name": "打气", "owner_unit": "commissar", "cost": 2, "target": "single_ally",
+      "effect": "morale_damage_minus_15_for_4_battles", "source": "expedition.md §3.2 / v0.84" },
+    { "id": "camp_commissar_rally", "name": "动员", "owner_unit": "commissar", "cost": 3, "target": "team",
+      "effect": "morale_plus_8_team", "source": "expedition.md §3.2 / v0.84" },
+    { "id": "camp_commissar_drill", "name": "操练", "owner_unit": "commissar", "cost": 2, "target": "single_ally",
+      "effect": "grant_buff:next_battle_sharpen", "source": "expedition.md §3.2 / v0.84（与磨刀同效，角色归属不同）" }
   ]
 }
