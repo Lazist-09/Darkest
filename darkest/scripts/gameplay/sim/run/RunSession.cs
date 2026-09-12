@@ -74,6 +74,9 @@ public class RunSession : IRunSession
 
     /// <summary>远征层用（E6）：死门后遗症跨场保留集（回城时按"到下次恢复"清空）。</summary>
     protected HashSet<string> RetainedRecovery => _retainedRecovery;
+
+    /// <summary>远征层用（E3）：整编最大 HP（扎营的 HP% 结算分母；跨场固定）。</summary>
+    protected Dictionary<string, int> RosterMaxHp => _rosterMaxHp;
     private readonly HashSet<string> _retainedRecovery = new(); // #227：deaths_door_recovery 跨场保留
     private readonly List<string> _roster = new();
     private readonly Dictionary<string, int> _rosterMaxHp = new(); // 整编最大 HP 分母（第一场记录，跨场固定）

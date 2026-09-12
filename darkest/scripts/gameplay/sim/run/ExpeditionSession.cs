@@ -210,4 +210,89 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
 
     private int AverageRetainedMorale()
         => Retained.Count == 0 ? 50 : (int)Math.Round(Retained.Values.Average(v => v.Morale));
+
+    // ------------------------------------------------------------------
+    // E3 · 扎营流程（最小版内核）：许可（柴火 1）→ 食物档位 → Respite 分配 → 结束
+    // 说明：`next_battle` 类效果（磨刀/加固甲胄）由 camp_skills 声明为 **grant_buff**，
+    //       其生效与到期**归 buff 台账**，本会话**不另存**"下一场加成"（单源）。
+    // ------------------------------------------------------------------
+
+    /// <summary>当前存活人数（口粮缩放 / Respite / 事件士气的作用面）。</summary>
+    public int Survivors => Retained.Values.Count(v => v.Hp > 0);
+
+    /// <summary>是否可扎营（**柴火 ≥ 1**；不足 → 灰显不可选）。</summary>
+    public bool CanCamp => Firewood > 0;
+
+    /// <summary>剩余 Respite 点数（扎营期间有效）。</summary>
+    public int RespiteLeft { get; private set; }
+
+    /// <summary>开始扎营：**扣 1 份柴火**（不足 → 拒绝且不扣）+ `CampStartedEvent`；
+    /// Respite 池 = `respite_base + 存活人数`（满编 12）。</summary>
+    public bool StartCamp(CombatLog log, int campIndex, int respiteBase)
+    {
+        if (!TrySpend(log, "firewood", 1, "camp"))
+        {
+            return false; // 无柴火 → 不可扎营（E3 验收）
+        }
+
+        RespiteLeft = ExpeditionCampMath.RespitePool(respiteBase, Survivors);
+        log.Append(new CampStartedEvent(campIndex));
+        return true;
+    }
+
+    /// <summary>
+    /// 选择食物档位：口粮需求按**存活人数**缩放（`ExpeditionCampMath.FoodRequired`）；
+    /// 口粮不足 → **退化为 starve（挨饿）且不扣**，并如实写入所选档位（E3 验收：Starve 有意义）。
+    /// </summary>
+    public string ChooseFood(CombatLog log, Darkest.Data.TuningCamp camp, string tier)
+    {
+        int need = ExpeditionCampMath.FoodRequired(camp.FoodTiers, tier, Survivors);
+        string applied = tier;
+        int spent = need;
+        if (need > 0 && !TrySpend(log, "food", need, "camp_food"))
+        {
+            applied = "starve";
+            spent = 0;
+        }
+
+        (double hpPct, int moraleDelta) = ExpeditionCampMath.FoodEffect(applied);
+        ApplyToSurvivors(hpPct, moraleDelta);
+        log.Append(new CampFoodChosenEvent(applied, spent, Survivors));
+        return applied;
+    }
+
+    /// <summary>使用扎营技能：**点数不足 → 不可选（返回 false，不扣）**；成功写 `CampSkillUsedEvent`。</summary>
+    public bool UseCampSkill(CombatLog log, string skillId, int cost, UnitId target)
+    {
+        if (cost < 1 || cost > RespiteLeft)
+        {
+            return false; // 点数不足 → 灰显（E3 验收）
+        }
+
+        RespiteLeft -= cost;
+        log.Append(new CampSkillUsedEvent(skillId, target, RespiteLeft));
+        return true;
+    }
+
+    /// <summary>结束扎营（夜袭判定由调用方接 `RollAmbush`；E5）。</summary>
+    public void EndCamp(CombatLog log)
+        => log.Append(new CampEndedEvent(0));
+
+    /// <summary>把 HP%（按整编 MaxHp）与士气增量施加到**存活者**（阵亡者不参与）。</summary>
+    private void ApplyToSurvivors(double hpPercent, int moraleDelta)
+    {
+        foreach (string id in Retained.Keys.ToArray())
+        {
+            (int hp, int morale, bool weak) = Retained[id];
+            if (hp <= 0)
+            {
+                continue;
+            }
+
+            int max = RosterMaxHp.TryGetValue(id, out int m) && m > 0 ? m : Math.Max(1, hp);
+            int delta = (int)Math.Round(max * hpPercent);
+            int newHp = Math.Clamp(hp + delta, 1, max);
+            Retained[id] = (newHp, Math.Clamp(morale + moraleDelta, 0, 100), weak);
+        }
+    }
 }
