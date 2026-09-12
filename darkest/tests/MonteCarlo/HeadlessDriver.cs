@@ -45,6 +45,10 @@ public static class HeadlessDriver
 
     public static BattleDirector NewDirector(CombatLog log) => DirectorBuilders.Build(log, null, null, null);
 
+    /// <summary>M7 E3：注入**会话级台账**建导演（磨刀/加固甲胄等 `next_battle` 跨场单源）。</summary>
+    public static BattleDirector NewDirector(CombatLog log, Darkest.Gameplay.Sim.Buffs.BuffLedger sharedBuffs)
+        => DirectorBuilders.Build(log, null, null, null, sharedBuffs);
+
     /// <summary>
     /// **3 连战（run）**（v0.67 / O-63）：交给内核侧 <see cref="RunSession"/> 持有跨场状态
     /// （HP/士气/虚弱保留；buff/CD/per_battle/SP 每场重置），**`BattleDirector` 保持单场纯**。
@@ -252,7 +256,8 @@ public static class HeadlessDriver
     private static class DirectorBuilders
     {
         public static BattleDirector Build(CombatLog log, Func<TuningConfig, TuningConfig>? tweak,
-            Func<UnitsConfig, UnitsConfig>? unitsTweak, Func<SkillsConfig, SkillsConfig>? skillsTweak)
+            Func<UnitsConfig, UnitsConfig>? unitsTweak, Func<SkillsConfig, SkillsConfig>? skillsTweak,
+            Darkest.Gameplay.Sim.Buffs.BuffLedger? sharedBuffs = null)
         {
             TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
             if (tweak is not null)
@@ -280,7 +285,8 @@ public static class HeadlessDriver
                 MoraleEventsConfig.Parse(ReadData("morale_events.json")),
                 BuffDefsConfig.Parse(ReadData("buff_defs.json")),
                 EnemyAiConfig.Parse(ReadData("enemy_ai.json")),
-                log);
+                log,
+                sharedBuffs); // M7 E3：会话级台账注入（null → 每场自建，行为不变）
         }
 
         private static string ReadData(string name)
