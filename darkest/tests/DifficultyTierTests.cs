@@ -79,9 +79,9 @@ public sealed class DifficultyTierTests
             "{ \"battle_from\": 4, \"battle_to\": 6, \"multiplier\": 1.25")),
             "有重叠 → 启动报错（P20 ⑭）");
 
-        // 乘数下降（1.1 → 1.05）
+        // 乘数下降（1.1 → 1.05；用第 3 档行唯一定位）
         Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(Bad(
-            "\"multiplier\": 1.25", "\"multiplier\": 1.05")),
+            "\"battle_to\": 6, \"multiplier\": 1.1", "\"battle_to\": 6, \"multiplier\": 1.05")),
             "乘数下降 → 启动报错（P20 ⑭）");
     }
 
@@ -92,10 +92,10 @@ public sealed class DifficultyTierTests
         Assert.AreEqual(1.0, ExpeditionProjector.MultiplierFor(exp.DifficultyTiers, 1), 1e-9);
         Assert.AreEqual(1.0, ExpeditionProjector.MultiplierFor(exp.DifficultyTiers, 2), 1e-9);
         Assert.AreEqual(1.1, ExpeditionProjector.MultiplierFor(exp.DifficultyTiers, 3), 1e-9);
-        Assert.AreEqual(1.25, ExpeditionProjector.MultiplierFor(exp.DifficultyTiers, 6), 1e-9);
+        Assert.AreEqual(1.1, ExpeditionProjector.MultiplierFor(exp.DifficultyTiers, 6), 1e-9, "第 5~6 场 ×1.1（×1.25 已按 ⑳c 撤下）");
 
         Assert.AreEqual(1.1, ExpeditionProjector.NextMultiplierFor(exp.DifficultyTiers, 1)!.Value, 1e-9, "必显 ⑧：后续预告");
-        Assert.AreEqual(1.25, ExpeditionProjector.NextMultiplierFor(exp.DifficultyTiers, 3)!.Value, 1e-9);
+        Assert.AreEqual(1.1, ExpeditionProjector.NextMultiplierFor(exp.DifficultyTiers, 3)!.Value, 1e-9);
         Assert.IsNull(ExpeditionProjector.NextMultiplierFor(exp.DifficultyTiers, 6), "末档无后续");
 
         ExpeditionSession s = new(log => HeadlessDriver.NewDirector(log), 6, 2, 12, 0.33);
