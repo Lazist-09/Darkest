@@ -113,23 +113,27 @@ public sealed class LightMeter : ILightMeter
         Log(log, before, torch ? "event_torch" : "event_dark");
     }
 
-    /// <summary>从事件流**复算**光照（UI 必显 ⑨ 的可信性校验；无事件则 = 进图值）。</summary>
+    /// <summary>从事件流**复算**光照（UI 必显 11 / ㉑㉒ 只能从 `LightChangedEvent` 统计；无事件则 = 进图值）。</summary>
     public static int Recompute(CombatLog log, int enterValue)
     {
         int value = enterValue;
         foreach (LightChangedEvent e in log.Events.OfType<LightChangedEvent>())
         {
-            value = e.After; // 事件自带 After → 复算 = 取最后一条
+            value = e.To; // 事件自带 To → 复算 = 取最后一条
         }
 
         return value;
     }
 
+    /// <summary>进图起点（reason = "start"；契约六值之一，**必须发**以便复测归因）。</summary>
+    public void EmitStart(CombatLog log)
+        => log.Append(new LightChangedEvent(Value, Value, TierId(Tier), "start"));
+
     private void Log(CombatLog log, int before, string reason)
     {
         if (log is not null && before != Value)
         {
-            log.Append(new LightChangedEvent(before, Value, reason));
+            log.Append(new LightChangedEvent(before, Value, TierId(Tier), reason));
         }
     }
 }

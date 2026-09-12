@@ -759,7 +759,8 @@ public interface IExpeditionSession : IRunSession {    // §9.12 的扩展（N: 
 
 **红线**：**不动单场数值（A1 刚全绿）** · 🔴 **不改 A2 判据本身**（本层是**救** A2；**仍不可达则按纪律 16 记录，不得调参硬凑**）· **收益端必须是补给**（否则退化）· **SP 物品必须配 UI 提示** · **不得引入"偷袭/闪避"**（会改单场行动序 ⇒ 动 A1）。
 **随机**：侦察 / 掉落 / 光照消耗 **全写 `RngDraw`**。
-**事件（可读性，P17）**：**`LightChangedEvent(from,to,tier,reason)`**（光照**每次**变化必发，`reason ∈ {advance_node, brighten, camp, start, event_choice}`）+ 🔴 **`ScoutResultEvent(roll, success, revealedNodeType)`**（**架构侧补充要求**：否则"侦察成功率 / 因侦察改变选路次数"统计不到）。
+**事件（可读性，P17）**：**`LightChangedEvent(from,to,tier,reason)`**（**光照每次变化必发**；🔴 **字段口径以 `data_schema` §3.11 为准**：`reason ∈ {start, advance, brighten, camp, event_torch, event_dark}` —— **"举火把/摸黑"必须是两个 reason**；🔴 **`tier` 必须在事件里**，否则复测无法归因"这一场难度是哪个档给的"）+ 🔴 **`ScoutResultEvent(roll, success, revealedNodeType)`**（**架构侧补充要求**：否则"侦察成功率 / 因侦察改变选路次数"统计不到）。
+**取档时点（O-72 已裁定）**：**进节点时取档、本场战斗内固定**；**"本场固定"是自然结果**（光照只在节点间变化 + 我们不做"战斗内改光照"技能）⇒ **不要加"战斗内锁定"机制**。
 
 ```csharp
 public interface ILightMeter {                 // 会话级（远征内）

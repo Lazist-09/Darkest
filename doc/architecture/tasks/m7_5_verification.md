@@ -60,7 +60,8 @@
 | **㉗** | **待命次数 + 待命造成的士气损失** | V8 |
 
 > 🔴 **纪律**：全部**从事件流统计**（`logging.md` §1）；**缺字段即判该次基线不成立**；**⑰「灵敏度固定全样本」仍适用**（`m7_verification` §2.1 R1）。
-> 🔴 **事件来源（必须实现，否则字段统计不到）**：**㉑/㉒ ← `LightChangedEvent(from,to,tier,reason)`**（光照**每次**变化必发）· **㉕ ← `ScoutResultEvent(roll, success, revealedNodeType)`**（**架构侧补充要求**，原卡未列）· **㉔ ← `ResourceChangedEvent(reason:"loot")`** · **㉗ ← `TurnSkippedEvent(Reason:"passed", MoraleDelta:-5)`**。
+> 🔴 **事件来源（必须实现，否则字段统计不到）**：**㉑/㉒ ← `LightChangedEvent(from,to,tier,reason)`**（光照**每次**变化必发；🔴 **`tier` 必须在事件里**——`#262`：否则复测**无法归因"这一场的难度是哪个档给的"**；`reason ∈ {start, advance, brighten, camp, event_torch, event_dark}`）· **㉕ ← `ScoutResultEvent(roll, success, revealedNodeType)`**（**架构侧补充要求**，原卡未列）· **㉔ ← `ResourceChangedEvent(reason:"loot")`** · **㉗ ← `TurnSkippedEvent(Reason:"passed", MoraleDelta:-5)`**。
+> 🔴 **取档时点（O-72 已裁定）**：**进节点取档、本场固定**（"本场固定"是自然结果，**不加战斗内锁定机制**）。
 
 ---
 

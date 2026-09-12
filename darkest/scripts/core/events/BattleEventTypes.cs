@@ -133,8 +133,15 @@ public sealed record TownReturnEvent(string Outcome, int MoraleBefore, int Moral
 // M7.5 地牢层事件（D0~D3：#258）——光照必须可**从事件流复算**（UI 必显 ⑨）
 // ---------------------------------------------------------------------------
 
-/// <summary>光照变化（D0）：前进 −15 / 提亮 +30 / 扎营回满。</summary>
-public sealed record LightChangedEvent(int Before, int After, string Reason) : BattleEvent;
+/// <summary>
+/// 光照变化（D0 / 架构裁定 v1.01）：`from → to` + **取档结果 `tier`**（O-72：取档必写进事件，否则复测无法归因）。
+/// `reason ∈ {start, advance, brighten, camp, event_torch, event_dark}`（**event_torch / event_dark 必须分开** ——
+/// 它们是不同的玩家决策，"摸黑 run"口径靠它统计）。
+/// </summary>
+public sealed record LightChangedEvent(int From, int To, string Tier, string Reason) : BattleEvent;
+
+/// <summary>侦察判定（D1）：roll / 是否成功 / 揭示到的下一节点类型（null = 未揭示）。</summary>
+public sealed record ScoutResultEvent(double Roll, bool Success, string? RevealedNodeType) : BattleEvent;
 
 /// <summary>敌方 AI 决策（G0）：用了哪条规则、打了谁。</summary>
 public sealed record EnemyDecisionEvent(UnitId Actor, string SkillId, int RuleIndex, string RuleCondition, int[] TargetSlots) : BattleEvent

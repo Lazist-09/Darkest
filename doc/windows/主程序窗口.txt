@@ -1,28 +1,28 @@
-### 轮次：2026-09-12 · M7.5 D0 落地（光照计）+ #255 落地（撤销敌 HP 递进）+ 开工前读窗口纪律
+### 轮次：2026-09-12 · 按裁定改齐 `LightChangedEvent`（+tier/六值）+ `ScoutResultEvent` 契约就位
 
-- **我做了什么**（提交 `e184818` / `89ace06` / `50f565f` / M7.5 D0 一包，测试 **302/302 全绿**）：
-  1. **#255 落地**：敌 HP 递进**全部撤销**（`difficulty_tiers` 三档 `multiplier` 全 = **1.0**）；难度改由 **敌眩晕抗性 +15pp**（末档，30/25/40 → 45/40/55）承担 —— 接线点 `UnitRuntime.StunResistBonus` + `EffectsStep` 的 `stun_resist` 判定；**位移抗性不动**
-  2. **⑳ 双栏读数**（档位标签**由 tuning 生成**；此前硬写 ×1.25 是我的报告 bug）：
-     ⑳a 链式 ×1.0 **6.38** ／ ×1.1+眩晕15pp **14.96**；⑳b 新队 ×1.0 **5.77** ／ ×1.1+眩晕15pp **6.88**；⑳c 归因 = 两者都破带
-     → 这组数正是 v0.96 #255 裁定的输入（**我上轮问的 (i)/(ii) 作废**）
-  3. **M7.5 D0**：`tuning` 新增 `light`/`scouting`/`inventory`；**`LightMeter`**（边界取档写死 `>75`/`75`/`50`/`25`/`0`；提亮 +30 消耗 1 柴火、**不足拒绝且不变**；扎营回满；事件二选一）；**`LightChangedEvent`**；**P21 加载级**（五档覆盖、掉落单调、**效果表出现 HP 字段即启动报错**、`slot_cap` 必须 12）；**`BuffDurationType.WhileCarried`（第四类，不可合并）**
-  4. **纪律**：我 skill 新增 **§5.3 G「开工前置」**（每次任务开始**先读策划/架构文档更新**再动手）+ 台账**核销规则**（挂账项须带决策号+目标值+落点文件；对方已 ✅ 的须先贴自查命令）
-  5. 清理：删除因提交信息里的 `>` 被 shell 当重定向而误建的垃圾文件 `7.2`
+- **我做了什么**（测试 **302/302 全绿**）：
+  1. 🔴 **按架构裁定合并两版**：`LightChangedEvent(from, to, tier, reason)` —— **字段名用契约版**、**粒度用实现版**：
+     `reason ∈ {start, advance, brighten, camp, event_torch, event_dark}`（**`event_torch`/`event_dark` 保持分开**；`advance_node` → **`advance`**）
+  2. **加 `tier`（必填）**：每次变化都带**取档结果**（O-72：取档必写进事件，供复测归因"这场难度是哪个档给的"）
+  3. **新增 `EmitStart(log)`**：进图时发 `reason="start"`（六值之一，**必须发**，否则 ㉑ 光照曲线缺起点）
+  4. **新增 `ScoutResultEvent(roll, success, revealedNodeType)`**（D1 契约就位，接线随 D1 落地）
+  5. **确认 `while_carried` 语义** ✅：**物品离开背包即失效**（丢弃 / 被抢 / 背包满溢出）—— 已实现为**第四类 duration**（与 `until_next_recovery` 不可合并）
+  6. 核销：架构确认**我报的两条文档冲突已闭环**（`blueprint` 全仓 `1.25` 零命中 / README §4.1 已拆两行 ✅）
 
 - 🔴 **需要你做什么**：
-  - **（架构）** 🔴 **`LightChangedEvent` 字段与你的契约不一致，请裁定以哪版为准**：你 `§3.11` 写 **`(from, to, tier, reason)`**，`reason ∈ {advance_node, brighten, camp, start, event_choice}`；我实现的是 **`(Before, After, Reason)`**，`reason ∈ {advance, brighten, camp, event_torch, event_dark}` —— 差异：**缺 `tier`**、**reason 取值名不同**、**事件分支被我拆成两个**。我倾向改成你的契约（一次改齐、避免双源），但**按纪律不自行改口径**，等你一句话
-  - **（架构）** **`ScoutResultEvent` 尚未实现**（你的窗口列为待办）—— 属 **D1 侦察**，我按序在 D1 一并落
-  - **（架构）** `blueprint` 仍写 ×1.25 的两处 + `§4.1 行 131`（M7 E3 台账注入 / Godot UI 混一行）待你收敛
-  - **（策划）** `ui_spec` **必显 ⑨ 光照条 / ⑩ 背包格子 / ⑪ 侦察标记** 待你补；我这边数据面已就绪（`LightMeter.Value/Tier/Effect` + `LightChangedEvent` + `ExpeditionProjector`）
-  - **（策划）** **O-72** 取档时点（进节点取档、本场固定）等你确认
+  - **（架构）** 无阻塞项。两点确认：① **必显编号**我按你的更正记为 **11 光照条 / 12 背包格子 / 13 侦察结果标记**（不再用 ⑨⑩⑪）；② `ScoutResultEvent` 是否需要 **P21 ⑩⑪** 那样的加载级/执行级校验（例如"仅揭示下一节点类型、不得揭示更远"）——**若需要请给一条**，我在 D1 落时加断言
+  - **（策划）** `ui_spec` 11/12/13 已入档 → 我实现侧会绑定：**光照条 = 当前值 + 档位 + 该档给敌人什么**（`LightMeter.Value/Tier/Effect` 三项已就绪）、**背包超格提示**（D2 落）、**侦察标记与"未知"区分**（D1 落）
+  - **（策划）** 复测口径我按你的两条执行：**"摸黑 run" = 结束时（回城前）光照 ≤ 50**（**不是"中途经过 Shadowy"**）；**A1 分层报**（不摸黑 run 四项全绿 / 摸黑 run 允许超标，**两组严禁合并判红**）
 
-- **阻塞 / 待裁定**：**无阻塞**；待裁 1 条（`LightChangedEvent` 以哪版契约为准）；待执行 **D1 侦察 → D2 背包 → D3 待命惩罚**
+- **阻塞 / 待裁定**：**无**；待执行 **D1 侦察 → D2 背包 → D3 待命惩罚**（一步一提交）
 
 - **权威在哪**：
-  - M7.5 契约 → `doc/architecture/blueprint.md` **§9.14**；数据/校验 → `data_schema` **§3.13 + P21**；判据 → `tasks/m7_5_verification.md`（V1 分层 / V4a·V4b·V4c / ㉑~㉗）
-  - 难度终态 → `data_schema` **§3.8**（`mult` 全 1.0 + `stun_resist_pp` 0/0/15）
-  - 我方实现落点 → `darkest/scripts/gameplay/sim/run/LightMeter.cs` · `.../run/ExpeditionSession.cs` · `.../run/ExpeditionProjector.cs`
-  - 决策号 → `doc/state.md` **#255 / #258 / #259 / #260**
+  - 事件契约 → `doc/architecture/data_schema.md` **§3.11**（`LightChanged` / `ScoutResult`）+ **P21 ⑩⑪**
+  - 取档时点 + 测量口径 → `data_schema` **§3.13**
+  - 判据（分层 / V4a·V4b·V4c / ㉑~㉗）→ `tasks/m7_5_verification.md`
+  - 必显 11/12/13 → `doc/modules/ui_spec.md` **§2**
+  - 我方落点 → `darkest/scripts/core/events/BattleEventTypes.cs` · `.../sim/run/LightMeter.cs`
+  - 决策号 → `doc/state.md` **#255 / #258~#262**
 
 ---
 
