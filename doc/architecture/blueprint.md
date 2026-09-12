@@ -668,6 +668,9 @@ public interface IPlayerPolicy {
 //          **起手默认带 1 个**；恢复由该物品的 **buff modifier `resource_mod.sp_regen_per_round`** 提供
 //          （P15 白名单已扩）；**不得把 regen 改回引擎侧**（那会退回"凭空恢复"、丢掉"占 1 格"的取舍）。
 //          ⇒ **有效 regen 仍是 1，#213 的参数一个都没改**——只是恢复有了**物质来源**。
+// 🔴 v1.06（#265 + 架构裁定）**`support_pack`（支援包）的接线**：**一次性 +2 SP，由 `BattleDirector` 结算**
+//          （**SP 只有一个写入口**——它在 §9.11 由本接口持有）；**使用不消耗行动**；**远征层只扣物品**
+//          （`IInventory.TryConsume`），**禁止远征层直接改 SP**（否则出现两套 SP 台账）。
 // 纯计数、零随机 → 不引入新抽取（确定性不受影响）。
 // ---------------------------------------------------------------
 public interface IBattleResources {
