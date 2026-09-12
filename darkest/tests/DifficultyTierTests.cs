@@ -108,16 +108,32 @@ public sealed class DifficultyTierTests
     }
 
     [TestMethod]
-    public void O70_1_NotRuled_Multiplier_IsNotAppliedToEnemyStats()
+    public void O70_1_Ruled_EnemyHp_Multiplier_AppliedPerTier()
     {
-        // 🔴 回归锁：O-70 ① 未裁定前，乘数**不得**作用到敌 HP/攻击（units.json 是单场基准值）
-        // 若将来施加，本用例必须同步改写为"第 5~6 场的敌 HP > 第 1~2 场"
-        Darkest.Gameplay.Sim.Director.BattleDirector d = HeadlessDriver.NewDirector(new Darkest.Core.Events.CombatLog());
-        UnitsConfig units = UnitsConfig.Parse(ReadData("units.json"));
-        Assert.AreEqual(units.Get("melee_soldier").Hp, d.Enemy.UnitRuntimeAt(1)!.MaxHp,
-            "敌 HP == units.json 基准值（**乘数尚未施加**）");
-        Assert.AreEqual(0, d.Enemy.UnitRuntimeAt(1)!.AttackMod, "无攻击修正（**乘数尚未施加**）");
-        Assert.IsTrue(Tuning().Expedition.DifficultyTiers!.All(t => t.Target is null),
-            "target=null = 施加对象**待架构 O-70 ① 裁定**（实现方不得自行选定）");
+        // 🔴 v0.94：O-70 ① 已裁定（target="enemy_hp"）→ 本断言从"**不施加**"改写为"**按档递增**"
+        //    （不改写就成"测试锁住了不施加 → 假绿"，见 README §4.1 台账落地检查项 (b)）
+        TuningExpedition exp = Tuning().Expedition;
+        Assert.IsTrue(exp.DifficultyTiers!.All(t => t.Target == "enemy_hp"),
+            "裁定：乘数**只作用敌 HP**");
+
+        int HpAt(int battleIndex)
+        {
+            var session = new ExpeditionSession(log => HeadlessDriver.NewDirector(log), 6, 2, 12, 0.33);
+            var log = new Darkest.Core.Events.CombatLog();
+            Darkest.Gameplay.Sim.Director.BattleDirector d = session.BeginExpeditionBattle(battleIndex, log, exp.DifficultyTiers);
+            return d.Enemy.UnitRuntimeAt(1)!.MaxHp;
+        }
+
+        int baseHp = UnitsConfig.Parse(ReadData("units.json")).Get("melee_soldier").Hp;
+        Assert.AreEqual(baseHp, HpAt(1), "第 1~2 场 ×1.0 → 等于 units.json 基准值");
+        Assert.AreEqual(baseHp, HpAt(2), "第 2 场 ×1.0");
+        Assert.AreEqual((int)Math.Round(baseHp * 1.1), HpAt(3), "第 3 场 ×1.1（**已施加**）");
+        Assert.AreEqual((int)Math.Round(baseHp * 1.25), HpAt(6), "第 6 场 ×1.25（**已施加**）");
+
+        // 单次伤害不变（保 A1 濒死带）：只改 MaxHp，不改攻击
+        var s2 = new ExpeditionSession(log => HeadlessDriver.NewDirector(log), 6, 2, 12, 0.33);
+        var l2 = new Darkest.Core.Events.CombatLog();
+        Darkest.Gameplay.Sim.Director.BattleDirector d6 = s2.BeginExpeditionBattle(6, l2, exp.DifficultyTiers);
+        Assert.AreEqual(0, d6.Enemy.UnitRuntimeAt(1)!.AttackMod, "攻击未被放大（只作用敌 HP）");
     }
 }

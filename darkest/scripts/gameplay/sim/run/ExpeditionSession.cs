@@ -204,6 +204,28 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         return moraleAfter;
     }
 
+    /// <summary>
+    /// **开始第 `battleIndex` 场（#252 / O-70 ①）**：先按会话流程建导演，再按 `tuning.expedition.difficulty_tiers`
+    /// 的档位乘数**只放大敌 HP**（`target: "enemy_hp"`；单次伤害不变 → 保 A1 濒死带）。
+    /// 🔴 增援单位在战斗内按基准生成，**不受乘数影响**（③ 不波及增援与 SP/资源）。
+    /// </summary>
+    public BattleDirector BeginExpeditionBattle(int battleIndex, CombatLog log,
+        IReadOnlyList<Darkest.Data.TuningDifficultyTier>? tiers)
+    {
+        BattleDirector director = BeginBattle(battleIndex, log);
+        Darkest.Data.TuningDifficultyTier? tier = tiers?.FirstOrDefault(
+            t => battleIndex >= t.BattleFrom && battleIndex <= t.BattleTo);
+        if (tier is not null && tier.Target == "enemy_hp" && Math.Abs(tier.Multiplier - 1.0) > 1e-9)
+        {
+            foreach (UnitRuntime u in director.Enemy.UnitsInSlotOrder())
+            {
+                u.ApplyMaxHpMultiplier(tier.Multiplier);
+            }
+        }
+
+        return director;
+    }
+
     /// <summary>UI 用（E2/E3 必显 ③）：6 人名册的 HP/MaxHp/士气（阵亡者 HP 0）。</summary>
     public IReadOnlyList<(string Id, int Hp, int MaxHp, int Morale)> Roster()
     {

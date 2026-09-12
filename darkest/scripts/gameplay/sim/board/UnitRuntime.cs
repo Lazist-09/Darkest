@@ -39,7 +39,23 @@ public sealed class UnitRuntime
     /// <summary>虚弱标记：靠齐时编号不得减小；伤害 −50%、速度 −30%（tuning weak）。</summary>
     public bool Weak { get; set; }
 
-    public int MaxHp { get; }
+    public int MaxHp { get; private set; }
+
+    /// <summary>
+    /// 远征层难度递进（#252 / O-70 ① 裁定：**只作用敌 HP**）：按场序放大最大 HP。
+    /// 单次伤害不变 → **保 A1 濒死带**（死门/阵亡）；代价是**拉长战斗** → 受"回合 4~6"护栏约束（⑳）。
+    /// 增援单位本体不受影响（③ 不波及增援与 SP/资源）。
+    /// </summary>
+    public void ApplyMaxHpMultiplier(double multiplier)
+    {
+        if (multiplier <= 0 || Math.Abs(multiplier - 1.0) < 1e-9)
+        {
+            return;
+        }
+
+        MaxHp = Math.Max(1, (int)Math.Round(MaxHp * multiplier));
+        CurrentHp = MaxHp;
+    }
 
     /// <summary>当前 HP（扣血/击杀/虚弱锁 1 语义见 T-M2-05/09）。</summary>
     public int CurrentHp { get; set; }

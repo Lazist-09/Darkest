@@ -284,6 +284,12 @@ public sealed record TuningConfig(
             }
 
             lastMultiplier = tier.Multiplier;
+            if (tier.Target is not null && tier.Target is not ("enemy_hp" or "enemy_resist"))
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: difficulty_tiers target 只能是 enemy_hp / enemy_resist（或 null=待裁定；P20 ⑭）。");
+            }
+
             expectedFrom = tier.BattleTo + 1;
         }
 
