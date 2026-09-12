@@ -125,7 +125,7 @@ public sealed class DirectorMilestoneTests
         Assert.IsTrue(r.Rate is >= 5 and <= 95, "成功率钳制 [5,95]");
         int moraleAfter = director.Player.UnitsInSlotOrder().Sum(u => u.Morale);
         Assert.AreEqual("retreat_success", log.Events.OfType<MoraleEvent>().Last().Source);
-        Assert.AreEqual(-10 * 6, moraleAfter - moraleBefore, "成功 → 全队 6 人各 −10（retreat_success）");
+        Assert.AreEqual(-12 * 6, moraleAfter - moraleBefore, "成功 → 存活者（6 人）各 −12（M7 #240 两档；原 −10 已推翻）");
         Assert.IsFalse(director.CanRetreatThisRound, "当回合不可再试（#118）");
 
         // 第二次尝试被拒（无新事件/无新士气扣）
