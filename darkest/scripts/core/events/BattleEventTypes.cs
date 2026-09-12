@@ -129,6 +129,13 @@ public sealed record AmbushTriggeredEvent(int AmbushIndex) : BattleEvent;
 /// <summary>回城结算（E6）：结局、士气前后与是否施加撤退惩罚。</summary>
 public sealed record TownReturnEvent(string Outcome, int MoraleBefore, int MoraleAfter, bool PenaltyApplied) : BattleEvent;
 
+// ---------------------------------------------------------------------------
+// M7.5 地牢层事件（D0~D3：#258）——光照必须可**从事件流复算**（UI 必显 ⑨）
+// ---------------------------------------------------------------------------
+
+/// <summary>光照变化（D0）：前进 −15 / 提亮 +30 / 扎营回满。</summary>
+public sealed record LightChangedEvent(int Before, int After, string Reason) : BattleEvent;
+
 /// <summary>敌方 AI 决策（G0）：用了哪条规则、打了谁。</summary>
 public sealed record EnemyDecisionEvent(UnitId Actor, string SkillId, int RuleIndex, string RuleCondition, int[] TargetSlots) : BattleEvent
 {

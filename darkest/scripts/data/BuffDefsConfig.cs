@@ -10,7 +10,7 @@ namespace Darkest.Data;
 // 枚举（data_schema §3.4 词汇，JSON 小写）
 public enum BuffClass { Buff, UnitState }
 public enum BuffPolarity { Positive, Negative }
-public enum BuffDurationType { Rounds, ActionSkip, Charges, UntilMorale50, UntilBattleEndOrMoraleZero, NextAttackWithinRounds, NextBattle, UntilNextRecovery }
+public enum BuffDurationType { Rounds, ActionSkip, Charges, UntilMorale50, UntilBattleEndOrMoraleZero, NextAttackWithinRounds, NextBattle, UntilNextRecovery, WhileCarried }
 public enum BuffStackRule { Refresh, Stack, None }
 public enum BuffModifierKind { StatMod, StateFlag, DamageMod, ProbMod }
 public enum BuffHookTiming { BeforeTakingDamage, AfterTakingDamage, BeforeAction, AfterAction, RoundStart, RoundEnd, BeforeUseSkill, BeforeHeal, BeforeAttack, BeforeEnemyAi }
@@ -112,7 +112,10 @@ public sealed record BuffDefsConfig(
             ("until_battle_end_or_morale_zero", BuffDurationType.UntilBattleEndOrMoraleZero),
             ("next_attack_within_rounds", BuffDurationType.NextAttackWithinRounds),
             ("next_battle", BuffDurationType.NextBattle),               // M7 E3：跨场到下一场战斗结束
-            ("until_next_recovery", BuffDurationType.UntilNextRecovery))); // M7 E3/E6：到下次恢复（扎营/回城）
+            ("until_next_recovery", BuffDurationType.UntilNextRecovery), // M7 E3/E6：到下次恢复（扎营/回城）
+            // 🔴 M7.5 D6 #3：**第四类**不可合并 —— "只要在背包里就生效"：
+            // 扎营/回城**都不清**（与 until_next_recovery 的关键区别），只有丢弃/掏出才失效
+            ("while_carried", BuffDurationType.WhileCarried)));
         o.Converters.Add(new LowerEnumJsonConverter<BuffStackRule>(
             ("refresh", BuffStackRule.Refresh), ("stack", BuffStackRule.Stack), ("none", BuffStackRule.None)));
         o.Converters.Add(new LowerEnumJsonConverter<BuffModifierKind>(

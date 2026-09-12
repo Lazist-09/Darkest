@@ -7,16 +7,43 @@
   "weak_exit_hp_ratio": 0.10,
   "deaths_door": { "affliction_penalty_percent": 10 },
   "retreat": { "success_morale": -12, "with_death_morale": -15, "fail_morale": -5, "scope": "survivors" },
+  "light": {
+    "enter_value": 100,
+    "advance_cost": 15,
+    "brighten_gain": 30,
+    "brighten_firewood_cost": 1,
+    "camp_restore_to": 100,
+    "event_torch_gain": 20,
+    "event_dark_cost": 20,
+    "tiers": [
+      { "id": "radiant", "min": 76, "max": 100 },
+      { "id": "dim",     "min": 51, "max": 75 },
+      { "id": "shadowy", "min": 26, "max": 50 },
+      { "id": "dark",    "min": 1,  "max": 25 },
+      { "id": "black",   "min": 0,  "max": 0 }
+    ],
+    "drop_chance": { "radiant": 0.0, "dim": 0.25, "shadowy": 0.5, "dark": 0.75, "black": 0.95 },
+    "effects": {
+      "radiant": { "our_morale_damage_pct": 0,  "enemy_acc": 0,    "enemy_dmg_pct": 0,   "enemy_crit_pct": 0, "our_ambush_pct": 0,  "our_crit_pct": 0, "scouting_pct": 15 },
+      "dim":     { "our_morale_damage_pct": 10, "enemy_acc": 0,    "enemy_dmg_pct": 0,   "enemy_crit_pct": 1, "our_ambush_pct": 0,  "our_crit_pct": 0, "scouting_pct": 7.5 },
+      "shadowy": { "our_morale_damage_pct": 20, "enemy_acc": 5,    "enemy_dmg_pct": 10,  "enemy_crit_pct": 2, "our_ambush_pct": 15, "our_crit_pct": 1, "scouting_pct": 0 },
+      "dark":    { "our_morale_damage_pct": 30, "enemy_acc": 10,   "enemy_dmg_pct": 15,  "enemy_crit_pct": 3, "our_ambush_pct": 25, "our_crit_pct": 2, "scouting_pct": 0 },
+      "black":   { "our_morale_damage_pct": 40, "enemy_acc": 12.5, "enemy_dmg_pct": 25,  "enemy_crit_pct": 5, "our_ambush_pct": 40, "our_crit_pct": 3, "scouting_pct": 0 }
+    },
+    "note": "#258 / D0：柴火 = Torch + Firewood 合一；P21 ③ 效果表**不得出现任何 HP 字段**（否则把 #255 已否决的杠杆搬回来）"
+  },
+  "scouting": { "base_pct": 25, "reveal": "next_node_type_only" },
+  "inventory": { "slot_cap": 12, "food_stackable": false },
   "expedition": {
     "n_battles": 6,
     "ambush_chance": 0.33,
     "retreat_penalty": { "no_death": 12, "with_death": 15 },
     "difficulty_tiers": [
-      { "battle_from": 1, "battle_to": 2, "multiplier": 1.0,  "target": "enemy_hp", "stun_resist_pp": 0 },
-      { "battle_from": 3, "battle_to": 4, "multiplier": 1.1,  "target": "enemy_hp", "stun_resist_pp": 0 },
-      { "battle_from": 5, "battle_to": 6, "multiplier": 1.1,  "target": "enemy_hp", "stun_resist_pp": 15 }
+      { "battle_from": 1, "battle_to": 2, "multiplier": 1.0, "target": "enemy_hp", "stun_resist_pp": 0 },
+      { "battle_from": 3, "battle_to": 4, "multiplier": 1.0, "target": "enemy_hp", "stun_resist_pp": 0 },
+      { "battle_from": 5, "battle_to": 6, "multiplier": 1.0, "target": "enemy_hp", "stun_resist_pp": 15 }
     ],
-    "difficulty_note": "#252 / O-70 ① 裁定：乘数**只作用敌 HP**（保 A1 濒死带）；护栏=回合 4~6（×1.25 预计破带 → 备用轴 敌抗性↑）；增援/SP/资源不波及"
+    "difficulty_note": "#255 (v0.96)：敌 HP 递进【不可行】→ **×1.1/×1.25 全部撤销、敌 HP 保持 ×1.0**（链式 ×1.1=10.45 破带 49%）；难度改由【眩晕抗性 +15pp】承担（30/25/40 → 45/40/55），该轴不改回合数、不改伤害"
   },
   "resources": { "firewood": 2, "food": 12 },
   "camp": { "food_tiers": { "starve": 0, "half": 3, "full": 6, "feast": 12 }, "respite_base": 6, "pep_talk_battles": 4, "ambush_chance": 0.33 },

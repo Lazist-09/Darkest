@@ -128,6 +128,44 @@ public sealed record TuningExpedition(
 /// 难度递进档（#250）：按**场序**施加的乘数（**远征层**，不得写进 `units.json` 的单场基准值）。
 /// 🔴 `Target` 为 null = **施加对象待 O-70 ① 裁定**（敌 HP / 敌攻击 / 两者）——**实现方不得自行选定**。
 /// </summary>
+/// <summary>M7.5 地牢层（#258 / D0）：光照计 + 侦察 + 背包。**效果表 7 项，禁止任何 HP 字段**（P21 ③）。</summary>
+public sealed record TuningLight(
+    [property: JsonPropertyName("enter_value")] int EnterValue,
+    [property: JsonPropertyName("advance_cost")] int AdvanceCost,
+    [property: JsonPropertyName("brighten_gain")] int BrightenGain,
+    [property: JsonPropertyName("brighten_firewood_cost")] int BrightenFirewoodCost,
+    [property: JsonPropertyName("camp_restore_to")] int CampRestoreTo,
+    [property: JsonPropertyName("event_torch_gain")] int EventTorchGain,
+    [property: JsonPropertyName("event_dark_cost")] int EventDarkCost,
+    [property: JsonPropertyName("tiers")] IReadOnlyList<TuningLightTier> Tiers,
+    [property: JsonPropertyName("drop_chance")] Dictionary<string, double> DropChance,
+    [property: JsonPropertyName("effects")] Dictionary<string, TuningLightEffect> Effects);
+
+public sealed record TuningLightTier(
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("min")] int Min,
+    [property: JsonPropertyName("max")] int Max);
+
+/// <summary>光照效果（7 项；**无 HP 字段** = #255 已否决的杠杆不得回流）。</summary>
+public sealed record TuningLightEffect(
+    [property: JsonPropertyName("our_morale_damage_pct")] double OurMoraleDamagePct,
+    [property: JsonPropertyName("enemy_acc")] double EnemyAcc,
+    [property: JsonPropertyName("enemy_dmg_pct")] double EnemyDmgPct,
+    [property: JsonPropertyName("enemy_crit_pct")] double EnemyCritPct,
+    [property: JsonPropertyName("our_ambush_pct")] double OurAmbushPct,
+    [property: JsonPropertyName("our_crit_pct")] double OurCritPct,
+    [property: JsonPropertyName("scouting_pct")] double ScoutingPct);
+
+/// <summary>侦察（D1）：基础命中率 + 光照加成；**只揭示下一节点类型**。</summary>
+public sealed record TuningScouting(
+    [property: JsonPropertyName("base_pct")] double BasePct,
+    [property: JsonPropertyName("reveal")] string Reveal);
+
+/// <summary>背包（D2）：12 格；口粮不堆叠 ⇒ 默认装不下（**P21 ⑥ 不许把 slot_cap 调到 15**）。</summary>
+public sealed record TuningInventory(
+    [property: JsonPropertyName("slot_cap")] int SlotCap,
+    [property: JsonPropertyName("food_stackable")] bool FoodStackable);
+
 public sealed record TuningDifficultyTier(
     [property: JsonPropertyName("battle_from")] int BattleFrom,
     [property: JsonPropertyName("battle_to")] int BattleTo,
@@ -193,6 +231,9 @@ public sealed record TuningConfig(
     [property: JsonPropertyName("weak_exit_hp_ratio")] double WeakExitHpRatio,
     [property: JsonPropertyName("deaths_door")] TuningDeathsDoor DeathsDoor,
     [property: JsonPropertyName("retreat")] TuningRetreat Retreat,    [property: JsonPropertyName("expedition")] TuningExpedition Expedition,
+    [property: JsonPropertyName("light")] TuningLight? Light,
+    [property: JsonPropertyName("scouting")] TuningScouting? Scouting,
+    [property: JsonPropertyName("inventory")] TuningInventory? Inventory,
     [property: JsonPropertyName("resources")] TuningResources Resources,
     [property: JsonPropertyName("camp")] TuningCamp Camp,
     [property: JsonPropertyName("support_slot_morale_per_turn")] int SupportSlotMoralePerTurn,
@@ -232,7 +273,7 @@ public sealed record TuningConfig(
             throw new InvalidDataException($"{ResPath}: JSON 语法错误 —— {ex.Message}");
         }
 
-        Validate(cfg);
+        Validate(cfg, json);
         return cfg;
     }
 
@@ -243,7 +284,33 @@ public sealed record TuningConfig(
         AllowTrailingCommas = false,
     };
 
-    private static void Validate(TuningConfig t)
+    private static void ValidateLightHasNoHpFields(string rawJson)
+    {
+        int lightAt = rawJson.IndexOf("\"light\"", StringComparison.Ordinal);
+        if (lightAt < 0)
+        {
+            return;
+        }
+
+        int effectAt = rawJson.IndexOf("\"effects\"", lightAt, StringComparison.Ordinal);
+        if (effectAt < 0)
+        {
+            return;
+        }
+
+        int endAt = rawJson.IndexOf("\"expedition\"", effectAt, StringComparison.Ordinal);
+        string slice = endAt > effectAt ? rawJson[effectAt..endAt] : rawJson[effectAt..];
+        foreach (string bad in new[] { "hp", "max_hp", "enemy_hp", "our_hp" })
+        {
+            if (slice.Contains($"\"{bad}\"", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: light.effects **不得出现任何 HP 字段**（发现 \"{bad}\"；P21 ③ / #255 已否决该杠杆）。");
+            }
+        }
+    }
+
+    private static void Validate(TuningConfig t, string rawJson)
     {
         if (t.Morale is null || t.MentalReduction is null || t.Weak is null
             || t.DeathsDoor is null || t.Bleed is null || t.StatDebuffDefault is null
@@ -311,6 +378,85 @@ public sealed record TuningConfig(
         {
             throw new InvalidDataException(
                 $"{ResPath}: difficulty_tiers 必须**恰好覆盖第 1~{t.Expedition.NBattles} 场**（实际覆盖到 {expectedFrom - 1}；P20 ⑭）。");
+        }
+
+        // 🔴 P21（M7.5 地牢层，加载级 fail-fast）：① 五档覆盖 0~100 无缝隙无重叠 + 边界取档；③ 效果表**不得出现 HP 字段**；
+        // ④ 掉落概率 ∈ [0,1] 且随变暗**单调不减**；⑤ 侦察 base ≥ 0；⑥ 背包 slot_cap = 12（**不许调到 15 来"修好"取舍**）。
+        if (t.Light is null || t.Scouting is null || t.Inventory is null)
+        {
+            throw new InvalidDataException($"{ResPath}: light / scouting / inventory 三段必填（P21）。");
+        }
+
+        if (t.Light.Tiers.Count != 5)
+        {
+            throw new InvalidDataException($"{ResPath}: light.tiers 必须**五档**（P21 ①）。");
+        }
+
+        int expectMax = 100;
+        string[] order = { "radiant", "dim", "shadowy", "dark", "black" };
+        for (int i = 0; i < order.Length; i++)
+        {
+            TuningLightTier tier = t.Light.Tiers.FirstOrDefault(x => x.Id == order[i])
+                ?? throw new InvalidDataException($"{ResPath}: light.tiers 缺档 \"{order[i]}\"（P21 ①）。");
+            if (tier.Max != expectMax)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: light.tiers \"{tier.Id}\" max 应为 {expectMax}（实际 {tier.Max}；P21 ① 无缝隙无重叠）。");
+            }
+
+            if (tier.Min < 0 || tier.Min > tier.Max + (tier.Id == "black" ? 0 : 1))
+            {
+                throw new InvalidDataException($"{ResPath}: light.tiers \"{tier.Id}\" 区间非法（P21 ①）。");
+            }
+
+            expectMax = tier.Min - 1;
+        }
+
+        if (expectMax != -1)
+        {
+            throw new InvalidDataException($"{ResPath}: light.tiers 必须覆盖到 0（P21 ①）。");
+        }
+
+        foreach ((string id, double chance) in t.Light.DropChance)
+        {
+            if (chance is < 0 or > 1)
+            {
+                throw new InvalidDataException($"{ResPath}: light.drop_chance[\"{id}\"] 必须 ∈ [0,1]（P21 ④）。");
+            }
+        }
+
+        double lastDrop = -1;
+        foreach (string id in order)
+        {
+            if (!t.Light.DropChance.TryGetValue(id, out double chance))
+            {
+                throw new InvalidDataException($"{ResPath}: light.drop_chance 缺档 \"{id}\"（P21 ④）。");
+            }
+
+            if (chance < lastDrop)
+            {
+                throw new InvalidDataException($"{ResPath}: light.drop_chance 必须随变暗**单调不减**（{id}；P21 ④）。");
+            }
+
+            lastDrop = chance;
+            if (!t.Light.Effects.ContainsKey(id))
+            {
+                throw new InvalidDataException($"{ResPath}: light.effects 缺档 \"{id}\"（P21 ③）。");
+            }
+        }
+
+        // ③ 效果表不得出现 HP 字段（用原始 JSON 文本兜底检查，防将来加字段）
+        ValidateLightHasNoHpFields(rawJson);
+
+        if (t.Scouting.BasePct < 0 || t.Scouting.Reveal != "next_node_type_only")
+        {
+            throw new InvalidDataException($"{ResPath}: scouting 必须 base_pct ≥ 0 且 reveal=next_node_type_only（P21 ⑤）。");
+        }
+
+        if (t.Inventory.SlotCap != 12)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: inventory.slot_cap 必须 = 12（P21 ⑥：**不许调到 15 来「修好」设计取舍**）。");
         }
 
         // 🔴 P20（M7 远征层）：①②③ —— 键齐备与值域，**加载级 fail-fast**

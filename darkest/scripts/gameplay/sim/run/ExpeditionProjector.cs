@@ -169,12 +169,13 @@ public static class ExpeditionProjector
         lines.Add("④b 食物档位：" + string.Join("　", FoodTiers.Select(t =>
             $"{t}{(v.IsFoodTierDisabled(t) ? "（灰显：口粮不足）" : $"（需 {ExpeditionCampMath.FoodRequired(camp.FoodTiers, t, session.Survivors)}）")}")));
 
-        // ⑧ 难度档位（v0.92 必显：**当前档位 + 后续难度预告**；乘数施加对象待 O-70 ① 裁定，暂未施加）
+        // ⑧ 难度档位（v0.92 必显；**#255 v0.96 更新**：敌 HP 递进撤销 ×1.0，难度改由【眩晕抗性 +15pp】承担）
+        string resist = v.CurrentDifficultyRange is null ? string.Empty : "　难度＝敌眩晕抗性（末档 +15pp）";
         lines.Add(v.NextDifficultyMultiplier is null
-            ? $"⑧ 难度：第 {v.CurrentBattleIndex} 场 ×{v.CurrentDifficultyMultiplier:F2}（{v.CurrentDifficultyRange}）" +
-              "　后续：无（末档）　［乘数施加对象待 O-70 ① 裁定 → **当前不施加**］"
-            : $"⑧ 难度：第 {v.CurrentBattleIndex} 场 ×{v.CurrentDifficultyMultiplier:F2}（{v.CurrentDifficultyRange}）" +
-              $"　后续预告：×{v.NextDifficultyMultiplier:F2}（{v.NextDifficultyRange}）　［待 O-70 ① 裁定 → **当前不施加**］");
+            ? $"⑧ 难度：第 {v.CurrentBattleIndex} 场 敌 HP ×{v.CurrentDifficultyMultiplier:F2}（{v.CurrentDifficultyRange}）" +
+              $"　后续：无（末档）{resist}　［#255：HP 递进已撤销］"
+            : $"⑧ 难度：第 {v.CurrentBattleIndex} 场 敌 HP ×{v.CurrentDifficultyMultiplier:F2}（{v.CurrentDifficultyRange}）" +
+              $"　后续预告：敌 HP ×{v.NextDifficultyMultiplier:F2}（{v.NextDifficultyRange}）{resist}　［#255：HP 递进已撤销，改由抗性承担］");
         return lines;
     }
 }
