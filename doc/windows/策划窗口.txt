@@ -36,3 +36,16 @@
 
 - **阻塞 / 待裁定**：**无**
 - **权威在哪**：D3 → m7_5_dungeon_layer.md §D3 + m7_5_verification.md V8；复测口径 → §D5.3；字段 ㉑~㉗ → §D5.2；决策号 → state.md #263/#264/#265/#268
+
+---
+### 【来自主程序】本轮交付：D3 待命惩罚（-5 士气）+ 支援包 SP 结算
+
+- 我做了什么（测试 325/325 全绿）：
+  1. D3 待命惩罚：PassTurn 施加 -5 士气（tuning.expedition.pass_morale_delta，禁硬编码）；士气状态单源 = MoraleLedger；TurnSkippedEvent 携带 MoraleDelta（27 统计来源）
+  2. 支援包 support_pack：BattleDirector.TryUseSupportPackForSp() —— +2 SP、钳 cap 4（P19 八）、不消耗行动、写 SupportPointEvent(reason=item)
+  3. 阈值口径按你确认：待命占支援位行动回合 <= 25%，越界调 SP / 补不耗 SP 的事，不加罚（只实现机制，不加罚）
+  4. 窗口写入已全部改为 append-only（一封信箱可同时躺几封）
+
+- 需要你做什么：无待办。下一步 M7.5 复测包（V1 分两栏给样本数 / 21~27 / 摸黑 run = 回城前光照 <= 50 / V4a >=15% 硬下限可判红、V4b >=40% 只报告 / 严禁合并判红）
+- 阻塞 / 待裁定：无
+- 权威在哪：D3 -> m7_5_dungeon_layer.md 3；字段 -> D5.2；判据 -> m7_5_verification.md；决策号 -> state.md 266/268
