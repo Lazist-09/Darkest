@@ -41,7 +41,9 @@ public sealed record TuningDeathsDoor(
 
 public sealed record TuningRetreat(
     [property: JsonPropertyName("success_morale")] int SuccessMorale,
-    [property: JsonPropertyName("fail_morale")] int FailMorale);
+    [property: JsonPropertyName("with_death_morale")] int WithDeathMorale,
+    [property: JsonPropertyName("fail_morale")] int FailMorale,
+    [property: JsonPropertyName("scope")] string Scope);
 
 /// <summary>护卫（#159；O-22 只挡物理）。M4 消费。</summary>
 public sealed record TuningGuardRedirect(
@@ -110,6 +112,39 @@ public sealed record TuningRetreatFormula(
     [property: JsonPropertyName("rand_clamp_max")] int RandClampMax,
     [property: JsonPropertyName("source")] string Source);
 
+// ---------------------------------------------------------------------------
+// M7 远征层（#240 / O-66）：expedition / resources / camp（P20 数据一致性）
+// ---------------------------------------------------------------------------
+
+/// <summary>远征层参数（E0/E6）：N 场战斗、夜袭概率、撤退两档惩罚。</summary>
+public sealed record TuningExpedition(
+    [property: JsonPropertyName("n_battles")] int NBattles,
+    [property: JsonPropertyName("ambush_chance")] double AmbushChance,
+    [property: JsonPropertyName("retreat_penalty")] TuningRetreatPenalty RetreatPenalty);
+
+/// <summary>撤退士气惩罚两档（只作用于存活者）。</summary>
+public sealed record TuningRetreatPenalty(
+    [property: JsonPropertyName("no_death")] int NoDeath,
+    [property: JsonPropertyName("with_death")] int WithDeath);
+
+/// <summary>一趟远征的起手资源（E2）：柴火 = 扎营许可；口粮 = 吃饭。</summary>
+public sealed record TuningResources(
+    [property: JsonPropertyName("firewood")] int Firewood,
+    [property: JsonPropertyName("food")] int Food);
+
+/// <summary>扎营参数（E3）：四档食物 / Respite 基准 / 打气持续场数 / 夜袭概率。</summary>
+public sealed record TuningCamp(
+    [property: JsonPropertyName("food_tiers")] TuningFoodTiers FoodTiers,
+    [property: JsonPropertyName("respite_base")] int RespiteBase,
+    [property: JsonPropertyName("pep_talk_battles")] int PepTalkBattles,
+    [property: JsonPropertyName("ambush_chance")] double AmbushChance);
+
+public sealed record TuningFoodTiers(
+    [property: JsonPropertyName("starve")] int Starve,
+    [property: JsonPropertyName("half")] int Half,
+    [property: JsonPropertyName("full")] int Full,
+    [property: JsonPropertyName("feast")] int Feast);
+
 /// <summary>命中率钳制 [55,100]（combat_math §1）。</summary>
 public sealed record TuningHitClamp(
     [property: JsonPropertyName("min")] int Min,
@@ -144,7 +179,9 @@ public sealed record TuningConfig(
     [property: JsonPropertyName("weak_recovery")] TuningWeakRecovery WeakRecovery,
     [property: JsonPropertyName("weak_exit_hp_ratio")] double WeakExitHpRatio,
     [property: JsonPropertyName("deaths_door")] TuningDeathsDoor DeathsDoor,
-    [property: JsonPropertyName("retreat")] TuningRetreat Retreat,
+    [property: JsonPropertyName("retreat")] TuningRetreat Retreat,    [property: JsonPropertyName("expedition")] TuningExpedition Expedition,
+    [property: JsonPropertyName("resources")] TuningResources Resources,
+    [property: JsonPropertyName("camp")] TuningCamp Camp,
     [property: JsonPropertyName("support_slot_morale_per_turn")] int SupportSlotMoralePerTurn,
     [property: JsonPropertyName("support_points")] TuningSupportPoints SupportPoints,
     [property: JsonPropertyName("affliction_proc_percent")] int AfflictionProcPercent,
@@ -203,6 +240,53 @@ public sealed record TuningConfig(
             || t.Retreat is null)
         {
             throw new InvalidDataException($"{ResPath}: 必填段缺失。");
+        }
+
+        // 🔴 P20（M7 远征层）：①②③ —— 键齐备与值域，**加载级 fail-fast**
+        if (t.Expedition is null || t.Resources is null || t.Camp is null)
+        {
+            throw new InvalidDataException($"{ResPath}: expedition / resources / camp 三段必填（P20）。");
+        }
+
+        if (t.Expedition.NBattles < 1)
+        {
+            throw new InvalidDataException($"{ResPath}: expedition.n_battles 必须 ≥ 1（P20 ①）。");
+        }
+
+        if (t.Expedition.AmbushChance is < 0 or > 1 || t.Camp.AmbushChance is < 0 or > 1)
+        {
+            throw new InvalidDataException($"{ResPath}: ambush_chance 必须 ∈ [0,1]（P20 ①）。");
+        }
+
+        if (t.Expedition.RetreatPenalty.NoDeath < 0 || t.Expedition.RetreatPenalty.WithDeath < t.Expedition.RetreatPenalty.NoDeath)
+        {
+            throw new InvalidDataException($"{ResPath}: retreat_penalty 必须 ≥0 且 with_death ≥ no_death（P20 ①）。");
+        }
+
+        if (t.Resources.Firewood < 0 || t.Resources.Food < 0)
+        {
+            throw new InvalidDataException($"{ResPath}: resources.firewood / food 必须 ≥ 0（P20 ②）。");
+        }
+
+        TuningFoodTiers ft = t.Camp.FoodTiers;
+        if (!(ft.Starve < ft.Half && ft.Half < ft.Full && ft.Full < ft.Feast))
+        {
+            throw new InvalidDataException($"{ResPath}: camp.food_tiers 四档必须单调 0 < half < full < feast（P20 ③）。");
+        }
+
+        if (t.Camp.RespiteBase < 1 || t.Camp.PepTalkBattles < 1)
+        {
+            throw new InvalidDataException($"{ResPath}: camp.respite_base ≥ 1 且 pep_talk_battles ≥ 1（P20 ③）。");
+        }
+
+        // ⑥ 撤退对账：morale_events 两档必须与 tuning.retreat 一致、且 scope = survivors
+        if (t.Retreat.Scope != "survivors"
+            || t.Retreat.SuccessMorale != -t.Expedition.RetreatPenalty.NoDeath
+            || t.Retreat.WithDeathMorale != -t.Expedition.RetreatPenalty.WithDeath)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: retreat 与 retreat_penalty 对账失败（P20 ⑥）：scope=survivors、" +
+                $"success_morale=-no_death、with_death_morale=-with_death。");
         }
 
         if (t.Morale.Min >= t.Morale.Max)

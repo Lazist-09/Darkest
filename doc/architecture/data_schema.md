@@ -42,10 +42,12 @@
 | `enemy_ai.json` | enemy.md §5.4 AI 优先级表（固定 + 随机） | 每敌人原型的技能优先级规则（切片关闭随机 #112） | 改 AI 规则只改 JSON；切片只 1 套编成（#89） |
 | `formation.json` | GDD §1.1/§1.3/§1.6 / formation.md / character.md §1 / enemy.md §5.1 | 槽位常量（我方 6 = 4 战斗 + 2 支援、敌方 4）、初始编成、编号/边界/障碍规则标记 | 编成属内容配置，切片固定 1 套；改编成只改此文件 |
 | `tuning.json` | combat_math / morale / GDD 各节（每字段单独标出处） | 系统级过程常量（钳制、公式系数、回合/次数参数、减益默认值） | 数值迭代按 verification.md；结构变更须架构师评审 |
+| `camp_skills.json` 🆕 | **`expedition.md` §3.2**（M7） | **扎营技能**（3 个：鼓舞/包扎/打气）：点数、效果、目标语义 | M7 新增；改数只改 JSON |
+| `expedition_nodes.json` 🆕 | **`expedition.md` §1.3**（M7） | **选路节点表**（`battle`/`event` 与事件选项/效果）；**阶段二再加 `elite`** | M7 新增；加节点类型须架构师评审 |
 
 > 备注 1：README §2（M3 行）写"42 条技能数据"为更早笔误；skill_data.md 现为 **36 池内 + 4 池外移动 + 7 敌方 = 47 条**（#180），本文与 skill_data 以 **47 条**为准。
 > 备注 2：所有配置 JSON 存放于 `res://data/`（工程根 `darkest/data/`，_conventions §3）；C# 模型/加载/校验代码归属 `res://scripts/data/`；导入后的只读资源按蓝图约定放 `res://resources/`。
-> 备注 3：切片 **没有**装备/营地/招募/存档等外部数据（GDD §15），故数据文件仅上表 7 个，不再新增。
+> 备注 3：**切片**没有装备/营地/招募/存档等外部数据（GDD §15），故**切片**数据文件 7 个。🔴 **M7（远征层）起新增 2 个**：**`camp_skills.json`**（扎营技能）与 **`expedition_nodes.json`**（选路节点/事件）→ **共 9 个**；`tuning.json` 内新增 `expedition` / `resources` / `camp` 三个子结构（§3.8）。**新增文件仍走同一加载管线（§4.1）与 fail-fast 校验**，不得旁路加载。
 > 🔴 **备注 5（C 轴，v0.67+ 部分收回；v0.76 文案与 `enemy.md` 逐字对齐）**：**C 轴 = 敌方攻击范围是否覆盖我方支援位 5/6**（#214 的 ②）。**口径原句：`敌方覆盖 5/6 ＝ 除重劈外`** —— **重劈（近战小兵 `melee_heavy_slash`）`[1,2,5,6] → [1,2]`**；**其余敌方技能（威吓箭 / 精神震荡 / 精准射击 / 恐惧低语）保留覆盖 5/6**。→ `skills.json` 仅此一条敌方技能需要改判据；`skill_data.md` §5 本表即写 `我 1、2`（**收回后与策划表一致**）。✅ **策划侧已同步**：`enemy.md` §5.3 技能表全表重写 + 新增上述口径原句（#231）；**同批划线作废了 §2.1 两处 + §5.4 一处的残留设计论证（#234）**——即"策划文档仍在挂"的真因是**过时论证**，不是规则表漏改。
 > 备注 4：**口径约定（v0.54 起，取代旧"起手值/生效值"读法）**：**策划表（`skill_data.md`/`enemy.md`/`combat_math.md`）记录的是「最新决策值」**——即"策划已拍板、可能尚未落地"；**实现滞后时由本文件记两档**（**现生效** / **目标（决策值）**），落地后两档合并。
 > - 🔴 **v0.75 起本档收敛**：**现生效 = 决策值** —— 敌 HP **`32/32/25/21`（110）**、**`m_value: 7`**、**首波增援第 7 回合**、敌攻 **12/13/12**、**急救 12 HP/CD 1**、**死门抗性 `80/85/70/70`**、**近战/射手 `target_preference = random`**；仍滞后待落地的**仅剩**：收割 **0.6/0.7**、劈砍 **1.0**（其余已在生效值内）。
@@ -77,7 +79,7 @@ JSON 一律存小写 ASCII 字符串，C# 用对应 PascalCase 枚举（由 `Jso
 | 敌人目标偏好 TargetPreference | **`random`（默认）** / `lowest_hp` / `backmost` / `lowest_morale` | `Random` / `LowestHp` / `Backmost` / `LowestMorale` | **池内选人偏好**：🔴 **`random` = 池内均匀随机、必须写 `RngDraw`；池内唯一候选不掷骰**（#230：近战小兵与远程射手均改此档，**治"趁伤收残＝集火"**）；`lowest_hp`/`backmost`/`lowest_morale` 保留为可选（`backmost` 曾用于射手点后排） | **state #230 / O-44 / O-46** |
 | 状态类别 StatusClass | `buff` / `unit_state` | `Buff` / `UnitState` | 数据驱动可挂 buff / 机制性单位状态（虚弱、崩溃余烬） | 见 §3.4 分类说明 |
 | 状态极性 Polarity | `positive` / `negative` | `Positive` / `Negative` | 正面（不可驱散）/ 负面（可驱散） | buff.md §5.1 |
-| 持续时间类型 DurationType | `rounds` / `action_skip` / `charges` / `until_morale_50` / `until_battle_end_or_morale_zero` / `next_attack_within_rounds` / `until_battle_end` / **`until_run_end`** | `Rounds` / `ActionSkip` / `Charges` / `UntilMorale50` / `UntilBattleEndOrMoraleZero` / `NextAttackWithinRounds` / `UntilBattleEnd` / **`UntilRunEnd`** | 回合数 / 跳过 1 次行动即结束（眩晕）/ 次数（护盾）/ 到士气回初始值（折磨）/ 战斗结束或士气再归 0（美德）/ 下次攻击且 ≤N 回合（突进增伤）/ 到本次战斗结束 / **到本次「跑图」结束（跨场保留，#225/O-63；M7 有扎营/回城后改为"到下次恢复"）** | buff.md §6 / GDD §2.5 / combat_math §4 / morale §8 / **dd_reference §1.5** / **#225** |
+| 持续时间类型 DurationType | `rounds` / `action_skip` / `charges` / `until_morale_50` / `until_battle_end_or_morale_zero` / `next_attack_within_rounds` / `until_battle_end` / `until_run_end` / **`until_next_recovery`** | … / `UntilBattleEnd` / `UntilRunEnd` / **`UntilNextRecovery`** | … / 到本次战斗结束 / 到本趟远征结束 / 🔴 **到「下次恢复」（扎营或回城）——M7 起 `deaths_door_recovery` 与"打气（4 场）"类跨场效果用它**（#240：**原 `until_run_end` 语义被它取代**；无扎营/回城的切片里两者等价） | buff.md §6 / **expedition.md §4** / **#240** |
 | 叠层规则 StackRule | `refresh` / `stack` / `none` | `Refresh` / `Stack` / `None` | 有时限 buff 再次获得=刷新时长 / 无限时 buff=叠层有上限 / 不叠层（美德上限 1） | buff.md §5 / #159 |
 | 附加效果类型 EffectType | `stun` / `taunt` / `bleed` / `stat_mod` / `shield` / `guard_attach` / `next_attack_boost` / **`mark`** | `Stun` / `Taunt` / `Bleed` / `StatMod` / `Shield` / `GuardAttach` / `NextAttackBoost` / **`Mark`** | 眩晕 / 嘲讽 / 流血 / 属性修正（增减益）/ 护盾（次数型）/ 护卫守护链接 / 下次攻击加成（敌人突进）/ **标记（#204，无数值；防守=嘲讽 vs 进攻=标记）** | skill_data 附加列 + combat_math §4 + buff.md §7 + **dd_reference §1.3** |
 
@@ -311,7 +313,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `support_slot_turn_start` | 站在支援位（每回合） | +3 | self | normal（每回合一次） | #60 | — |
 | `battle_inspiration` | 政委「战场鼓舞」 | +15 | self（施放给的目标） | normal | morale §2 | 单一目标；同值也由技能声明，供 §4 校验 P5 对账 |
 | `morale_full_100` | 士气冲满 100 | +10 | team | once_per_battle（一次性） | #104/#151/#155 | 附加效果：自身回 50（该复位值属系统行为，见 tuning §3.7 士气条目说明） |
-| `retreat_success` | 撤退成功 | −10 | team | normal（一次撤退结算） | #126/#43 | — |
+| `retreat_success` | 撤退成功 | 🔴 **两档（#240 改写，推翻 #43 字面值）**：本趟**无死亡 −12 / 有死亡 −15** | **`survivors`（只罚存活者）** | normal（**撤退发生的那一刻立即结算一次**；回城不再二次扣） | #126/#43 → **#240** | 🔴 **不再是"team 固定 −10"**（旧写法含阵亡者） |
 | `retreat_fail` | 撤退失败 | −5 | team | normal（一次撤退结算；失败当回合不可再试 #118） | #126/#43 | — |
 | `weak_hit_any_damage` | 虚弱状态下受伤（任意类型） | −5 | self | once_per_turn_max1 | #157 | §5.1 例外：物理不掉士气的唯一例外；每回合最多 1 次；可改"仅精神"（开放题 #README-3） |
 
@@ -339,7 +341,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `taunt` 嘲讽 | buff / **positive**（#192） | **挂在我方嘲讽者身上**（`tank_taunt.target = {scope:self}`）；效果 = 改敌方 AI **加权**优先攻击嘲讽者：嘲讽者权重 `taunt_weight`（起手 3），其余候选各 1（#187；唯一候选=100%）；hook 文案 `enemy weighted prefers attacker (taunt holder)` | `rounds` = 2 | refresh | ❌ **不可驱散**（正面不可驱散，buff.md §5.1；O-53） | 坦克·嘲讽（CD 3，**self 技能**→按 O-49 需点自己的卡） | skill_data §2 / buff.md §7 / #187/#192 / O-53 |
 | `bleed` 流血 | buff / negative | 每回合 **3** 点固定伤害 —— 🔴 **v0.52/DoT 三规则（#205）**：① **不受物防减免**（写死）；② **暴击施加时长 2 → 4 回合**；③ **在「目标回合开始」结算**（非回合结束）；④ **每回合伤害不可暴击** | `rounds` = 2（普通）/ **4（暴击施加）** | refresh | ✅ 可驱散 | **v0.52 起有施加者**：战士【突刺】、军医【致命注射】各追加 **3×2** | combat_math §4 / **dd_reference §1.4** |
 | `mark` 标记 | buff / negative（#204） | **无数值纯标记**；效果 = ① 带 mark 目标被声明 `bonus_vs_marked_percent` 的技能**加伤**（起手 +25%，乘法阶段）；② 敌方 AI 对带 mark 的**我方**提高权重（复用 #187 权重制，起手 **×2**）；**不可被抵抗**（施加技能本身仍可 miss） | `rounds` = 3 | refresh | ✅ 可驱散 | 政委【督战】（起手落地）；敌方亦可给我方上 mark＝威胁点名 | **dd_reference §1.3** / buff.md §7 / #204 |
-| `deaths_door_recovery` 死门后遗症 | buff / negative（#206） | **受到伤害 +10% · 命中 −5 · 速度 −1**；**多次进出死门不叠加**（只一层，防死亡螺旋）；UI 必须显著标注 | 🔴 **`until_run_end`（跨场保留；#225/O-63 改**，原 `until_battle_end`） | **none（不叠加）** | ✅ 可驱散（负面） | 死门**存活并归队**（`WeakDeathsDoor.TryRecover`）时授予 | **dd_reference §1.5** / #206 / **#225** |
+| `deaths_door_recovery` 死门后遗症 | buff / negative（#206） | **受到伤害 +10% · 命中 −5 · 速度 −1**；**多次进出死门不叠加**（只一层，防死亡螺旋）；UI 必须显著标注 | 🔴 **`until_next_recovery`（到下次恢复：扎营/回城；#240 起由 `until_run_end` 改义**——切片无恢复手段时两者等价） | **none（不叠加）** | ✅ 可驱散（负面） | 死门**存活并归队**（`WeakDeathsDoor.TryRecover`）时授予 | dd_reference §1.5 / #206 / **#240** |
 | `shield` 护盾（次数型） | buff / positive | 抵挡 N 次物理攻击（铁壁 = 2 次） | `charges`（次数归 0 消失） | 待拍板（见 O-25）；不消耗流血/位移/自我伤害；AOE 消耗 1 次 | ❌ 不可驱散 | 铁壁（CD 4） | #156 / combat_math §8.1 / buff.md §7.1 |
 | `guard_attach` 护卫/守护链接 | buff / positive（挂在保护者） | 伤害重定向到保护者自身（**只挡物理**，见 O-22）；被守护者 +3 士气（#136） | 未定（盾墙未标 → **O-26**） | 每回合最多重定向 1 次（#159） | ❌ 不可驱散 | 坦克·盾墙（目标=相邻友方） | #136/#159 / buff.md §7.1 |
 | 属性增减益 `stat_mod` | buff（效果内嵌，不单列 id） | 攻/防/韧/速固定值增减（见 §3.2 effects） | `rounds` = 2 | refresh（buff.md §5 有时限→刷新） | 正面 ❌ / 负面 ✅ | 战意/盾墙/坚守/动员令/投掷药瓶/督战/恐惧低语 | combat_math §4 / buff.md §5.1 |
@@ -499,7 +501,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `weak_recovery` | object | `{base:10, per_healthy_support_ally:5, resilience_divisor:20, cap:25}` | GDD §3.3 / #59 | 虚弱士气回升 = 10 + 健康支援位队友×5 + 韧性÷20，上限 25；虚弱者互不提供加成 |
 | `weak_exit_hp_ratio` | double | `0.10` | #164 | 离开虚弱时 HP 恢复为最大血量的 10% |
 | `deaths_door` | object | `{affliction_penalty_percent:10}` | #123 | 折磨状态下死门抗性 −10%（基础抗性在 units.json 各原型） |
-| `retreat` | object | `{success_morale:-10, fail_morale:-5}` | #126/#43 | 撤退成功/失败士气代价（数值同 morale_events，供展示与对账） |
+| `retreat` | object | `{success_morale:-12, with_death_morale:-15, fail_morale:-5, scope:"survivors"}` | #126/#43 → **#240** | 🔴 **撤退成功士气代价（M7 改写）**：**只对存活者**、**固定两档（无死亡 −12 / 有死亡 −15）**、**撤退时立即结算**（回城不二次扣）。🔴 **单一事实源（v0.82 补）**：M7 起**权威键 = `tuning.expedition.retreat_penalty{no_death,with_death}`**，本行 `success_morale`/`with_death_morale` 仅作**展示与对账**（**不得另立一套数值**）；三处（`expedition.retreat_penalty` / 本行 / `morale_events.retreat_success`）**必须一致**（**P5/P20 ⑥ 对账**）；`fail_morale:-5` 沿用 |
 | `support_slot_morale_per_turn` | int | `3` | #60 | 站支援位每回合 +3（本人） |
 | `support_points` | object | `{start:3, regen_per_round:1, cap:4, cost_skill:2, cost_reinforce:2}` | GDD §1.4.2 / **#211+#213 / O-60（v0.55，v0.57 参数压一档）** | **支援点 SP（战斗级资源）**：起手 **3**、每回合开始 **+1（钳 cap 4）**；**支援位（5/6）用技能 −`cost_skill`(2)**、**增援 −`cost_reinforce`(2)** → 🔴 **技能与增援同价（都 2）**："治疗"与"换人"是**同价竞争**（**#211 原写"增援比技能重"已作废**，#213 修正）；**战斗位技能 / 被动（支援位回士气 +3）/ 撤退 均 0 消耗**；不足 → **灰显 + `AvailabilityReason.SupportPointsNotEnough` 且不吞行动**；每次变动写 **`SupportPointEvent`**（§8.2）。<br>**稳态（8 回合 5 次 = 0.63 次/回合，较 1 次/回合 −37%）**；旋钮 = `regen_per_round` / `cost_skill`；🔴 **`regen_per_round` 必须 ≥ 1**——`regen=0` 已被 **#213 明确否决**（会把**恢复制退化成配额制**：开局 3 发打完即永久瘫痪，抽掉 #211 的设计精髓）；🔴 **结构天花板**：治疗一半来自战斗位军医、不受 SP 约束 → 对总治疗削减上限 ≈ −50%（故 #214 登记"③ 数值大概率必须做"：预置 急救 12→8、群体绷带 5→3，**待 `E` 与 KPI 定**） |
 | `affliction_proc_percent` | int | `33` | #57 | 折磨各状态统一触发概率 33%（自私/恐惧/失控；失控建议后续最低档） |
@@ -508,7 +510,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `bleed` | object | `{per_round_damage:3, rounds:2, crit_rounds:4, ignores_phys_def:true, resolve_at:"target_turn_start", can_crit:false}` | combat_math §4 / **dd_reference §1.4（#205）** | **DoT 四规则（v0.52）**：① **不受物防减免**（写死）；② **暴击施加时长 2 → 4**；③ **在「目标回合开始」结算**；④ 每回合伤害**不可暴击**；须与 buff_defs `bleed` 一致（P6/P18） |
 | `miss_compensation` | object | `{enabled:true, per_miss:4, free_misses:1, cap:100, hidden:true}` | **dd_reference §1.2（#203）** | 每单位**连续未命中计数**（命中清零）；补偿 = `max(0, 连续未命中 − free_misses) × per_miss`，**仅作用于命中判定**（结果仍钳 100）；🔴 **不得进入 `HitRateFor`/面板显示**（隐藏补偿） |
 | `stun_resist_buildup` | object | `{per_stack:50, cap:100, clear_on:"own_action_not_stunned"}` | **dd_reference §1.1（#202）** | 每次**成功施加眩晕** → 眩晕抗性 **+50%（可叠）**；抗性 = 基础 + 递增、**上限 100%**（= 实际概率 0）；**完成一次未被眩晕的行动即清除**；**不写入单位基础属性**（unit_state） |
-| `deaths_door_recovery` | object | `{damage_taken_percent:10, hit_mod:-5, speed:-1, stack:"none", duration:"until_run_end"}` | **dd_reference §1.5（#206）** / **#225（跨场保留）** | 死门**存活并归队**后获得「死门后遗症」；**多次进出不叠加**；🔴 **跨场保留（`until_run_end`）**——由 run 级状态承载（`blueprint` §9.12 / O-63）；UI 必须显著标注（`ui_spec` §5） |
+| `deaths_door_recovery` | object | `{damage_taken_percent:10, hit_mod:-5, speed:-1, stack:"none", duration:"until_next_recovery"}` | dd_reference §1.5（#206）/ **#240** | 死门**存活并归队**后获得「死门后遗症」；**多次进出不叠加**；🔴 **`until_next_recovery`（到下次恢复＝扎营/回城）**——由 run 级状态承载（`blueprint` §9.12）；**回城必定清除**（expedition §1.2） |
 | `crit_chain` | object | `{taken_self_morale:-10, taken_ally_chance:50, taken_ally_morale:-5, dealt_team_morale:5, heal_multiplier:2, heal_target_morale:4, heal_crit_chance_single:12, heal_crit_chance_multi:5}` | **dd_reference §2（#209）** | **暴击情绪链**：**被暴击** → 自身 **−10**、队友各 **50% −5**（新增 `physical_crit_hit_*` 事件；这是 #157"物理不掉士气"的**有名字例外「震慑」**）；打出暴击 → 全队 +5（不变，**AOE 只结算一次**，#208）；**暴击治疗** → 治疗量 **×2** + 目标 **+4 士气**，概率**固定不受任何修正**：单体 **12%** / 多目标 **5%** |
 | `mark` | object | `{rounds:3, stack:"refresh", dispellable:true, bonus_vs_marked_percent_default:25, enemy_ai_weight:2}` | **dd_reference §1.3（#204）** | 标记**无数值**：加伤走技能 `bonus_vs_marked_percent`（起手 +25，乘法阶段）；敌方 AI 对带 mark 的我方**按 #187 权重制 ×2**；**不可被抵抗**（施加技能仍可 miss）；与嘲讽职责划清（嘲讽=防守 / 标记=进攻） |
 | `stat_debuff_default` | object | `{delta:-3, rounds:2}` | combat_math §4 / §10 | **属性减益固定 −3 / 2 回合**（速度也走固定值）；与技能韧性 −15/−10 的张力见 O-23 |
@@ -521,6 +523,47 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `collapse` | object | `{affliction_pool:["affliction_fear","affliction_selfish","affliction_uncontrolled"], virtue_pool:["virtue_brave","virtue_resolute","virtue_inspired","virtue_focused"], proc: "morale drop >0→0 event"}` | morale §4~§6 / **#193 / O-27** | 崩溃判定：事件触发（士气从 >0 降到 0）；**美德池 4 个全量**（勇猛/坚韧/振奋/专注）；振奋 = 每回合全队 +3（见 §3.4 `virtue_inspired`）；判定后士气留在 0（#67） |
 
 > 士气满 100 的系统行为：给自己上美德（随机抽取 #55）+ 全队 +10（morale_events `morale_full_100`）+ 自身回 50——复位值属行为常量，随 `morale.start` 语义（50）执行，不单列键。
+
+---
+
+### 3.8 `tuning.json` 的 M7 子结构 —— `expedition` / `resources` / `camp`（#240）
+
+> 来源：`expedition.md` §1~§3 · 落地卡 `tasks/m7_expedition.md`（E0/E2/E3/E5/E6）。**仍是 `tuning.json` 内的子对象**，不新开文件。
+
+| key | 结构 | 值（起手） | 说明 |
+|---|---|---|---|
+| `expedition` | object | `{n_battles:6, ambush_chance:0.33, retreat_penalty:{no_death:12, with_death:15}}` | **一趟 6 场**（完成 = **6 场皆胜**，**夜袭场计入**）；**夜袭概率 33%**；**撤退惩罚两档**（只罚存活者，撤退时立即结算） |
+| `resources` | object | `{firewood:2, food:12}` | **柴火 2**（扎营许可，1 次 1 份）／**口粮 12**（6 人 × 2 顿）；**不足时拒绝且不扣** |
+| `camp` | object | `{food_tiers:{starve:0,half:3,full:6,feast:12}, respite_base:6, food_scale_by_survivors:true, pep_talk_battles:4}` | **食物四档**（Starve 0 → 全队 −20% HP/−15 士气 ｜ Half 3 → 无 ｜ Full 6 → +10% HP ｜ Feast 12 → +25% HP/+10 士气）；**Respite = `respite_base`(6) + 存活人数**（满编 12）；**口粮按存活人数等比缩放**（照抄 DD）；**打气持续 4 场战斗**（跨场 → `until_next_recovery` 家族语义） |
+
+### 3.9 `camp_skills.json` 🆕 —— 扎营技能（3 个，M7）
+
+> 来源：`expedition.md` §3.2（照抄 DD Camping 三技能）。
+
+| id | 名称 | 点数 | 目标 | 效果 | DD 对应 |
+|---|---|---|---|---|---|
+| `camp_encourage` | 鼓舞 | **2** | 单个友方 | **+15 士气** | Encourage |
+| `camp_wound_care` | 包扎 | **2** | 单个友方 | **+15% HP** 且**清除流血** | Wound Care |
+| `camp_pep_talk` | 打气 | **2** | 单个友方 | **−15% 士气伤害，持续 4 场战斗**（跨场） | Pep Talk |
+
+> **字段**：`{id, name, cost, target:"single_ally", effects:[…]}`；**点数不足 → 该技能不可选（灰显）**；**Respite 点数是"分配"而非"全队生效"**（决策密度来源，expedition §3.2 关键设计）。
+
+### 3.10 `expedition_nodes.json` 🆕 —— 选路节点表（M7 最小版）
+
+> 来源：`expedition.md` §1.3（**阶段一**：普通战 + 事件节点；**阶段二**再加 `elite`）。
+
+| 字段 | 说明 |
+|---|---|
+| `nodes[]` | 每个节点：`{id, type: battle\|event, …}`；**`elite` 属阶段二（本卡不做）** |
+| `nodes[].event` | 事件节点：`{title, options:[{id, label, effect:{resource:{kind,delta}} \| morale:{delta,scope}}]}` |
+| 🔴 **两选项强制** | **事件节点必须恰好 2 个选项**，且 **UI 不允许跳过**（必须二选一）——否则事件**没有代价**，会退化成"免费资源点"（`#240` 主动加的约束，P20 校验） |
+| 选路 | **线性 6 步 × 每步 2 选 1**；**节点序列生成必须写 `RngDraw`**（`PathChosenEvent(from,to,nodeType)`） |
+
+### 3.11 远征级事件（M7 新增，接 §8 事件族）
+
+`PathChosenEvent(from,to,nodeType)`（1）· `ResourceChangedEvent(kind,delta,newValue,reason)`（2）· `CampStartedEvent`（2）· `CampFoodChosenEvent(tier)`（2）· `CampSkillUsedEvent(skillId,target,respiteLeft)`（2）· `CampEndedEvent`（2）· `AmbushTriggeredEvent`（2）· `EventNodeResolvedEvent(nodeId,choice,effect)`（2）· `TownReturnEvent(outcome,moraleBefore,moraleAfter,penaltyApplied)`（1）。
+
+> 🔴 **纪律不变**：远征层的数字（资源、完成率、扎营/夜袭统计）**必须能从事件流算出**（`logging.md` §1）；**所有随机（选路/夜袭/事件结果/敌人抽取）写 `RngDraw`**；新增事件**不得引入新抽取源**。
 
 ---
 
@@ -553,8 +596,9 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | P14 | **单位移动距离与池外数据化（#191）** | `∀u∈player_units: u.move_distance ≥ 1`（切片 1~2）；`count{s∈skills: s.pool_external} == 1`（通用 `move`）；`move_range` 候选解析用例：距离取自**施法单位** `move_distance`，`target.distance` 必须为 null | feat_pack F1.3 / state #191 | 启动报错 + 执行断言（±N 候选/空位 NoTarget/两点互换） |
 | P15 | **士气 buff 消费白名单（#193，v0.48）** | `∀b∈buff_defs: b.modifiers[].kind ∈ {stat_mod,state_flag,damage_mod,prob_mod}`；`damage_mod`/`prob_mod` 槽位 ∈ {`dealt_damage_mult`,`next_attack_mult`,`crit_bonus`,`deaths_door_resist_bonus`,`immune_fear`}；`tuning.affliction_proc_percent` 是折磨 proc **唯一**概率源（禁硬编码 33）；`collapse.virtue_pool` 恰好 4 项；折磨 proc 与失控换目标的新随机**必须写 `RngDraw`** | feat_pack F2.2~F2.4 / state #193 / O-51 | 启动报错（modifier 越界/美德池不全）+ 执行层确定性断言（无双重计算） |
 | P16 | **增援 M 导出契约 + 复测 D 输出（#196+#198，v0.49/v0.50）** | 启动：`tuning.overtime_reinforcement` 必须含 `safety_factor > 0`（0.8）、`wave_interval_min ≥ 1`（3）与 `elastic{k_rounds ≥ 1, idle_output_slots ≥ 1, max_bonus ≥ 0}`；**禁止**把 `wave_interval_rounds` 当手填常数（若存在仅作校准留痕）。运行时：`M_base == max(wave_interval_min, ceil(enemy_full_hp ÷ (D × safety_factor)))` 且 `M_base ≥ 3`，其中 🔴 **`D` 取实测值**——**实测 `D` = 21.04**（估算 24/35 已作废，#216）→ 敌 HP **110** ⇒ **`M_base` = 7**（`ceil(110 ÷ (21.04×0.8)) = ceil(6.53)`）；🔴 **v0.75 新增断言：`tuning.m_value` 必须等于按当前 `enemy_full_hp` 与实测 `D` 算出的 `M_base`**（`m_value == M_base`）——**不一致即启动报错**（治"改了 HP 忘了回填 M"的老毛病）；**`M ∈ [M_base, M_base + max_bonus]`**，且**首波固定 `trigger_round`（= 7，不受弹性影响）**；每次 M 变动写 **`ReinforcementElasticEvent(MFrom, MTo, Reason)`**（级 2）。复测：**报告必须输出实测 `D` + 实测 `E`（v0.57 强制）+ 口径健康度（单一位置占比 ≤40%）+ 增援事件数（4~6 回合节奏下预期 ≈0）**，否则该次基线不成立 | GDD §1.5.2 / enemy §4 / feat_pack F3+F4 / state #195/#196/**#198**/**#213**/**#230** / O-54 / **O-60** | 启动报错（缺键/常量化 M/弹性参数越界/**`m_value` 与公式不一致**）+ 复测报告缺 `D` 或 `E` 即判基线无效 |
-| P18 | **DD 借鉴包一致性（#202~#209，v0.52）** | ① `buff_defs(mark)` 存在、`polarity=negative`、**无数值**、`stack=refresh`、`dispellable=true`；② `skills.*.bonus_vs_marked_percent ∈ [0,100]`（起手 25），且**受益技能必须声明**（**军医【致命注射】/ 政委【处决令】**；"失血收割"仅为二者通称，不是技能名）；③ `skills.*.requires` 字段名 ∈ {`self_hp_below_percent`,`target_hp_below_percent`,`self_weak`,`self_deaths_door`}、百分比 ∈ (0,100]、且不满足时 `AvailabilityReason == RequirementNotMet`；④ `tuning.bleed` 四规则齐备（`ignores_phys_def` / `crit_rounds` / `resolve_at:"target_turn_start"` / `can_crit:false`）且**至少 2 条技能能施加流血**（突刺/致命注射）；⑤ `tuning.miss_compensation.hidden == true` 且 **`HitRateFor` 不读补偿**；⑥ `morale_events` 含 `physical_crit_hit_self` 与 `physical_crit_hit_ally`（50%/队友），且 `critical_strike_dealt`（team）**每动作只结算一次**（AOE 多暴击不重复）；⑦ `deaths_door_recovery.stack=="none"` **且 `duration=="until_run_end"`**（#225：**跨场保留**，不再"到本次战斗结束"） | dd_reference §1.1~§1.7 + §2 / state #202~#209 / O-58 / O-59 | 启动报错（mark/requires/tuning 缺项或越界）+ 执行层断言（隐藏补偿不入显示、AOE 暴击只 +5 一次、死门后遗症只一层） |
+| P18 | **DD 借鉴包一致性（#202~#209，v0.52）** | ① `buff_defs(mark)` 存在、`polarity=negative`、**无数值**、`stack=refresh`、`dispellable=true`；② `skills.*.bonus_vs_marked_percent ∈ [0,100]`（起手 25），且**受益技能必须声明**（**军医【致命注射】/ 政委【处决令】**；"失血收割"仅为二者通称，不是技能名）；③ `skills.*.requires` 字段名 ∈ {`self_hp_below_percent`,`target_hp_below_percent`,`self_weak`,`self_deaths_door`}、百分比 ∈ (0,100]、且不满足时 `AvailabilityReason == RequirementNotMet`；④ `tuning.bleed` 四规则齐备（`ignores_phys_def` / `crit_rounds` / `resolve_at:"target_turn_start"` / `can_crit:false`）且**至少 2 条技能能施加流血**（突刺/致命注射）；⑤ `tuning.miss_compensation.hidden == true` 且 **`HitRateFor` 不读补偿**；⑥ `morale_events` 含 `physical_crit_hit_self` 与 `physical_crit_hit_ally`（50%/队友），且 `critical_strike_dealt`（team）**每动作只结算一次**（AOE 多暴击不重复）；⑦ `deaths_door_recovery.stack=="none"` **且 `duration=="until_next_recovery"`**（#240：**到下次恢复（扎营/回城）**，取代 `until_run_end`） | dd_reference §1.1~§1.7 + §2 / state #202~#209 / O-58 / O-59 | 启动报错（mark/requires/tuning 缺项或越界）+ 执行层断言（隐藏补偿不入显示、AOE 暴击只 +5 一次、死门后遗症只一层） |
 | P19 | **支援点一致性（#211/#212/#213，v0.55/v0.57）** | ① `tuning.support_points` 存在且 `start ≥ 0`、`cap ≥ start`、**`regen_per_round ≥ 1`（#213 否决 `regen=0`：会把恢复制退化成配额制）**、`cost_skill ≥ 1`（起手 **2**）、`cost_reinforce ≥ 1`（起手 **2**）；② **零消耗断言**：**战斗位（1~4）技能 / 被动（支援位回士气 +3）/ 撤退** 执行前后 SP 不变（回归用例锁死）；③ **不足拒绝且不吞行动**：支援位技能 SP 不足 → `AvailabilityReason.SupportPointsNotEnough` 灰显；`Reinforce` SP 不足 → **拒绝且不消耗发起者行动**；④ **每次变动写 `SupportPointEvent`**（含 regen/花费/拒因），否则 UI 常驻 SP 与"SP 存量/花费分布"无法从事件流算出（P17 可重建性）；⑤ 待命走 `TurnSkippedEvent(Reason:"passed")`，**不是技能、不耗 SP**（与 #189 不冲突）；⑥ **调参纪律**：#213 只允许改 `cost_skill`；**`regen_per_round` / `cap` / `cost_reinforce` 非经策划拍板不得变动**（防实现方顺手改） | GDD §1.4.2 / ui_spec 必显 #10 / feat_pack_04 S0~S5 + **§S7** / state #211+#212+**#213** / O-60 | 启动报错（键缺失/值域越界/`regen=0`）+ 执行层断言（战斗位零消耗、不足不吞行动、SP 变动有事件） |
+| **P20** | **远征层数据一致性（M7 / #240）** | ① `tuning.expedition.n_battles ≥ 1`（起手 **6**）、`ambush_chance ∈ [0,1]`（起手 0.33）、`retreat_penalty{no_death, with_death} ≥ 0` 且 **两档都只作用于 `scope:"survivors"`**；② `tuning.resources{firewood, food} ≥ 0`（起手 2/12），**支付不足必须拒绝且不扣**（执行层断言）；③ `tuning.camp.food_tiers` **四档齐备且单调**（0 < half < full < feast = 0/3/6/12）、`respite_base ≥ 1`（6）、`pep_talk_battles ≥ 1`（4）；④ `camp_skills.json` **恰 3 条**、`cost ≥ 1`（各 2）、`target=="single_ally"`；⑤ `expedition_nodes.json`：**每个事件节点恰 2 个选项**且 **UI 无"跳过"路径**；**阶段一节点类型 ∈ {battle, event}**（`elite` 出现即报错——属阶段二）；⑥ **`morale_events.retreat_success` 与 `tuning.retreat` 对账一致**（两档 −12/−15、`scope=survivors`）；⑦ **`deaths_door_recovery.duration == "until_next_recovery"`**（P18 ⑦ 同源，M7 起生效） | `expedition.md` §1~§3 / `tasks/m7_expedition.md` E0~E6 / state #240 | 启动报错（缺键/值域/事件非二选一/`elite` 越前）+ 执行层断言（选路与夜袭写 `RngDraw`、回城清状态、撤退只罚存活者） |
 
 > 校验失败时日志给出"文件 / 记录 id / 规则 / 期望 vs 实际"，便于追到策划原文行（每条规则带 §/行号出处，如上表"依据"列）。
 
@@ -720,7 +764,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 
 ## 7. 开放问题（已并入 open_issues.md B 节，编号与其一致）
 
-> 按 _conventions §5：O-01~O-10 已被策划 README §5 的 10 条占用；以下为 schema 侧新增疑问，**编号即 open_issues.md B 节的权威编号（O-11~O-57）**，标注【策划拍板】/【架构裁定】/【实现期待定】与阻塞范围。**本文不改 open_issues.md**，以下仅供架构师归档与任务卡引用。
+> 按 _conventions §5：O-01~O-10 已被策划 README §5 的 10 条占用；以下为 schema 侧新增疑问，**编号即 open_issues.md B 节的权威编号（O-11~O-66）**，标注【策划拍板】/【架构裁定】/【实现期待定】与阻塞范围。**本文不改 open_issues.md**，以下仅供架构师归档与任务卡引用。
 
 | 编号 | 议题 | 描述 | 阻塞什么 | 建议 |
 |---|---|---|---|---|
@@ -765,7 +809,10 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `SwapEvent(Actor, FromPos, ToPos)` | **未记被调动者 B**（#181 实际移动的是 B）→ 增援日志半盲 |
 | `DamageEvent` 无 `SkillId`、`EffectEvent` 无 `Source`、`DeathEvent` 无 `Cause` | 多段伤害/状态/死因无法归属 |
 
-### 8.2 新增事件（15 类，字段为**最小必需集**：实现可加、不可减）
+### 8.2 新增事件（**M6：15 类** → 🔴 **M7 追加 9 类，共 24 类**；字段为**最小必需集**：实现可加、不可减）
+
+> 🔴 **M7 追加之 9 类见 §3.11**（`PathChosen` / `ResourceChanged` / `CampStarted` / `CampFoodChosen` / `CampSkillUsed` / `CampEnded` / `AmbushTriggered` / `EventNodeResolved` / `TownReturn`）；
+> **既有 18 类 + M6 的 15 类 + M7 的 9 类 = 事件族总数 42 类**。**P17 的可重建性/不引入抽取要求对 M7 的新事件同样适用**（尤其 `PathChosen`/`AmbushTriggered` 必须写 `RngDraw`）。
 
 | 事件 | 字段 | 级 | 备注 |
 |---|---|---|---|
@@ -842,6 +889,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | Round 分组 | 每个事件 `Round` 已盖章且**单调不减**；按 `Round` 分组与 `RoundStartEvent` 完全一致 |
 | 确定性 | 新增事件**不得引入抽取**：同 seed 同命令流 `DrawCount` 序列与事件流均**逐条一致** |
 | 可重建性 | 仅凭事件流可重建终态（位置 / HP / 士气 / buff / 虚弱 / 死门） |
+| **远征层可读（M7 追加）** | **完成率（6 场皆胜）/ 资源收支 / 扎营与食物档位 / Respite 花费 / 夜袭次数 / 撤退惩罚 / 回城后士气** 全部**可由事件流统计**（§3.11）——**不得为远征层单独造旁路计数器**；`PathChosen`/`AmbushTriggered`/事件结果**必须写 `RngDraw`**（同 seed 逐条一致） |
 
 > 失败处理：CI 测试红（不进启动门禁）；修复前**不得**用"技能使用率/完整日志"类 KPI 作验收依据。
 

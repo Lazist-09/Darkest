@@ -61,8 +61,8 @@ public interface IRunSession
     RunOutcome Outcome(bool anyRetreat);
 }
 
-/// <summary>默认实现：跨场保留 HP/士气/虚弱；其余每场重置。</summary>
-public sealed class RunSession : IRunSession
+/// <summary>默认实现：跨场保留 HP/士气/虚弱；其余每场重置。可被远征层 <c>ExpeditionSession</c> 扩展。</summary>
+public class RunSession : IRunSession
 {
     private readonly Func<CombatLog, BattleDirector> _buildDirector;
     private readonly int _battles;

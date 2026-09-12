@@ -13,6 +13,7 @@ public enum MoraleEventScope
     Self,
     Team,
     PerTarget,
+    Survivors, // M7（#240 / E6）：只作用于**存活者**（撤退两档惩罚）
 }
 
 /// <summary>触发频次（data_schema §3.3 occurrence）。</summary>
@@ -45,7 +46,7 @@ public sealed record MoraleEventsConfig(
         "physical_hit_no_effect", "mental_hit", "mental_crit_hit", "mental_aoe_hit",
         "critical_strike_dealt", "kill_enemy", "ally_enters_weak", "ally_death",
         "support_slot_turn_start", "battle_inspiration", "morale_full_100",
-        "retreat_success", "retreat_fail", "weak_hit_any_damage",
+        "retreat_success", "retreat_success_with_death", "retreat_fail", "weak_hit_any_damage",
         "physical_crit_hit_self", "physical_crit_hit_ally", "critical_heal", // D7（#209）
     });
 
@@ -134,6 +135,7 @@ public sealed record MoraleEventsConfig(
                 "self" => MoraleEventScope.Self,
                 "team" => MoraleEventScope.Team,
                 "per_target" => MoraleEventScope.PerTarget,
+                "survivors" => MoraleEventScope.Survivors, // M7（#240 / E6）
                 _ => throw new JsonException($"未知 morale scope \"{s}\"。"),
             };
         }
@@ -143,6 +145,7 @@ public sealed record MoraleEventsConfig(
             {
                 MoraleEventScope.Self => "self",
                 MoraleEventScope.Team => "team",
+                MoraleEventScope.Survivors => "survivors",
                 _ => "per_target",
             });
     }

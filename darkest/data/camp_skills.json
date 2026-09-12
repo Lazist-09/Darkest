@@ -1,0 +1,7 @@
+{
+  "camp_skills": [
+    { "id": "camp_inspire", "name": "鼓舞", "cost": 2, "target": "single_ally", "effect": "morale_plus_15", "source": "expedition.md §3.2 / E3" },
+    { "id": "camp_bandage", "name": "包扎", "cost": 2, "target": "single_ally", "effect": "heal_15_percent_and_clear_bleed", "source": "expedition.md §3.2 / E3" },
+    { "id": "camp_pep_talk", "name": "打气", "cost": 2, "target": "single_ally", "effect": "morale_damage_minus_15_for_4_battles", "source": "expedition.md §3.2 / E3" }
+  ]
+}

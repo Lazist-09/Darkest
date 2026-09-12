@@ -6,7 +6,10 @@
   "weak_recovery": { "base": 10, "per_healthy_support_ally": 5, "resilience_divisor": 20, "cap": 25 },
   "weak_exit_hp_ratio": 0.10,
   "deaths_door": { "affliction_penalty_percent": 10 },
-  "retreat": { "success_morale": -10, "fail_morale": -5 },
+  "retreat": { "success_morale": -12, "with_death_morale": -15, "fail_morale": -5, "scope": "survivors" },
+  "expedition": { "n_battles": 6, "ambush_chance": 0.33, "retreat_penalty": { "no_death": 12, "with_death": 15 } },
+  "resources": { "firewood": 2, "food": 12 },
+  "camp": { "food_tiers": { "starve": 0, "half": 3, "full": 6, "feast": 12 }, "respite_base": 6, "pep_talk_battles": 4, "ambush_chance": 0.33 },
   "retreat_formula": {
     "base_percent": 50,
     "per_speed_diff_percent": 4,

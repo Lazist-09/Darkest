@@ -98,6 +98,37 @@ public sealed record BattleEndEvent(string Outcome, int Round, string Reason) : 
 /// <summary>#211/O-60 支援点变动（第 15 类事件）：UI 常驻数字与统计只允许来自本事件流。</summary>
 public sealed record SupportPointEvent(int Delta, int NewValue, string Reason) : BattleEvent;
 
+// ---------------------------------------------------------------------------
+// M7 远征层事件族（E0~E6：#240 / O-66）——共 9 类
+// ---------------------------------------------------------------------------
+
+/// <summary>选路（E1）：从 from 选到 to，节点类型 battle/event。</summary>
+public sealed record PathChosenEvent(int From, int To, string NodeType) : BattleEvent;
+
+/// <summary>资源变动（E2）：柴火/口粮的增减与原因。</summary>
+public sealed record ResourceChangedEvent(string Kind, int Delta, int NewValue, string Reason) : BattleEvent;
+
+/// <summary>扎营开始（E3）。</summary>
+public sealed record CampStartedEvent(int CampIndex) : BattleEvent;
+
+/// <summary>食物档位选择（E3）：starve/half/full/feast。</summary>
+public sealed record CampFoodChosenEvent(string Tier, int FoodSpent, int RosterCount) : BattleEvent;
+
+/// <summary>扎营技能使用（E3）：花费与剩余 Respite。</summary>
+public sealed record CampSkillUsedEvent(string SkillId, UnitId Target, int RespiteLeft) : BattleEvent;
+
+/// <summary>扎营结束（E3）。</summary>
+public sealed record CampEndedEvent(int RespiteSpent) : BattleEvent;
+
+/// <summary>事件节点结算（E4）：二选一的结果。</summary>
+public sealed record EventNodeResolvedEvent(string NodeId, string Choice, string Effect) : BattleEvent;
+
+/// <summary>夜袭触发（E5）：额外一场战斗（计入"6 场皆胜"）。</summary>
+public sealed record AmbushTriggeredEvent(int AmbushIndex) : BattleEvent;
+
+/// <summary>回城结算（E6）：结局、士气前后与是否施加撤退惩罚。</summary>
+public sealed record TownReturnEvent(string Outcome, int MoraleBefore, int MoraleAfter, bool PenaltyApplied) : BattleEvent;
+
 /// <summary>敌方 AI 决策（G0）：用了哪条规则、打了谁。</summary>
 public sealed record EnemyDecisionEvent(UnitId Actor, string SkillId, int RuleIndex, string RuleCondition, int[] TargetSlots) : BattleEvent
 {
