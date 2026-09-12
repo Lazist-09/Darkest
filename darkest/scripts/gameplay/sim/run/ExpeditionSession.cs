@@ -130,4 +130,84 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
 
         return triggered;
     }
+
+    // ------------------------------------------------------------------
+    // E4 · 事件节点结算（二选一强制；效果只改资源与士气，无战斗）
+    // ------------------------------------------------------------------
+
+    /// <summary>
+    /// 结算事件节点：应用所选选项的资源/士气效果，并写 `EventNodeResolvedEvent`。
+    /// **必须二选一**（节点选项数 ≠ 2 或越界 → 抛错，P20 ⑤）。
+    /// </summary>
+    public string ResolveEventNode(CombatLog log, Darkest.Data.ExpeditionNodeConfig node, int optionIndex)
+    {
+        if (node.Options is null || node.Options.Count != 2)
+        {
+            throw new InvalidOperationException($"事件节点 \"{node.Id}\" 必须恰 2 个选项（P20 ⑤ 二选一强制）。");
+        }
+
+        if (optionIndex is < 0 or > 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(optionIndex), "事件节点必须二选一（不允许跳过，E4）。");
+        }
+
+        Darkest.Data.NodeOptionConfig opt = node.Options[optionIndex];
+        if (opt.Effect.Resource is { } kind && opt.Effect.Delta != 0)
+        {
+            Gain(log, kind, opt.Effect.Delta, "event");
+        }
+
+        if (opt.Effect.Morale != 0)
+        {
+            foreach (string id in Retained.Keys.ToArray())
+            {
+                (int hp, int morale, bool weak) = Retained[id];
+                if (hp <= 0)
+                {
+                    continue; // 阵亡者不受事件士气影响
+                }
+
+                Retained[id] = (hp, Math.Clamp(morale + opt.Effect.Morale, 0, 100), weak);
+            }
+        }
+
+        string effect = $"resource:{opt.Effect.Resource ?? "-"}:{opt.Effect.Delta};morale:{opt.Effect.Morale}";
+        log.Append(new EventNodeResolvedEvent(node.Id, opt.Choice, effect));
+        return effect;
+    }
+
+    // ------------------------------------------------------------------
+    // E6 · 回城结算（HP 全恢复；完成/全灭 → 士气回基准 50；**撤退不恢复**；清虚弱与死门后遗症；恢复满编）
+    // ------------------------------------------------------------------
+
+    /// <summary>
+    /// 回城：HP 完全恢复（记 `int.MaxValue`，下场 `BeginBattle` 按 MaxHp 钳制）；
+    /// **完成 / 全灭 → 士气回到基准 50**，**撤退 → 保留撤退结算后的士气（不二次扣、也不回 50）**；
+    /// 清【虚弱】与【死门后遗症】（后者按 `until_next_recovery`）；阵容恢复满编（阵亡者归队，不做招募）。
+    /// </summary>
+    public int ReturnToTown(CombatLog log, string outcome)
+    {
+        bool retreat = outcome == "retreat";
+        int moraleBefore = AverageRetainedMorale();
+        int penaltyApplied = 0;
+
+        foreach (string id in Retained.Keys.ToArray())
+        {
+            (int hp, int morale, bool weak) = Retained[id];
+            bool alive = hp > 0;
+            // 撤退：存活者保留撤退结算后的士气（惩罚已在撤退那一刻结算，此处不二次扣）
+            int newMorale = retreat && alive ? morale : 50;
+            Retained[id] = (int.MaxValue, newMorale, false); // HP 全恢复 + 清虚弱
+            _ = weak;
+            _ = penaltyApplied;
+        }
+
+        RetainedRecovery.Clear(); // 清【死门后遗症】（"到下次恢复"）
+        int moraleAfter = AverageRetainedMorale();
+        log.Append(new TownReturnEvent(outcome, moraleBefore, moraleAfter, PenaltyApplied: retreat));
+        return moraleAfter;
+    }
+
+    private int AverageRetainedMorale()
+        => Retained.Count == 0 ? 50 : (int)Math.Round(Retained.Values.Average(v => v.Morale));
 }

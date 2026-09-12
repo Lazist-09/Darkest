@@ -68,6 +68,12 @@ public class RunSession : IRunSession
     private readonly int _battles;
     private readonly List<RunBattleSnapshot> _curve = new();
     private readonly Dictionary<string, (int Hp, int Morale, bool Weak)> _retained = new();
+
+    /// <summary>远征层用（E4/E6）：跨场保留状态的读写面（HP/士气/虚弱）。</summary>
+    protected Dictionary<string, (int Hp, int Morale, bool Weak)> Retained => _retained;
+
+    /// <summary>远征层用（E6）：死门后遗症跨场保留集（回城时按"到下次恢复"清空）。</summary>
+    protected HashSet<string> RetainedRecovery => _retainedRecovery;
     private readonly HashSet<string> _retainedRecovery = new(); // #227：deaths_door_recovery 跨场保留
     private readonly List<string> _roster = new();
     private readonly Dictionary<string, int> _rosterMaxHp = new(); // 整编最大 HP 分母（第一场记录，跨场固定）
