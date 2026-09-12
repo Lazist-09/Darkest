@@ -576,6 +576,16 @@ public interface IDeathsDoor {
 // 9.6 buff 台账
 // 关键规则：buff=修改器+钩子+生命周期(buff.md §1/#90)；叠层：有时限刷新、无限时叠层上限2(#159)；美德上限1(#94)；
 //          属性修正加法先于乘法(buff.md §3/#159)；驱散=1次1个/100%/仅负面(buff.md §5.1)；虚弱不可驱散
+// 🔴 M7 归属变更（v0.86 / #242~#244）：**台账实例的生命周期 = 会话（ExpeditionSession），不是单场**——
+//   因为存在跨场 buff：`battles:N`（政委训话）/ `next_battle`（磨刀·加固甲胄）/ run 级标记（`ambush_immunity`）。
+//   📌 **与"BattleDirector 单场纯"不冲突**：`BattleDirector` 每场工厂新建，但**由组合根把同一个 ledger 引用注入**——
+//      导演**不拥有**跨场状态的所有权，只使用它；同 seed 单场仍可复现（ledger 初值由会话给定且可快照）。
+//   跨场推进由**一个显式边界 API** 负责（**不要在导演里散落清理逻辑**）：
+//     `AdvanceBattleBoundary()` —— 在"一场结束 → 下一场开始"之间调用：
+//        ① `battles:N` 执行 N−1；到 0 → `Remove(Reason:"expired")`
+//        ② `next_battle` 类 → **在本场结束时** `Remove(Reason:"expired")`（本趟无下一场 ⇒ 直接作废、不结转）
+//     `OnRecovery()` —— 扎营/回城时调用：**只清 `until_next_recovery`**（`Reason:"recovery"`），
+//        **不得清 `battles`/`next_battle`/`ambush_immunity`**（O-67 / #241：三义不可合并）
 // ---------------------------------------------------------------
 public interface IBuffLedger {
     void Add(UnitId u, BuffId id, UnitId? source);
@@ -584,6 +594,10 @@ public interface IBuffLedger {
     IReadOnlyList<BuffInstance> Buffs(UnitId u);
     StatBlock FinalStats(UnitId u);                       // (基础+Σ加法)×Π乘法
     IEnumerable<Hook> Hooks(UnitId u, HookTiming t);      // 回合开始/结束、行动前/后、受到伤害前/后、用技能前、被治疗/鼓舞前…
+    // ---- M7 跨场（会话级）----
+    void AdvanceBattleBoundary();                         // 场间：battles −1 / next_battle 到期清除（Reason:"expired"）
+    void OnRecovery();                                    // 扎营或回城：只清 until_next_recovery（Reason:"recovery"）
+    IBuffLedgerSnapshot Snapshot();                        // 供 headless 复现单场（同 seed 可复现的前提）
 }
 
 // ---------------------------------------------------------------
@@ -695,10 +709,12 @@ public interface IRunSession {
 | **事件节点（E4）** | 无战斗、**二选一风险**（拿补给 ／ 全队 −士气）；🔴 **不允许跳过**（否则事件**没有代价** → 退化成"免费资源点"） |
 | **夜袭（E5）** | 扎营后 **33%** → **额外一场战斗**（恢复照拿）；🔴 **计入「6 场皆胜」** ⇒ 一趟战斗数 = `6 + 夜袭次数(0~2)`；写 `RngDraw`。🔴 **免夜袭标记（`ambush_immunity`）保留至消耗或本趟结束**（当次未触发不清除）；消耗写 `AmbushTriggeredEvent(immunityConsumed, ambushSuppressed)`（O-67） |
 | **跨场效果清算（O-67 已定）** | `next_battle`（磨刀/加固甲胄）**不结转**：本趟无"下一场"→ 作废；打了下一场 → **该场结束清除**。`battles:N`（训话）**扎营不清、每场 −1**。`until_next_recovery`（死门后遗症）**扎营即清**。**清除/消耗必须可从事件流读出**（`BuffRemovedEvent(Reason:"recovery"\|"expired")`） |
-| **回城（E6）** | HP **完全恢复**；士气：**完成 → 回 50** ／ **撤退 → 不恢复**（撤退时已罚）／ **全灭 → 无惩罚回 50**；清除**虚弱 + 死门后遗症**；阵容满编（**不做招募**） |
+| **回城（E6）** | 🔴 **v0.87/#245 语义 =「HP 恢复 / 士气不恢复」**：**HP 完全恢复**；🔴 **士气完全不恢复**（**完成档也一样**，保持跑图结束值；**不得重置为基准 50**）——士气自此是**跨趟资源**（#210 压力长线化落实，与 DD"战斗伤害会治 / 压力不会降"对齐）；**清除虚弱 + 死门后遗症**（`(c)` 先不做）；阵容满编（**不做招募**）。⚠️ **"崩"必然发生且【没有出口】**（DD 的出口是花钱减压，M7 无此系统）→ **M7 不验跨趟平衡**，留 **M8** 配减压渠道 |
 | **撤退惩罚（E6）** | 🔴 **只罚存活者**，**固定两档：本趟无死亡 −12 ／ 有死亡 −15**；**在撤退那一刻立即结算**（回城不二次扣）→ `morale_events.retreat_success` **改写，推翻 #43 字面值** |
 
 **完成定义**：**6 场皆胜**（与切片"3 场皆胜"同构，**夜袭场计入**）→ 判据 **A2 完成率 [40,70]**。
+**两条度量口径（#242/#244，已生效）**：① 🔴 **曲线/百分比的分母 = 整编名册最大 HP 之和**（**阵亡者仍在名册、按 0 HP 参与**；分母**固定 6 人**）——否则"少人时百分比虚高"，各档比的是不同集合；② **`Respite = respite_base(6) + 存活人数`**（满编 12；减员天然变少）。
+**回城恢复（#245）**：**HP 恢复 / 士气不恢复 / 状态清除**；**士气跨趟单调下降是设计意图**（非 bug）——跨趟平衡 M7 不验（M8 配减压渠道），诊断读数 = **连续 3 趟士气曲线**。
 **随机纪律**：选路 / 夜袭 / 事件结果 / 敌人抽取 **全部写 `RngDraw`**；远征层的数字**必须能从事件流算出**（§8，`logging.md` §1）。
 **数据**：`tuning.expedition|resources|camp`（`data_schema` §3.8）· 🆕 `camp_skills.json`（§3.9）· 🆕 `expedition_nodes.json`（§3.10）。
 

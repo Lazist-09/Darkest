@@ -66,14 +66,16 @@ public sealed class BattleDirector
 
     public BattleDirector(FormationConfig formation, UnitsConfig units, SkillsConfig skills,
         BalanceTable balance, MoraleEventsConfig moraleEvents, BuffDefsConfig buffDefs, EnemyAiConfig enemyAi,
-        CombatLog log)
+        CombatLog log, BuffLedger? sharedBuffs = null)
     {
         _skills = skills ?? throw new ArgumentNullException(nameof(skills));
         _units = units ?? throw new ArgumentNullException(nameof(units));
         _balance = balance ?? throw new ArgumentNullException(nameof(balance));
         _moraleEvents = moraleEvents ?? throw new ArgumentNullException(nameof(moraleEvents));
         _log = log ?? throw new ArgumentNullException(nameof(log));
-        _buffs = new BuffLedger(buffDefs, log); // G0/O-55：buff 生命周期事件接入事件流
+        // 🔴 M7 E3 / #240：**可注入会话级台账** —— `next_battle`（磨刀/加固甲胄）需跨场持久且**单源**；
+        // 未注入时行为与从前完全一致（每场自建 → 单场纯、同 seed 可复现）。
+        _buffs = sharedBuffs ?? new BuffLedger(buffDefs, log); // G0/O-55：buff 生命周期事件接入事件流
         _shield = new ShieldGuard(_buffs);
         _runtime = new SkillRuntimeState();
         _pipeline = new DamagePipeline(balance, moraleEvents, log, _buffs, _shield);
