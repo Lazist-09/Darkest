@@ -73,10 +73,10 @@ public sealed class DifficultyTierTests
             "{ \"battle_from\": 4, \"battle_to\": 4, \"multiplier\": 1.1")),
             "有缝隙 → 启动报错（P20 ⑭）");
 
-        // 重叠（3~4 与 3~6）
+        // 重叠（第 3 档改成 4~6，与 3~4 重叠）
         Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(Bad(
-            "{ \"battle_from\": 5, \"battle_to\": 6, \"multiplier\": 1.25",
-            "{ \"battle_from\": 4, \"battle_to\": 6, \"multiplier\": 1.25")),
+            "{ \"battle_from\": 5, \"battle_to\": 6, \"multiplier\": 1.1",
+            "{ \"battle_from\": 4, \"battle_to\": 6, \"multiplier\": 1.1")),
             "有重叠 → 启动报错（P20 ⑭）");
 
         // 乘数下降（1.1 → 1.05；用第 3 档行唯一定位）
