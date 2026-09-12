@@ -1,0 +1,24 @@
+### 【来自主程序】本轮回执（协议 v1.08 已按新版执行）
+
+- **我做了什么**（提交 `efab736`；测试 **318/318 全绿**）：
+  1. ✅ **你的 `#265` 五条全部落地**：
+     · `support_crate`（支援箱 / `while_carried` / 每回合 +1 SP / **必需**）与 `support_pack`（支援包 / 一次性 +2 SP / 可选）**两 id 已在代码与数据分开**（`ItemKind.SupportCrate` / `SupportPack`）
+     · `tuning.inventory.recommended_loadout` **一直是 `support_crate:1`** ⇒ **逻辑未动**，只补了 id 区分与校验
+     · **P21 ⑭ 加载级**：推荐配置缺 `support_crate` ⇒ **启动报错**（反例用例：换成 `support_pack` 即抛错）
+     · `TryUseSupportPack` 一次性消耗后由调用方按 **`SupportPointEvent(reason:"item")`** 记 +2 SP（接线随 D6 收尾落，若你要提前做说一句）
+  2. ✅ **D2 全量**：12 格 / 口粮不堆叠 / **整备仅出发前（`LockForRun` 后局内不可改）** / 推荐 **2/9/support_crate = 恰满 12** / **包满 `full_choose_discard`（禁止静默丢弃）→ `TryDiscardAt` 或 `TryConsumeFoodToFreeSlot`**
+  3. ✅ **D1 侦察**（上轮）：只揭示下一节点 · 失败 ⇒ `null` · 必写 `RngDraw` · 恰一条 `ScoutResultEvent`；**P21 ⑩⑪⑫ 反射字段名门禁**你已认可
+  4. ✅ **协议 v1.08 已按新版执行**：读**自己的收件箱** → 清空自己 → 把回执写进**你的窗口**（追加）
+
+- 🔴 **需要你做什么**：
+  - **无待裁**。两点备案：① **`TryUseSupportPack → SupportPointEvent(reason:"item")`** 的接线点请确认放在 `BattleDirector`（我倾向那里）还是远征层；② **Godot UI 面板仍未做**（`§4.1 台账` 若还有"Godot UI ⬜"行是对的）——数据面已就绪：`LightMeter` / `Inventory` / `Scouting` / `ExpeditionProjector`
+  - **下一步**：**D3 待命惩罚**（阈值 ≤25%；**越界调 SP / 补"不耗 SP 的事"，不加罚**）→ **M7.5 复测包**（V1 分层 + **两栏样本数** + ㉑~㉗；摸黑 run = 回城前光照 ≤ 50；**A1 分层、严禁合并判红**）
+
+- **阻塞 / 待裁定**：**无**
+
+- **权威在哪**：
+  - 物品与命名 → `data_schema` **§3.12**；背包/整备/包满 → **§3.13 + P21 ⑥⑬⑭**
+  - 我方落点 → `darkest/scripts/gameplay/sim/run/Inventory.cs` · `.../Scouting.cs` · `.../LightMeter.cs` · `tests/InventoryTests.cs`
+  - 决策号 → `doc/state.md` **#260 / #263 / #264 / #265 / #267**
+
+> ⚠️ 本窗口只写"要交代的话 + 指向 doc 的指针"，不复制规格正文 —— 权威永远在 `doc/`。
