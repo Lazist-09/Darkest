@@ -181,31 +181,41 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     // ------------------------------------------------------------------
 
     /// <summary>
-    /// 回城：HP 完全恢复（记 `int.MaxValue`，下场 `BeginBattle` 按 MaxHp 钳制）；
-    /// **完成 / 全灭 → 士气回到基准 50**，**撤退 → 保留撤退结算后的士气（不二次扣、也不回 50）**；
-    /// 清【虚弱】与【死门后遗症】（后者按 `until_next_recovery`）；阵容恢复满编（阵亡者归队，不做招募）。
+    /// 回城（**#245 定案**）：**HP 完全恢复**（记 `int.MaxValue`，下场按 MaxHp 钳制）；
+    /// 🔴 **士气完全不恢复**（完成/撤退/全灭**一律保留** —— 这是"跨趟累积"的唯一体现，也是玩家能感知的那一层）；
+    /// 清【虚弱】与【死门后遗症】（后者按 `until_next_recovery`）；阵容恢复满编（不做招募）。
     /// </summary>
     public int ReturnToTown(CombatLog log, string outcome)
     {
         bool retreat = outcome == "retreat";
         int moraleBefore = AverageRetainedMorale();
-        int penaltyApplied = 0;
 
         foreach (string id in Retained.Keys.ToArray())
         {
             (int hp, int morale, bool weak) = Retained[id];
-            bool alive = hp > 0;
-            // 撤退：存活者保留撤退结算后的士气（惩罚已在撤退那一刻结算，此处不二次扣）
-            int newMorale = retreat && alive ? morale : 50;
-            Retained[id] = (int.MaxValue, newMorale, false); // HP 全恢复 + 清虚弱
             _ = weak;
-            _ = penaltyApplied;
+            // 🔴 #245：士气**完全不恢复**（不再有"完成档回 50"）
+            Retained[id] = (int.MaxValue, morale, false); // HP 全恢复 + 清虚弱
         }
 
         RetainedRecovery.Clear(); // 清【死门后遗症】（"到下次恢复"）
         int moraleAfter = AverageRetainedMorale();
         log.Append(new TownReturnEvent(outcome, moraleBefore, moraleAfter, PenaltyApplied: retreat));
         return moraleAfter;
+    }
+
+    /// <summary>UI 用（E2/E3 必显 ③）：6 人名册的 HP/MaxHp/士气（阵亡者 HP 0）。</summary>
+    public IReadOnlyList<(string Id, int Hp, int MaxHp, int Morale)> Roster()
+    {
+        var list = new List<(string, int, int, int)>();
+        foreach ((string id, (int hp, int morale, bool weak)) in Retained)
+        {
+            int max = RosterMaxHp.TryGetValue(id, out int m) && m > 0 ? m : Math.Max(1, hp);
+            list.Add((id, hp > 0 ? Math.Min(hp, max) : 0, max, morale));
+        }
+
+        list.Sort((a, b) => string.CompareOrdinal(a.Item1, b.Item1));
+        return list;
     }
 
     private int AverageRetainedMorale()

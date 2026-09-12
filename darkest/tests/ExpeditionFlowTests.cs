@@ -129,29 +129,35 @@ public sealed class ExpeditionFlowTests
         completed.ResolveEventNode(logC, cfgRetreat.Get("ev_supply_cache"), optionIndex: 1);
         int afterCompleted = completed.ReturnToTown(logC, "completed");
 
-        Assert.AreEqual(50, afterCompleted, "完成 → 回 50");
+        Assert.AreEqual(logC.Events.OfType<TownReturnEvent>().Last().MoraleBefore, afterCompleted,
+            "#245：完成档也**不恢复到 50**");
         Assert.IsTrue(afterRetreat < 50,
-            $"撤退**保留撤退结算后的士气、不恢复到 50**（实测撤退 {afterRetreat} < 50 = 完成档）");
+            $"撤退**保留撤退结算后的士气、不恢复到 50**（实测撤退 {afterRetreat} < 50）");
     }
 
     [TestMethod]
-    public void E6_Completion_RestoresMoraleTo50_AndClearsState()
+    public void E6_Completion_RestoresHpButNotMorale()
     {
         ExpeditionSession s = NewSession();
         RunOneBattle(s, 20260909);
         var log = new CombatLog();
         int after = s.ReturnToTown(log, "completed");
-        Assert.AreEqual(50, after, "完成 → 士气回基准 50");
-        Assert.IsTrue(log.Events.OfType<TownReturnEvent>().Any(x => x.Outcome == "completed" && !x.PenaltyApplied));
+        TownReturnEvent e = log.Events.OfType<TownReturnEvent>().Last();
+        Assert.AreEqual("completed", e.Outcome);
+        Assert.IsFalse(e.PenaltyApplied, "完成档不触发惩罚");
+        // 🔴 #245：士气**完全不恢复**（完成档也不回 50）
+        Assert.AreEqual(e.MoraleBefore, after, "#245：回城士气**完全不恢复**（完成档同样保留原值）");
     }
 
     [TestMethod]
-    public void E6_Wipe_RestoresMoraleTo50_NoPenalty()
+    public void E6_Wipe_NoPenalty_AndMoraleKept()
     {
         ExpeditionSession s = NewSession();
         var log = new CombatLog();
         RunOneBattle(s, 20260909);
         int after = s.ReturnToTown(log, "wiped");
-        Assert.AreEqual(50, after, "全灭 → 无士气惩罚，回城回 50");
+        TownReturnEvent e = log.Events.OfType<TownReturnEvent>().Last();
+        Assert.IsFalse(e.PenaltyApplied, "全灭档不额外施加撤退惩罚");
+        Assert.AreEqual(e.MoraleBefore, after, "#245：士气保留（不恢复）");
     }
 }

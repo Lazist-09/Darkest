@@ -83,4 +83,43 @@ public static class ExpeditionProjector
     /// <summary>事件流复算是否与会话持有值一致（UI 数字可信性校验；不一致即事件流缺口）。</summary>
     public static bool Reconciles(ExpeditionViewState view, ExpeditionSession session)
         => view.Firewood == session.Firewood && view.Food == session.Food;
+
+    /// <summary>
+    /// **最小列表式远征界面**（E2/E3 UI，`expedition.md` §5.5 必显 7 条）——产出 7 行文本，
+    /// Godot 面板只需逐行渲染（**数字全部来自本投影 = 事件流**）。
+    /// ① 资源 ② 进度 ③ 6 人 HP/士气 ④ 节点类型+代价 ⑤ 扎营入口（柴火不足灰显） ⑥ 事件二选一（不许跳过） ⑦ 回城结算。
+    /// </summary>
+    public static IReadOnlyList<string> RenderList(ExpeditionViewState v, ExpeditionSession session,
+        int targetBattles, bool ambushTriggered, TuningCamp camp, TownReturnEvent? townReturn = null)
+    {
+        var lines = new List<string>
+        {
+            // ① 资源
+            $"① 资源：柴火 {v.Firewood}　口粮 {v.Food}",
+            // ② 进度
+            $"② 进度：第 {Math.Min(session.BattlesPlayed + 1, targetBattles)}/{targetBattles} 场" +
+            $"　夜袭{(ambushTriggered ? "已触发" : "未触发")}（累计 {v.Ambushes} 次）",
+            // ③ 6 人 HP 条 + 士气条（🔴 跨场累积唯一可感知处）
+            "③ 队伍：" + string.Join("　", session.Roster().Select(u =>
+                $"{u.Id} {u.Hp}/{u.MaxHp}HP {u.Morale}士气")),
+            // ④ 节点类型 + 代价提示
+            "④ 本步节点：" + (v.PathNodeTypes.Count == 0 ? "（待选路）"
+                : string.Join(" / ", v.PathNodeTypes.Select(t => t == "battle" ? "普通战（有伤亡风险）" : "事件（二选一，有代价）"))),
+            // ⑤ 扎营入口 + 柴火余量（不足灰显）
+            $"⑤ 扎营：{(v.CanCamp ? $"可扎营（柴火 {v.Firewood} → 剩 {v.Firewood - 1}）" : "灰显：柴火不足")}" +
+            $"　Respite {v.RespiteLeft}",
+            // ⑥ 事件二选一（不允许跳过）
+            "⑥ 事件选项：二选一（**无跳过**）",
+            // ⑦ 回城结算面板（士气前后值 + 是否触发惩罚）
+            townReturn is null
+                ? "⑦ 回城结算：（尚未回城）"
+                : $"⑦ 回城结算：{townReturn.Outcome}　士气 {townReturn.MoraleBefore} → {townReturn.MoraleAfter}" +
+                  $"（**完全不恢复** #245）　惩罚{(townReturn.PenaltyApplied ? "已触发" : "未触发")}",
+        };
+
+        // 灰显依据（档位不足列出禁用项，供 UI 画灰）
+        lines.Add("④b 食物档位：" + string.Join("　", FoodTiers.Select(t =>
+            $"{t}{(v.IsFoodTierDisabled(t) ? "（灰显：口粮不足）" : $"（需 {ExpeditionCampMath.FoodRequired(camp.FoodTiers, t, session.Survivors)}）")}")));
+        return lines;
+    }
 }
