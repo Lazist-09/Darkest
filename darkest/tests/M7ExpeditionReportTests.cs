@@ -157,11 +157,15 @@ public sealed class M7ExpeditionReportTests
     [TestMethod]
     public void M7_Expedition_Report_Fields_10_To_16()
     {
-        const int runs = 60; // 骨架：先小样本看形状（正式跑用 300）
+        const int runs = 300; // 正式复测（E7）
         ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
         TuningCamp camp = TuningConfig.Parse(ReadData("tuning.json")).Camp;
 
         int completed = 0, camps = 0, ambushes = 0, retreats = 0, deaths = 0, battleTotal = 0, wins = 0;
+        int firewoodSpent = 0, foodSpent = 0;
+        var hpByBattle = new List<double>(new double[12]);
+        var moraleByBattle = new List<double>(new double[12]);
+        var curveCount = new List<int>(new int[12]);
         var tierCount = new Dictionary<string, int>();
         var townMorales = new List<int>();
         double hp1 = 0, morale1 = 0;
@@ -188,6 +192,14 @@ public sealed class M7ExpeditionReportTests
                 }
             }
             townMorales.Add(r.TownMorale);
+            firewoodSpent += 2 - r.FirewoodLeft; // 起手 2
+            foodSpent += 12 - r.FoodLeft;        // 起手 12（⑬ 资源收支）
+            for (int b = 0; b < r.Curve.Count; b++)
+            {
+                hpByBattle[b + 1] += r.Curve[b].Hp;
+                moraleByBattle[b + 1] += r.Curve[b].Morale;
+                curveCount[b + 1]++;
+            }
             foreach (string t in r.Tiers)
             {
                 tierCount[t] = tierCount.GetValueOrDefault(t) + 1;
@@ -208,7 +220,11 @@ public sealed class M7ExpeditionReportTests
             $"[M7] ⑫ 扎营 {camps} 次　食物档位 " +
             string.Join(" ", new[] { "feast", "full", "half", "starve" }.Select(t => $"{t}:{tierCount.GetValueOrDefault(t)}")) + "\n" +
             $"[M7] ⑭ 夜袭 {ambushes} 次　⑮ 撤退 {retreats} 次　阵亡 {deaths}（{(double)deaths / runs:F2}/趟）\n" +
-            $"[M7] ⑯ 回城士气：均值 {townMorales.Average():F1}　低于50 的趟数 {townMorales.Count(m => m < 50)}/{runs}";
+            $"[M7] ⑯ 回城士气：均值 {townMorales.Average():F1}　低于50 的趟数 {townMorales.Count(m => m < 50)}/{runs}\n" +
+            $"[M7] ⑬ 资源：柴火支出 {firewoodSpent}（{firewoodSpent / (double)runs:F2}/趟）　口粮支出 {foodSpent}（{foodSpent / (double)runs:F1}/趟）\n" +
+            $"[M7] ⑪ 逐场曲线（HP%/士气%）：" + string.Join(" ", Enumerable.Range(1, 8)
+                .Where(b => curveCount[b] > 0)
+                .Select(b => $"#{b} {hpByBattle[b] / curveCount[b]:F0}/{moraleByBattle[b] / curveCount[b]:F0}"));
         Console.WriteLine(report);
         TestContext.WriteLine(report);
 
