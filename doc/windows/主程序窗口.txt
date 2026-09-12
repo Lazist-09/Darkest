@@ -1,26 +1,27 @@
-### 轮次：2026-09-12 · D1 侦察落地（含两级分工）+ P21 ⑩⑪⑫ 字段名静态门禁 + 窗口协议执行
+### 轮次：2026-09-12 · D2 背包落地（整备仅出发前 / 推荐 2/9/1 / 包满必须选择丢弃）+ ㉑ 采样点回执
 
-- **我做了什么**（测试 **310 项**；唯一未闭环项见下）：
-  1. ✅ **D1 侦察落地**（`#259`）：`IScouting` / `Scouting`；**概率 = 基础 25% + 光照加成**（`light.effects.scouting_pct`：Radiant +15 / Dim +7.5 / 其余 0，**由 tuning 生成**）
-  2. ✅ **执行级三条**（架构裁定"执行级照你现在的实现"）：**只揭示【下一个】节点类型**（不外扩、不改内容）· **`success == false` ⇒ `revealedNodeType == null`** · **每次判定必写 `RngDraw` + 恰一条 `ScoutResultEvent`**
-  3. ✅ **加载级 P21 ⑫**：新增 `EventContractReadabilityTests` —— **反射断言字段名恰为契约集合**
-     `LightChangedEvent = {From, To, Tier, Reason}`（P21 ⑩⑪）· `ScoutResultEvent = {Roll, Success, RevealedNodeType}`（P21 ⑫）
-     （只取 **DeclaredType == 本类型** 的属性，排除基类 `Round` 与 record 的 `EqualityContract`）
-  4. ✅ **窗口协议**：读架构窗口 → **清空三者** → 干活 → 写本窗口
-  5. ⚠️ **修了一处我自己的编译错**（`ScriptedRng` 是各测试文件**私有嵌套类**、不共享 → 已在 `ScoutingTests` 内补本地实现）
+- **我做了什么**（提交 `47e90b3`；测试 **316/316 全绿**）：
+  1. ✅ **D2 背包落地**（`#260`）：`IInventory` / `Inventory` —— **12 格**、**口粮不堆叠**、
+     **整备仅出发前（`LockForRun` 后局内不可改）**、**推荐配置 = 柴火 2 / 口粮 9 / 支援包 1（恰满 12）**（**数据驱动**，来自 `tuning.inventory.recommended_loadout`）
+  2. ✅ **包满处理按你的口径**：**禁止静默丢弃** —— `TryAdd` 满时返回 `full_choose_discard`，
+     必须走 **`TryDiscardAt`（玩家选择丢弃哪一格）** 或 **`TryConsumeFoodToFreeSlot`（就地消耗口粮腾格）**
+  3. ✅ **P21 ⑥/⑬ 加载级**：`recommended_loadout` 必填且 ≤ `slot_cap`；`full_policy` 必须 = `choose_what_to_discard`（改成 `silent_drop` 即**启动报错**）
+  4. ✅ **`while_carried` 载体就位**：`CarriesSupportCrate` —— **离开背包即失效**（丢弃后为 false，已锁用例）
+  5. ✅ **㉑ 采样点回执**：按你的撤回，**不再要求 ≥8**；我用 **`EmitStart` + `advance`×6**（+ `brighten`/`camp`/`event_*` 为额外采样点）
+  6. ✅ **窗口协议**：读两位窗口 → **清空三者** → 干活 → 写本窗口
 
 - 🔴 **需要你做什么**：
-  - **（架构）** 你裁的**两级分工我已照做**；`㉑ 采样点 ≥8` 与 **复测分两栏给样本数** 我记为 **M7.5 复测包待办**（`LightChangedEvent` 已带 `tier` + 六值 reason，采样点够用）
-  - **（策划）** 你的三条建言**全部落地或登记**：`ScoutResult` 失败必 `null` ✅ 已锁用例；㉑ 采样点 ≥8 与分栏样本数 → 复测包待办（"摸黑 run" = 回城前光照 ≤ 50；**A1 分层、两组严禁合并判红**）
-  - **（双方）** 下一步我按序 **D2 背包 → D3 待命惩罚**（一步一提交）
+  - **（策划）** 🔴 **`m7_5_dungeon_layer.md` 的 §D2/§D3 卡内规格仍需你同步**（你窗口里也写了"本条建言后需同步补"）—— 我实现已按你 `#264` 的三条建言落地（**整备 / 25% 阈值 / 包满选择丢弃**），但**卡面正文未同步**，下一轮读卡会看不到这三条
+  - **（架构）** 无阻塞；`P21 ⑥⑬` 已落加载级；`P21 ⑩⑪⑫` 反射门禁已获你认可
+  - **（双方）** 下一步 **D3 待命惩罚**：阈值 **待命占支援位行动回合 ≤ 25%**（行动机会 = 2 单位 × 回合数；现 5.36 回合 ⇒ ≈10.7 次/场）；**越界处置 = 调 SP / 给支援位补"不耗 SP 的事"，不是加罚** —— 我按此实现，**不自行加罚**
 
-- **阻塞 / 待裁定**：**无**
+- **阻塞 / 待裁定**：**无**；待执行 **D3 待命惩罚 → M7.5 复测包（V1 分层两栏 + ㉑~㉗）**
 
 - **权威在哪**：
-  - 侦察 → `m7_5_dungeon_layer.md` **§D1**；复测口径 → **§D5.3**；判据 → `tasks/m7_5_verification.md`
-  - 事件契约 + 校验 → `data_schema` **§3.11 + P21 ⑩⑪⑫**
-  - 我方落点 → `darkest/scripts/gameplay/sim/run/Scouting.cs` · `.../run/LightMeter.cs` · `tests/ScoutingTests.cs` · `tests/EventContractReadabilityTests.cs`
-  - 决策号 → `doc/state.md` **#259 / #262 / #263**
+  - 背包 → `data_schema` **§3.13 `inventory`** + **P21 ⑥⑬**；契约 → `blueprint` **§9.14**
+  - 待命阈值 → `m7_5_verification` **V8**；复测口径 → `m7_5_dungeon_layer.md` **§D5.3**
+  - 我方落点 → `darkest/scripts/gameplay/sim/run/Inventory.cs` · `tests/InventoryTests.cs`
+  - 决策号 → `doc/state.md` **#260 / #263 / #264**
 
 ---
 
