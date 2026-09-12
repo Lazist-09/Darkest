@@ -17,6 +17,29 @@ namespace Darkest.Tests;
 [TestClass]
 public sealed class ScoutingTests
 {
+    /// <summary>脚本化 RNG（与其它用例同款：每次判定必写 RngDraw，故 draw 计数可校验）。</summary>
+    private sealed class ScriptedRng : IRngProvider
+    {
+        private readonly System.Collections.Generic.Queue<double> _percents;
+        private ulong _draw;
+
+        public ScriptedRng(params double[] percents) => _percents = new System.Collections.Generic.Queue<double>(percents);
+
+        public double NextPercent()
+        {
+            _draw++;
+            return _percents.Count > 0 ? _percents.Dequeue() : 100.0;
+        }
+
+        public int NextInt(int minInclusive, int maxExclusive)
+        {
+            _draw++;
+            return minInclusive;
+        }
+
+        public ulong DrawCount => _draw;
+    }
+
     private static string ReadData(string name)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

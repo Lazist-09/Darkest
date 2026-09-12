@@ -1,26 +1,25 @@
-### 轮次：2026-09-12 · D1 侦察落地（含策划两条硬约束）+ 窗口协议执行
+### 轮次：2026-09-12 · D1 侦察落地（含两级分工）+ P21 ⑩⑪⑫ 字段名静态门禁 + 窗口协议执行
 
-- **我做了什么**（提交链：`e9b1ac9` → 本轮 D1；测试 **≥307 全绿**）：
-  1. ✅ **D1 侦察落地**（`#259`）：新增 `IScouting` / `Scouting` —— **概率 = 基础 25% + 光照加成**（Radiant +15 / Dim +7.5 / 其余 0，**档位加成由 `tuning.light.effects.scouting_pct` 生成，不硬写**）
-  2. ✅ **两条约束按你（策划 v1.02）的话实现**：
-     - **只揭示【下一个】节点类型**（`revealed = 传入的下一节点类型`，**不外扩、不改节点内容**）
-     - 🔴 **`success == false` ⇒ `revealedNodeType == null`**（避免"失败却也带类型"的歧义）
-  3. ✅ **每次判定必写 `RngDraw`**（确定性红线）+ **恰一条 `ScoutResultEvent(roll, success, revealedNodeType)`**（V5 / ㉕ 的数据面）
-  4. ✅ **窗口协议**：读策划窗口 → **清空三者** → 干活 → 写本窗口
+- **我做了什么**（测试 **310 项**；唯一未闭环项见下）：
+  1. ✅ **D1 侦察落地**（`#259`）：`IScouting` / `Scouting`；**概率 = 基础 25% + 光照加成**（`light.effects.scouting_pct`：Radiant +15 / Dim +7.5 / 其余 0，**由 tuning 生成**）
+  2. ✅ **执行级三条**（架构裁定"执行级照你现在的实现"）：**只揭示【下一个】节点类型**（不外扩、不改内容）· **`success == false` ⇒ `revealedNodeType == null`** · **每次判定必写 `RngDraw` + 恰一条 `ScoutResultEvent`**
+  3. ✅ **加载级 P21 ⑫**：新增 `EventContractReadabilityTests` —— **反射断言字段名恰为契约集合**
+     `LightChangedEvent = {From, To, Tier, Reason}`（P21 ⑩⑪）· `ScoutResultEvent = {Roll, Success, RevealedNodeType}`（P21 ⑫）
+     （只取 **DeclaredType == 本类型** 的属性，排除基类 `Round` 与 record 的 `EqualityContract`）
+  4. ✅ **窗口协议**：读架构窗口 → **清空三者** → 干活 → 写本窗口
+  5. ⚠️ **修了一处我自己的编译错**（`ScriptedRng` 是各测试文件**私有嵌套类**、不共享 → 已在 `ScoutingTests` 内补本地实现）
 
 - 🔴 **需要你做什么**：
-  - **（策划）** 你的两条我**已按原话实现并锁进用例**（`ScoutingTests`：只揭示下一节点 / 失败必 null）。**另两条我记为待办**：
-    - **㉑ 光照曲线采样点 ≥ 8**（进图起点 + 6 节点结束 + 跑图结束）—— 我会在 **M7.5 复测包**里按这条实现（`LightChangedEvent` 已带 `tier` 与六值 reason，采样点够用）
-    - **复测报告分两栏给样本数**（不摸黑组 / 摸黑组）—— 同上，复测包里出两栏；**"摸黑 run" = 结束时光照 ≤ 50**、**A1 分层、两组严禁合并判红**
-  - **（架构）** `ScoutResultEvent` 的校验级由你定（策划已表态"应该有"）；我目前放在**执行级（实现内保证）**：只揭示下一节点 + 失败必 null + 必写 `RngDraw`。**若你要加载级（P21 增一条），给我一句我就加**
-  - **（架构）** 上一轮我问的 `LightChangedEvent` **已按你裁定改齐**（`from/to/tier/reason` 六值 + `EmitStart`），无需再回
+  - **（架构）** 你裁的**两级分工我已照做**；`㉑ 采样点 ≥8` 与 **复测分两栏给样本数** 我记为 **M7.5 复测包待办**（`LightChangedEvent` 已带 `tier` + 六值 reason，采样点够用）
+  - **（策划）** 你的三条建言**全部落地或登记**：`ScoutResult` 失败必 `null` ✅ 已锁用例；㉑ 采样点 ≥8 与分栏样本数 → 复测包待办（"摸黑 run" = 回城前光照 ≤ 50；**A1 分层、两组严禁合并判红**）
+  - **（双方）** 下一步我按序 **D2 背包 → D3 待命惩罚**（一步一提交）
 
-- **阻塞 / 待裁定**：**无**；待执行 **D2 背包 → D3 待命惩罚**（一步一提交）
+- **阻塞 / 待裁定**：**无**
 
 - **权威在哪**：
-  - 侦察设计与验收 → `doc/architecture/tasks/m7_5_dungeon_layer.md` **§D1**；复测口径 → 同文件 **§D5.3**
-  - 事件契约 → `data_schema` **§3.11**（`ScoutResult`）+ **P21**
-  - 我方落点 → `darkest/scripts/gameplay/sim/run/Scouting.cs` · `tests/ScoutingTests.cs`
+  - 侦察 → `m7_5_dungeon_layer.md` **§D1**；复测口径 → **§D5.3**；判据 → `tasks/m7_5_verification.md`
+  - 事件契约 + 校验 → `data_schema` **§3.11 + P21 ⑩⑪⑫**
+  - 我方落点 → `darkest/scripts/gameplay/sim/run/Scouting.cs` · `.../run/LightMeter.cs` · `tests/ScoutingTests.cs` · `tests/EventContractReadabilityTests.cs`
   - 决策号 → `doc/state.md` **#259 / #262 / #263**
 
 ---
