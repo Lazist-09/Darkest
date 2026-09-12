@@ -8,6 +8,8 @@ using Darkest.Gameplay.Sim.Director;
 
 namespace Darkest.Gameplay.Sim.Run;
 
+// E1 的 PathStep / PathOption 定义在 ExpeditionPathPlanner.cs（选路归规划器；会话只持状态）
+
 /// <summary>
 /// M7 远征层会话（E0：#240 / O-66）——**由 `RunSession` 扩**：
 /// N = 6 场战斗（`tuning.expedition.n_battles`）；每场后可选【扎营】；**6 场皆胜 → 完成**；
@@ -116,8 +118,7 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         log.Append(new ResourceChangedEvent(kind, amount, kind == "firewood" ? Firewood : Food, reason));
     }
 
-    public bool RollAmbush(CombatLog log, Core.Rng.IRngProvider rng)
-    {
+    public bool RollAmbush(CombatLog log, Core.Rng.IRngProvider rng)    {
         double roll = rng.NextPercent();
         log.Append(new RngDraw(rng.DrawCount, roll)); // 确定性红线：夜袭判定必写
         bool triggered = roll < _ambushChance * 100.0;
