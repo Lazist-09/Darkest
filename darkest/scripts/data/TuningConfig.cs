@@ -132,7 +132,8 @@ public sealed record TuningDifficultyTier(
     [property: JsonPropertyName("battle_from")] int BattleFrom,
     [property: JsonPropertyName("battle_to")] int BattleTo,
     [property: JsonPropertyName("multiplier")] double Multiplier,
-    [property: JsonPropertyName("target")] string? Target = null);
+    [property: JsonPropertyName("target")] string? Target = null,
+    [property: JsonPropertyName("stun_resist_pp")] int StunResistPp = 0);
 
 /// <summary>撤退士气惩罚两档（只作用于存活者）。</summary>
 public sealed record TuningRetreatPenalty(
@@ -264,6 +265,7 @@ public sealed record TuningConfig(
 
         int expectedFrom = 1;
         double lastMultiplier = 0;
+        int lastResistPp = 0;
         foreach (TuningDifficultyTier tier in tiers.OrderBy(x => x.BattleFrom).ToArray())
         {
             if (tier.BattleFrom != expectedFrom)
@@ -284,6 +286,18 @@ public sealed record TuningConfig(
             }
 
             lastMultiplier = tier.Multiplier;
+            if (tier.StunResistPp < 0)
+            {
+                throw new InvalidDataException($"{ResPath}: difficulty_tiers stun_resist_pp 必须 ≥ 0（P20 ⑭ / #253）。");
+            }
+
+            if (tier.StunResistPp < lastResistPp)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: difficulty_tiers stun_resist_pp 必须**单调不减**（{lastResistPp} → {tier.StunResistPp}；P20 ⑭ / #253）。");
+            }
+
+            lastResistPp = tier.StunResistPp;
             if (tier.Target is not null && tier.Target is not ("enemy_hp" or "enemy_resist"))
             {
                 throw new InvalidDataException(

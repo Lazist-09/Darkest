@@ -87,6 +87,22 @@ public sealed class UnitRuntime
     /// <summary>D0（#202）：眩晕抗性递增（每次成功被晕 +50%，完成一次未被晕的行动后清零；抗性上限 100）。</summary>
     public int StunResistBuildup { get; set; }
 
+    /// <summary>
+    /// 远征层难度备用轴（#253）：**敌【眩晕抗性】+15pp**（运行时投影、**不改 `units.json` 基准**）。
+    /// 选择它的理由（文档原文）：它**不改回合数、不改伤害** ⇒ **同时避开 A1 的回合带与濒死带**；
+    /// ⚠️ **不动位移抗性** —— "位置驱动"是本作核心定位，削它等于削核心玩法。
+    /// </summary>
+    public int StunResistBonus { get; set; }
+
+    /// <summary>按档施加眩晕抗性加成（pp；0 或负数 = 不改）。</summary>
+    public void ApplyStunResistBonus(int pp)
+    {
+        if (pp != 0)
+        {
+            StunResistBonus += pp;
+        }
+    }
+
     // ------------------------------------------------------------------
     // 生效口（加法先于乘法；M4 由 IBuffLedger.FinalStats 汇总后仍走这些口）
     // ------------------------------------------------------------------

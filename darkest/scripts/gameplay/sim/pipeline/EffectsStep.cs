@@ -27,7 +27,8 @@ public static class EffectsStep
         int resist = req.ResistAxis switch
         {
             // D0（#202）：眩晕抗性 = 基础 + 递增（上限 100；临时状态，不写入基础属性）
-            "stun_resist" => Math.Clamp(target.Base.StunResist + target.StunResistBuildup, 0, 100),
+            // M7 #253：+ 远征层难度档的 `StunResistBonus`（运行时投影，不改 units.json 基准）
+            "stun_resist" => Math.Clamp(target.Base.StunResist + target.StunResistBuildup + target.StunResistBonus, 0, 100),
             "bleed_resist" => target.Base.BleedResist,
             "stat_debuff_resist" => target.Base.StatDebuffResist,
             _ => 0,

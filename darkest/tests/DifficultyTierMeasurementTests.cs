@@ -154,10 +154,17 @@ public sealed class DifficultyTierMeasurementTests
             }
         }
 
+        // 档位标签**从数据生成**（避免标签与 tuning 脱节——曾因硬写 ×1.25 而报出过时标签）
+        (string Label, int From, int To)[] groups = tiers
+            .OrderBy(t => t.BattleFrom)
+            .Select(t => ($"第 {t.BattleFrom}~{t.BattleTo} 场 ×{t.Multiplier:0.##}" +
+                          (t.StunResistPp != 0 ? $"+眩晕抗性{t.StunResistPp}pp" : string.Empty), t.BattleFrom, t.BattleTo))
+            .ToArray();
+
         // ⑳a 链式实况（**护栏唯一判据来源**，O-71）
-        var lines = new List<string> { $"[M7] ⑳ 分档读数（{runs} 趟；乘数只作用敌 HP；按场序分组、固定全样本）" };
+        var lines = new List<string> { $"[M7] ⑳ 分档读数（{runs} 趟；按场序分组、固定全样本；档位标签由 tuning 生成）" };
         var chained = new List<(string Label, double Rounds, double WinRate, int Samples)>();
-        foreach ((string label, int from, int to) in new[] { ("第 1~2 场 ×1.0", 1, 2), ("第 3~4 场 ×1.1", 3, 4), ("第 5~6 场 ×1.25", 5, 6) })
+        foreach ((string label, int from, int to) in groups)
         {
             int battlesN = battles.Skip(from).Take(to - from + 1).Sum();
             int winsN = wins.Skip(from).Take(to - from + 1).Sum();
@@ -182,7 +189,7 @@ public sealed class DifficultyTierMeasurementTests
         }
 
         // ⑳b 新队同档对照（归因用；🔴 禁止用它判链式护栏）
-        foreach ((string label, int from, int to) in new[] { ("第 1~2 场 ×1.0", 1, 2), ("第 3~4 场 ×1.1", 3, 4), ("第 5~6 场 ×1.25", 5, 6) })
+        foreach ((string label, int from, int to) in groups)
         {
             (double freshRounds, double freshWin, int freshSamples) = FreshPartyCohort(tiers, tuning, runs, from, to);
             lines.Add($"[M7] ⑳b 新队同档 {label}：样本 {freshSamples} 场次　胜率 {freshWin:F0}%（分母=同场次数）" +
@@ -191,8 +198,9 @@ public sealed class DifficultyTierMeasurementTests
 
         // 🔴 O-71 归因（两栏并列）
         (double fresh56, _, _) = FreshPartyCohort(tiers, tuning, runs, 5, 6);
-        double chained56 = chained[2].Rounds;
-        lines.Add($"[M7] ⑳c 归因（O-71）：第 5~6 场 链式 {chained56:F2} 回合 ／ 新队 {fresh56:F2} 回合" +
+        double chained56 = chained[^1].Rounds;
+        lines.Add($"[M7] ⑳c 归因（O-71）：末档 链式 {chained56:F2} 回合 ／ 新队 {fresh56:F2} 回合" +
+                  $"（链式带 = 5~7，>7.2 → 再降一档）" +
                   $"　⇒ {(fresh56 <= 6 && chained56 > 6 ? "**新队未破带、链式破带 → 问题在【累积损耗/恢复不足】→ 修资源与恢复（备用轴 2️⃣），不得回调乘数**" : fresh56 > 6 ? "**两者都破带 → 档位本身过强 → 换轴（1️⃣ 敌抗性↑）**" : "两栏都在带内 → 档位可留")}");
 
         string report = string.Join("\n", lines);
