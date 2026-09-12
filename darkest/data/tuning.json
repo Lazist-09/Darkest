@@ -14,7 +14,7 @@
     "difficulty_tiers": [
       { "battle_from": 1, "battle_to": 2, "multiplier": 1.0,  "target": "enemy_hp" },
       { "battle_from": 3, "battle_to": 4, "multiplier": 1.1,  "target": "enemy_hp" },
-      { "battle_from": 5, "battle_to": 6, "multiplier": 1.25, "target": "enemy_hp" }
+      { "battle_from": 5, "battle_to": 6, "multiplier": 1.1, "target": "enemy_hp" }
     ],
     "difficulty_note": "#252 / O-70 ① 裁定：乘数**只作用敌 HP**（保 A1 濒死带）；护栏=回合 4~6（×1.25 预计破带 → 备用轴 敌抗性↑）；增援/SP/资源不波及"
   },

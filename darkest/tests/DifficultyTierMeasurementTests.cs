@@ -37,6 +37,48 @@ public sealed class DifficultyTierMeasurementTests
         throw new FileNotFoundException($"data/{name} 未找到。");
     }
 
+    /// <summary>⑳b 新队同档对照（O-71 归因用）：**每场都用新队**跑同一档，隔离"累积损耗"这一项。</summary>
+    private static (double Rounds, double WinRate, int Samples) FreshPartyCohort(
+        IReadOnlyList<TuningDifficultyTier> tiers, TuningConfig tuning, int runs, int from, int to)
+    {
+        long rounds = 0;
+        int wins = 0;
+        int samples = 0;
+        for (int i = 0; i < runs; i++)
+        {
+            for (int b = from; b <= to; b++)
+            {
+                var session = new ExpeditionSession(_ => HeadlessDriver.NewDirector(new CombatLog()), 6,
+                    firewood: 2, food: 12, ambushChance: 0.33); // **每场新队**（不跨场携带）
+                var log = new CombatLog();
+                var rng = new RngProvider(20260909 + i * 100 + b);
+                Darkest.Gameplay.Sim.Director.BattleDirector d = session.BeginExpeditionBattle(b, log, tiers);
+
+                string result = "RoundLimit";
+                int r = 1;
+                for (; r <= 100; r++)
+                {
+                    d.RunFullRound(rng, unit => Policies.DecideForUnit(PolicyKind.SemiRandom, unit, d, rng));
+                    if (d.IsBattleOver)
+                    {
+                        result = d.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+                        break;
+                    }
+                }
+
+                session.EndBattle(d, b, result, Math.Min(r, 100));
+                rounds += Math.Min(r, 100);
+                samples++;
+                if (result == "PlayerVictory")
+                {
+                    wins++;
+                }
+            }
+        }
+
+        return (rounds / (double)Math.Max(1, samples), samples == 0 ? 0 : 100.0 * wins / samples, samples);
+    }
+
     [TestMethod]
     public void O70_TieredReadings_With_RoundsPerTier()
     {
@@ -112,7 +154,9 @@ public sealed class DifficultyTierMeasurementTests
             }
         }
 
-        var lines = new List<string> { $"[M7] ⑳ 分档读数（{runs} 趟；乘数只作用敌 HP；按场序分组）" };
+        // ⑳a 链式实况（**护栏唯一判据来源**，O-71）
+        var lines = new List<string> { $"[M7] ⑳ 分档读数（{runs} 趟；乘数只作用敌 HP；按场序分组、固定全样本）" };
+        var chained = new List<(string Label, double Rounds, double WinRate, int Samples)>();
         foreach ((string label, int from, int to) in new[] { ("第 1~2 场 ×1.0", 1, 2), ("第 3~4 场 ×1.1", 3, 4), ("第 5~6 场 ×1.25", 5, 6) })
         {
             int battlesN = battles.Skip(from).Take(to - from + 1).Sum();
@@ -128,11 +172,28 @@ public sealed class DifficultyTierMeasurementTests
                 hitsN += hits[b];
             }
 
-            lines.Add($"[M7] ⑳ {label}：样本 {battlesN}　胜率 {(battlesN == 0 ? 0 : 100.0 * winsN / battlesN):F0}%" +
-                      $"　**回合 {roundsN / (double)Math.Max(1, battlesN):F2}**" +
+            double avgRounds = roundsN / (double)Math.Max(1, battlesN);
+            double winRate = battlesN == 0 ? 0 : 100.0 * winsN / battlesN;
+            chained.Add((label, avgRounds, winRate, battlesN));
+            lines.Add($"[M7] ⑳a 链式实况 {label}：样本 {battlesN} 场次　胜率 {winRate:F0}%（分母=到达该档的场次数）" +
+                      $"　**回合 {avgRounds:F2}**（分母=同场次数）" +
                       $"　掉血后 HP {(hitsN == 0 ? 0 : hpN / hitsN):F0}%" +
                       $"　死门 {ddN / (double)Math.Max(1, battlesN):F2}/场　阵亡 {deathsN / (double)Math.Max(1, battlesN):F2}/场");
         }
+
+        // ⑳b 新队同档对照（归因用；🔴 禁止用它判链式护栏）
+        foreach ((string label, int from, int to) in new[] { ("第 1~2 场 ×1.0", 1, 2), ("第 3~4 场 ×1.1", 3, 4), ("第 5~6 场 ×1.25", 5, 6) })
+        {
+            (double freshRounds, double freshWin, int freshSamples) = FreshPartyCohort(tiers, tuning, runs, from, to);
+            lines.Add($"[M7] ⑳b 新队同档 {label}：样本 {freshSamples} 场次　胜率 {freshWin:F0}%（分母=同场次数）" +
+                      $"　**回合 {freshRounds:F2}**（分母=同场次数）　← 🔴 仅归因用，**不得据此判链式护栏**");
+        }
+
+        // 🔴 O-71 归因（两栏并列）
+        (double fresh56, _, _) = FreshPartyCohort(tiers, tuning, runs, 5, 6);
+        double chained56 = chained[2].Rounds;
+        lines.Add($"[M7] ⑳c 归因（O-71）：第 5~6 场 链式 {chained56:F2} 回合 ／ 新队 {fresh56:F2} 回合" +
+                  $"　⇒ {(fresh56 <= 6 && chained56 > 6 ? "**新队未破带、链式破带 → 问题在【累积损耗/恢复不足】→ 修资源与恢复（备用轴 2️⃣），不得回调乘数**" : fresh56 > 6 ? "**两者都破带 → 档位本身过强 → 换轴（1️⃣ 敌抗性↑）**" : "两栏都在带内 → 档位可留")}");
 
         string report = string.Join("\n", lines);
         Console.WriteLine(report);

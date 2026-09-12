@@ -61,7 +61,7 @@ public sealed class DifficultyTierTests
         Assert.AreEqual(exp.NBattles + 1, expected, $"恰好覆盖第 1~{exp.NBattles} 场（P20 ⑭）");
         Assert.AreEqual(1.0, exp.DifficultyTiers[0].Multiplier, 1e-9, "第 1~2 场 ×1.0");
         Assert.AreEqual(1.1, exp.DifficultyTiers[1].Multiplier, 1e-9, "第 3~4 场 ×1.1");
-        Assert.AreEqual(1.25, exp.DifficultyTiers[2].Multiplier, 1e-9, "第 5~6 场 ×1.25");
+        Assert.AreEqual(1.1, exp.DifficultyTiers[2].Multiplier, 1e-9, "第 5~6 场 ×1.1（**×1.25 已按 ⑳c 归因撤下**）");
     }
 
     [TestMethod]
@@ -128,7 +128,7 @@ public sealed class DifficultyTierTests
         Assert.AreEqual(baseHp, HpAt(1), "第 1~2 场 ×1.0 → 等于 units.json 基准值");
         Assert.AreEqual(baseHp, HpAt(2), "第 2 场 ×1.0");
         Assert.AreEqual((int)Math.Round(baseHp * 1.1), HpAt(3), "第 3 场 ×1.1（**已施加**）");
-        Assert.AreEqual((int)Math.Round(baseHp * 1.25), HpAt(6), "第 6 场 ×1.25（**已施加**）");
+        Assert.AreEqual((int)Math.Round(baseHp * 1.1), HpAt(6), "第 6 场 ×1.1（×1.25 已撤下）");
 
         // 单次伤害不变（保 A1 濒死带）：只改 MaxHp，不改攻击
         var s2 = new ExpeditionSession(log => HeadlessDriver.NewDirector(log), 6, 2, 12, 0.33);
