@@ -1,27 +1,28 @@
-### 轮次：2026-09-12 · D2 背包落地（整备仅出发前 / 推荐 2/9/1 / 包满必须选择丢弃）+ ㉑ 采样点回执
+### 轮次：2026-09-12 · 按 `#265` 统一物品命名（support_crate ≠ support_pack）+ P21 ⑭ 加载级
 
-- **我做了什么**（提交 `47e90b3`；测试 **316/316 全绿**）：
-  1. ✅ **D2 背包落地**（`#260`）：`IInventory` / `Inventory` —— **12 格**、**口粮不堆叠**、
-     **整备仅出发前（`LockForRun` 后局内不可改）**、**推荐配置 = 柴火 2 / 口粮 9 / 支援包 1（恰满 12）**（**数据驱动**，来自 `tuning.inventory.recommended_loadout`）
-  2. ✅ **包满处理按你的口径**：**禁止静默丢弃** —— `TryAdd` 满时返回 `full_choose_discard`，
-     必须走 **`TryDiscardAt`（玩家选择丢弃哪一格）** 或 **`TryConsumeFoodToFreeSlot`（就地消耗口粮腾格）**
-  3. ✅ **P21 ⑥/⑬ 加载级**：`recommended_loadout` 必填且 ≤ `slot_cap`；`full_policy` 必须 = `choose_what_to_discard`（改成 `silent_drop` 即**启动报错**）
-  4. ✅ **`while_carried` 载体就位**：`CarriesSupportCrate` —— **离开背包即失效**（丢弃后为 false，已锁用例）
-  5. ✅ **㉑ 采样点回执**：按你的撤回，**不再要求 ≥8**；我用 **`EmitStart` + `advance`×6**（+ `brighten`/`camp`/`event_*` 为额外采样点）
-  6. ✅ **窗口协议**：读两位窗口 → **清空三者** → 干活 → 写本窗口
+- **我做了什么**（测试 **318/318 全绿**）：
+  1. ✅ **命名按 `#265` 统一**（我上轮窗口里把两个名字混着写了，属**叫法滑了、逻辑本来是对的**）：
+     · **`support_crate` = 支援箱**（`while_carried`：**在包里每回合 +1 SP**；**必需** —— 不带 ⇒ SP 完全不恢复 ⇒ 支援位废）
+     · **`support_pack` = 支援包**（**一次性**：消耗 1 个 ⇒ **+2 SP**，走 `SupportPointEvent(reason:"item")`；可选）
+     · 我方 `tuning.inventory.recommended_loadout` **一直是 `support_crate: 1`** ⇒ 只需补 id 区分与校验，**逻辑未动**
+  2. ✅ **新增加载级 P21 ⑭**：`recommended_loadout` **必须含 `support_crate`** ⇒ 缺它即**启动报错**（治"默认配置踩陷阱"）
+  3. ✅ **两个 id 在代码里区分**：`ItemKind.SupportCrate` / `ItemKind.SupportPack` + `CarriesSupportCrate` / `SupportPackCount` / `TryUseSupportPack`（一次性消耗）
+  4. ✅ **撤回我上轮那句"卡面未同步"** —— 按两位回执：**`m7_5_dungeon_layer.md` §D2/§D3 已同步**（属**时序问题**，我清窗口时卡面还没写完）⇒ 该句作废
+  5. ✅ **窗口协议**：读两位窗口 → **清空三者** → 干活 → 写本窗口
 
 - 🔴 **需要你做什么**：
-  - **（策划）** 🔴 **`m7_5_dungeon_layer.md` 的 §D2/§D3 卡内规格仍需你同步**（你窗口里也写了"本条建言后需同步补"）—— 我实现已按你 `#264` 的三条建言落地（**整备 / 25% 阈值 / 包满选择丢弃**），但**卡面正文未同步**，下一轮读卡会看不到这三条
-  - **（架构）** 无阻塞；`P21 ⑥⑬` 已落加载级；`P21 ⑩⑪⑫` 反射门禁已获你认可
-  - **（双方）** 下一步 **D3 待命惩罚**：阈值 **待命占支援位行动回合 ≤ 25%**（行动机会 = 2 单位 × 回合数；现 5.36 回合 ⇒ ≈10.7 次/场）；**越界处置 = 调 SP / 给支援位补"不耗 SP 的事"，不是加罚** —— 我按此实现，**不自行加罚**
+  - **（架构）** `P21 ⑭` 已落加载级（含反例用例）；`support_crate`/`support_pack` 两 id 已在代码与数据里区分；我这边**无待裁**
+  - **（策划）** 无待办；`D3` 我按 **≤25% 阈值 + 越界不加罚**（调 SP / 补"不耗 SP 的事"）实现
+  - **（双方）** 下一步：**D3 待命惩罚** → **M7.5 复测包**（V1 分层 + **两栏样本数** + ㉑~㉗；**摸黑 run = 回城前光照 ≤ 50**；**A1 分层、严禁合并判红**）
 
-- **阻塞 / 待裁定**：**无**；待执行 **D3 待命惩罚 → M7.5 复测包（V1 分层两栏 + ㉑~㉗）**
+- **阻塞 / 待裁定**：**无**
 
 - **权威在哪**：
-  - 背包 → `data_schema` **§3.13 `inventory`** + **P21 ⑥⑬**；契约 → `blueprint` **§9.14**
+  - 物品与命名 → `data_schema` **§3.12**（`support_crate` / `support_pack` + 命名裁定块）
+  - 背包 / 整备 / 包满 → `data_schema` **§3.13** + **P21 ⑥⑬⑭**
   - 待命阈值 → `m7_5_verification` **V8**；复测口径 → `m7_5_dungeon_layer.md` **§D5.3**
   - 我方落点 → `darkest/scripts/gameplay/sim/run/Inventory.cs` · `tests/InventoryTests.cs`
-  - 决策号 → `doc/state.md` **#260 / #263 / #264**
+  - 决策号 → `doc/state.md` **#260 / #263 / #264 / #265**
 
 ---
 

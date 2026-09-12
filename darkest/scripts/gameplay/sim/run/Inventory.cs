@@ -6,12 +6,18 @@ using Darkest.Data;
 
 namespace Darkest.Gameplay.Sim.Run;
 
-/// <summary>背包物品种类（D2）：柴火 / 口粮 / 支援包（+2 SP 的 `while_carried` 物品）。</summary>
+/// <summary>
+/// 背包物品种类（D2 / `#265` 命名裁定）：
+/// · **`SupportCrate` = 支援箱**：`while_carried` —— **在包里每回合 +1 SP**；**必需**（不带 ⇒ SP 完全不恢复 ⇒ 支援位废）
+/// · **`SupportPack` = 支援包**：**一次性**消耗 → **+2 SP**（走 `SupportPointEvent(reason:"item")`）；可选
+/// 🔴 **两个 id 不得混用**（同类教训：`#247` 同名异义 / `#253` 并列不同层 —— 纪律 15）。
+/// </summary>
 public enum ItemKind
 {
     Firewood,
     Food,
     SupportCrate,
+    SupportPack,
 }
 
 /// <summary>背包里的一格（口粮**不堆叠** ⇒ 一份口粮占一格）。</summary>
@@ -153,6 +159,25 @@ public sealed class Inventory : IInventory
         return true;
     }
 
-    /// <summary>是否携带 SP 恢复物品（D6 #3：其 buff 为 `while_carried` —— 离开背包即失效）。</summary>
+    /// <summary>是否携带 **支援箱**（`support_crate`，D6 #3：其 buff 为 `while_carried` —— **离开背包即失效**）；
+    /// 携带时**每回合 +1 SP**（由战斗层按 `SupportPointEvent(reason:"item")` 计入）。</summary>
     public bool CarriesSupportCrate => CountOf(ItemKind.SupportCrate) > 0;
+
+    /// <summary>携带的 **支援包**（`support_pack`，一次性 +2 SP 消耗品）数量。</summary>
+    public int SupportPackCount => CountOf(ItemKind.SupportPack);
+
+    /// <summary>消耗 1 个支援包（**一次性 +2 SP**）：扣格成功 ⇒ 调用方按 `SupportPointEvent(reason:"item")` 记 +2。</summary>
+    public bool TryUseSupportPack(out InventoryItem? used)
+    {
+        used = null;
+        int idx = _slots.FindIndex(s => s.Kind == ItemKind.SupportPack);
+        if (idx < 0)
+        {
+            return false;
+        }
+
+        used = _slots[idx];
+        _slots.RemoveAt(idx);
+        return true;
+    }
 }

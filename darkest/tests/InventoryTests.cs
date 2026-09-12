@@ -109,6 +109,34 @@ public sealed class InventoryTests
     }
 
     [TestMethod]
+    public void P21_14_RecommendedLoadout_MustContainSupportCrate()
+    {
+        // 把 support_crate 换成 support_pack ⇒ 默认配置下 SP 完全不恢复（支援位废）⇒ 启动报错
+        Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(
+            ReadData("tuning.json").Replace("\"support_crate\": 1", "\"support_pack\": 1", StringComparison.Ordinal)),
+            "推荐配置缺 support_crate → 启动报错（P21 ⑭ / #265）");
+    }
+
+    [TestMethod]
+    public void D2_SupportCrate_And_SupportPack_AreDistinctIds()
+    {
+        Assert.AreNotEqual(ItemKind.SupportCrate, ItemKind.SupportPack, "#265：两个不同 id，不得混用");
+
+        var inv = new Inventory(Cfg());
+        inv.ConfigureRecommended(out _);
+        Assert.IsTrue(inv.CarriesSupportCrate, "推荐配置含**支援箱**（while_carried / 每回合 +1 SP）");
+        Assert.AreEqual(0, inv.SupportPackCount, "推荐配置**不含**支援包（支援包是可选消耗品）");
+
+        // 拾取一个支援包（先腾一格）→ 一次性使用 +2 SP（事件由调用方按 reason:item 记）
+        inv.TryDiscardAt(0, out _);
+        Assert.IsTrue(inv.TryAdd(new InventoryItem(ItemKind.SupportPack, "pack_1"), out _));
+        Assert.AreEqual(1, inv.SupportPackCount);
+        Assert.IsTrue(inv.TryUseSupportPack(out InventoryItem? used));
+        Assert.AreEqual(ItemKind.SupportPack, used!.Kind);
+        Assert.AreEqual(0, inv.SupportPackCount, "一次性消耗后不再持有");
+    }
+
+    [TestMethod]
     public void P21_BadInventoryData_ThrowsOnLoad()
     {
         // 推荐配置超格

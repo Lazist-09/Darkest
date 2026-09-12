@@ -480,6 +480,15 @@ public sealed record TuningConfig(
                 $"{ResPath}: inventory.full_policy 必须 = choose_what_to_discard（P21 ⑬：**禁止静默丢弃**，否则光照计收益端闭环会漏）。");
         }
 
+        // 🔴 P21 ⑭（#265 命名裁定）：推荐配置**必须含 `support_crate`（支援箱）** —— 缺它 ⇒ 默认配置下
+        // SP 完全不恢复 ⇒ **支援位废**（玩家看不见的陷阱）。`support_crate`（while_carried，每回合 +1 SP，必需）
+        // 与 `support_pack`（一次性 +2 SP，可选）是**两个不同 id**，不得混用。
+        if (!t.Inventory.RecommendedLoadout.ContainsKey("support_crate"))
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: recommended_loadout **必须包含 support_crate（支援箱）**（P21 ⑭ / #265：缺它 ⇒ 默认配置下 SP 完全不恢复）。");
+        }
+
         // 🔴 P20（M7 远征层）：①②③ —— 键齐备与值域，**加载级 fail-fast**
         if (t.Expedition is null || t.Resources is null || t.Camp is null)
         {

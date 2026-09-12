@@ -762,6 +762,8 @@ public interface IExpeditionSession : IRunSession {    // §9.12 的扩展（N: 
 **事件（可读性，P17）**：**`LightChangedEvent(from,to,tier,reason)`**（**光照每次变化必发**；🔴 **字段口径以 `data_schema` §3.11 为准**：`reason ∈ {start, advance, brighten, camp, event_torch, event_dark}` —— **"举火把/摸黑"必须是两个 reason**；🔴 **`tier` 必须在事件里**，否则复测无法归因"这一场难度是哪个档给的"）+ 🔴 **`ScoutResultEvent(roll, success, revealedNodeType)`**（**架构侧补充要求**：否则"侦察成功率 / 因侦察改变选路次数"统计不到）。
 **取档时点（O-72 已裁定）**：**进节点时取档、本场战斗内固定**；**"本场固定"是自然结果**（光照只在节点间变化 + 我们不做"战斗内改光照"技能）⇒ **不要加"战斗内锁定"机制**。
 
+🔴 **v1.04/#265 命名裁定**：**`support_crate`（支援箱，载体/`while_carried`/必需）× `support_pack`（支援包，消耗品/一次性 +2 SP/可选）＝两个独立 id，不得合并**；`recommended_loadout` **必含 `support_crate`**（缺即启动报错）
+
 ```csharp
 public interface ILightMeter {                 // 会话级（远征内）
     int Value { get; }                          // 0~100
