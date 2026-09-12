@@ -120,17 +120,25 @@ public sealed class ExpeditionCampFlowTests
     }
 
     [TestMethod]
-    public void E3_InsufficientFood_DegradesToStarve_WithoutSpending()
+    public void E3_InsufficientFood_TierNotSelectable_NoFreeDegrade()
     {
         ExpeditionSession s = NewSession(firewood: 2, food: 1); // 口粮不足以支付 full（6）
         RunOneBattle(s, 20260909);
         var log = new CombatLog();
         s.StartCamp(log, 1, Camp().RespiteBase);
 
-        string applied = s.ChooseFood(log, Camp(), "full");
-        Assert.AreEqual("starve", applied, "口粮不足 → 退化为挨饿（不扣）");
-        Assert.AreEqual(1, s.Food, "退化时**不扣口粮**");
-        Assert.AreEqual("starve", log.Events.OfType<CampFoodChosenEvent>().Single().Tier, "记录**实际**档位");
+        Assert.IsFalse(s.CanAffordFood(Camp(), "full"), "口粮不足 → 该档位**不可选（灰显）**");
+        Assert.ThrowsException<InvalidOperationException>(
+            () => s.ChooseFood(log, Camp(), "full"),
+            "🔴 **禁止自动退化为 starve 且不扣**（免费午餐，v0.86 规格）");
+        Assert.AreEqual(1, s.Food, "被拒时**不扣口粮**");
+        Assert.IsFalse(log.Events.OfType<CampFoodChosenEvent>().Any(), "被拒时不写档位事件");
+
+        Assert.IsTrue(s.CanAffordFood(Camp(), "starve"), "Starve 需**主动选择**（需求 0，永远可选）");
+        Assert.AreEqual("starve", s.ChooseFood(log, Camp(), "starve"));
+        CampFoodChosenEvent e = log.Events.OfType<CampFoodChosenEvent>().Single();
+        Assert.AreEqual("starve", e.Tier);
+        Assert.AreEqual(0, e.FoodSpent, "主动挨饿不耗口粮，但**照常受罚**（−20% HP / −15 士气）");
     }
 
     [TestMethod]

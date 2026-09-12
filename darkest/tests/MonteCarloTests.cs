@@ -88,7 +88,7 @@ public sealed class MonteCarloTests
     public void M6Acceptance_WinRateBand_And_Rhythm()
     {
         // 🔴 v0.68 判据（用户给数）：
-        //   A1 单场 = 胜率 ≥85% / **死门 ≤0.3** / **阵亡 ≤0.1** / **回合 4~6**
+        //   A1 单场 = 胜率 ≥85% / **死门 ≤0.4（#233 拍板、v0.86 落地；0.3 为旧值）** / **阵亡 ≤0.1** / **回合 4~6**
         //   A2 run  = **打满 3 场且未全灭**（新口径）；同报三个数：①未全灭 ②打满3场且未全灭 ③3 场皆胜
         //   新读数：增援事件数（预期 ≈0）· 口径健康度（预期无单一位置 >40%）
         const int runs = 300;
@@ -147,7 +147,7 @@ public sealed class MonteCarloTests
         double deathsPerBattle = (double)deaths / runs;
         double ddPerBattle = (double)r.TotalDeathDoorRolls / runs;
         string report = $"[M6] A1 单场：胜率={r.WinRate:P0} 死门={ddPerBattle:F2}/场 阵亡={deathsPerBattle:F2}/场 回合={r.AvgRounds:F2} " +
-                        $"（门槛 ≥85% / ≤0.3 / ≤0.1 / 4~6）\n" +
+                        $"（门槛 ≥85% / ≤0.4 / ≤0.1 / 4~6）\n" +
                         $"[M6] A2 run（v0.68 撤退=判负且 run 结束）：打满3场且未全灭={fullThree}/{runs}（{(double)fullThree / runs:P0}）" +
                         $"｜未全灭={survived}（{(double)survived / runs:P0}）｜3场皆胜={allWon}（{(double)allWon / runs:P0}）\n" +
                         $"[M6] 新读数：增援事件={reinforcements}（预期 ≈0）｜单一位置最高承伤占比={maxSlotSharePercent:F0}%（预期 ≤40%）" +
@@ -157,7 +157,7 @@ public sealed class MonteCarloTests
         Console.WriteLine(report);
 
         Assert.IsTrue(r.WinRate >= 0.85, $"判据 A1 未过：单场胜率 {r.WinRate:P0} < 85%。{report}");
-        Assert.IsTrue(ddPerBattle <= 0.3, $"判据 A1 未过：死门 {ddPerBattle:F2}/场 > 0.3。{report}");
+        Assert.IsTrue(ddPerBattle <= 0.4, $"判据 A1 未过：死门 {ddPerBattle:F2}/场 > 0.4。{report}");
         Assert.IsTrue(deathsPerBattle <= 0.1, $"判据 A1 未过：阵亡 {deathsPerBattle:F2}/场 > 0.1。{report}");
         Assert.IsTrue(r.AvgRounds is >= 4 and <= 6, $"判据 A1 未过：平均回合 {r.AvgRounds:F2} 不在 4~6。{report}");
     }

@@ -112,7 +112,9 @@ public sealed class M7ExpeditionReportTests
             if (session.CanCamp && session.StartCamp(log, i + 1, camp.RespiteBase))
             {
                 camps++;
-                string tier = session.Food >= 12 ? "feast" : session.Food >= 6 ? "full" : session.Food >= 3 ? "half" : "starve";
+                string tier = session.CanAffordFood(camp, "feast") ? "feast"
+                    : session.CanAffordFood(camp, "full") ? "full"
+                    : session.CanAffordFood(camp, "half") ? "half" : "starve"; // v0.86：只选**可支付**档位
                 tiers.Add(session.ChooseFood(log, camp, tier));
                 while (session.RespiteLeft >= 2)
                 {
@@ -169,6 +171,7 @@ public sealed class M7ExpeditionReportTests
         var curveCount = new List<int>(new int[12]);
         var tierCount = new Dictionary<string, int>();
         var townMorales = new List<int>();
+        var retreatMorales = new List<int>(); // ⑯：撤退档的回城士气分布（裁定 ii）
         double hp1 = 0, morale1 = 0;
         int countedBattles = 0;
 
@@ -193,6 +196,10 @@ public sealed class M7ExpeditionReportTests
                 }
             }
             townMorales.Add(r.TownMorale);
+            if (r.Retreats > 0)
+            {
+                retreatMorales.Add(r.TownMorale); // 裁定 (ii)：⑯ 只统计**撤退档**
+            }
             firewoodSpent += 2 - r.FirewoodLeft; // 起手 2
             foodSpent += 12 - r.FoodLeft;        // 起手 12（⑬ 资源收支）
             for (int b = 0; b < r.Curve.Count; b++)
@@ -221,7 +228,8 @@ public sealed class M7ExpeditionReportTests
             $"[M7] ⑫ 扎营 {camps} 次　食物档位 " +
             string.Join(" ", new[] { "feast", "full", "half", "starve" }.Select(t => $"{t}:{tierCount.GetValueOrDefault(t)}")) + "\n" +
             $"[M7] ⑭ 夜袭 {ambushes} 次　⑮ 撤退 {retreats} 次　阵亡 {deaths}（{(double)deaths / runs:F2}/趟）\n" +
-            $"[M7] ⑯ 回城士气：均值 {townMorales.Average():F1}　低于50 的趟数 {townMorales.Count(m => m < 50)}/{runs}\n" +
+            $"[M7] ⑯ 回城士气（**仅撤退档**·裁定 ii）：撤退 {retreatMorales.Count} 趟" +
+            $"{(retreatMorales.Count == 0 ? "（本批无撤退 → 无分布）" : $"　均值 {retreatMorales.Average():F1}　区间 [{retreatMorales.Min()},{retreatMorales.Max()}]")}\n" +
             $"[M7] ⑬ 资源：柴火支出 {firewoodSpent}（{firewoodSpent / (double)runs:F2}/趟）　口粮支出 {foodSpent}（{foodSpent / (double)runs:F1}/趟）\n" +
             $"[M7] ⑪ 逐场曲线（HP%/士气%）：" + string.Join(" ", Enumerable.Range(1, 8)
                 .Where(b => curveCount[b] > 0)
@@ -262,10 +270,11 @@ public sealed class M7ExpeditionReportTests
                 foodSpent += startFood - r.FoodLeft;
                 campsTotal += r.Camps;
                 starve += r.Tiers.Count(t => t == "starve");
-                if (r.Curve.Count >= 6)
+                // 裁定 (i)：**固定同一批趟** —— 每趟取自己**最后一场**的状态（不按"是否满 6 场"过滤）
+                if (r.Curve.Count > 0)
                 {
-                    hp6 += r.Curve[5].Hp;
-                    morale6 += r.Curve[5].Morale;
+                    hp6 += r.Curve[^1].Hp;
+                    morale6 += r.Curve[^1].Morale;
                     c6++;
                 }
             }
@@ -273,7 +282,8 @@ public sealed class M7ExpeditionReportTests
             lines.Add($"[M7] ⑰ 口粮 {startFood}：完成率 {(double)completed / runs:P0}（{completed}/{runs}）" +
                       $"｜扎营 {campsTotal}（starve {starve}，{(campsTotal == 0 ? 0 : 100.0 * starve / campsTotal):F0}%）" +
                       $"｜口粮支出 {foodSpent / (double)runs:F1}/趟" +
-                      $"｜第 6 场后 HP {(c6 == 0 ? 0 : hp6 / c6):F0}% 士气 {(c6 == 0 ? 0 : morale6 / c6):F0}%");
+                      $"｜第 6 场后 HP {(c6 == 0 ? 0 : hp6 / c6):F0}% 士气 {(c6 == 0 ? 0 : morale6 / c6):F0}%" +
+                      $"（固定全样本 = {c6} 趟的**终局**状态）");
         }
 
         string report = string.Join("\n", lines);

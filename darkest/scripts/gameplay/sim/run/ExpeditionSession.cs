@@ -240,25 +240,34 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         return true;
     }
 
+    /// <summary>该档位是否**可支付**（口粮足够）——不足时 UI **灰显 + tooltip「口粮不足」**（v0.86 规格）。</summary>
+    public bool CanAffordFood(Darkest.Data.TuningCamp camp, string tier)
+        => ExpeditionCampMath.FoodRequired(camp.FoodTiers, tier, Survivors) <= Food;
+
     /// <summary>
-    /// 选择食物档位：口粮需求按**存活人数**缩放（`ExpeditionCampMath.FoodRequired`）；
-    /// 口粮不足 → **退化为 starve（挨饿）且不扣**，并如实写入所选档位（E3 验收：Starve 有意义）。
+    /// 选择食物档位（v0.86 规格修订）：**口粮不足的档位不可选** —— 抛 `InvalidOperationException`，
+    /// **不施加任何效果、不扣口粮**；🔴 **禁止"自动退化为 starve 且不扣"**（那是免费午餐，曾导致灵敏度非单调）。
+    /// 【Starve】需**主动选择**：需求 0（永远可选），照常受罚（−20% HP / −15 士气），不是"免费躲罚"。
     /// </summary>
     public string ChooseFood(CombatLog log, Darkest.Data.TuningCamp camp, string tier)
     {
         int need = ExpeditionCampMath.FoodRequired(camp.FoodTiers, tier, Survivors);
-        string applied = tier;
-        int spent = need;
-        if (need > 0 && !TrySpend(log, "food", need, "camp_food"))
+        if (need > Food)
         {
-            applied = "starve";
-            spent = 0;
+            throw new InvalidOperationException(
+                $"口粮不足：「{tier}」需要 {need} 份、现有 {Food} 份 → **该档位不可选（灰显）**；" +
+                "不得自动退化为 starve（v0.86 / E3 规格）。");
         }
 
-        (double hpPct, int moraleDelta) = ExpeditionCampMath.FoodEffect(applied);
+        if (need > 0)
+        {
+            TrySpend(log, "food", need, "camp_food");
+        }
+
+        (double hpPct, int moraleDelta) = ExpeditionCampMath.FoodEffect(tier);
         ApplyToSurvivors(hpPct, moraleDelta);
-        log.Append(new CampFoodChosenEvent(applied, spent, Survivors));
-        return applied;
+        log.Append(new CampFoodChosenEvent(tier, need, Survivors));
+        return tier;
     }
 
     /// <summary>使用扎营技能：**点数不足 → 不可选（返回 false，不扣）**；成功写 `CampSkillUsedEvent`。</summary>
