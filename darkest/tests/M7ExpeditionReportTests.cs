@@ -65,9 +65,10 @@ public sealed class M7ExpeditionReportTests
         return (result, deaths);
     }
 
-    private static ExpeditionRun RunExpedition(long seed, ExpeditionNodesConfig nodes, TuningCamp camp)
+    private static ExpeditionRun RunExpedition(long seed, ExpeditionNodesConfig nodes, TuningCamp camp,
+        int firewood = 2, int food = 12)
     {
-        var session = new ExpeditionSession(_ => HeadlessDriver.NewDirector(new CombatLog()), 6, firewood: 2, food: 12,
+        var session = new ExpeditionSession(_ => HeadlessDriver.NewDirector(new CombatLog()), 6, firewood: firewood, food: food,
             ambushChance: 0.33);
         var log = new CombatLog();
         var rng = new RngProvider(seed);
@@ -231,6 +232,54 @@ public sealed class M7ExpeditionReportTests
         Assert.AreEqual(runs, townMorales.Count, "每趟都应有一次回城结算（⑯）");
         Assert.IsTrue(camps > 0, "扎营应被使用（E7 判据：扎营次数 > 0）");
         Assert.IsTrue(townMorales.Any(), "⑯ 回城士气可观测");
+    }
+
+    /// <summary>
+    /// E7 灵敏度（**不改数据**，只改构造参数）：起手口粮 12 / 8 / 6 三档下的完成率、⑪ 曲线与 ⑬ 口粮支出。
+    /// 用途：给"是否降低起手口粮"这一决策提供实测依据（口径不清不动数值）。
+    /// </summary>
+    [TestMethod]
+    public void M7_Sensitivity_StartingFood_ThreeVariants()
+    {
+        const int runs = 150;
+        ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+        TuningCamp camp = TuningConfig.Parse(ReadData("tuning.json")).Camp;
+
+        var lines = new List<string> { "[M7] ⑰ 灵敏度：起手口粮三档（各 150 趟，不改进程/数据）" };
+        foreach (int startFood in new[] { 12, 8, 6 })
+        {
+            int completed = 0, foodSpent = 0, starve = 0, campsTotal = 0;
+            double hp6 = 0, morale6 = 0;
+            int c6 = 0;
+            for (int i = 0; i < runs; i++)
+            {
+                ExpeditionRun r = RunExpedition(20260909 + i, nodes, camp, firewood: 2, food: startFood);
+                if (r.Completed)
+                {
+                    completed++;
+                }
+
+                foodSpent += startFood - r.FoodLeft;
+                campsTotal += r.Camps;
+                starve += r.Tiers.Count(t => t == "starve");
+                if (r.Curve.Count >= 6)
+                {
+                    hp6 += r.Curve[5].Hp;
+                    morale6 += r.Curve[5].Morale;
+                    c6++;
+                }
+            }
+
+            lines.Add($"[M7] ⑰ 口粮 {startFood}：完成率 {(double)completed / runs:P0}（{completed}/{runs}）" +
+                      $"｜扎营 {campsTotal}（starve {starve}，{(campsTotal == 0 ? 0 : 100.0 * starve / campsTotal):F0}%）" +
+                      $"｜口粮支出 {foodSpent / (double)runs:F1}/趟" +
+                      $"｜第 6 场后 HP {(c6 == 0 ? 0 : hp6 / c6):F0}% 士气 {(c6 == 0 ? 0 : morale6 / c6):F0}%");
+        }
+
+        string report = string.Join("\n", lines);
+        Console.WriteLine(report);
+        TestContext.WriteLine(report);
+        Assert.AreEqual(4, lines.Count);
     }
 
     public TestContext TestContext { get; set; } = null!;
