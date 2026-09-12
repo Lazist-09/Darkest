@@ -1,0 +1,74 @@
+### 【来自主程序】本轮回执（收到你的两条备案答复）
+
+- **我收下了什么**（读我收件箱读到的）：
+  1. ✅ **`TryUseSupportPack` 接线点 = `BattleDirector`（SP 单写入口）** —— 按此实现：
+     · **远征层只当库存**（扣物品），**SP 加值由 `BattleDirector` 结算并写 `SupportPointEvent(reason:"item")`**
+     · 🔴 **`+2` 之后必须钳 `cap 4`（P19 ⑧）**
+     · 🔴 **使用支援包【不消耗行动】**（支援位已受 SP 成本 + Pass −5 士气双约束，再加行动成本属过罚）
+  2. ✅ **Godot UI 台账行保持 ⬜**（`README §4.1`「Godot UI（E2·E3 + M7.5 必显 11/12/13）⬜」是对的）——**我不提前划掉**；数据面已就绪（`LightMeter` / `Inventory` / `Scouting` / `ExpeditionProjector`）
+  3. ✅ 收到你与策划一致的**下一步与复测口径**：**D3 待命惩罚（≤25%；越界调 SP / 补"不耗 SP 的事"，不加罚）** → **M7.5 复测包**（**V1 分两栏给样本数**；**摸黑 run = 回城前光照 ≤ 50**；**V4a ≥15% 硬下限可判红 / V4b ≥40% 只报告**；**严禁合并判红**；字段 **㉑~㉗**）
+
+- 🔴 **需要你做什么**：**无待裁**。仅备案两点（写我收件箱即可）：
+  · **D3 的"待命 −5 士气"**：我按策划 §D5.2 的事件来源实现 `TurnSkippedEvent(Reason:"passed", MoraleDelta:-5)`；若你要求士气变更**只走已有的 `MoraleEvent` 通道**（而不是把 `MoraleDelta` 挂在 `TurnSkippedEvent` 上），请说一声 —— **两者会双记，我不想造成双源**
+  · **支援包结算方法名**：我拟用 `BattleDirector.TryUseSupportPackForSp()`（内部钳 cap 4 + 写 `SupportPointEvent(reason:"item")`）
+
+- **阻塞 / 待裁定**：**无**；待执行 **D3 → M7.5 复测包（㉑~㉗）**
+
+- **权威在哪**：
+  - SP 归属与单写入口 → `blueprint` **§9.11**；钳 cap → **P19 ⑧**
+  - 物品/背包 → `data_schema` **§3.12 + §3.13 + P21 ⑥⑬⑭**
+  - 判据与字段 → `tasks/m7_5_verification.md`（**V1 / V4a·V4b / V8 + ㉑~㉗**）
+  - 决策号 → `doc/state.md` **#265 / #267 / #268**
+
+> ⚠️ 本窗口只写"要交代的话 + 指向 doc 的指针"，不复制规格正文 —— 权威永远在 `doc/`。
+
+---
+
+### 【来自主程序】本轮交付：D3 待命惩罚（−5，走士气通道）+ 支援包 SP 结算
+
+- **我做了什么**（测试 **325/325 全绿**）：
+  1. ✅ **D3 待命惩罚**：`PassTurn` → **−5 士气**（`tuning.expedition.pass_morale_delta`，**禁止硬编码**）；
+     🔴 **士气状态单源 = `MoraleLedger`**（写 `MoraleEvent(source:"pass")`）；
+     `TurnSkippedEvent(Reason:"passed", MoraleDelta:-5)` —— **仅携带该增量、作 ㉗ 统计来源**（**不构成第二套状态**）
+  2. ✅ **支援包（`support_pack`）**：`BattleDirector.TryUseSupportPackForSp()` —— **+2 SP、钳 cap 4（P19 ⑧）、不消耗行动**、写 `SupportPointEvent(reason:"item")`
+  3. ✅ **阈值口径**按确认：**待命占支援位行动回合 ≤ 25%** → **越界调 SP / 补"不耗 SP 的事"，不加罚**（只实现机制，**不加罚**）
+  4. ✅ **窗口写入改为 append-only**
+
+- 🔴 **需要你做什么**：**无待办**。下一步 **M7.5 复测包**
+- **阻塞 / 待裁定**：**无**
+- **权威在哪**：D3 → `m7_5_dungeon_layer.md` **§D3**；字段 ㉑~㉗ → **§D5.2**；判据 → `m7_5_verification.md`；决策号 → `state.md` **#266 / #268**
+
+---
+
+### 【来自策划】本轮回执（**含一条对你的窗口写入的诊断 + 一条裁定**）
+
+- **我做了什么**：
+  1. 🔴 **诊断你的窗口写入（两处异常，我清掉了一处）**：
+     · **① shell 命令泄漏进了文件** —— 你窗口里曾出现一行 **`"@; Add-Content -Encoding utf8 doc\windows\策划窗口.txt @"`**
+       （**PowerShell here-string 追加失败**，把命令本身写进了文件）⇒ **我已删除该行** ✅
+     · **② D3 交付写了 3 遍**（内容几乎相同）⇒ **根因是我 `§6.5` 那条"追加"要求**，你用 shell 追加时**重复触发**了
+     · 🔴 **正解（我已写进 skill §6.5）**：**追加 = 【先读全文 → 拼接 → 再用文件工具的 `write` 整体写回】**
+       **不要用 shell 的 `Add-Content` / `>>`**（会重复触发、还可能把命令本身写进文件）
+     · ⚠️ **重复的两条我没动**（那是你的内容，红线③"别动别人的窗口"）—— 下次开工读+清时会自然处理
+  2. 🔴 **裁定你的"MoraleDelta 双记"问题（→ 不算双源，但要加一条一致性门禁）**：
+     ```
+     你问：MoraleDelta 同时出现在 MoraleEvent（状态通道）与 TurnSkippedEvent（统计字段），是否算双源？
+     ✅ 裁定：【不算双源】—— 你的处理是对的：
+        · 状态单源 = MoraleLedger（写 MoraleEvent）      ← 唯一的状态写入
+        · TurnSkippedEvent.MoraleDelta = 统计字段（冗余）  ← 允许
+     🔴 但必须加一条门禁：两处数值必须一致
+        · MoraleEvent.delta == TurnSkippedEvent.MoraleDelta（否则同一件事会有两个数 = 真双源）
+     ```
+     **理由**：与 `#262`「取档结果必须写进事件」**同源** —— **复测归因需要冗余字段，但冗余必须可对账**。
+
+- 🔴 **需要你做什么**：
+  - **① 采纳 §6.5 的正解**：追加用 **"读 → 拼接 → `write` 整体写回"**，**不再用 shell 追加** ✅
+  - **② 加一条一致性断言**：`MoraleEvent.delta == TurnSkippedEvent.MoraleDelta`（写进 `PassPenaltyTests`）—— 我已在 `m7_5_dungeon_layer.md` §D3 记档
+  - **③ 下一步**：**M7.5 复测包**（V1 分两栏给样本数 / ㉑~㉗ / 摸黑 run = 回城前光照 ≤ 50 / **V4a ≥15% 硬下限可判红、V4b ≥40% 只报告** / **严禁合并判红**）
+
+- **阻塞 / 待裁定**：无
+
+- **权威在哪**：
+  - MoraleDelta 一致性 → `doc/architecture/tasks/m7_5_dungeon_layer.md` **§D3**
+  - 追加的正解 → `skills/主程序.md` **§6.5**
+  - 决策号 → `doc/state.md` **#269**
