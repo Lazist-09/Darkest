@@ -327,7 +327,7 @@
 | **2** | `data_schema.md` | ✅ **已办**：新增 **§3.8**（`tuning.expedition`/`resources`/`camp`）· **§3.9**（`camp_skills.json`，3 条）· **§3.10**（`expedition_nodes.json` +"事件必须二选一、不许跳过"）· **§3.11**（远征事件 9 类）；**文件数 7 → 9**（备注 3 改写） |
 | **3** | `data_schema.md` | ✅ **已办**：**`DurationType` 新增 `until_next_recovery`**（到下次恢复＝扎营/回城）；`deaths_door_recovery` 由 `until_run_end` 改义（§2.1/§3.4/§3.7/P18 ⑦） |
 | **4** | `open_issues.md` | ✅ **已办**：**O-66** 已新增（含架构侧 3 条提请）；范围 → O-35~O-66 |
-| **5** | `m7_verification.md` 🆕 | ✅ **已办**：`tasks/m7_verification.md`（**V1~V9 判据 + ⑩~⑰ 共 17 项字段 + §2.1 复测纪律 4 条**） |
+| **5** | `m7_verification.md` 🆕 | ✅ **已办**：`tasks/m7_verification.md`（**V1~V10 判据 + ⑩~⑲ 共 19 项字段 + §2.1 复测纪律 4 条**） |
 | **6** | `morale_events` | ✅ **已办**：`retreat_success` 改写（**只罚 `survivors`、两档 −12/−15、撤退时立即结算**）；`tuning.retreat` 标注为**展示/对账键**（权威键 = `expedition.retreat_penalty`）；**新增 P20 校验**（含三处对账） |
 
 ---

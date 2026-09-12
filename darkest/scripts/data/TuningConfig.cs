@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -116,11 +117,22 @@ public sealed record TuningRetreatFormula(
 // M7 远征层（#240 / O-66）：expedition / resources / camp（P20 数据一致性）
 // ---------------------------------------------------------------------------
 
-/// <summary>远征层参数（E0/E6）：N 场战斗、夜袭概率、撤退两档惩罚。</summary>
+/// <summary>远征层参数（E0/E6）：N 场战斗、夜袭概率、撤退两档惩罚、**难度递进三档（#250）**。</summary>
 public sealed record TuningExpedition(
     [property: JsonPropertyName("n_battles")] int NBattles,
     [property: JsonPropertyName("ambush_chance")] double AmbushChance,
-    [property: JsonPropertyName("retreat_penalty")] TuningRetreatPenalty RetreatPenalty);
+    [property: JsonPropertyName("retreat_penalty")] TuningRetreatPenalty RetreatPenalty,
+    [property: JsonPropertyName("difficulty_tiers")] IReadOnlyList<TuningDifficultyTier>? DifficultyTiers = null);
+
+/// <summary>
+/// 难度递进档（#250）：按**场序**施加的乘数（**远征层**，不得写进 `units.json` 的单场基准值）。
+/// 🔴 `Target` 为 null = **施加对象待 O-70 ① 裁定**（敌 HP / 敌攻击 / 两者）——**实现方不得自行选定**。
+/// </summary>
+public sealed record TuningDifficultyTier(
+    [property: JsonPropertyName("battle_from")] int BattleFrom,
+    [property: JsonPropertyName("battle_to")] int BattleTo,
+    [property: JsonPropertyName("multiplier")] double Multiplier,
+    [property: JsonPropertyName("target")] string? Target = null);
 
 /// <summary>撤退士气惩罚两档（只作用于存活者）。</summary>
 public sealed record TuningRetreatPenalty(
@@ -240,6 +252,45 @@ public sealed record TuningConfig(
             || t.Retreat is null)
         {
             throw new InvalidDataException($"{ResPath}: 必填段缺失。");
+        }
+
+        // 🔴 P20 ⑭（v0.92 / #250）：难度递进三档——覆盖 1..n_battles **无缝隙无重叠**、乘数**单调不减**、
+        // **全部走 tuning（禁止硬编码）**；`target` 允许为 null（**施加对象待 O-70 ① 裁定，实现方不得自行选定**）。
+        IReadOnlyList<TuningDifficultyTier>? tiers = t.Expedition.DifficultyTiers;
+        if (tiers is null || tiers.Count == 0)
+        {
+            throw new InvalidDataException($"{ResPath}: expedition.difficulty_tiers 必填（P20 ⑭）。");
+        }
+
+        int expectedFrom = 1;
+        double lastMultiplier = 0;
+        foreach (TuningDifficultyTier tier in tiers.OrderBy(x => x.BattleFrom).ToArray())
+        {
+            if (tier.BattleFrom != expectedFrom)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: difficulty_tiers 必须从第 1 场起**无缝隙无重叠**（期望 from={expectedFrom}，实际 {tier.BattleFrom}；P20 ⑭）。");
+            }
+
+            if (tier.BattleTo < tier.BattleFrom)
+            {
+                throw new InvalidDataException($"{ResPath}: difficulty_tiers battle_to < battle_from（P20 ⑭）。");
+            }
+
+            if (tier.Multiplier < lastMultiplier)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: difficulty_tiers 乘数必须**单调不减**（{lastMultiplier} → {tier.Multiplier}；P20 ⑭）。");
+            }
+
+            lastMultiplier = tier.Multiplier;
+            expectedFrom = tier.BattleTo + 1;
+        }
+
+        if (expectedFrom != t.Expedition.NBattles + 1)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: difficulty_tiers 必须**恰好覆盖第 1~{t.Expedition.NBattles} 场**（实际覆盖到 {expectedFrom - 1}；P20 ⑭）。");
         }
 
         // 🔴 P20（M7 远征层）：①②③ —— 键齐备与值域，**加载级 fail-fast**

@@ -7,7 +7,17 @@
   "weak_exit_hp_ratio": 0.10,
   "deaths_door": { "affliction_penalty_percent": 10 },
   "retreat": { "success_morale": -12, "with_death_morale": -15, "fail_morale": -5, "scope": "survivors" },
-  "expedition": { "n_battles": 6, "ambush_chance": 0.33, "retreat_penalty": { "no_death": 12, "with_death": 15 } },
+  "expedition": {
+    "n_battles": 6,
+    "ambush_chance": 0.33,
+    "retreat_penalty": { "no_death": 12, "with_death": 15 },
+    "difficulty_tiers": [
+      { "battle_from": 1, "battle_to": 2, "multiplier": 1.0,  "target": null },
+      { "battle_from": 3, "battle_to": 4, "multiplier": 1.1,  "target": null },
+      { "battle_from": 5, "battle_to": 6, "multiplier": 1.25, "target": null }
+    ],
+    "difficulty_note": "#250 三档；target=null 表示**施加对象待 O-70 ① 裁定**（禁止自行选定 HP/攻击）；P20 ⑭ 校验"
+  },
   "resources": { "firewood": 2, "food": 12 },
   "camp": { "food_tiers": { "starve": 0, "half": 3, "full": 6, "feast": 12 }, "respite_base": 6, "pep_talk_battles": 4, "ambush_chance": 0.33 },
   "retreat_formula": {

@@ -21,7 +21,12 @@ public sealed record ExpeditionViewState(
     int Ambushes,
     int Retreats,
     int SurvivingUnits,
-    string Status)
+    string Status,
+    int CurrentBattleIndex = 0,
+    double CurrentDifficultyMultiplier = 1.0,
+    string? CurrentDifficultyRange = null,
+    double? NextDifficultyMultiplier = null,
+    string? NextDifficultyRange = null)
 {
     /// <summary>该档位是否灰显（口粮不足）。</summary>
     public bool IsFoodTierDisabled(string tier) => !AffordableFoodTiers.Contains(tier);
@@ -38,7 +43,8 @@ public static class ExpeditionProjector
     /// 并组装 UI 读模型。若复算值与会话持有值不一致，说明事件流有缺口（UI 不可信）。
     /// </summary>
     public static ExpeditionViewState Project(CombatLog log, int startFirewood, int startFood,
-        ExpeditionSession session, TuningCamp camp, int targetBattles)
+        ExpeditionSession session, TuningCamp camp, int targetBattles,
+        IReadOnlyList<TuningDifficultyTier>? difficultyTiers = null)
     {
         int firewood = startFirewood;
         int food = startFood;
@@ -77,7 +83,49 @@ public static class ExpeditionProjector
             : session.BattlesPlayed >= targetBattles ? "path_done" : "ongoing";
 
         return new ExpeditionViewState(firewood, food, session.CanCamp, session.RespiteLeft,
-            affordable, pathTypes, ambushes, retreats, session.Survivors, status);
+            affordable, pathTypes, ambushes, retreats, session.Survivors, status,
+            CurrentBattleIndex: session.BattlesPlayed + 1,
+            CurrentDifficultyMultiplier: MultiplierFor(difficultyTiers, session.BattlesPlayed + 1),
+            CurrentDifficultyRange: RangeFor(difficultyTiers, session.BattlesPlayed + 1),
+            NextDifficultyMultiplier: NextMultiplierFor(difficultyTiers, session.BattlesPlayed + 1),
+            NextDifficultyRange: NextRangeFor(difficultyTiers, session.BattlesPlayed + 1));
+    }
+
+    /// <summary>第 N 场的难度档（#250；缺省 1.0）。</summary>
+    public static double MultiplierFor(IReadOnlyList<TuningDifficultyTier>? tiers, int battleIndex)
+        => tiers?.FirstOrDefault(t => battleIndex >= t.BattleFrom && battleIndex <= t.BattleTo)?.Multiplier ?? 1.0;
+
+    /// <summary>第 N 场所处的档位区间文本（UI 必显 ⑧）。</summary>
+    public static string? RangeFor(IReadOnlyList<TuningDifficultyTier>? tiers, int battleIndex)
+    {
+        TuningDifficultyTier? t = tiers?.FirstOrDefault(x => battleIndex >= x.BattleFrom && battleIndex <= x.BattleTo);
+        return t is null ? null : $"第 {t.BattleFrom}~{t.BattleTo} 场";
+    }
+
+    /// <summary>**后续难度预告**（UI 必显 ⑧：三档"可预告"优于线性递增）。</summary>
+    public static double? NextMultiplierFor(IReadOnlyList<TuningDifficultyTier>? tiers, int battleIndex)
+    {
+        TuningDifficultyTier? cur = tiers?.FirstOrDefault(t => battleIndex >= t.BattleFrom && battleIndex <= t.BattleTo);
+        if (tiers is null || cur is null)
+        {
+            return null;
+        }
+
+        TuningDifficultyTier? next = tiers.Where(t => t.BattleFrom > cur.BattleTo).OrderBy(t => t.BattleFrom).FirstOrDefault();
+        return next?.Multiplier;
+    }
+
+    /// <summary>后续档位的场序区间（UI 必显 ⑧）。</summary>
+    public static string? NextRangeFor(IReadOnlyList<TuningDifficultyTier>? tiers, int battleIndex)
+    {
+        TuningDifficultyTier? cur = tiers?.FirstOrDefault(t => battleIndex >= t.BattleFrom && battleIndex <= t.BattleTo);
+        if (tiers is null || cur is null)
+        {
+            return null;
+        }
+
+        TuningDifficultyTier? next = tiers.Where(t => t.BattleFrom > cur.BattleTo).OrderBy(t => t.BattleFrom).FirstOrDefault();
+        return next is null ? null : $"第 {next.BattleFrom}~{next.BattleTo} 场";
     }
 
     /// <summary>事件流复算是否与会话持有值一致（UI 数字可信性校验；不一致即事件流缺口）。</summary>
@@ -120,6 +168,13 @@ public static class ExpeditionProjector
         // 灰显依据（档位不足列出禁用项，供 UI 画灰）
         lines.Add("④b 食物档位：" + string.Join("　", FoodTiers.Select(t =>
             $"{t}{(v.IsFoodTierDisabled(t) ? "（灰显：口粮不足）" : $"（需 {ExpeditionCampMath.FoodRequired(camp.FoodTiers, t, session.Survivors)}）")}")));
+
+        // ⑧ 难度档位（v0.92 必显：**当前档位 + 后续难度预告**；乘数施加对象待 O-70 ① 裁定，暂未施加）
+        lines.Add(v.NextDifficultyMultiplier is null
+            ? $"⑧ 难度：第 {v.CurrentBattleIndex} 场 ×{v.CurrentDifficultyMultiplier:F2}（{v.CurrentDifficultyRange}）" +
+              "　后续：无（末档）　［乘数施加对象待 O-70 ① 裁定 → **当前不施加**］"
+            : $"⑧ 难度：第 {v.CurrentBattleIndex} 场 ×{v.CurrentDifficultyMultiplier:F2}（{v.CurrentDifficultyRange}）" +
+              $"　后续预告：×{v.NextDifficultyMultiplier:F2}（{v.NextDifficultyRange}）　［待 O-70 ① 裁定 → **当前不施加**］");
         return lines;
     }
 }
