@@ -111,6 +111,13 @@ public sealed class ExpeditionFlowTests
         RunOneBattle(retreat, 20260909);
         var logR = new CombatLog();
         retreat.ResolveEventNode(logR, cfg.Get("ev_supply_cache"), optionIndex: 1); // leave → 士气 −5
+        // 用事件把跨场士气压到低于 50（重复 12 次 −5 → 钳到 0），这样才能证明"撤退不被抬回 50"
+        ExpeditionNodesConfig cfgRetreat = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+        for (int i = 0; i < 12; i++)
+        {
+            retreat.ResolveEventNode(logR, cfgRetreat.Get("ev_supply_cache"), optionIndex: 1);
+        }
+
         int afterRetreat = retreat.ReturnToTown(logR, "retreat");
         TownReturnEvent e = logR.Events.OfType<TownReturnEvent>().Last();
         Assert.AreEqual("retreat", e.Outcome);
@@ -119,12 +126,12 @@ public sealed class ExpeditionFlowTests
         ExpeditionSession completed = NewSession();
         RunOneBattle(completed, 20260909);
         var logC = new CombatLog();
-        completed.ResolveEventNode(logC, cfg.Get("ev_supply_cache"), optionIndex: 1);
+        completed.ResolveEventNode(logC, cfgRetreat.Get("ev_supply_cache"), optionIndex: 1);
         int afterCompleted = completed.ReturnToTown(logC, "completed");
 
         Assert.AreEqual(50, afterCompleted, "完成 → 回 50");
-        Assert.IsTrue(afterRetreat <= afterCompleted,
-            $"撤退**不恢复到 50**（撤退 {afterRetreat} ≤ 完成 {afterCompleted}；不被抬到基准）");
+        Assert.IsTrue(afterRetreat < 50,
+            $"撤退**保留撤退结算后的士气、不恢复到 50**（实测撤退 {afterRetreat} < 50 = 完成档）");
     }
 
     [TestMethod]
