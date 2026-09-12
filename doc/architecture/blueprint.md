@@ -759,6 +759,7 @@ public interface IExpeditionSession : IRunSession {    // §9.12 的扩展（N: 
 
 **红线**：**不动单场数值（A1 刚全绿）** · 🔴 **不改 A2 判据本身**（本层是**救** A2；**仍不可达则按纪律 16 记录，不得调参硬凑**）· **收益端必须是补给**（否则退化）· **SP 物品必须配 UI 提示** · **不得引入"偷袭/闪避"**（会改单场行动序 ⇒ 动 A1）。
 **随机**：侦察 / 掉落 / 光照消耗 **全写 `RngDraw`**。
+**事件（可读性，P17）**：**`LightChangedEvent(from,to,tier,reason)`**（光照**每次**变化必发，`reason ∈ {advance_node, brighten, camp, start, event_choice}`）+ 🔴 **`ScoutResultEvent(roll, success, revealedNodeType)`**（**架构侧补充要求**：否则"侦察成功率 / 因侦察改变选路次数"统计不到）。
 
 ```csharp
 public interface ILightMeter {                 // 会话级（远征内）

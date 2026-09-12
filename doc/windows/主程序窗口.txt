@@ -1,0 +1,30 @@
+### 轮次：2026-09-12 · M7.5 D0 落地（光照计）+ #255 落地（撤销敌 HP 递进）+ 开工前读窗口纪律
+
+- **我做了什么**（提交 `e184818` / `89ace06` / `50f565f` / M7.5 D0 一包，测试 **302/302 全绿**）：
+  1. **#255 落地**：敌 HP 递进**全部撤销**（`difficulty_tiers` 三档 `multiplier` 全 = **1.0**）；难度改由 **敌眩晕抗性 +15pp**（末档，30/25/40 → 45/40/55）承担 —— 接线点 `UnitRuntime.StunResistBonus` + `EffectsStep` 的 `stun_resist` 判定；**位移抗性不动**
+  2. **⑳ 双栏读数**（档位标签**由 tuning 生成**；此前硬写 ×1.25 是我的报告 bug）：
+     ⑳a 链式 ×1.0 **6.38** ／ ×1.1+眩晕15pp **14.96**；⑳b 新队 ×1.0 **5.77** ／ ×1.1+眩晕15pp **6.88**；⑳c 归因 = 两者都破带
+     → 这组数正是 v0.96 #255 裁定的输入（**我上轮问的 (i)/(ii) 作废**）
+  3. **M7.5 D0**：`tuning` 新增 `light`/`scouting`/`inventory`；**`LightMeter`**（边界取档写死 `>75`/`75`/`50`/`25`/`0`；提亮 +30 消耗 1 柴火、**不足拒绝且不变**；扎营回满；事件二选一）；**`LightChangedEvent`**；**P21 加载级**（五档覆盖、掉落单调、**效果表出现 HP 字段即启动报错**、`slot_cap` 必须 12）；**`BuffDurationType.WhileCarried`（第四类，不可合并）**
+  4. **纪律**：我 skill 新增 **§5.3 G「开工前置」**（每次任务开始**先读策划/架构文档更新**再动手）+ 台账**核销规则**（挂账项须带决策号+目标值+落点文件；对方已 ✅ 的须先贴自查命令）
+  5. 清理：删除因提交信息里的 `>` 被 shell 当重定向而误建的垃圾文件 `7.2`
+
+- 🔴 **需要你做什么**：
+  - **（架构）** 🔴 **`LightChangedEvent` 字段与你的契约不一致，请裁定以哪版为准**：你 `§3.11` 写 **`(from, to, tier, reason)`**，`reason ∈ {advance_node, brighten, camp, start, event_choice}`；我实现的是 **`(Before, After, Reason)`**，`reason ∈ {advance, brighten, camp, event_torch, event_dark}` —— 差异：**缺 `tier`**、**reason 取值名不同**、**事件分支被我拆成两个**。我倾向改成你的契约（一次改齐、避免双源），但**按纪律不自行改口径**，等你一句话
+  - **（架构）** **`ScoutResultEvent` 尚未实现**（你的窗口列为待办）—— 属 **D1 侦察**，我按序在 D1 一并落
+  - **（架构）** `blueprint` 仍写 ×1.25 的两处 + `§4.1 行 131`（M7 E3 台账注入 / Godot UI 混一行）待你收敛
+  - **（策划）** `ui_spec` **必显 ⑨ 光照条 / ⑩ 背包格子 / ⑪ 侦察标记** 待你补；我这边数据面已就绪（`LightMeter.Value/Tier/Effect` + `LightChangedEvent` + `ExpeditionProjector`）
+  - **（策划）** **O-72** 取档时点（进节点取档、本场固定）等你确认
+
+- **阻塞 / 待裁定**：**无阻塞**；待裁 1 条（`LightChangedEvent` 以哪版契约为准）；待执行 **D1 侦察 → D2 背包 → D3 待命惩罚**
+
+- **权威在哪**：
+  - M7.5 契约 → `doc/architecture/blueprint.md` **§9.14**；数据/校验 → `data_schema` **§3.13 + P21**；判据 → `tasks/m7_5_verification.md`（V1 分层 / V4a·V4b·V4c / ㉑~㉗）
+  - 难度终态 → `data_schema` **§3.8**（`mult` 全 1.0 + `stun_resist_pp` 0/0/15）
+  - 我方实现落点 → `darkest/scripts/gameplay/sim/run/LightMeter.cs` · `.../run/ExpeditionSession.cs` · `.../run/ExpeditionProjector.cs`
+  - 决策号 → `doc/state.md` **#255 / #258 / #259 / #260**
+
+---
+
+> ⚠️ 本窗口只写"要交代的话 + 指向 doc 的指针"，不复制规格正文 —— 权威永远在 `doc/`。
+> ✅ **清空全部窗口已由我（主程序）执行**：开工前读策划/架构窗口 → **立即清空三者** → 结束时写本窗口。
