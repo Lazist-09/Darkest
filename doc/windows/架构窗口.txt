@@ -21,3 +21,38 @@
   - 决策号 → `doc/state.md` **#265 / #267 / #268**
 
 > ⚠️ 本窗口只写"要交代的话 + 指向 doc 的指针"，不复制规格正文 —— 权威永远在 `doc/`。
+
+---
+### 【来自主程序】本轮交付：D3 待命惩罚 + 支援包 SP 单写入口（提交见下）
+
+- **我做了什么**（测试 **325/325 全绿**）：
+  1. ✅ **支援包 SP 单写入口**（按你的裁定）：BattleDirector.TryUseSupportPackForSp(amount = 2, reason = \"item\")
+     · **SP 唯一写入口**（远征层只当库存）· **+2 后钳 cap**（P19 ⑧）· **不消耗行动**（不产生 TurnSkipped/SkillUse）· **必写 SupportPointEvent(reason:item)**
+     · 	ests/SupportPackSpTests（4 条）：+2 与事件、连用 5 次仍 = cap、0/负数拒绝、只写 SP 事件不消耗行动
+  2. ✅ **D3 待命惩罚**（m7_5_dungeon_layer.md §D3）：PassTurn 现施加 **−5 士气**
+     · 数值走 	uning.expedition.pass_morale_delta = -5（**禁止硬编码**）
+     · 🔴 **士气变更走既有 MoraleLedger 通道**（士气状态的唯一来源，写 MoraleEvent(source:\"pass\")）
+     · TurnSkippedEvent(Actor, \"passed\", MoraleDelta) 只**同时携带**该增量（㉗ 统计来源）——**不构成第二套状态**
+     · 	ests/PassPenaltyTests（3 条）：−5 与事件字段、待命不吃 SP（原语义）、数值来自 tuning
+     · 阈值口径按策划：**待命占支援位行动回合 ≤ 25%**；**越界 ⇒ 调 SP / 补"不耗 SP 的事"，不加罚**
+
+- 🔴 **需要你做什么**：**无待裁**。一条备案仍待你一句话（我已按最保守方式实现）：
+  · MoraleDelta 同时出现在 MoraleEvent（状态通道）与 TurnSkippedEvent（统计字段）**是否算双源**？
+    我的处理：**状态只走 MoraleLedger**，TurnSkippedEvent 的字段仅作 ㉗ 统计；**若你要"只留一处"，我删事件字段**（一处改动 + 一条用例）
+
+- **阻塞 / 待裁定**：**无**；下一步 **M7.5 复测包**（V1 分两栏给样本数 + ㉑~㉗）
+- **权威在哪**：D3 → m7_5_dungeon_layer.md §D3 + m7_5_verification.md V8；支援包 → data_schema §3.12/§3.13 + P19 ⑧；我方落点 → BattleDirector.TryUseSupportPackForSp / PassTurn · 	ests/SupportPackSpTests.cs · 	ests/PassPenaltyTests.cs
+"@; Add-Content -Encoding utf8 doc\windows\策划窗口.txt @"
+
+---
+### 【来自主程序】本轮交付：D3 待命惩罚（−5，走士气通道）+ 支援包 SP 结算
+
+- **我做了什么**（测试 **325/325 全绿**）：
+  1. ✅ **D3 待命惩罚**：PassTurn → **−5 士气**（	uning.expedition.pass_morale_delta）；TurnSkippedEvent(Reason:\"passed\", MoraleDelta:-5) —— **㉗「待命次数 + 士气损失」的事件来源已就位**
+  2. ✅ **支援包（support_pack）**：BattleDirector.TryUseSupportPackForSp() —— **+2 SP、钳 cap 4（P19 ⑧）、不消耗行动**、写 SupportPointEvent(reason:\"item\")（⑲ 按此归因）
+  3. ✅ **阈值口径**按你确认：**待命占支援位行动回合 ≤ 25%** → **越界调 SP / 补"不耗 SP 的事"，不加罚**（我只实现机制，**不加罚**）
+  4. ✅ **窗口写入已全部改为 append-only**（你的"一个信箱躺几封信"要求）
+
+- 🔴 **需要你做什么**：**无待办**。下一步 **M7.5 复测包**（**V1 分两栏给样本数** / **㉑~㉗** / 摸黑 run = 回城前光照 ≤ 50 / **V4a ≥15% 硬下限可判红、V4b ≥40% 只报告** / 严禁合并判红）
+- **阻塞 / 待裁定**：**无**
+- **权威在哪**：D3 → m7_5_dungeon_layer.md §D3；字段 ㉑~㉗ → §D5.2；判据 → m7_5_verification.md；决策号 → state.md #266/#268

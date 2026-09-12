@@ -315,9 +315,49 @@ public sealed class BattleDirector
     public bool IsSupportSlotActor(UnitId actor)
         => _player.UnitAtPosition(actor) is { } pos && _player.Layout.SupportSlots.Contains(pos);
 
+    /// <summary>
+    /// 🔴 M7.5 D2 / `#268`（架构裁定）：**支援包（`support_pack`，消耗品）的 SP 结算入口**。
+    /// · 语义 = **「用库存换资源」**，**不是技能** ⇒ **不消耗行动**（支援位已受 SP 成本 + Pass −5 士气双约束）；
+    /// · 🔴 **SP 是战斗级资源（`blueprint` §9.11），只有本处一个写入口** —— 远征层只当**库存**扣物品，
+    ///      加值一律由本方法结算（否则出现两套 SP 台账：本项目已多次栽在"双源"上）；
+    /// · 🔴 **加到 cap 后必须钳制**（P19 ⑧；cap 来自 `tuning.support_points.cap`）；
+    /// · **每次变动必写 `SupportPointEvent(reason:"item")`**（UI 数字与 ⑲ 归因的唯一来源）。
+    /// </summary>
+    public bool TryUseSupportPackForSp(int amount = 2, string reason = "item")
+    {
+        if (amount <= 0)
+        {
+            return false;
+        }
+
+        int before = _supportPoints;
+        _supportPoints = Math.Min(_supportPoints + amount, SupportCap); // 🔴 钳 cap（P19 ⑧）
+        _log.Append(new SupportPointEvent(_supportPoints - before, _supportPoints, reason));
+        return true;
+    }
+
     /// <summary>显式「待命」（S5.2）：放弃本次行动，不消耗 SP、不结算任何效果、不进技能栏。</summary>
+    /// <remarks>
+    /// 🔴 M7.5 D3（`m7_5_dungeon_layer.md` §D3 / `#266`）：**待命【受士气伤害】** —— "最后手段"必须有代价。
+    /// · 数值走 `tuning.expedition.pass_morale_delta`（起手 **−5**；**禁止硬编码**）；
+    /// · 士气变更**走既有 `MoraleLedger` 通道**（士气状态的唯一来源）；
+    /// · `TurnSkippedEvent(Reason:"passed", MoraleDelta:…)` 只**同时携带**该增量（㉗ 的统计来源），
+    ///   不构成第二套状态；若架构要求只留一处，删事件字段即可（已写进窗口备案）。
+    /// · 阈值与处置：**待命占支援位行动回合 ≤ 25%**；越界 ⇒ **调 SP / 补"不耗 SP 的事"，不加罚**。
+    /// </remarks>
     public void PassTurn(UnitId actor)
-        => _log.Append(new TurnSkippedEvent(actor, "passed"));
+    {
+        int position = _player.UnitAtPosition(actor) ?? -1;
+        UnitRuntime? unit = position >= 0 ? _player.UnitRuntimeAt(position) : null;
+        int delta = unit is null ? 0 : -Math.Abs(_balance.Tuning.Expedition.PassMoraleDelta);
+
+        if (unit is not null && delta != 0)
+        {
+            Morale.Apply(unit, delta, "pass", _log); // 士气唯一来源（写 MoraleEvent）
+        }
+
+        _log.Append(new TurnSkippedEvent(actor, "passed", delta));
+    }
 
     /// <summary>下一位行动者（M6 前置立卡：行动序列/眩晕/减速生效——排序与眩晕跳过均在内核 TurnSequencer）。</summary>
     public UnitId? NextActor()

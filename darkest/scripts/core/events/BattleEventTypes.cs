@@ -90,7 +90,8 @@ public sealed record BuffRemovedEvent(UnitId Target, string BuffId, string Reaso
 public sealed record TurnStartEvent(UnitId Actor, int Slot, double EffectiveSpeed) : BattleEvent;
 
 /// <summary>跳过行动（G0）：stunned / bound / no_usable_skill。</summary>
-public sealed record TurnSkippedEvent(UnitId Actor, string Reason) : BattleEvent;
+/// <summary>该单位位于支援位（5/6）——只有支援位技能与增援消耗 SP。</summary>
+public sealed record TurnSkippedEvent(UnitId Actor, string Reason, int MoraleDelta = 0) : BattleEvent;
 
 /// <summary>战斗结束（G0）：胜负与原因。</summary>
 public sealed record BattleEndEvent(string Outcome, int Round, string Reason) : BattleEvent;

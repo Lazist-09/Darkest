@@ -122,7 +122,8 @@ public sealed record TuningExpedition(
     [property: JsonPropertyName("n_battles")] int NBattles,
     [property: JsonPropertyName("ambush_chance")] double AmbushChance,
     [property: JsonPropertyName("retreat_penalty")] TuningRetreatPenalty RetreatPenalty,
-    [property: JsonPropertyName("difficulty_tiers")] IReadOnlyList<TuningDifficultyTier>? DifficultyTiers = null);
+    [property: JsonPropertyName("difficulty_tiers")] IReadOnlyList<TuningDifficultyTier>? DifficultyTiers = null,
+    [property: JsonPropertyName("pass_morale_delta")] int PassMoraleDelta = 0);
 
 /// <summary>
 /// 难度递进档（#250）：按**场序**施加的乘数（**远征层**，不得写进 `units.json` 的单场基准值）。
