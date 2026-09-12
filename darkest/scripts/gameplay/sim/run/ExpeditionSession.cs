@@ -218,6 +218,22 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         return list;
     }
 
+    /// <summary>
+    /// **跨趟携带**（#245 的必然结果）：上一趟结束（回城）后开新一趟时——
+    /// **HP 完全恢复**（记 `int.MaxValue`，下场按 MaxHp 钳制）、**士气保留**、虚弱与死门后遗症清除、阵容满编。
+    /// 这是"**跨趟累积**"的唯一载体；主循环（回城 → 再出发）必须调用它。
+    /// </summary>
+    public void CarryOverFrom(ExpeditionSession previous)
+    {
+        foreach ((string id, int hp, int max, int morale) in previous.Roster())
+        {
+            _ = hp;
+            _ = max;
+            Retained[id] = (int.MaxValue, morale, false); // 回城：HP 全满、士气不回（#245）
+            RetainedRecovery.Remove(id);
+        }
+    }
+
     private int AverageRetainedMorale()
         => Retained.Count == 0 ? 50 : (int)Math.Round(Retained.Values.Average(v => v.Morale));
 

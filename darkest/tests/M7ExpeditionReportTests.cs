@@ -25,7 +25,7 @@ public sealed class M7ExpeditionReportTests
     private sealed record ExpeditionRun(
         bool Completed, List<string> BattleResults, List<(double Hp, double Morale)> Curve,
         int Camps, List<string> Tiers, int RespiteSpent, int FirewoodLeft, int FoodLeft,
-        int Ambushes, int Retreats, int Deaths, int TownMorale);
+        int Ambushes, int Retreats, int Deaths, int TownMorale, ExpeditionSession Session);
 
     private static string ReadData(string name)
     {
@@ -66,10 +66,14 @@ public sealed class M7ExpeditionReportTests
     }
 
     private static ExpeditionRun RunExpedition(long seed, ExpeditionNodesConfig nodes, TuningCamp camp,
-        int firewood = 2, int food = 12)
+        int firewood = 2, int food = 12, ExpeditionSession? carryFrom = null)
     {
         var session = new ExpeditionSession(_ => HeadlessDriver.NewDirector(new CombatLog()), 6, firewood: firewood, food: food,
             ambushChance: 0.33);
+        if (carryFrom is not null)
+        {
+            session.CarryOverFrom(carryFrom); // #245：跨趟——HP 全恢复、**士气保留**
+        }
         var log = new CombatLog();
         var rng = new RngProvider(seed);
         IReadOnlyList<PathStep> path = ExpeditionPathPlanner.GeneratePath(log, rng, 6, nodes);
@@ -154,7 +158,7 @@ public sealed class M7ExpeditionReportTests
 
         return new ExpeditionRun(completed, results,
             session.Curve.Select(c => (c.AvgHpPercent, c.AvgMoralePercent)).ToList(),
-            camps, tiers, 0, session.Firewood, session.Food, ambushes, retreats, deaths, townMorale);
+            camps, tiers, 0, session.Firewood, session.Food, ambushes, retreats, deaths, townMorale, session);
     }
 
     [TestMethod]
@@ -290,6 +294,61 @@ public sealed class M7ExpeditionReportTests
         Console.WriteLine(report);
         TestContext.WriteLine(report);
         Assert.AreEqual(4, lines.Count);
+    }
+
+    /// <summary>
+    /// ⑱ **3 趟士气曲线**（#245 的验收读数）：连跑 3 趟（**跨趟携带**：HP 全恢复、士气保留），
+    /// 逐趟给出「起始士气 → 各场士气 → 终局士气」，看跨趟累积是否真的在吃人。
+    /// </summary>
+    [TestMethod]
+    public void M7_ThreeRun_MoraleCurve()
+    {
+        const int chains = 100;
+        ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+        TuningCamp camp = TuningConfig.Parse(ReadData("tuning.json")).Camp;
+
+        var lines = new List<string> { $"[M7] ⑱ 3 趟士气曲线（{chains} 条链，跨趟携带：HP 全恢复 / 士气不回 #245）" };
+        var runEnd = new double[4];   // 每趟终局士气均值
+        var runStart = new double[4]; // 每趟起始士气均值
+        var runHp = new double[4];
+        int completedRuns = 0;
+
+        for (int c = 0; c < chains; c++)
+        {
+            ExpeditionSession? prev = null;
+            for (int run = 1; run <= 3; run++)
+            {
+                ExpeditionRun r = RunExpedition(20260909 + c * 10 + run, nodes, camp, carryFrom: prev);
+                double startMorale = prev is null
+                    ? 100 // 首趟起始 = 满士气
+                    : prev.Curve.Count == 0 ? 0 : prev.Curve[^1].AvgMoralePercent;
+                runStart[run] += startMorale;
+                runEnd[run] += r.Curve.Count == 0 ? 0 : r.Curve[^1].Morale;
+                runHp[run] += r.Curve.Count == 0 ? 0 : r.Curve[^1].Hp;
+                if (r.Completed)
+                {
+                    completedRuns++;
+                }
+
+                prev = r.Session;
+            }
+        }
+
+        for (int run = 1; run <= 3; run++)
+        {
+            lines.Add($"[M7] ⑱ 第 {run} 趟：起始士气 {runStart[run] / chains:F0} → 终局士气 {runEnd[run] / chains:F0}" +
+                      $"　终局 HP {runHp[run] / chains:F0}%");
+        }
+
+        lines.Add($"[M7] ⑱ 三趟完成次数 {completedRuns}/{chains * 3}（{(double)completedRuns / (chains * 3):P0}）" +
+                  $"　士气跨趟净变化 {runEnd[3] / chains - runStart[1] / chains:+0.0;-0.0;0.0}");
+
+        string report = string.Join("\n", lines);
+        Console.WriteLine(report);
+        TestContext.WriteLine(report);
+
+        Assert.IsTrue(runEnd[1] > 0, "第 1 趟必须产出曲线");
+        Assert.IsTrue(runStart[2] > 0 && runStart[2] <= runEnd[1] + 1, "第 2 趟起始 = 第 1 趟终局（跨趟携带生效）");
     }
 
     public TestContext TestContext { get; set; } = null!;
