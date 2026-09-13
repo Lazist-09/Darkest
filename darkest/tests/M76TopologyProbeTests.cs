@@ -550,7 +550,8 @@ public sealed class M76TopologyProbeTests
                     if (next.Type == "battle")
                     {
                         int idx = session.BattlesPlayed + 1;
-                        BattleDirector d = session.BeginExpeditionBattle(idx, log, tuning.Expedition.DifficultyTiers);
+                        // 🔴 `#305`⑤：注入当前光照档（否则读数不含光照）
+                        BattleDirector d = session.BeginExpeditionBattle(idx, log, tuning.Expedition.DifficultyTiers, flow.Meter.Effect);
                         string result = "RoundLimit";
                         int round = 1;
                         for (; round <= 100; round++)
