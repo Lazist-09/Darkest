@@ -270,12 +270,14 @@ public sealed class M75VerificationPackTests
         TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
         ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
 
-        (string Name, int BattleSteps, bool Brighten)[] strategies =
+        (string Name, int BattleSteps, bool Brighten, bool BrightenFirst)[] strategies =
         {
             // #273 ⑤：三档都吃战斗损耗，差异在【战斗数 + 光照】
-            ("保守（恰好达标 3 战 + 3 事件、不摸黑）", 3, true),
-            ("均衡（4 战 + 提亮适度）", 4, false),
-            ("激进（6 战全战斗 + 摸黑搏补给）", 6, false),
+            ("保守（恰好达标 3 战 + 3 事件、不摸黑）", 3, true, false),
+            ("均衡（4 战 + 提亮适度）", 4, false, false),
+            ("激进（6 战全战斗 + 摸黑搏补给）", 6, false, false),
+            // 🔴 #277 ①：提亮优先档 —— 【HP 尚可 且 光照 < 50】时**先提亮**，扎营放后（只为拿 V3 证据，不改数值）
+            ("提亮优先（HP 尚可且光照<50 先提亮）", 3, true, true),
         };
 
         var lines = new List<string> { $"[M7.5] V10 策略分离度（各 {runs} 趟；完成口径 = 走完 6 步，不撤退/不团灭）" };
@@ -283,9 +285,11 @@ public sealed class M75VerificationPackTests
 
         for (int s = 0; s < strategies.Length; s++)
         {
-            (string name, int battleSteps, bool brighten) = strategies[s];
+            (string name, int battleSteps, bool brighten, bool brightenFirst) = strategies[s];
             int completed = 0, battles = 0, events = 0, loot = 0, retreats = 0, wins = 0;
-            int firewoodSpent = 0, campCount = 0, brightenCount = 0, minLight = 100, lootFirewood = 0; // ㉓ 三列：掉落柴火 / 扎营 / 提亮
+            int firewoodSpent = 0, campCount = 0, brightenCount = 0, minLight = 100, lootFirewood = 0; // ㉓ 三列
+            int lightSum = 0, lightSamples = 0; // 🔴 #277 ②：㉑ 平均光照（min ≠ mean）
+            var tierCounts = new Dictionary<string, int>(); // ㉒ 各档停留占比
             int battleGoal = tuning.Expedition.BattleGoal;
 
             for (int i = 0; i < runs; i++)
@@ -305,6 +309,13 @@ public sealed class M75VerificationPackTests
                     // #273 ⑤：按档决定战斗步数（保守恰好达标 / 均衡 4 / 激进 6）
                     int optionIndex = step < battleSteps ? 1 : 0;
                     PathOption chosen = ExpeditionPathPlanner.ChoosePath(log, path[step], optionIndex);
+
+                    // 🔴 #277 ②：㉑ 采样（**平均光照**，不是只看最暗 —— min ≠ mean）+ ㉒ 各档停留
+                    lightSum += meter.Value;
+                    lightSamples++;
+                    string sampleTier = LightMeter.TierId(meter.Tier);
+                    tierCounts[sampleTier] = tierCounts.GetValueOrDefault(sampleTier) + 1;
+
                     if (chosen.NodeType == "event")
                     {
                         events++;
@@ -361,7 +372,9 @@ public sealed class M75VerificationPackTests
                     double hpPct = session.Curve.Count == 0 ? 1.0 : session.Curve[^1].AvgHpPercent / 100.0;
 
                     // 保守/均衡：光照 ≤ 50 时**提亮**（1 柴火 +30）—— 与扎营**争同一份柴火**（#274：尖锐取舍）
-                    if (brighten && meter.Value <= 50 && session.TrySpend(log, "firewood", 1, "torch"))
+                    // 🔴 #277 ①：提亮优先档在【HP 尚可】时把柴火先给提亮（扎营放后）⇒ 才能拿到 V3 的"提亮 > 0"证据
+                    bool wantBrighten = brighten && meter.Value < 50 && (!brightenFirst || hpPct >= 0.50);
+                    if (wantBrighten && session.TrySpend(log, "firewood", 1, "torch"))
                     {
                         meter.TryBrighten(log, () => true);
                         brightenCount++;
@@ -401,11 +414,17 @@ public sealed class M75VerificationPackTests
             double rate = (double)completed / runs;
             completionRates.Add(rate);
             double eventShare = battles + events == 0 ? 0 : 100.0 * events / (battles + events);
+            double averageLight = lightSamples == 0 ? 0 : (double)lightSum / lightSamples;
+            int tierTotal = tierCounts.Values.Sum();
+            string tierShare = string.Join(" ", new[] { "radiant", "dim", "shadowy", "dark", "black" }
+                .Select(t => $"{t}:{(tierTotal == 0 ? 0 : 100.0 * tierCounts.GetValueOrDefault(t) / tierTotal):F0}%"));
+
             lines.Add($"[M7.5] V10 {name}：完成率 {rate:P0}（{completed}/{runs}）" +
                       $"　㉙ 战斗 {battles}（胜 {wins}）／事件 {events}　门槛 battle_goal={battleGoal}" +
                       $"　㉔ 补给 {loot} 份（{loot / (double)runs:F2}/趟）" +
-                      $"　㉓ 掉落柴火 **{lootFirewood / (double)runs:F2}**/趟 ＋ 扎营 **{campCount / (double)runs:F2}**/趟 ＋ 提亮 **{brightenCount / (double)runs:F2}**/趟" +
-                      $"　㉑ 最暗 {minLight}　撤退/团灭 {retreats}");
+                      $"　㉓ 掉落柴火 **{lootFirewood / (double)runs:F2}** ／ 扎营 **{campCount / (double)runs:F2}** ／ 提亮 **{brightenCount / (double)runs:F2}**（每趟）" +
+                      $"　㉑ 平均光照 **{averageLight:F0}**（最暗 {minLight}）　㉒ 各档占比 {tierShare}" +
+                      $"　撤退/团灭 {retreats}");
         }
 
         double spread = completionRates.Max() - completionRates.Min();
@@ -422,7 +441,7 @@ public sealed class M75VerificationPackTests
         Console.WriteLine(report);
         TestContext.WriteLine(report);
 
-        Assert.AreEqual(3, completionRates.Count);
+        Assert.AreEqual(4, completionRates.Count);
         Assert.IsTrue(completionRates.All(x => x >= 0 && x <= 1));
     }
 
