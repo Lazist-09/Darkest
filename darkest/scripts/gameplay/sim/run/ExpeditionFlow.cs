@@ -316,8 +316,18 @@ public sealed class ExpeditionFlow
             : _session.CanAffordFood(_tuning.Camp, "half") ? "half" : "starve";
         _session.ChooseFood(_log, _tuning.Camp, best);
         _session.EndCamp(_log);
+
+        // 🔴 M7.5 补欠账（`#305` ③ 第一步 / 契约 `m7_expedition.md:143`）：
+        //    **扎营的【后置阶段】= 夜袭判定**（契约：「③ 后置：33% 概率【夜袭】」）——
+        //    此前 `RollAmbush()` 包装与注释都在、**但 `Camp()` 里漏了这一步调用** ⇒ 夜袭从未发生（红线 21）。
+        //    触发语义（契约 `m7_expedition.md:35`）：**额外一场战斗，计入 6 场皆胜** ⇒ 由调用方据此插一场 ✓
+        //    · 守夜 ／ 站岗（`ambush_immunity_once`）的免疫由 `ExpeditionSession.RollAmbush` 消费 ✓
+        LastCampAmbushed = RollAmbush();
         return true;
     }
+
+    /// <summary>上一次扎营后是否触发夜袭（`#305`：触发 ⇒ 调用方插一场额外战斗，计入胜场）。</summary>
+    public bool LastCampAmbushed { get; private set; }
 
     /// <summary>回城结算（士气完全不恢复由内核 #245 保证）。</summary>
     public int ReturnToTown(string outcome)

@@ -119,6 +119,15 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     }
 
     public bool RollAmbush(CombatLog log, Core.Rng.IRngProvider rng)    {
+        // 🔴 M7.5 补欠账（`#305`③ / 红线 21）：**守夜 ／ 站岗（`ambush_immunity_once`）的"免下次夜袭"在此消费** ——
+        //    此前该 effect **全仓无消费点** ⇒ 玩家花 3 点买了一无所获。免疫**一次性**（消费后清除）。
+        if (AmbushImmune)
+        {
+            AmbushImmune = false;
+            log.Append(new RngDraw(rng.DrawCount, -1)); // 🔴 审计：本次【未掷骰】（免疫生效），用 -1 标明
+            return false;
+        }
+
         double roll = rng.NextPercent();
         log.Append(new RngDraw(rng.DrawCount, roll)); // 确定性红线：夜袭判定必写
         bool triggered = roll < _ambushChance * 100.0;
@@ -380,7 +389,7 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     }
 
     /// <summary>使用扎营技能：**点数不足 → 不可选（返回 false，不扣）**；成功写 `CampSkillUsedEvent`。</summary>
-    public bool UseCampSkill(CombatLog log, string skillId, int cost, UnitId target)
+    public bool UseCampSkill(CombatLog log, string skillId, int cost, UnitId target, string? effect = null)
     {
         if (cost < 1 || cost > RespiteLeft)
         {
@@ -389,8 +398,21 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
 
         RespiteLeft -= cost;
         log.Append(new CampSkillUsedEvent(skillId, target, RespiteLeft));
+
+        // 🔴 M7.5 补欠账（`#305`③ / 红线 21）：**扎营技能的【效果】以前只扣点数、不生效** ——
+        //    `camp_skills.json` 的 `effect` 字段（如 `ambush_immunity_once` = 轮流守夜 ／ 站岗）
+        //    **此前全仓没有消费点** ⇒ 玩家花 3 点买了一无所获（红线 21 最坏形态：**误导玩家**）。
+        //    本片先接**语义已存在**的那一项：`ambush_immunity_once` ⇒ **免疫【下一次】夜袭**。
+        if (effect == "ambush_immunity_once")
+        {
+            AmbushImmune = true;
+        }
+
         return true;
     }
+
+    /// <summary>是否持有"免下一次夜袭"（由扎营技能 `ambush_immunity_once` 授予；**在 `RollAmbush` 里消费**）。</summary>
+    public bool AmbushImmune { get; private set; }
 
     /// <summary>结束扎营（夜袭判定由调用方接 `RollAmbush`；E5）。</summary>
     public void EndCamp(CombatLog log)
