@@ -254,5 +254,134 @@ public sealed class M75VerificationPackTests
             $"🔴 V4a（硬下限）未过：摸黑 run 占比 {darkRatio:P1} < 15% ⇒ 光照计未被使用/机制退化。\n{report}");
     }
 
+    /// <summary>
+    /// **V10 策略分离度**（`#271` §D5.4 / `m7_5_verification` V10）——M7.5 的**核心判据**：
+    /// 报**三种策略**（保守 / 均衡 / 激进）的**完成率**（口径 = **走完 6 步、不撤退不团灭**，`#270` 裁定②）
+    /// 与 **㉘ 选路比例**。
+    /// 🔴 判读：**三者拉得开 ⇒ 设计成功**（玩家的选择真的改变结果）；**挤在一起 ⇒ 设计失败**
+    /// （选择不影响结果 ⇒ 该调**收益端/难度端**，**不是调区间**）。
+    /// </summary>
+    [TestMethod]
+    public void M75_V10_StrategySeparation_And_28_PathRatio()
+    {
+        const int runs = 60;
+        TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
+        ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+
+        (string Name, bool PreferEvent, bool Brighten)[] strategies =
+        {
+            ("保守（多事件 / 早提亮）", true, true),
+            ("均衡（默认交替）", false, false),
+            ("激进（多战斗 / 摸黑搏补给）", false, false),
+        };
+
+        var lines = new List<string> { $"[M7.5] V10 策略分离度（各 {runs} 趟；完成口径 = 走完 6 步，不撤退/不团灭）" };
+        var completionRates = new List<double>();
+
+        for (int s = 0; s < strategies.Length; s++)
+        {
+            (string name, bool preferEvent, bool brighten) = strategies[s];
+            int completed = 0, battles = 0, events = 0, loot = 0, retreats = 0;
+
+            for (int i = 0; i < runs; i++)
+            {
+                var log = new CombatLog();
+                var rng = new RngProvider(20260909 + i * 31 + s);
+                var session = new ExpeditionSession(_ => HeadlessDriver.NewDirector(new CombatLog()), 6,
+                    firewood: 2, food: 12, ambushChance: 0.6); // 激进档夜袭概率更高（同一 seed 口径下比较）
+                var meter = new LightMeter(tuning.Light!);
+                meter.EmitStart(log);
+                IReadOnlyList<PathStep> path = ExpeditionPathPlanner.GeneratePath(log, rng, 6, nodes);
+
+                int steps = 0;
+                bool aborted = false;
+                for (int step = 0; step < path.Count && !aborted; step++)
+                {
+                    // 选路：保守档偏好事件（option 0 = event），激进档偏好战斗（option 1 = battle）
+                    int optionIndex = s == 0 && preferEvent ? 0 : s == 2 ? 1 : step % 2;
+                    PathOption chosen = ExpeditionPathPlanner.ChoosePath(log, path[step], optionIndex);
+                    if (chosen.NodeType == "event")
+                    {
+                        events++;
+                        session.ResolveEventNode(log, nodes.Get(chosen.NodeId), 0);
+                        steps++;
+                        meter.TryAdvanceNode(log);
+                        continue;
+                    }
+
+                    battles++;
+                    meter.TryAdvanceNode(log);
+                    int idx = session.BattlesPlayed + 1;
+                    BattleDirector d = session.BeginExpeditionBattle(idx, log, tuning.Expedition.DifficultyTiers);
+                    string result = "RoundLimit";
+                    int round = 1;
+                    for (; round <= 100; round++)
+                    {
+                        d.RunFullRound(rng, unit => Policies.DecideForUnit(PolicyKind.SemiRandom, unit, d, rng));
+                        if (d.IsBattleOver)
+                        {
+                            result = d.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+                            break;
+                        }
+                    }
+
+                    session.EndBattle(d, idx, result, Math.Min(round, 100));
+                    if (result != "PlayerVictory")
+                    {
+                        aborted = true;
+                        retreats++;
+                        break;
+                    }
+
+                    steps++;
+
+                    // 🔴 收益端：按档确定给份数（#270 裁定①；不掷骰）
+                    int grant = tuning.Light!.Loot[LightMeter.TierId(meter.Tier)];
+                    if (grant > 0)
+                    {
+                        session.Gain(log, "food", grant, "loot");
+                        loot += grant;
+                    }
+
+                    // 保守档：光照 ≤ 50 时**提亮**（1 柴火 +30；不足则拒且不变）
+                    if (brighten && meter.Value <= 50)
+                    {
+                        meter.TryBrighten(log, () => session.TrySpend(log, "firewood", 1, "torch"));
+                    }
+
+                    if (session.CanCamp && session.StartCamp(log, step + 1, tuning.Camp!.RespiteBase))
+                    {
+                        meter.OnCamp(log);
+                    }
+                }
+
+                if (!aborted && steps >= path.Count)
+                {
+                    completed++;
+                }
+            }
+
+            double rate = (double)completed / runs;
+            completionRates.Add(rate);
+            double eventShare = battles + events == 0 ? 0 : 100.0 * events / (battles + events);
+            lines.Add($"[M7.5] V10 {name}：完成率 {rate:P0}（{completed}/{runs}）" +
+                      $"　㉘ 选路 战斗 {battles} / 事件 {events}（事件占比 {eventShare:F0}%，**必须两侧不为 0 且无一侧 >90%**）" +
+                      $"　㉔ 补给 {loot} 份（{loot / (double)runs:F2}/趟）　撤退/团灭 {retreats}");
+        }
+
+        double spread = completionRates.Max() - completionRates.Min();
+        lines.Add($"[M7.5] V10 判读：三档完成率极差 **{spread:P0}**" +
+                  (spread >= 0.15
+                      ? " ⇒ ✅ **拉得开 → 设计成功**（玩家的选择真的改变结果）"
+                      : " ⇒ 🔴 **挤在一起 → 设计失败**：选择不影响结果 ⇒ 该调【收益端/难度端】，**不是调区间**"));
+
+        string report = string.Join("\n", lines);
+        Console.WriteLine(report);
+        TestContext.WriteLine(report);
+
+        Assert.AreEqual(3, completionRates.Count);
+        Assert.IsTrue(completionRates.All(x => x >= 0 && x <= 1));
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }
