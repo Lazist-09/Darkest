@@ -76,6 +76,21 @@ public static class ExpeditionContext
         Log ??= log;
     }
 
+    /// <summary>
+    /// 🔴 `#307`③：**下一场战斗是不是"夜袭战斗"**（扎营后插进来的额外战斗）——
+    /// 它跨**场景切换**传递：`ExpeditionRoot` 置位 ⇒ 玩家进 `Battle.tscn` 真打 ⇒ `BattleRoot` 结算时消费。
+    /// 依据契约 `m7_expedition.md:35`：**夜袭战斗计入 6 场皆胜**（结算入口需要知道它不是节点步骤）。
+    /// </summary>
+    public static bool PendingAmbush { get; set; }
+
+    /// <summary>消费"夜袭标记"（读到即清除 ⇒ 只影响这一场）。</summary>
+    public static bool ConsumePendingAmbush()
+    {
+        bool v = PendingAmbush;
+        PendingAmbush = false;
+        return v;
+    }
+
     /// <summary>更新引用（返程后由远征场景设置，保证同一个 flow 实例）。</summary>
     public static void Bind(ExpeditionFlow flow, CombatLog log)
     {

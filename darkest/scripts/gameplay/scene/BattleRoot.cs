@@ -396,7 +396,8 @@ public partial class BattleRoot : Node2D
             string result = what.Contains("撤退", System.StringComparison.Ordinal)
                 ? "DrawRetreat"
                 : Director.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
-            ExpeditionContext.Flow!.OnBattleFinished(result, Director.Round);
+            ExpeditionContext.Flow!.OnBattleFinished(result, Director.Round,
+                isAmbush: ExpeditionContext.ConsumePendingAmbush()); // 🔴 #307③：夜袭战斗不是节点步骤
 
             var toExpedition = new Button
             {

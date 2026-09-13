@@ -127,6 +127,13 @@ public partial class ExpeditionRoot : Node
                          $"当前房间 {_flow.CurrentRoomId}　到达终点 {_flow.ReachedGoal}　剩余可点 {MapOptionCount}");
             }
 
+            // 🔴 冒烟：`--camp` ⇒ **真实点击"扎营"**（验"扎营 → 夜袭判定 → 若触发则切战斗场景"的往返）
+            if (System.Array.Exists(args, a => a == "--camp"))
+            {
+                GD.Print("[拓扑UI] --camp ⇒ 真实点击扎营按钮");
+                PressCamp();
+            }
+
             return; // 拓扑模式的推进由玩家点选驱动（不再走旧线性 `ShowPathChoice`）
         }
 
@@ -465,14 +472,17 @@ public partial class ExpeditionRoot : Node
             bool ok = _flow!.Camp();
             GD.Print($"[拓扑UI] 扎营：{(ok ? "成功（光照回满）" : "拒绝（柴火不足）")}　夜袭触发={_flow.LastCampAmbushed}");
 
-            // 🔴 `#307`③：**夜袭要真的插一场战斗**（契约：计入 6 场皆胜）——
-            //    内核侧已提供 `BeginAmbushBattle`（真实战斗、同一难度递进 + 当前光照档）。
-            //    ⚠️ **UI 侧的战斗承接**（与 `BattleRoot` 的往返：进战斗 → 结算 → 回地图）**是下一步**：
-            //    我这里**不自己跑回合**（那会重复实现一套战斗驱动，且 `BattleRoot` 才是本项目的战斗入口）。
+            // 🔴 `#307`③：**夜袭真的插一场战斗**（契约：计入 6 场皆胜）——
+            //    走【本项目既有的战斗往返】：置"夜袭"标记 ⇒ 切到 `Battle.tscn` 由玩家**真打** ⇒
+            //    `BattleRoot` 结算时 `OnBattleFinished(..., isAmbush: true)` 计入胜场 ⇒ 【继续（回远征）】回到地图 ✓
+            //    ⚠️ 不在 UI 里另建一套战斗驱动（本项目的真实战斗入口是 `BattleRoot`）。
             if (ok && _flow.LastCampAmbushed)
             {
-                GD.Print("[拓扑UI] 夜袭已触发 ⇒ **应插一场额外战斗**（内核 `BeginAmbushBattle` 就绪；" +
-                         "UI 与 BattleRoot 的往返待下一步）");
+                GD.Print("[拓扑UI] 夜袭已触发 ⇒ **插入一场额外战斗**（切到 Battle.tscn，真打；结算计入胜场）");
+                ExpeditionContext.PendingAmbush = true;
+                ExpeditionContext.Bind(_flow, Log);
+                GetTree().ChangeSceneToFile("res://scenes/battle/Battle.tscn");
+                return;
             }
 
             RefreshMapView();
@@ -548,4 +558,17 @@ public partial class ExpeditionRoot : Node
 
     /// <summary>供冒烟：当前可选房间数（0 ⇒ 选路已走完）。</summary>
     public int MapOptionCount => _mapButtons.Count;
+
+    /// <summary>🔴 供冒烟：**真实点击"扎营"**（发真实 `Pressed` ⇒ 走玩家路径）。</summary>
+    public void PressCamp()
+    {
+        if (_campInTopology is null)
+        {
+            GD.Print("[拓扑UI] PressCamp：没有扎营按钮（非拓扑模式）");
+            return;
+        }
+
+        GD.Print("[拓扑UI] PressCamp：发出真实 Pressed（扎营）");
+        _campInTopology.EmitSignal(BaseButton.SignalName.Pressed);
+    }
 }
