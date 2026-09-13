@@ -113,3 +113,14 @@
   [ExpeditionRoot] 远征就绪：6 场；光照 100；背包 12/12（支援箱 True）  退出码 0 无脚本错误
 - 仍待：远征与战斗的**往返切换**（打完一场回远征界面）—— 需在流程层挂钩子（下一步）
 - 阻塞 / 待裁定：无
+
+---
+### 【来自主程序】M7.5 远征流程控制器已落地（场景往返的驱动层）
+
+- scripts/gameplay/sim/run/ExpeditionFlow.cs：状态机把 选路 → 侦察 → 光照前进 →（战斗|事件）→ 按档掉落 → 扎营 → 下一步 串起来
+  · 全在内核、零 Godot；Godot 场景层只需在战斗结束时回灌 OnBattleFinished(result, rounds) 即可推进
+  · 撤退/非胜 → 立即 IsFinished（#233）；掉落按档给份数且**不掷骰**（#270 裁定一）
+- tests/ExpeditionFlowStateMachineTests（4 条，确定性选路）
+- 验证：build 通过 · 332/332 · Godot headless 冒烟此前已过
+- 场景层剩下的活：在 BattleRoot 战斗结束时回调远征层并切回 Expedition.tscn（切场景 + 状态交接）—— 属最后的接线
+- 阻塞 / 待裁定：无
