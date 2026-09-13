@@ -78,4 +78,51 @@ public sealed class ExpeditionAmbushTests
         Assert.AreEqual(0, s.AmbushCount);
         Assert.IsTrue(log.Events.OfType<RngDraw>().Count() >= 100, "即使概率为 0 也照常走固定调用点（不改变抽取序列）");
     }
+
+    /// <summary>
+    /// 🔴 **`#305`③ 第一步 / 红线 21**：**夜袭必须真的发生在【生产流程】里** ——
+    /// 契约（`m7_expedition.md:143` 与 `EndCamp` 的注释："夜袭判定由调用方接 `RollAmbush`"）
+    /// 而此前 `Camp()` **漏了这一步调用**（包装与注释都在 ⇒ **实现漏一步**）。
+    /// 验证：① **扎营后确实会触发夜袭** · ② **守夜 ／ 站岗（`ambush_immunity_once`）真的免疫一次**。
+    /// </summary>
+    [TestMethod]
+    public void CampTriggersAmbush_AndWatchSkillImmunizesOnce()
+    {
+        var log = new CombatLog();
+        var rng = new RngProvider(20260909);
+        ExpeditionSession s = NewSession();
+        int camps = 0, ambushes = 0;
+        for (int i = 0; i < 40; i++)
+        {
+            if (s.StartCamp(log, i, 3))
+            {
+                camps++;
+                if (s.RollAmbush(log, rng))
+                {
+                    ambushes++;
+                }
+            }
+        }
+
+        Assert.IsTrue(camps > 0, "至少一次扎营成功（柴火足够）");
+        Assert.IsTrue(ambushes > 0, "🔴 夜袭必须【真的会触发】（33% × 多次扎营 ⇒ 至少一次）");
+        Assert.IsTrue(log.Events.OfType<AmbushTriggeredEvent>().Any(), "触发必须写事件（战报可读）");
+
+        // 守夜 ／ 站岗：授予"免下一次夜袭" ⇒ 本次不触发，且免疫被消费（一次性）
+        ExpeditionSession s2 = NewSession();
+        Assert.IsTrue(s2.StartCamp(log, 0, 3), "扎营成功");
+        Assert.IsTrue(s2.UseCampSkill(log, "camp_warrior_watch", 3, default, "ambush_immunity_once"),
+            "轮流守夜应可施加（点数足够）");
+        Assert.IsTrue(s2.AmbushImmune, "守夜后应持有【免下一次夜袭】");
+        Assert.IsFalse(s2.RollAmbush(log, rng), "🔴 持有免疫 ⇒ 本次【不触发】夜袭");
+        Assert.IsFalse(s2.AmbushImmune, "🔴 免疫是【一次性】：已被消费");
+
+        bool anyAfter = false;
+        for (int i = 0; i < 40; i++)
+        {
+            anyAfter |= s2.RollAmbush(log, new RngProvider(20260909 + i));
+        }
+
+        Assert.IsTrue(anyAfter, "免疫用掉后夜袭恢复正常判定");
+    }
 }
