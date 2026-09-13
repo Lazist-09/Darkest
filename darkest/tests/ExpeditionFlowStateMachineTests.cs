@@ -105,7 +105,8 @@ public sealed class ExpeditionFlowStateMachineTests
 
         flow.OnBattleFinished("PlayerVictory", rounds: 5);
 
-        int expected = tuning.Light!.Loot[LightMeter.TierId(flow.Meter.Tier)];
+        TuningLootSpec spec = tuning.Light!.Loot[LightMeter.TierId(flow.Meter.Tier)];
+        int expected = spec.Firewood + spec.Food; // #276：掉落 = 柴火 + 口粮
         int collected = flow.Bag.Count - bagBefore;
         int pending = flow.PendingLoot.Count;
 

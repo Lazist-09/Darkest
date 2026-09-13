@@ -22,8 +22,14 @@
       { "id": "dark",    "min": 1,  "max": 25 },
       { "id": "black",   "min": 0,  "max": 0 }
     ],
-    "loot": { "radiant": 0, "dim": 1, "shadowy": 2, "dark": 3, "black": 4 },
-    "loot_note": "#270 裁定①：收益端改【按档确定给份数】、**去掉掷骰**（自选风险必须算得出；赌博式掉落会让摸黑变运气而非决策）；P21 ④ 校验对象 = 份数（单调不减）；P21 ⑧ = 掉落**不得引入抽取**",
+    "loot": {
+      "radiant": {},
+      "dim": { "food": 1 },
+      "shadowy": { "firewood": 1 },
+      "dark": { "firewood": 1, "food": 1 },
+      "black": { "firewood": 2, "food": 2 }
+    },
+    "loot_note": "#276：掉落从【份数】改为【类型 + 份数】，**柴火优先**（口粮换不来扎营 ⇒ 只给口粮则补给再多也换不来续航）；去掉掷骰；P21 ④ 校验 = 柴火份数按档单调不减（0/0/1/1/2）且 shadowy 起 ≥1",
     "effects": {
       "radiant": { "our_morale_damage_pct": 0,  "enemy_acc": 0,    "enemy_dmg_pct": 0,   "enemy_crit_pct": 0, "our_ambush_pct": 0,  "our_crit_pct": 0, "scouting_pct": 15 },
       "dim":     { "our_morale_damage_pct": 10, "enemy_acc": 0,    "enemy_dmg_pct": 0,   "enemy_crit_pct": 1, "our_ambush_pct": 0,  "our_crit_pct": 0, "scouting_pct": 7.5 },

@@ -138,11 +138,18 @@ public sealed class ExpeditionFlow
 
         // 🔴 收益端（#270 裁定①）：按当前光照档**确定给份数**，不引入抽取；
         // 🔴 且按 D2/P21 ⑬：补给**进背包**（`Inventory.TryPickup` 流程）—— **满则进"待处理"、绝不静默丢**。
-        int grant = _tuning.Light!.Loot[LightMeter.TierId(_meter.Tier)];
-        for (int i = 0; i < grant; i++)
+        TuningLootSpec spec = _tuning.Light!.Loot[LightMeter.TierId(_meter.Tier)]; // #276：类型 + 份数（柴火优先）
+        for (int i = 0; i < spec.Firewood; i++)
+        {
+            TryCollectLoot(ItemKind.Firewood); // #276：柴火优先 —— 摸黑搏到的补给要能变成【多一次扎营】
+        }
+
+        for (int i = 0; i < spec.Food; i++)
         {
             TryCollectLoot(ItemKind.Food);
         }
+
+        LootFirewood += spec.Firewood; // ㉓ 第三列（与扎营次数配对，看出"摸黑换来的续航"）
 
         Wins++; // #273：完成需要「打赢 ≥ battle_goal 场」
         _ = step;
@@ -229,6 +236,9 @@ public sealed class ExpeditionFlow
         IsFinished = true;
         return _session.ReturnToTown(_log, outcome);
     }
+
+    /// <summary>本趟**掉落的柴火份数**（㉓ 第三列：与扎营次数配对，看"摸黑换来的续航"）。</summary>
+    public int LootFirewood { get; private set; }
 
     /// <summary>本趟已打赢的战斗数（敌方全灭计一场）。</summary>
     public int Wins { get; private set; }

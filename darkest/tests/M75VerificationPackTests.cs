@@ -132,10 +132,12 @@ public sealed class M75VerificationPackTests
                 // ㉔ 额外补给（#270 裁定①：**按档确定给份数、去掉掷骰**；P21 ⑧ 掉落不得引入抽取）
                 string tierId = LightMeter.TierId(meter.Tier);
                 tierNights[tierId] = tierNights.GetValueOrDefault(tierId) + 1;
-                int grant = lightCfg.Loot[tierId];
+                TuningLootSpec spec = lightCfg.Loot[tierId]; // #276：类型 + 份数
+                int grant = spec.Firewood + spec.Food;
                 if (grant > 0)
                 {
-                    session.Gain(log, "food", grant, "loot"); // 收益端 = 补给本身（无金钱）
+                    session.Gain(log, "food", spec.Food, "loot"); // 收益端 = 补给本身（无金钱）
+                    session.Gain(log, "firewood", spec.Firewood, "loot");
                     loot += grant;
                 }
             }
@@ -283,7 +285,7 @@ public sealed class M75VerificationPackTests
         {
             (string name, int battleSteps, bool brighten) = strategies[s];
             int completed = 0, battles = 0, events = 0, loot = 0, retreats = 0, wins = 0;
-            int firewoodSpent = 0, campCount = 0, brightenCount = 0, minLight = 100; // ㉓ 拆分：扎营 / 提亮
+            int firewoodSpent = 0, campCount = 0, brightenCount = 0, minLight = 100, lootFirewood = 0; // ㉓ 三列：掉落柴火 / 扎营 / 提亮
             int battleGoal = tuning.Expedition.BattleGoal;
 
             for (int i = 0; i < runs; i++)
@@ -339,13 +341,20 @@ public sealed class M75VerificationPackTests
                     wins++;
                     steps++;
 
-                    // 🔴 收益端：按档确定给份数（#270 裁定①；不掷骰）
-                    int grant = tuning.Light!.Loot[LightMeter.TierId(meter.Tier)];
-                    if (grant > 0)
+                    // 🔴 收益端（#276）：按档给【类型 + 份数】（柴火优先；不掷骰）
+                    TuningLootSpec v10Spec = tuning.Light!.Loot[LightMeter.TierId(meter.Tier)];
+                    if (v10Spec.Firewood > 0)
                     {
-                        session.Gain(log, "food", grant, "loot");
-                        loot += grant;
+                        session.Gain(log, "firewood", v10Spec.Firewood, "loot");
                     }
+
+                    if (v10Spec.Food > 0)
+                    {
+                        session.Gain(log, "food", v10Spec.Food, "loot");
+                    }
+
+                    loot += v10Spec.Firewood + v10Spec.Food;
+                    lootFirewood += v10Spec.Firewood; // ㉓ 第三列
 
                     // 🔴 #275 ①：三档都【会花补给】—— **HP 低时扎营（有柴火就用）+ 有口粮就吃**
                     //    （否则"补给多"永远不会体现为续航更好 ⇒ 倒 U 永远测不出来）
@@ -395,8 +404,7 @@ public sealed class M75VerificationPackTests
             lines.Add($"[M7.5] V10 {name}：完成率 {rate:P0}（{completed}/{runs}）" +
                       $"　㉙ 战斗 {battles}（胜 {wins}）／事件 {events}　门槛 battle_goal={battleGoal}" +
                       $"　㉔ 补给 {loot} 份（{loot / (double)runs:F2}/趟）" +
-                      $"　㉓ 扎营 **{campCount / (double)runs:F2}**/趟 ＋ 提亮 **{brightenCount / (double)runs:F2}**/趟" +
-                      $"（柴火支出 {firewoodSpent / (double)runs:F2}/趟）" +
+                      $"　㉓ 掉落柴火 **{lootFirewood / (double)runs:F2}**/趟 ＋ 扎营 **{campCount / (double)runs:F2}**/趟 ＋ 提亮 **{brightenCount / (double)runs:F2}**/趟" +
                       $"　㉑ 最暗 {minLight}　撤退/团灭 {retreats}");
         }
 

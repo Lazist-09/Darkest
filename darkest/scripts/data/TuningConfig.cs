@@ -140,8 +140,13 @@ public sealed record TuningLight(
     [property: JsonPropertyName("event_torch_gain")] int EventTorchGain,
     [property: JsonPropertyName("event_dark_cost")] int EventDarkCost,
     [property: JsonPropertyName("tiers")] IReadOnlyList<TuningLightTier> Tiers,
-    [property: JsonPropertyName("loot")] Dictionary<string, int> Loot,
+    [property: JsonPropertyName("loot")] Dictionary<string, TuningLootSpec> Loot,
     [property: JsonPropertyName("effects")] Dictionary<string, TuningLightEffect> Effects);
+
+/// <summary>掉落规格（#276）：**类型 + 份数**（柴火优先 —— 口粮换不来扎营，故只给口粮时补给再多也换不来续航）。</summary>
+public sealed record TuningLootSpec(
+    [property: JsonPropertyName("firewood")] int Firewood = 0,
+    [property: JsonPropertyName("food")] int Food = 0);
 
 public sealed record TuningLightTier(
     [property: JsonPropertyName("id")] string Id,
@@ -421,30 +426,43 @@ public sealed record TuningConfig(
             throw new InvalidDataException($"{ResPath}: light.tiers 必须覆盖到 0（P21 ①）。");
         }
 
-        // 🔴 P21 ④（#270 改）：收益端 = **按档确定给份数**（不是概率）；份数 ≥0 且随变暗**单调不减**；
-        // 掉落**不得引入抽取**（P21 ⑧：自选风险必须"算得出"，赌博式掉落会让摸黑变成运气而非决策）。
-        foreach ((string id, int grant) in t.Light.Loot)
+        // 🔴 P21 ④（#276 改）：掉落 = **类型 + 份数**；校验对象 = **柴火份数按档单调不减**（0/0/1/1/2）
+        // ＋ 🔴 **下限：`shadowy` 起必须 ≥ 1 柴火**（否则"摸黑换续航"的链又会断：补给再多也换不来扎营）。
+        foreach ((string id, TuningLootSpec spec) in t.Light.Loot)
         {
-            if (grant < 0)
+            if (spec.Firewood < 0 || spec.Food < 0)
             {
-                throw new InvalidDataException($"{ResPath}: light.loot[\"{id}\"] 必须 ≥ 0（P21 ④）。");
+                throw new InvalidDataException($"{ResPath}: light.loot[\"{id}\"] 份数必须 ≥ 0（P21 ④）。");
             }
         }
 
-        int lastLoot = -1;
+        int lastFirewood = -1;
+        bool darkZone = false;
         foreach (string id in order)
         {
-            if (!t.Light.Loot.TryGetValue(id, out int grant))
+            if (!t.Light.Loot.TryGetValue(id, out TuningLootSpec? spec) || spec is null)
             {
                 throw new InvalidDataException($"{ResPath}: light.loot 缺档 \"{id}\"（P21 ④）。");
             }
 
-            if (grant < lastLoot)
+            if (spec.Firewood < lastFirewood)
             {
-                throw new InvalidDataException($"{ResPath}: light.loot 必须随变暗**单调不减**（{id}；P21 ④）。");
+                throw new InvalidDataException(
+                    $"{ResPath}: light.loot 的**柴火份数**必须按档单调不减（{id}；P21 ④ / #276）。");
             }
 
-            lastLoot = grant;
+            if (id == "shadowy")
+            {
+                darkZone = true;
+            }
+
+            if (darkZone && spec.Firewood < 1)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: light.loot 从 shadowy 起**必须 ≥ 1 柴火**（{id}；P21 ④ / #276：否则摸黑换不来续航）。");
+            }
+
+            lastFirewood = spec.Firewood;
             if (!t.Light.Effects.ContainsKey(id))
             {
                 throw new InvalidDataException($"{ResPath}: light.effects 缺档 \"{id}\"（P21 ③）。");
