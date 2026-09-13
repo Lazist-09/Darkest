@@ -84,9 +84,17 @@ public partial class ExpeditionRoot : Node
         {
             ExpeditionMapConfig mapCfg = ExpeditionMapConfig.Parse(
                 Godot.FileAccess.GetFileAsString(ExpeditionMapConfig.ResPath));
-            ExpeditionMap map = _flow!.BeginTopology(mapCfg);
-            GD.Print($"[拓扑] 地图生成：主干 {map.Rooms.Count(r => !r.IsBranch)} 间 ／ 支路 {map.BranchCount} 条 ／ " +
-                     $"分叉点 {map.ForkCount} 个 ／ 连通 {map.IsConnected()}");
+            // 🔴 返程守卫：**已在拓扑模式 ⇒ 复用同一张地图**（不重掷）
+            if (!_flow!.IsTopologyMode)
+            {
+                ExpeditionMap map = _flow.BeginTopology(mapCfg);
+                GD.Print($"[拓扑] 地图生成：主干 {map.Rooms.Count(r => !r.IsBranch)} 间 ／ 支路 {map.BranchCount} 条 ／ " +
+                         $"分叉点 {map.ForkCount} 个 ／ 连通 {map.IsConnected()}");
+            }
+            else
+            {
+                GD.Print($"[拓扑] 返程：**复用同一张地图**（当前房间 {_flow.CurrentRoomId} ／ 已走 {_flow.StepsDone} 段）");
+            }
 
             // 🔴 自动走（仅冒烟/读数用）
             if (System.Array.Exists(args, a => a == "--topology-auto"))
@@ -180,6 +188,20 @@ public partial class ExpeditionRoot : Node
     /// </summary>
     public void NewExpedition()
     {
+        // 🔴 流程闭环（`#307`⑤）：**从战斗返回时【不要重开一整趟】** ——
+        //    此前 `NewExpedition` 无条件新建 session/flow ⇒ 从 `Battle.tscn` 切回来会
+        //    **把已走段数 / 已赢场数 / 光照 / 背包全部清零**（破坏契约「一趟 = N 场」）。
+        //    现在：若 `ExpeditionContext.Flow` 仍在（= 本趟未结束）⇒ **复用同一趟**，只重建 UI 引用。
+        if (ExpeditionContext.Flow is not null)
+        {
+            _flow = ExpeditionContext.Flow;
+            Session = _flow.Session;
+            Meter = _flow.Meter;
+            GD.Print($"[ExpeditionRoot] 返程：**复用同一趟**（已走 {_flow.StepsDone} 段 ／ 胜 {_flow.Wins} ／ " +
+                     $"光照 {_flow.Meter.Value} ／ 模式 {( _flow.IsTopologyMode ? "拓扑" : "线性")}）⇒ 不重开（修复「回来进度清零」）");
+            return;
+        }
+
         DirectorBridge.DirectorHandle handle = DirectorBridge.BuildFromRes(this);
         TuningConfig tuning = handle.Tuning;
 

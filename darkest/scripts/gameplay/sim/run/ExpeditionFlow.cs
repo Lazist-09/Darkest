@@ -40,6 +40,12 @@ public sealed class ExpeditionFlow
     private readonly HeirloomStock? _heirlooms;      // M8.1：传家宝库存（与金钱同源的第三种资源）
     private readonly HeirloomConfig? _heirloomConfig; // M8.1：掉落曲线
 
+    // 🔴 流程闭环（`#307`⑤）：**返程复用的只读面** —— 战斗结束切回远征场景时，
+    //    远征场景要用【同一趟】的 meter/bag/nodes 重建 UI，**而不是新建一趟**。
+    //    （`Meter` / `Bag` / `Session` 已有同名只读属性 ⇒ 这里只补 `Nodes` / `Tuning`）
+    public ExpeditionNodesConfig Nodes => _nodes;
+    public TuningConfig Tuning => _tuning;
+
     // ---------------------------------------------------------------
     // M7.6 片 (i)：**拓扑模式**（地图驱动）—— 与旧"线性 6 节点 + 每步二选一"并存但**互斥**
     //   · 未注入 `mapCfg` ⇒ 走旧线性路径（**保留**：A1 判定闸 / 旧 e2e 依赖）
