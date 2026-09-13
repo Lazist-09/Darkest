@@ -240,32 +240,30 @@ public sealed class SkillExecutor
 
             foreach (EffectSpec effect in skill.Effects)
             {
-                if (effect.Type is SkillEffectType.StatMod && effect.Stat is not null)
+                // 🔴 补欠账（`data_schema.md:259`）：**`apply_to` = effects 的【挂载对象】**
+                //    契约：缺省 = `targets`；可选 `self`（盾墙的自身物防 +6）／`ally_targets`（守护挂相邻友方）
+                //    实测：此前**处理器完全不读它** ⇒ 5 个 `apply_to=self` 的技能 + 1 个 `apply_to=team`
+                //    的挂载语义未生效 ⚠️（数据里实际用到 `self` ×5 ／ **`team` ×1**）
+                //    ⚠️ **契约与数据不一致**：数据用了 `team`，而契约只列了 `self`/`ally_targets` ⇒ 已上报待对账
+                IReadOnlyList<UnitRuntime> effectTargets = ResolveEffectTargets(effect.ApplyTo, allyBoard, targetBoard, slot, caster);
+                foreach (UnitRuntime target in effectTargets)
                 {
-                    UnitRuntime? target = ResolveRuntime(allyBoard, targetBoard, slot);
-                    if (target is not null)
+                    if (effect.Type is SkillEffectType.StatMod && effect.Stat is not null)
                     {
                         ApplyStatMod(target, effect);
                         _log.Append(new EffectEvent(target.Id, "stat_mod", 100.0, true, caster));
                         _log.Append(new StatModEvent(target.Id, effect.Stat ?? "?", effect.Delta ?? 0, effect.DurationRounds ?? 0)); // G0
                     }
-                }
 
-                if (effect.Type is SkillEffectType.Shield && effect.Charges is { } charges)
-                {
-                    UnitRuntime? target = ResolveRuntime(allyBoard, targetBoard, slot);
-                    if (target is not null)
+                    if (effect.Type is SkillEffectType.Shield && effect.Charges is { } charges)
                     {
                         _buffs?.AddCharged(target.Id, "shield", charges); // #156 按次数（铁壁 2 次）
                         _log.Append(new EffectEvent(target.Id, "shield", 100.0, true));
                     }
-                }
-                if (effect.Type is SkillEffectType.Taunt)
-                {
-                    // F1（#192）：嘲讽挂到【自己】身上（target.scope=self）；敌方 AI 按 buff holder 识别 → 可插拔
-                    UnitRuntime? target = ResolveRuntime(allyBoard, targetBoard, slot);
-                    if (target is not null)
+
+                    if (effect.Type is SkillEffectType.Taunt)
                     {
+                        // F1（#192）：嘲讽挂到【自己】身上（target.scope=self）；敌方 AI 按 buff holder 识别 → 可插拔
                         _buffs?.Add(target.Id, "taunt", source: null);
                         _log.Append(new EffectEvent(target.Id, "taunt", 100.0, true));
                     }
@@ -277,6 +275,36 @@ public sealed class SkillExecutor
         foreach (MoraleEffectRequest m in explicitMorale)
         {
             ApplyMoraleToTargets(m, allyBoard, targetBoard, targets, caster);
+        }
+    }
+
+    /// <summary>
+    /// **`apply_to` 的挂载对象**（`data_schema.md:259`）：
+    /// · 缺省 / `targets` ⇒ 技能解析出的目标（原行为）
+    /// · `self` ⇒ **施法者自己**（盾墙自身物防 +6 ／ 殊死一搏的自身 buff）
+    /// · `team` ⇒ **我方全体存活单位**（总动员：全队 buff；⚠️ 该取值**不在契约列表里**，已上报对账）
+    /// · `ally_targets` ⇒ 与 `targets` 同处理（契约提到但**数据未使用**；待契约澄清后细化"相邻友方"）
+    /// </summary>
+    private IReadOnlyList<UnitRuntime> ResolveEffectTargets(string? applyTo, FormationBoard allyBoard,
+        FormationBoard targetBoard, int slot, UnitId caster)
+    {
+        switch (applyTo)
+        {
+            case "self":
+            {
+                int? pos = allyBoard.UnitAtPosition(caster) ?? targetBoard.UnitAtPosition(caster);
+                UnitRuntime? me = pos is { } p
+                    ? allyBoard.UnitRuntimeAt(p) ?? targetBoard.UnitRuntimeAt(p)
+                    : null;
+                return me is null ? Array.Empty<UnitRuntime>() : new[] { me };
+            }
+            case "team":
+                return allyBoard.UnitsInSlotOrder().Where(u => u.CurrentHp > 0).ToArray();
+            default:
+            {
+                UnitRuntime? target = ResolveRuntime(allyBoard, targetBoard, slot);
+                return target is null ? Array.Empty<UnitRuntime>() : new[] { target };
+            }
         }
     }
 
