@@ -40,7 +40,7 @@ public sealed class RunBuffTests
     }
 
     private static (ExpeditionSession Session, ExpeditionFlow Flow, TuningConfig Tuning, CombatLog Log,
-        UnitId Hero, int Slot) NewRun()
+        UnitId Hero, int Slot) NewRun(int firewood = 0)
     {
         TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
         ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
@@ -53,8 +53,8 @@ public sealed class RunBuffTests
         bag.ConfigureRecommended(out _);
         bag.LockForRun();
         var session = new ExpeditionSession(l => MonteCarlo.HeadlessDriver.NewDirector(l),
-            tuning.Expedition.NBattles, bag.CountOf(ItemKind.Firewood), bag.CountOf(ItemKind.Food),
-            tuning.Expedition.AmbushChance);
+            tuning.Expedition.NBattles, firewood > 0 ? firewood : bag.CountOf(ItemKind.Firewood),
+            bag.CountOf(ItemKind.Food), tuning.Expedition.AmbushChance);
 
         // 🔴 与组合根同一套映射：英雄 id → 阵型槽位（`FormationSortie` 的顺序 = 模板槽位顺序）
         var heroSlots = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -131,7 +131,8 @@ public sealed class RunBuffTests
     [TestMethod]
     public void PepTalk_LastsFourBattles_SurvivesCamping_AndReducesMoraleDamage()
     {
-        (ExpeditionSession session, ExpeditionFlow flow, TuningConfig tuning, CombatLog log, UnitId hero, int slot) = NewRun();
+        (ExpeditionSession session, ExpeditionFlow flow, TuningConfig tuning, CombatLog log, UnitId hero, int slot) =
+            NewRun(firewood: 2); // 🔴 本用例需要两次扎营（第 2 次用来验"扎营不清打气"）⇒ 柴火给 2
 
         Assert.IsTrue(flow.Camp(), "扎营成功");
         Assert.IsTrue(session.UseCampSkill(log, "camp_commissar_pep_talk", 2, hero,
