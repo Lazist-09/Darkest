@@ -9,14 +9,14 @@
       "traits": [ { "id": "trait_brutal", "name": "凶蛮", "damage_pct": 5 }, { "id": "trait_spooked", "name": "易惊", "morale_damage_pct": 10 } ] },
     { "id": "hero_warrior_2", "name": "灰手", "archetype": "warrior", "level": 1,
       "traits": [ { "id": "trait_steady", "name": "沉稳", "morale_damage_pct": -10 }, { "id": "trait_slow", "name": "迟钝", "damage_pct": -5 } ] },
-    { "id": "hero_warrior_3", "name": "独眼", "archetype": "warrior", "level": 3,
+    { "id": "hero_warrior_3", "name": "独眼", "archetype": "warrior", "level": 3, "morale": 40,
       "traits": [ { "id": "trait_brutal", "name": "凶蛮", "damage_pct": 5 }, { "id": "trait_hardened", "name": "麻木", "morale_damage_pct": -10 }, { "id": "trait_reckless", "name": "莽撞", "morale_damage_pct": 5 } ] },
 
     { "id": "hero_tank_1", "name": "石墙", "archetype": "tank", "level": 2,
       "traits": [ { "id": "trait_hardened", "name": "麻木", "morale_damage_pct": -10 }, { "id": "trait_slow", "name": "迟钝", "damage_pct": -5 } ] },
     { "id": "hero_tank_2", "name": "铁砧", "archetype": "tank", "level": 1,
       "traits": [ { "id": "trait_steady", "name": "沉稳", "morale_damage_pct": -10 }, { "id": "trait_spooked", "name": "易惊", "morale_damage_pct": 10 } ] },
-    { "id": "hero_tank_3", "name": "门板", "archetype": "tank", "level": 4,
+    { "id": "hero_tank_3", "name": "门板", "archetype": "tank", "level": 4, "morale": 30,
       "traits": [ { "id": "trait_hardened", "name": "麻木", "morale_damage_pct": -10 }, { "id": "trait_slow", "name": "迟钝", "damage_pct": -5 } ] },
 
     { "id": "hero_medic_1", "name": "白手", "archetype": "medic", "level": 2,
@@ -30,7 +30,7 @@
       "traits": [ { "id": "trait_inspiring", "name": "激励", "morale_damage_pct": -10 }, { "id": "trait_slow", "name": "迟钝", "damage_pct": -5 } ] },
     { "id": "hero_commissar_2", "name": "冷眼", "archetype": "commissar", "level": 1,
       "traits": [ { "id": "trait_steady", "name": "沉稳", "morale_damage_pct": -10 }, { "id": "trait_spooked", "name": "易惊", "morale_damage_pct": 10 } ] },
-    { "id": "hero_commissar_3", "name": "号角", "archetype": "commissar", "level": 4,
+    { "id": "hero_commissar_3", "name": "号角", "archetype": "commissar", "level": 4, "morale": 35,
       "traits": [ { "id": "trait_inspiring", "name": "激励", "morale_damage_pct": -10 }, { "id": "trait_reckless", "name": "莽撞", "morale_damage_pct": 5 }, { "id": "trait_careful", "name": "谨慎", "damage_pct": 5 } ] }
   ]
 }

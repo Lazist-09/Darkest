@@ -14,13 +14,18 @@ public sealed record HeroTraitConfig(
     [property: JsonPropertyName("damage_pct")] int DamagePct = 0,
     [property: JsonPropertyName("morale_damage_pct")] int MoraleDamagePct = 0);
 
-/// <summary>英雄个体（`#283` 7.2：名字 + 等级 + 个体差异；🔴 **不得含技能字段** —— 7.8 不碰技能表）。</summary>
+/// <summary>
+/// 英雄个体（`#283` 7.2：名字 + 等级 + 个体差异；🔴 **不得含技能字段** —— 7.8 不碰技能表）。
+/// 🔴 `Morale`（`#287` = **`#245` 的落地**）：**士气属于跨趟状态** ⇒ 它必须存在于名册（跨会话），
+/// 缺省 = **新兵基准 50**；**回城不解算、不重置**（`#245`）。
+/// </summary>
 public sealed record HeroConfig(
     [property: JsonPropertyName("id")] string Id,
     [property: JsonPropertyName("name")] string Name,
     [property: JsonPropertyName("archetype")] string Archetype,
     [property: JsonPropertyName("level")] int Level,
-    [property: JsonPropertyName("traits")] IReadOnlyList<HeroTraitConfig> Traits);
+    [property: JsonPropertyName("traits")] IReadOnlyList<HeroTraitConfig> Traits,
+    [property: JsonPropertyName("morale")] int Morale = 50);
 
 /// <summary>等级成长（7.6：**只给属性小幅度**，HP+2 / 攻击+1；**不升技能**）。</summary>
 public sealed record RosterLevelGrowth(
@@ -42,6 +47,9 @@ public sealed record RosterConfig(
     [property: JsonPropertyName("heroes")] IReadOnlyList<HeroConfig> Heroes)
 {
     public const string ResPath = "res://data/roster.json";
+
+    /// <summary>新兵入场士气基准（`#287` / P22 ⑦）。</summary>
+    public const int RookieMorale = 50;
 
     /// <summary>出征人数（与 formation 的 6 个槽位一致）。</summary>
     public const int SortieSize = 6;
@@ -132,6 +140,19 @@ public sealed record RosterConfig(
             {
                 throw new InvalidDataException(
                     $"{ResPath}: 英雄 \"{h.Id}\" level={h.Level} 不在 [{cfg.LevelMin}, {cfg.LevelMax}]（P22 ②）。");
+            }
+
+            // 🔴 P22 ⑦（#287 = #245 的落地）：士气是**跨趟**状态 ⇒ 必须在这里（名册），且
+            // 新兵（1 级）入场基准 = 50（否则新兵与老兵分属两套语义）；回城不解算不重置 ⇒ 本文件只给"入册值"。
+            if (h.Morale is < 0 or > 100)
+            {
+                throw new InvalidDataException($"{ResPath}: 英雄 \"{h.Id}\" morale={h.Morale} 必须 ∈ [0,100]（P22 ⑦）。");
+            }
+
+            if (h.Level == cfg.LevelMin && h.Morale != RookieMorale)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: 新兵（level={cfg.LevelMin}）入场士气必须 = {RookieMorale}（英雄 \"{h.Id}\" 为 {h.Morale}；P22 ⑦）。");
             }
 
             if (h.Traits is null || h.Traits.Count is < 2 or > 3)
