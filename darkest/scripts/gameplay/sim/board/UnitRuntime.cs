@@ -132,6 +132,13 @@ public sealed class UnitRuntime
     public void ApplyTraitDamagePct(int pct) => DamageModPct += pct;
 
     /// <summary>
+    /// 🔴 **取整余数结转**（`㉟` 对称性修正）：伤害是整数、而下限（damageFloor）会吃掉小数 ⇒
+    /// 若不结转，**减伤侧会被下限吞掉**（实测 −10% 只落到 −0.6%），而增伤侧被取整抬高（+21.6%）⇒ **两侧不对称**。
+    /// 把每次被取整丢掉的部分留到下一次命中，使**长期均值与百分比成正比** ⇒ 两侧收敛。
+    /// </summary>
+    public double DamageCarry { get; set; }
+
+    /// <summary>
     /// M8.0 ③：**受士气伤害修正**（特质士气类）—— 供士气通道读取（正值 = 更脆）。
     /// </summary>
     public int MoraleDamageTakenPct { get; private set; }

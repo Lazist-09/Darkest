@@ -112,25 +112,40 @@ public sealed class TraitPipelineTests
         return log.Events.OfType<DamageEvent>().Where(e => e.Attacker == heroId).Sum(e => e.Amount);
     }
 
-    [TestMethod]
-    public void V5_35_SingleUnitDamageDelta_ReflectsTraitMagnitude()
+    /// <summary>跑 **N 场（同一批 seed）**，返回**带特质那个单位自己**造成的伤害合计（㉟ 配对口径）。</summary>
+    private static int RunBattles_SingleUnit(int traitDamagePct, int battles)
     {
-        const long seed = 20260909L;
-        int plus = RunOneBattle_SingleUnit(+10, seed);
-        int none = RunOneBattle_SingleUnit(0, seed);
-        int minus = RunOneBattle_SingleUnit(-10, seed);
+        int total = 0;
+        for (int i = 0; i < battles; i++)
+        {
+            total += RunOneBattle_SingleUnit(traitDamagePct, 20260909L + (i * 7));
+        }
+
+        return total;
+    }
+
+    [TestMethod]
+    public void V5_35_SingleUnitDamageDelta_ConvergesBothSides()
+    {
+        // 🔴 ㉟ 口径修正（用户裁定）：**单场样本太小** ⇒ 【百分比 → 取整 → 下限】会把 ±10% 扭曲成
+        //    +19% / −4.8%（一边被下限/取整抬高、另一边被吃掉）⇒ 改为**多场配对累计**（同一批 seed，三臂同源）
+        const int battles = 40;
+        int plus = RunBattles_SingleUnit(+10, battles);
+        int none = RunBattles_SingleUnit(0, battles);
+        int minus = RunBattles_SingleUnit(-10, battles);
 
         double plusPct = none == 0 ? 0 : 100.0 * (plus - none) / none;
         double minusPct = none == 0 ? 0 : 100.0 * (minus - none) / none;
 
-        string report = $"[M8] ㉟ 带特质者**单体**伤害差（同 seed 同策略，只有他带特质）：" +
-                        $"+10% ⇒ {plus}（对基准 {none} 为 {plusPct:F1}%）；−10% ⇒ {minus}（{minusPct:F1}%）" +
-                        $"　⇒ 接线成立；🔴 若单人差异远小于 10% ⇒ 属 7.7 幅度/摊薄问题，不是接线问题";
+        string report = $"[M8] ㉟ 带特质者**单体**伤害差（{battles} 场配对累计，同 seed 同策略）：" +
+                        $"+10% ⇒ {plus}（基准 {none}，{plusPct:F1}%）；−10% ⇒ {minus}（{minusPct:F1}%）" +
+                        $"　⇒ 两侧应收敛到 ±10% 附近（取整/下限的噪声被样本量摊平）";
         Console.WriteLine(report);
         TestContext.WriteLine(report);
 
-        Assert.IsTrue(plus >= none && minus <= none, "方向正确（+10 不少于基准，−10 不多于基准）");
-        Assert.IsTrue(Math.Abs(plusPct) > 0 || Math.Abs(minusPct) > 0, "带特质者单体读数必须可分辨");
+        Assert.IsTrue(plus > none && minus < none, "方向正确（+10 更高、−10 更低）");
+        Assert.IsTrue(Math.Abs(plusPct - 10.0) <= 3.0, $"+10% 侧应收敛到 10%±3pp（实测 {plusPct:F1}%）");
+        Assert.IsTrue(Math.Abs(minusPct + 10.0) <= 3.0, $"−10% 侧应收敛到 −10%±3pp（实测 {minusPct:F1}%）");
     }
 
     public TestContext TestContext { get; set; } = null!;

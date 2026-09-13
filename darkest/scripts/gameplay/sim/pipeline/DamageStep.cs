@@ -100,7 +100,9 @@ public static class DamageStep
                 raw *= balance.WeakDamageMultPercent / 100.0; // 虚弱单位输出 −50%（tuning weak.damage_mult）
             }
 
-            int damage = BattleMath.ApplyDamageRounding(raw, balance.DamageFloor); // §2.3
+            int damage = BattleMath.ApplyDamageRounding(raw + attacker.DamageCarry, balance.DamageFloor); // §2.3
+            // 🔴 ㉟ 对称性：把本次被【取整 + 下限】丢掉的小数**结转**到下一次命中
+            attacker.DamageCarry = raw + attacker.DamageCarry - damage;
             if (!target.Weak)
             {
                 target.CurrentHp -= damage; // 虚弱目标：不改 HP（恒 1），直接进死门（O-15）
