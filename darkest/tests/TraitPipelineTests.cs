@@ -148,5 +148,34 @@ public sealed class TraitPipelineTests
         Assert.IsTrue(Math.Abs(minusPct + 10.0) <= 3.0, $"−10% 侧应收敛到 −10%±3pp（实测 {minusPct:F1}%）");
     }
 
+    /// <summary>
+    /// 🔴 **片③ (b) / V5 士气侧读数**：**特质的"受士气伤害"必须真的进结算** ——
+    /// 此前 `MoraleDamageTakenMultiplier` **只有测试在读**（生产无消费点 ⇒ 从未生效，红线 21）。
+    /// 判据（可测）：同一起点、同一 `delta`，**带 +20% 受士气伤害**者的实际下降**明显更大**。
+    /// </summary>
+    [TestMethod]
+    public void V5_MoraleTrait_ChangesMoraleDrop_NotJustAField()
+    {
+        var log = new CombatLog();
+        var director = MonteCarlo.HeadlessDriver.NewDirector(log);
+        var ledger = director.Morale; // 🔴 直接用战力台账（BattleDirector.Morale），不另造
+        var units = director.Player.UnitsInSlotOrder().ToArray();
+        var plain = units[0];
+        var fragile = units[1];
+        fragile.ApplyTraitMoraleDamagePct(20); // 受士气伤害 +20%
+
+        int d1 = ledger.Apply(plain, -10, "test", log);
+        int d2 = ledger.Apply(fragile, -10, "test", log);
+
+        string report = $"[V5] 士气侧读数（同起点 50 / 同 delta −10）：无特质 ⇒ {d1}；受士气伤害 +20% ⇒ {d2}" +
+                        $"　（比例 {(double)d2 / d1:F2}）";
+        Console.WriteLine(report);
+
+        Assert.AreEqual(-10, d1, "无特质 ⇒ 原样 −10");
+        Assert.IsTrue(d2 < d1, $"🔴 带 +20% 受士气伤害者【实际下降更大】（{d1} vs {d2}）—— 否则又是" +
+                                "「字段有值、结算不用」（红线 21）");
+        Assert.AreEqual(-12, d2, "−10 × 1.2 = −12（可核）");
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }

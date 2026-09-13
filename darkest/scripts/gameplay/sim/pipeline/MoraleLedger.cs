@@ -60,6 +60,17 @@ public sealed class MoraleLedger
             throw new ArgumentNullException(nameof(unit));
         }
 
+        // 🔴 片③ (b)（`#302` (i1)）：**受士气伤害的特质层【真正进结算】** ——
+        //    此前 `UnitRuntime.MoraleDamageTakenMultiplier` **全仓只有测试在读**（生产代码无消费点 ⇒ 从未生效，红线 21）。
+        //    规则：**只在 `delta < 0`（受士气伤害）时**乘该乘数；**正向恢复不受影响**。
+        //    · 敌人该字段恒 0 ⇒ 乘数 1.0 ⇒ 天然不受影响（无需判阵营）
+        //    · 取整后**至少 −1**（防止"减伤 50% 把 1 点伤害抹成 0" ⇒ 机制被取整吞掉，红线 22 同族）
+        if (delta < 0)
+        {
+            int scaled = (int)Math.Round(delta * unit.MoraleDamageTakenMultiplier);
+            delta = Math.Min(scaled, -1);
+        }
+
         int newValue = Math.Clamp(unit.Morale + delta, _balance.MoraleMin, _balance.MoraleMax);
         int actual = newValue - unit.Morale;
         unit.Morale = newValue;
