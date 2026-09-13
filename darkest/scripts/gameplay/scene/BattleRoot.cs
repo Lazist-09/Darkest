@@ -94,15 +94,22 @@ public partial class BattleRoot : Node2D
         }
     }
 
-    /// <summary>冒烟用：自动结束本场（敌方清零 ⇒ 胜利）⇒ 走既有 `EndGame` 路径。</summary>
+    /// <summary>冒烟用：用**小型自动玩家**把本场**真的打完**（走真实战斗规则）⇒ 再走既有 `EndGame` 路径。</summary>
     private void AutoFinishBattle()
     {
-        foreach (UnitRuntime u in Director.Enemy.UnitsInSlotOrder())
+        DirectorBridge.DirectorHandle handle = DirectorBridge.BuildFromRes(this);
+        var auto = new Darkest.Gameplay.Sim.Run.SimplePlayerAuto(handle.Skills);
+        var rng = new Darkest.Core.Rng.RngProvider(20260909);
+
+        int round = 1;
+        for (; round <= 60 && !Director.IsBattleOver; round++)
         {
-            u.CurrentHp = 0;
+            Director.RunFullRound(rng, u => auto.Decide(u, Director));
         }
 
-        EndGame("我方胜利（冒烟自动结束）");
+        bool win = Director.Enemy.OccupiedPositions(false).Count == 0;
+        GD.Print($"[BattleRoot] --battle-auto-finish ⇒ **自动玩家打完**：{(win ? "胜" : "败")}　回合 {Director.Round}");
+        EndGame(win ? "我方胜利（自动玩家）" : "敌方胜利（自动玩家）");
     }
 
     public override void _UnhandledInput(InputEvent e)
