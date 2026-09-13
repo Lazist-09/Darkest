@@ -103,15 +103,22 @@ public partial class ExpeditionRoot : Node
         FormationConfig template = FormationConfig.Parse(
             Godot.FileAccess.GetFileAsString("res://data/formation.json"));
         IReadOnlyList<HeroConfig> sortie = FormationSortie.SelectForTemplate(template, roster);
+        Roster shared = ExpeditionContext.EnsureRoster(roster); // 🔴 跨趟名册（复用同一实例 ⇒ 士气不被重置）
+        var openingMorale = new List<int>();
+        foreach (HeroConfig h in sortie)
+        {
+            openingMorale.Add(shared.MoraleOf(h.Id));
+        }
+
         GD.Print($"[ExpeditionRoot] 名册出征 6 人（按模板槽位原型配人）：" +
-                 string.Join("、", sortie.Select(h => $"{h.Name}({h.Archetype} Lv{h.Level})")));
+                 string.Join("、", sortie.Select((h, i) => $"{h.Name}({h.Archetype} Lv{h.Level} 士气{openingMorale[i]})")));
 
         var bag = new Inventory(tuning.Inventory!);
         bag.ConfigureRecommended(out _); // 整备默认 = 推荐配置（2/9/support_crate）
         bag.LockForRun();                // 🔴 出发后局内不可改
 
         var session = new ExpeditionSession(
-            _ => DirectorBridge.BuildFromRes(this).Core,
+            _ => DirectorBridge.BuildFromRes(this, sortie, roster.LevelGrowth, openingMorale).Core,
             tuning.Expedition.NBattles,
             firewood: bag.CountOf(ItemKind.Firewood),
             food: bag.CountOf(ItemKind.Food),
@@ -149,9 +156,12 @@ public partial class ExpeditionRoot : Node
                 return;
             default:
                 _flow.ReturnToTown("completed");
+                // 🔴 #287（= #245 的落地）：**归来写回**名册士气（回城不解算不重置）⇒ 士气跨趟累积
+                ExpeditionContext.Roster?.ApplyReturnFromRun(
+                    Log, Session!.Roster().Select(r => (r.Id, r.Morale)));
                 ExpeditionContext.End();
                 RefreshPanel();
-                // 🔴 M8.0 ③：本趟结束 ⇒ **回城**（金钱留在跨趟持有者里，不随 End 清空）
+                // 🔴 M8.0 ③：本趟结束 ⇒ **回城**（金钱与名册士气都留在跨趟持有者里，不随 End 清空）
                 GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
                 return;
         }
@@ -235,9 +245,12 @@ public partial class ExpeditionRoot : Node
                 return;
             default:
                 _flow.ReturnToTown("completed");
+                // 🔴 #287（= #245 的落地）：**归来写回**名册士气（回城不解算不重置）⇒ 士气跨趟累积
+                ExpeditionContext.Roster?.ApplyReturnFromRun(
+                    Log, Session!.Roster().Select(r => (r.Id, r.Morale)));
                 ExpeditionContext.End();
                 RefreshPanel();
-                // 🔴 M8.0 ③：本趟结束 ⇒ **回城**（金钱留在跨趟持有者里，不随 End 清空）
+                // 🔴 M8.0 ③：本趟结束 ⇒ **回城**（金钱与名册士气都留在跨趟持有者里，不随 End 清空）
                 GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
                 return;
         }

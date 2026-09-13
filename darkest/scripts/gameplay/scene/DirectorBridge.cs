@@ -34,7 +34,8 @@ public static class DirectorBridge
     /// </summary>
     public static DirectorHandle BuildFromRes(Node host,
         System.Collections.Generic.IReadOnlyList<HeroConfig>? sortie = null,
-        RosterLevelGrowth? growth = null)
+        RosterLevelGrowth? growth = null,
+        System.Collections.Generic.IReadOnlyList<int>? openingMoraleBySlot = null)
     {
         _ = host;
         string Read(string name) => FileAccess.GetFileAsString($"res://data/{name}");
@@ -75,6 +76,12 @@ public static class DirectorBridge
             for (int i = 0; i < sortie.Count && i < board.Length; i++)
             {
                 Darkest.Gameplay.Sim.Run.HeroProjection.ApplyLevel(sortie[i], board[i], growth);
+
+                // 🔴 #287（= #245 的落地）：**本趟开局士气来自名册**（跨趟累积；回城不恢复）
+                if (openingMoraleBySlot is not null && i < openingMoraleBySlot.Count)
+                {
+                    board[i].ApplyOpeningMorale(openingMoraleBySlot[i]);
+                }
             }
         }
 

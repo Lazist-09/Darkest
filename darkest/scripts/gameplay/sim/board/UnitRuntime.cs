@@ -113,6 +113,12 @@ public sealed class UnitRuntime
         AttackMod += attackPerLevel * steps;
     }
 
+    /// <summary>
+    /// M8.0（`#287` = `#245` 的落地）：**本趟开局士气**由名册（跨会话）投影进来 ——
+    /// 与 `ApplyLevelGrowth` / `ApplyMaxHpMultiplier` 同款（运行时投影、不改基准数据）。
+    /// </summary>
+    public void ApplyOpeningMorale(int morale) => Morale = Math.Clamp(morale, 0, 100);
+
     public void ApplyStunResistBonus(int pp)
     {
         if (pp != 0)

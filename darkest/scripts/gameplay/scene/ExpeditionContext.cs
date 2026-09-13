@@ -36,6 +36,19 @@ public static class ExpeditionContext
         return Gold;
     }
 
+    /// <summary>
+    /// 🔴 M8.0（`#287` = **`#245` 的落地**）：**名册（含士气）也是跨会话状态** ——
+    /// 与 `Gold` 同层、**不随 `End()` 清空**（士气跨趟累积才满足 `#245`「回城完全不恢复」）。
+    /// </summary>
+    public static Roster? Roster { get; private set; }
+
+    /// <summary>确保跨趟名册存在（复用同一实例；已存在不重建 ⇒ 士气不会被重置）。</summary>
+    public static Roster EnsureRoster(RosterConfig config)
+    {
+        Roster ??= new Roster(config);
+        return Roster;
+    }
+
     public static bool IsActive => Flow is not null;
 
     /// <summary>进入战斗前绑定流程；第二次调用（返程）不覆盖。</summary>
