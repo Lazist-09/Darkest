@@ -162,6 +162,39 @@ public sealed class ExpeditionFlowStateMachineTests
     }
 
     [TestMethod]
+    public void Flow_Victory_AwardsGoldByLightTier_WhenEconomyInjected()
+    {
+        TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
+        ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+        EconomyConfig econCfg = EconomyConfig.Parse(ReadData("economy.json"));
+        var econ = new Darkest.Gameplay.Sim.Run.Economy(econCfg);
+        var log = new CombatLog();
+        var bag = new Inventory(tuning.Inventory!);
+        bag.ConfigureRecommended(out _);
+        bag.LockForRun();
+        var session = new ExpeditionSession(_ => MonteCarlo.HeadlessDriver.NewDirector(new CombatLog()),
+            tuning.Expedition.NBattles, bag.CountOf(ItemKind.Firewood), bag.CountOf(ItemKind.Food),
+            tuning.Expedition.AmbushChance);
+        var flow = new ExpeditionFlow(session, new LightMeter(tuning.Light!), bag,
+            new Scouting(tuning.Scouting!, tuning.Light!), nodes, tuning, log, new RngProvider(20260909), econ);
+
+        FlowStep s = flow.Advance(1); // option 1 = 战斗（确定性）
+        if (s.Kind != FlowStepKind.Battle)
+        {
+            Assert.Inconclusive("路径随机导致非战斗步");
+            return;
+        }
+
+        string tier = LightMeter.TierId(flow.Meter.Tier);
+        int expected = econCfg.RewardFor(tier);
+        flow.OnBattleFinished("PlayerVictory", rounds: 5);
+
+        Assert.AreEqual(expected, econ.Gold, $"打赢一场按光照档记金钱（档 {tier} ／ 战斗数挂钩 ⇒ 共 {expected}）");
+        Assert.IsTrue(log.Events.OfType<Darkest.Core.Events.GoldChangedEvent>().Any(e => e.Reason == "battle"),
+            "金钱变更必写事件（数字必须来自事件流）");
+    }
+
+    [TestMethod]
     public void Flow_NonVictory_EndsRun()
     {
         (ExpeditionFlow flow, _, _) = NewFlow();

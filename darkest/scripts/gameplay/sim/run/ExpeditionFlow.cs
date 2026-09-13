@@ -35,12 +35,15 @@ public sealed class ExpeditionFlow
     private readonly TuningConfig _tuning;
     private readonly CombatLog _log;
     private readonly IRngProvider _rng;
+    private readonly Economy? _economy; // M8.0 ②（#283 硬要求①）：跨趟金钱（组合根持有注入；本类只是调用方）
 
     private IReadOnlyList<PathStep>? _path;
 
     public ExpeditionFlow(ExpeditionSession session, LightMeter meter, Inventory bag, Scouting scout,
-        ExpeditionNodesConfig nodes, TuningConfig tuning, CombatLog log, IRngProvider rng)
+        ExpeditionNodesConfig nodes, TuningConfig tuning, CombatLog log, IRngProvider rng,
+        Economy? economy = null)
     {
+        _economy = economy;
         _session = session ?? throw new ArgumentNullException(nameof(session));
         _meter = meter ?? throw new ArgumentNullException(nameof(meter));
         _bag = bag ?? throw new ArgumentNullException(nameof(bag));
@@ -150,6 +153,10 @@ public sealed class ExpeditionFlow
         }
 
         LootFirewood += spec.Firewood; // ㉓ 第三列（与扎营次数配对，看出"摸黑换来的续航"）
+
+        // 🔴 M8.0 ②（#283 硬要求①）：**跨趟回报** —— 每打赢一场按【当前光照档】记金钱（越暗越多）；
+        //    注入 `Economy` 才生效（未注入 = 该项目尚未接入，不静默造一份平行账）。
+        _economy?.AwardBattle(_log, LightMeter.TierId(_meter.Tier), "battle");
 
         Wins++; // #273：完成需要「打赢 ≥ battle_goal 场」
         _ = step;
