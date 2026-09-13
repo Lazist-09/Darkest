@@ -279,6 +279,16 @@ public partial class ExpeditionRoot : Node
         _flow = new ExpeditionFlow(session, meter, bag, new Scouting(tuning.Scouting!, tuning.Light!),
             handle.Nodes, tuning, Log, new Darkest.Core.Rng.RngProvider(20260909), economy, heirlooms, heirloomCfg);
         ExpeditionContext.Bind(_flow, Log);
+
+        // 🔴 扎营技能：**加载即校验**（红线 21 防线，照 `BuffDefsConfig.ConsumedEffectNames`）——
+        //    每个 effect 名必须登记为【已接线】或【阶段二没落点】之一，否则**启动即报错**。
+        //    实测审计：12 个技能里只有 `ambush_immunity_once`（守夜 ／ 站岗）真的会生效；
+        //    其余登记为阶段二（需【跨战斗待生效效果层】）⇒ **在它落地前，这些技能不得上 UI**。
+        CampSkillsConfig campSkills = CampSkillsConfig.Parse(
+            Godot.FileAccess.GetFileAsString(CampSkillsConfig.ResPath));
+        GD.Print($"[ExpeditionRoot] 扎营技能：已接线 {campSkills.ConsumedCount} ／ 阶段二（未落点）{campSkills.DeferredCount}" +
+                 $"（共 {campSkills.Skills.Count}）—— 阶段二项在【跨战斗待生效效果层】落地前不上 UI（红线 21）");
+
         GD.Print($"[ExpeditionRoot] 远征就绪：{tuning.Expedition.NBattles} 场；光照 {meter.Value}；" +
                  $"背包 {bag.Count}/{bag.SlotCap}（支援箱 {bag.CarriesSupportCrate}）");
     }
