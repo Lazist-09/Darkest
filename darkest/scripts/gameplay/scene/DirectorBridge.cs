@@ -17,6 +17,11 @@ public static class DirectorBridge
         public BattleDirector Core { get; init; } = null!;
         public BattleProjector Projector { get; init; } = null!;
         public SkillsConfig Skills { get; init; } = null!;
+
+        /// <summary>M7.5：远征场景复用同一桥（避免第二套 res:// 读取路径）。</summary>
+        public TuningConfig Tuning { get; init; } = null!;
+
+        public ExpeditionNodesConfig Nodes { get; init; } = null!;
     }
 
     /// <summary>从 res://data 读 JSON 并构建导演（含只读投影与士气初始化）。</summary>
@@ -25,7 +30,8 @@ public static class DirectorBridge
         _ = host;
         string Read(string name) => FileAccess.GetFileAsString($"res://data/{name}");
 
-        BalanceTable balance = BalanceTable.FromTuning(TuningConfig.Parse(Read("tuning.json")));
+        TuningConfig tuning = TuningConfig.Parse(Read("tuning.json"));
+        BalanceTable balance = BalanceTable.FromTuning(tuning);
         UnitsConfig unitsCfg = UnitsConfig.Parse(Read("units.json"));
         // F1（#190）：我方原型集合由 units.json 数据派生 → 新增角色零代码改动
         SkillsConfig skillsCfg = SkillsConfig.Parse(Read("skills.json"), unitsCfg.PlayerArchetypes);
@@ -41,6 +47,13 @@ public static class DirectorBridge
 
         var projector = new BattleProjector(director, balance, skillsCfg, new SkillRuntimeState());
 
-        return new DirectorHandle { Core = director, Projector = projector, Skills = skillsCfg };
+        return new DirectorHandle
+        {
+            Core = director,
+            Projector = projector,
+            Skills = skillsCfg,
+            Tuning = tuning,
+            Nodes = ExpeditionNodesConfig.Parse(Read("expedition_nodes.json")),
+        };
     }
 }

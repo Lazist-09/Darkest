@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Darkest.Core.Events;
 using Darkest.Data;
+using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Run;
 using Godot;
 
@@ -56,6 +57,34 @@ public partial class ExpeditionRoot : Node
         _campButton = MakeButton("扎营（1 柴火）", new Vector2(536, 660), Camp);
 
         _panel.ShowPanel();
+
+        NewExpedition(); // 与 BattleRoot 同款：_Ready 即装配（数据经 DirectorBridge 读 res://data）
+    }
+
+    /// <summary>
+    /// 装配一趟新远征（与 `BattleRoot.NewGame` 同源）：**数据走 `DirectorBridge`**（不另开 res:// 读取路径），
+    /// 复用其 tuning 与节点表；内核对象在此构造后注入（本类仍不参与规则）。
+    /// </summary>
+    public void NewExpedition()
+    {
+        DirectorBridge.DirectorHandle handle = DirectorBridge.BuildFromRes(this);
+        TuningConfig tuning = handle.Tuning;
+
+        var bag = new Inventory(tuning.Inventory!);
+        bag.ConfigureRecommended(out _); // 整备默认 = 推荐配置（2/9/support_crate）
+        bag.LockForRun();                // 🔴 出发后局内不可改
+
+        var session = new ExpeditionSession(
+            _ => DirectorBridge.BuildFromRes(this).Core,
+            tuning.Expedition.NBattles,
+            firewood: bag.CountOf(ItemKind.Firewood),
+            food: bag.CountOf(ItemKind.Food),
+            ambushChance: tuning.Expedition.AmbushChance);
+
+        var meter = new LightMeter(tuning.Light!);
+        Initialize(session, meter, bag, tuning, handle.Nodes);
+        GD.Print($"[ExpeditionRoot] 远征就绪：{tuning.Expedition.NBattles} 场；光照 {meter.Value}；" +
+                 $"背包 {bag.Count}/{bag.SlotCap}（支援箱 {bag.CarriesSupportCrate}）");
     }
 
     /// <summary>注入内核对象（数据由调用方按与 `BattleRoot` 同源的方式加载）。</summary>

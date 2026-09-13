@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://bexpeditionm75"]
+
+[ext_resource type="Script" path="res://scripts/ui/ExpeditionRoot.cs" id="1_root"]
+[ext_resource type="Script" path="res://scripts/ui/LightBarPanel.cs" id="2_light"]
+[ext_resource type="Script" path="res://scripts/ui/InventoryPanel.cs" id="3_bag"]
+
+[node name="Expedition" type="Node2D"]
+script = ExtResource("1_root")
+
+[node name="LightBarPanel" type="CanvasLayer" parent="."]
+script = ExtResource("2_light")
+
+[node name="InventoryPanel" type="CanvasLayer" parent="."]
+script = ExtResource("3_bag")
