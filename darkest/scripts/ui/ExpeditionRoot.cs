@@ -136,10 +136,14 @@ public partial class ExpeditionRoot : Node
             }
 
             // 🔴 冒烟：`--camp` ⇒ **真实点击"扎营"**（验"扎营 → 夜袭判定 → 若触发则切战斗场景"的往返）
+            //    ⚠️ 若已切到战斗场景 ⇒ **必须终止本次 `_Ready`**（否则后面的钩子会在"已离开地图"的状态下继续跑）
             if (System.Array.Exists(args, a => a == "--camp"))
             {
                 GD.Print("[拓扑UI] --camp ⇒ 真实点击扎营按钮");
-                PressCamp();
+                if (PressCampAndMaybeRouteToBattle())
+                {
+                    return; // 已进入夜袭战斗 ⇒ 本次 `_Ready` 到此为止
+                }
             }
 
             // 🔴 冒烟：`--revisit` ⇒ **再进一次远征场景**（真场景切换）⇒ 验【返程守卫】：
@@ -148,6 +152,14 @@ public partial class ExpeditionRoot : Node
             {
                 GD.Print("[拓扑UI] --revisit ⇒ 再进一次远征场景（验返程守卫：同一趟 + 同一张地图）");
                 GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
+                return;
+            }
+
+            // 🔴 冒烟：`--return-town` ⇒ **真实点击"回城"**（验"地图 → Hamlet"这一段闭环）
+            if (System.Array.Exists(args, a => a == "--return-town"))
+            {
+                GD.Print("[拓扑UI] --return-town ⇒ 真实点击回城按钮");
+                PressReturnToTown();
                 return;
             }
 
@@ -458,6 +470,7 @@ public partial class ExpeditionRoot : Node
     private Label? _mapStatus;
     private Label? _mapOptionsTitle;
     private Button? _campInTopology;
+    private Button? _returnTown;
     private readonly List<Button> _mapButtons = new();
 
     /// <summary>当前会话（供地图视图显示夜袭累计）。</summary>
@@ -518,6 +531,24 @@ public partial class ExpeditionRoot : Node
 
             RefreshMapView();
         };
+
+        // 🔴 `#307`⑤ 流程闭环最后一段：**【完成本趟（回城）】** —— 把玩家从地图带回 Hamlet，
+        //    走与线性模式**完全相同**的收尾路径（回灌结果 + 名册士气写回 + `End()` + 切场景）。
+        _returnTown = new Button
+        {
+            Name = "ReturnToTown",
+            Text = "回城（完成本趟）",
+            Position = new Vector2(470, 566),
+            Size = new Vector2(280, 36),
+        };
+        _returnTown.Pressed += () =>
+        {
+            string outcome = _flow!.Completed ? "completed" : "retreat";
+            GD.Print($"[拓扑UI] 回城：完成口径={_flow.Completed}（到达终点 {_flow.ReachedGoal} ／ 胜 {_flow.Wins} ≥ 3）" +
+                     $"　outcome={outcome}");
+            FinishRunToTown(outcome);
+        };
+        AddChild(_returnTown);
         AddChild(_campInTopology);
 
         RefreshMapView();
@@ -590,10 +621,59 @@ public partial class ExpeditionRoot : Node
     /// <summary>供冒烟：当前可选房间数（0 ⇒ 选路已走完）。</summary>
     public int MapOptionCount => _mapButtons.Count;
 
+    /// <summary>
+    /// 🔴 冒烟：**真实点击"扎营"**并返回**是否已路由到战斗场景**（夜袭触发时）——
+    /// 供 `_Ready` 决定"是否终止本次钩子链"（否则 `--return-town` 等钩子会在已离开地图时误触发）。
+    /// </summary>
+    public bool PressCampAndMaybeRouteToBattle()
+    {
+        if (_campInTopology is null || _flow is null)
+        {
+            GD.Print("[拓扑UI] PressCampAndMaybeRouteToBattle：没有扎营按钮（非拓扑模式）");
+            return false;
+        }
+
+        GD.Print("[拓扑UI] PressCamp：发出真实 Pressed（扎营）");
+        _campInTopology.EmitSignal(BaseButton.SignalName.Pressed);
+        return _flow.LastCampAmbushed; // 触发过夜袭 ⇒ 上面已切到 Battle.tscn
+    }
+
+    /// <summary>
+    /// 🔴 **本趟收尾（回城）** —— 线性模式与拓扑模式**共用同一条收尾路径**：
+    /// ① `ReturnToTown(outcome)`（结果入事件流）② **名册士气写回**（`#245`：回城不恢复 ⇒ 士气必须跨趟留存）
+    /// ③ `ExpeditionContext.End()`（清空"一趟"引用；金钱/名册/传家宝**不随 End 清空**）④ 切到 Hamlet。
+    /// </summary>
+    public void FinishRunToTown(string outcome)
+    {
+        if (_flow is null)
+        {
+            return;
+        }
+
+        _flow.ReturnToTown(outcome);
+        ExpeditionContext.Roster?.ApplyReturnFromRun(Log, Session!.Roster().Select(r => (r.Id, r.Morale)));
+        ExpeditionContext.End();
+        GD.Print($"[拓扑UI] 回城：本趟结束（outcome={outcome}，共走 {_flow.StepsDone} 段 ／ 胜 {_flow.Wins}）" +
+                 $"⇒ 切到 Hamlet（再出发可从主菜单/回城界面）");
+        GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
+    }
+
+    /// <summary>🔴 供冒烟：**真实点击"回城（完成本趟）"**。</summary>
+    public void PressReturnToTown()
+    {
+        if (_returnTown is null)
+        {
+            GD.Print("[拓扑UI] PressReturnToTown：没有回城按钮（非拓扑模式）");
+            return;
+        }
+
+        GD.Print("[拓扑UI] PressReturnToTown：发出真实 Pressed（回城）");
+        _returnTown.EmitSignal(BaseButton.SignalName.Pressed);
+    }
+
     /// <summary>🔴 供冒烟：**真实点击"扎营"**（发真实 `Pressed` ⇒ 走玩家路径）。</summary>
     public void PressCamp()
-    {
-        if (_campInTopology is null)
+    {        if (_campInTopology is null)
         {
             GD.Print("[拓扑UI] PressCamp：没有扎营按钮（非拓扑模式）");
             return;
