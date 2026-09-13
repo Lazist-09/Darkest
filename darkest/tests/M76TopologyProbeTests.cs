@@ -1022,5 +1022,153 @@ public sealed class M76TopologyProbeTests
         Assert.AreEqual(4, lines.Count);
     }
 
+    /// <summary>
+    /// 🔴 **`#300` (g1)：带扎营重跑 `(c) 关 / 开 × 三档`** —— 用**修正后的口径**（探针已补扎营）。
+    /// ⚠️ 此前两轮读数按"探针无扎营"归档、**不用于裁定**（红线 17 ⑧）。
+    /// 纪律：`battle_goal` 仍 3 · 判据未改 · 发版数据未动。
+    /// </summary>
+    [TestMethod]
+    public void O300g1_WithCamp_C_OnOff_ThreePolicies()
+    {
+        TuningConfig tuning = Tuning();
+        ExpeditionNodesConfig nodesG = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+        ExpeditionMapConfig shipped = MapCfg();
+        ExpeditionMapConfig withC = shipped with
+        {
+            Map = shipped.Map with { BranchSpecialWeight = 100, BranchSpecialKind = "free_light", BranchSpecialLightGain = 20 },
+        };
+
+        Func<bool, bool, ExpeditionMapConfig, string> run = (br, bright, cfg) =>
+        {
+            const int runs = 25;
+            int completed = 0, campsSum = 0, bottomSum = 0, retreats = 0;
+            for (int i = 0; i < runs; i++)
+            {
+                var log = new CombatLog();
+                var rng = new RngProvider(20260909 + (i * 53));
+                var bag = new Inventory(tuning.Inventory!);
+                bag.ConfigureRecommended(out _);
+                bag.LockForRun();
+                var session = new ExpeditionSession(_ => MonteCarlo.HeadlessDriver.NewDirector(new CombatLog()),
+                    tuning.Expedition.NBattles, bag.CountOf(ItemKind.Firewood), bag.CountOf(ItemKind.Food),
+                    tuning.Expedition.AmbushChance);
+                var flow = new ExpeditionFlow(session, new LightMeter(tuning.Light!), bag,
+                    new Scouting(tuning.Scouting!, tuning.Light!), nodesG, tuning, log, rng);
+                ExpeditionMap map = flow.BeginTopology(cfg);
+                var visited = new HashSet<int> { map.StartId };
+                bool aborted = false, bottomed = false;
+                int camps = 0, localWins = 0;
+
+                int guard = 0;
+                while (!flow.ReachedGoal && !aborted && guard++ < 60)
+                {
+                    var all = map.Edges
+                        .Where(e => e.From == flow.CurrentRoomId || e.To == flow.CurrentRoomId)
+                        .Select(e => e.From == flow.CurrentRoomId ? e.To : e.From)
+                        .Distinct()
+                        .Select(id => map.Rooms.First(r => r.Id == id))
+                        .ToList();
+                    var options = all.Where(r => !visited.Contains(r.Id)).ToList();
+                    bool back = options.Count == 0;
+                    if (back)
+                    {
+                        options = all;
+                    }
+
+                    if (options.Count == 0)
+                    {
+                        break;
+                    }
+
+                    MapRoom next = br && options.Any(o => o.IsBranch) && !back
+                        ? options.First(o => o.IsBranch)
+                        : options.First(o => o.Id == map.GoalId || !o.IsBranch);
+
+                    if (!flow.StepTo(next.Id).Moved)
+                    {
+                        break;
+                    }
+
+                    visited.Add(next.Id);
+                    if (flow.Meter.Value <= 0)
+                    {
+                        bottomed = true;
+                    }
+
+                    if (next.Type == "free_light")
+                    {
+                        flow.Meter.TryAdvanceBy(log, +20, "free_light");
+                    }
+
+                    // 🔴 扎营（本口径的关键：有柴火且光照低就扎，回满 100）
+                    if (flow.Meter.Value <= 40 && session.CanCamp
+                        && session.StartCamp(log, flow.StepsDone, tuning.Camp!.RespiteBase))
+                    {
+                        camps++;
+                        flow.Meter.OnCamp(log);
+                        session.ChooseFood(log, tuning.Camp, "half");
+                        session.EndCamp(log);
+                    }
+
+                    if (bright && flow.Meter.Value <= 50)
+                    {
+                        flow.Meter.TryBrighten(log, () => true);
+                    }
+
+                    if (next.Type == "battle")
+                    {
+                        int idx = session.BattlesPlayed + 1;
+                        BattleDirector d = session.BeginExpeditionBattle(idx, log, tuning.Expedition.DifficultyTiers);
+                        string result = "RoundLimit";
+                        int round = 1;
+                        for (; round <= 100; round++)
+                        {
+                            d.RunFullRound(rng, unit => MonteCarlo.Policies.DecideForUnit(
+                                MonteCarlo.PolicyKind.SemiRandom, unit, d, rng));
+                            if (d.IsBattleOver)
+                            {
+                                result = d.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+                                break;
+                            }
+                        }
+
+                        session.EndBattle(d, idx, result, Math.Min(round, 100));
+                        if (result != "PlayerVictory")
+                        {
+                            aborted = true;
+                            retreats++;
+                            break;
+                        }
+
+                        localWins++;
+                    }
+                    else if (next.Type != "free_light")
+                    {
+                        session.ResolveEventNode(log, nodesG.Nodes.First(n => n.Type == "event"), 0);
+                    }
+                }
+
+                campsSum += camps;
+                bottomSum += bottomed ? 1 : 0;
+                if (!aborted && flow.ReachedGoal && localWins >= tuning.Expedition.BattleGoal)
+                {
+                    completed++;
+                }
+            }
+
+            return $"完成 {completed / (double)runs:P0}（扎营 {campsSum / (double)runs:F2}／触底 {bottomSum / (double)runs:P0}／撤退 {retreats}）";
+        };
+
+        var lines = new List<string>
+        {
+            "[M7.6] #300(g1) (c) 关（带扎营）：保守 " + run(false, true, shipped) + "　均衡 " + run(false, false, shipped) + "　激进 " + run(true, false, shipped),
+            "[M7.6] #300(g1) (c) 开（带扎营）：保守 " + run(false, true, withC) + "　均衡 " + run(false, false, withC) + "　激进 " + run(true, false, withC),
+            "[M7.6] #300(g1) 判读：倒 U = 均衡最高；若仍「激进最高」⇒ 回报；若「保守最高」⇒ 收益端仍不足（按 #274 规则）",
+        };
+        Console.WriteLine(string.Join("\n", lines));
+        TestContext.WriteLine(string.Join("\n", lines));
+        Assert.AreEqual(3, lines.Count);
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }
