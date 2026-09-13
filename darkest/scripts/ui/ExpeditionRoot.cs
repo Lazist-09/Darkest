@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Scene;
@@ -85,6 +86,16 @@ public partial class ExpeditionRoot : Node
     {
         DirectorBridge.DirectorHandle handle = DirectorBridge.BuildFromRes(this);
         TuningConfig tuning = handle.Tuning;
+
+        // 🔴 M8.0 ①(c)（#286）：**出征 6 人由名册提供**（阵型模板只给槽位/敌方）——
+        //    组合根在此读名册、选出快照、连 (b) 等级投影一起传给桥；BattleDirector 仍单场纯。
+        RosterConfig roster = RosterConfig.Parse(
+            Godot.FileAccess.GetFileAsString("res://data/roster.json"));
+        FormationConfig template = FormationConfig.Parse(
+            Godot.FileAccess.GetFileAsString("res://data/formation.json"));
+        IReadOnlyList<HeroConfig> sortie = FormationSortie.SelectForTemplate(template, roster);
+        GD.Print($"[ExpeditionRoot] 名册出征 6 人（按模板槽位原型配人）：" +
+                 string.Join("、", sortie.Select(h => $"{h.Name}({h.Archetype} Lv{h.Level})")));
 
         var bag = new Inventory(tuning.Inventory!);
         bag.ConfigureRecommended(out _); // 整备默认 = 推荐配置（2/9/support_crate）

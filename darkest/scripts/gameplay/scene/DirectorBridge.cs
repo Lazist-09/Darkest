@@ -1,5 +1,7 @@
+using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Data;
+using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
@@ -24,8 +26,15 @@ public static class DirectorBridge
         public ExpeditionNodesConfig Nodes { get; init; } = null!;
     }
 
-    /// <summary>从 res://data 读 JSON 并构建导演（含只读投影与士气初始化）。</summary>
-    public static DirectorHandle BuildFromRes(Node host)
+    /// <summary>
+    /// 从 res://data 读 JSON 并构建导演（含只读投影与士气初始化）。
+    /// M8.0 ①(c)（`#286`）：可传入**名册选出的出征 6 人** —— 阵型模板只提供槽位布局与敌方编成；
+    /// 传入时按名册套阵型，并把 **等级成长投影**（(b)）作用到我方单位。
+    /// 🔴 `BattleDirector` 仍**单场纯**（不读名册、不持 Hamlet；名册由组合根读、以快照传入）。
+    /// </summary>
+    public static DirectorHandle BuildFromRes(Node host,
+        System.Collections.Generic.IReadOnlyList<HeroConfig>? sortie = null,
+        RosterLevelGrowth? growth = null)
     {
         _ = host;
         string Read(string name) => FileAccess.GetFileAsString($"res://data/{name}");
@@ -35,8 +44,22 @@ public static class DirectorBridge
         UnitsConfig unitsCfg = UnitsConfig.Parse(Read("units.json"));
         // F1（#190）：我方原型集合由 units.json 数据派生 → 新增角色零代码改动
         SkillsConfig skillsCfg = SkillsConfig.Parse(Read("skills.json"), unitsCfg.PlayerArchetypes);
+
+        // 🔴 阵型模板（(c)：它不再决定"谁出征"，只决定"怎么站"）
+        FormationConfig formation = FormationConfig.Parse(Read("formation.json"));
+        if (sortie is not null && sortie.Count > 0)
+        {
+            var archetypes = new string[sortie.Count];
+            for (int i = 0; i < sortie.Count; i++)
+            {
+                archetypes[i] = sortie[i].Archetype;
+            }
+
+            formation = FormationSortie.WithPlayerSortie(formation, archetypes);
+        }
+
         var director = new BattleDirector(
-            FormationConfig.Parse(Read("formation.json")),
+            formation,
             unitsCfg,
             skillsCfg,
             balance,
@@ -44,6 +67,16 @@ public static class DirectorBridge
             BuffDefsConfig.Parse(Read("buff_defs.json")),
             EnemyAiConfig.Parse(Read("enemy_ai.json")),
             new CombatLog());
+
+        // 🔴 (b)：等级成长投影（**运行时投影、不改基准数据**，P4 同源）——按槽位顺序与名册顺序一一对应
+        if (sortie is not null && growth is not null)
+        {
+            UnitRuntime[] board = director.Player.UnitsInSlotOrder().ToArray();
+            for (int i = 0; i < sortie.Count && i < board.Length; i++)
+            {
+                Darkest.Gameplay.Sim.Run.HeroProjection.ApplyLevel(sortie[i], board[i], growth);
+            }
+        }
 
         var projector = new BattleProjector(director, balance, skillsCfg, new SkillRuntimeState());
 
