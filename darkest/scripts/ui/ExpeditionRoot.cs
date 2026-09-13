@@ -163,6 +163,14 @@ public partial class ExpeditionRoot : Node
                 return;
             }
 
+            // 🔴 冒烟：`--run-full` ⇒ **跑完整趟**（玩家路径：逐间点击走动 → 遇战斗房真打 → 完成后回城）
+            //    每次 `_Ready`（含"从战斗返回"）推进一格 ⇒ 自然串成完整一趟 ✓
+            if (System.Array.Exists(args, a => a == "--run-full"))
+            {
+                RunFullSmokeStep();
+                return;
+            }
+
             return; // 拓扑模式的推进由玩家点选驱动（不再走旧线性 `ShowPathChoice`）
         }
 
@@ -471,6 +479,7 @@ public partial class ExpeditionRoot : Node
     private Label? _mapOptionsTitle;
     private Button? _campInTopology;
     private Button? _returnTown;
+    private bool _routedToBattle; // 冒烟：本轮是否已切到战斗场景（供 `--run-full` 判断"该停了"）
     private readonly List<Button> _mapButtons = new();
 
     /// <summary>当前会话（供地图视图显示夜袭累计）。</summary>
@@ -592,11 +601,26 @@ public partial class ExpeditionRoot : Node
                 Size = new Vector2(240, 26),
             };
             int target = room.Id;
+            string roomType = room.Type;
             b.Pressed += () =>
             {
                 MoveOutcome o = _flow.StepTo(target);
                 GD.Print($"[拓扑UI] 走 → 房间 {target}：{(o.Moved ? "成功" : "被拒")}　代价 {o.Cost}　重走={o.Revisited}" +
                          $"　段数 {_flow.StepsDone}　光照 {Meter.Value}");
+
+                // 🔴 `#307`⑤：**走进房间要触发【该房间的内容】** —— 此前地图视图只移动、不进入内容
+                //    ⇒ 一趟里永远不会真的打战斗 ⇒ 完成口径（打赢 ≥3）永远达不成。
+                //    战斗房：走【与夜袭完全相同】的往返（切 `Battle.tscn` 真打；`isAmbush=false` 因为它是节点步骤）
+                if (o.Moved && roomType == "battle" && !_flow.ReachedGoal)
+                {
+                    GD.Print("[拓扑UI] 进入【战斗房】⇒ 切到 Battle.tscn 真打（结算按节点步骤计入）");
+                    _routedToBattle = true;
+                    ExpeditionContext.PendingAmbush = false;
+                    ExpeditionContext.Bind(_flow, Log);
+                    GetTree().ChangeSceneToFile("res://scenes/battle/Battle.tscn");
+                    return;
+                }
+
                 RefreshMapView();
             };
             AddChild(b);
@@ -669,6 +693,53 @@ public partial class ExpeditionRoot : Node
 
         GD.Print("[拓扑UI] PressReturnToTown：发出真实 Pressed（回城）");
         _returnTown.EmitSignal(BaseButton.SignalName.Pressed);
+    }
+
+    /// <summary>
+    /// 🔴 冒烟：**完整趟的"一步"**（`--run-full`）——每次 `_Ready`（含从战斗/夜袭返回后）推进一格：
+    /// ① 若已【完成】（到达终点 ＋ 打赢 ≥3）⇒ **真实点击"回城"**（闭环终点）
+    /// ② 否则在分叉点取第一间未探索房 ⇒ **真实点击**走进去（战斗房会切 `Battle.tscn` ⇒ 由战斗场景接管）
+    /// </summary>
+    public void RunFullSmokeStep()
+    {
+        if (_flow is null)
+        {
+            return;
+        }
+
+        // 循环推进：**非战斗房不切场景** ⇒ 必须在本轮内继续走，否则钩子链会停在原地（我踩过一次）
+        int guard = 0;
+        while (guard++ < 40)
+        {
+            if (_flow.ReachedGoal && _flow.Completed)
+            {
+                GD.Print($"[拓扑UI] --run-full：**完成口径达成**（到达终点 ／ 胜 {_flow.Wins} ≥ 3 ／ 段 {_flow.StepsDone}）⇒ 真实点击回城");
+                PressReturnToTown();
+                return;
+            }
+
+            IReadOnlyList<MapRoom> options = _flow.AdjacentUnexplored();
+            if (options.Count == 0)
+            {
+                GD.Print($"[拓扑UI] --run-full：无路可走（到达终点 {_flow.ReachedGoal} ／ 胜 {_flow.Wins} ／ 完成 {_flow.Completed}）" +
+                         $"⇒ 如实回城（outcome=retreat）");
+                PressReturnToTown();
+                return;
+            }
+
+            MapRoom next = options[0];
+            GD.Print($"[拓扑UI] --run-full：推进一格（段 {_flow.StepsDone} ／ 胜 {_flow.Wins} ／ 到达终点 {_flow.ReachedGoal}）" +
+                     $"⇒ 目标 房间 {next.Id}（{next.Type}）");
+            PressMapRoom(0);
+
+            if (_routedToBattle)
+            {
+                _routedToBattle = false;
+                return; // 已切到战斗场景 ⇒ 等它返回后再继续（下次 `_Ready` 会重新进这里）
+            }
+        }
+
+        GD.Print("[拓扑UI] --run-full：单轮推进达上限（40 格）⇒ 停下（防死循环）");
     }
 
     /// <summary>🔴 供冒烟：**真实点击"扎营"**（发真实 `Pressed` ⇒ 走玩家路径）。</summary>
