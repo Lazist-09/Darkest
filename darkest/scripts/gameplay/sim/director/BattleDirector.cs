@@ -200,7 +200,51 @@ public sealed class BattleDirector
         }
 
         _executor.Execute(skill, actor, _player, _enemy, rng, chosenTargets);
+
+        // 🔴 补欠账（`m3_skills_units.md:228/247/312` + `data_schema.md:207`）：
+        //    **`self_damage_fixed`（殊死一搏 6 ／ 舍身 8）**：M3 明确"自伤致死死门链【归 M4】"，
+        //    但实测**全仓无消费点** ⇒ 这两张牌不会自伤、也不会致死门 ⚠️
+        //    契约要求：**固定值、不被护盾吸收、可致死（走既有死门链）** —— 与 `TickBleedAtTurnStart` 同语义
+        //    （直接 `CurrentHp -=` ⇒ 不经过 `DamageStep` 的护盾/防御判定 ⇒ 天然"不被护盾吸收"）。
+        if (skill.SelfDamageFixed is { } selfDmg && selfDmg > 0)
+        {
+            ApplyFixedSelfDamage(actor, selfDmg, skillId, rng);
+        }
+
         return true;
+    }
+
+    /// <summary>
+    /// 固定自伤（`self_damage_fixed`）：**不经护盾、不受防御减免**（直接扣 HP）、
+    /// **致死走既有死亡/死门链**（玩家 ⇒ 死门；敌方无死门 ⇒ 直接死）—— 与流血同通道。
+    /// </summary>
+    private void ApplyFixedSelfDamage(UnitId actor, int dmg, string skillId, IRngProvider rng)
+    {
+        int? pos = _player.UnitAtPosition(actor);
+        UnitRuntime? u = pos is { } p ? _player.UnitRuntimeAt(p) : null;
+        if (u is null || u.CurrentHp <= 0)
+        {
+            return;
+        }
+
+        u.CurrentHp -= dmg;
+        _log.Append(new DamageEvent(u.Id, dmg, dmg, Crit: false, SegmentIndex: 0, Axis: "self",
+            Attacker: u.Id, SkillId: skillId));
+
+        if (u.CurrentHp > 0)
+        {
+            return;
+        }
+
+        if (u.IsPlayer)
+        {
+            WeakDeathsDoor.EnterWeak(u, _pipeline.Morale, rng, _log, _balance); // 契约：可致死（走死门）
+        }
+        else
+        {
+            _enemy.RemoveUnitAt(_enemy.UnitAtPosition(u.Id) ?? -1);
+            _log.Append(new DeathEvent(u.Id, IsPlayer: false, Cause: "self_damage"));
+        }
     }
 
     /// <summary>
