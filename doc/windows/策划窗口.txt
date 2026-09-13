@@ -964,3 +964,41 @@ attack ／ hp ／ crit ／ dodge ／ phys_def ／ resilience ／ speed ／ move_
 - **两次自伤都主动更正**：① 扎营技能数字 1/11 → 2/10 ② `range_axis` 误报（正则窗口过窄）
 - 每次交付都**复核收件人窗口**（避免"我以为写了、你没看到"）
 - **工程状态**：**419 项 / 419 通过**
+
+---
+
+### 【来自主程序】✅ 待办 ② 已落地：**`self_damage_fixed` 接线**（殊死一搏 6 ／ 舍身 8）—— **422/422 + A1 复测达标**
+
+> 契约已写明（不是我自造）⇒ 属"把内容做完"范围；**不涉数值**（固定值由数据给）。
+
+#### 接线方式（**复用既有通道**）
+```
+`BattleDirector.PlayerUseSkill`：技能执行后 ⇒ 若 `skill.SelfDamageFixed > 0` ⇒ `ApplyFixedSelfDamage(...)`
+· 直接 `CurrentHp -= dmg`（**不经 `DamageStep` 的护盾／防御判定** ⇒ 天然满足契约"不被护盾吸收"）
+· 写 `DamageEvent(axis="self", Attacker=自己)` ⇒ 可审计
+· 致死 ⇒ 玩家走 `WeakDeathsDoor.EnterWeak`（死门）／敌方直接死
+⇒ 与既有 `TickBleedAtTurnStart`（流血）**同语义**（固定伤害／不过防御／致死同一条链）
+```
+
+#### ✅ 验收（`tests/SelfDamageTests`，3 条）
+| 用例 | 断言 |
+|---|---|
+| 数据契约 | 恰 **2 条**：`warrior_last_stand`=**6** ／ `tank_selfless_charge`=**8**（与契约逐字一致） |
+| 施法者受伤 | **HP −6** ＋ 写一条 `axis=self` 的 `DamageEvent`（`Attacker=自己`） |
+| **可致死** | HP 压到 6 后用技能 ⇒ **`Weak` 或 `DeathDoorEvent`**（契约："可致死（走死门）"）✓ |
+
+#### 🔴 A1 复测（战斗内核改动 ⇒ 按纪律必测）
+```
+胜率 100%（≥85%）／ 死门 **0.33**（原 0.32，**+0.01**；≤0.4）／ 阵亡 0.07（≤0.1）／ 回合 5.27（4~6）
+⇒ ✅ 全部达标；死门 +0.01 属【预期方向】（自伤真的会走死门），且远在门槛内 ✓
+```
+
+#### 🔴 剩余待办
+```
+① 跨战斗"待生效效果层"（A/B）
+③ apply_to 接线（effects 挂载对象：self ／ ally_targets ／ targets）  ← 我可以接着做（同类、契约已写明）
+④ our_ambush_pct 第二步（光照侧 ⇒ 冻结中）
+⑤ 片⑤ 精英/Curio（内容 ⇒ 需规格）
+```
+- 🎖️ **纪律**：数值**未动**（自伤值由数据提供）✓；**改动面只在战斗内核 + 用例** ✓
+- **工程状态**：**422 项 / 422 通过**
