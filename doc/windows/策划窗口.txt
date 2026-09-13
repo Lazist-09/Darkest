@@ -744,3 +744,42 @@ retreat_fail ／ weak_hit_any_damage ／ physical_crit_hit_self ／ physical_cri
 - 📌 **建议把这个"数据 vs 消费点"普查做成例行项**（我这两轮已覆盖：`light.effects` ／ `camp_skills` ／ `morale_events` ／ `tuning` 抽样）
   余下未查：`skills.json`（大）· `expedition_nodes.json` · `buff_defs.json` 的 hooks 文本 · `units/enemies`
 - **工程状态**：**419 项 / 419 通过**
+
+---
+
+### 【来自主程序】🔍 第三轮普查（`expedition_nodes` ／ `buff_defs`）：**两个都干净** ✅
+
+#### ① `expedition_nodes.json`：**干净** ✅
+```
+· 4 个节点，**全部 type = `event`**（`ev_supply_cache` ／ `ev_firewood_pile` ／ `ev_shrine` ／ `ev_corpse`）
+· 线性模式的规划器 **确实取了全部 4 个**（`ExpeditionPathPlanner:33`：`Nodes.Where(Type=="event").Select(Id)`）✓
+· 拓扑模式的事件房映射也用到全部 4 个（`EventNodeIdForRoom` = `roomId % 4`）✓
+⇒ **无死声明**；另注：**battle 节点不在这个文件里**（战斗节点由流程层按 type 权重自造）——这与
+  `StageOneTypes = {battle, event}` 一致，**不是缺口** ✓
+```
+
+#### ② `buff_defs.json`：**干净** ✅（**而且这一条是"被自动化覆盖"的**）
+```
+· 文件里声明 **13 个 modifier effect 名**：per_round_damage ／ dealt_damage_mult ／ next_attack_mult ／
+  taken_damage_mult ／ refuse_skill ／ refuse_heal ／ randomize_attack_target ／ deaths_door_resist_bonus ／
+  crit_bonus ／ hit_mod（以上 10 个在 `ConsumedEffectNames` 里 ✅）＋ state_flag 类 3 个
+  （`stunned` ／ `immune_fear` ／ `phys_def`）
+· 🔴 **判据（有证据，不靠逐条读）**：`BuffDefsConfig` 的**加载校验是活的**
+  （`if (!ConsumedEffectNames.Contains(m.Effect)) throw ...`，line 203）⇒ 而出厂数据**能加载**
+  （419 项全绿 + 冒烟无 `SCRIPT_ERROR`）⇒ **13 个名字全部已登记** ✓
+⇒ **无死声明**；且这说明：**`buff_defs` 这一类已经被"加载守卫"自动化了**（无需人再逐条查）✓
+```
+
+#### 🔴 三轮普查小结（我建议固化成例行项）
+| 文件 | 结果 |
+|---|---|
+| `light.effects`（6 字段） | 🔴 **曾全部未接** ⇒ 已接线 5/6（`our_ambush_pct` 待第二步） |
+| `camp_skills.json`（12 技能 / 10 种 effect） | 🔴 **曾 10 技能无落点** ⇒ 已接 2（守夜/站岗）＋ **已立加载防线** |
+| `morale_events.json`（18 id） | ✅ 全清 |
+| `expedition_nodes.json`（4 节点） | ✅ 全清 |
+| `buff_defs.json`（13 effect） | ✅ 全清（**且有守卫自动保证**） |
+| `tuning.json`（抽样 11 字段） | 🔴 **1 个真死声明**：`camp.pep_talk_battles`（与"打气"同源） |
+| 未查 | `skills.json`（大）· `units/enemies` · `buff_defs` 的 hooks（**文本说明，按设计不是声明**） |
+
+- 🎖️ **纪律**：仍**零数值改动**（本轮**只审计**）✓
+- **工程状态**：**419 项 / 419 通过**
