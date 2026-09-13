@@ -16,7 +16,7 @@ namespace Darkest.Tests;
 public sealed class PassPenaltyTests
 {
     [TestMethod]
-    public void D3_PassTurn_CostsFiveMorale_AndRecordsDeltaOnEvent()
+    public void D3_PassTurn_NoPenaltyAfter272_AndRecordsZeroDelta()
     {
         var log = new CombatLog();
         Darkest.Gameplay.Sim.Director.BattleDirector d = HeadlessDriver.NewDirector(log);
@@ -28,16 +28,16 @@ public sealed class PassPenaltyTests
 
         TurnSkippedEvent skip = log.Events.OfType<TurnSkippedEvent>().Last();
         Assert.AreEqual("passed", skip.Reason);
-        Assert.AreEqual(-5, skip.MoraleDelta, "待命 −5 士气（㉗ 从本字段统计）");
+        Assert.AreEqual(0, skip.MoraleDelta, "#272 ④：待命惩罚【已撤销】（pass_morale_delta = 0），机制保留");
 
         int after = d.Player.UnitRuntimeAt(d.Player.UnitAtPosition(actor)!.Value)!.Morale;
-        Assert.AreEqual(Math.Max(0, before - 5), after, "士气**实际**被扣（走既有 MoraleLedger 通道）");
+        Assert.AreEqual(before, after, "#272：待命**不再扣士气**（DD 的 Pass 惩罚依赖其战术价值，我们没有）");
 
-        // 🔴 #269 门禁（P21 ⑦）：**冗余必须可对账** —— MoraleEvent.delta == TurnSkippedEvent.MoraleDelta
-        //（状态单源 = MoraleLedger；TurnSkippedEvent 的 MoraleDelta 只是统计冗余；两者不等才是真双源）
-        int moraleEventDelta = log.Events.OfType<MoraleEvent>().Last(e => e.Source == "pass").Delta;
+        // 🔴 #269 门禁（P21 ⑦）：冗余必须可对账 —— MoraleEvent.delta == TurnSkippedEvent.MoraleDelta
+        //（#272 后两者都为 0；delta=0 时 MoraleLedger 可能不写事件 ⇒ 用 LastOrDefault 取 0 对账）
+        int moraleEventDelta = log.Events.OfType<MoraleEvent>().Where(e => e.Source == "pass").Select(e => e.Delta).LastOrDefault();
         Assert.AreEqual(moraleEventDelta, skip.MoraleDelta,
-            "P21 ⑦ / #269：MoraleEvent.delta 必须 == TurnSkippedEvent.MoraleDelta（冗余可对账）");
+            "P21 ⑦ / #269：MoraleEvent.delta 必须 == TurnSkippedEvent.MoraleDelta（现在两边都是 0 也必须一致）");
 
         Assert.IsTrue(log.Events.OfType<MoraleEvent>().Any(e => e.Source == "pass"), "士气变更写 MoraleEvent（唯一来源）");
     }

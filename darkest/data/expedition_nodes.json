@@ -1,28 +1,32 @@
 {
   "nodes": [
     { "id": "ev_supply_cache", "type": "event", "name": "废弃补给车",
+      "cost": { "morale": -5 },
       "options": [
-        { "choice": "loot", "label": "翻找补给", "effect": { "resource": "food", "delta": 4 } },
-        { "choice": "leave", "label": "绕开", "effect": { "morale": -5 } }
+        { "choice": "loot", "label": "搜刮补给（再 -5 士气）", "effect": { "resource": "food", "delta": 2, "morale": -5 } },
+        { "choice": "leave", "label": "直接走（无额外）", "effect": { "resource": null, "delta": 0, "morale": 0 } }
       ],
-      "source": "expedition.md §1.3 阶段一 / E4" },
+      "source": "expedition.md 1.3 / #272：必然代价 + 可选收益" },
     { "id": "ev_firewood_pile", "type": "event", "name": "倒下的枯树",
+      "cost": { "morale": -5 },
       "options": [
-        { "choice": "chop", "label": "砍柴（惊动敌人）", "effect": { "resource": "firewood", "delta": 1, "morale": -5 } },
-        { "choice": "pass", "label": "不冒险", "effect": { "morale": 0 } }
+        { "choice": "chop", "label": "砍柴（再 -5 士气）", "effect": { "resource": "firewood", "delta": 2, "morale": -5 } },
+        { "choice": "pass", "label": "直接走（无额外）", "effect": { "resource": null, "delta": 0, "morale": 0 } }
       ],
-      "source": "expedition.md §1.3 阶段一 / E4" },
+      "source": "expedition.md 1.3 / #272" },
     { "id": "ev_shrine", "type": "event", "name": "无名神龛",
+      "cost": { "morale": -5 },
       "options": [
-        { "choice": "pray", "label": "祷告", "effect": { "morale": 8 } },
-        { "choice": "desecrate", "label": "搜刮供品", "effect": { "resource": "food", "delta": 3, "morale": -6 } }
+        { "choice": "pray", "label": "祷告（+5 士气）", "effect": { "resource": null, "delta": 0, "morale": 5 } },
+        { "choice": "desecrate", "label": "搜刮供品（+2 口粮，再 -5 士气）", "effect": { "resource": "food", "delta": 2, "morale": -5 } }
       ],
-      "source": "expedition.md §1.3 阶段一 / E4" },
+      "source": "expedition.md 1.3 / #272" },
     { "id": "ev_corpse", "type": "event", "name": "远征者的遗骸",
+      "cost": { "morale": -5 },
       "options": [
-        { "choice": "bury", "label": "埋葬（耗时）", "effect": { "morale": 5 } },
-        { "choice": "search", "label": "搜身", "effect": { "resource": "food", "delta": 2, "morale": -4 } }
+        { "choice": "bury", "label": "埋葬（+3 士气）", "effect": { "resource": null, "delta": 0, "morale": 3 } },
+        { "choice": "search", "label": "搜身（+2 口粮，再 -5 士气）", "effect": { "resource": "food", "delta": 2, "morale": -5 } }
       ],
-      "source": "expedition.md §1.3 阶段一 / E4" }
+      "source": "expedition.md 1.3 / #272" }
   ]
 }

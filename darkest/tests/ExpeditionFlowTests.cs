@@ -70,7 +70,7 @@ public sealed class ExpeditionFlowTests
         int foodBefore = s.Food;
         string effect = s.ResolveEventNode(log, node, optionIndex: 0); // loot → 口粮 +4
 
-        Assert.AreEqual(foodBefore + 4, s.Food, "口粮 +4（数据驱动）");
+        Assert.AreEqual(foodBefore + 2, s.Food, "#272：搜刮 +2 补给（原 +4 已改；另有必然代价 −5 士气）");
         Assert.IsTrue(effect.Contains("food"), $"效果字串含资源：{effect}");
         EventNodeResolvedEvent e = log.Events.OfType<EventNodeResolvedEvent>().Single();
         Assert.AreEqual("ev_supply_cache", e.NodeId);

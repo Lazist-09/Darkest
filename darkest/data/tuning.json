@@ -51,7 +51,7 @@
       { "battle_from": 5, "battle_to": 6, "multiplier": 1.0, "target": "enemy_hp", "stun_resist_pp": 15 }
     ],
     "difficulty_note": "#255 (v0.96)：敌 HP 递进【不可行】→ **×1.1/×1.25 全部撤销、敌 HP 保持 ×1.0**（链式 ×1.1=10.45 破带 49%）；难度改由【眩晕抗性 +15pp】承担（30/25/40 → 45/40/55），该轴不改回合数、不改伤害",
-    "pass_morale_delta": -5
+    "pass_morale_delta": 0
   },
   "resources": { "firewood": 2, "food": 12 },
   "camp": { "food_tiers": { "starve": 0, "half": 3, "full": 6, "feast": 12 }, "respite_base": 6, "pep_talk_battles": 4, "ambush_chance": 0.33 },

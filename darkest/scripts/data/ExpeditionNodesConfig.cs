@@ -19,11 +19,16 @@ public sealed record NodeEffectConfig(
     [property: JsonPropertyName("delta")] int Delta = 0,
     [property: JsonPropertyName("morale")] int Morale = 0);
 
+/// <summary>事件节点的**必然代价**（#272）：无论选哪个选项都要付 —— 治"两个选项都无代价 ⇒ 二选一仍免费"。</summary>
+public sealed record NodeCostConfig(
+    [property: JsonPropertyName("morale")] int Morale);
+
 /// <summary>节点（阶段一：battle / event；elite 属阶段二，出现即报错）。</summary>
 public sealed record ExpeditionNodeConfig(
     [property: JsonPropertyName("id")] string Id,
     [property: JsonPropertyName("type")] string Type,
     [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("cost")] NodeCostConfig? Cost,
     [property: JsonPropertyName("options")] IReadOnlyList<NodeOptionConfig> Options,
     [property: JsonPropertyName("source")] string? Source = null);
 
@@ -96,6 +101,14 @@ public sealed record ExpeditionNodesConfig(
             {
                 throw new InvalidDataException(
                     $"{ResPath}: 事件节点 \"{n.Id}\" 必须**恰 2 个选项**（实际 {n.Options?.Count ?? 0}，P20 ⑤：二选一强制）。");
+            }
+
+            // 🔴 P20 ⑤（#272）：事件节点**必须声明必然代价** —— 只"不允许跳过"不够：
+            // 两个选项都无代价时二选一依然免费（实测保守"全事件"路线 = 100% 完成 + 0 补给 = 零损耗通道）。
+            if (n.Type == "event" && n.Cost is null)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: 事件节点 \"{n.Id}\" **必须声明 cost（必然代价）**（P20 ⑤ / #272：否则二选一免费）。");
             }
         }
     }
