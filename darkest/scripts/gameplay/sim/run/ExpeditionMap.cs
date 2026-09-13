@@ -128,10 +128,14 @@ public static class ExpeditionMapGenerator
             int branchId = rooms.Count;
             double branchTypeRoll = rng.NextPercent();
             log.Append(new RngDraw(rng.DrawCount, branchTypeRoll));
-            // 🔴 `O-79` 候选 (a)：支路房间类型 —— `branch_battle_weight` = 0 时按主干权重（现状）
-            string branchType = m.BranchBattleWeight > 0
-                ? (branchTypeRoll < m.BranchBattleWeight ? "battle" : "event")
-                : (branchTypeRoll < (m.BattleWeight / (m.BattleWeight + m.EventWeight) * 100.0) ? "battle" : "event");
+            // 🔴 `#298` 采纳的 (c)：支路可能是**特殊房**（降低撤退风险类；`free_light` 已接线）——
+            //    权重默认 0 ⇒ **现状完全不变**
+            bool special = m.BranchSpecialWeight > 0 && branchTypeRoll < m.BranchSpecialWeight;
+            string branchType = special
+                ? m.BranchSpecialKind
+                : m.BranchBattleWeight > 0
+                    ? (branchTypeRoll < m.BranchBattleWeight ? "battle" : "event")
+                    : (branchTypeRoll < (m.BattleWeight / (m.BattleWeight + m.EventWeight) * 100.0) ? "battle" : "event");
             rooms.Add(new MapRoom(branchId, depth + 1, branchType, IsBranch: true));
             edges.Add(new MapEdge(depth, branchId)); // 主干房 → 支路房（分叉点度数 ≥ 3）
             branches++;

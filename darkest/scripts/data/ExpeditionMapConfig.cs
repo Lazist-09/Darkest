@@ -15,6 +15,8 @@ public sealed record MapGenConfig(
     [property: JsonPropertyName("battle_weight")] double BattleWeight,
     [property: JsonPropertyName("event_weight")] double EventWeight,
     [property: JsonPropertyName("branch_battle_weight")] double BranchBattleWeight = 0,
+    [property: JsonPropertyName("branch_special_weight")] double BranchSpecialWeight = 0,
+    [property: JsonPropertyName("branch_special_kind")] string BranchSpecialKind = "free_light",
     [property: JsonPropertyName("max_branches")] int MaxBranches = 2);
 
 /// <summary>按段移动（M7.6 §4.3②）：新区域 −30（沿用已调平值）／ 重走已探索 −10。</summary>
@@ -47,6 +49,14 @@ public sealed record ExpeditionMapConfig(
     public const int MinAllowedRooms = 6;
 
     public const int MaxAllowedRooms = 8;
+
+    /// <summary>
+    /// 支路**特殊房**的合法类型（`#298` (c)）：**只允许"降低撤退风险"类**，
+    /// 🔴 **不得只加"更多资源"类**（拓扑下补给已过剩 ⇒ 再给资源无效）。
+    /// ⚠️ 本清单**只登记"效果已接线"的类型**（红线 21：不留死声明）—— `free_light` 已接线；
+    /// 免费恢复房 / 士气房**待其效果接线后**再加入本清单。
+    /// </summary>
+    public static readonly IReadOnlyList<string> SpecialBranchKinds = new[] { "free_light" };
 
     public static ExpeditionMapConfig Parse(string json)
     {
@@ -97,6 +107,20 @@ public sealed record ExpeditionMapConfig(
         if (m.BranchBattleWeight is < 0 or > 100)
         {
             throw new InvalidDataException($"{ResPath}: branch_battle_weight 必须 ∈ [0,100]（P25 ⑦ / O-79）。");
+        }
+
+        // ⑧ 支路**特殊房**（`#298` 采纳的 (c)）：🔴 必须是【**降低撤退风险**】类，**不得是"更多资源"类**
+        //    （理由：拓扑下补给已过剩 —— 绕支路 14.38/趟 vs 旧线性 2.83，完成率不升 ⇒ 再给资源无效）
+        if (m.BranchSpecialWeight is < 0 or > 100)
+        {
+            throw new InvalidDataException($"{ResPath}: branch_special_weight 必须 ∈ [0,100]（P25 ⑧ / #298）。");
+        }
+
+        if (m.BranchSpecialWeight > 0 && !SpecialBranchKinds.Contains(m.BranchSpecialKind))
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: branch_special_kind 必须是【降低撤退风险】类（允许：{string.Join(" / ", SpecialBranchKinds)}；" +
+                $"**不得只加资源类**；P25 ⑧ / #298）。");
         }
 
         if (m.MaxBranches < 1 || m.MaxBranches > 3)

@@ -7,6 +7,8 @@
     "battle_weight": 60,
     "event_weight": 40,
     "branch_battle_weight": 0,
+    "branch_special_weight": 0,
+    "branch_special_kind": "free_light",
     "max_branches": 2
   },
   "move": {

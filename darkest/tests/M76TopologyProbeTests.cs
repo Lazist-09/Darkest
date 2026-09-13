@@ -460,5 +460,149 @@ public sealed class M76TopologyProbeTests
         Assert.IsTrue(lines.Count == 2);
     }
 
+    /// <summary>
+    /// 🔴 **`#298` (c) 的对照读数**：支路新增**降低撤退风险**的特殊房（本片接线 `free_light` = **+光照且不耗柴火**）。
+    /// ⚠️ **新旋钮默认 0 = 现状不变**；**不改判据、不调 `battle_goal`、不碰其他数值**。
+    /// 只报**"绕支路"档**（那里才看得出差别）—— 看**完成率/撤退**是否改善。
+    /// </summary>
+    [TestMethod]
+    public void O298_C_FreeLightBranch_Comparison()
+    {
+        TuningConfig tuning = Tuning();
+        ExpeditionMapConfig shipped = MapCfg();                                        // (c) 关（现状：0）
+        ExpeditionMapConfig withC = shipped with
+        {
+            Map = shipped.Map with { BranchSpecialWeight = 100, BranchSpecialKind = "free_light" },
+        };
+
+        (string Name, ExpeditionMapConfig Cfg)[] arms =
+        {
+            ("(c) 关：支路按主干权重（现状）", shipped),
+            ("(c) 开：支路＝免费光合房（+光照、不耗柴火）", withC),
+        };
+
+        var lines = new List<string>();
+        foreach ((string name, ExpeditionMapConfig cfg) in arms)
+        {
+            ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+            const int runs = 30;
+            int completed = 0, battlesSum = 0, winsSum = 0, retreats = 0, freeLightSum = 0, minLightSum = 0;
+            for (int i = 0; i < runs; i++)
+            {
+                var log = new CombatLog();
+                var rng = new RngProvider(20260909 + (i * 37));
+                var bag = new Inventory(tuning.Inventory!);
+                bag.ConfigureRecommended(out _);
+                bag.LockForRun();
+                var session = new ExpeditionSession(_ => MonteCarlo.HeadlessDriver.NewDirector(new CombatLog()),
+                    tuning.Expedition.NBattles, bag.CountOf(ItemKind.Firewood), bag.CountOf(ItemKind.Food),
+                    tuning.Expedition.AmbushChance);
+                var flow = new ExpeditionFlow(session, new LightMeter(tuning.Light!), bag,
+                    new Scouting(tuning.Scouting!, tuning.Light!), nodes, tuning, log, rng);
+                ExpeditionMap map = flow.BeginTopology(cfg);
+                var visited = new HashSet<int> { map.StartId };
+                bool aborted = false;
+                int localWins = 0, freeLight = 0, minLight = 100;
+
+                int guard = 0;
+                while (!flow.ReachedGoal && !aborted && guard++ < 60)
+                {
+                    var all = map.Edges
+                        .Where(e => e.From == flow.CurrentRoomId || e.To == flow.CurrentRoomId)
+                        .Select(e => e.From == flow.CurrentRoomId ? e.To : e.From)
+                        .Distinct()
+                        .Select(id => map.Rooms.First(r => r.Id == id))
+                        .ToList();
+                    var options = all.Where(r => !visited.Contains(r.Id)).ToList();
+                    bool back = options.Count == 0;
+                    if (back)
+                    {
+                        options = all;
+                    }
+
+                    if (options.Count == 0)
+                    {
+                        break;
+                    }
+
+                    MapRoom next = options.FirstOrDefault(o => o.IsBranch && !back)
+                                   ?? options.First(o => o.Id == map.GoalId || !o.IsBranch);
+
+                    if (!flow.StepTo(next.Id).Moved)
+                    {
+                        break;
+                    }
+
+                    visited.Add(next.Id);
+                    if (flow.Meter.Value < minLight)
+                    {
+                        minLight = flow.Meter.Value;
+                    }
+
+                    // 🔴 (c) 的效果：**免费光合房**（+20 光照，**不耗柴火**）
+                    if (next.Type == "free_light")
+                    {
+                        flow.Meter.TryAdvanceBy(log, +20, "free_light");
+                        freeLight++;
+                    }
+
+                    if (next.Type == "battle")
+                    {
+                        int idx = session.BattlesPlayed + 1;
+                        BattleDirector d = session.BeginExpeditionBattle(idx, log, tuning.Expedition.DifficultyTiers);
+                        string result = "RoundLimit";
+                        int round = 1;
+                        for (; round <= 100; round++)
+                        {
+                            d.RunFullRound(rng, unit => MonteCarlo.Policies.DecideForUnit(
+                                MonteCarlo.PolicyKind.SemiRandom, unit, d, rng));
+                            if (d.IsBattleOver)
+                            {
+                                result = d.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+                                break;
+                            }
+                        }
+
+                        session.EndBattle(d, idx, result, Math.Min(round, 100));
+                        battlesSum++;
+                        if (result != "PlayerVictory")
+                        {
+                            aborted = true;
+                            retreats++;
+                            break;
+                        }
+
+                        winsSum++;
+                        localWins++;
+                    }
+                    else if (next.Type != "free_light")
+                    {
+                        session.ResolveEventNode(log, nodes.Nodes.First(n => n.Type == "event"), 0);
+                    }
+                }
+
+                freeLightSum += freeLight;
+                minLightSum += minLight;
+                if (!aborted && flow.ReachedGoal && localWins >= tuning.Expedition.BattleGoal)
+                {
+                    completed++;
+                }
+            }
+
+            lines.Add($"[M7.6] #298(c) {name}（绕支路档，{runs} 趟）：完成率 **{completed / (double)runs:P0}**" +
+                      $"　战斗 {battlesSum / (double)runs:F1}/趟　胜 {winsSum / (double)runs:F1}　撤退 {retreats}" +
+                      $"　免费光合房 {freeLightSum / (double)runs:F2}/趟　最暗 {minLightSum / (double)runs:F0}");
+        }
+
+        string report = string.Join("\n", lines) +
+            "\n[M7.6] #298(c) 判读：若 **(c) 开** 的完成率【明显高于 (c) 关】⇒ **\"补当前稀缺的东西（光照/安全）\"这条路成立**；" +
+            "若仍打平 ⇒ 按裁定回报策划，那时才轮到检讨判据 (d)" +
+            "\n[M7.6] #298(c) 纪律：`battle_goal` 仍 3；**未动其他数值**；**新旋钮默认 0 = 现状**；只接线了 `free_light`（免费恢复房 / 士气房**待其效果接线后**再加入白名单 —— 红线 21）";
+        Console.WriteLine(report);
+        TestContext.WriteLine(report);
+
+        Assert.IsTrue(lines.Count == 2);
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }
