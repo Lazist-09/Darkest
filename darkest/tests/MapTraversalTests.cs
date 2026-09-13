@@ -109,7 +109,7 @@ public sealed class MapTraversalTests
         var log = new CombatLog();
         var rng = new RngProvider(31337);
 
-        int segMin = int.MaxValue, segMax = 0, costMin = int.MaxValue, costMax = 0, disconnected = 0;
+        int segMin = int.MaxValue, segMax = 0, costMin = int.MaxValue, costMax = int.MinValue, disconnected = 0;
         const int n = 200;
         for (int i = 0; i < n; i++)
         {
