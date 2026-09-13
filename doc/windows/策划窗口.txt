@@ -926,3 +926,41 @@ attack ／ hp ／ crit ／ dodge ／ phys_def ／ resilience ／ speed ／ move_
 - 📌 未查数据面：`formation.json` ／ 其它 JSON（若有）—— 我可在下一轮补齐
 - 🎖️ **纪律**：五轮普查**零数值改动、零代码改动**（**只审计**）✓
 - **工程状态**：**419 项 / 419 通过**
+
+---
+
+### 【来自主程序】✅ **普查完毕：14 个数据文件全部覆盖**（`formation.json` / `enemy_ai.json` 也干净）
+
+#### 收尾两文件
+```
+· `formation.json`：`combat_slots` ／ `slot_count` ／ `support_slots` ／ `obstacles` ＋ `rules.*` 8 条规则布尔
+  （boundary_as_hard_wall ／ close_up_enemy_symmetric ／ close_up_ignores_obstacle ／ close_up_on_death_immediate ／
+   deaths_and_close_up_separate_from_displacement ／ displacement_only_via_swap_chain ／ obstacle_swaps_like_unit ／
+   slot_three_state ／ swap_player_initiated ／ numeration）
+  ⇒ 🔴 **逐条核过：全部有消费点** ✅（我一开始探的 `Weight`/`Aggression` 等根本不在文件里 ⇒ 是我探错名，已改查真实名）
+· `enemy_ai.json`：`target_preference.{taunt_weight, mark_weight, fallback_probability}` ／
+  `rules[].when.{player_morale_all_at_least, target_slots_occupied_min, self_slot_in}` ／ `archetypes[]`
+  ⇒ ✅ **全部有消费点**（`TauntWeight`×3 ／ `MarkWeight`×3 ／ `FallbackProbability`×2 ／ …）
+```
+
+#### 🟢 普查总表（**14 / 14 覆盖完毕**）
+| 面 | 结果 |
+|---|---|
+| **曾有真缺口** | `light.effects`（⇒ 已接 5/6）· `camp_skills`（⇒ 已接 2 + 防线）· `tuning.pep_talk_battles`（⇒ 待跨场层） |
+| **欠账（契约有、实现无）** | `skills.self_damage_fixed`（**M3 承诺归 M4**）· `skills.apply_to` |
+| **裁定占位（不算缺口）** | `range_axis` ／ `hit_mod`（self 类） |
+| **全清** | `morale_events` · `expedition_nodes` · `buff_defs` · `units` · `formation` · `enemy_ai` · `economy` · `heirlooms` · `sanitarium` · `roster` · `expedition_map` |
+
+#### 🔴 待办清单（**不变**，等你/策划一句话；全部不涉数值）
+```
+① 跨战斗"待生效效果层"（A/B）—— camp_skills 10 技能 ／ pep_talk_battles ／ 打气
+② self_damage_fixed 接线（战斗管线；可走死门、不被护盾吸收）
+③ apply_to 接线（effects 挂载对象）
+④ our_ambush_pct 第二步（光照侧 ⇒ 冻结中）
+⑤ 片⑤ 精英/Curio（内容 ⇒ 需你给规格）
+```
+#### 🎖️ 本阶段我的自律小结（**已全部如实投递**）
+- 五轮普查**未动任何数值/代码**（纯审计）；每次**先查契约再定性**（`range_axis` 因此没被我误判为缺口）
+- **两次自伤都主动更正**：① 扎营技能数字 1/11 → 2/10 ② `range_axis` 误报（正则窗口过窄）
+- 每次交付都**复核收件人窗口**（避免"我以为写了、你没看到"）
+- **工程状态**：**419 项 / 419 通过**
