@@ -59,6 +59,12 @@ public sealed class ExpeditionFlow
     /// <summary>是否拓扑模式（地图驱动）。</summary>
     public bool IsTopologyMode => _map is not null;
 
+    /// <summary>当前地图（拓扑模式；供 UI **画出**房间+走廊 &#8212; `m7_roadmap §4.3①`）。</summary>
+    public ExpeditionMap? Map => _map;
+
+    /// <summary>某个房间是否已探索过（供 UI 区分"已探索 / 可走"）。</summary>
+    public bool HasVisited(int roomId) => _visitedRooms?.Contains(roomId) ?? false;
+
     /// <summary>当前房间（拓扑模式）。</summary>
     public int CurrentRoomId => _currentRoomId;
 

@@ -480,6 +480,7 @@ public partial class ExpeditionRoot : Node
     private Button? _campInTopology;
     private Button? _returnTown;
     private bool _routedToBattle; // 冒烟：本轮是否已切到战斗场景（供 `--run-full` 判断"该停了"）
+    private readonly List<Node> _mapGraph = new(); // 拓扑图元素（线 + 房间方块；每次刷新重建）
     private readonly List<Button> _mapButtons = new();
 
     /// <summary>当前会话（供地图视图显示夜袭累计）。</summary>
@@ -564,6 +565,72 @@ public partial class ExpeditionRoot : Node
         GD.Print($"[拓扑UI] 地图视图就绪：当前房间 {_flow.CurrentRoomId}　可点房间 {_mapButtons.Count} 个（红线 18：玩家可点）");
     }
 
+    /// <summary>
+    /// 🔴 **把地图【画出来】**（`m7_roadmap §4.3①`：房间 + 走廊）——
+    /// 此前只有"文字按钮列表"（可用但**玩家看不见拓扑**）⇒ 这里补**图形化**：
+    /// · 每个房间一个方块（**主干在下排 ／ 支路在上排**，按 `Depth` 排开）
+    /// · 每条走廊一条线（`Line2D`）
+    /// · **当前房间**用「▶」标出；**可走房间**高亮可点；已探索房间变暗
+    /// ⚠️ 纯 UI（零数值、零内核改动）；headless 无法验"好不好看"⇒ 需要人眼或截图。
+    /// </summary>
+    private void DrawMapGraph()
+    {
+        if (_flow?.Map is null)
+        {
+            return;
+        }
+
+        ExpeditionMap map = _flow.Map;
+
+        foreach (Node n in _mapGraph)
+        {
+            n.QueueFree();
+        }
+
+        _mapGraph.Clear();
+
+        // 走廊（先画线，房间方块盖在上面）
+        foreach (MapEdge e in map.Edges)
+        {
+            MapRoom a = map.Rooms.First(r => r.Id == e.From);
+            MapRoom b = map.Rooms.First(r => r.Id == e.To);
+            var line = new Line2D
+            {
+                Name = $"Edge_{e.From}_{e.To}",
+                Width = 2f,
+                DefaultColor = new Color(0.55f, 0.55f, 0.6f),
+                Points = new[] { RoomScreenPos(a), RoomScreenPos(b) },
+            };
+            AddChild(line);
+            _mapGraph.Add(line);
+        }
+
+        // 房间方块：已探索 ⇒ 变暗；当前 ⇒ 加「▶」；可走 ⇒ 亮
+        var reachable = _flow.AdjacentUnexplored().Select(r => r.Id).ToHashSet();
+        foreach (MapRoom room in map.Rooms)
+        {
+            bool current = room.Id == _flow.CurrentRoomId;
+            bool canGo = reachable.Contains(room.Id);
+            bool explored = !canGo && !current && _flow.HasVisited(room.Id);
+
+            var box = new Button
+            {
+                Name = $"RoomBox_{room.Id}",
+                Text = $"{(current ? "▶" : string.Empty)}{room.Id}\n{room.Type}",
+                Position = RoomScreenPos(room) - new Vector2(40, 16),
+                Size = new Vector2(80, 32),
+                Disabled = !canGo,
+                Modulate = explored ? new Color(0.55f, 0.55f, 0.55f) : Colors.White,
+            };
+            AddChild(box);
+            _mapGraph.Add(box);
+        }
+    }
+
+    /// <summary>房间在屏幕上的位置（主干下排 ／ 支路上排，按 `Depth` 排开）。</summary>
+    private static Vector2 RoomScreenPos(MapRoom room)
+        => new(60 + (room.Depth * 80), room.IsBranch ? 600 : 660);
+
     /// <summary>刷新地图视图（当前状态 + 相邻可选房间按钮）。</summary>
     public void RefreshMapView()
     {
@@ -641,6 +708,8 @@ public partial class ExpeditionRoot : Node
             AddChild(b);
             _mapButtons.Add(b);
         }
+
+        DrawMapGraph(); // 🔴 图形化：房间 + 走廊（玩家能看见拓扑）
     }
 
     /// <summary>🔴 供冒烟/测试：**点一下第 i 个可选房间**（发真实 `Pressed` ⇒ 走玩家路径）。</summary>
