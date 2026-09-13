@@ -77,7 +77,36 @@ public partial class ExpeditionRoot : Node
         NewExpedition(); // 与 BattleRoot 同款：_Ready 即装配（数据经 DirectorBridge 读 res://data）
         ShowPathChoice(); // 首步：把两个候选交给选路界面（玩家点选后才推进）
 
-        // 🔴 M8.0 ③ 端到端冒烟路径（**跑图 → 回城**）：`--hamlet-next` ⇒ 本趟即刻结算并回城
+        // 🔴 M7.6 片 (ii) 前置：`--topology` ⇒ **拓扑模式走图**（地图驱动；旧线性路径不动）
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--topology"))
+        {
+            ExpeditionMapConfig mapCfg = ExpeditionMapConfig.Parse(
+                Godot.FileAccess.GetFileAsString(ExpeditionMapConfig.ResPath));
+            ExpeditionMap map = _flow!.BeginTopology(mapCfg);
+            GD.Print($"[拓扑] 地图生成：主干 {map.Rooms.Count(r => !r.IsBranch)} 间 ／ 支路 {map.BranchCount} 条 ／ " +
+                     $"分叉点 {map.ForkCount} 个 ／ 连通 {map.IsConnected()}");
+
+            var path = new List<string>();
+            int guard = 0;
+            while (!_flow.ReachedGoal && guard++ < 40)
+            {
+                IReadOnlyList<MapRoom> options = _flow.AdjacentUnexplored();
+                if (options.Count == 0)
+                {
+                    break;
+                }
+
+                MapRoom next = options[0]; // 最小版：自动选第一条（玩家选路属 UI 片 (iii)）
+                MoveOutcome o = _flow.StepTo(next.Id);
+                path.Add($"{next.Type}({o.Cost})");
+            }
+
+            GD.Print($"[拓扑] 走图：{string.Join(" → ", path)}　共 {_flow.StepsDone} 段　" +
+                     $"到达终点 {_flow.ReachedGoal}　结束光照 {Meter!.Value}（起点 100）　最终档 {LightMeter.TierId(Meter.Tier)}");
+            GD.Print($"[拓扑] 完成口径：到达主干终点 且 打赢 ≥ 3 场 ⇒ 当前 Completed={_flow.Completed}（本例只走图、未打战斗）");
+            return; // 拓扑冒烟到此为止（不进入旧线性推进）
+        }
+
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--hamlet-next") && _flow is not null)
         {
             GD.Print("[ExpeditionRoot] --hamlet-next ⇒ 本趟结算并回城（冒烟路径：启动 → 跑图 → 回城）");

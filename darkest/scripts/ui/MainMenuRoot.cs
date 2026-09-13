@@ -72,9 +72,9 @@ public partial class MainMenuRoot : Node2D
             GD.Print("[MainMenuRoot] --hamlet ⇒ 直达回城（冒烟路径：启动 到 回城）");
             GetTree().CallDeferred("change_scene_to_file", HamletScene);
         }
-        else if (Array.Exists(args, a => a == "--expedition" || a == "--e2e" || a == "--hamlet-next"))
+        else if (Array.Exists(args, a => a == "--expedition" || a == "--e2e" || a == "--hamlet-next" || a == "--topology"))
         {
-            GD.Print("[MainMenuRoot] --expedition/--e2e/--hamlet-next ⇒ 直达地牢层（冒烟路径）");
+            GD.Print("[MainMenuRoot] --expedition/--e2e/--hamlet-next/--topology ⇒ 直达地牢层（冒烟路径）");
             GetTree().CallDeferred("change_scene_to_file", ExpeditionScene);
         }
 
