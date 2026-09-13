@@ -40,8 +40,8 @@ public sealed class CampSkillsConfigTests
         CampSkillsConfig cfg = CampSkillsConfig.Parse(ReadData("camp_skills.json"));
 
         Assert.AreEqual(12, cfg.Skills.Count, "12 个扎营技能");
-        Assert.AreEqual(1, cfg.ConsumedCount, "🔴 已接线只有 1 个：ambush_immunity_once（守夜 ／ 站岗）");
-        Assert.AreEqual(11, cfg.DeferredCount, "其余 11 个登记为【阶段二：无落点】");
+        Assert.AreEqual(2, cfg.ConsumedCount, "🔴 已接线 = 2 个技能（轮流守夜 ／ 站岗 —— 两者都是 ambush_immunity_once）");
+        Assert.AreEqual(10, cfg.DeferredCount, "其余 10 个技能登记为【阶段二：无落点】");
         Assert.AreEqual(cfg.Skills.Count, cfg.ConsumedCount + cfg.DeferredCount, "每个 effect 名都必须被登记（防线）");
     }
 
