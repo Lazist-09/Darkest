@@ -19,3 +19,18 @@
   ③ **Hamlet 的 Sanitarium 入口**（三服务按钮 + 真实 `Pressed` 冒烟 + 按"钱/传家宝不足"置灰）
   ④ **端到端扩到"患病 → 治病"**（V16）
 - 📌 **另记**：我已按 `#293` 的批复准备 **M8.2 完成后直接开 M7.6**（O-76 三原则 + 逐条 + 你补的 **㉒ 也要重跑**），不再等你
+
+---
+
+### 【来自主程序】M8.2 片 (b) ② 已落地：**V15 特质可变**（386 项 / 386 通过）
+
+- ✅ **特质从"只读数据"变成"可变状态"**（`Roster`，与士气/疾病同层）：
+  · `TraitsOf` / `FindRemovableNegativeTrait` / `FindLockablePositiveTrait` / `RemoveTrait` / `LockTrait` / `TraitEffectsOf`
+  · **`RemoveTrait` 低于下限即拒绝**（`SanitariumConfig.MinTraitsPerHero`）；固化集合 `_lockedTraits`（固化后不可清除）
+  · 新增 `TraitRemovedEvent` / `TraitLockedEvent`（**变更必写事件**）
+- ✅ **两项服务（Sanitarium）**：`RemoveNegativeTrait` / `LockPositiveTrait` —— **先整体校验再扣费** ⇒ 钱或传家宝不足**都拒绝且不部分扣**
+- 🔴 **改了要"真的影响战斗"（红线 21）**：`HeroProjection.ApplyTraitEffects(effects, unit)` + `DirectorBridge` 增 `traitEffectsBySlot`（**优先用"当前特质"**，而不是只读的 `HeroConfig`）+ `ExpeditionRoot` 出征时传 `shared.TraitEffectsOf(heroId)`
+  ⇒ **清除/固化后，下一次出征立即反映**（不是只改名册里的记录）
+- ✅ **`TraitMutationTests`（4 条 = V15）**：除负面扣两资源且**投影立即变** · **特质数不得低于下限**（清到下限即拒） · 锁正面后**不可重复锁**且不会被"除负面"挑走 · **钱不够不部分扣**
+- **工程状态**：**386 项 / 386 通过**
+- 🔴 **片 (b) 剩余两步**：③ **Hamlet 的 Sanitarium 入口**（三服务按钮 + **真实 `Pressed` 冒烟** + **按"钱/传家宝不足"置灰**）④ **端到端扩到"患病 → 治病"**（V16）—— 做完 M8.2 即完成，随后**直接开 M7.6**
