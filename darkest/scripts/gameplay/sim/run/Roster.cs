@@ -35,6 +35,9 @@ public sealed class Roster
     /// <summary>名册上限与英雄清单（只读）。</summary>
     public IReadOnlyList<HeroConfig> Heroes => _heroes;
 
+    /// <summary>名册上限（M8.0 ⑤：出征 6 + 替补 6 = 12）。</summary>
+    public int Cap => _cfg.RosterCap;
+
     /// <summary>
     /// **招募**（M8.0 ⑤ / `#283` 硬要求③）：**免费**；新兵 `level == 1`、`morale == 50`（**不比老的强**）；
     /// 特质从既有英雄的特质池里取**一正一负**（与 7.7「小幅、正负都有」一致）。
