@@ -22,15 +22,59 @@ public sealed class Roster
 {
     private readonly RosterConfig _cfg;
     private readonly Dictionary<string, int> _morale;
+    private readonly List<HeroConfig> _heroes;
+    private int _recruitSeq;
 
     public Roster(RosterConfig config)
     {
         _cfg = config ?? throw new ArgumentNullException(nameof(config));
+        _heroes = config.Heroes.ToList();
         _morale = config.Heroes.ToDictionary(h => h.Id, h => Math.Clamp(h.Morale, 0, 100));
     }
 
     /// <summary>名册上限与英雄清单（只读）。</summary>
-    public IReadOnlyList<HeroConfig> Heroes => _cfg.Heroes;
+    public IReadOnlyList<HeroConfig> Heroes => _heroes;
+
+    /// <summary>
+    /// **招募**（M8.0 ⑤ / `#283` 硬要求③）：**免费**；新兵 `level == 1`、`morale == 50`（**不比老的强**）；
+    /// 特质从既有英雄的特质池里取**一正一负**（与 7.7「小幅、正负都有」一致）。
+    /// 满员即拒绝（返回 null；**不静默顶替**）。
+    /// </summary>
+    public HeroConfig? Recruit(CombatLog log, StagecoachConfig coach, string archetype, string name)
+    {
+        if (log is null || coach is null)
+        {
+            throw new ArgumentNullException(nameof(log));
+        }
+
+        if (_heroes.Count >= _cfg.RosterCap)
+        {
+            return null; // 名册已满（P22 ⑥ / cap = 12）—— 拒绝，不悄悄顶替
+        }
+
+        List<HeroTraitConfig> pool = _heroes.SelectMany(h => h.Traits).ToList();
+        HeroTraitConfig? pos = pool.FirstOrDefault(t => t.DamagePct > 0 || t.MoraleDamagePct < 0);
+        HeroTraitConfig? neg = pool.FirstOrDefault(t => t.DamagePct < 0 || t.MoraleDamagePct > 0);
+        if (pos is null || neg is null)
+        {
+            throw new InvalidOperationException($"{RosterConfig.ResPath}: 特质池里没有可用的正/负特质（P22 ③）。");
+        }
+
+        var rookie = new HeroConfig(
+            $"hero_{archetype}_r{++_recruitSeq}",
+            name,
+            archetype,
+            coach.RookieLevel,
+            new[] { pos, neg },
+            coach.RookieMorale);
+
+        _heroes.Add(rookie);
+        _morale[rookie.Id] = rookie.Morale;
+        log.Append(new HeroRecruitedEvent(rookie.Id, rookie.Name, rookie.Archetype, rookie.Level, rookie.Morale, coach.RecruitCost));
+        return rookie;
+    }
+
+    private static string ResPathOf(RosterConfig? cfg) => RosterConfig.ResPath;
 
     /// <summary>某英雄当前士气（跨趟）。</summary>
     public int MoraleOf(string heroId)

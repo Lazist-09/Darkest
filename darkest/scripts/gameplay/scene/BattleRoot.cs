@@ -76,9 +76,9 @@ public partial class BattleRoot : Node2D
             GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
         }
 
-        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--expedition"))
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--expedition" || a == "--e2e"))
         {
-            GD.Print("[BattleRoot] --expedition ⇒ 直接进入地牢层（端到端冒烟路径：启动 → 进入地牢层选路）");
+            GD.Print("[BattleRoot] --expedition/--e2e ⇒ 直接进入地牢层（端到端冒烟路径：启动 → 进入地牢层选路）");
             // 🔴 必须 **deferred**：`_Ready` 期间父节点正在增删子节点，直接 ChangeSceneToFile 会报
             // 「Parent node is busy adding/removing children」（实测 exit 1）
             GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");

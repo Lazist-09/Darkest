@@ -85,6 +85,32 @@ public partial class ExpeditionRoot : Node
             ExpeditionContext.End();
             GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
         }
+
+        // 🔴 M8.0 ⑥ 端到端（**一次运行跑完整回路**）：`--e2e`
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--e2e") && _flow is not null)
+        {
+            if (ExpeditionContext.E2EStage == 0)
+            {
+                // 阶段 0：**打三场（模拟胜利，冒烟专用；对应 7.1「一趟 3~6」）⇒ 产生可花的钱** ⇒ 结算回城
+                for (int i = 0; i < 3; i++)
+                {
+                    _flow.Advance(1);
+                    _flow.OnBattleFinished("PlayerVictory", rounds: 5);
+                }
+
+                GD.Print($"[E2E] 阶段0 跑图：三场胜利 ⇒ 金钱 {ExpeditionContext.Gold?.Gold ?? 0}（战斗数 乘 光照档）");
+                _flow.ReturnToTown("completed");
+                ExpeditionContext.Roster?.ApplyReturnFromRun(Log, Session!.Roster().Select(r => (r.Id, r.Morale)));
+                ExpeditionContext.End();
+                ExpeditionContext.E2EStage = 1;
+                GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
+            }
+            else
+            {
+                GD.Print($"[E2E] 阶段2 ✅ **再出发成功**（回到地牢层）⇒ 完整回路成立："
+                         + "启动 → 跑图 → 回城 → 花钱 → 再出发");
+            }
+        }
     }
 
     /// <summary>
@@ -126,8 +152,12 @@ public partial class ExpeditionRoot : Node
 
         var meter = new LightMeter(tuning.Light!);
         Initialize(session, meter, bag, tuning, handle.Nodes);
+
+        // 🔴 M8.0 ②：**经济必须在地牢层就被确保存在**（否则本趟胜利无处记账 ⇒ 金钱永远是 0）
+        EconomyConfig econCfg = EconomyConfig.Parse(Godot.FileAccess.GetFileAsString(EconomyConfig.ResPath));
+        Economy economy = ExpeditionContext.EnsureEconomy(econCfg);
         _flow = new ExpeditionFlow(session, meter, bag, new Scouting(tuning.Scouting!, tuning.Light!),
-            handle.Nodes, tuning, Log, new Darkest.Core.Rng.RngProvider(20260909));
+            handle.Nodes, tuning, Log, new Darkest.Core.Rng.RngProvider(20260909), economy);
         ExpeditionContext.Bind(_flow, Log);
         GD.Print($"[ExpeditionRoot] 远征就绪：{tuning.Expedition.NBattles} 场；光照 {meter.Value}；" +
                  $"背包 {bag.Count}/{bag.SlotCap}（支援箱 {bag.CarriesSupportCrate}）");

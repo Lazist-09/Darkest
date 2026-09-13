@@ -49,6 +49,12 @@ public static class ExpeditionContext
         return Roster;
     }
 
+    /// <summary>
+    /// **端到端冒烟阶段计数**（M8.0 ⑥）：`0` 未开始 ／ `1` 已跑完一趟回城 ／ `2` 已再出发。
+    /// 只服务 `--e2e` 冒烟（**不参与游戏逻辑**），用于把"启动 到 跑图 到 回城 到 花钱 到 再出发"串成一次运行。
+    /// </summary>
+    public static int E2EStage { get; set; }
+
     public static bool IsActive => Flow is not null;
 
     /// <summary>进入战斗前绑定流程；第二次调用（返程）不覆盖。</summary>

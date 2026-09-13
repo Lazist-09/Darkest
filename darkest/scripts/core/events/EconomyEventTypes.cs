@@ -12,6 +12,13 @@ public sealed record GoldChangedEvent(int Delta, string Reason, int Total) : Bat
 /// </summary>
 public sealed record HeroMoraleChangedEvent(string HeroId, int Delta, int Total, string Reason) : BattleEvent;
 
+/// <summary>
+/// M8.0 ⑤（`#283` 硬要求③）：**招募事件** —— 招募**免费**（`Cost` 恒 0）、新兵 `level == 1`、`morale == 50`。
+/// 事件留下新兵的等级与士气，便于验收"**补的人不比老的强**"。
+/// </summary>
+public sealed record HeroRecruitedEvent(string HeroId, string Name, string Archetype, int Level, int Morale, int Cost) : BattleEvent;
+
+
 public sealed record StressReliefEvent(
     string Building,
     string Hero,

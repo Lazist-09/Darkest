@@ -58,13 +58,25 @@ public partial class HamletRoot : Node2D
         abbey.Pressed += () => DoRelief("abbey");
         AddChild(abbey);
 
-        // ⑤ 招募：数据与校验未落地前置灰（不假装可用）
-        var recruit = new Button { Name = "Recruit", Text = "招募（M8.0 ⑤ 未开放）", Position = new Vector2(792, 160), Size = new Vector2(240, 40), Disabled = true };
+        // ⑤ 招募（Stage Coach）：**免费** + 新兵 Lv1 / morale 50（比老的弱 ⇒ 老兵仍有价值）
+        var recruit = new Button { Name = "Recruit", Text = "招募新兵（免费）", Position = new Vector2(792, 160), Size = new Vector2(240, 40) };
+        recruit.Pressed += Recruit;
         AddChild(recruit);
 
         Refresh();
         GD.Print($"[HamletRoot] 回城就绪：金钱 {economy.Gold}（跨趟持有；减压一次 {economy.StressReliefCost}）" +
                  $"　名册 {roster.Heroes.Count} 人（士气跨趟；最低 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}）");
+
+        // 🔴 M8.0 ⑥ 端到端：回城阶段 ⇒ **花钱（减压）** 然后 **再出发**
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--e2e") && ExpeditionContext.E2EStage == 1)
+        {
+            int goldBefore = economy.Gold;
+            DoRelief("tavern");
+            GD.Print($"[E2E] 阶段1 回城：**花钱** {goldBefore} 减 {economy.Gold} ⇒ 剩余 {economy.Gold}" +
+                     $"　名册最低士气 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}");
+            ExpeditionContext.E2EStage = 2;
+            GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
+        }
     }
 
     /// <summary>
@@ -91,6 +103,29 @@ public partial class HamletRoot : Node2D
         GD.Print($"[HamletRoot] 减压·{buildingId}：{(o.Paid ? "成交" : "拒绝（钱不够）")}" +
                  $"　{heroId} 士气 {o.NewMorale}　副作用 {(o.PenaltyTriggered ? $"触发（下趟 −{o.NextRunPenalty}）" : "未触发")}" +
                  $"　剩余金钱 {economy.Gold}");
+        Refresh();
+    }
+
+    /// <summary>**招募**（M8.0 ⑤）：免费；新兵 Lv1 / 士气 50；满员即拒绝（不悄悄顶替）。</summary>
+    public void Recruit()
+    {
+        Roster? roster = ExpeditionContext.Roster;
+        if (roster is null)
+        {
+            return;
+        }
+
+        // 挑一个"人最少的原型"，名字用序号（最小实现；将来由玩家选）
+        string archetype = roster.Heroes
+            .GroupBy(h => h.Archetype)
+            .OrderBy(g => g.Count())
+            .First().Key;
+        HeroConfig? rookie = roster.Recruit(_log, _cfg.Coach, archetype, $"新兵{roster.Heroes.Count + 1}");
+
+        GD.Print(rookie is null
+            ? $"[HamletRoot] 招募：**名册已满**（{roster.Heroes.Count}/{_cfg.Coach.MaxRoster}）—— 拒绝（不悄悄顶替）"
+            : $"[HamletRoot] 招募：{rookie.Name}（{rookie.Archetype} Lv{rookie.Level} 士气{rookie.Morale}）**免费**" +
+              $"　名册 {roster.Heroes.Count}/{_cfg.Coach.MaxRoster}");
         Refresh();
     }
 

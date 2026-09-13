@@ -29,10 +29,18 @@ public sealed record StressReliefConfig(
     [property: JsonPropertyName("next_run_penalty")] int NextRunPenalty,
     [property: JsonPropertyName("buildings")] IReadOnlyList<StressReliefBuildingConfig> Buildings);
 
+/// <summary>驿站马车（M8.0 ⑤ / `#283` 硬要求③）：**招募免费** + **补的人不比老的强**（新兵 level 1 / morale 50）。</summary>
+public sealed record StagecoachConfig(
+    [property: JsonPropertyName("recruit_cost")] int RecruitCost,
+    [property: JsonPropertyName("rookie_level")] int RookieLevel,
+    [property: JsonPropertyName("rookie_morale")] int RookieMorale,
+    [property: JsonPropertyName("max_roster")] int MaxRoster);
+
 /// <summary>
-/// `economy.json` 根模型 + **P22 ④⑤ 校验（M8.0，`#284`）**：
-/// 🔴 **④ 金钱来源必须与【光照档 + 战斗数】挂钩**（冒险要有可跨趟积累的回报）；
-/// 🔴 **⑤ Tavern 与 Abbey 必须【同价同效、风险不同】** —— 否则"选风格"退化成"选更优"。
+/// `economy.json` 根模型 + **P22 ④⑤⑥ 校验（M8.0，`#284`）**：
+/// 🔴 **④ 金钱来源必须与【光照档 + 战斗数】挂钩**；
+/// 🔴 **⑤ Tavern 与 Abbey 必须【同价同效、风险不同】**；
+/// 🔴 **⑥ 招募必须免费，且新兵 `level == 1`（不比老的强）**。
 /// </summary>
 public sealed record EconomyConfig(
     [property: JsonPropertyName("currency")] string Currency,
@@ -41,7 +49,8 @@ public sealed record EconomyConfig(
     [property: JsonPropertyName("event_reward")] int EventReward,
     [property: JsonPropertyName("stress_relief_cost")] int StressReliefCost,
     [property: JsonPropertyName("ratio_check")] EconomyRatioCheck RatioCheck,
-    [property: JsonPropertyName("stress_relief")] StressReliefConfig? StressRelief = null)
+    [property: JsonPropertyName("stress_relief")] StressReliefConfig? StressRelief = null,
+    [property: JsonPropertyName("stagecoach")] StagecoachConfig? Stagecoach = null)
 {
     public const string ResPath = "res://data/economy.json";
 
@@ -179,7 +188,40 @@ public sealed record EconomyConfig(
                 }
             }
         }
+
+        // 🔴 P22 ⑥（#283 硬要求③）：招募**免费**且**新兵 level == 1**（补的人不比老的强）
+        if (cfg.Stagecoach is null)
+        {
+            throw new InvalidDataException($"{ResPath}: 缺 stagecoach（招募；P22 ⑥）。");
+        }
+
+        if (cfg.Stagecoach.RecruitCost != 0)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: stagecoach.recruit_cost 必须 = 0（**招募免费**；P22 ⑥ / DD wiki：entirely free of charge）。");
+        }
+
+        if (cfg.Stagecoach.RookieLevel != 1)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: stagecoach.rookie_level 必须 = 1（**补的人不比老的强**；P22 ⑥ / #283 硬要求③）。");
+        }
+
+        if (cfg.Stagecoach.RookieMorale != RosterConfig.RookieMorale)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: stagecoach.rookie_morale 必须 = {RosterConfig.RookieMorale}（新兵入场士气基准；P22 ⑥⑦）。");
+        }
+
+        if (cfg.Stagecoach.MaxRoster <= 0)
+        {
+            throw new InvalidDataException($"{ResPath}: stagecoach.max_roster 必须 > 0（P22 ⑥）。");
+        }
     }
+
+    /// <summary>驿站马车配置（缺即报错，不给默认值）。</summary>
+    public StagecoachConfig Coach => Stagecoach
+        ?? throw new InvalidDataException($"{ResPath}: 未配置 stagecoach（P22 ⑥）。");
 
     /// <summary>按 id 取减压建筑（不存在即报错，不给默认值）。</summary>
     public StressReliefBuildingConfig Building(string id)
