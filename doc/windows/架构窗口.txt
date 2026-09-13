@@ -12,3 +12,15 @@
 - 改动面：仍未碰 ExpeditionSession 与 BattleDirector 与 DirectorBridge（(c) 留独立一步，按 #286 三 的顺序）
 - 遗留（明示不掩盖）：HeroProjection 暂无单测，其正确性随 (c) 的装配接线一并锁定（我不写基于猜测 API 的测试来凑绿）
 - 全量 338 项 / 338 通过；阻塞：无
+
+---
+### 【来自主程序】M8.0 一(c) 已落地：阵型模板化 加 名册出征 加 等级投影接线
+
+- 新增 FormationSortie.WithPlayerSortie(模板, 原型序列)：按槽位序号把名册选出的人套进模板；
+  人数不符即报错；未指定时保持模板原样（向后兼容）
+  语义变更：formation.json 从【编成来源】降为【阵型模板】（槽位布局与敌方编成仍由它给）
+  「谁决定出征 6 人」换了主人（名册经远征会话提供），符合 blueprint 9.15 的归属写死
+- BattleDirector 仍单场纯：它只看到套好的阵型，不读名册、不持 Hamlet
+- tests/FormationSortieTests（3 条）：槽位顺序等于名册顺序 ／ 人数不符报错 ／ 等级投影作用到我方单位
+- 遗留（明示）：ExpeditionRoot 的装配仍走默认模板；把名册选人接进远征装配并按 #286 四 复测 A1 是下一步
+- 全量 341 项 / 341 通过
