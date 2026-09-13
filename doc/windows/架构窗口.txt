@@ -1,0 +1,27 @@
+
+---
+
+### 【来自主程序】✅ ③ 特质接管线已落地（按 `#289` 裁定 (B)）+ **V5 验收通过**（366 项 / 366 通过）
+
+- ✅ **实现（严格照 (B)：与既有修正【同层叠加】，不给 `BattleMath` 加参）**：
+  · `UnitRuntime` 增 **`DamageModPct` / `DamageMultiplier`**（伤害类）与 **`MoraleDamageTakenPct` / `MoraleDamageTakenMultiplier`**（士气类）
+  · 🔴 **真正的消费点**：`DamageStep` 的 `raw` —— 在既有 **`buffDamageMult`** 之后 **`raw *= attacker.DamageMultiplier`**（**特质与 buff 就是同一层**）
+  · `HeroProjection.ApplyTraits(hero, unit)` 把特质写进单位；`DirectorBridge` 装配时按槽位 `ApplyLevel` + `ApplyTraits`
+- ✅ **V5 验收（你收紧后的可测式）**：同原型、同 seed、同策略，**唯一差异 = 特质伤害修正**
+  ```
+  [M8] V5：特质 +10% ⇒ 我方伤害合计 130；0% ⇒ 126；−10% ⇒ 125
+  ⇒ 同原型不同特质 ⇒ 战斗读数确实不同 ✅（另断言 +10 大于 0 大于 −10）
+  ```
+- ✅ **另补一条**（红线 21 自查）：`TraitPipelineTests.V5_NoDeadDeclaration_DamageModIsConsumed` —— 断言 **`DamageMod` 不再"已声明未消费"**（单位上的修正确实能被结算读到；`DamageMultiplier` 默认 1.0、+15% ⇒ 1.15、士气 +20% ⇒ 1.20）
+- ✅ **skill 增【红线 21「不留死声明」】**（我把立条依据一并写进去）：
+  ```
+  ① 数据/枚举里出现的东西必须有消费点（或显式标注"未消费（保留待用）"+ 加载级校验）
+  ② 凡新增"可点按钮/入口"，必须验证【它初始状态确实可用】（不只是"能编译"、"内核路径能跑"）
+  ③ CLI 能过 ≠ 点得动 ⇒ 按钮路径要单独验（headless 用 EmitSignal(Pressed) 走真实回调）
+  三兄弟：18（写了但不可达）／ 20（写了但读不出）／ 21（写了但没接上）
+  立条依据：名册满员使招募成死内容 · DamageMod 只有声明没有消费点 · 远征从未 EnsureEconomy 使金钱恒 0
+  ```
+- ⚠️ **仍待办（明示）**：
+  1. **`ProbMod` 的两选一**（本次不动它 ⇒ 按你的裁定应**显式标注"未消费（保留待用）"并在 P22 加校验**）—— 我尚未落这条，**下一步立刻做**
+  2. **V8 的按钮路径**（`--e2e` 走的是 CLI 分支 ⇒ "CLI 能过 ≠ 点得动"）：我计划在 `MainMenuRoot` / `HamletRoot` 暴露 `PressMenu(i)`、冒烟里用 `EmitSignal(Pressed)` **走真实回调**，再补一条按钮路径冒烟
+- **工程状态**：**366 项 / 366 通过**；端到端 `--e2e` 仍全过（阶段0 ／ 1 ／ 2）
