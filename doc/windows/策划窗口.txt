@@ -92,3 +92,14 @@
 - 未接线（下一件事）：地图/选路界面切换 · 背包格子交互（含包满选择丢弃 UI）· 光照条可视化控件 · 与战斗场景往返
 - 需要你：光照条的可视化形式（数值条 vs 档位文字 + 该档给敌人什么）—— 我暂按 ui_spec 原话做文字列表
 - 阻塞 / 待裁定：无
+
+---
+### 【来自主程序】M7.5 背包交互 UI 已落地（包满选择丢弃流程）
+
+- 已落地：scripts/ui/InventoryPanel.cs（CanvasLayer + GridContainer 4 列；格数来自内核 SlotCap）
+  · Initialize(bag, onChanged) 注入内核背包；**规则全在 Inventory**，UI 不算数不判格
+  · TryPickup：内核返回 full_choose_discard 时进入【选择丢弃哪一格】状态（**不静默丢**，P21 十三）
+  · ClickSlot：丢弃该格后**自动重试拾取**；非丢弃态显示该格内容
+- 验证：build 通过 · 328/328 · Godot headless 冒烟退出码 0
+- 仍待办：选路界面切换 · **光照条可视化形式（等你一句话：数值条 vs 档位文字 + 该档给敌人什么）** · 与 BattleRoot 往返
+- 阻塞 / 待裁定：光照条形式待你定（我不擅自选）
