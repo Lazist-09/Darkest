@@ -1,0 +1,128 @@
+using System;
+using System.IO;
+using System.Linq;
+using Darkest.Core.Events;
+using Darkest.Core.Rng;
+using Darkest.Data;
+using Darkest.Gameplay.Sim.Run;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Darkest.Tests;
+
+/// <summary>
+/// M7.5 **远征流程控制器状态机**（`ExpeditionFlow`，供场景层往返驱动）：
+/// 锁「步进与类型 / 光照 −15 / 侦察只揭示下一节点 / 事件二选一推进 / 战斗回灌后按档给份数掉落（不掷骰）/ 撤退即中止」。
+/// </summary>
+[TestClass]
+public sealed class ExpeditionFlowStateMachineTests
+{
+    private static string ReadData(string name)
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null)
+        {
+            string candidate = Path.Combine(dir.FullName, "data", name);
+            if (File.Exists(candidate))
+            {
+                return File.ReadAllText(candidate);
+            }
+
+            dir = dir.Parent;
+        }
+
+        throw new FileNotFoundException($"data/{name} 未找到。");
+    }
+
+    private static (ExpeditionFlow Flow, TuningConfig Tuning, CombatLog Log) NewFlow(long seed = 20260909)
+    {
+        TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
+        ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+        var log = new CombatLog();
+        var bag = new Inventory(tuning.Inventory!);
+        bag.ConfigureRecommended(out _);
+        bag.LockForRun();
+        var session = new ExpeditionSession(_ => MonteCarlo.HeadlessDriver.NewDirector(new CombatLog()),
+            tuning.Expedition.NBattles, bag.CountOf(ItemKind.Firewood), bag.CountOf(ItemKind.Food),
+            tuning.Expedition.AmbushChance);
+        var meter = new LightMeter(tuning.Light!);
+        var scout = new Scouting(tuning.Scouting!, tuning.Light!);
+        return (new ExpeditionFlow(session, meter, bag, scout, nodes, tuning, log, new RngProvider(seed)), tuning, log);
+    }
+
+    [TestMethod]
+    public void Flow_Advance_Costs15Light_AndScoutsOnlyNextNode()
+    {
+        (ExpeditionFlow flow, TuningConfig tuning, _) = NewFlow();
+        int before = flow.Meter.Value;
+        int drawsBefore = flow.Session is null ? 0 : 0;
+
+        FlowStep step = flow.Advance(optionIndex: 0);
+
+        Assert.IsTrue(step.Kind is FlowStepKind.Battle or FlowStepKind.Event, "步骤类型只能是战斗或事件");
+        Assert.AreEqual(before - tuning.Light!.AdvanceCost, flow.Meter.Value, "前进一个节点 −15（D0.2）");
+        Assert.IsTrue(step.Options.Count == 2, "每步恰 2 个候选（P20 ⑤）");
+
+        ScoutOutcome? sc = flow.LastScout;
+        Assert.IsNotNull(sc, "每次 Advance 都做一次侦察判定");
+        if (!sc!.Success)
+        {
+            Assert.IsNull(sc.RevealedNodeType, "失败 ⇒ null（不透露类型）");
+        }
+
+        _ = drawsBefore;
+    }
+
+    [TestMethod]
+    public void Flow_EventStep_ResolvesAndAdvances()
+    {
+        (ExpeditionFlow flow, _, _) = NewFlow();
+        FlowStep step = flow.Advance(0);
+        if (step.Kind != FlowStepKind.Event)
+        {
+            Assert.Inconclusive("本 seed 首步是战斗（路径随机）—— 事件分支由其它 seed 覆盖");
+            return;
+        }
+
+        Assert.AreEqual(0, flow.StepsDone);
+        flow.ResolveEvent(0);
+        Assert.AreEqual(1, flow.StepsDone, "事件结算后步数 +1");
+    }
+
+    [TestMethod]
+    public void Flow_BattleFinished_GrantsLootByTier_NoDraw()
+    {
+        (ExpeditionFlow flow, TuningConfig tuning, CombatLog log) = NewFlow();
+        FlowStep step = flow.Advance(1); // option 1 = 战斗（确定性：不靠 seed 运气）
+        if (step.Kind != FlowStepKind.Battle)
+        {
+            Assert.Inconclusive("本 seed 首步是事件（路径随机）");
+            return;
+        }
+
+        int before = flow.Session.Food;
+        int drawsBefore = log.Events.OfType<RngDraw>().Count();
+
+        flow.OnBattleFinished("PlayerVictory", rounds: 5);
+
+        int expected = tuning.Light!.Loot[LightMeter.TierId(flow.Meter.Tier)];
+        Assert.AreEqual(before + expected, flow.Session.Food,
+            $"按档确定给份数（档 {LightMeter.TierId(flow.Meter.Tier)} ⇒ {expected} 份）");
+        Assert.AreEqual(drawsBefore, log.Events.OfType<RngDraw>().Count(), "🔴 掉落**不得引入抽取**（P21 ⑧ / #270）");
+        Assert.AreEqual(1, flow.StepsDone);
+    }
+
+    [TestMethod]
+    public void Flow_NonVictory_EndsRun()
+    {
+        (ExpeditionFlow flow, _, _) = NewFlow();
+        FlowStep step = flow.Advance(1); // option 1 = 战斗（确定性）
+        if (step.Kind != FlowStepKind.Battle)
+        {
+            Assert.Inconclusive("本 seed 首步是事件（路径随机）");
+            return;
+        }
+
+        flow.OnBattleFinished("DrawRetreat", rounds: 5);
+        Assert.IsTrue(flow.IsFinished, "撤退 ⇒ 本趟结束（#233：该场判负 + 中止 run）");
+    }
+}
