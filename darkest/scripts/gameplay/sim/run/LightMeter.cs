@@ -86,6 +86,17 @@ public sealed class LightMeter : ILightMeter
         Log(log, before, "advance");
     }
 
+    /// <summary>
+    /// 🔴 M7.6（§4.3②）：**按段移动** —— 用**显式代价**推进（新区域 −30 ／ 重走已探索 −10）。
+    /// 与 `TryAdvanceNode` 同源（同一 `LightChangedEvent` 通道），但代价由调用方给（拓扑层决定"新/旧"）。
+    /// </summary>
+    public void TryAdvanceBy(CombatLog log, int cost, string reason)
+    {
+        int before = Value;
+        Value = Math.Clamp(Value + cost, Min, Max);
+        Log(log, before, reason);
+    }
+
     public bool TryBrighten(CombatLog log, Func<bool> spendOneFirewood)
     {
         if (spendOneFirewood is null || !spendOneFirewood())

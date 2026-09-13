@@ -7,5 +7,10 @@
     "battle_weight": 60,
     "event_weight": 40,
     "max_branches": 2
-  }
+  },
+  "move": {
+    "new_room_cost": -30,
+    "revisit_cost": -10
+  },
+  "move_note": "M7.6 §4.3②：按段移动 —— 新区域 −30（沿用已调平的 light.node_step，O-76 原则①不动它）／ 重走已探索 −10（新增，让回头更便宜、绕路有代价）。P25 ④ 校验：两者都 < 0 且 |重走| < |新区域|（可测）。"
 }

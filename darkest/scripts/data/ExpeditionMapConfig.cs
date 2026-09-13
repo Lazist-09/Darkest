@@ -16,15 +16,22 @@ public sealed record MapGenConfig(
     [property: JsonPropertyName("event_weight")] double EventWeight,
     [property: JsonPropertyName("max_branches")] int MaxBranches = 2);
 
+/// <summary>按段移动（M7.6 §4.3②）：新区域 −30（沿用已调平值）／ 重走已探索 −10。</summary>
+public sealed record MapMoveConfig(
+    [property: JsonPropertyName("new_room_cost")] int NewRoomCost,
+    [property: JsonPropertyName("revisit_cost")] int RevisitCost);
+
 /// <summary>
-/// `expedition_map.json` 根模型 + **P25 校验（M7.6）** —— 🔴 只定"地图生成"这一件事，
+/// `expedition_map.json` 根模型 + **P25 校验（M7.6）** —— 🔴 只定"地图生成 + 按段移动"两件事，
 /// **不碰任何已调平参数**（O-76 原则①：光照 / 掉落 / 扎营一律不动）：
-/// ① 房间数区间必须在 **[6, 8]**（保留现有节奏感）；
-/// ② 概率 ∈ [0,1]；类型权重都 &gt; 0（否则某一类房间永远不出现）；
-/// ③ 分叉数 ≥ 1（**必须存在"分叉点"**，否则又退化成线性）；上限 ≤ 3（防止地图爆炸）。
+/// ① 房间数区间必须在 **[6, 8]**；
+/// ② 概率 ∈ [0,1]；类型权重都 &gt; 0；
+/// ③ 分叉数 ∈ [1,3]（**必须存在"分叉点"**）；
+/// ④ **按段移动**：两者都 &lt; 0 且 **|重走| &lt; |新区域|**（"回头更便宜"必须**可测**）。
 /// </summary>
 public sealed record ExpeditionMapConfig(
-    [property: JsonPropertyName("map")] MapGenConfig Map)
+    [property: JsonPropertyName("map")] MapGenConfig Map,
+    [property: JsonPropertyName("move")] MapMoveConfig? Move = null)
 {
     public const string ResPath = "res://data/expedition_map.json";
 
@@ -81,6 +88,19 @@ public sealed record ExpeditionMapConfig(
         if (m.MaxBranches < 1 || m.MaxBranches > 3)
         {
             throw new InvalidDataException($"{ResPath}: max_branches 必须 ∈ [1,3]（P25 ③：**至少一条分叉**）。");
+        }
+
+        // ④ 按段移动（§4.3②）：新区域与重走的代价都必须为负，且**回头更便宜**（可测）
+        MapMoveConfig mv = cfg.Move ?? throw new InvalidDataException($"{ResPath}: 缺 move（P25 ④）。");
+        if (mv.NewRoomCost >= 0 || mv.RevisitCost >= 0)
+        {
+            throw new InvalidDataException($"{ResPath}: new_room_cost 与 revisit_cost 都必须 < 0（P25 ④）。");
+        }
+
+        if (System.Math.Abs(mv.RevisitCost) >= System.Math.Abs(mv.NewRoomCost))
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: **回头必须更便宜** —— |revisit|({System.Math.Abs(mv.RevisitCost)}) < |new|({System.Math.Abs(mv.NewRoomCost)})（P25 ④ / §4.3②）。");
         }
     }
 }
