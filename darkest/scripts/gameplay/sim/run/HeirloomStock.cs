@@ -91,6 +91,15 @@ public sealed class HeirloomStock
         return p.Levels.FirstOrDefault(l => l.Level == next);
     }
 
+    /// <summary>
+    /// 🔴 红线 21 (b)：**按钮的可用性必须由内核回答**（UI 只渲染）—— 传家宝够且未满级才可升级。
+    /// </summary>
+    public bool CanUpgrade(string building)
+    {
+        UpgradeLevel? next = NextLevel(building);
+        return next is not null && next.Cost.All(kv => Count(kv.Key) >= kv.Value);
+    }
+
     /// <summary>**升级**：按曲线扣传家宝并升一级（不足即拒绝且不扣）。</summary>
     public bool TryUpgrade(CombatLog log, string building)
     {

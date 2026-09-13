@@ -91,14 +91,16 @@ public partial class ExpeditionRoot : Node
         {
             if (ExpeditionContext.E2EStage == 0)
             {
-                // 阶段 0：**打三场（模拟胜利，冒烟专用；对应 7.1「一趟 3~6」）⇒ 产生可花的钱** ⇒ 结算回城
-                for (int i = 0; i < 3; i++)
+                // 阶段 0：**打四场（模拟胜利，冒烟专用；到 black 档 ⇒ 传家宝够升一级）⇒ 结算回城**
+                for (int i = 0; i < 4; i++)
                 {
                     _flow.Advance(1);
                     _flow.OnBattleFinished("PlayerVictory", rounds: 5);
                 }
 
-                GD.Print($"[E2E] 阶段0 跑图：三场胜利 ⇒ 金钱 {ExpeditionContext.Gold?.Gold ?? 0}（战斗数 乘 光照档）");
+                HeirloomStock? hs = ExpeditionContext.Heirlooms;
+                GD.Print($"[E2E] 阶段0 跑图：四场胜利 ⇒ 金钱 {ExpeditionContext.Gold?.Gold ?? 0}（战斗数 乘 光照档）" +
+                         $"　传家宝 {(hs is null ? "未接入" : string.Join("/", hs.Kinds.Select(k => $"{k}×{hs.Count(k)}")))}");
                 _flow.ReturnToTown("completed");
                 ExpeditionContext.Roster?.ApplyReturnFromRun(Log, Session!.Roster().Select(r => (r.Id, r.Morale)));
                 ExpeditionContext.End();

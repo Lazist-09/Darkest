@@ -23,6 +23,7 @@ public partial class HamletRoot : Node2D
     private EconomyConfig _cfg = null!;
     private string? _selectedHero;                       // ② 选人权：玩家选中的被减压者
     private readonly List<Button> _heroButtons = new();  // 动态重建（士气 < 50 的人）
+    private readonly Dictionary<string, Button> _upgradeButtons = new(); // M8.1：三栋升级按钮（用于置灰）
     private readonly Darkest.Core.Events.CombatLog _log = new();
     private readonly Darkest.Core.Rng.RngProvider _rng = new(20260909);
 
@@ -92,6 +93,7 @@ public partial class HamletRoot : Node2D
             };
             ub.Pressed += () => UpgradeBuilding(bId);
             AddChild(ub);
+            _upgradeButtons[bId] = ub;
         }
 
         // ② 选人权：**减压按【人】选**（列出名册里士气 < 基准者）；选完再选建筑
@@ -129,6 +131,12 @@ public partial class HamletRoot : Node2D
             GD.Print($"[E2E] 阶段1 回城：**花钱** {goldBefore} 减 {economy.Gold} ⇒ 剩余 {economy.Gold}" +
                      $"　指定对象 {target} 士气 {moraleBefore} 到 {moraleAfter}（V2：减压 ⇒ 士气确实更高）" +
                      $"　名册最低士气 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}");
+            // 🔴 M8.1：**真实点击路径**升级（发 `Pressed` 信号）⇒ 证明"升级入口从启动场景可达、且点得动"
+            int costBefore = ExpeditionContext.Heirlooms?.EffectiveReliefCost(_cfg.StressReliefCost) ?? -1;
+            PressUpgrade("tavern");
+            int costAfter = ExpeditionContext.Heirlooms?.EffectiveReliefCost(_cfg.StressReliefCost) ?? -1;
+            GD.Print($"[E2E] 阶段1 升级：减压价 {costBefore} 到 {costAfter}");
+
             ExpeditionContext.E2EStage = 2;
             GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
         }
@@ -294,6 +302,30 @@ public partial class HamletRoot : Node2D
                 $"传家宝：{stock}\n建筑：{levels}　⇒ 减压价 {heirlooms.EffectiveReliefCost(_cfg.StressReliefCost)}" +
                 $"　恢复量 {heirlooms.EffectiveMoraleRestore("tavern", _cfg.StressRelief!.Buildings[0].MoraleRestore)}" +
                 $"　新兵起始等级 {heirlooms.EffectiveRookieLevel(_cfg.Coach.RookieLevel)}";
+
+            // 🔴 红线 21 (b)：**按钮可用性由内核回答**（传家宝不足或已满级 ⇒ 置灰；不假装可用）
+            foreach ((string b, Button btn) in _upgradeButtons)
+            {
+                bool can = heirlooms.CanUpgrade(b);
+                btn.Disabled = !can;
+                UpgradeLevel? next = heirlooms.NextLevel(b);
+                btn.Text = next is null ? $"升级·{b}（已满级）" : $"升级·{b}（需 {string.Join("/", next.Cost.Select(k => $"{k.Key}×{k.Value}"))}）";
+            }
         }
+    }
+
+    /// <summary>
+    /// 🔴 M8.1 / 红线 21 (b)：**升级按钮的真实点击路径**（发真实 `Pressed` 信号，不直接调业务方法）。
+    /// </summary>
+    public void PressUpgrade(string building)
+    {
+        if (!_upgradeButtons.TryGetValue(building, out Button? btn))
+        {
+            GD.Print($"[HamletRoot] PressUpgrade({building})：找不到按钮（红线 21：按钮没挂上）");
+            return;
+        }
+
+        GD.Print($"[HamletRoot] PressUpgrade({building})：发出真实 Pressed 信号（按钮「{btn.Text}」，置灰={btn.Disabled}）");
+        btn.EmitSignal(BaseButton.SignalName.Pressed);
     }
 }
