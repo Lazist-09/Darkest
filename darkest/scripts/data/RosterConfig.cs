@@ -117,10 +117,12 @@ public sealed record RosterConfig(
             }
         }
 
-        if (cfg.Heroes is null || cfg.Heroes.Count != cfg.RosterCap)
+        // 🔴 #283 7.4：名册**从 8 人起步、上限 12** —— 必须留出招募空间（M8.0 ⑤），
+        // 否则"招募"在初始状态就永远不会被用到（实测踩到：初始 12/12 满员 ⇒ ⑤ 成死内容）。
+        if (cfg.Heroes.Count < SortieSize || cfg.Heroes.Count > cfg.RosterCap)
         {
             throw new InvalidDataException(
-                $"{ResPath}: heroes 数量必须 = roster_cap（{cfg.RosterCap}；实际 {cfg.Heroes?.Count ?? 0}；P22 ①）。");
+                $"{ResPath}: heroes 数量必须 ∈ [出征 {SortieSize}, 上限 {cfg.RosterCap}]（实际 {cfg.Heroes.Count}；P22 ①）。");
         }
 
         var ids = new HashSet<string>();

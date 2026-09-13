@@ -38,8 +38,10 @@ public sealed class RosterTests
         RosterConfig r = Roster();
         Assert.AreEqual(12, r.RosterCap, "名册上限 12（#283 7.4）");
         Assert.IsTrue(r.RosterCap > RosterConfig.SortieSize, "必须 > 出征 6 ⇒ 轮换休息成为策略");
-        Assert.AreEqual(r.RosterCap, r.Heroes.Count, "heroes 数量 = roster_cap");
-        Assert.AreEqual(r.RosterCap, r.Heroes.Select(h => h.Id).Distinct().Count(), "id 不重复");
+        Assert.IsTrue(r.Heroes.Count >= RosterConfig.SortieSize && r.Heroes.Count <= r.RosterCap,
+            $"heroes 数量 ∈ [6, 12]（实际 {r.Heroes.Count}）");
+        Assert.IsTrue(r.Heroes.Count < r.RosterCap, "🔴 起步必须**未满员** ⇒ 留出招募空间（M8.0 ⑤，否则招募是死内容）");
+        Assert.AreEqual(r.Heroes.Count, r.Heroes.Select(h => h.Id).Distinct().Count(), "id 不重复");
     }
 
     [TestMethod]

@@ -53,7 +53,6 @@ public sealed class RosterMoraleTests
         Assert.ThrowsException<InvalidDataException>(
             () => RosterConfig.Parse(raw.Replace("\"morale\": 40", "\"morale\": 140", StringComparison.Ordinal)),
             "士气越界 ⇒ 报错（P22 ⑦）");
-
         Assert.ThrowsException<InvalidDataException>(
             () => RosterConfig.Parse(raw.Replace("\"level\": 1,", "\"level\": 1, \"morale\": 10,", StringComparison.Ordinal)),
             "新兵士气不是 50 ⇒ 报错（P22 ⑦）");
