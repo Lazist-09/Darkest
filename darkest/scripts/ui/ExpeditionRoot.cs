@@ -621,6 +621,21 @@ public partial class ExpeditionRoot : Node
                     return;
                 }
 
+                // 🔴 事件房：**把该房间映射到事件节点 ⇒ 走既有事件面板**（玩家选 A/B ⇒ `ChooseEventOption`）
+                if (o.Moved && roomType == "event")
+                {
+                    string? nodeId = _flow.EventNodeIdForRoom(target);
+                    if (nodeId is not null)
+                    {
+                        GD.Print($"[拓扑UI] 进入【事件房】⇒ 事件节点 {nodeId}（走既有事件面板：选项 A/B）");
+                        SetPendingEvent(nodeId);
+                        RefreshPanel();
+                        return;
+                    }
+
+                    GD.Print("[拓扑UI] 进入【事件房】但映射不到事件节点（如实报：房间↔节点映射缺失）");
+                }
+
                 RefreshMapView();
             };
             AddChild(b);
@@ -736,6 +751,13 @@ public partial class ExpeditionRoot : Node
             {
                 _routedToBattle = false;
                 return; // 已切到战斗场景 ⇒ 等它返回后再继续（下次 `_Ready` 会重新进这里）
+            }
+
+            // 事件房：走进后是**待选事件** ⇒ 冒烟自动选 A（真实点击路径：`ChooseEventOption`）
+            if (_pendingEventNodeId is not null)
+            {
+                GD.Print($"[拓扑UI] --run-full：事件房待选（节点 {_pendingEventNodeId}）⇒ 自动选 A（真实路径 ChooseEventOption(0)）");
+                ChooseEventOption(0);
             }
         }
 

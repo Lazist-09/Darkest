@@ -359,6 +359,19 @@ public sealed class ExpeditionFlow
     /// <summary>本趟是否已经为夜袭插过战斗（防重复插）。</summary>
     public bool AmbushBattleStarted { get; private set; }
 
+    /// <summary>
+    /// 🔴 **房间 → 事件节点**的映射（`#307`⑤ 剩余：拓扑模式下"走进事件房要有内容"）。
+    ///
+    /// ⚠️ **本节是最小确定性映射**（`roomId % 事件节点数`）—— **不掷骰**（因此不需要 `RngDraw`），
+    ///    目的是"让事件房有内容可玩"；**正式的"房间 ↔ 节点"配额/权重设计属内容层**（后续再定）。
+    /// 返回 null ⇒ 该房间没有事件内容（战斗房 / 特殊房由各自逻辑处理）。
+    /// </summary>
+    public string? EventNodeIdForRoom(int roomId)
+    {
+        ExpeditionNodeConfig[] events = _nodes.Nodes.Where(n => n.Type == "event").ToArray();
+        return events.Length == 0 ? null : events[roomId % events.Length].Id;
+    }
+
     /// <summary>回城结算（士气完全不恢复由内核 #245 保证）。</summary>
     public int ReturnToTown(string outcome)
     {
