@@ -110,6 +110,15 @@ public sealed record ExpeditionMapConfig(
                 $"{ResPath}: **回头必须更便宜** —— |revisit|({System.Math.Abs(mv.RevisitCost)}) < |new|({System.Math.Abs(mv.NewRoomCost)})（P25 ④ / §4.3②）。");
         }
 
+        // ⑥ 支路必须有"有去有回"的代价（#294 ① 的硬要求）：
+        //    探索支路的往返代价 = |new| + |revisit| **必须严格大于**主干一段（|new|）
+        //    ⇒ 否则"多探索"是纯赚（多掉落机会 + 无代价）⇒ 支路就不是决策
+        if (System.Math.Abs(mv.NewRoomCost) + System.Math.Abs(mv.RevisitCost) <= System.Math.Abs(mv.NewRoomCost))
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: **支路必须有往返代价** —— |new|+|revisit| 必须 > 主干一段（P25 ⑥ / #294 ①）。");
+        }
+
         // ⑤ 侦察深度（§4.3③）：1~3 步，且 min ≤ max
         MapScoutConfig sc = cfg.Scout ?? throw new InvalidDataException($"{ResPath}: 缺 scout（P25 ⑤）。");
         if (sc.RevealDepthMin < 1 || sc.RevealDepthMax > 3 || sc.RevealDepthMin > sc.RevealDepthMax)

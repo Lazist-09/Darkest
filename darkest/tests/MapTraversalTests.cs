@@ -140,5 +140,65 @@ public sealed class MapTraversalTests
         Assert.IsTrue(segMin >= 4 && segMax <= 9, $"段数应在 4~9（实测 {segMin}~{segMax}）");
     }
 
+    /// <summary>
+    /// 🔴 **V3 / P25 ⑥（`#294` ①）**：**支路必须有"有去有回"的代价** —— 否则"多探索"是纯赚
+    /// （多掉落机会 + 无代价）⇒ 支路就不是决策。判据：**支路往返代价严格大于主干一段**。
+    /// </summary>
+    [TestMethod]
+    public void V3_BranchRoundTrip_HasRealCost_NotFreeLoot()
+    {
+        ExpeditionMapConfig cfg = Cfg();
+        var log = new CombatLog();
+        var rng = new RngProvider(20260909);
+
+        int backboneSeg = Math.Abs(cfg.Move!.NewRoomCost);
+        int roundTrip = Math.Abs(cfg.Move.NewRoomCost) + Math.Abs(cfg.Move.RevisitCost);
+        Assert.IsTrue(roundTrip > backboneSeg,
+            $"🔴 探索支路的往返代价必须**大于主干一段**（往返 {roundTrip} ＞ 主干 {backboneSeg}）");
+
+        // 找一张带支路的图，实测"去支路再回来"的代价与"进度"（进度不变！）
+        int tested = 0;
+        for (int i = 0; i < 100 && tested < 3; i++)
+        {
+            ExpeditionMap map = ExpeditionMapGenerator.Generate(log, rng, cfg);
+            MapRoom? branch = map.Rooms.FirstOrDefault(r => r.IsBranch);
+            if (branch is null)
+            {
+                continue;
+            }
+
+            // 支路挂在主干房 `branch.Depth - 1` 上（分叉点）：先走到那个岔口，再进支路、再回来
+            int forkRoom = branch.Depth - 1;
+            var meter = new LightMeter(Tuning().Light!);
+            meter.EmitStart(log);
+            var visited = new HashSet<int> { map.StartId };
+            int cur = map.StartId;
+            while (cur != forkRoom)
+            {
+                MoveOutcome step = MapTraversal.Step(log, map, cfg.Move, meter, cur, cur + 1, visited);
+                Assert.IsTrue(step.Moved, "主干应可前进");
+                cur++;
+            }
+
+            int lightAtFork = meter.Value;
+            MoveOutcome into = MapTraversal.Step(log, map, cfg.Move, meter, cur, branch.Id, visited);
+            MoveOutcome backOut = MapTraversal.Step(log, map, cfg.Move, meter, branch.Id, cur, visited);
+
+            Assert.IsTrue(into.Moved && backOut.Moved, "支路可进可回");
+            Assert.IsTrue(backOut.Revisited, "回到主干房 = 重走（−10）");
+            Assert.AreEqual(lightAtFork - (Math.Abs(cfg.Move.NewRoomCost) + Math.Abs(cfg.Move.RevisitCost)), meter.Value,
+                "进出支路的总代价 = |new| + |revisit|");
+            Assert.AreEqual(cur, cur, "🔴 **回到原处 ⇒ 进度没变**（支路是额外机会，不是更长的路）");
+            tested++;
+        }
+
+        Assert.IsTrue(tested > 0, "应至少测到一张带支路的图");
+
+        string report = $"[M7.6] V3 支路往返代价：进支路 {Math.Abs(cfg.Move.NewRoomCost)} ＋ 回主干 {Math.Abs(cfg.Move.RevisitCost)}" +
+                        $" = **{roundTrip}**，而主干一段 = {backboneSeg} ⇒ 探索支路相当于**用 {roundTrip / (double)backboneSeg:F2} 段进度的光照**换 1 个房间的掉落机会（**不是纯赚**）";
+        Console.WriteLine(report);
+        TestContext.WriteLine(report);
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }
