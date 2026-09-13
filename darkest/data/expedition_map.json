@@ -6,6 +6,7 @@
     "branch_chance": 0.6,
     "battle_weight": 60,
     "event_weight": 40,
+    "branch_battle_weight": 0,
     "max_branches": 2
   },
   "move": {

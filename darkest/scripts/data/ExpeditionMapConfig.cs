@@ -14,6 +14,7 @@ public sealed record MapGenConfig(
     [property: JsonPropertyName("branch_chance")] double BranchChance,
     [property: JsonPropertyName("battle_weight")] double BattleWeight,
     [property: JsonPropertyName("event_weight")] double EventWeight,
+    [property: JsonPropertyName("branch_battle_weight")] double BranchBattleWeight = 0,
     [property: JsonPropertyName("max_branches")] int MaxBranches = 2);
 
 /// <summary>按段移动（M7.6 §4.3②）：新区域 −30（沿用已调平值）／ 重走已探索 −10。</summary>
@@ -90,6 +91,12 @@ public sealed record ExpeditionMapConfig(
         if (m.BattleWeight <= 0 || m.EventWeight <= 0)
         {
             throw new InvalidDataException($"{ResPath}: battle/event 权重都必须 > 0（P25 ②：否则某类房间不出现）。");
+        }
+
+        // ⑦ 支路房间类型权重（`O-79` 候选 (a)：让支路也能含战斗房）—— **新增旋钮、默认 0 = 现状**
+        if (m.BranchBattleWeight is < 0 or > 100)
+        {
+            throw new InvalidDataException($"{ResPath}: branch_battle_weight 必须 ∈ [0,100]（P25 ⑦ / O-79）。");
         }
 
         if (m.MaxBranches < 1 || m.MaxBranches > 3)

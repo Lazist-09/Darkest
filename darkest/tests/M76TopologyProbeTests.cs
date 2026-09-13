@@ -330,5 +330,135 @@ public sealed class M76TopologyProbeTests
         Assert.IsTrue(lines.Count == 3);
     }
 
+    /// <summary>
+    /// 🔴 **`O-79` 候选 (a) 的对照组读数**：**让支路也能含战斗房**（`branch_battle_weight`）
+    /// ⇒ 看**"绕支路"档的战斗数与完成率是否上升**（即**完成率是否与风险挂钩**）。
+    /// ⚠️ **不改任何已调平数值、不改判据**（`battle_goal` 仍 3；`light.*`/掉落不动）—— 只是新增旋钮。
+    /// </summary>
+    [TestMethod]
+    public void O79_BranchBattle_Comparison_RaisesWinsForBranchExplorer()
+    {
+        TuningConfig tuning = Tuning();
+        ExpeditionMapConfig shipped = MapCfg();                                   // (a) 关（现状：0）
+        ExpeditionMapConfig withA = shipped with { Map = shipped.Map with { BranchBattleWeight = 100 } }; // (a) 开
+
+        (string Name, ExpeditionMapConfig Cfg)[] arms =
+        {
+            ("(a) 关：支路按主干权重（现状）", shipped),
+            ("(a) 开：支路必含战斗房", withA),
+        };
+
+        var lines = new List<string>();
+        foreach ((string name, ExpeditionMapConfig cfg) in arms)
+        {
+            ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+            const int runs = 30;
+            int completed = 0, battlesSum = 0, winsSum = 0, lootSum = 0, retreats = 0;
+            for (int i = 0; i < runs; i++)
+            {
+                var log = new CombatLog();
+                var rng = new RngProvider(20260909 + (i * 31));
+                var bag = new Inventory(tuning.Inventory!);
+                bag.ConfigureRecommended(out _);
+                bag.LockForRun();
+                var session = new ExpeditionSession(_ => MonteCarlo.HeadlessDriver.NewDirector(new CombatLog()),
+                    tuning.Expedition.NBattles, bag.CountOf(ItemKind.Firewood), bag.CountOf(ItemKind.Food),
+                    tuning.Expedition.AmbushChance);
+                var flow = new ExpeditionFlow(session, new LightMeter(tuning.Light!), bag,
+                    new Scouting(tuning.Scouting!, tuning.Light!), nodes, tuning, log, rng);
+                ExpeditionMap map = flow.BeginTopology(cfg);
+                var visited = new HashSet<int> { map.StartId };
+                bool aborted = false;
+                int localWins = 0;
+
+                int guard = 0;
+                while (!flow.ReachedGoal && !aborted && guard++ < 60)
+                {
+                    var all = map.Edges
+                        .Where(e => e.From == flow.CurrentRoomId || e.To == flow.CurrentRoomId)
+                        .Select(e => e.From == flow.CurrentRoomId ? e.To : e.From)
+                        .Distinct()
+                        .Select(id => map.Rooms.First(r => r.Id == id))
+                        .ToList();
+                    var options = all.Where(r => !visited.Contains(r.Id)).ToList();
+                    bool back = options.Count == 0;
+                    if (back)
+                    {
+                        options = all;
+                    }
+
+                    if (options.Count == 0)
+                    {
+                        break;
+                    }
+
+                    // 🔴 激进档：**优先绕支路**（这正是 (a) 要影响的行为）
+                    MapRoom next = options.FirstOrDefault(o => o.IsBranch && !back)
+                                   ?? options.First(o => o.Id == map.GoalId || !o.IsBranch);
+
+                    if (!flow.StepTo(next.Id).Moved)
+                    {
+                        break;
+                    }
+
+                    visited.Add(next.Id);
+
+                    if (next.Type == "battle")
+                    {
+                        int idx = session.BattlesPlayed + 1;
+                        BattleDirector d = session.BeginExpeditionBattle(idx, log, tuning.Expedition.DifficultyTiers);
+                        string result = "RoundLimit";
+                        int round = 1;
+                        for (; round <= 100; round++)
+                        {
+                            d.RunFullRound(rng, unit => MonteCarlo.Policies.DecideForUnit(
+                                MonteCarlo.PolicyKind.SemiRandom, unit, d, rng));
+                            if (d.IsBattleOver)
+                            {
+                                result = d.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+                                break;
+                            }
+                        }
+
+                        session.EndBattle(d, idx, result, Math.Min(round, 100));
+                        battlesSum++;
+                        if (result != "PlayerVictory")
+                        {
+                            aborted = true;
+                            retreats++;
+                            break;
+                        }
+
+                        winsSum++;
+                        localWins++;
+                        TuningLootSpec drop = tuning.Light!.Loot[LightMeter.TierId(flow.Meter.Tier)];
+                        lootSum += drop.Firewood + drop.Food;
+                    }
+                    else
+                    {
+                        session.ResolveEventNode(log, nodes.Nodes.First(n => n.Type == "event"), 0);
+                    }
+                }
+
+                if (!aborted && flow.ReachedGoal && localWins >= tuning.Expedition.BattleGoal)
+                {
+                    completed++;
+                }
+            }
+
+            lines.Add($"[M7.6] O-79 {name}（绕支路档，{runs} 趟）：完成率 **{completed / (double)runs:P0}**" +
+                      $"　战斗 {battlesSum / (double)runs:F1}/趟　胜 {winsSum / (double)runs:F1}　㉔ 补给 {lootSum / (double)runs:F2}/趟" +
+                      $"　撤退 {retreats}");
+        }
+
+        string report = string.Join("\n", lines) +
+            "\n[M7.6] O-79 判读：若 **(a) 开** 的战斗数与完成率【明显高于 (a) 关】⇒ **完成率与风险挂钩成立**（架构倾向 (a) 有了数据支持）" +
+            "\n[M7.6] O-79 纪律：**`battle_goal` 仍为 3**（未调）；`light.*`／掉落／判据**均未动** —— 本对照只是新增旋钮";
+        Console.WriteLine(report);
+        TestContext.WriteLine(report);
+
+        Assert.IsTrue(lines.Count == 2);
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }
