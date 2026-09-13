@@ -95,6 +95,24 @@ public sealed class UnitRuntime
     public int StunResistBonus { get; set; }
 
     /// <summary>按档施加眩晕抗性加成（pp；0 或负数 = 不改）。</summary>
+    /// <summary>
+    /// M8.0 ①(b)（`#283` 7.6 / `#286`）：**等级成长的运行时投影** —— HP +N/级、攻击 +N/级；
+    /// 与 `ApplyMaxHpMultiplier` 同款：**运行时投影、不改基准数据**（P4 同源），由组合根在装配时注入。
+    /// 🔴 **不含技能**（7.8：不碰技能表；技能升级留 M8.1）。
+    /// </summary>
+    public void ApplyLevelGrowth(int level, int hpPerLevel, int attackPerLevel)
+    {
+        int steps = Math.Max(0, level - 1);
+        if (steps == 0)
+        {
+            return;
+        }
+
+        MaxHp = Math.Max(1, MaxHp + (hpPerLevel * steps));
+        CurrentHp = MaxHp;
+        AttackMod += attackPerLevel * steps;
+    }
+
     public void ApplyStunResistBonus(int pp)
     {
         if (pp != 0)
