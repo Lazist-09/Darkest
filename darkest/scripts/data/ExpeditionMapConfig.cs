@@ -21,17 +21,24 @@ public sealed record MapMoveConfig(
     [property: JsonPropertyName("new_room_cost")] int NewRoomCost,
     [property: JsonPropertyName("revisit_cost")] int RevisitCost);
 
+/// <summary>侦察（M7.6 §4.3③）：**揭示前方 1~3 步的拓扑**（成功概率沿用已调平口径）。</summary>
+public sealed record MapScoutConfig(
+    [property: JsonPropertyName("reveal_depth_min")] int RevealDepthMin,
+    [property: JsonPropertyName("reveal_depth_max")] int RevealDepthMax);
+
 /// <summary>
-/// `expedition_map.json` 根模型 + **P25 校验（M7.6）** —— 🔴 只定"地图生成 + 按段移动"两件事，
+/// `expedition_map.json` 根模型 + **P25 校验（M7.6）** —— 🔴 只定"地图生成 + 按段移动 + 侦察深度"三件事，
 /// **不碰任何已调平参数**（O-76 原则①：光照 / 掉落 / 扎营一律不动）：
 /// ① 房间数区间必须在 **[6, 8]**；
 /// ② 概率 ∈ [0,1]；类型权重都 &gt; 0；
 /// ③ 分叉数 ∈ [1,3]（**必须存在"分叉点"**）；
-/// ④ **按段移动**：两者都 &lt; 0 且 **|重走| &lt; |新区域|**（"回头更便宜"必须**可测**）。
+/// ④ **按段移动**：两者都 &lt; 0 且 **|重走| &lt; |新区域|**（"回头更便宜"必须**可测**）；
+/// ⑤ **侦察揭示深度 ∈ [1,3]**（§4.3③）。
 /// </summary>
 public sealed record ExpeditionMapConfig(
     [property: JsonPropertyName("map")] MapGenConfig Map,
-    [property: JsonPropertyName("move")] MapMoveConfig? Move = null)
+    [property: JsonPropertyName("move")] MapMoveConfig? Move = null,
+    [property: JsonPropertyName("scout")] MapScoutConfig? Scout = null)
 {
     public const string ResPath = "res://data/expedition_map.json";
 
@@ -101,6 +108,14 @@ public sealed record ExpeditionMapConfig(
         {
             throw new InvalidDataException(
                 $"{ResPath}: **回头必须更便宜** —— |revisit|({System.Math.Abs(mv.RevisitCost)}) < |new|({System.Math.Abs(mv.NewRoomCost)})（P25 ④ / §4.3②）。");
+        }
+
+        // ⑤ 侦察深度（§4.3③）：1~3 步，且 min ≤ max
+        MapScoutConfig sc = cfg.Scout ?? throw new InvalidDataException($"{ResPath}: 缺 scout（P25 ⑤）。");
+        if (sc.RevealDepthMin < 1 || sc.RevealDepthMax > 3 || sc.RevealDepthMin > sc.RevealDepthMax)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: reveal_depth 必须 ∈ [1,3] 且 min ≤ max（P25 ⑤ / §4.3③：揭示前方 1~3 步拓扑）。");
         }
     }
 }
