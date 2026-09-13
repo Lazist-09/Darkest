@@ -19,6 +19,7 @@ public partial class HamletRoot : Node2D
 {
     private Label _status = null!;
     private Label _hint = null!;
+    private Label _upgradeStatus = null!;
     private EconomyConfig _cfg = null!;
     private string? _selectedHero;                       // ② 选人权：玩家选中的被减压者
     private readonly List<Button> _heroButtons = new();  // 动态重建（士气 < 50 的人）
@@ -77,6 +78,22 @@ public partial class HamletRoot : Node2D
             AddChild(b);
         }
 
+        // 🔴 M8.1：**建筑升级入口**（三栋首批建筑；两轴：降费 / 增强·解锁）—— 消耗传家宝
+        string[] upgradable = { "tavern", "abbey", "stagecoach" };
+        for (int i = 0; i < upgradable.Length; i++)
+        {
+            string bId = upgradable[i];
+            var ub = new Button
+            {
+                Name = $"Upgrade_{bId}",
+                Text = $"升级·{bId}",
+                Position = new Vector2(24 + (i * 190), 340),
+                Size = new Vector2(180, 36),
+            };
+            ub.Pressed += () => UpgradeBuilding(bId);
+            AddChild(ub);
+        }
+
         // ② 选人权：**减压按【人】选**（列出名册里士气 < 基准者）；选完再选建筑
         _hint = new Label
         {
@@ -85,6 +102,15 @@ public partial class HamletRoot : Node2D
             Size = new Vector2(1200, 30),
         };
         AddChild(_hint);
+
+        _upgradeStatus = new Label
+        {
+            Name = "UpgradeStatus",
+            Position = new Vector2(24, 386),
+            Size = new Vector2(1200, 60),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        };
+        AddChild(_upgradeStatus);
 
         Refresh();
         GD.Print($"[HamletRoot] 回城就绪：金钱 {economy.Gold}（跨趟持有；减压一次 {economy.StressReliefCost}）" +
@@ -185,6 +211,24 @@ public partial class HamletRoot : Node2D
         Refresh();
     }
 
+    /// <summary>**升级建筑**（M8.1）：按曲线扣传家宝；不足即拒绝（不部分扣）；升级后**生效值真的改变**。</summary>
+    public void UpgradeBuilding(string building)
+    {
+        HeirloomStock? h = ExpeditionContext.Heirlooms;
+        if (h is null)
+        {
+            return;
+        }
+
+        UpgradeLevel? next = h.NextLevel(building);
+        bool ok = h.TryUpgrade(_log, building);
+        GD.Print(ok
+            ? $"[HamletRoot] 升级·{building} ⇒ Lv{h.LevelOf(building)}（花 {string.Join("/", next!.Cost.Select(k => $"{k.Key}×{k.Value}"))}）" +
+              $"　生效：减压价 {h.EffectiveReliefCost(_cfg.StressReliefCost)}　名册上限 {h.EffectiveRosterCap(baseCap: ExpeditionContext.Roster?.Heroes.Count ?? 0, hardCap: 12)}"
+            : $"[HamletRoot] 升级·{building}：**传家宝不足或已满级** ⇒ 拒绝（不部分扣）");
+        Refresh();
+    }
+
     /// <summary>刷新（只读跨趟状态，不自己算账）。</summary>
     public void Refresh()
     {
@@ -238,5 +282,18 @@ public partial class HamletRoot : Node2D
             : _selectedHero is null
                 ? "减压：请先点一位【士气低于 50】的人，再点酒馆/修道院（同价同效、风险不同）"
                 : $"减压对象：{_selectedHero}（士气 {roster.MoraleOf(_selectedHero)}）⇒ 请点酒馆或修道院";
+
+        // 🔴 M8.1：传家宝库存 + 三栋建筑的等级与**生效值**（升级真的改变数字）
+        HeirloomStock? heirlooms = ExpeditionContext.Heirlooms;
+        if (heirlooms is not null)
+        {
+            string stock = string.Join(" ／ ", heirlooms.Kinds.Select(k => $"{k}×{heirlooms.Count(k)}"));
+            string levels = string.Join(" ／ ", new[] { "tavern", "abbey", "stagecoach" }
+                .Select(b => $"{b} Lv{heirlooms.LevelOf(b)}"));
+            _upgradeStatus.Text =
+                $"传家宝：{stock}\n建筑：{levels}　⇒ 减压价 {heirlooms.EffectiveReliefCost(_cfg.StressReliefCost)}" +
+                $"　恢复量 {heirlooms.EffectiveMoraleRestore("tavern", _cfg.StressRelief!.Buildings[0].MoraleRestore)}" +
+                $"　新兵起始等级 {heirlooms.EffectiveRookieLevel(_cfg.Coach.RookieLevel)}";
+        }
     }
 }

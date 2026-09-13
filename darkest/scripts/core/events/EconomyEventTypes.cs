@@ -18,6 +18,16 @@ public sealed record HeroMoraleChangedEvent(string HeroId, int Delta, int Total,
 /// </summary>
 public sealed record HeroRecruitedEvent(string HeroId, string Name, string Archetype, int Level, int Morale, int Cost) : BattleEvent;
 
+/// <summary>
+/// M8.1（`m8_roadmap §1`）：**传家宝变更事件** —— 传家宝是**第三种资源**（跨趟、与金钱同源，从光照档掉落）。
+/// 🔴 变更必写事件（数字必须来自事件流）。
+/// </summary>
+public sealed record HeirloomChangedEvent(string Kind, int Delta, int Total, string Reason) : BattleEvent;
+
+/// <summary>M8.1：**建筑升级事件** —— 记录升到几级、花掉哪些传家宝（供"升级真的改变数字"可审计）。</summary>
+public sealed record BuildingUpgradedEvent(string Building, int Level, string Cost) : BattleEvent;
+
+
 
 public sealed record StressReliefEvent(
     string Building,

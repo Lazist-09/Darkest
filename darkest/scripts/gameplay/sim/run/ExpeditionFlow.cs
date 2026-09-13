@@ -36,14 +36,18 @@ public sealed class ExpeditionFlow
     private readonly CombatLog _log;
     private readonly IRngProvider _rng;
     private readonly Economy? _economy; // M8.0 ②（#283 硬要求①）：跨趟金钱（组合根持有注入；本类只是调用方）
+    private readonly HeirloomStock? _heirlooms;      // M8.1：传家宝库存（与金钱同源的第三种资源）
+    private readonly HeirloomConfig? _heirloomConfig; // M8.1：掉落曲线
 
     private IReadOnlyList<PathStep>? _path;
 
     public ExpeditionFlow(ExpeditionSession session, LightMeter meter, Inventory bag, Scouting scout,
         ExpeditionNodesConfig nodes, TuningConfig tuning, CombatLog log, IRngProvider rng,
-        Economy? economy = null)
+        Economy? economy = null, HeirloomStock? heirlooms = null, HeirloomConfig? heirloomConfig = null)
     {
         _economy = economy;
+        _heirlooms = heirlooms;
+        _heirloomConfig = heirloomConfig;
         _session = session ?? throw new ArgumentNullException(nameof(session));
         _meter = meter ?? throw new ArgumentNullException(nameof(meter));
         _bag = bag ?? throw new ArgumentNullException(nameof(bag));
@@ -157,6 +161,9 @@ public sealed class ExpeditionFlow
         // 🔴 M8.0 ②（#283 硬要求①）：**跨趟回报** —— 每打赢一场按【当前光照档】记金钱（越暗越多）；
         //    注入 `Economy` 才生效（未注入 = 该项目尚未接入，不静默造一份平行账）。
         _economy?.AwardBattle(_log, LightMeter.TierId(_meter.Tier), "battle");
+
+        // 🔴 M8.1：**传家宝与金钱同源**（同一结算点、同一光照档）—— 未注入则不记（不静默造平行账）
+        _heirlooms?.AwardForTier(_log, LightMeter.TierId(_meter.Tier), "battle");
 
         Wins++; // #273：完成需要「打赢 ≥ battle_goal 场」
         _ = step;

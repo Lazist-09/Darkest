@@ -156,8 +156,10 @@ public partial class ExpeditionRoot : Node
         // 🔴 M8.0 ②：**经济必须在地牢层就被确保存在**（否则本趟胜利无处记账 ⇒ 金钱永远是 0）
         EconomyConfig econCfg = EconomyConfig.Parse(Godot.FileAccess.GetFileAsString(EconomyConfig.ResPath));
         Economy economy = ExpeditionContext.EnsureEconomy(econCfg);
+        HeirloomConfig heirloomCfg = HeirloomConfig.Parse(Godot.FileAccess.GetFileAsString(HeirloomConfig.ResPath));
+        HeirloomStock heirlooms = ExpeditionContext.EnsureHeirlooms(heirloomCfg);
         _flow = new ExpeditionFlow(session, meter, bag, new Scouting(tuning.Scouting!, tuning.Light!),
-            handle.Nodes, tuning, Log, new Darkest.Core.Rng.RngProvider(20260909), economy);
+            handle.Nodes, tuning, Log, new Darkest.Core.Rng.RngProvider(20260909), economy, heirlooms, heirloomCfg);
         ExpeditionContext.Bind(_flow, Log);
         GD.Print($"[ExpeditionRoot] 远征就绪：{tuning.Expedition.NBattles} 场；光照 {meter.Value}；" +
                  $"背包 {bag.Count}/{bag.SlotCap}（支援箱 {bag.CarriesSupportCrate}）");

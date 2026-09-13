@@ -50,6 +50,18 @@ public static class ExpeditionContext
     }
 
     /// <summary>
+    /// 🔴 M8.1：**传家宝（第三种资源）与建筑升级也是跨会话状态** —— 与 `Gold` 同层、**不随 `End()` 清空**。
+    /// </summary>
+    public static HeirloomStock? Heirlooms { get; private set; }
+
+    /// <summary>确保跨趟传家宝库存存在（复用同一实例 ⇒ 库存与升级等级不被重置）。</summary>
+    public static HeirloomStock EnsureHeirlooms(HeirloomConfig config)
+    {
+        Heirlooms ??= new HeirloomStock(config);
+        return Heirlooms;
+    }
+
+    /// <summary>
     /// **端到端冒烟阶段计数**（M8.0 ⑥）：`0` 未开始 ／ `1` 已跑完一趟回城 ／ `2` 已再出发。
     /// 只服务 `--e2e` 冒烟（**不参与游戏逻辑**），用于把"启动 到 跑图 到 回城 到 花钱 到 再出发"串成一次运行。
     /// </summary>
