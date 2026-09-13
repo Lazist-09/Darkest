@@ -1,0 +1,15 @@
+{
+  "note": "M8.2（m8_roadmap §2）：疾病 = 每趟结束按概率获得；效果 = 属性惩罚（长线损耗）；Sanitarium = 三种服务（除负面特质 / 锁正面特质 / 治病），消耗传家宝 + 金钱 —— 它是 M8.1 传家宝的重要消耗出口。怪癖（Quirks）不再新做：M8.0 的 7.7 特质就是它，本节只让特质**可被清除或固化**。",
+  "diseases": [
+    { "id": "disease_rot", "name": "腐疮", "penalty": { "hp_delta": -4, "attack_delta": -1, "morale_delta": 0 }, "contract_chance_per_run": 0.15 },
+    { "id": "disease_fever", "name": "热病", "penalty": { "hp_delta": -3, "attack_delta": 0, "morale_delta": -5 }, "contract_chance_per_run": 0.12 },
+    { "id": "disease_creep", "name": "蚁行", "penalty": { "hp_delta": 0, "attack_delta": -2, "morale_delta": 0 }, "contract_chance_per_run": 0.10 }
+  ],
+  "services": {
+    "cure_disease": { "gold": 2, "heirlooms": { "busts": 2 } },
+    "remove_negative_trait": { "gold": 2, "heirlooms": { "portraits": 2 } },
+    "lock_positive_trait": { "gold": 3, "heirlooms": { "portraits": 3 } }
+  },
+  "service_note": "三种服务都**消耗传家宝**（长线资源）⇒ 让 M8.1 的传家宝有稳定出口；服务彼此是不同用途，不是互斥替代（与 Tavern/Abbey 的『同价同效、风险不同』规则无关）",
+  "trait_rule": "怪癖（特质）的清除/固化：负面特质可被「除」、正面特质可被「锁」—— 与 7.7 的『每人 2~3 条、正负都有』保持一致（清除后不得低于 1 条）"
+}

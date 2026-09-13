@@ -38,6 +38,60 @@ public sealed class Roster
     /// <summary>名册上限（M8.0 ⑤：出征 6 + 替补 6 = 12）。</summary>
     public int Cap => _cfg.RosterCap;
 
+    // ---------------------------------------------------------------
+    // M8.2（`m8_roadmap §2`）：**疾病**（跨趟状态，与士气同层）—— 长线损耗，由 Sanitarium 清除
+    // ---------------------------------------------------------------
+
+    private readonly Dictionary<string, HashSet<string>> _diseases = new();
+
+    /// <summary>某英雄当前所患疾病（id 集合）。</summary>
+    public IReadOnlyCollection<string> DiseasesOf(string heroId)
+    {
+        _ = MoraleOf(heroId); // 顺带校验英雄存在
+        return _diseases.TryGetValue(heroId, out HashSet<string>? set) ? set : Array.Empty<string>();
+    }
+
+    /// <summary>患一种疾病（重复患病 = no-op）；变更写事件。</summary>
+    public bool Infect(CombatLog log, string heroId, string diseaseId, string reason = "run_end")
+    {
+        if (log is null)
+        {
+            throw new ArgumentNullException(nameof(log));
+        }
+
+        _ = MoraleOf(heroId);
+        if (!_diseases.TryGetValue(heroId, out HashSet<string>? set))
+        {
+            set = new HashSet<string>(StringComparer.Ordinal);
+            _diseases[heroId] = set;
+        }
+
+        if (!set.Add(diseaseId))
+        {
+            return false; // 已患 ⇒ 不重复
+        }
+
+        log.Append(new HeroDiseasedEvent(heroId, diseaseId, reason));
+        return true;
+    }
+
+    /// <summary>治愈（由 Sanitarium 在扣费后调用）；未患即 no-op。</summary>
+    public bool Cure(CombatLog log, string heroId, string diseaseId, int goldCost, string heirloomCost)
+    {
+        if (log is null)
+        {
+            throw new ArgumentNullException(nameof(log));
+        }
+
+        if (!_diseases.TryGetValue(heroId, out HashSet<string>? set) || !set.Remove(diseaseId))
+        {
+            return false;
+        }
+
+        log.Append(new HeroCuredEvent(heroId, diseaseId, goldCost, heirloomCost));
+        return true;
+    }
+
     /// <summary>
     /// **招募**（M8.0 ⑤ / `#283` 硬要求③）：**免费**；新兵 `level == 1`、`morale == 50`（**不比老的强**）；
     /// 特质从既有英雄的特质池里取**一正一负**（与 7.7「小幅、正负都有」一致）。

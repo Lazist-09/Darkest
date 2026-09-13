@@ -27,6 +27,13 @@ public sealed record HeirloomChangedEvent(string Kind, int Delta, int Total, str
 /// <summary>M8.1：**建筑升级事件** —— 记录升到几级、花掉哪些传家宝（供"升级真的改变数字"可审计）。</summary>
 public sealed record BuildingUpgradedEvent(string Building, int Level, string Cost) : BattleEvent;
 
+/// <summary>M8.2：**英雄患病事件**（每趟结束按概率获得 ⇒ 长线损耗）。</summary>
+public sealed record HeroDiseasedEvent(string HeroId, string DiseaseId, string Reason) : BattleEvent;
+
+/// <summary>M8.2：**治愈事件**（Sanitarium 治病：消耗金钱 + 传家宝）。</summary>
+public sealed record HeroCuredEvent(string HeroId, string DiseaseId, int GoldCost, string HeirloomCost) : BattleEvent;
+
+
 
 
 public sealed record StressReliefEvent(
