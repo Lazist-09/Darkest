@@ -42,6 +42,29 @@ public partial class BattleRoot : Node2D
     {
         NewGame();
         GD.Print("[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算；R 重开（新 seed）。");
+
+        // 🔴 O-74（阻塞级，`#279/#280`）：**地牢层的入口** ——
+        // 此前 `Expedition.tscn` 不可达（`project.godot` 的 main_scene = Battle.tscn，
+        // 而 `ExpeditionContext.Begin()` 只在远征场景内部调用 ⇒ `IsActive` 恒 false ⇒ 玩家看不到 M7.5 的任何东西）。
+        // 这里给出**启动即可达**的入口：① 界面按钮 ② `--expedition` 命令行直达（供**端到端冒烟**用）。
+        var startExpedition = new Button
+        {
+            Name = "StartExpedition",
+            Text = "出发远征（地牢层）",
+            Position = new Vector2(520, 700),
+            Size = new Vector2(240, 40),
+        };
+        startExpedition.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
+        AddChild(startExpedition);
+        GD.Print("[BattleRoot] 地牢层入口就绪：StartExpedition 按钮（或 --expedition 命令行）⇒ res://scenes/expedition/Expedition.tscn");
+
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--expedition"))
+        {
+            GD.Print("[BattleRoot] --expedition ⇒ 直接进入地牢层（端到端冒烟路径：启动 → 进入地牢层选路）");
+            // 🔴 必须 **deferred**：`_Ready` 期间父节点正在增删子节点，直接 ChangeSceneToFile 会报
+            // 「Parent node is busy adding/removing children」（实测 exit 1）
+            GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
+        }
     }
 
     public override void _UnhandledInput(InputEvent e)

@@ -439,7 +439,8 @@ public sealed class M75VerificationPackTests
                       $"　㉙ 战斗 {battles}（胜 {wins}）／事件 {events}　门槛 battle_goal={battleGoal}" +
                       $"　㉔ 补给 {loot} 份（{loot / (double)runs:F2}/趟）" +
                       $"　㉓ 掉落柴火 **{lootFirewood / (double)runs:F2}** ／ 扎营 **{campCount / (double)runs:F2}** ／ 提亮 **{brightenCount / (double)runs:F2}**（每趟）" +
-                      $"　㉑ 平均光照 **{averageLight:F0}**（前 3 步 **{earlyLight:F0}** ／ 后 3 步 **{lateLight:F0}**；最暗 {minLight}）　㉒ 各档占比 {tierShare}" +
+                      $"　㉑ 平均光照 **{averageLight:F0}**（前 3 步 **{earlyLight:F0}**／n={lightNEarly} ／ 后 3 步 **{lateLight:F0}**／n={lightNLate}；最暗 {minLight}）" +
+                      $"　🔴 平均的样本口径：后段仅统计**走到后段的 run**（激进撤退多 ⇒ n 小，防幸存者偏差）　㉒ 各档占比 {tierShare}" +
                       $"　撤退/团灭 {retreats}");
         }
 
