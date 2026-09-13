@@ -44,7 +44,7 @@ public sealed class M75VerificationPackTests
         throw new FileNotFoundException($"data/{name} 未找到。");
     }
 
-    private static RunResult RunOne(long seed, TuningConfig tuning, ExpeditionNodesConfig nodes)
+    private static RunResult RunOne(long seed, TuningConfig tuning, ExpeditionNodesConfig nodes, bool allowCamp = true)
     {
         TuningLight lightCfg = tuning.Light!;
         TuningCamp camp = tuning.Camp!;
@@ -143,7 +143,7 @@ public sealed class M75VerificationPackTests
             }
 
             // 扎营（消耗 1 柴火 → 光照回满 + 食物阶段 + Respite）
-            if (session.CanCamp && session.StartCamp(log, step + 1, camp.RespiteBase))
+            if (allowCamp && session.CanCamp && session.StartCamp(log, step + 1, camp.RespiteBase))
             {
                 firewoodSpent++;
                 meter.OnCamp(log); // D0.2：扎营回满 100
@@ -207,7 +207,9 @@ public sealed class M75VerificationPackTests
 
         for (int i = 0; i < runs; i++)
         {
-            RunResult r = RunOne(20260909 + i, tuning, nodes);
+            // 🔴 两栏都要有样本（V1 分两栏的**前提**）：1/3 趟走"不扎营"的激进路线（会摸黑），2/3 趟扎营（不摸黑）
+            //    —— 否则每趟都扎营（光照回满）⇒ 摸黑组样本 = 0 ⇒ V4a 无法判（实测曾掉到 2.0%）
+            RunResult r = RunOne(20260909 + i, tuning, nodes, allowCamp: i % 3 != 2);
             all.Add(r);
             (r.FinalLight <= 50 ? dark : bright).Add(r);
         }
