@@ -1,0 +1,36 @@
+{
+  "roster_cap": 12,
+  "level_min": 1,
+  "level_max": 6,
+  "level_growth": { "hp_per_level": 2, "attack_per_level": 1 },
+  "note": "M8.0 ①（#283~#285）：名册 12 = 出征 6 + 替补 6（轮换休息成为策略）；等级 1~6 只给属性小幅度（HP+2/攻击+1），**不升技能**（技能升级留 M8.1）；每人 2~3 条小幅特质（正负都有）；招募免费且新兵 level=1（照抄 DD）",
+  "heroes": [
+    { "id": "hero_warrior_1", "name": "老铁", "archetype": "warrior", "level": 2,
+      "traits": [ { "id": "trait_brutal", "name": "凶蛮", "damage_pct": 5 }, { "id": "trait_spooked", "name": "易惊", "morale_damage_pct": 10 } ] },
+    { "id": "hero_warrior_2", "name": "灰手", "archetype": "warrior", "level": 1,
+      "traits": [ { "id": "trait_steady", "name": "沉稳", "morale_damage_pct": -10 }, { "id": "trait_slow", "name": "迟钝", "damage_pct": -5 } ] },
+    { "id": "hero_warrior_3", "name": "独眼", "archetype": "warrior", "level": 3,
+      "traits": [ { "id": "trait_brutal", "name": "凶蛮", "damage_pct": 5 }, { "id": "trait_hardened", "name": "麻木", "morale_damage_pct": -10 }, { "id": "trait_reckless", "name": "莽撞", "morale_damage_pct": 5 } ] },
+
+    { "id": "hero_tank_1", "name": "石墙", "archetype": "tank", "level": 2,
+      "traits": [ { "id": "trait_hardened", "name": "麻木", "morale_damage_pct": -10 }, { "id": "trait_slow", "name": "迟钝", "damage_pct": -5 } ] },
+    { "id": "hero_tank_2", "name": "铁砧", "archetype": "tank", "level": 1,
+      "traits": [ { "id": "trait_steady", "name": "沉稳", "morale_damage_pct": -10 }, { "id": "trait_spooked", "name": "易惊", "morale_damage_pct": 10 } ] },
+    { "id": "hero_tank_3", "name": "门板", "archetype": "tank", "level": 4,
+      "traits": [ { "id": "trait_hardened", "name": "麻木", "morale_damage_pct": -10 }, { "id": "trait_slow", "name": "迟钝", "damage_pct": -5 } ] },
+
+    { "id": "hero_medic_1", "name": "白手", "archetype": "medic", "level": 2,
+      "traits": [ { "id": "trait_steady", "name": "沉稳", "morale_damage_pct": -10 }, { "id": "trait_slow", "name": "迟钝", "damage_pct": -5 } ] },
+    { "id": "hero_medic_2", "name": "麻布", "archetype": "medic", "level": 1,
+      "traits": [ { "id": "trait_careful", "name": "谨慎", "damage_pct": 5 }, { "id": "trait_spooked", "name": "易惊", "morale_damage_pct": 10 } ] },
+    { "id": "hero_medic_3", "name": "药罐", "archetype": "medic", "level": 3,
+      "traits": [ { "id": "trait_careful", "name": "谨慎", "damage_pct": 5 }, { "id": "trait_slow", "name": "迟钝", "damage_pct": -5 } ] },
+
+    { "id": "hero_commissar_1", "name": "血徽", "archetype": "commissar", "level": 2,
+      "traits": [ { "id": "trait_inspiring", "name": "激励", "morale_damage_pct": -10 }, { "id": "trait_slow", "name": "迟钝", "damage_pct": -5 } ] },
+    { "id": "hero_commissar_2", "name": "冷眼", "archetype": "commissar", "level": 1,
+      "traits": [ { "id": "trait_steady", "name": "沉稳", "morale_damage_pct": -10 }, { "id": "trait_spooked", "name": "易惊", "morale_damage_pct": 10 } ] },
+    { "id": "hero_commissar_3", "name": "号角", "archetype": "commissar", "level": 4,
+      "traits": [ { "id": "trait_inspiring", "name": "激励", "morale_damage_pct": -10 }, { "id": "trait_reckless", "name": "莽撞", "morale_damage_pct": 5 }, { "id": "trait_careful", "name": "谨慎", "damage_pct": 5 } ] }
+  ]
+}

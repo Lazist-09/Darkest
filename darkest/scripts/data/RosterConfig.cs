@@ -1,0 +1,168 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Darkest.Data;
+
+/// <summary>英雄特质（M8.0 ①，`#283`：每人 2~3 条【小幅】特质，**正负都有**）。</summary>
+public sealed record HeroTraitConfig(
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("damage_pct")] int DamagePct = 0,
+    [property: JsonPropertyName("morale_damage_pct")] int MoraleDamagePct = 0);
+
+/// <summary>英雄个体（`#283` 7.2：名字 + 等级 + 个体差异；🔴 **不得含技能字段** —— 7.8 不碰技能表）。</summary>
+public sealed record HeroConfig(
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("archetype")] string Archetype,
+    [property: JsonPropertyName("level")] int Level,
+    [property: JsonPropertyName("traits")] IReadOnlyList<HeroTraitConfig> Traits);
+
+/// <summary>等级成长（7.6：**只给属性小幅度**，HP+2 / 攻击+1；**不升技能**）。</summary>
+public sealed record RosterLevelGrowth(
+    [property: JsonPropertyName("hp_per_level")] int HpPerLevel,
+    [property: JsonPropertyName("attack_per_level")] int AttackPerLevel);
+
+/// <summary>
+/// `roster.json` 根模型 + **P22 校验（M8.0，`#284`）**：
+/// ① `roster_cap == 12` 且 **> 6**（出征 6 + 替补 6 ⇒ 轮换成为策略）；
+/// ② 等级 ∈ `[level_min, level_max]` = `[1, 6]`，且**不得出现技能升级字段**（7.8：不碰技能表）；
+/// ③ 每人**特质 2~3 条**、**小幅**（|伤害%| ≤ 15、|士气伤害%| ≤ 20）、且**每人都正负兼有**。
+/// （P22 的 ④金钱来源 / ⑤两减压建筑同价同效 / ⑥招募免费 属 M8.0 ②④⑤，落点不在本文件。）
+/// </summary>
+public sealed record RosterConfig(
+    [property: JsonPropertyName("roster_cap")] int RosterCap,
+    [property: JsonPropertyName("level_min")] int LevelMin,
+    [property: JsonPropertyName("level_max")] int LevelMax,
+    [property: JsonPropertyName("level_growth")] RosterLevelGrowth LevelGrowth,
+    [property: JsonPropertyName("heroes")] IReadOnlyList<HeroConfig> Heroes)
+{
+    public const string ResPath = "res://data/roster.json";
+
+    /// <summary>出征人数（与 formation 的 6 个槽位一致）。</summary>
+    public const int SortieSize = 6;
+
+    /// <summary>特质幅度上限（"小幅"的可测定义）。</summary>
+    public const int MaxTraitDamagePct = 15;
+
+    public const int MaxTraitMoraleDamagePct = 20;
+
+    public static RosterConfig Parse(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            throw new InvalidDataException($"{ResPath}: 内容为空。");
+        }
+
+        RosterConfig cfg;
+        try
+        {
+            cfg = JsonSerializer.Deserialize<RosterConfig>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = false,
+                ReadCommentHandling = JsonCommentHandling.Skip,
+            }) ?? throw new InvalidDataException($"{ResPath}: 内容为空（null）。");
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidDataException($"{ResPath}: JSON 语法错误 —— {ex.Message}");
+        }
+
+        Validate(cfg, json);
+        return cfg;
+    }
+
+    /// <summary>按原型筛出英雄（个体化后的"编成来源"）。</summary>
+    public IReadOnlyList<HeroConfig> ByArchetype(string archetype)
+        => Heroes.Where(h => h.Archetype == archetype).ToArray();
+
+    private static void Validate(RosterConfig cfg, string rawJson)
+    {
+        // ① 名册上限
+        if (cfg.RosterCap != 12 || cfg.RosterCap <= SortieSize)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: roster_cap 必须 = 12 且 > 出征 {SortieSize}（实际 {cfg.RosterCap}；P22 ①）。");
+        }
+
+        if (cfg.LevelMin != 1 || cfg.LevelMax != 6)
+        {
+            throw new InvalidDataException($"{ResPath}: 等级区间必须 = [1, 6]（实际 [{cfg.LevelMin}, {cfg.LevelMax}]；P22 ②）。");
+        }
+
+        if (cfg.LevelGrowth is null || cfg.LevelGrowth.HpPerLevel <= 0 || cfg.LevelGrowth.AttackPerLevel <= 0)
+        {
+            throw new InvalidDataException($"{ResPath}: level_growth 必须为正的小幅度（P22 ②）。");
+        }
+
+        // ② 不得出现技能升级字段（7.8：不碰技能表 ⇒ M8.0 只给属性）
+        foreach (string bad in new[] { "\"skill", "\"skills", "\"upgrade", "\"skill_upgrade" })
+        {
+            if (rawJson.Contains(bad, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: 不得出现技能/升级字段（发现 {bad}；P22 ② / #283 7.8：不碰技能表）。");
+            }
+        }
+
+        if (cfg.Heroes is null || cfg.Heroes.Count != cfg.RosterCap)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: heroes 数量必须 = roster_cap（{cfg.RosterCap}；实际 {cfg.Heroes?.Count ?? 0}；P22 ①）。");
+        }
+
+        var ids = new HashSet<string>();
+        foreach (HeroConfig h in cfg.Heroes)
+        {
+            if (!ids.Add(h.Id))
+            {
+                throw new InvalidDataException($"{ResPath}: 英雄 id \"{h.Id}\" 重复（P22 ①）。");
+            }
+
+            if (string.IsNullOrWhiteSpace(h.Name) || string.IsNullOrWhiteSpace(h.Archetype))
+            {
+                throw new InvalidDataException($"{ResPath}: 英雄 \"{h.Id}\" 必须有 name 与 archetype（7.2）。");
+            }
+
+            if (h.Level < cfg.LevelMin || h.Level > cfg.LevelMax)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: 英雄 \"{h.Id}\" level={h.Level} 不在 [{cfg.LevelMin}, {cfg.LevelMax}]（P22 ②）。");
+            }
+
+            if (h.Traits is null || h.Traits.Count is < 2 or > 3)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: 英雄 \"{h.Id}\" 必须 2~3 条特质（实际 {h.Traits?.Count ?? 0}；P22 ③ / #283 7.7）。");
+            }
+
+            bool positive = false, negative = false;
+            foreach (HeroTraitConfig t in h.Traits)
+            {
+                if (Math.Abs(t.DamagePct) > MaxTraitDamagePct || Math.Abs(t.MoraleDamagePct) > MaxTraitMoraleDamagePct)
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: 特质 \"{t.Id}\" 幅度超出「小幅」（伤害 {t.DamagePct}% / 士气伤害 {t.MoraleDamagePct}%；P22 ③）。");
+                }
+
+                if (t.DamagePct == 0 && t.MoraleDamagePct == 0)
+                {
+                    throw new InvalidDataException($"{ResPath}: 特质 \"{t.Id}\" 必须有非零效果（P22 ③）。");
+                }
+
+                positive |= t.DamagePct > 0 || t.MoraleDamagePct < 0; // 伤害↑ / 受士气伤害↓ = 正
+                negative |= t.DamagePct < 0 || t.MoraleDamagePct > 0; // 伤害↓ / 受士气伤害↑ = 负
+            }
+
+            if (!positive || !negative)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: 英雄 \"{h.Id}\" 的特质必须**正负都有**（P22 ③ / #283 7.7）。");
+            }
+        }
+    }
+}
