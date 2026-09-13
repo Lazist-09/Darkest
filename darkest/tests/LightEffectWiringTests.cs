@@ -39,7 +39,7 @@ public sealed class LightEffectWiringTests
         throw new FileNotFoundException($"data/{name} 未找到。");
     }
 
-    private static (int EnemyAtk, int EnemyHp, int StunBonus, int EnemyCount) BattleAtTier(string tierId)
+    private static (int EnemyAtk, int EnemyHp, int StunBonus, int EnemyCount, int EnemyDmgMod) BattleAtTier(string tierId)
     {
         TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
         ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
@@ -63,17 +63,17 @@ public sealed class LightEffectWiringTests
         meter.TryAdvanceBy(log, target - meter.Value, $"probe_force_{tierId}");
         Assert.AreEqual(tierId, LightMeter.TierId(meter.Tier), $"探针应把光照强制到 {tierId}");
 
-        BattleDirector d = session.BeginExpeditionBattle(1, log, tuning.Expedition.DifficultyTiers);
+        BattleDirector d = session.BeginExpeditionBattle(1, log, tuning.Expedition.DifficultyTiers, meter.Effect);
         var enemies = d.Enemy.UnitsInSlotOrder().ToArray();
         return (enemies.Sum(u => u.EffectiveAttack), enemies.Sum(u => u.MaxHp),
-            enemies.Sum(u => u.StunResistBonus), enemies.Length);
+            enemies.Sum(u => u.StunResistBonus), enemies.Length, enemies.Sum(u => u.DamageModPct));
     }
 
     [TestMethod]
     public void O301_LightEffects_MustBeWiredIntoBattle()
     {
-        (int atkR, int hpR, int stunR, int countR) = BattleAtTier("radiant");
-        (int atkB, int hpB, int stunB, int countB) = BattleAtTier("black");
+        (int atkR, int hpR, int stunR, int countR, int dmgModR) = BattleAtTier("radiant");
+        (int atkB, int hpB, int stunB, int countB, int dmgModB) = BattleAtTier("black");
 
         TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
         TuningLightEffect radiant = tuning.Light!.Effects["radiant"];
@@ -91,33 +91,36 @@ public sealed class LightEffectWiringTests
         // 🔴 本用例的**断言方向**（先说清，不发明契约）：
         //    我**不**断言"必须有差异"（那是要求改变现状、属裁定范围）；
         //    我断言的是【两者当前是否相同】这一**事实**，以便策划据此判断"是量级不足还是没接线"。
-        bool identical = atkR == atkB && hpR == hpB && stunR == stunB && countR == countB;
-        string verdict = identical
-            ? "⇒ 🔴 **两档下敌方状态【完全相同】** ⇒ 不是「量级不足」，而是 `light.effects` 的战斗字段【从未接进战斗】（红线 21）"
-            : "⇒ ✅ 两档下敌方状态**存在差异** ⇒ 效果已接线，则问题在【量级】（属 `light.effects` 标定，需单独一轮）";
+        bool wired = dmgModB != dmgModR;
+        string verdict = wired
+            ? $"⇒ ✅ **两档下敌方【输出修正】不同**（Radiant {dmgModR}% vs Black {dmgModB}%）" +
+              " ⇒ `enemy_dmg_pct` **已接进战斗**（红线 21 的最坏形态已消除）；" +
+              "⚠️ 其余五项仍待接线（UI 上仍标「未生效」）"
+            : "⇒ 🔴 两档下敌方状态完全相同 ⇒ 光照战斗效果仍未接线（红线 21）";
         Console.WriteLine(verdict);
         TestContext.WriteLine(verdict);
 
-        // 事实登记：把结论写进测试输出（同时用断言锁住"当前事实"，将来接线后本用例会变红 ⇒ 提醒改判据）
-        Assert.IsTrue(identical,
-            "当前事实：强制 Black 与 Radiant 的敌方状态相同 ⇒ 光照战斗效果未接线（若此断言变红，说明已接线 ⇒ 请更新本用例与 #301 的判读）");
+        // 🔴 断言方向（红线 19 补充：事实变了就更新用例）：
+        //    本片把 `enemy_dmg_pct` 接进战斗 ⇒ 期望**存在差异**（若变红 ⇒ 接线被回退）
+        Assert.IsTrue(wired,
+            $"`enemy_dmg_pct` 应已接进战斗（Radiant {dmgModR}% vs Black {dmgModB}%）⇒ 未接线则本用例变红");
     }
 
     [TestMethod]
     public void O301_NoLightParameterOnBattleBuild_StructuralEvidence()
     {
-        // 🔴 结构性证据（与上面的实测互为佐证）：`ExpeditionSession.BeginExpeditionBattle` 只吃
-        //    【难度档位】(ApplyMaxHpMultiplier / ApplyStunResistBonus)，**根本不接收光照档位**
-        //    ⇒ 战斗层拿不到光照效果。这条用"行为"验证：换光照不改战斗，换难度档位才改。
-        (int atkT0, _, int stunT0, _) = BattleAtTier("black"); // black 的档位与 radiant 同档（DifficultyTiers 未变）
+        // 🔴 结构性证据（与上面的实测互为佐证）：`BeginExpeditionBattle` 现在**接收光照档位**（`#302` (i1) 接线后）
+        //    ⇒ 本用例改为核对【接了几项】：目前只接了 `enemy_dmg_pct`（1/6），其余五项待接线。
+        (int atkT0, _, _, _, int dmgMod0) = BattleAtTier("black");
 
         TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
         Assert.IsTrue(tuning.Light!.Effects["black"].EnemyDmgPct >= tuning.Light.Effects["radiant"].EnemyDmgPct,
             "配置层面：越暗敌方加成**不减**（配置是有梯度的）");
 
-        string report = $"[M7.6] #301 结构性证据：战斗构建入口（BeginExpeditionBattle）**不接收光照档位**" +
-                        $"（只接收难度档位）⇒ 光照效果无处可传 ⇒ 与实测「两档敌方状态相同」一致" +
-                        $"　（Black 档实测攻击合计 {atkT0}，与 Radiant 相同）";
+        string report = $"[M7.6] #302(i1) 接线现状：`BeginExpeditionBattle` **已接收光照档位**，" +
+                        $"当前接入 **1/6 项**（`enemy_dmg_pct` → 敌方单位 `DamageModPct`，Black 档实测 {dmgMod0}%）；" +
+                        $"其余五项（enemy_acc ／ enemy_crit_pct ／ our_crit_pct ／ our_ambush_pct ／ our_morale_damage_pct）**待各自通道接线**" +
+                        $"（红线 21：未接线不假装已生效 ⇒ UI 上仍标「未生效」）";
         Console.WriteLine(report);
         TestContext.WriteLine(report);
         Assert.IsTrue(atkT0 > 0, "敌方单位可读（探针有效）");

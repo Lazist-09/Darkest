@@ -210,7 +210,8 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     /// 🔴 增援单位在战斗内按基准生成，**不受乘数影响**（③ 不波及增援与 SP/资源）。
     /// </summary>
     public BattleDirector BeginExpeditionBattle(int battleIndex, CombatLog log,
-        IReadOnlyList<Darkest.Data.TuningDifficultyTier>? tiers)
+        IReadOnlyList<Darkest.Data.TuningDifficultyTier>? tiers,
+        Darkest.Data.TuningLightEffect? lightEffect = null)
     {
         BattleDirector director = BeginBattle(battleIndex, log);
         Darkest.Data.TuningDifficultyTier? tier = tiers?.FirstOrDefault(
@@ -220,6 +221,21 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             foreach (UnitRuntime u in director.Enemy.UnitsInSlotOrder())
             {
                 u.ApplyMaxHpMultiplier(tier.Multiplier);
+            }
+        }
+
+        // 🔴 M7.5 补欠账（`#302` (i1)）：**光照档位的战斗效果必须真的接进战斗** ——
+        //    此前 `light.effects` 的六个战斗字段**只有 UI 在读**（"有展示、无消费" = 欺骗玩家；红线 21 最坏形态）。
+        //    本片先接**已有消费点**的那一环：`enemy_dmg_pct` → **敌方单位的伤害修正**
+        //    （走 `UnitRuntime.DamageModPct`，`DamageStep` 已在消费 ⇒ **不新建通道**）。
+        //    ⚠️ 其余五项（`enemy_acc` / `enemy_crit_pct` / `our_crit_pct` / `our_ambush_pct` / `our_morale_damage_pct`）
+        //    **待各自通道接线**（红线 21：未接线不假装已生效）。
+        if (lightEffect is not null && lightEffect.EnemyDmgPct != 0)
+        {
+            int pct = (int)Math.Round(lightEffect.EnemyDmgPct);
+            foreach (UnitRuntime u in director.Enemy.UnitsInSlotOrder())
+            {
+                u.ApplyTraitDamagePct(pct); // 敌方输出修正（与特质/buff 同层）
             }
         }
 
