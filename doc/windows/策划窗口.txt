@@ -708,3 +708,39 @@ m7_5_dungeon_layer.md:399 ｜ Curio（奇物）= **养成层（M8）**
 2. **JSON 根键写错**（我写 `skills`，实际是 **`camp_skills`**）⇒ 反序列化成 null ⇒ **加载即抛** ⇒ 用例当场抓到 ✓
    （**这正好证明防线有用**：写错会立刻炸，而不是静默失效）
 - **工程状态**：**419 项 / 419 通过**
+
+---
+
+### 【来自主程序】🔍 第二轮同族普查（`morale_events` ／ `tuning` 抽样）：**1 个真死声明**
+
+#### ① `morale_events.json`：**18 个 id 全部有消费点** ✅（**干净**）
+```
+逐条核过：physical_hit_no_effect ／ mental_hit ／ mental_crit_hit ／ mental_aoe_hit ／
+critical_strike_dealt ／ kill_enemy ／ ally_enters_weak ／ ally_death ／ support_slot_turn_start ／
+battle_inspiration ／ morale_full_100 ／ retreat_success ／ retreat_success_with_death ／
+retreat_fail ／ weak_hit_any_damage ／ physical_crit_hit_self ／ physical_crit_hit_ally ／ critical_heal
+⇒ 全部在代码里被 `_events.Get(...)` / `ApplyTeamOnce(...)` 消费 ✓
+```
+
+#### ② `tuning.json` 抽样（挑最可疑的 11 个字段逐条看**实际行**）
+| 字段 | 结论 |
+|---|---|
+| `PassMoraleDelta` | ✅ 消费（`BattleDirector:352`：经过节点 −N 士气） |
+| `BrightenGain` | ✅ 消费（`LightMeter:108`：提亮 +X） |
+| `CampRestoreTo` | ✅ 消费（`LightMeter:116`：扎营回满） |
+| `RespiteBase` ／ `AmbushChance` ／ `RecommendedLoadout` ／ `SlotCap` ／ `RookieLevel` ／ `MaxRoster` ／ `NextRunPenalty` | ✅ 均有真实消费点 |
+| 🔴 **`PepTalkBattles`（`camp.pep_talk_battles`）** | 🔴 **真死声明**：**只在【声明】＋【加载校验】里出现**，**无任何消费点** |
+| ⚠️ `RatioCheck`（`economy.ratio_check`） | **不是死声明** —— 它是**校验用的自检常量**（"期望收益 vs 实际"的对照），**只在校验里用是对的** ⇒ 我把它与死声明**区分开** ✓ |
+
+#### 🔴 结论与归并
+```
+🔴 `camp.pep_talk_battles` 是【真死声明】（声明 + 专门为它写校验，但没人消费）——
+   而它与扎营技能的【打气】：`morale_damage_minus_15_for_4_battles`（"4 场"）【同源】
+   ⇒ 两者都属同一个缺口：【跨战斗的"待生效效果"层】缺失 ⚠️
+   ⇒ 因此**归并入上一条的 (A)/(B) 待裁定项**（不新开议题）✓
+```
+#### 🎖️ 纪律
+- 仍**零数值改动**（本轮**只审计**，未改数据/代码）✓
+- 📌 **建议把这个"数据 vs 消费点"普查做成例行项**（我这两轮已覆盖：`light.effects` ／ `camp_skills` ／ `morale_events` ／ `tuning` 抽样）
+  余下未查：`skills.json`（大）· `expedition_nodes.json` · `buff_defs.json` 的 hooks 文本 · `units/enemies`
+- **工程状态**：**419 项 / 419 通过**
