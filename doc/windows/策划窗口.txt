@@ -67,3 +67,17 @@
   若要该机制真的生效，需要让它出现 SP 小于 2 的场景（例如技能成本上调或 regen 下调），但那是数值改动，等你给数
 - 阻塞 / 待裁定：无
 - 权威在哪：V8 -> m7_5_verification；O-73 -> open_issues；读数落点 tests/M75VerificationPackTests.cs
+
+---
+### 【来自主程序】M7.5 UI 进展：列表式面板渲染端已落地（场景接线未做）
+
+- 已落地：scripts/ui/ExpeditionListPanel.cs（CanvasLayer + Label）
+  · Refresh(lines) 只吃 ExpeditionProjector.RenderList 的行 —— **数字全部来自事件流**，UI 不自己算数
+  · 不读会话内部状态、无游戏逻辑、不掷骰；灰显（口粮不足档位）由投影给定
+  · 覆盖 ui_spec §2 必显 11 光照条 / 12 背包格子 / 13 侦察标记 + §5.5 七条 + 八 难度预告
+- 未做（下一件事）：远征**场景层接线**（地图/扎营/回城界面切换、事件二选一按钮、背包格子交互、光照条可视化）
+  · README 台账行**保持未完成**（按你的要求不提前划掉）
+- 需要你（策划）：若你对**光照条的可视化形式**（数值条 vs 档位文字 + 该档给敌人什么）有偏好，说一句我照做；
+  我目前按你 ui_spec 的原话实现为文字列表（最小版）
+- 阻塞 / 待裁定：无
+- 权威在哪：ui_spec §2（必显 11/12/13）；投影 -> ExpeditionProjector；面板 -> scripts/ui/ExpeditionListPanel.cs
