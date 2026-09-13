@@ -93,5 +93,45 @@ public sealed class TraitPipelineTests
         Assert.AreEqual(eff.DamagePct, unit.DamageModPct - 15, "投影把特质伤害写进单位（与既有层同层叠加）");
     }
 
+    /// <summary>跑一场，返回**带特质那个单位自己**造成的伤害合计（㉟：不被 6 人摊薄）。</summary>
+    private static int RunOneBattle_SingleUnit(int traitDamagePct, long seed)
+    {
+        var log = new CombatLog();
+        var rng = new Darkest.Core.Rng.RngProvider(seed);
+        var director = MonteCarlo.HeadlessDriver.NewDirector(log);
+        var hero = director.Player.UnitsInSlotOrder().First();
+        var heroId = hero.Id;
+        hero.ApplyTraitDamagePct(traitDamagePct);
+
+        for (int round = 0; round < 30 && !director.IsBattleOver; round++)
+        {
+            director.RunFullRound(rng, unit => MonteCarlo.Policies.DecideForUnit(
+                MonteCarlo.PolicyKind.SemiRandom, unit, director, rng));
+        }
+
+        return log.Events.OfType<DamageEvent>().Where(e => e.Attacker == heroId).Sum(e => e.Amount);
+    }
+
+    [TestMethod]
+    public void V5_35_SingleUnitDamageDelta_ReflectsTraitMagnitude()
+    {
+        const long seed = 20260909L;
+        int plus = RunOneBattle_SingleUnit(+10, seed);
+        int none = RunOneBattle_SingleUnit(0, seed);
+        int minus = RunOneBattle_SingleUnit(-10, seed);
+
+        double plusPct = none == 0 ? 0 : 100.0 * (plus - none) / none;
+        double minusPct = none == 0 ? 0 : 100.0 * (minus - none) / none;
+
+        string report = $"[M8] ㉟ 带特质者**单体**伤害差（同 seed 同策略，只有他带特质）：" +
+                        $"+10% ⇒ {plus}（对基准 {none} 为 {plusPct:F1}%）；−10% ⇒ {minus}（{minusPct:F1}%）" +
+                        $"　⇒ 接线成立；🔴 若单人差异远小于 10% ⇒ 属 7.7 幅度/摊薄问题，不是接线问题";
+        Console.WriteLine(report);
+        TestContext.WriteLine(report);
+
+        Assert.IsTrue(plus >= none && minus <= none, "方向正确（+10 不少于基准，−10 不多于基准）");
+        Assert.IsTrue(Math.Abs(plusPct) > 0 || Math.Abs(minusPct) > 0, "带特质者单体读数必须可分辨");
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }

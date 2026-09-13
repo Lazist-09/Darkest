@@ -193,6 +193,43 @@ public sealed record BuffDefsConfig(
                 throw new InvalidDataException(
                     $"{ResPath}: \"{b.Id}\" polarity↔dispellable 不一致（负面可驱散/正面不可驱散，buff.md §5.1）。");
             }
+
+            // 🔴 `#289/#290` 红线 21：**按名分发的机制**（`damage_mod` / `prob_mod`）——
+            // 判死活的依据**不是"有没有集中消费点"**，而是【**有没有人真的会读它**】：
+            // 它们的消费**按 `effect` 名走专用通道**（如 `refuse_skill` 在 `AfflictionProcs`；
+            // `dealt_damage_mult` 在 `DamageStep` 的 `buffDamageMult`）。
+            // ⇒ 因此这里校验的是 **`effect` 名必须在【已实现清单】里**：**新增一个没人实现的 effect 名即报错**
+            //   （这正是"写了但没接上"的唯一可靠防线）。
+            if (b.Modifiers is not null)
+            {
+                foreach (BuffModifierSpec m in b.Modifiers)
+                {
+                    if (m.Kind is not (BuffModifierKind.DamageMod or BuffModifierKind.ProbMod))
+                    {
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(m.Effect) || !ConsumedEffectNames.Contains(m.Effect))
+                    {
+                        throw new InvalidDataException(
+                            $"{ResPath}: \"{b.Id}\" 的 {m.Kind} effect \"{m.Effect}\" 不在【已实现清单】里 —— " +
+                            "新增 effect 名必须同时接上它的消费通道（红线 21：写了但没接上）。");
+                    }
+                }
+            }
         }
     }
+
+    /// <summary>
+    /// **已实现的 `effect` 名清单**（`#290`：🔴 判死声明看"**有没有人真的会读它**"，不看"有没有集中 kind 消费点"）。
+    /// 新增 effect 名 ⇒ **必须同时接上消费通道**，并把它登记到这里（否则加载即报错）。
+    /// </summary>
+    public static readonly IReadOnlySet<string> ConsumedEffectNames = new HashSet<string>(StringComparer.Ordinal)
+    {
+        // damage_mod —— 消费点：`DamageStep` 的 `raw`（`buffDamageMult` 同层相乘；特质也走这一层）
+        "per_round_damage", "dealt_damage_mult", "next_attack_mult", "taken_damage_mult",
+        // prob_mod —— 消费点：按名分发（`AfflictionProcs` / 各自结算处）
+        "refuse_skill", "refuse_heal", "randomize_attack_target",
+        "deaths_door_resist_bonus", "crit_bonus", "hit_mod",
+    };
 }

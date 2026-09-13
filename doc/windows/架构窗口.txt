@@ -1,48 +1,19 @@
 
 ---
 
-### 【来自主程序】✅ ③ 特质接管线已落地（按 `#289` 裁定 (B)）+ **V5 验收通过**（366 项 / 366 通过）
+### 【来自主程序】§0 收尾两步已完成（367 项 / 367 通过）；下一步开 M8.1
 
-- ✅ **实现（严格照 (B)：与既有修正【同层叠加】，不给 `BattleMath` 加参）**：
-  · `UnitRuntime` 增 **`DamageModPct` / `DamageMultiplier`**（伤害类）与 **`MoraleDamageTakenPct` / `MoraleDamageTakenMultiplier`**（士气类）
-  · 🔴 **真正的消费点**：`DamageStep` 的 `raw` —— 在既有 **`buffDamageMult`** 之后 **`raw *= attacker.DamageMultiplier`**（**特质与 buff 就是同一层**）
-  · `HeroProjection.ApplyTraits(hero, unit)` 把特质写进单位；`DirectorBridge` 装配时按槽位 `ApplyLevel` + `ApplyTraits`
-- ✅ **V5 验收（你收紧后的可测式）**：同原型、同 seed、同策略，**唯一差异 = 特质伤害修正**
+- ✅ **① `ProbMod` 标注 + `effect` 名对照（按 `#290` 更正后的判据）**：
+  · `BuffDefsConfig.ConsumedEffectNames` = **已实现的 `effect` 名清单**（`damage_mod` 4 个 ／ `prob_mod` 6 个）
+  · **加载级校验**：buff 用了 `damage_mod`/`prob_mod` 但其 `effect` 名**不在清单里 ⇒ 启动报错**
+    ⇒ 🔴 这正是"**新增 effect 名但没人实现**"的唯一可靠防线（**判死声明看"有没有人真的会读它"，不看"有没有集中 kind 消费点"** —— 你更正后的口径）
+  · 并把两条 `kind` 的**消费点**写进枚举文档注释（`DamageMod` → `DamageStep` 的 `raw`；`ProbMod` → 按名分发，如 `AfflictionProcs`）
+- ✅ **② ㉟ 读数（带特质者的【单体】伤害差，不被 6 人摊薄）**：
   ```
-  [M8] V5：特质 +10% ⇒ 我方伤害合计 130；0% ⇒ 126；−10% ⇒ 125
-  ⇒ 同原型不同特质 ⇒ 战斗读数确实不同 ✅（另断言 +10 大于 0 大于 −10）
+  [M8] ㉟ +10% ⇒ 25（对基准 21 = **+19.0%**）；−10% ⇒ 20（**−4.8%**）
   ```
-- ✅ **另补一条**（红线 21 自查）：`TraitPipelineTests.V5_NoDeadDeclaration_DamageModIsConsumed` —— 断言 **`DamageMod` 不再"已声明未消费"**（单位上的修正确实能被结算读到；`DamageMultiplier` 默认 1.0、+15% ⇒ 1.15、士气 +20% ⇒ 1.20）
-- ✅ **skill 增【红线 21「不留死声明」】**（我把立条依据一并写进去）：
-  ```
-  ① 数据/枚举里出现的东西必须有消费点（或显式标注"未消费（保留待用）"+ 加载级校验）
-  ② 凡新增"可点按钮/入口"，必须验证【它初始状态确实可用】（不只是"能编译"、"内核路径能跑"）
-  ③ CLI 能过 ≠ 点得动 ⇒ 按钮路径要单独验（headless 用 EmitSignal(Pressed) 走真实回调）
-  三兄弟：18（写了但不可达）／ 20（写了但读不出）／ 21（写了但没接上）
-  立条依据：名册满员使招募成死内容 · DamageMod 只有声明没有消费点 · 远征从未 EnsureEconomy 使金钱恒 0
-  ```
-- ⚠️ **仍待办（明示）**：
-  1. **`ProbMod` 的两选一**（本次不动它 ⇒ 按你的裁定应**显式标注"未消费（保留待用）"并在 P22 加校验**）—— 我尚未落这条，**下一步立刻做**
-  2. **V8 的按钮路径**（`--e2e` 走的是 CLI 分支 ⇒ "CLI 能过 ≠ 点得动"）：我计划在 `MainMenuRoot` / `HamletRoot` 暴露 `PressMenu(i)`、冒烟里用 `EmitSignal(Pressed)` **走真实回调**，再补一条按钮路径冒烟
-- **工程状态**：**366 项 / 366 通过**；端到端 `--e2e` 仍全过（阶段0 ／ 1 ／ 2）
-
----
-
-### 【来自主程序】V8 点击路径已验通（真实 `Pressed` 信号）+ `ProbMod` 的真实情况已核清
-
-- ✅ **V8 补条（"CLI 能过 ≠ 点得动"）已实现并验通**：
-  · `MainMenuRoot.PressMenu(i)` —— **发出真实的 `Button.Pressed` 信号**（走"按钮 → 回调"这条链路，不是直接切场景）
-  · 新增 `--click-menu=N`（headless 冒烟专用；`CallDeferred` 调用上面的方法）
-  · 🔴 **实测输出（可复核）**：
-    ```
-    [MainMenuRoot] PressMenu(1)：发出真实 Pressed 信号（按钮「出发远征（地牢层）」）
-    [ExpeditionRoot] 名册出征 6 人：石墙(tank Lv2 **士气40**)、老铁(warrior Lv2 **士气45**)…
-    [ExpeditionRoot] 远征就绪：6 场；光照 100；背包 11/12（支援箱 True）
-    ```
-    ⇒ **点击路径成立** ✅；且顺带再证一次 **V2**（**出征名单里的士气 = 名册里的跨趟值 40 ／ 45**，不是重置后的 50）
-- 🔴 **`ProbMod` 的真实情况（我核清了，与"死声明"不同）**：
-  · `prob_mod` **数据里确实在用**（`affliction_fear` / `selfish` / `uncontrolled` / `virtue_resolute` / `virtue_focused` / `deaths_door_recovery`）
-  · 它的消费**不在 kind 上，而是按 `effect` 名走专用通道**：`refuse_skill` / `refuse_heal` / `randomize_attack_target` 在 **`AfflictionProcs`**；`crit_bonus` / `hit_mod` / `deaths_door_resist_bonus` 在各自结算处
-  · ⇒ 所以 **"kind 没有集中消费点"≠ 死声明**；**真正的红线 21 风险是"新增 `effect` 名但没人实现它"**
-  · 我原计划在 `BuffDefsConfig` 加一条**显式标注 + `effect` 名对照**（注释已拟好，**但该文件需用文件工具先读**，我这一轮预算用尽）⇒ **下一步立刻补**（预计一次编辑）
-- **工程状态**：**366 项 / 366 通过**
+  · ⇒ **接线成立**且**单人幅度可观**（+19% 含取整放大；−10% 因取整/下限被压到 −4.8%）
+  · 对照 `V5` 的全队合计（130 ／ 126 ／ 125，相邻差仅 ~3%）—— **正如你指出的被摊薄**，所以这一项读数才是"玩家感知"口径
+- **工程状态**：**367 项 / 367 通过**；无已知红
+- 🔴 **下一步（按你的裁定）：开 M8.1（传家宝 + 建筑升级）** —— 我会先做**只读规格**（`hamlet.md §9` / `data_schema §3.14` / `m8_verification` M8.1 段），
+  **按"一次一个轴"拆片**（预计：① 传家宝数据 + P23 校验 ② 建筑升级曲线 ③ Hamlet UI 的升级入口），并**先回报改动面评估**再动手
