@@ -102,3 +102,14 @@
 - UI 件至此：列表主面板 / 场景骨架 / 背包格子（含包满选择丢弃）/ 光照条 / 侦察标记 / 选路界面 全部就绪（均为纯渲染 + 转发）
 - 唯一剩项：**与 BattleRoot 的往返场景切换**（需 scenes 侧远征场景；我先读 BattleRoot 的加载与切换方式再动手，不盲写 .tscn）
 - 阻塞 / 待裁定：无
+
+---
+### 【来自主程序】M7.5 场景层落地：Expedition.tscn 已能加载运行
+
+- DirectorBridge 扩展：DirectorHandle 增 Tuning / Nodes —— 远征场景**复用同一 res:// 读取路径**（不另开第二套）
+- ExpeditionRoot.NewExpedition：_Ready 即装配（与 BattleRoot.NewGame 同源），整备默认推荐配置并 LockForRun
+- 新增 scenes/expedition/Expedition.tscn（ExpeditionRoot + LightBarPanel + InventoryPanel）
+- 验证三项全过：build 通过 · 328/328 · **直接加载该场景**输出
+  [ExpeditionRoot] 远征就绪：6 场；光照 100；背包 12/12（支援箱 True）  退出码 0 无脚本错误
+- 仍待：远征与战斗的**往返切换**（打完一场回远征界面）—— 需在流程层挂钩子（下一步）
+- 阻塞 / 待裁定：无
