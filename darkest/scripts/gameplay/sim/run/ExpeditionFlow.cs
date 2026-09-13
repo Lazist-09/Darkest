@@ -52,6 +52,16 @@ public sealed class ExpeditionFlow
         _meter.EmitStart(_log);
     }
 
+    /// <summary>
+    /// **预览下一步的两个候选**（供选路界面在玩家点击**之前**渲染；**不消耗**流程状态、不掷骰）。
+    /// 玩家点选后调用 <see cref="Advance"/>（携带所选下标）。
+    /// </summary>
+    public IReadOnlyList<PathOption> PreviewOptions()
+    {
+        _path ??= ExpeditionPathPlanner.GeneratePath(_log, _rng, _tuning.Expedition.NBattles, _nodes);
+        return StepsDone < _path.Count ? _path[StepsDone].Options : Array.Empty<PathOption>();
+    }
+
     /// <summary>当前步骤（null = 尚未开始或已结束）。</summary>
     public FlowStep? Current { get; private set; }
 

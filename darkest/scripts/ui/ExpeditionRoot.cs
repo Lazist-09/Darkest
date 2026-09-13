@@ -50,10 +50,19 @@ public partial class ExpeditionRoot : Node
     /// <summary>最小版选路：交替选（真实玩家的选路来自 `PathChoicePanel`）。</summary>
     private int _nextOption;
 
+    private LightBarPanel? _lightBar;
+    private ScoutMarkPanel? _scoutMark;
+    private PathChoicePanel? _pathPanel;
+
     public override void _Ready()
     {
         _panel = new ExpeditionListPanel { Name = "ExpeditionListPanel" };
         AddChild(_panel);
+
+        // 场景里已挂好的三个面板（节点树见 scenes/expedition/Expedition.tscn）
+        _lightBar = GetNodeOrNull<LightBarPanel>("LightBarPanel");
+        _scoutMark = GetNodeOrNull<ScoutMarkPanel>("ScoutMarkPanel");
+        _pathPanel = GetNodeOrNull<PathChoicePanel>("PathChoicePanel");
 
         // 事件二选一（**不允许跳过** ⇒ 只有两个选项按钮）
         _choiceA = MakeButton("选项 A", new Vector2(24, 660), () => ChooseEventOption(0));
@@ -65,6 +74,7 @@ public partial class ExpeditionRoot : Node
         _panel.ShowPanel();
 
         NewExpedition(); // 与 BattleRoot 同款：_Ready 即装配（数据经 DirectorBridge 读 res://data）
+        ShowPathChoice(); // 首步：把两个候选交给选路界面（玩家点选后才推进）
     }
 
     /// <summary>
@@ -154,6 +164,59 @@ public partial class ExpeditionRoot : Node
 
         _panel.Refresh(LastLines);
         _campButton.Disabled = !Session.CanCamp; // 灰显依据来自内核（不是 UI 自算）
+
+        // 必显 11 光照条（数值 + 档位 + 该档给敌人什么）与 必显 13 侦察标记（两态可区分）
+        _lightBar?.Refresh(Meter!);
+        _scoutMark?.Refresh(_flow?.LastScout);
+    }
+
+    /// <summary>把当前步的两个候选交给选路界面（**玩家点选后才推进**）。</summary>
+    public void ShowPathChoice()
+    {
+        if (_flow is null || _pathPanel is null)
+        {
+            return;
+        }
+
+        IReadOnlyList<PathOption> options = _flow.PreviewOptions();
+        if (options.Count == 0)
+        {
+            _flow.ReturnToTown("completed");
+            ExpeditionContext.End();
+            RefreshPanel();
+            return;
+        }
+
+        _pathPanel.Refresh(new PathStep(_flow.StepsDone, options), AdvanceWith);
+        RefreshPanel();
+    }
+
+    /// <summary>按玩家所选下标推进（选路界面的回调）。</summary>
+    public void AdvanceWith(int optionIndex)
+    {
+        if (_flow is null)
+        {
+            return;
+        }
+
+        _pathPanel?.HidePanel();
+        FlowStep step = _flow.Advance(optionIndex);
+        switch (step.Kind)
+        {
+            case FlowStepKind.Battle:
+                ExpeditionContext.Bind(_flow, Log);
+                GetTree().ChangeSceneToFile("res://scenes/battle/Battle.tscn");
+                return;
+            case FlowStepKind.Event:
+                SetPendingEvent(step.NodeId);
+                RefreshPanel();
+                return;
+            default:
+                _flow.ReturnToTown("completed");
+                ExpeditionContext.End();
+                RefreshPanel();
+                return;
+        }
     }
 
     /// <summary>事件二选一（**无跳过**；越界由内核拒绝并抛错）。</summary>
