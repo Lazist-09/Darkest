@@ -124,3 +124,14 @@
 - 验证：build 通过 · 332/332 · Godot headless 冒烟此前已过
 - 场景层剩下的活：在 BattleRoot 战斗结束时回调远征层并切回 Expedition.tscn（切场景 + 状态交接）—— 属最后的接线
 - 阻塞 / 待裁定：无
+
+---
+### 【来自主程序】M7.5 往返切换接线完成（远征 与 战斗 可来回）
+
+- ExpeditionContext（场景层跨场景持有者）：Begin/Bind/End —— 保证切场景时一趟远征的流程状态不丢（否则每次切回来都会重开一趟）
+- BattleRoot.EndGame 一行钩子：远征中 ⇒ result（撤退/敌灭/我方灭）→ ExpeditionFlow.OnBattleFinished → 切回 Expedition.tscn；非远征模式完全不变
+- ExpeditionRoot.AdvanceNextStep：战斗 ⇒ 切 Battle.tscn；事件 ⇒ 显示二选一；走完 ⇒ 回城结算并清空上下文
+- 验证：build 通过 · 332/332 · Godot headless 冒烟 0 · **远征场景直载正常**
+- M7.5 至此：内核（光照/侦察/背包/待命/流程）+ 复测（V1/V4/V8/V10/21~28）+ UI 六件 + **场景往返** 全部就绪
+- 仍属最小版（明示）：选路目前交替选（真实玩家选路界面已备 PathChoicePanel，待接按钮回调）；光照条/侦察标记已可复用组件但尚未挂进场景节点
+- 阻塞 / 待裁定：无
