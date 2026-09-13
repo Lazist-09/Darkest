@@ -9,6 +9,7 @@
     "branch_battle_weight": 0,
     "branch_special_weight": 0,
     "branch_special_kind": "free_light",
+    "branch_special_light_gain": 20,
     "max_branches": 2
   },
   "move": {

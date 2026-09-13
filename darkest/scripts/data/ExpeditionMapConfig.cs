@@ -17,6 +17,7 @@ public sealed record MapGenConfig(
     [property: JsonPropertyName("branch_battle_weight")] double BranchBattleWeight = 0,
     [property: JsonPropertyName("branch_special_weight")] double BranchSpecialWeight = 0,
     [property: JsonPropertyName("branch_special_kind")] string BranchSpecialKind = "free_light",
+    [property: JsonPropertyName("branch_special_light_gain")] int BranchSpecialLightGain = 20,
     [property: JsonPropertyName("max_branches")] int MaxBranches = 2);
 
 /// <summary>按段移动（M7.6 §4.3②）：新区域 −30（沿用已调平值）／ 重走已探索 −10。</summary>
@@ -121,6 +122,15 @@ public sealed record ExpeditionMapConfig(
             throw new InvalidDataException(
                 $"{ResPath}: branch_special_kind 必须是【降低撤退风险】类（允许：{string.Join(" / ", SpecialBranchKinds)}；" +
                 $"**不得只加资源类**；P25 ⑧ / #298）。");
+        }
+
+        // ⑨ **净光照代价必须 > 0**（`#299` / 红线 24「净代价」）：
+        //    净 = (该段耗 −30) + light_gain 必须 < 0 ⇒ **light_gain < 30**
+        //    🔴 否则支路"自己还本" ⇒ 退化成纯赚（实测 X=20 时激进 88% > 保守/均衡 84%）
+        if (m.BranchSpecialWeight > 0 && (m.BranchSpecialLightGain <= 0 || m.BranchSpecialLightGain >= 30))
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: branch_special_light_gain 必须 ∈ (0, 30) —— 净光照代价必须 > 0（P25 ⑨ / 红线 24 / #299）。");
         }
 
         if (m.MaxBranches < 1 || m.MaxBranches > 3)

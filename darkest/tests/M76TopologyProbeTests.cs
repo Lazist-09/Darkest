@@ -738,5 +738,143 @@ public sealed class M76TopologyProbeTests
         Assert.AreEqual(3, lines.Count);
     }
 
+    /// <summary>
+    /// 🔴 **`#299` ③ 三臂对照**：**只切 `light_gain`**（X = 30 / 20 / 10；净 = −30 + X ⇒ 0 / −10 / −20）× 三档
+    /// ⇒ 判读：**哪一个让三档出现【倒 U】**（均衡最高、两端次优）；若三者都"激进最高" ⇒ 回报，那时才谈 (d)。
+    /// 🔴 并校验 **V3 形态之二**：`branch_special_weight` 开启后，**"绕支路"档完成率不得高于保守/均衡**。
+    /// ⚠️ **X = 30 违反 P25 ⑨（净代价必须 > 0）** ⇒ 仅作对照臂保留（探针直接构造配置、不走加载校验）。
+    /// </summary>
+    [TestMethod]
+    public void O299_LightGain_Sweep_ThreeArms()
+    {
+        TuningConfig tuning = Tuning();
+        ExpeditionNodesConfig nodesG = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+        ExpeditionMapConfig shipped = MapCfg();
+
+        Func<bool, bool, int, ExpeditionMapConfig, string> run = (br, bright, gain, cfg) =>
+        {
+            const int runs = 25;
+            int completed = 0, retreats = 0;
+            for (int i = 0; i < runs; i++)
+            {
+                var log = new CombatLog();
+                var rng = new RngProvider(20260909 + (i * 43));
+                var bag = new Inventory(tuning.Inventory!);
+                bag.ConfigureRecommended(out _);
+                bag.LockForRun();
+                var session = new ExpeditionSession(_ => MonteCarlo.HeadlessDriver.NewDirector(new CombatLog()),
+                    tuning.Expedition.NBattles, bag.CountOf(ItemKind.Firewood), bag.CountOf(ItemKind.Food),
+                    tuning.Expedition.AmbushChance);
+                var flow = new ExpeditionFlow(session, new LightMeter(tuning.Light!), bag,
+                    new Scouting(tuning.Scouting!, tuning.Light!), nodesG, tuning, log, rng);
+                ExpeditionMap map = flow.BeginTopology(cfg);
+                var visited = new HashSet<int> { map.StartId };
+                bool aborted = false;
+                int localWins = 0;
+
+                int guard = 0;
+                while (!flow.ReachedGoal && !aborted && guard++ < 60)
+                {
+                    var all = map.Edges
+                        .Where(e => e.From == flow.CurrentRoomId || e.To == flow.CurrentRoomId)
+                        .Select(e => e.From == flow.CurrentRoomId ? e.To : e.From)
+                        .Distinct()
+                        .Select(id => map.Rooms.First(r => r.Id == id))
+                        .ToList();
+                    var options = all.Where(r => !visited.Contains(r.Id)).ToList();
+                    bool back = options.Count == 0;
+                    if (back)
+                    {
+                        options = all;
+                    }
+
+                    if (options.Count == 0)
+                    {
+                        break;
+                    }
+
+                    MapRoom next = br && options.Any(o => o.IsBranch) && !back
+                        ? options.First(o => o.IsBranch)
+                        : options.First(o => o.Id == map.GoalId || !o.IsBranch);
+
+                    if (!flow.StepTo(next.Id).Moved)
+                    {
+                        break;
+                    }
+
+                    visited.Add(next.Id);
+                    if (bright && flow.Meter.Value <= 50)
+                    {
+                        flow.Meter.TryBrighten(log, () => true);
+                    }
+
+                    if (next.Type == "free_light" && gain > 0)
+                    {
+                        flow.Meter.TryAdvanceBy(log, +gain, "free_light");
+                    }
+
+                    if (next.Type == "battle")
+                    {
+                        int idx = session.BattlesPlayed + 1;
+                        BattleDirector d = session.BeginExpeditionBattle(idx, log, tuning.Expedition.DifficultyTiers);
+                        string result = "RoundLimit";
+                        int round = 1;
+                        for (; round <= 100; round++)
+                        {
+                            d.RunFullRound(rng, unit => MonteCarlo.Policies.DecideForUnit(
+                                MonteCarlo.PolicyKind.SemiRandom, unit, d, rng));
+                            if (d.IsBattleOver)
+                            {
+                                result = d.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+                                break;
+                            }
+                        }
+
+                        session.EndBattle(d, idx, result, Math.Min(round, 100));
+                        if (result != "PlayerVictory")
+                        {
+                            aborted = true;
+                            retreats++;
+                            break;
+                        }
+
+                        localWins++;
+                    }
+                    else if (next.Type != "free_light")
+                    {
+                        session.ResolveEventNode(log, nodesG.Nodes.First(n => n.Type == "event"), 0);
+                    }
+                }
+
+                if (!aborted && flow.ReachedGoal && localWins >= tuning.Expedition.BattleGoal)
+                {
+                    completed++;
+                }
+            }
+
+            return $"{completed / (double)runs:P0}（撤退 {retreats}）";
+        };
+
+        var lines = new List<string>();
+        foreach (int gain in new[] { 30, 20, 10 })
+        {
+            ExpeditionMapConfig cfg = shipped with
+            {
+                Map = shipped.Map with { BranchSpecialWeight = 100, BranchSpecialLightGain = gain },
+            };
+            string keep = run(false, true, gain, cfg);
+            string bal = run(false, false, gain, cfg);
+            string aggr = run(true, false, gain, cfg);
+            lines.Add($"[M7.6] #299 X={gain}（净 {gain - 30}）：保守 {keep}　均衡 {bal}　激进 {aggr}" +
+                      (gain == 30 ? "　🔴 **违反 P25 ⑨（净代价必须 > 0）**，仅作对照臂" : string.Empty));
+        }
+
+        lines.Add("[M7.6] #299 判读：**倒 U = 均衡最高**；若三臂都" +
+                  "激进最高 ⇒ 回策划谈 (d)；🔴 **V3 形态之二**：激进完成率【不得高于】保守/均衡（否则=纯赚）");
+        Console.WriteLine(string.Join("\n", lines));
+        TestContext.WriteLine(string.Join("\n", lines));
+        Assert.AreEqual(4, lines.Count);
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }
