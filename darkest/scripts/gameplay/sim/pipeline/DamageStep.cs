@@ -60,7 +60,9 @@ public static class DamageStep
         bool anyCrit = false;
         for (int i = 0; i < multipliers.Count; i++)
         {
-            int critRate = Math.Clamp(attacker.Base.Crit + critMod + critBonus, 0, 100);
+            // 🔴 M7.5 补欠账（`#302` (i1) 片②）：**暴击率修正**（`light.effects` 的 enemy_crit_pct / our_crit_pct）
+            //    与 `crit_bonus`（buff）**同层**：都是"单位状态" ⇒ 一起 clamp（不给 BattleMath 加参）
+            int critRate = Math.Clamp(attacker.Base.Crit + critMod + critBonus + attacker.CritModPct, 0, 100);
             double critRoll = rng.NextPercent();
             log.Append(new RngDraw(rng.DrawCount, critRoll));
             bool crit = critRoll < critRate;

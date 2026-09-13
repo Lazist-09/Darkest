@@ -239,6 +239,35 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             }
         }
 
+        // 🔴 片②（`#303`）：**暴击率** —— 敌 `enemy_crit_pct` ／ 我 `our_crit_pct`（同一 `CritModPct` 层）
+        if (lightEffect is not null && lightEffect.EnemyCritPct != 0)
+        {
+            int pct = (int)Math.Round(lightEffect.EnemyCritPct);
+            foreach (UnitRuntime u in director.Enemy.UnitsInSlotOrder())
+            {
+                u.ApplyCritModPct(pct);
+            }
+        }
+
+        if (lightEffect is not null && lightEffect.OurCritPct != 0)
+        {
+            int pct = (int)Math.Round(lightEffect.OurCritPct);
+            foreach (UnitRuntime u in director.Player.UnitsInSlotOrder())
+            {
+                u.ApplyCritModPct(pct);
+            }
+        }
+
+        // 🔴 片②：**命中率** —— 敌 `enemy_acc`（接在 `HitStep` 的命中判定层，与 `hit_mod` 同层）
+        if (lightEffect is not null && lightEffect.EnemyAcc != 0)
+        {
+            int acc = (int)Math.Round(lightEffect.EnemyAcc);
+            foreach (UnitRuntime u in director.Enemy.UnitsInSlotOrder())
+            {
+                u.ApplyAccModPct(acc);
+            }
+        }
+
         // #253 备用轴：**敌眩晕抗性 +Npp**（不改回合数、不改伤害 ⇒ 同时避开 A1 两个带；位移抗性不动）
         if (tier is not null && tier.StunResistPp != 0)
         {

@@ -23,7 +23,9 @@ public static class HitStep
         int hidden = Math.Max(0, attacker.ConsecutiveMisses - 1) * 4;
         // D4（#206）：死门后遗症 命中 −5（约定：effect=hit_mod 的 percent 视为"点"）
         int aftereffect = buffs?.PercentMod(attacker.Id, "hit_mod") ?? 0;
-        int rate = Math.Clamp(shown + hidden + aftereffect, 0, 100);
+        // 🔴 M7.5 补欠账（`#302` (i1) 片②）：**命中率修正**（`light.effects.enemy_acc`）
+        //    与 `hit_mod`（死门后遗症）**同层**：都是"单位状态"百分点 ⇒ 一起 clamp（不改 BattleMath 签名）
+        int rate = Math.Clamp(shown + hidden + aftereffect + attacker.AccModPct, 0, 100);
         double roll = rng.NextPercent();
         log.Append(new RngDraw(rng.DrawCount, roll));
         bool hit = roll < rate;

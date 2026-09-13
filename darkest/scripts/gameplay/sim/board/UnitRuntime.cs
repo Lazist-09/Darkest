@@ -132,6 +132,25 @@ public sealed class UnitRuntime
     public void ApplyTraitDamagePct(int pct) => DamageModPct += pct;
 
     /// <summary>
+    /// 🔴 M7.5 补欠账（`#302` (i1) 片②）：**暴击率修正（百分点的加法层）** ——
+    /// 供 `light.effects` 的 `enemy_crit_pct`（敌）/ `our_crit_pct`（我）接线；
+    /// 与 `crit_bonus`（buff）**同层**（`DamageStep` 里一起 clamp 到 [0,100]）。
+    /// </summary>
+    public int CritModPct { get; private set; }
+
+    /// <summary>叠加一份暴击率修正（单位：百分点）。</summary>
+    public void ApplyCritModPct(int pct) => CritModPct += pct;
+
+    /// <summary>
+    /// 🔴 M7.5 补欠账（`#302` (i1) 片②）：**命中率修正（百分点）** —— 供 `light.effects.enemy_acc` 接线；
+    /// 与 `hit_mod`（死门后遗症 buff）**同层**（都在命中判定处一起 clamp）。
+    /// </summary>
+    public int AccModPct { get; private set; }
+
+    /// <summary>叠加一份命中率修正（单位：百分点）。</summary>
+    public void ApplyAccModPct(int pct) => AccModPct += pct;
+
+    /// <summary>
     /// 🔴 **取整余数结转**（`㉟` 对称性修正）：伤害是整数、而下限（damageFloor）会吃掉小数 ⇒
     /// 若不结转，**减伤侧会被下限吞掉**（实测 −10% 只落到 −0.6%），而增伤侧被取整抬高（+21.6%）⇒ **两侧不对称**。
     /// 把每次被取整丢掉的部分留到下一次命中，使**长期均值与百分比成正比** ⇒ 两侧收敛。
