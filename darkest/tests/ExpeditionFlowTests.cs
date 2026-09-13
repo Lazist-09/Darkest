@@ -131,8 +131,9 @@ public sealed class ExpeditionFlowTests
 
         Assert.AreEqual(logC.Events.OfType<TownReturnEvent>().Last().MoraleBefore, afterCompleted,
             "#245：完成档也**不恢复到 50**");
-        Assert.IsTrue(afterRetreat < 50,
-            $"撤退**保留撤退结算后的士气、不恢复到 50**（实测撤退 {afterRetreat} < 50）");
+        // 🔴 #245 的正确表述：**撤退不改变士气**（既不抬到 50、也不二次扣）——不依赖"士气必须低于 50"
+        Assert.AreEqual(e.MoraleBefore, afterRetreat,
+            $"撤退保留撤退结算后的士气（不恢复到 50、不二次扣；实测 {afterRetreat}）");
     }
 
     [TestMethod]

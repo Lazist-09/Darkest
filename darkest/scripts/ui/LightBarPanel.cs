@@ -19,6 +19,13 @@ public partial class LightBarPanel : CanvasLayer
     private ProgressBar _bar = null!;
     private Label _text = null!;
 
+    /// <summary>
+    /// 档位**边界视觉标记**（`#272` ③ / `m7_verification` V11 ④）：
+    /// 在 25 / 50 / 75 三处画竖线 + 文字 —— 否则玩家看不出"**再走一步就进 Dark**"，
+    /// 而"自选风险"要求玩家能**预判**（看不见边界就无法预判）。
+    /// </summary>
+    public static readonly int[] TierBoundaries = { 25, 50, 75 };
+
     public override void _Ready()
     {
         _bar = new ProgressBar
@@ -31,6 +38,27 @@ public partial class LightBarPanel : CanvasLayer
             Size = new Vector2(360, 24),
         };
         AddChild(_bar);
+
+        // 边界竖线（按条宽等比放在对应百分比处）+ 刻度文字
+        foreach (int boundary in TierBoundaries)
+        {
+            var mark = new ColorRect
+            {
+                Name = $"LightMark{boundary}",
+                Color = new Color(0.9f, 0.9f, 0.4f, 0.9f),
+                Position = new Vector2(24 + (int)(360 * boundary / 100.0) - 1, 12),
+                Size = new Vector2(2, 32),
+            };
+            AddChild(mark);
+
+            var caption = new Label
+            {
+                Name = $"LightMarkText{boundary}",
+                Text = boundary.ToString(),
+                Position = new Vector2(24 + (int)(360 * boundary / 100.0) - 6, 44),
+            };
+            AddChild(caption);
+        }
 
         _text = new Label
         {
