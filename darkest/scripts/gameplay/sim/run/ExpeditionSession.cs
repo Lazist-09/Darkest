@@ -268,6 +268,13 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             }
         }
 
+        // 🔴 片③(a)：**我方士气伤害** —— `our_morale_damage_pct` 接进 `MoraleLedger`
+        //    （只对"受击派生"的士气损失生效；事件/流程的士气变化不受光照影响）
+        if (lightEffect is not null && lightEffect.OurMoraleDamagePct != 0)
+        {
+            director.Morale.OurMoraleDamagePct = (int)Math.Round(lightEffect.OurMoraleDamagePct);
+        }
+
         // #253 备用轴：**敌眩晕抗性 +Npp**（不改回合数、不改伤害 ⇒ 同时避开 A1 两个带；位移抗性不动）
         if (tier is not null && tier.StunResistPp != 0)
         {

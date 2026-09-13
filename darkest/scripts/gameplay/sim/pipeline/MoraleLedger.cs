@@ -52,12 +52,33 @@ public sealed class MoraleLedger
 
     public int Get(UnitRuntime unit) => unit.Morale;
 
+    /// <summary>
+    /// 🔴 M7.5 补欠账（`#302` (i1) 片③(a)）：**光照档位对我方的士气伤害加成（百分点）** ——
+    /// 由战斗构建方按当前光照档注入（`light.effects.our_morale_damage_pct`）。
+    /// 🔴 只作用于**"受击派生"**的士气损失（见 <see cref="HitDerivedSources"/>）——
+    /// 事件/流程导致的士气变化**不受光照影响**（避免把不相关的涨落也算进去）。
+    /// </summary>
+    public int OurMoraleDamagePct { get; set; }
+
+    /// <summary>"受击派生"的士气损失来源（`ApplyIncomingDamageMorale` + 虚弱受击）⇒ 光照加成只对这些生效。</summary>
+    private static readonly HashSet<string> HitDerivedSources = new(StringComparer.Ordinal)
+    {
+        "mental_hit", "mental_crit_hit", "mental_aoe_hit", "weak_hit_any_damage",
+    };
+
     /// <summary>唯一写入口：clamp 至 [min,max]，写 MoraleEvent，返回实际净变动。</summary>
     public int Apply(UnitRuntime unit, int delta, string sourceId, CombatLog log)
     {
         if (unit is null)
         {
             throw new ArgumentNullException(nameof(unit));
+        }
+
+        // 🔴 片③(a)：**光照档位对我方的士气伤害加成**（只作用于受击派生来源）
+        if (delta < 0 && OurMoraleDamagePct != 0 && HitDerivedSources.Contains(sourceId))
+        {
+            int scaled = (int)Math.Round(delta * (1.0 + (OurMoraleDamagePct / 100.0)));
+            delta = Math.Min(scaled, -1);
         }
 
         // 🔴 片③ (b)（`#302` (i1)）：**受士气伤害的特质层【真正进结算】** ——

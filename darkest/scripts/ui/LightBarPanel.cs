@@ -93,8 +93,9 @@ public partial class LightBarPanel : CanvasLayer
 
         return string.Create(CultureInfo.InvariantCulture,
             $"光照 {value}/100　档位 {tierName}" +
-            $"　🔴 **给敌人：命中 +{e.EnemyAcc:0.#} / 伤害 +{e.EnemyDmgPct:0.#}% / 暴击 +{e.EnemyCritPct:0.#}%（未生效：战斗层尚未接线，见 #302）**" +
-            $"　我方：士气伤害 +{e.OurMoraleDamagePct:0.#}% / 暴击 +{e.OurCritPct:0.#}% / 被偷袭 +{e.OurAmbushPct:0.#}%（同未生效）" +
+            $"　给敌人：命中 +{e.EnemyAcc:0.#} / 伤害 +{e.EnemyDmgPct:0.#}% / 暴击 +{e.EnemyCritPct:0.#}%（**已生效**）" +
+            $"　我方：士气伤害 +{e.OurMoraleDamagePct:0.#}% / 暴击 +{e.OurCritPct:0.#}%（**已生效**）" +
+            $"· 被偷袭 +{e.OurAmbushPct:0.#}%（**未生效**：夜袭判定尚未接进生产路径，见 #302）" +
             $"　侦察 +{e.ScoutingPct:0.#}%（**已生效**）");
     }
 }

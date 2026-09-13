@@ -177,5 +177,30 @@ public sealed class TraitPipelineTests
         Assert.AreEqual(-12, d2, "−10 × 1.2 = −12（可核）");
     }
 
+    /// <summary>
+    /// 🔴 **片③ (a)：`our_morale_damage_pct` 真的进结算** —— 且**只作用于"受击派生"**的士气损失
+    /// （事件/流程导致的士气变化**不受光照影响**）。
+    /// </summary>
+    [TestMethod]
+    public void Slice3a_LightMoraleDamage_AppliesToHitDerivedOnly()
+    {
+        var log = new CombatLog();
+        var director = MonteCarlo.HeadlessDriver.NewDirector(log);
+        var ledger = director.Morale;
+        var units = director.Player.UnitsInSlotOrder().ToArray();
+
+        ledger.OurMoraleDamagePct = 20; // 模拟"当前光照档：我方士气伤害 +20%"
+
+        int hitDerived = ledger.Apply(units[0], -10, "mental_hit", log);   // 受击派生 ⇒ 加成生效
+        int eventDriven = ledger.Apply(units[1], -10, "event_stress", log); // 事件类 ⇒ 不受光照影响
+
+        string report = $"[片③a] 光照 our_morale_damage_pct=+20%：受击派生(mental_hit) ⇒ {hitDerived}；" +
+                        $"事件类(event_stress) ⇒ {eventDriven}（应仍为 −10）";
+        Console.WriteLine(report);
+
+        Assert.AreEqual(-12, hitDerived, "受击派生 ⇒ −10 × 1.2 = −12（可核）");
+        Assert.AreEqual(-10, eventDriven, "🔴 事件类士气变化不受光照影响（加成只作用于受击派生）");
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }
