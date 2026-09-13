@@ -40,8 +40,12 @@ public sealed class CampSkillsConfigTests
         CampSkillsConfig cfg = CampSkillsConfig.Parse(ReadData("camp_skills.json"));
 
         Assert.AreEqual(12, cfg.Skills.Count, "12 个扎营技能");
-        Assert.AreEqual(2, cfg.ConsumedCount, "🔴 已接线 = 2 个技能（轮流守夜 ／ 站岗 —— 两者都是 ambush_immunity_once）");
-        Assert.AreEqual(10, cfg.DeferredCount, "其余 10 个技能登记为【阶段二：无落点】");
+        Assert.IsTrue(CampSkillsConfig.PartitionsAreDisjoint,
+            "🔴 两个清单必须【互斥】（同一 effect 名不得既已接线又阶段二 —— 我踩过一次：导致计数虚高）");
+        Assert.AreEqual(6, cfg.ConsumedCount,
+            "🔴 已接线 = 6 个技能：守夜 ／ 站岗（ambush_immunity_once）＋ 磨刀 ／ 操练（next_battle_sharpen）" +
+            "＋ 加固甲胄（next_battle_armor）＋ 打气（battles:4）");
+        Assert.AreEqual(6, cfg.DeferredCount, "其余 6 个（笑谈 ／ 埋锅造饭 ／ 动员 ／ 包扎 ／ 配药 ／ 照料）");
         Assert.AreEqual(cfg.Skills.Count, cfg.ConsumedCount + cfg.DeferredCount, "每个 effect 名都必须被登记（防线）");
     }
 

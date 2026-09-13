@@ -228,6 +228,8 @@ public sealed record BuffDefsConfig(
     {
         // damage_mod —— 消费点：`DamageStep` 的 `raw`（`buffDamageMult` 同层相乘；特质也走这一层）
         "per_round_damage", "dealt_damage_mult", "next_attack_mult", "taken_damage_mult",
+        // 🔴 打气（`battles:4`）：**士气伤害减免** —— 消费点：`MoraleLedger.Apply`（`delta < 0` 时乘 1+percent/100）
+        "taken_morale_damage_mult",
         // prob_mod —— 消费点：按名分发（`AfflictionProcs` / 各自结算处）
         "refuse_skill", "refuse_heal", "randomize_attack_target",
         "deaths_door_resist_bonus", "crit_bonus", "hit_mod",

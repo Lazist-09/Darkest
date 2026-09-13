@@ -426,6 +426,13 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             GrantRunBuff(target, "next_battle_armor", remainingBattles: 1);
         }
 
+        // 🔴 `m7_expedition.md:160`（三类型之二 `battles:N`）：**打气**（士气伤害 −15%）——
+        //    契约：**跨场 4 场**、**扎营【不清】它**（`ConsumeRunBuffsAfterBattle` 每场 −1，扎营不碰 ✓）
+        if (effect == "morale_damage_minus_15_for_4_battles")
+        {
+            GrantRunBuff(target, "pep_talk", remainingBattles: 4);
+        }
+
         return true;
     }
 

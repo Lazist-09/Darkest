@@ -41,6 +41,9 @@ public sealed record CampSkillsConfig(
     public static readonly IReadOnlySet<string> ConsumedEffectNames = new HashSet<string>(StringComparer.Ordinal)
     {
         "ambush_immunity_once",
+        "grant_buff:next_battle_sharpen",
+        "grant_buff:next_battle_armor",
+        "morale_damage_minus_15_for_4_battles", // 🔴 打气（battles:4 ⇒ 跨场层计数 + MoraleLedger 消费）
     };
 
     /// <summary>
@@ -49,16 +52,16 @@ public sealed record CampSkillsConfig(
     /// </summary>
     public static readonly IReadOnlySet<string> DeferredStageTwoEffectNames = new HashSet<string>(StringComparer.Ordinal)
     {
-        "grant_buff:next_battle_sharpen",
-        "grant_buff:next_battle_armor",
         "morale_plus_8",
         "morale_plus_5_team",
         "morale_plus_8_team",
         "heal_15_percent_and_clear_bleed",
         "clear_weak_and_deaths_door_recovery",
         "heal_5_percent",
-        "morale_damage_minus_15_for_4_battles",
     };
+
+    /// <summary>🔴 不变式：两个清单**必须互斥**（同一个 effect 名不得既"已接线"又"阶段二"）。</summary>
+    public static bool PartitionsAreDisjoint => !ConsumedEffectNames.Overlaps(DeferredStageTwoEffectNames);
 
     public static CampSkillsConfig Parse(string json)
     {

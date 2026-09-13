@@ -122,4 +122,50 @@ public sealed class RunBuffTests
         var unit2 = d2.Player.UnitRuntimeAt(slot);
         Assert.IsFalse(d2.Buffs.Has(unit2!.Id, "next_battle_armor"), "只生效一场");
     }
+
+    /// <summary>
+    /// 🔴 **`battles:N` 类（`m7_expedition.md:160` ② / :175）**：**打气 = 跨场 4 场、扎营【不清】它**、士气伤害 −15%。
+    /// 本用例按功能级验收：① 挂上时剩余 **4 场** ② **扎营不清**（中间扎一次营，仍在）③ **第 4 场后失效**
+    /// ④ **士气伤害真的变小**（`MoraleLedger.Apply` 的下降幅度）。
+    /// </summary>
+    [TestMethod]
+    public void PepTalk_LastsFourBattles_SurvivesCamping_AndReducesMoraleDamage()
+    {
+        (ExpeditionSession session, ExpeditionFlow flow, TuningConfig tuning, CombatLog log, UnitId hero, int slot) = NewRun();
+
+        Assert.IsTrue(flow.Camp(), "扎营成功");
+        Assert.IsTrue(session.UseCampSkill(log, "camp_commissar_pep_talk", 2, hero,
+            "morale_damage_minus_15_for_4_battles"), "打气应可施加");
+        Assert.AreEqual(4, session.RunBuffs[0].RemainingBattles, "🔴 契约：`remaining_battles: 4`");
+
+        // ① 第 1 场：注入 + **士气伤害变小**（−15%）
+        var d1 = session.BeginExpeditionBattle(1, log, tuning.Expedition.DifficultyTiers);
+        var u1 = d1.Player.UnitRuntimeAt(slot)!;
+        Assert.IsTrue(d1.Buffs.Has(u1.Id, "pep_talk"), "打气应注入本场");
+
+        // 对照：**没有打气**的另一个单位（同 delta）⇒ 原样 −10
+        var u1b = d1.Player.UnitsInSlotOrder().First(u => u.Id != u1.Id);
+        int plain = d1.Morale.Apply(u1b, -10, "mental_hit", log);
+        Assert.AreEqual(-10, plain, "对照：无打气的单位为 −10");
+
+        // 打气持有者：同 delta ⇒ 下降幅度应更小（契约 −15%）
+        int buffed = d1.Morale.Apply(u1, -10, "mental_hit", log);
+        Assert.IsTrue(Math.Abs(buffed) < Math.Abs(plain),
+            $"🔴 打气应【减小士气伤害】：无 buff {plain} ／ 有 buff {buffed}（契约 −15%）");
+
+        // ② 打满 4 场 ⇒ 第 4 场后清掉；且**中间扎营不清它**
+        flow.OnBattleFinished("PlayerVictory", rounds: 5, isAmbush: true); // 1 场
+        Assert.IsTrue(session.RunBuffs.Count == 1, "还有 3 场");
+        Assert.IsTrue(flow.Camp(), "第 2 次扎营（**扎营不清打气**）");
+        Assert.AreEqual(1, session.RunBuffs.Count, "🔴 契约：扎营【不清】打气");
+        Assert.AreEqual(3, session.RunBuffs[0].RemainingBattles, "扎营不消耗跨场场次");
+
+        session.BeginExpeditionBattle(2, log, tuning.Expedition.DifficultyTiers);
+        flow.OnBattleFinished("PlayerVictory", rounds: 5, isAmbush: true); // 2 场
+        session.BeginExpeditionBattle(3, log, tuning.Expedition.DifficultyTiers);
+        flow.OnBattleFinished("PlayerVictory", rounds: 5, isAmbush: true); // 3 场
+        session.BeginExpeditionBattle(4, log, tuning.Expedition.DifficultyTiers);
+        flow.OnBattleFinished("PlayerVictory", rounds: 5, isAmbush: true); // 4 场
+        Assert.AreEqual(0, session.RunBuffs.Count, "🔴 第 4 场后失效（跨场 4 场 ✓）");
+    }
 }

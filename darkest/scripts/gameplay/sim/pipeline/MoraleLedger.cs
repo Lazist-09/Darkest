@@ -92,6 +92,19 @@ public sealed class MoraleLedger
             delta = Math.Min(scaled, -1);
         }
 
+        // 🔴 **打气（`pep_talk`：士气伤害 −15%）** —— 消费点在此（`taken_morale_damage_mult`，百分点）。
+        //    与特质层【同层相加】：先特质乘数、再 buff 乘数 ⇒ 两者都作用在"受士气伤害"上 ✓
+        //    （依据：`m7_expedition.md:175` 打气 = 跨场 4 场、士气伤害 −15%）
+        if (delta < 0 && _buffs is not null)
+        {
+            int buffPct = _buffs.PercentMod(unit.Id, "taken_morale_damage_mult");
+            if (buffPct != 0)
+            {
+                int scaled = (int)Math.Round(delta * (1.0 + (buffPct / 100.0)));
+                delta = Math.Min(scaled, -1); // 仍至少 −1（防"减伤把 1 点抹成 0"，红线 22 同族）
+            }
+        }
+
         int newValue = Math.Clamp(unit.Morale + delta, _balance.MoraleMin, _balance.MoraleMax);
         int actual = newValue - unit.Morale;
         unit.Morale = newValue;
