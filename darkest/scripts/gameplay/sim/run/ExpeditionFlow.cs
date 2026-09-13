@@ -136,15 +136,70 @@ public sealed class ExpeditionFlow
             return;
         }
 
-        // 🔴 收益端（#270 裁定①）：按当前光照档**确定给份数**，不引入抽取
+        // 🔴 收益端（#270 裁定①）：按当前光照档**确定给份数**，不引入抽取；
+        // 🔴 且按 D2/P21 ⑬：补给**进背包**（`Inventory.TryPickup` 流程）—— **满则进"待处理"、绝不静默丢**。
         int grant = _tuning.Light!.Loot[LightMeter.TierId(_meter.Tier)];
-        if (grant > 0)
+        for (int i = 0; i < grant; i++)
         {
-            _session.Gain(_log, "food", grant, "loot");
+            TryCollectLoot(ItemKind.Food);
         }
 
         _ = step;
         StepsDone++;
+    }
+
+    private readonly Queue<InventoryItem> _pendingLoot = new();
+    private int _lootSeq;
+
+    /// <summary>包满而暂未收下的补给（**待玩家在主面板/背包界面选择丢弃后收取**；不是丢弃）。</summary>
+    public IReadOnlyCollection<InventoryItem> PendingLoot => _pendingLoot;
+
+    /// <summary>背包界面在"选择丢弃"流程里调用：把一件补给收进背包。</summary>
+    public bool TryCollectLoot(InventoryItem item) => Collect(item);
+
+    /// <summary>收取一件补给（按类型进背包并同步会话计数）。</summary>
+    public bool TryCollectLoot(ItemKind kind) => Collect(new InventoryItem(kind, $"loot_{StepsDone}_{_lootSeq++}"));
+
+    /// <summary>把"待处理"补给再尝试收一次（玩家腾出格子后调用）。</summary>
+    public bool RetryPendingLoot()
+    {
+        while (_pendingLoot.Count > 0)
+        {
+            InventoryItem next = _pendingLoot.Peek();
+            if (!Collect(next))
+            {
+                return false;
+            }
+
+            _pendingLoot.Dequeue();
+        }
+
+        return true;
+    }
+
+    private bool Collect(InventoryItem item)
+    {
+        if (!_bag.TryAdd(item, out string reason))
+        {
+            if (reason == "full_choose_discard")
+            {
+                _pendingLoot.Enqueue(item); // 🔴 不静默丢：交由玩家选择丢弃哪一格
+            }
+
+            return false;
+        }
+
+        // 与远征会话的资源计数保持同步（背包是物品来源；会话计数用于资源收支读数）
+        if (item.Kind == ItemKind.Firewood)
+        {
+            _session.Gain(_log, "firewood", 1, "loot");
+        }
+        else if (item.Kind == ItemKind.Food)
+        {
+            _session.Gain(_log, "food", 1, "loot");
+        }
+
+        return true;
     }
 
     /// <summary>夜袭判定（扎营后调用；触发则插一场额外战斗，计入完成）。</summary>

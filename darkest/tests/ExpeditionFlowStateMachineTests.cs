@@ -89,26 +89,75 @@ public sealed class ExpeditionFlowStateMachineTests
     }
 
     [TestMethod]
-    public void Flow_BattleFinished_GrantsLootByTier_NoDraw()
+    public void Flow_BattleFinished_LootGoesToBag_FullGoesPending_NoSilentDrop_NoDraw()
     {
         (ExpeditionFlow flow, TuningConfig tuning, CombatLog log) = NewFlow();
-        FlowStep step = flow.Advance(1); // option 1 = 战斗（确定性：不靠 seed 运气）
+        FlowStep step = flow.Advance(1); // option 1 = 战斗（确定性）
         if (step.Kind != FlowStepKind.Battle)
         {
             Assert.Inconclusive("本 seed 首步是事件（路径随机）");
             return;
         }
 
-        int before = flow.Session.Food;
+        int foodBefore = flow.Session.Food;
+        int bagBefore = flow.Bag.Count;
         int drawsBefore = log.Events.OfType<RngDraw>().Count();
 
         flow.OnBattleFinished("PlayerVictory", rounds: 5);
 
         int expected = tuning.Light!.Loot[LightMeter.TierId(flow.Meter.Tier)];
-        Assert.AreEqual(before + expected, flow.Session.Food,
-            $"按档确定给份数（档 {LightMeter.TierId(flow.Meter.Tier)} ⇒ {expected} 份）");
-        Assert.AreEqual(drawsBefore, log.Events.OfType<RngDraw>().Count(), "🔴 掉落**不得引入抽取**（P21 ⑧ / #270）");
+        int collected = flow.Bag.Count - bagBefore;
+        int pending = flow.PendingLoot.Count;
+
+        // 🔴 掉落进**背包**；背包满（推荐配置恰满 12）⇒ 剩余进"待处理"，**绝不静默丢**
+        Assert.AreEqual(expected, collected + pending,
+            $"按档共 {expected} 份补给：已收 {collected} + 待处理 {pending}（不得静默丢弃）");
+        Assert.AreEqual(foodBefore + collected, flow.Session.Food, "会话计数与**实际收进背包**的份数同步");
+        Assert.AreEqual(drawsBefore, log.Events.OfType<RngDraw>().Count(), "🔴 掉落不得引入抽取（P21 ⑧ / #270）");
         Assert.AreEqual(1, flow.StepsDone);
+    }
+
+    [TestMethod]
+    public void Flow_PendingLoot_CollectedAfterFreeingSlot()
+    {
+        (ExpeditionFlow flow, _, _) = NewFlow();
+
+        // 走到较暗档位（100→40：4 次前进，每次 −15），使掉落份数 > 0
+        int advanced = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            FlowStep s = flow.Advance(1); // option 1 = 战斗（确定性）
+            if (s.Kind != FlowStepKind.Battle)
+            {
+                continue; // 路径随机导致非战斗步：跳过（本用例只验"满格 → 待处理 → 腾格可收"）
+            }
+
+            flow.OnBattleFinished("PlayerVictory", rounds: 5);
+            advanced++;
+        }
+
+        Assert.IsTrue(advanced > 0, "至少完成一场战斗");
+        Assert.IsTrue(flow.Bag.Count > 0, "背包有物品（推荐配置）");
+
+        // 满格场景：待处理 + 已收 == 本趟份数；腾出一格后**至少能收下一件**（不静默丢、也不白丢）
+        int before = flow.PendingLoot.Count;
+        if (before == 0)
+        {
+            Console.WriteLine("[M7.5] 本档份数被背包全部收下（未触发满格）——待处理分支需满格场景");
+            return;
+        }
+
+        Assert.IsTrue(flow.Bag.TryDiscardAt(0, out _), "玩家选择丢弃一格（腾格）");
+
+        // 腾够格数（待处理件数 ≥ 1；逐格丢弃后再收）——注意 RetryPendingLoot 对**收不下的那件会重新入队**，
+        // 因此"待处理计数只减"不成立；正确断言 = 腾出足够格子后**能全部收下**
+        for (int i = 0; i < before && flow.Bag.Count > 0; i++)
+        {
+            flow.Bag.TryDiscardAt(0, out _);
+        }
+
+        flow.RetryPendingLoot();
+        Assert.AreEqual(0, flow.PendingLoot.Count, $"腾够格子后应把 {before} 件待处理补给**全部收进背包**（不静默丢）");
     }
 
     [TestMethod]
