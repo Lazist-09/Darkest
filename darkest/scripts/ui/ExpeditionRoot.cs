@@ -464,6 +464,17 @@ public partial class ExpeditionRoot : Node
         {
             bool ok = _flow!.Camp();
             GD.Print($"[拓扑UI] 扎营：{(ok ? "成功（光照回满）" : "拒绝（柴火不足）")}　夜袭触发={_flow.LastCampAmbushed}");
+
+            // 🔴 `#307`③：**夜袭要真的插一场战斗**（契约：计入 6 场皆胜）——
+            //    内核侧已提供 `BeginAmbushBattle`（真实战斗、同一难度递进 + 当前光照档）。
+            //    ⚠️ **UI 侧的战斗承接**（与 `BattleRoot` 的往返：进战斗 → 结算 → 回地图）**是下一步**：
+            //    我这里**不自己跑回合**（那会重复实现一套战斗驱动，且 `BattleRoot` 才是本项目的战斗入口）。
+            if (ok && _flow.LastCampAmbushed)
+            {
+                GD.Print("[拓扑UI] 夜袭已触发 ⇒ **应插一场额外战斗**（内核 `BeginAmbushBattle` 就绪；" +
+                         "UI 与 BattleRoot 的往返待下一步）");
+            }
+
             RefreshMapView();
         };
         AddChild(_campInTopology);

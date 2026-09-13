@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Core.Rng;
+using Darkest.Data;
 using Darkest.Gameplay.Sim.Run;
 using Darkest.Tests.MonteCarlo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -124,5 +126,57 @@ public sealed class ExpeditionAmbushTests
         }
 
         Assert.IsTrue(anyAfter, "免疫用掉后夜袭恢复正常判定");
+    }
+
+    /// <summary>
+    /// 🔴 **`#307`③：夜袭【真的插一场战斗】且【计入 6 场皆胜】**（契约 `m7_expedition.md:35`）——
+    /// 内核提供 `BeginAmbushBattle`（真实战斗：同一难度递进 + 当前光照档）；
+    /// 结算走**常规路径** `OnBattleFinished` ⇒ **自然计入胜场**（无需特殊通道）✓
+    /// </summary>
+    [TestMethod]
+    public void AmbushBattle_IsInserted_AndCountsTowardWins()
+    {
+        TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
+        ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+        var log = new CombatLog();
+        var bag = new Inventory(tuning.Inventory!);
+        bag.ConfigureRecommended(out _);
+        bag.LockForRun();
+        var session = new ExpeditionSession(l => HeadlessDriver.NewDirector(l),
+            tuning.Expedition.NBattles, bag.CountOf(ItemKind.Firewood), bag.CountOf(ItemKind.Food),
+            ambushChance: 1.0); // 必定触发（专测插入）
+        var flow = new ExpeditionFlow(session, new LightMeter(tuning.Light!), bag,
+            new Scouting(tuning.Scouting!, tuning.Light!), nodes, tuning, log, new RngProvider(20260909));
+
+        int winsBefore = flow.Wins, battlesBefore = session.BattlesPlayed;
+
+        Assert.IsTrue(flow.Camp(), "扎营成功");
+        Assert.IsTrue(flow.LastCampAmbushed, "ambush_chance=1.0 ⇒ 必定触发夜袭");
+
+        var director = flow.BeginAmbushBattle(log);
+        Assert.IsNotNull(director, "🔴 夜袭必须插一场【真实战斗】（不是只给一个标记）");
+        Assert.IsTrue(flow.AmbushBattleStarted, "已标记为夜袭战斗（防重复插）");
+
+        // 走常规结算路径 ⇒ 计入胜场（夜袭战斗不是节点步骤 ⇒ `isAmbush: true` 让守卫放行）
+        flow.OnBattleFinished("PlayerVictory", rounds: 5, isAmbush: true);
+        Assert.AreEqual(winsBefore + 1, flow.Wins, "🔴 夜袭胜场【计入 Wins】（契约：计入 6 场皆胜）");
+        Assert.AreEqual(battlesBefore + 1, session.BattlesPlayed, "夜袭也推进一步战斗序号");
+    }
+
+    private static string ReadData(string name)
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null)
+        {
+            string candidate = Path.Combine(dir.FullName, "data", name);
+            if (File.Exists(candidate))
+            {
+                return File.ReadAllText(candidate);
+            }
+
+            dir = dir.Parent;
+        }
+
+        throw new FileNotFoundException($"data/{name} 未找到。");
     }
 }

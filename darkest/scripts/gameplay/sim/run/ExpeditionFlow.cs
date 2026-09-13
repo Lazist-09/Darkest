@@ -202,11 +202,13 @@ public sealed class ExpeditionFlow
 
     /// <summary>
     /// 战斗结束回灌：失败/撤退 ⇒ 本趟结束；胜利 ⇒ **按档给份数掉落**（#270：不掷骰）并推进。
+    /// 🔴 `#307`③：**夜袭战斗**（`isAmbush: true`）是"扎营后插进来的额外战斗"，**不是节点步骤** ⇒
+    ///    守卫对它放行（契约 `m7_expedition.md:35`：夜袭战斗**计入 6 场皆胜**）。
     /// </summary>
-    public void OnBattleFinished(string result, int rounds)
+    public void OnBattleFinished(string result, int rounds, bool isAmbush = false)
     {
         _ = rounds;
-        if (Current is not { Kind: FlowStepKind.Battle } step)
+        if (!isAmbush && Current is not { Kind: FlowStepKind.Battle })
         {
             throw new InvalidOperationException("当前步骤不是战斗节点（流程层不应调用）。");
         }
@@ -240,8 +242,7 @@ public sealed class ExpeditionFlow
         // 🔴 M8.1：**传家宝与金钱同源**（同一结算点、同一光照档）—— 未注入则不记（不静默造平行账）
         _heirlooms?.AwardForTier(_log, LightMeter.TierId(_meter.Tier), "battle");
 
-        Wins++; // #273：完成需要「打赢 ≥ battle_goal 场」
-        _ = step;
+        Wins++; // #273：完成需要「打赢 ≥ battle_goal 场」；🔴 夜袭战斗同样计入（契约 m7_expedition.md:35）
         StepsDone++;
     }
 
@@ -328,6 +329,27 @@ public sealed class ExpeditionFlow
 
     /// <summary>上一次扎营后是否触发夜袭（`#305`：触发 ⇒ 调用方插一场额外战斗，计入胜场）。</summary>
     public bool LastCampAmbushed { get; private set; }
+
+    /// <summary>
+    /// 🔴 **`#307`③：夜袭【真的插一场战斗】**（契约 `m7_expedition.md:35`：**夜袭产生的战斗计入 6 场皆胜**）——
+    /// 返回一个**真实战斗**（走与常规战斗完全相同的构建路径：同一难度递进 + **当前光照档**），
+    /// 其 `battleIndex` 取 `BattlesPlayed + 1` ⇒ 结算后**自然计入胜场/掉落/传家宝**（无需特殊通道）。
+    /// ⚠️ 调用方负责跑回合并调 `OnBattleFinished`（与常规战斗一致）。
+    /// </summary>
+    public Darkest.Gameplay.Sim.Director.BattleDirector BeginAmbushBattle(Darkest.Core.Events.CombatLog log)
+    {
+        if (!LastCampAmbushed)
+        {
+            throw new InvalidOperationException("未触发夜袭：先扎营（Camp）且 LastCampAmbushed 为真。");
+        }
+
+        AmbushBattleStarted = true;
+        int idx = _session.BattlesPlayed + 1;
+        return _session.BeginExpeditionBattle(idx, log, _tuning.Expedition.DifficultyTiers, _meter.Effect);
+    }
+
+    /// <summary>本趟是否已经为夜袭插过战斗（防重复插）。</summary>
+    public bool AmbushBattleStarted { get; private set; }
 
     /// <summary>回城结算（士气完全不恢复由内核 #245 保证）。</summary>
     public int ReturnToTown(string outcome)
