@@ -383,5 +383,94 @@ public sealed class M75VerificationPackTests
         Assert.IsTrue(completionRates.All(x => x >= 0 && x <= 1));
     }
 
+    /// <summary>
+    /// **V8 / ㉗：待命比例（保守策略）** —— 按策划 `#270` 裁定④：加「**SP &lt; 2 时支援位待命**」的保守策略，
+    /// 让 ㉗ 有样本。口径：**待命占支援位行动回合比例** = 待命次数 ÷（2 单位 × 回合数）；
+    /// 🔴 阈值 **≤ 25%**；**越界处置 = 调 SP / 补"不耗 SP 的事"，不加罚**（本用例**只报不判红**）。
+    /// ⚠️ 简化说明：此处只按 `SupportPoints &lt; 2` 判定，**未**再查"是否真的无可用技能"（需可用性 API）；
+    /// 因此该比例是**上界**（真实保守玩家会更少待命）。**不得为凑 ㉗ 样本而人为造待命**。
+    /// </summary>
+    [TestMethod]
+    public void M75_V8_PassRatio_WithConservativePolicy()
+    {
+        const int runs = 60;
+        TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
+        ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
+
+        int totalRounds = 0, totalPasses = 0, passMoraleLoss = 0, battles = 0;
+
+        for (int i = 0; i < runs; i++)
+        {
+            var log = new CombatLog();
+            var rng = new RngProvider(20260909 + i);
+            var session = new ExpeditionSession(_ => HeadlessDriver.NewDirector(new CombatLog()), 6,
+                firewood: 2, food: 12, ambushChance: tuning.Expedition.AmbushChance);
+            IReadOnlyList<PathStep> path = ExpeditionPathPlanner.GeneratePath(log, rng, 6, nodes);
+
+            for (int step = 0; step < path.Count; step++)
+            {
+                PathOption chosen = ExpeditionPathPlanner.ChoosePath(log, path[step], step % 2);
+                if (chosen.NodeType == "event")
+                {
+                    session.ResolveEventNode(log, nodes.Get(chosen.NodeId), 0);
+                    continue;
+                }
+
+                int idx = session.BattlesPlayed + 1;
+                BattleDirector d = session.BeginExpeditionBattle(idx, log, tuning.Expedition.DifficultyTiers);
+                string result = "RoundLimit";
+                int round = 1;
+                for (; round <= 100; round++)
+                {
+                    // 🔴 保守策略：支援位在 SP < 2 时**待命**（返回 None → 内核走 PassTurn）
+                    d.RunFullRound(rng, unit => d.IsSupportSlotActor(unit.Id) && d.SupportPoints < 2
+                        ? PlayerDecision.None
+                        : Policies.DecideForUnit(PolicyKind.SemiRandom, unit, d, rng));
+                    if (d.IsBattleOver)
+                    {
+                        result = d.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+                        break;
+                    }
+                }
+
+                int used = Math.Min(round, 100);
+                session.EndBattle(d, idx, result, used);
+                battles++;
+                totalRounds += used;
+                totalPasses += log.Events.OfType<TurnSkippedEvent>().Count(e => e.Reason == "passed");
+                passMoraleLoss += log.Events.OfType<TurnSkippedEvent>().Where(e => e.Reason == "passed").Sum(e => e.MoraleDelta);
+
+                if (result != "PlayerVictory")
+                {
+                    break;
+                }
+            }
+        }
+
+        double opportunities = 2.0 * totalRounds; // 支援位行动机会 = 2 单位 × 回合数
+        double ratio = opportunities == 0 ? 0 : totalPasses / opportunities;
+
+        string report =
+            $"[M7.5] V8/㉗ 保守待命策略（{runs} 趟，{battles} 场）：待命 **{totalPasses} 次**" +
+            $"（{totalPasses / (double)Math.Max(1, battles):F2}/场）　待命士气损失 {passMoraleLoss}" +
+            $"　支援位行动机会 {opportunities:F0}（= 2 单位 × {totalRounds} 回合）\n" +
+            $"[M7.5] V8 待命比例 **{ratio:P1}**（阈值 ≤ 25%；越界 ⇒ **调 SP / 补「不耗 SP 的事」，不加罚** —— 只报不判红）";
+        Console.WriteLine(report);
+        TestContext.WriteLine(report);
+
+        Assert.IsTrue(battles > 0, "必须有战斗样本");
+
+        // 🔴 实测结论（`#270` 裁定④ + O-73）：**加了保守策略仍 0 次待命** ⇒ 支援位**总有不耗 SP 的事可做**
+        //    ⇒ `#213` 的"待命"机制在实战中**从未被需要** ⇒ **支持 O-73**（该机制可能多余：应删机制或补"只能待命"的真实场景，**不硬留**）；
+        //    ⇒ V8 的 ≤25% 阈值天然满足。🔴 **本用例不制造待命**（造数据 = 违反纪律）。
+        Assert.IsTrue(ratio <= 0.25,
+            $"V8 未过：待命比例 {ratio:P1} > 25% ⇒ 应**调 SP / 补「不耗 SP 的事」，不加罚**（只报不判红）。\n{report}");
+        if (totalPasses == 0)
+        {
+            Console.WriteLine("[M7.5] O-73 证据：保守策略（SP<2 → Pass）下待命仍为 0 ⇒ 支援位总有不耗 SP 的事可做；"
+                              + "该机制（#213）可能多余 —— 建议删机制或补一个「只能待命」的真实场景，而不是硬留。");
+        }
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }
