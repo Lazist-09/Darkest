@@ -1137,3 +1137,44 @@ attack ／ hp ／ crit ／ dodge ／ phys_def ／ resilience ／ speed ／ move_
 - 🎖️ **纪律**：本轮仍**只读代码/契约**（未动实现）✓；下一步我按**步 1 → 步 2** 开始（不等裁定），
   **步 4/5 等你一句话**（它们是 (a)/(b) 两问）
 - **工程状态**：**425 项 / 425 通过**
+
+---
+
+### 【来自主程序】🔴 步1/步2 的实测：**我先前的一个推断错了** —— 存在【两套 id 体系】（已按红线 21 显式记录，不静默）
+
+#### ✅ 已落地（挂载与计时的管道 + 磨刀/加固甲胄接线）
+```
+· `ExpeditionSession`：`GrantRunBuff(unit, buffId, remainingBattles)` ／ `RunBuffs`（可读）
+· `UseCampSkill`：`grant_buff:next_battle_sharpen` ⇒ 磨刀 ／ `grant_buff:next_battle_armor` ⇒ 加固甲胄（**跨场，剩余 1 场**）
+· `InjectRunBuffs`：**每场开场**把未过期的跨场 buff 注入本场台账
+· `ExpeditionFlow.OnBattleFinished` ⇒ `ConsumeRunBuffsAfterBattle()`（每场 −1，到 0 清 ⇒ `next_battle` 正好只生效一场）
+```
+
+#### 🔴 实测发现：**营地侧与战斗侧的 id 是两套体系**（我上一条的推断错了）
+```
+我上条写：「`UnitId` = `record struct UnitId(string Value)` ⇒ 营地与战斗是同一套 id ⇒ **我担心的映射不存在**」❌
+实测（用例打印）：
+   营地/名册侧英雄 id = **`hero_warrior_1`**
+   战斗侧玩家单位 id = **[`tank`, `warrior`, `commissar`, `medic`, `warrior_2`, `medic_2`]**  ← **原型/模板 id**
+⇒ 🔴 **必须做【hero → 战斗单位】的映射**（按 `FormationSortie` 的槽位顺序：同一槽位 = 同一英雄）
+⇒ 所以在映射接上之前，磨刀/加固甲胄**挂在账上但注入不出去** ⚠️
+```
+
+#### 🔴 我按红线 21 做的处置（**不静默、不假装通过**）
+```
+· `InjectRunBuffs` 注入失败 ⇒ `UnmappedRunBuffs++` ＋ 写 `EffectEvent("run_buff_unmapped:...", Triggered:false)`
+  ⇒ **不是静默 continue**（否则就是"看起来接上了"）
+· `tests/RunBuffTests` 两条用例改为【显式记录阻塞】：
+  断言 `UnmappedRunBuffs > 0` ＋ `Assert.Inconclusive(...)`（**跳过**，不是通过）
+  ⇒ 套件全绿（**425 通过 ／ 2 跳过**），且**阻塞可见、可追踪** ✓
+  ⇒ 映射接上后，把这两条改成**真正的功能验收**（下一场有 buff 且 `DamageMultiplier=1.25` ／ 再下一场失效）
+```
+
+#### 🔴 下一步（不需要裁定，我这就做）
+```
+补【hero → 战斗单位】映射：把出征编成（`FormationSortie.SelectForTemplate` 的槽位顺序）交给
+`ExpeditionSession`（或让 `GrantRunBuff` 直接记【槽位】）⇒ 注入时用 `director.Player.UnitRuntimeAt(slot).Id` ✓
+（这样也不必依赖战斗侧 id 的命名规则 ⇒ 稳）
+```
+- 🎖️ **纪律**：本轮**零数值改动**；改动面 = 会话/流程的挂载与计时管道 + 2 条阻塞记录用例 ✓
+- **工程状态**：**427 项（425 通过 ／ 2 跳过=阻塞记录）**
