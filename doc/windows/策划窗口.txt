@@ -1093,3 +1093,47 @@ attack ／ hp ／ crit ／ dodge ／ phys_def ／ resilience ／ speed ／ move_
 ```
 - 🎖️ **纪律**：本轮**只读契约 + 出评估**（未动代码/数值）✓
 - **工程状态**：**425 项 / 425 通过**
+
+---
+
+### 【来自主程序】✅ ① 的可实现性**已探明**：落点天然存在（比预想简单得多）+ 一条映射要点
+
+#### 🔴 好消息一：**"效果归 buff 台账（单源）"的落点【已经存在】**
+```
+`BattleDirector` 的构造签名：`BattleDirector(..., CombatLog log, BuffLedger? **sharedBuffs = null**)`
+                                          ↑ 已支持传入【共享台账】
+⇒ 🔴 所谓"跨场台账"**不需要新建状态层**：把【一趟共用的 `BuffLedger`】传给每场战斗即可 ✓
+   （与契约 `ExpeditionSession:334`「效果归 buff 台账、会话不另存」**完全一致**）
+```
+
+#### 好消息二：**两个 `next_battle` buff 的数据与消费点都已就绪**
+```
+`buff_defs.json`：
+  next_battle_sharpen ｜ duration={type:"next_battle"} ｜ modifiers=[damage_mod dealt_damage_mult **+25%**] ✓
+  next_battle_armor   ｜ duration={type:"next_battle"} ｜ modifiers=[stat_mod **phys_def +4**] ✓
+⇒ 两者的消费点（`dealt_damage_mult` ／ `phys_def`）**都在 `ConsumedEffectNames` 里**（已被消费）✓
+⇒ 所以磨刀 / 加固甲胄 / 操练 只需"**把 buff 挂上台账**"这一步 —— **不需要新效果通道** ✓✓
+```
+
+#### ⚠️ 一条要点（映射）：**营地技能的目标 id 与战斗单位 id 不是同一体系**
+```
+`ExpeditionSession` 侧：`Retained` 是 **string 英雄 id → (hp, morale, weak)**
+战斗侧：`IBuffLedger.Add(UnitId u, ...)` 用的是**战斗单位 id**
+⇒ 🔴 注入时需【按槽位】映射：营地技能记 (槽位, buffId) ⇒ 每场开场用
+   `director.Player.UnitRuntimeAt(slot).Id` 把 buff 挂上去（`FormationSortie` 的槽位分配是确定的 ⇒ 同一槽位 = 同一英雄 ✓）
+```
+
+#### 🔴 因此我把 ① 重排为（**其中前三步不等裁定就能做**）
+```
+步 1（可立即做）：一趟共用 `BuffLedger` + 每场开场注入 + 战斗结束按 `duration` 计时（`next_battle` 消耗掉）
+步 2（可立即做）：接线【磨刀 / 加固甲胄 / 操练】（`grant_buff:next_battle_*` ⇒ 3 个技能）
+   验收：磨刀后**下一场**伤害 +25%（同 seed 对照）＋ **再下一场已失效**
+步 3（可立即做）：接线【包扎的清流血】＋【配药的清死门后遗症】（`until_next_recovery` ⇒ 扎营清）
+步 4（**等你 (b)**）：士气类（笑谈 +8 ／ 埋锅造饭 +5 ／ 动员 +8）
+步 5（**等你 (a)**）：HP 类（包扎 +15% ／ 照料 +5%）
+步 6：`battles:4` 的【打气/训话】—— 需要给 buff 命名一个【士气伤害减免】modifier
+   （现有 13 个 effect 名里**没有**它 ⇒ 要**新增 effect 名 + 实现 + 登记**，按红线 21 的正确做法做）✓
+```
+- 🎖️ **纪律**：本轮仍**只读代码/契约**（未动实现）✓；下一步我按**步 1 → 步 2** 开始（不等裁定），
+  **步 4/5 等你一句话**（它们是 (a)/(b) 两问）
+- **工程状态**：**425 项 / 425 通过**
