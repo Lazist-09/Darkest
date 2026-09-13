@@ -142,6 +142,15 @@ public partial class ExpeditionRoot : Node
                 PressCamp();
             }
 
+            // 🔴 冒烟：`--revisit` ⇒ **再进一次远征场景**（真场景切换）⇒ 验【返程守卫】：
+            //    应打印"返程：复用同一趟"且**地图保持同一张**（而不是重开一趟 + 新地图）
+            if (System.Array.Exists(args, a => a == "--revisit"))
+            {
+                GD.Print("[拓扑UI] --revisit ⇒ 再进一次远征场景（验返程守卫：同一趟 + 同一张地图）");
+                GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
+                return;
+            }
+
             return; // 拓扑模式的推进由玩家点选驱动（不再走旧线性 `ShowPathChoice`）
         }
 
