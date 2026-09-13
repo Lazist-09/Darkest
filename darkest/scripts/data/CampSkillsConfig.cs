@@ -33,7 +33,7 @@ public sealed record CampSkillConfig(
 ///    ✅ 目前**没有扎营技能面板** ⇒ 玩家确实选不了 ⇒ 属**潜在风险**而非活跃缺陷。
 /// </summary>
 public sealed record CampSkillsConfig(
-    [property: JsonPropertyName("skills")] IReadOnlyList<CampSkillConfig> Skills)
+    [property: JsonPropertyName("camp_skills")] IReadOnlyList<CampSkillConfig> Skills)
 {
     public const string ResPath = "res://data/camp_skills.json";
 
