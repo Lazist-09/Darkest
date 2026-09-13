@@ -22,7 +22,8 @@
       { "id": "dark",    "min": 1,  "max": 25 },
       { "id": "black",   "min": 0,  "max": 0 }
     ],
-    "drop_chance": { "radiant": 0.0, "dim": 0.25, "shadowy": 0.5, "dark": 0.75, "black": 0.95 },
+    "loot": { "radiant": 0, "dim": 1, "shadowy": 2, "dark": 3, "black": 4 },
+    "loot_note": "#270 裁定①：收益端改【按档确定给份数】、**去掉掷骰**（自选风险必须算得出；赌博式掉落会让摸黑变运气而非决策）；P21 ④ 校验对象 = 份数（单调不减）；P21 ⑧ = 掉落**不得引入抽取**",
     "effects": {
       "radiant": { "our_morale_damage_pct": 0,  "enemy_acc": 0,    "enemy_dmg_pct": 0,   "enemy_crit_pct": 0, "our_ambush_pct": 0,  "our_crit_pct": 0, "scouting_pct": 15 },
       "dim":     { "our_morale_damage_pct": 10, "enemy_acc": 0,    "enemy_dmg_pct": 0,   "enemy_crit_pct": 1, "our_ambush_pct": 0,  "our_crit_pct": 0, "scouting_pct": 7.5 },

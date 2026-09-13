@@ -33,6 +33,12 @@ public sealed class PassPenaltyTests
         int after = d.Player.UnitRuntimeAt(d.Player.UnitAtPosition(actor)!.Value)!.Morale;
         Assert.AreEqual(Math.Max(0, before - 5), after, "士气**实际**被扣（走既有 MoraleLedger 通道）");
 
+        // 🔴 #269 门禁（P21 ⑦）：**冗余必须可对账** —— MoraleEvent.delta == TurnSkippedEvent.MoraleDelta
+        //（状态单源 = MoraleLedger；TurnSkippedEvent 的 MoraleDelta 只是统计冗余；两者不等才是真双源）
+        int moraleEventDelta = log.Events.OfType<MoraleEvent>().Last(e => e.Source == "pass").Delta;
+        Assert.AreEqual(moraleEventDelta, skip.MoraleDelta,
+            "P21 ⑦ / #269：MoraleEvent.delta 必须 == TurnSkippedEvent.MoraleDelta（冗余可对账）");
+
         Assert.IsTrue(log.Events.OfType<MoraleEvent>().Any(e => e.Source == "pass"), "士气变更写 MoraleEvent（唯一来源）");
     }
 

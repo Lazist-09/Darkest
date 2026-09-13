@@ -115,8 +115,8 @@ public sealed class LightMeterTests
     {
         TuningConfig t = Tuning();
         Assert.AreEqual(5, t.Light!.Tiers.Count, "五档（P21 ①）");
-        Assert.AreEqual(0.0, t.Light.DropChance["radiant"]);
-        Assert.AreEqual(0.95, t.Light.DropChance["black"], "Black 95% 额外补给（D0.3）");
+        Assert.AreEqual(0, t.Light.Loot["radiant"], "#270：Radiant 0 份");
+        Assert.AreEqual(4, t.Light.Loot["black"], "#270：Black **4 份**（按档确定给份数、去掉掷骰）");
         Assert.AreEqual(25, t.Scouting!.BasePct, "侦察基础 25%（D1）");
         Assert.AreEqual("next_node_type_only", t.Scouting.Reveal);
         Assert.AreEqual(12, t.Inventory!.SlotCap, "背包 12 格（P21 ⑥：不许调到 15）");

@@ -129,16 +129,14 @@ public sealed class M75VerificationPackTests
                     break; // 撤退 / 全灭 → 提前回城
                 }
 
-                // ㉔ 额外补给掉落（D0.3：越暗越富）—— 由光照档决定概率；写 RngDraw
+                // ㉔ 额外补给（#270 裁定①：**按档确定给份数、去掉掷骰**；P21 ⑧ 掉落不得引入抽取）
                 string tierId = LightMeter.TierId(meter.Tier);
                 tierNights[tierId] = tierNights.GetValueOrDefault(tierId) + 1;
-                double dropChance = lightCfg.DropChance[tierId];
-                double roll = rng.NextPercent();
-                battleLog.Append(new RngDraw(rng.DrawCount, roll));
-                if (roll < dropChance * 100.0)
+                int grant = lightCfg.Loot[tierId];
+                if (grant > 0)
                 {
-                    session.Gain(log, "food", 1, "loot"); // 收益端 = 补给本身（无金钱）
-                    loot++;
+                    session.Gain(log, "food", grant, "loot"); // 收益端 = 补给本身（无金钱）
+                    loot += grant;
                 }
             }
 

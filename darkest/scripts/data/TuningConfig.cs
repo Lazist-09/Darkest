@@ -139,7 +139,7 @@ public sealed record TuningLight(
     [property: JsonPropertyName("event_torch_gain")] int EventTorchGain,
     [property: JsonPropertyName("event_dark_cost")] int EventDarkCost,
     [property: JsonPropertyName("tiers")] IReadOnlyList<TuningLightTier> Tiers,
-    [property: JsonPropertyName("drop_chance")] Dictionary<string, double> DropChance,
+    [property: JsonPropertyName("loot")] Dictionary<string, int> Loot,
     [property: JsonPropertyName("effects")] Dictionary<string, TuningLightEffect> Effects);
 
 public sealed record TuningLightTier(
@@ -420,28 +420,30 @@ public sealed record TuningConfig(
             throw new InvalidDataException($"{ResPath}: light.tiers 必须覆盖到 0（P21 ①）。");
         }
 
-        foreach ((string id, double chance) in t.Light.DropChance)
+        // 🔴 P21 ④（#270 改）：收益端 = **按档确定给份数**（不是概率）；份数 ≥0 且随变暗**单调不减**；
+        // 掉落**不得引入抽取**（P21 ⑧：自选风险必须"算得出"，赌博式掉落会让摸黑变成运气而非决策）。
+        foreach ((string id, int grant) in t.Light.Loot)
         {
-            if (chance is < 0 or > 1)
+            if (grant < 0)
             {
-                throw new InvalidDataException($"{ResPath}: light.drop_chance[\"{id}\"] 必须 ∈ [0,1]（P21 ④）。");
+                throw new InvalidDataException($"{ResPath}: light.loot[\"{id}\"] 必须 ≥ 0（P21 ④）。");
             }
         }
 
-        double lastDrop = -1;
+        int lastLoot = -1;
         foreach (string id in order)
         {
-            if (!t.Light.DropChance.TryGetValue(id, out double chance))
+            if (!t.Light.Loot.TryGetValue(id, out int grant))
             {
-                throw new InvalidDataException($"{ResPath}: light.drop_chance 缺档 \"{id}\"（P21 ④）。");
+                throw new InvalidDataException($"{ResPath}: light.loot 缺档 \"{id}\"（P21 ④）。");
             }
 
-            if (chance < lastDrop)
+            if (grant < lastLoot)
             {
-                throw new InvalidDataException($"{ResPath}: light.drop_chance 必须随变暗**单调不减**（{id}；P21 ④）。");
+                throw new InvalidDataException($"{ResPath}: light.loot 必须随变暗**单调不减**（{id}；P21 ④）。");
             }
 
-            lastDrop = chance;
+            lastLoot = grant;
             if (!t.Light.Effects.ContainsKey(id))
             {
                 throw new InvalidDataException($"{ResPath}: light.effects 缺档 \"{id}\"（P21 ③）。");
