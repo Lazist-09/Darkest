@@ -1,0 +1,45 @@
+{
+  "note": "M8.1（hamlet.md §1 / m8_roadmap §1）：传家宝 = 第三种资源（从光照档掉落，与金钱同源）；建筑升级两轴 = 降费 / 解锁更高阶；每级消耗固定几种传家宝、数量递增。首批只做 M8.0 已存在的三个建筑（tavern / abbey / stagecoach）—— Blacksmith / Guild / Sanitarium 属 M8.2/M8.3，出现即报错。",
+  "kinds": ["busts", "crests", "deeds", "portraits"],
+  "kind_note": "照抄 DD 四种：Busts / Crests / Deeds / Portraits（名称可用于 UI 展示）",
+  "tier_drop": {
+    "radiant": {},
+    "dim": { "crests": 1 },
+    "shadowy": { "crests": 1, "deeds": 1 },
+    "dark": { "crests": 2, "deeds": 1, "portraits": 1 },
+    "black": { "crests": 3, "deeds": 2, "portraits": 2, "busts": 2 }
+  },
+  "drop_note": "与光照档挂钩（越暗越多，与金钱同源）；P23 一 校验：每档总份数单调不减、且 shadowy 起必须 > 0",
+  "upgrade_paths": [
+    {
+      "building": "tavern",
+      "axis": "cost_down",
+      "note": "酒馆：降费（减压更便宜）；每级固定 crests+portraits、份数递增",
+      "levels": [
+        { "level": 1, "cost": { "crests": 3, "portraits": 2 }, "effect": { "relief_cost_delta": -1 } },
+        { "level": 2, "cost": { "crests": 5, "portraits": 3 }, "effect": { "relief_cost_delta": -1 } },
+        { "level": 3, "cost": { "crests": 8, "portraits": 5 }, "effect": { "relief_cost_delta": -1 } }
+      ]
+    },
+    {
+      "building": "abbey",
+      "axis": "effect_up",
+      "note": "修道院：提高恢复量（同价同效的对称轴：与酒馆同为减压建筑，但两栋的升级都各自独立）",
+      "levels": [
+        { "level": 1, "cost": { "crests": 3, "busts": 1 }, "effect": { "morale_restore_delta": 5 } },
+        { "level": 2, "cost": { "crests": 5, "busts": 2 }, "effect": { "morale_restore_delta": 5 } },
+        { "level": 3, "cost": { "crests": 8, "busts": 3 }, "effect": { "morale_restore_delta": 5 } }
+      ]
+    },
+    {
+      "building": "stagecoach",
+      "axis": "unlock",
+      "note": "驿站马车：解锁更高阶（名册上限 +2 / 新兵起始等级 +1）—— 解锁型升级的代表",
+      "levels": [
+        { "level": 1, "cost": { "deeds": 3, "crests": 2 }, "effect": { "roster_cap_delta": 2 } },
+        { "level": 2, "cost": { "deeds": 5, "crests": 4 }, "effect": { "roster_cap_delta": 2 } },
+        { "level": 3, "cost": { "deeds": 8, "crests": 6 }, "effect": { "rookie_level": 2 } }
+      ]
+    }
+  ]
+}

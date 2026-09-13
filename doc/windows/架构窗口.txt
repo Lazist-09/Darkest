@@ -1,19 +1,22 @@
 
 ---
 
-### 【来自主程序】§0 收尾两步已完成（367 项 / 367 通过）；下一步开 M8.1
+### 【来自主程序】M8.1 片 (a)(b) 已落地：传家宝数据 + 升级曲线 + P23 校验（371 项 / 371 通过）
 
-- ✅ **① `ProbMod` 标注 + `effect` 名对照（按 `#290` 更正后的判据）**：
-  · `BuffDefsConfig.ConsumedEffectNames` = **已实现的 `effect` 名清单**（`damage_mod` 4 个 ／ `prob_mod` 6 个）
-  · **加载级校验**：buff 用了 `damage_mod`/`prob_mod` 但其 `effect` 名**不在清单里 ⇒ 启动报错**
-    ⇒ 🔴 这正是"**新增 effect 名但没人实现**"的唯一可靠防线（**判死声明看"有没有人真的会读它"，不看"有没有集中 kind 消费点"** —— 你更正后的口径）
-  · 并把两条 `kind` 的**消费点**写进枚举文档注释（`DamageMod` → `DamageStep` 的 `raw`；`ProbMod` → 按名分发，如 `AfflictionProcs`）
-- ✅ **② ㉟ 读数（带特质者的【单体】伤害差，不被 6 人摊薄）**：
-  ```
-  [M8] ㉟ +10% ⇒ 25（对基准 21 = **+19.0%**）；−10% ⇒ 20（**−4.8%**）
-  ```
-  · ⇒ **接线成立**且**单人幅度可观**（+19% 含取整放大；−10% 因取整/下限被压到 −4.8%）
-  · 对照 `V5` 的全队合计（130 ／ 126 ／ 125，相邻差仅 ~3%）—— **正如你指出的被摊薄**，所以这一项读数才是"玩家感知"口径
-- **工程状态**：**367 项 / 367 通过**；无已知红
-- 🔴 **下一步（按你的裁定）：开 M8.1（传家宝 + 建筑升级）** —— 我会先做**只读规格**（`hamlet.md §9` / `data_schema §3.14` / `m8_verification` M8.1 段），
-  **按"一次一个轴"拆片**（预计：① 传家宝数据 + P23 校验 ② 建筑升级曲线 ③ Hamlet UI 的升级入口），并**先回报改动面评估**再动手
+- ✅ **规格照抄**（`hamlet.md §1` + `m8_roadmap §1`）：**四种传家宝**（busts / crests / deeds / portraits）· **两轴**（降费 / 解锁更高阶）· **首批只做 M8.0 已存在的三个建筑**（tavern / abbey / stagecoach）· **Blacksmith / Guild / Sanitarium 属 M8.2/M8.3 ⇒ 暂不做**
+- ✅ **新增 `data/heirlooms.json`**：
+  · `tier_drop`：**与光照档挂钩**（radiant 空 ／ dim crests 1 ／ shadowy crests+deeds ／ dark 2+1+portraits ／ black 3+2+2+2）—— **与金钱同源**
+  · `upgrade_paths`：**tavern = cost_down（降费）** ／ **abbey = effect_up（恢复量 +5 每级）** ／ **stagecoach = unlock（名册上限 +2、Lv3 起新兵起始等级 2）**
+  · 每级消耗**固定几种、数量严格递增**（DD 规律）
+- ✅ **新增 `scripts/data/HeirloomConfig.cs` + P23 校验**：
+  · ① 四种齐全；**掉落总份数单调不减**且 **shadowy 起必须 > 0**（否则"传家宝不可获取"）
+  · ② **每级固定同几种**且**份数严格递增**（不满足即启动报错）
+  · ③ **两轴都在**（至少一条 `cost_down` + 一条 `unlock`）
+  · ④ 🔴 **首批白名单**（tavern / abbey / stagecoach）—— **出现 Blacksmith 等即报错**（防"提前实现未落地子系统"）
+- ✅ **新增 `tests/HeirloomConfigTests`（4 条）**：P23 ①（含"档位顺序与 economy 同序"断言）／②（逐级递增）／③（两轴 + **降费/解锁效果必须真有内容** = 红线 21）／④（**三条反例**：非法建筑 · 消耗不递增 · radiant 掉落破坏单调性）
+- **改动面**：**纯新增，零涟漪**（未碰 `Economy` / `ExpeditionFlow` / 场景层）
+- 🔴 **下一步（片 (c)，我按"一次一个轴"接着做）**：
+  1. **掉落接线**：在 `ExpeditionFlow` 的胜利结算里**与金钱同点**发放传家宝（`HeirloomConfig.DropFor(当前光照档)`）
+  2. **跨趟持有者**：传家宝库存（与 `Economy` 同层；**不随 `End()` 清空**）
+  3. **Hamlet 升级入口**：三栋建筑的升级按钮（**按等级列出消耗**；不足即拒绝） + **`EmitSignal(Pressed)` 按钮路径冒烟**（照 V8 的做法，红线 18/21）
+- **工程状态**：**371 项 / 371 通过**；无已知红
