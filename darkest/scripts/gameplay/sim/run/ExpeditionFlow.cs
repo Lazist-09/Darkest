@@ -258,6 +258,11 @@ public sealed class ExpeditionFlow
 
         Wins++; // #273：完成需要「打赢 ≥ battle_goal 场」；🔴 夜袭战斗同样计入（契约 m7_expedition.md:35）
         StepsDone++;
+
+        // 🔴 跨场 buff 计时（`m7_expedition.md:160`）：一场结束 ⇒ 剩余场数 −1（到 0 清）。
+        //    `next_battle`（磨刀/加固甲胄）注入后剩余 1 ⇒ 本场结束即消耗掉 ⇒ **只生效一场** ✓
+        //    `battles:N`（训话/打气）⇒ 每场 −1，**扎营不清**（此处不涉及扎营，天然满足"扎营不清"✓）
+        _session.ConsumeRunBuffsAfterBattle();
     }
 
     private readonly Queue<InventoryItem> _pendingLoot = new();

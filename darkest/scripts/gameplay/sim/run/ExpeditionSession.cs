@@ -293,6 +293,10 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             }
         }
 
+        // 🔴 跨场 buff（`next_battle` 类）：**每场开场注入** —— 磨刀/加固甲胄 挂在上一趟扎营的目标身上 ⇒ 本场生效 ✓
+        //    （注入后由 `ExpeditionFlow.OnBattleFinished` → `ConsumeRunBuffsAfterBattle` 消耗 ⇒ 只生效一场）
+        InjectRunBuffs(director, log);
+
         return director;
     }
 
@@ -408,11 +412,98 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             AmbushImmune = true;
         }
 
+        // 🔴 `m7_expedition.md:160`（三类型之二）：**`next_battle` 类 buff** ——
+        //    磨刀（`next_battle_sharpen` 伤害 +25%）／加固甲胄（`next_battle_armor` 物防 +4）
+        //    ⇒ 挂成【跨场 buff，剩余 1 场】：下一场开场注入、该场结束即消耗 ✓
+        //    （两个 buff 的消费点 `dealt_damage_mult` ／ `phys_def` 早在 `ConsumedEffectNames` 里 ✓）
+        if (effect == "grant_buff:next_battle_sharpen")
+        {
+            GrantRunBuff(target, "next_battle_sharpen", remainingBattles: 1);
+        }
+
+        if (effect == "grant_buff:next_battle_armor")
+        {
+            GrantRunBuff(target, "next_battle_armor", remainingBattles: 1);
+        }
+
         return true;
     }
 
     /// <summary>是否持有"免下一次夜袭"（由扎营技能 `ambush_immunity_once` 授予；**在 `RollAmbush` 里消费**）。</summary>
     public bool AmbushImmune { get; private set; }
+
+    // ------------------------------------------------------------------
+    // 🔴 跨场 buff（`m7_expedition.md:160` 的三类型之二：`next_battle`）
+    //    契约：`next_battle`（磨刀/加固甲胄）= **仅下一场**；`battles:N` = 跨场计数（每场 −1，扎营不清）
+    //    落点：**每场开场把未过期的 buff 注入该场台账**（不是新状态层；台账仍是 buff 的唯一真相）
+    // ------------------------------------------------------------------
+
+    private readonly List<(UnitId Unit, string BuffId, int RemainingBattles)> _runBuffs = new();
+
+    /// <summary>本趟挂着的跨场 buff（供测试/日志：`(单位, buffId, 剩余场数)`）。</summary>
+    public IReadOnlyList<(UnitId Unit, string BuffId, int RemainingBattles)> RunBuffs => _runBuffs;
+
+    /// <summary>给某单位挂一个【跨场】buff（`next_battle` ⇒ `remainingBattles: 1`）。</summary>
+    public void GrantRunBuff(UnitId unit, string buffId, int remainingBattles)
+    {
+        if (remainingBattles < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(remainingBattles), "跨场 buff 的剩余场数必须 ≥ 1。");
+        }
+
+        _runBuffs.RemoveAll(b => b.Unit == unit && b.BuffId == buffId); // refresh 语义
+        _runBuffs.Add((unit, buffId, remainingBattles));
+    }
+
+    /// <summary>
+    /// 🔴 **把跨场 buff 注入本场**（每场开场调用；只对"本场在场的单位"注入）。
+    /// `next_battle` 类的注入后**在本场结束时消耗**（见 <see cref="ConsumeRunBuffsAfterBattle"/>）。
+    /// </summary>
+    public void InjectRunBuffs(BattleDirector director, CombatLog log)
+    {
+        if (_runBuffs.Count == 0)
+        {
+            return;
+        }
+
+        foreach ((UnitId unit, string buffId, int _) in _runBuffs.ToArray())
+        {
+            bool onField = director.Player.UnitsInSlotOrder().Any(u => u.Id == unit);
+            if (!onField)
+            {
+                // 🔴 **已知阻塞（不静默）**：营地侧用【英雄 id】（`hero_warrior_1`），
+                //    而战斗侧玩家单位用【原型 id】（`warrior` ／ `warrior_2` …）⇒ **两套 id 体系**。
+                //    ⇒ 需要【hero → 战斗单位】的映射（按 `FormationSortie` 的槽位顺序）才能注入；
+                //    在此之前这里**显式记录未映射**（红线 21：不留"看起来接上了"的假象）。
+                UnmappedRunBuffs++;
+                log.Append(new EffectEvent(unit, $"run_buff_unmapped:{buffId}", 0.0, Triggered: false));
+                continue;
+            }
+
+            director.Buffs.Add(unit, buffId, source: null);
+            log.Append(new EffectEvent(unit, $"run_buff:{buffId}", 100.0, true));
+        }
+    }
+
+    /// <summary>未能注入的跨场 buff 次数（**供测试/日志断言**：`> 0` 说明 hero→战斗单位映射仍缺）。</summary>
+    public int UnmappedRunBuffs { get; private set; }
+
+    /// <summary>一场结束后：跨场 buff 的剩余场数 −1（到 0 清除）。`next_battle` ⇒ 1 ⇒ 紧接着就被清 ✓</summary>
+    public void ConsumeRunBuffsAfterBattle()
+    {
+        for (int i = _runBuffs.Count - 1; i >= 0; i--)
+        {
+            (UnitId unit, string buffId, int left) = _runBuffs[i];
+            if (left <= 1)
+            {
+                _runBuffs.RemoveAt(i); // 用完即清（`next_battle` 的语义）
+            }
+            else
+            {
+                _runBuffs[i] = (unit, buffId, left - 1);
+            }
+        }
+    }
 
     /// <summary>结束扎营（夜袭判定由调用方接 `RollAmbush`；E5）。</summary>
     public void EndCamp(CombatLog log)
