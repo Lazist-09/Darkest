@@ -157,10 +157,11 @@ public sealed class ExpeditionAmbushTests
         Assert.IsNotNull(director, "🔴 夜袭必须插一场【真实战斗】（不是只给一个标记）");
         Assert.IsTrue(flow.AmbushBattleStarted, "已标记为夜袭战斗（防重复插）");
 
-        // 走常规结算路径 ⇒ 计入胜场（夜袭战斗不是节点步骤 ⇒ `isAmbush: true` 让守卫放行）
+        // 走真实的完整流程：跑战斗 → session.EndBattle（推进序号）→ flow.OnBattleFinished（计入胜场）
+        session.EndBattle(director, session.BattlesPlayed + 1, "PlayerVictory", 5);
         flow.OnBattleFinished("PlayerVictory", rounds: 5, isAmbush: true);
         Assert.AreEqual(winsBefore + 1, flow.Wins, "🔴 夜袭胜场【计入 Wins】（契约：计入 6 场皆胜）");
-        Assert.AreEqual(battlesBefore + 1, session.BattlesPlayed, "夜袭也推进一步战斗序号");
+        Assert.AreEqual(battlesBefore + 1, session.BattlesPlayed, "夜袭也推进一步战斗序号（EndBattle 记账）");
     }
 
     private static string ReadData(string name)
