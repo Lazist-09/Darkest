@@ -76,6 +76,15 @@ public partial class ExpeditionRoot : Node
 
         NewExpedition(); // 与 BattleRoot 同款：_Ready 即装配（数据经 DirectorBridge 读 res://data）
         ShowPathChoice(); // 首步：把两个候选交给选路界面（玩家点选后才推进）
+
+        // 🔴 M8.0 ③ 端到端冒烟路径（**跑图 → 回城**）：`--hamlet-next` ⇒ 本趟即刻结算并回城
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--hamlet-next") && _flow is not null)
+        {
+            GD.Print("[ExpeditionRoot] --hamlet-next ⇒ 本趟结算并回城（冒烟路径：启动 → 跑图 → 回城）");
+            _flow.ReturnToTown("completed");
+            ExpeditionContext.End();
+            GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
+        }
     }
 
     /// <summary>
@@ -142,6 +151,8 @@ public partial class ExpeditionRoot : Node
                 _flow.ReturnToTown("completed");
                 ExpeditionContext.End();
                 RefreshPanel();
+                // 🔴 M8.0 ③：本趟结束 ⇒ **回城**（金钱留在跨趟持有者里，不随 End 清空）
+                GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
                 return;
         }
     }
@@ -226,6 +237,8 @@ public partial class ExpeditionRoot : Node
                 _flow.ReturnToTown("completed");
                 ExpeditionContext.End();
                 RefreshPanel();
+                // 🔴 M8.0 ③：本趟结束 ⇒ **回城**（金钱留在跨趟持有者里，不随 End 清空）
+                GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
                 return;
         }
     }

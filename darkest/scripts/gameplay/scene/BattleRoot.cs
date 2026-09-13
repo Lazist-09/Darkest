@@ -56,7 +56,25 @@ public partial class BattleRoot : Node2D
         };
         startExpedition.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
         AddChild(startExpedition);
+
+        // 🔴 M8.0 ③（红线 18）：**回城入口也必须从启动场景可达**
+        var toHamlet = new Button
+        {
+            Name = "ToHamlet",
+            Text = "回城（Hamlet）",
+            Position = new Vector2(280, 700),
+            Size = new Vector2(220, 40),
+        };
+        toHamlet.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/hamlet/Hamlet.tscn");
+        AddChild(toHamlet);
         GD.Print("[BattleRoot] 地牢层入口就绪：StartExpedition 按钮（或 --expedition 命令行）⇒ res://scenes/expedition/Expedition.tscn");
+        GD.Print("[BattleRoot] 回城入口就绪：ToHamlet 按钮（或 --hamlet 命令行）⇒ res://scenes/hamlet/Hamlet.tscn");
+
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--hamlet"))
+        {
+            GD.Print("[BattleRoot] --hamlet ⇒ 直接回城（端到端冒烟路径：启动 → 回城）");
+            GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
+        }
 
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--expedition"))
         {

@@ -1,4 +1,5 @@
 using Darkest.Core.Events;
+using Darkest.Data;
 using Darkest.Gameplay.Sim.Run;
 
 namespace Darkest.Gameplay.Scene;
@@ -21,6 +22,19 @@ public static class ExpeditionContext
 
     /// <summary>本趟远征共用的日志（事件流是唯一事实来源）。</summary>
     public static CombatLog? Log { get; private set; }
+
+    /// <summary>
+    /// 🔴 M8.0 ②（`blueprint §9.15`）：**金钱是跨会话状态** —— 它**跨场景、跨趟存活**，
+    /// 因此**不随 `End()` 清空**（与 `Flow`/`Log` 的"一趟"生命周期不同）。
+    /// </summary>
+    public static Economy? Gold { get; private set; }
+
+    /// <summary>确保跨趟经济存在（首次进入地牢层或回城时创建；已存在则复用同一实例）。</summary>
+    public static Economy EnsureEconomy(EconomyConfig config, int gold = 0)
+    {
+        Gold ??= new Economy(config, gold);
+        return Gold;
+    }
 
     public static bool IsActive => Flow is not null;
 
