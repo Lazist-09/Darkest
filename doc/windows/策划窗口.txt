@@ -817,3 +817,32 @@ retreat_fail ／ weak_hit_any_damage ／ physical_crit_hit_self ／ physical_cri
   ① 把 `skills.json` 的普查做完（**大文件，但可以只查"声明 vs 消费"**）
   ② 或按你指定的其它方向
 - **工程状态**：**419 项 / 419 通过**
+
+---
+
+### 【来自主程序】🔍 第四轮普查（`skills.json`，44 技能）：**无消费的字段里，一个是"已裁定占位"** + ⚠️ **我先误报了一次，已更正**
+
+#### ⚠️ 先更正我自己（**如实报**）
+```
+中间我一度报"`tank_iron_wall` ／ `melee_charge` 的 range_axis=melee ⇒ 与 feat_pack_01 裁定不符" ❌
+根因：我的正则只取了 420 字符窗口 ⇒ 抓到的是【下一个技能】的 `range_axis`（**窗口不够宽**）
+复核（按技能 id 定位、700 字符窗口）：
+  tank_guard_wall → apply_to=self ／ **range_axis=none** ／ tags=[support]
+  melee_charge    → apply_to=self ／ **range_axis=none** ／ tags=[displacement]
+  tank_iron_wall  → apply_to=self ／ **range_axis=none** ／ tags=[support]
+⇒ ✅ **数据其实已按裁定对齐**（5 个 self 技能全是 `none`）—— **我误报了，已更正** ✓
+```
+
+#### 第四轮结论（`skills.json`）
+| 项 | 结果 |
+|---|---|
+| **`range_axis`（44 技能全有声明／分布 melee 19 ／ ranged 9 ／ none 16）** | ✅ **无消费是【已裁定】的**：`feat_pack_01.md:194` 明确「`hit_mod`/`range_axis` 在 self 类技能上是**占位字段**——保留键位以满足 13 字段模板与数据校验，**但引擎不读取**」⇒ **不是缺口** ✓ |
+| **self 类技能的 `range_axis` 取值** | ✅ 已按 `feat_pack_01.md:186` 的裁定改成 **`none`**（不保留 melee）✓ |
+| ⚠️ **`self_damage_fixed`**（2 个技能用到：6 ／ 8） | ⚠️ **无消费 ⇒ 待定性**：是"同类的占位"还是"该接的自伤机制"？**裁定表没提它** ⇒ 我下一轮**先查契约**再定性（不擅自改） |
+| ⚠️ **`apply_to`**（6 处，值多为 `self`） | ⚠️ **无消费 ⇒ 待定性**（同理；它可能只是语义标注） |
+| 其余字段（`displacement` ／ `resist_axis` ／ `use_limit` ／ `charges` ／ `duration_rounds` ／ `probability` ／ `stat/delta` ／ `requires` ／ `self_hp_below_percent` ／ `target_hp_below_percent` …） | ✅ 均有消费点 |
+
+#### 🎖️ 纪律
+- 仍**零数值改动**（本轮**只审计**）✓
+- 📌 我这一轮的教训已记：**"用窗口正则核数据"必须按【键】定位、并对边界留足余量** —— 否则会像这次一样**把下一个对象的字段当成本对象的** ⇒ **误报**（红线 17 ⑧ 的又一实例：**先核实、再断言**）
+- **工程状态**：**419 项 / 419 通过**
