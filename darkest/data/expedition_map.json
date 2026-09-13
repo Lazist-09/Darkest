@@ -1,0 +1,11 @@
+{
+  "note": "M7.6（m8_roadmap §4.3①）：地图生成参数。🔴 只定『地图生成』，不碰任何已调平参数（O-76 原则①：光照/掉落/扎营一律不动）。房间数保持现有 6~8 的节奏感；分支数至少 1（否则又退化成线性）。",
+  "map": {
+    "room_count_min": 6,
+    "room_count_max": 8,
+    "branch_chance": 0.6,
+    "battle_weight": 60,
+    "event_weight": 40,
+    "max_branches": 2
+  }
+}
