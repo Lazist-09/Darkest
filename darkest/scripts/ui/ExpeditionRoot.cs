@@ -77,8 +77,10 @@ public partial class ExpeditionRoot : Node
         NewExpedition(); // 与 BattleRoot 同款：_Ready 即装配（数据经 DirectorBridge 读 res://data）
         ShowPathChoice(); // 首步：把两个候选交给选路界面（玩家点选后才推进）
 
-        // 🔴 M7.6 片 (ii) 前置：`--topology` ⇒ **拓扑模式走图**（地图驱动；旧线性路径不动）
-        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--topology"))
+        // 🔴 M7.6 片 (iii)：**UI 地图视图** —— `--topology` ⇒ 生成地图并**把选路交给玩家点**（红线 18：玩家要碰得到）
+        //    `--topology-auto` ⇒ 仍自动走一遍（供冒烟/读数，不改变玩家路径）
+        string[] args = OS.GetCmdlineArgs();
+        if (System.Array.Exists(args, a => a == "--topology" || a == "--topology-auto"))
         {
             ExpeditionMapConfig mapCfg = ExpeditionMapConfig.Parse(
                 Godot.FileAccess.GetFileAsString(ExpeditionMapConfig.ResPath));
@@ -86,25 +88,46 @@ public partial class ExpeditionRoot : Node
             GD.Print($"[拓扑] 地图生成：主干 {map.Rooms.Count(r => !r.IsBranch)} 间 ／ 支路 {map.BranchCount} 条 ／ " +
                      $"分叉点 {map.ForkCount} 个 ／ 连通 {map.IsConnected()}");
 
-            var path = new List<string>();
-            int guard = 0;
-            while (!_flow.ReachedGoal && guard++ < 40)
+            // 🔴 自动走（仅冒烟/读数用）
+            if (System.Array.Exists(args, a => a == "--topology-auto"))
             {
-                IReadOnlyList<MapRoom> options = _flow.AdjacentUnexplored();
-                if (options.Count == 0)
+                var path = new List<string>();
+                int guard = 0;
+                while (!_flow.ReachedGoal && guard++ < 40)
                 {
-                    break;
+                    IReadOnlyList<MapRoom> options = _flow.AdjacentUnexplored();
+                    if (options.Count == 0)
+                    {
+                        break;
+                    }
+
+                    MapRoom next = options[0];
+                    MoveOutcome o = _flow.StepTo(next.Id);
+                    path.Add($"{next.Type}({o.Cost})");
                 }
 
-                MapRoom next = options[0]; // 最小版：自动选第一条（玩家选路属 UI 片 (iii)）
-                MoveOutcome o = _flow.StepTo(next.Id);
-                path.Add($"{next.Type}({o.Cost})");
+                GD.Print($"[拓扑] 自动走图：{string.Join(" → ", path)}　共 {_flow.StepsDone} 段　" +
+                         $"到达终点 {_flow.ReachedGoal}　结束光照 {Meter!.Value}（起点 100）　最终档 {LightMeter.TierId(Meter.Tier)}");
+                return;
             }
 
-            GD.Print($"[拓扑] 走图：{string.Join(" → ", path)}　共 {_flow.StepsDone} 段　" +
-                     $"到达终点 {_flow.ReachedGoal}　结束光照 {Meter!.Value}（起点 100）　最终档 {LightMeter.TierId(Meter.Tier)}");
-            GD.Print($"[拓扑] 完成口径：到达主干终点 且 打赢 ≥ 3 场 ⇒ 当前 Completed={_flow.Completed}（本例只走图、未打战斗）");
-            return; // 拓扑冒烟到此为止（不进入旧线性推进）
+            // 🔴 玩家可点：建地图视图并按当前位置刷出"相邻可选房间"
+            BuildMapView();
+
+            // 🔴 冒烟：`--click-map=N` ⇒ **连发 N 次真实 `Pressed`** 走图（红线 18/21(b)：验玩家点击路径）
+            string? clickMap = System.Array.Find(args, a => a.StartsWith("--click-map=", StringComparison.Ordinal));
+            if (clickMap is not null && int.TryParse(clickMap["--click-map=".Length..], out int clicks))
+            {
+                for (int i = 0; i < clicks && MapOptionCount > 0; i++)
+                {
+                    PressMapRoom(0);
+                }
+
+                GD.Print($"[拓扑UI] 点击冒烟结束：共发 {clicks} 次真实 Pressed　⇒ 已走 {_flow.StepsDone} 段　" +
+                         $"当前房间 {_flow.CurrentRoomId}　到达终点 {_flow.ReachedGoal}　剩余可点 {MapOptionCount}");
+            }
+
+            return; // 拓扑模式的推进由玩家点选驱动（不再走旧线性 `ShowPathChoice`）
         }
 
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--hamlet-next") && _flow is not null)
@@ -389,4 +412,129 @@ public partial class ExpeditionRoot : Node
         _buttons.Add(button);
         return button;
     }
+
+    // ------------------------------------------------------------------
+    // 🔴 M7.6 片 (iii)：**地图视图**（红线 18：玩家必须「碰得到」选路）
+    // ------------------------------------------------------------------
+
+    private Label? _mapStatus;
+    private Label? _mapOptionsTitle;
+    private Button? _campInTopology;
+    private readonly List<Button> _mapButtons = new();
+
+    /// <summary>当前会话（供地图视图显示夜袭累计）。</summary>
+    private ExpeditionSession? TopologySession => _flow?.Session;
+
+    /// <summary>
+    /// **建地图视图**：显示当前位置 ／ 已走段数 ／ 光照与档位 ／ 完成状态；并为**每个相邻未探索房间**
+    /// 建一个**真实按钮**（点击 ⇒ `flow.StepTo(roomId)` ⇒ 刷新）⇒ 这就是"分叉点选路"的**玩家入口** ✓
+    /// </summary>
+    public void BuildMapView()
+    {
+        if (_flow is null || Meter is null)
+        {
+            return;
+        }
+
+        _mapStatus = new Label
+        {
+            Name = "MapStatus",
+            Position = new Vector2(24, 470),
+            Size = new Vector2(1250, 40),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        };
+        AddChild(_mapStatus);
+
+        _mapOptionsTitle = new Label
+        {
+            Name = "MapOptionsTitle",
+            Position = new Vector2(24, 512),
+            Size = new Vector2(1250, 24),
+        };
+        AddChild(_mapOptionsTitle);
+
+        _campInTopology = new Button
+        {
+            Name = "CampInTopology",
+            Text = "扎营（回满光照；耗 1 柴火；后有夜袭判定）",
+            Position = new Vector2(24, 566),
+            Size = new Vector2(420, 36),
+        };
+        _campInTopology.Pressed += () =>
+        {
+            bool ok = _flow!.Camp();
+            GD.Print($"[拓扑UI] 扎营：{(ok ? "成功（光照回满）" : "拒绝（柴火不足）")}　夜袭触发={_flow.LastCampAmbushed}");
+            RefreshMapView();
+        };
+        AddChild(_campInTopology);
+
+        RefreshMapView();
+        GD.Print($"[拓扑UI] 地图视图就绪：当前房间 {_flow.CurrentRoomId}　可点房间 {_mapButtons.Count} 个（红线 18：玩家可点）");
+    }
+
+    /// <summary>刷新地图视图（当前状态 + 相邻可选房间按钮）。</summary>
+    public void RefreshMapView()
+    {
+        if (_flow is null || Meter is null || _mapStatus is null)
+        {
+            return;
+        }
+
+        foreach (Button b in _mapButtons)
+        {
+            b.QueueFree();
+        }
+
+        _mapButtons.Clear();
+
+        IReadOnlyList<MapRoom> options = _flow.AdjacentUnexplored();
+        _mapStatus.Text = $"【地图】当前房间 {_flow.CurrentRoomId} ／ 已走 {_flow.StepsDone} 段 ／ " +
+                          $"光照 {Meter.Value}（{LightMeter.TierId(Meter.Tier)}） ／ 到达终点 {_flow.ReachedGoal} ／ " +
+                          $"完成 {_flow.Completed} ／ 夜袭累计 {TopologySession?.AmbushCount ?? 0}";
+        if (_mapOptionsTitle is not null)
+        {
+            _mapOptionsTitle.Text = options.Count == 0
+                ? "无可走房间（终点已到，或相邻房间都已探索过）"
+                : "可选房间（点一下就走；新区域 −30 ／ 重走 −10）：";
+        }
+
+        for (int i = 0; i < options.Count; i++)
+        {
+            MapRoom room = options[i];
+            var b = new Button
+            {
+                Name = $"MapRoom_{room.Id}",
+                Text = $"房间 {room.Id}（{room.Type}{(room.IsBranch ? "·支路" : string.Empty)}）",
+                Position = new Vector2(24 + (i * 250), 536),
+                Size = new Vector2(240, 26),
+            };
+            int target = room.Id;
+            b.Pressed += () =>
+            {
+                MoveOutcome o = _flow.StepTo(target);
+                GD.Print($"[拓扑UI] 走 → 房间 {target}：{(o.Moved ? "成功" : "被拒")}　代价 {o.Cost}　重走={o.Revisited}" +
+                         $"　段数 {_flow.StepsDone}　光照 {Meter.Value}");
+                RefreshMapView();
+            };
+            AddChild(b);
+            _mapButtons.Add(b);
+        }
+    }
+
+    /// <summary>🔴 供冒烟/测试：**点一下第 i 个可选房间**（发真实 `Pressed` ⇒ 走玩家路径）。</summary>
+    public bool PressMapRoom(int index)
+    {
+        if (index < 0 || index >= _mapButtons.Count)
+        {
+            GD.Print($"[拓扑UI] PressMapRoom({index})：没有这个可选房间（当前 {_mapButtons.Count} 个）");
+            return false;
+        }
+
+        GD.Print($"[拓扑UI] PressMapRoom({index})：发出真实 Pressed（按钮「{_mapButtons[index].Text}」）");
+        _mapButtons[index].EmitSignal(BaseButton.SignalName.Pressed);
+        return true;
+    }
+
+    /// <summary>供冒烟：当前可选房间数（0 ⇒ 选路已走完）。</summary>
+    public int MapOptionCount => _mapButtons.Count;
 }
