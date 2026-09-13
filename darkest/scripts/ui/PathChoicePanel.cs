@@ -38,7 +38,8 @@ public partial class PathChoicePanel : CanvasLayer
     }
 
     /// <summary>渲染某一步的 2 个候选；点击回调携带下标（0/1）。</summary>
-    public void Refresh(PathStep step, Action<int> onChoose)
+    /// <param name="nodes">可选：传入节点表 ⇒ 候选文本显示**真实的必然代价与选项效果**（#272 后事件节点带 cost）。</param>
+    public void Refresh(PathStep step, Action<int> onChoose, Darkest.Data.ExpeditionNodesConfig? nodes = null)
     {
         foreach (Node child in _box.GetChildren())
         {
@@ -52,10 +53,13 @@ public partial class PathChoicePanel : CanvasLayer
         {
             int index = i; // 闭包捕获
             PathOption option = step.Options[i];
+            Darkest.Data.ExpeditionNodeConfig? node =
+                nodes is not null && option.NodeType == "event" ? nodes.Get(option.NodeId) : null;
+
             var button = new Button
             {
                 Name = $"PathOption{i}",
-                Text = $"{Describe(option)}（选它）",
+                Text = $"{Describe(option, node)}（选它）",
                 CustomMinimumSize = new Vector2(520, 36),
             };
             button.Pressed += () => onChoose(index);
@@ -75,4 +79,28 @@ public partial class PathChoicePanel : CanvasLayer
         "event" => $"事件 {option.NodeId}：二选一，有代价（不掉血但可能掉士气/资源）",
         _ => $"{option.NodeType} {option.NodeId}",
     };
+
+    /// <summary>
+    /// 带**真实代价**的候选文本（#272：事件 = 必然代价 + 可选收益）：
+    /// 例：`事件 ev_shrine：必然代价 士气-5 ｜ 选它→ 士气+5` —— 玩家要能**算得出**。
+    /// </summary>
+    public static string Describe(PathOption option, Darkest.Data.ExpeditionNodeConfig? node)
+    {
+        if (node is null || option.NodeType != "event")
+        {
+            return Describe(option);
+        }
+
+        int mandatory = node.Cost?.Morale ?? 0;
+        var parts = new List<string>();
+        foreach (Darkest.Data.NodeOptionConfig opt in node.Options)
+        {
+            string resource = opt.Effect.Resource is { } r && opt.Effect.Delta != 0
+                ? $"{r}{opt.Effect.Delta:+#;-#;0}"
+                : "无";
+            parts.Add($"{opt.Choice}→ {resource} / 士气{opt.Effect.Morale:+#;-#;0}");
+        }
+
+        return $"事件 {option.NodeId}：**必然代价 士气{mandatory:+#;-#;0}** ｜ {string.Join(" ｜ ", parts)}";
+    }
 }

@@ -268,11 +268,12 @@ public sealed class M75VerificationPackTests
         TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
         ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
 
-        (string Name, bool PreferEvent, bool Brighten)[] strategies =
+        (string Name, int BattleSteps, bool Brighten)[] strategies =
         {
-            ("保守（多事件 / 早提亮）", true, true),
-            ("均衡（默认交替）", false, false),
-            ("激进（多战斗 / 摸黑搏补给）", false, false),
+            // #273 ⑤：三档都吃战斗损耗，差异在【战斗数 + 光照】
+            ("保守（恰好达标 3 战 + 3 事件、不摸黑）", 3, true),
+            ("均衡（4 战 + 提亮适度）", 4, false),
+            ("激进（6 战全战斗 + 摸黑搏补给）", 6, false),
         };
 
         var lines = new List<string> { $"[M7.5] V10 策略分离度（各 {runs} 趟；完成口径 = 走完 6 步，不撤退/不团灭）" };
@@ -280,8 +281,9 @@ public sealed class M75VerificationPackTests
 
         for (int s = 0; s < strategies.Length; s++)
         {
-            (string name, bool preferEvent, bool brighten) = strategies[s];
-            int completed = 0, battles = 0, events = 0, loot = 0, retreats = 0;
+            (string name, int battleSteps, bool brighten) = strategies[s];
+            int completed = 0, battles = 0, events = 0, loot = 0, retreats = 0, wins = 0;
+            int battleGoal = tuning.Expedition.BattleGoal;
 
             for (int i = 0; i < runs; i++)
             {
@@ -297,8 +299,8 @@ public sealed class M75VerificationPackTests
                 bool aborted = false;
                 for (int step = 0; step < path.Count && !aborted; step++)
                 {
-                    // 选路：保守档偏好事件（option 0 = event），激进档偏好战斗（option 1 = battle）
-                    int optionIndex = s == 0 && preferEvent ? 0 : s == 2 ? 1 : step % 2;
+                    // #273 ⑤：按档决定战斗步数（保守恰好达标 / 均衡 4 / 激进 6）
+                    int optionIndex = step < battleSteps ? 1 : 0;
                     PathOption chosen = ExpeditionPathPlanner.ChoosePath(log, path[step], optionIndex);
                     if (chosen.NodeType == "event")
                     {
@@ -333,6 +335,7 @@ public sealed class M75VerificationPackTests
                         break;
                     }
 
+                    wins++;
                     steps++;
 
                     // 🔴 收益端：按档确定给份数（#270 裁定①；不掷骰）
@@ -355,7 +358,8 @@ public sealed class M75VerificationPackTests
                     }
                 }
 
-                if (!aborted && steps >= path.Count)
+                // 🔴 #273：完成 = 走完 6 步 **且** 打赢 ≥ battle_goal 场（"走完"只是过程）
+                if (!aborted && steps >= path.Count && wins >= battleGoal)
                 {
                     completed++;
                 }
@@ -365,7 +369,7 @@ public sealed class M75VerificationPackTests
             completionRates.Add(rate);
             double eventShare = battles + events == 0 ? 0 : 100.0 * events / (battles + events);
             lines.Add($"[M7.5] V10 {name}：完成率 {rate:P0}（{completed}/{runs}）" +
-                      $"　㉘ 选路 战斗 {battles} / 事件 {events}（事件占比 {eventShare:F0}%，**必须两侧不为 0 且无一侧 >90%**）" +
+                      $"　㉙ 战斗 {battles}（胜 {wins}）／事件 {events}（事件占比 {eventShare:F0}%；门槛 battle_goal={battleGoal}）" +
                       $"　㉔ 补给 {loot} 份（{loot / (double)runs:F2}/趟）　撤退/团灭 {retreats}");
         }
 

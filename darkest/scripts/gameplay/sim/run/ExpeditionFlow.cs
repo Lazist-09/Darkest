@@ -144,6 +144,7 @@ public sealed class ExpeditionFlow
             TryCollectLoot(ItemKind.Food);
         }
 
+        Wins++; // #273：完成需要「打赢 ≥ battle_goal 场」
         _ = step;
         StepsDone++;
     }
@@ -229,8 +230,14 @@ public sealed class ExpeditionFlow
         return _session.ReturnToTown(_log, outcome);
     }
 
-    /// <summary>本趟是否走完 6 步且未撤退/未团灭（#270 裁定② 的完成口径）。</summary>
-    public bool Completed => !IsFinished ? StepsDone >= _tuning.Expedition.NBattles : StepsDone >= _tuning.Expedition.NBattles;
+    /// <summary>本趟已打赢的战斗数（敌方全灭计一场）。</summary>
+    public int Wins { get; private set; }
+
+    /// <summary>
+    /// **完成口径（#273）**：**走完 6 步** **且** **打赢 ≥ `battle_goal` 场**。
+    /// 🔴 "走完 6 步"只是**过程** —— 全事件路线（0 战斗）零代价走完 = **路过，不是完成**。
+    /// </summary>
+    public bool Completed => StepsDone >= _tuning.Expedition.NBattles && Wins >= _tuning.Expedition.BattleGoal;
 
     /// <summary>背包（供 UI 渲染格子）。</summary>
     public Inventory Bag => _bag;

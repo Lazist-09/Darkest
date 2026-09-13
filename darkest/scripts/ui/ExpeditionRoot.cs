@@ -187,7 +187,7 @@ public partial class ExpeditionRoot : Node
             return;
         }
 
-        _pathPanel.Refresh(new PathStep(_flow.StepsDone, options), AdvanceWith);
+        _pathPanel.Refresh(new PathStep(_flow.StepsDone, options), AdvanceWith, Nodes);
         RefreshPanel();
     }
 

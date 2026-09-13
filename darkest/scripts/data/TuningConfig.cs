@@ -123,7 +123,8 @@ public sealed record TuningExpedition(
     [property: JsonPropertyName("ambush_chance")] double AmbushChance,
     [property: JsonPropertyName("retreat_penalty")] TuningRetreatPenalty RetreatPenalty,
     [property: JsonPropertyName("difficulty_tiers")] IReadOnlyList<TuningDifficultyTier>? DifficultyTiers = null,
-    [property: JsonPropertyName("pass_morale_delta")] int PassMoraleDelta = 0);
+    [property: JsonPropertyName("pass_morale_delta")] int PassMoraleDelta = 0,
+    [property: JsonPropertyName("battle_goal")] int BattleGoal = 3);
 
 /// <summary>
 /// 难度递进档（#250）：按**场序**施加的乘数（**远征层**，不得写进 `units.json` 的单场基准值）。
@@ -501,6 +502,13 @@ public sealed record TuningConfig(
         if (t.Expedition.NBattles < 1)
         {
             throw new InvalidDataException($"{ResPath}: expedition.n_battles 必须 ≥ 1（P20 ①）。");
+        }
+
+        // 🔴 P20 ①（#273）：完成目标 —— `battle_goal ≥ 1` 且 `≤ n_battles`（"打赢 ≥ N 场"是完成的一部分）
+        if (t.Expedition.BattleGoal < 1 || t.Expedition.BattleGoal > t.Expedition.NBattles)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: expedition.battle_goal 必须 ∈ [1, n_battles={t.Expedition.NBattles}]（P20 ① / #273）。");
         }
 
         if (t.Expedition.AmbushChance is < 0 or > 1 || t.Camp.AmbushChance is < 0 or > 1)
