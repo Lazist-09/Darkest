@@ -1178,3 +1178,45 @@ attack ／ hp ／ crit ／ dodge ／ phys_def ／ resilience ／ speed ／ move_
 ```
 - 🎖️ **纪律**：本轮**零数值改动**；改动面 = 会话/流程的挂载与计时管道 + 2 条阻塞记录用例 ✓
 - **工程状态**：**427 项（425 通过 ／ 2 跳过=阻塞记录）**
+
+---
+
+### 【来自主程序】✅✅ 阻塞已解除：**hero → 槽位映射落地** ⇒ 磨刀 ／ 加固甲胄 ／ 操练 **真正生效**（427/427 + A1 不变）
+
+#### 修法（**不依赖战斗侧命名规则**）
+```
+① `ExpeditionSession.BindSortie(heroSlotById)` —— 营地用英雄 id、战斗用原型 id（两套体系）⇒ **按槽位记账**
+② `GrantRunBuff` 记 `(槽位, buffId, 剩余场次)`；`InjectRunBuffs` 用 `Player.UnitRuntimeAt(slot)` 换成本场单位 id
+③ `ExpeditionRoot` 用 `template.InitialRoster.Player[].slot` 与 `FormationSortie` 的顺序建映射（同序 ✓）
+④ 未映射 ⇒ `UnmappedRunBuffs++` ＋ `run_buff_unmapped` 事件（**不静默**）
+```
+
+#### ✅ 功能验收（**两条用例已从"阻塞记录"转成真验收**）
+| 用例 | 断言（**实际量级，不只"接上了"**） |
+|---|---|
+| 磨刀（`next_battle_sharpen`） | 下一场**有 buff** ＋ **`dealt_damage_mult = +25`**（`DamageStep` 在 `raw` 处消费）＋ **再下一场已失效** ＋ `UnmappedRunBuffs == 0`（映射成立）✓ |
+| 加固甲胄（`next_battle_armor`） | 下一场有 buff ＋ 再下一场失效 ✓ |
+
+#### ⚠️ 我这一轮的一处**断言自伤**（如实报）
+```
+我原断言 `unit.DamageMultiplier == 1.25` ❌ —— 那是【特质层】（`DamageModPct`），**不含 buff 层**；
+buff 的 `dealt_damage_mult` 由 `DamageStep` 在 `raw` 处消费
+⇒ 已改为断言【消费点的输入值】：`d1.Buffs.PercentMod(id, "dealt_damage_mult") == 25` ✓
+（这条区分值得记：**"单位状态"有两个层：特质层 vs buff 层**，读量级时要看对层）
+```
+
+#### 🔴 A1 复测
+```
+胜率 100%（≥85%）／ 死门 0.33（≤0.4）／ 阵亡 0.07（≤0.1）／ 回合 5.27（4~6）
+⇒ ✅ 全达标，且与上次完全一致（A1 策略不扎营 ⇒ 预期不变）✓
+```
+
+#### 🔴 剩余（`m7_expedition.md:160` 三类型）
+```
+①-已完：`next_battle`（磨刀 ／ 加固甲胄 ／ 操练 = 3 个技能）✅
+①-待做（不等裁定）：`until_next_recovery` ⇒ 包扎【清流血】＋ 配药【清虚弱+死门后遗症】（扎营清）
+①-待你 (b)：士气类（笑谈 +8 ／ 埋锅造饭 +5 ／ 动员 +8）
+①-待你 (a)：HP 类（包扎 +15% ／ 照料 +5%）
+①-待做：`battles:4` 打气/训话（要新增"士气伤害减免"effect 名 + 实现 + 登记）
+```
+- **工程状态**：**427 项 / 427 通过**

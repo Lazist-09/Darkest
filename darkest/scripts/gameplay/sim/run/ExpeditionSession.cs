@@ -438,12 +438,28 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     //    落点：**每场开场把未过期的 buff 注入该场台账**（不是新状态层；台账仍是 buff 的唯一真相）
     // ------------------------------------------------------------------
 
-    private readonly List<(UnitId Unit, string BuffId, int RemainingBattles)> _runBuffs = new();
+    private readonly List<(int Slot, string BuffId, int RemainingBattles)> _runBuffs = new();
+    private readonly Dictionary<string, int> _heroSlots = new(StringComparer.Ordinal);
 
-    /// <summary>本趟挂着的跨场 buff（供测试/日志：`(单位, buffId, 剩余场数)`）。</summary>
-    public IReadOnlyList<(UnitId Unit, string BuffId, int RemainingBattles)> RunBuffs => _runBuffs;
+    /// <summary>
+    /// 🔴 **绑定出征编成**（`英雄 id → 阵型槽位`）—— 由组合根在建会话时调用。
+    /// 原因（实测）：**营地侧用英雄 id**（`hero_warrior_1`），**战斗侧玩家单位用原型 id**（`warrior` ／ `warrior_2` …）
+    /// ⇒ 两套 id 体系 ⇒ 跨场 buff 必须**按槽位**挂载，注入时用 `Player.UnitRuntimeAt(slot)` 换成本场单位 id ✓
+    /// （槽位来自 `FormationConfig` 的 `initial_roster.player[].slot`，与 `FormationSortie` 的顺序一致）
+    /// </summary>
+    public void BindSortie(IReadOnlyDictionary<string, int> heroSlotById)
+    {
+        _heroSlots.Clear();
+        foreach ((string hero, int slot) in heroSlotById)
+        {
+            _heroSlots[hero] = slot;
+        }
+    }
 
-    /// <summary>给某单位挂一个【跨场】buff（`next_battle` ⇒ `remainingBattles: 1`）。</summary>
+    /// <summary>本趟挂着的跨场 buff（供测试/日志：`(槽位, buffId, 剩余场数)`）。</summary>
+    public IReadOnlyList<(int Slot, string BuffId, int RemainingBattles)> RunBuffs => _runBuffs;
+
+    /// <summary>给某英雄挂一个【跨场】buff（`next_battle` ⇒ `remainingBattles: 1`）；按槽位记账。</summary>
     public void GrantRunBuff(UnitId unit, string buffId, int remainingBattles)
     {
         if (remainingBattles < 1)
@@ -451,8 +467,9 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             throw new ArgumentOutOfRangeException(nameof(remainingBattles), "跨场 buff 的剩余场数必须 ≥ 1。");
         }
 
-        _runBuffs.RemoveAll(b => b.Unit == unit && b.BuffId == buffId); // refresh 语义
-        _runBuffs.Add((unit, buffId, remainingBattles));
+        int slot = _heroSlots.TryGetValue(unit.Value, out int s) ? s : 0;
+        _runBuffs.RemoveAll(b => b.Slot == slot && b.BuffId == buffId); // refresh 语义
+        _runBuffs.Add((slot, buffId, remainingBattles));
     }
 
     /// <summary>
@@ -466,22 +483,19 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             return;
         }
 
-        foreach ((UnitId unit, string buffId, int _) in _runBuffs.ToArray())
+        foreach ((int slot, string buffId, int _) in _runBuffs.ToArray())
         {
-            bool onField = director.Player.UnitsInSlotOrder().Any(u => u.Id == unit);
-            if (!onField)
+            UnitRuntime? u = slot > 0 ? director.Player.UnitRuntimeAt(slot) : null;
+            if (u is null)
             {
-                // 🔴 **已知阻塞（不静默）**：营地侧用【英雄 id】（`hero_warrior_1`），
-                //    而战斗侧玩家单位用【原型 id】（`warrior` ／ `warrior_2` …）⇒ **两套 id 体系**。
-                //    ⇒ 需要【hero → 战斗单位】的映射（按 `FormationSortie` 的槽位顺序）才能注入；
-                //    在此之前这里**显式记录未映射**（红线 21：不留"看起来接上了"的假象）。
+                // 🔴 **已知阻塞（不静默）**：未能把"英雄"映射到本场单位（槽位未绑定 / 该位无人）。
                 UnmappedRunBuffs++;
-                log.Append(new EffectEvent(unit, $"run_buff_unmapped:{buffId}", 0.0, Triggered: false));
+                log.Append(new EffectEvent(default, $"run_buff_unmapped:{buffId}", 0.0, Triggered: false));
                 continue;
             }
 
-            director.Buffs.Add(unit, buffId, source: null);
-            log.Append(new EffectEvent(unit, $"run_buff:{buffId}", 100.0, true));
+            director.Buffs.Add(u.Id, buffId, source: null);
+            log.Append(new EffectEvent(u.Id, $"run_buff:{buffId}", 100.0, true));
         }
     }
 
@@ -493,14 +507,14 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     {
         for (int i = _runBuffs.Count - 1; i >= 0; i--)
         {
-            (UnitId unit, string buffId, int left) = _runBuffs[i];
+            (int slot, string buffId, int left) = _runBuffs[i];
             if (left <= 1)
             {
                 _runBuffs.RemoveAt(i); // 用完即清（`next_battle` 的语义）
             }
             else
             {
-                _runBuffs[i] = (unit, buffId, left - 1);
+                _runBuffs[i] = (slot, buffId, left - 1);
             }
         }
     }

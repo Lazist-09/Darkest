@@ -268,6 +268,17 @@ public partial class ExpeditionRoot : Node
             food: bag.CountOf(ItemKind.Food),
             ambushChance: tuning.Expedition.AmbushChance);
 
+        // 🔴 跨场 buff 的【hero → 战斗单位】映射：营地用英雄 id、战斗用原型 id（两套体系）⇒
+        //    按【阵型槽位】挂载，注入时用 `Player.UnitRuntimeAt(slot)` 换成本场单位 ✓
+        var heroSlots = new Dictionary<string, int>(StringComparer.Ordinal);
+        IReadOnlyList<RosterEntryConfig> playerSlots = template.InitialRoster.Player;
+        for (int i = 0; i < sortie.Count && i < playerSlots.Count; i++)
+        {
+            heroSlots[sortie[i].Id] = playerSlots[i].Slot;
+        }
+
+        session.BindSortie(heroSlots);
+
         var meter = new LightMeter(tuning.Light!);
         Initialize(session, meter, bag, tuning, handle.Nodes);
 
