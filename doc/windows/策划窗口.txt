@@ -890,3 +890,39 @@ m3_skills_units.md:102 ｜ 例：铁壁 → `effects:[{type:"shield", charges:2,
 ```
 - 🎖️ **纪律**：仍**零数值改动**；本轮**只查契约 + 定性**（未动数据/代码）✓
 - **工程状态**：**419 项 / 419 通过**
+
+---
+
+### 【来自主程序】🔍 第五轮普查（`units.json`）：**干净** ✅ + **五轮普查总结**
+
+#### ① `units.json`（7 个单位）：**11 个字段全部有消费点** ✅
+```
+attack ／ hp ／ crit ／ dodge ／ phys_def ／ resilience ／ speed ／ move_distance
+＋ 5 种抗性：bleed_resist ／ displace_resist ／ deaths_door_resist ／ stat_debuff_resist ／ stun_resist
+⇒ 逐条核过：**全部有代码消费点**（含 5 种抗性：在各自结算/抵抗判定处）
+⇒ ✅ 无死声明
+```
+
+#### ② 五轮普查总结（**建议把它固化成例行项**）
+| 数据面 | 结果 |
+|---|---|
+| `light.effects`（6 字段） | 🔴 **曾全部未接**（UI 显示、战斗不生效）⇒ **已接 5/6**（`our_ambush_pct` 待第二步） |
+| `camp_skills.json`（12 技能 / 10 effect） | 🔴 **10 技能无落点** ⇒ 已接 2（守夜/站岗）＋ **已立加载防线**（未登记 effect ⇒ 启动报错） |
+| `tuning.json`（抽样 11 字段） | 🔴 **1 个真死声明**：`camp.pep_talk_battles`（与"打气"同源） |
+| `skills.json`（44 技能 / 41 字段名） | 🔴 **2 处欠账**：`self_damage_fixed`（承诺"归 M4"未接）／`apply_to`（契约有语义、处理器不读）；<br>✅ `range_axis` ／ `hit_mod`（self 类）= **已裁定占位**；其余字段均有消费 |
+| `morale_events.json`（18 id） | ✅ 全清 |
+| `expedition_nodes.json`（4 节点） | ✅ 全清 |
+| `buff_defs.json`（13 effect） | ✅ 全清（**守卫自动保证**） |
+| `units.json`（7 单位 / 11 字段） | ✅ 全清 |
+
+#### 🔴 归并后的**待办清单**（都不动数值；等你/策划一句话）
+```
+① 跨战斗"待生效效果层"（A/B）—— 影响：`camp_skills` 10 技能 ／ `pep_talk_battles` ／ 打气（morale_damage_minus_15_for_4_battles）
+② `self_damage_fixed` 接线（战斗管线；可走死门、不被护盾吸收）—— **M3 承诺"归 M4"，M4 未接**
+③ `apply_to` 接线（effects 处理器按 self/ally_targets/targets 挂载）
+④ `our_ambush_pct` 第二步（夜袭判定处；属数值/光照侧 ⇒ 冻结中）
+⑤ 片⑤ 精英/Curio（**内容**；需你给规格）
+```
+- 📌 未查数据面：`formation.json` ／ 其它 JSON（若有）—— 我可在下一轮补齐
+- 🎖️ **纪律**：五轮普查**零数值改动、零代码改动**（**只审计**）✓
+- **工程状态**：**419 项 / 419 通过**
