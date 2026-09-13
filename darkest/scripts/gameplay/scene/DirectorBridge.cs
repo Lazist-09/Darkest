@@ -77,6 +77,9 @@ public static class DirectorBridge
             {
                 Darkest.Gameplay.Sim.Run.HeroProjection.ApplyLevel(sortie[i], board[i], growth);
 
+                // 🔴 M8.0 ③（#289 (B)）：特质 → 单位修正（伤害类与士气类各归其道）
+                Darkest.Gameplay.Sim.Run.HeroProjection.ApplyTraits(sortie[i], board[i]);
+
                 // 🔴 #287（= #245 的落地）：**本趟开局士气来自名册**（跨趟累积；回城不恢复）
                 if (openingMoraleBySlot is not null && i < openingMoraleBySlot.Count)
                 {

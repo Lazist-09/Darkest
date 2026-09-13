@@ -38,7 +38,26 @@ public static class HeroProjection
         unit.ApplyLevelGrowth(hero.Level, growth.HpPerLevel, growth.AttackPerLevel);
     }
 
-    /// <summary>汇总英雄特质效果（供伤害管线 / 士气通道接线时读取；本切片只计算、不施加）。</summary>
+    /// <summary>
+    /// M8.0 ③（`#289` 裁定 (B)）：**特质 → 单位修正** —— 伤害类与士气类**各归其道**：
+    /// · 伤害% ⇒ `DamageModPct`（在 `DamageStep` 里与 `buffDamageMult` **同层相乘**）；
+    /// · 受士气伤害% ⇒ `MoraleDamageTakenPct`（供士气通道读取）。
+    /// 🔴 仍是**运行时投影**（不改基准数据）；幅度由 P22 ③ 可测定义约束（≤15% / ≤20%）。
+    /// </summary>
+    public static TraitEffects ApplyTraits(HeroConfig hero, UnitRuntime unit)
+    {
+        TraitEffects eff = TraitEffectsOf(hero);
+        if (eff.IsNone || unit is null)
+        {
+            return eff;
+        }
+
+        unit.ApplyTraitDamagePct(eff.DamagePct);
+        unit.ApplyTraitMoraleDamagePct(eff.MoraleDamagePct);
+        return eff;
+    }
+
+    /// <summary>汇总英雄特质效果（供伤害管线 / 士气通道接线时读取）。</summary>
     public static TraitEffects TraitEffectsOf(HeroConfig hero)
     {
         if (hero?.Traits is null || hero.Traits.Count == 0)

@@ -119,6 +119,28 @@ public sealed class UnitRuntime
     /// </summary>
     public void ApplyOpeningMorale(int morale) => Morale = Math.Clamp(morale, 0, 100);
 
+    /// <summary>
+    /// M8.0 ③（`#289` 裁定 (B)）：**特质伤害修正** —— 与既有修正**同层叠加**（在 `DamageStep` 的 `raw` 里
+    /// 与 `buffDamageMult` 同层相乘），**不是新通道**。幅度由 P22 ③ 定（伤害 ≤15%）。
+    /// </summary>
+    public int DamageModPct { get; private set; }
+
+    /// <summary>聚合后的**攻击方伤害倍率**（1.0 = 无修正）。</summary>
+    public double DamageMultiplier => 1.0 + (DamageModPct / 100.0);
+
+    /// <summary>叠加一份伤害修正（加法先于乘法：多来源先累加再乘）。</summary>
+    public void ApplyTraitDamagePct(int pct) => DamageModPct += pct;
+
+    /// <summary>
+    /// M8.0 ③：**受士气伤害修正**（特质士气类）—— 供士气通道读取（正值 = 更脆）。
+    /// </summary>
+    public int MoraleDamageTakenPct { get; private set; }
+
+    /// <summary>受士气伤害倍率（1.0 = 无修正）。</summary>
+    public double MoraleDamageTakenMultiplier => 1.0 + (MoraleDamageTakenPct / 100.0);
+
+    public void ApplyTraitMoraleDamagePct(int pct) => MoraleDamageTakenPct += pct;
+
     public void ApplyStunResistBonus(int pp)
     {
         if (pp != 0)

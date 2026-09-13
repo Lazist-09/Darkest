@@ -91,6 +91,10 @@ public static class DamageStep
                 raw = attacker.EffectiveAttack * multipliers[i] * (1.0 - mitig) * critMult * dmgFloat * buffDamageMult; // §2.1 + F2
             }
 
+            // 🔴 M8.0 ③（`#289` 裁定 (B)）：**特质伤害修正**与 `buffDamageMult` **同层相乘**
+            //    —— 特质与 buff 是同一层东西（都是"单位状态"，不属于数学层 ⇒ 不给 BattleMath 加参）
+            raw *= attacker.DamageMultiplier;
+
             if (attacker.Weak)
             {
                 raw *= balance.WeakDamageMultPercent / 100.0; // 虚弱单位输出 −50%（tuning weak.damage_mult）
