@@ -83,6 +83,26 @@ public partial class BattleRoot : Node2D
             // 「Parent node is busy adding/removing children」（实测 exit 1）
             GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
         }
+
+        // 🔴 冒烟（`#307`⑤ 流程闭环）：`--battle-auto-finish` ⇒ **自动结束本场并自动点【继续（回远征）】**
+        //    目的：把「战斗 → 返回远征地图」这段**真实场景往返**变成可 headless 验证的一步。
+        //    做法：敌方 HP 清零（= 胜利）⇒ 走**既有结束路径** `EndGame` ⇒ 触发远征回灌 + 继续按钮。
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-auto-finish"))
+        {
+            GD.Print("[BattleRoot] --battle-auto-finish ⇒ 自动结束本场（判定胜利）并自动返回远征");
+            CallDeferred(nameof(AutoFinishBattle));
+        }
+    }
+
+    /// <summary>冒烟用：自动结束本场（敌方清零 ⇒ 胜利）⇒ 走既有 `EndGame` 路径。</summary>
+    private void AutoFinishBattle()
+    {
+        foreach (UnitRuntime u in Director.Enemy.UnitsInSlotOrder())
+        {
+            u.CurrentHp = 0;
+        }
+
+        EndGame("我方胜利（冒烟自动结束）");
     }
 
     public override void _UnhandledInput(InputEvent e)
@@ -409,6 +429,13 @@ public partial class BattleRoot : Node2D
             toExpedition.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
             AddChild(toExpedition);
             GD.Print($"[BattleRoot] 远征模式：本场结果 {result}，点【继续（回远征）】返回远征界面");
+
+            // 🔴 冒烟：自动点【继续（回远征）】（**真实 `Pressed`** ⇒ 走玩家路径）
+            if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-auto-finish"))
+            {
+                GD.Print("[BattleRoot] --battle-auto-finish ⇒ 自动点【继续（回远征）】（真实 Pressed）");
+                toExpedition.EmitSignal(BaseButton.SignalName.Pressed);
+            }
         }
         // T-M6-07 系统触发日志 + P0④ 结算面板数据（同一批计数）
         var events = Director.Log.Events;
