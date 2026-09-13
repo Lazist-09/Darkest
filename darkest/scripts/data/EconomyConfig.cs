@@ -13,12 +13,26 @@ public sealed record EconomyRatioCheck(
     [property: JsonPropertyName("expected_run_income_low")] int ExpectedRunIncomeLow,
     [property: JsonPropertyName("expected_run_income_high")] int ExpectedRunIncomeHigh);
 
+/// <summary>减压建筑（M8.0 ④ / `#283` 7.3）：**同价同效、风险不同** —— 差别只在 `penalty_chance`（副作用触发率）。</summary>
+public sealed record StressReliefBuildingConfig(
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("cost")] int Cost,
+    [property: JsonPropertyName("morale_restore")] int MoraleRestore,
+    [property: JsonPropertyName("next_run_penalty")] int NextRunPenalty,
+    [property: JsonPropertyName("penalty_chance")] double PenaltyChance,
+    [property: JsonPropertyName("style")] string? Style = null);
+
+/// <summary>减压配置（Tavern / Abbey 两栋）。</summary>
+public sealed record StressReliefConfig(
+    [property: JsonPropertyName("morale_restore")] int MoraleRestore,
+    [property: JsonPropertyName("next_run_penalty")] int NextRunPenalty,
+    [property: JsonPropertyName("buildings")] IReadOnlyList<StressReliefBuildingConfig> Buildings);
+
 /// <summary>
-/// `economy.json` 根模型 + **P22 ④ 校验（M8.0，`#284`）**：
-/// 🔴 **金钱来源必须与【光照档 + 战斗数】挂钩** —— 那才让"冒险"第一次有**可跨趟积累**的回报。
-/// 可测定义（红线 19）：① `battle_reward ≥ 1`（与战斗数挂钩）；
-/// ② `light_tier_bonus` **随变暗单调不减**且 **总和 ≥ 1**（与光照档挂钩，越暗越多）；
-/// ③ `stress_relief_cost > 0` 且比例自检 = 一场战斗 1 单位 / 一趟 3~6 / 一次减压 3。
+/// `economy.json` 根模型 + **P22 ④⑤ 校验（M8.0，`#284`）**：
+/// 🔴 **④ 金钱来源必须与【光照档 + 战斗数】挂钩**（冒险要有可跨趟积累的回报）；
+/// 🔴 **⑤ Tavern 与 Abbey 必须【同价同效、风险不同】** —— 否则"选风格"退化成"选更优"。
 /// </summary>
 public sealed record EconomyConfig(
     [property: JsonPropertyName("currency")] string Currency,
@@ -26,7 +40,8 @@ public sealed record EconomyConfig(
     [property: JsonPropertyName("light_tier_bonus")] Dictionary<string, int> LightTierBonus,
     [property: JsonPropertyName("event_reward")] int EventReward,
     [property: JsonPropertyName("stress_relief_cost")] int StressReliefCost,
-    [property: JsonPropertyName("ratio_check")] EconomyRatioCheck RatioCheck)
+    [property: JsonPropertyName("ratio_check")] EconomyRatioCheck RatioCheck,
+    [property: JsonPropertyName("stress_relief")] StressReliefConfig? StressRelief = null)
 {
     public const string ResPath = "res://data/economy.json";
 
@@ -122,5 +137,66 @@ public sealed record EconomyConfig(
         {
             throw new InvalidDataException($"{ResPath}: ratio_check 不合法（P22 ④ / #283 7.1）。");
         }
+
+        // 🔴 P22 ⑤（#283 硬要求②）：两栋减压建筑必须【同价同效、风险不同】
+        if (cfg.StressRelief is not null)
+        {
+            IReadOnlyList<StressReliefBuildingConfig> b = cfg.StressRelief.Buildings;
+            if (b is null || b.Count != 2)
+            {
+                throw new InvalidDataException($"{ResPath}: stress_relief.buildings 必须**恰 2 栋**（Tavern / Abbey；P22 ⑤）。");
+            }
+
+            if (b[0].Cost != b[1].Cost)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: 两栋必须**同价**（{b[0].Id}={b[0].Cost} vs {b[1].Id}={b[1].Cost}；P22 ⑤：否则变成「选更优」）。");
+            }
+
+            if (b[0].MoraleRestore != b[1].MoraleRestore || b[0].NextRunPenalty != b[1].NextRunPenalty)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: 两栋必须**同效**（恢复量与下趟惩罚都相同；P22 ⑤）。");
+            }
+
+            if (Math.Abs(b[0].PenaltyChance - b[1].PenaltyChance) < 1e-9)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: 两栋必须有**不同的副作用风险**（penalty_chance 相同 ⇒ 两栋等价 ⇒ 选风格不成立；P22 ⑤）。");
+            }
+
+            foreach (StressReliefBuildingConfig x in b)
+            {
+                if (x.PenaltyChance is < 0 or > 1)
+                {
+                    throw new InvalidDataException($"{ResPath}: {x.Id}.penalty_chance 必须 ∈ [0,1]（P22 ⑤）。");
+                }
+
+                if (x.Cost != cfg.StressReliefCost)
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: {x.Id}.cost 必须等于 stress_relief_cost（{cfg.StressReliefCost}；P22 ⑤ / 7.1）。");
+                }
+            }
+        }
+    }
+
+    /// <summary>按 id 取减压建筑（不存在即报错，不给默认值）。</summary>
+    public StressReliefBuildingConfig Building(string id)
+    {
+        if (StressRelief is null)
+        {
+            throw new InvalidDataException($"{ResPath}: 未配置 stress_relief（P22 ⑤）。");
+        }
+
+        foreach (StressReliefBuildingConfig b in StressRelief.Buildings)
+        {
+            if (b.Id == id)
+            {
+                return b;
+            }
+        }
+
+        throw new InvalidDataException($"{ResPath}: 未知减压建筑 \"{id}\"（P22 ⑤）。");
     }
 }

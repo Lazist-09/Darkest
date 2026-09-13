@@ -5,5 +5,14 @@
   "light_tier_bonus": { "radiant": 0, "dim": 0, "shadowy": 1, "dark": 2, "black": 3 },
   "event_reward": 0,
   "stress_relief_cost": 3,
+  "stress_relief_note": "#283 7.3 + 硬要求②：Tavern / Abbey **同价同效、风险不同**（照抄 DD）=> 选风格而非选更优；副作用 = 下一趟开局士气减 N",
+  "stress_relief": {
+    "morale_restore": 30,
+    "next_run_penalty": 8,
+    "buildings": [
+      { "id": "tavern", "name": "酒馆", "cost": 3, "morale_restore": 30, "next_run_penalty": 8, "penalty_chance": 0.5, "style": "快而不稳" },
+      { "id": "abbey", "name": "修道院", "cost": 3, "morale_restore": 30, "next_run_penalty": 8, "penalty_chance": 0.2, "style": "慢而稳" }
+    ]
+  },
   "ratio_check": { "battles_per_run": 3, "expected_run_income_low": 3, "expected_run_income_high": 6 }
 }
