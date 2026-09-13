@@ -140,9 +140,23 @@ public partial class ExpeditionRoot : Node
             if (System.Array.Exists(args, a => a == "--camp"))
             {
                 GD.Print("[拓扑UI] --camp ⇒ 真实点击扎营按钮");
-                if (PressCampAndMaybeRouteToBattle())
+                PressCampAndMaybeRouteToBattle();
+            }
+
+            // 🔴 冒烟：`--camp-skill=N` ⇒ **真实点击第 N 个扎营技能**（验红线 18：玩家点得到）
+            string? campSkill = System.Array.Find(args, a => a.StartsWith("--camp-skill=", StringComparison.Ordinal));
+            if (campSkill is not null && int.TryParse(campSkill["--camp-skill=".Length..], out int skillIdx))
+            {
+                PressCampSkill(skillIdx);
+            }
+
+            // 🔴 冒烟：`--finish-camp` ⇒ **真实点击【结束扎营】**（阶段三：夜袭判定）
+            if (System.Array.Exists(args, a => a == "--finish-camp"))
+            {
+                PressFinishCamp();
+                if (_flow?.LastCampAmbushed == true)
                 {
-                    return; // 已进入夜袭战斗 ⇒ 本次 `_Ready` 到此为止
+                    return; // 已切到夜袭战斗
                 }
             }
 
@@ -278,6 +292,11 @@ public partial class ExpeditionRoot : Node
         }
 
         session.BindSortie(heroSlots);
+        _heroSlots.Clear();
+        foreach ((string hero, int slot) in heroSlots)
+        {
+            _heroSlots[hero] = slot;
+        }
 
         var meter = new LightMeter(tuning.Light!);
         Initialize(session, meter, bag, tuning, handle.Nodes);
@@ -297,6 +316,9 @@ public partial class ExpeditionRoot : Node
         //    其余登记为阶段二（需【跨战斗待生效效果层】）⇒ **在它落地前，这些技能不得上 UI**。
         CampSkillsConfig campSkills = CampSkillsConfig.Parse(
             Godot.FileAccess.GetFileAsString(CampSkillsConfig.ResPath));
+        _campSkills = campSkills;   // 🔴 供扎营技能面板（只列已接线的 effect）
+        _rosterCfg = RosterConfig.Parse(
+            Godot.FileAccess.GetFileAsString(RosterConfig.ResPath));
         GD.Print($"[ExpeditionRoot] 扎营技能：已接线 {campSkills.ConsumedCount} ／ 阶段二（未落点）{campSkills.DeferredCount}" +
                  $"（共 {campSkills.Skills.Count}）—— 阶段二项在【跨战斗待生效效果层】落地前不上 UI（红线 21）");
 
@@ -544,19 +566,13 @@ public partial class ExpeditionRoot : Node
         };
         _campInTopology.Pressed += () =>
         {
-            bool ok = _flow!.Camp();
-            GD.Print($"[拓扑UI] 扎营：{(ok ? "成功（光照回满）" : "拒绝（柴火不足）")}　夜袭触发={_flow.LastCampAmbushed}");
-
-            // 🔴 `#307`③：**夜袭真的插一场战斗**（契约：计入 6 场皆胜）——
-            //    走【本项目既有的战斗往返】：置"夜袭"标记 ⇒ 切到 `Battle.tscn` 由玩家**真打** ⇒
-            //    `BattleRoot` 结算时 `OnBattleFinished(..., isAmbush: true)` 计入胜场 ⇒ 【继续（回远征）】回到地图 ✓
-            //    ⚠️ 不在 UI 里另建一套战斗驱动（本项目的真实战斗入口是 `BattleRoot`）。
-            if (ok && _flow.LastCampAmbushed)
+            // 🔴 拆开：**阶段一→二**（开始扎营）⇒ 弹技能面板 ⇒ 玩家点技能 ⇒ 【结束扎营】⇒ 阶段三（夜袭判定）
+            //    （此前 `Camp()` 一调用到底 ⇒ 6 个已接线的扎营技能【玩家碰不到】，红线 18/21）
+            bool ok = _flow!.BeginCamp();
+            GD.Print($"[拓扑UI] 扎营（开始）：{(ok ? "成功（光照回满，进入 Respite 分配）" : "拒绝（柴火不足）")}");
+            if (ok)
             {
-                GD.Print("[拓扑UI] 夜袭已触发 ⇒ **插入一场额外战斗**（切到 Battle.tscn，真打；结算计入胜场）");
-                ExpeditionContext.PendingAmbush = true;
-                ExpeditionContext.Bind(_flow, Log);
-                GetTree().ChangeSceneToFile("res://scenes/battle/Battle.tscn");
+                BuildCampSkillPanel();
                 return;
             }
 
@@ -749,6 +765,160 @@ public partial class ExpeditionRoot : Node
 
     /// <summary>供冒烟：当前可选房间数（0 ⇒ 选路已走完）。</summary>
     public int MapOptionCount => _mapButtons.Count;
+
+    // ------------------------------------------------------------------
+    // 🔴 扎营技能面板（红线 18/21：**已接线的技能必须让玩家点得到**；阶段二的不出现）
+    // ------------------------------------------------------------------
+
+    private Label? _campSkillStatus;
+    private Button? _finishCamp;
+    private readonly List<Button> _campSkillButtons = new();
+    private CampSkillsConfig? _campSkills;                       // 扎营技能数据（装配时读入）
+    private RosterConfig? _rosterCfg;                            // 名册配置（角色专属判定用）
+    private readonly Dictionary<string, int> _heroSlots = new(StringComparer.Ordinal); // 英雄 id → 阵型槽位
+
+    /// <summary>可选扎营技能数（供冒烟断言）。</summary>
+    public int CampSkillOptionCount => _campSkillButtons.Count;
+
+    /// <summary>
+    /// **建扎营技能面板**：只列【已接线】的 effect（`CampSkillsConfig.ConsumedEffectNames`）——
+    /// 🔴 阶段二的技能**不出现**（红线 21：未接线的不得让玩家点）。
+    /// 角色专属：`owner_unit` 与出征名册里某英雄的原型一致才列（契约：战士的技能不能由军医放）。
+    /// </summary>
+    public void BuildCampSkillPanel()
+    {
+        if (_flow is null || Session is null || _campSkills is null)
+        {
+            return;
+        }
+
+        if (_campSkillStatus is null)
+        {
+            _campSkillStatus = new Label
+            {
+                Name = "CampSkillStatus",
+                Position = new Vector2(24, 606),
+                Size = new Vector2(1250, 26),
+            };
+            AddChild(_campSkillStatus);
+
+            _finishCamp = new Button
+            {
+                Name = "FinishCamp",
+                Text = "结束扎营（阶段三：夜袭判定）",
+                Position = new Vector2(24, 636),
+                Size = new Vector2(360, 34),
+            };
+            _finishCamp.Pressed += () =>
+            {
+                _flow.FinishCamp();
+                GD.Print($"[拓扑UI] 结束扎营：夜袭触发={_flow.LastCampAmbushed}");
+                if (_flow.LastCampAmbushed)
+                {
+                    GD.Print("[拓扑UI] 夜袭已触发 ⇒ 插入一场额外战斗（切 Battle.tscn，真打）");
+                    ExpeditionContext.PendingAmbush = true;
+                    ExpeditionContext.Bind(_flow, Log);
+                    GetTree().ChangeSceneToFile("res://scenes/battle/Battle.tscn");
+                    return;
+                }
+
+                ClearCampSkillPanel();
+                RefreshMapView();
+            };
+            AddChild(_finishCamp);
+        }
+
+        foreach (Button b in _campSkillButtons)
+        {
+            b.QueueFree();
+        }
+
+        _campSkillButtons.Clear();
+
+        // 出征名册（按槽位）⇒ 原型 → 英雄（角色专属判定用）
+        var heroByArchetype = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach ((string id, int slot) in _heroSlots)
+        {
+            // 槽位对应的英雄原型：从名册配置读（与出征同源）
+            string? archetype = _rosterCfg?.Heroes.FirstOrDefault(h => h.Id == id)?.Archetype;
+            if (archetype is not null && slot > 0 && !heroByArchetype.ContainsKey(archetype))
+            {
+                heroByArchetype[archetype] = id;
+            }
+        }
+
+        var usable = _campSkills.Skills
+            .Where(s => CampSkillsConfig.ConsumedEffectNames.Contains(s.Effect)) // 🔴 只列已接线
+            .Where(s => heroByArchetype.ContainsKey(s.OwnerUnit))                // 角色专属：该原型在队里
+            .ToArray();
+
+        _campSkillStatus.Text = $"【扎营】Respite {Session.RespiteLeft} 点　可用技能 {usable.Length} 个" +
+                                $"（只列已接线；阶段二的不出现）";
+        GD.Print($"[拓扑UI] 扎营技能面板：可用 {usable.Length} 个（英雄槽位映射 {_heroSlots.Count} 个；" +
+                 $"名册 {_rosterCfg?.Heroes.Count ?? 0} 人；技能数据 {_campSkills.Skills.Count} 条）");
+
+        for (int i = 0; i < usable.Length; i++)
+        {
+            CampSkillConfig skill = usable[i];
+            bool afford = Session.RespiteLeft >= skill.Cost;
+            var b = new Button
+            {
+                Name = $"CampSkill_{skill.Id}",
+                Text = $"{skill.Name}（{skill.Cost} 点）",
+                Position = new Vector2(24 + (i * 200), 570),
+                Size = new Vector2(190, 30),
+                Disabled = !afford,
+            };
+            string effect = skill.Effect;
+            string target = heroByArchetype[skill.OwnerUnit];
+            b.Pressed += () =>
+            {
+                bool used = Session.UseCampSkill(Log, skill.Id, skill.Cost, Darkest.Core.Contracts.UnitId.Of(target), effect);
+                GD.Print($"[拓扑UI] 扎营技能 {skill.Name}：{(used ? "已使用" : "拒绝")}　剩余 Respite {Session.RespiteLeft}");
+                BuildCampSkillPanel(); // 刷新（点数/可用性变化）
+            };
+            AddChild(b);
+            _campSkillButtons.Add(b);
+        }
+    }
+
+    /// <summary>收起扎营面板（结束扎营后）。</summary>
+    public void ClearCampSkillPanel()
+    {
+        foreach (Button b in _campSkillButtons)
+        {
+            b.QueueFree();
+        }
+
+        _campSkillButtons.Clear();
+    }
+
+    /// <summary>🔴 供冒烟：**真实点击第 i 个扎营技能**。</summary>
+    public bool PressCampSkill(int index)
+    {
+        if (index < 0 || index >= _campSkillButtons.Count)
+        {
+            GD.Print($"[拓扑UI] PressCampSkill({index})：没有这个技能（当前 {_campSkillButtons.Count} 个）");
+            return false;
+        }
+
+        GD.Print($"[拓扑UI] PressCampSkill({index})：发出真实 Pressed（按钮「{_campSkillButtons[index].Text}」）");
+        _campSkillButtons[index].EmitSignal(BaseButton.SignalName.Pressed);
+        return true;
+    }
+
+    /// <summary>🔴 供冒烟：**真实点击【结束扎营】**。</summary>
+    public void PressFinishCamp()
+    {
+        if (_finishCamp is null)
+        {
+            GD.Print("[拓扑UI] PressFinishCamp：没有结束扎营按钮（未在扎营中）");
+            return;
+        }
+
+        GD.Print("[拓扑UI] PressFinishCamp：发出真实 Pressed");
+        _finishCamp.EmitSignal(BaseButton.SignalName.Pressed);
+    }
 
     /// <summary>
     /// 🔴 冒烟：**真实点击"扎营"**并返回**是否已路由到战斗场景**（夜袭触发时）——

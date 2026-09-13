@@ -322,8 +322,24 @@ public sealed class ExpeditionFlow
     /// <summary>夜袭判定（扎营后调用；触发则插一场额外战斗，计入完成）。</summary>
     public bool RollAmbush() => _session.RollAmbush(_log, _rng);
 
-    /// <summary>扎营（柴火不足 ⇒ 拒绝；成功则光照回满）。</summary>
+    /// <summary>扎营（柴火不足 ⇒ 拒绝；成功则光照回满）。**最小版：一调用到底**（供测试/旧路径）。</summary>
     public bool Camp()
+    {
+        if (!BeginCamp())
+        {
+            return false;
+        }
+
+        return FinishCamp();
+    }
+
+    /// <summary>
+    /// 🔴 **拆开扎营（阶段一→二）**：`StartCamp`（扣柴火 + 给 Respite 点数）+ 选口粮 + 光照回满。
+    /// 拆开的理由（红线 18/21）：**扎营技能必须让玩家【点得到】** —— 原 `Camp()` 是一调用到底的，
+    /// UI 没有插"选技能"的位置 ⇒ 6 个已接线的扎营技能玩家永远碰不到 ⚠️
+    /// 返回 false ⇒ 柴火不足（拒绝、不扣）。
+    /// </summary>
+    public bool BeginCamp()
     {
         if (!_session.StartCamp(_log, StepsDone, _tuning.Camp!.RespiteBase))
         {
@@ -335,13 +351,16 @@ public sealed class ExpeditionFlow
             : _session.CanAffordFood(_tuning.Camp, "full") ? "full"
             : _session.CanAffordFood(_tuning.Camp, "half") ? "half" : "starve";
         _session.ChooseFood(_log, _tuning.Camp, best);
-        _session.EndCamp(_log);
+        return true;
+    }
 
-        // 🔴 M7.5 补欠账（`#305` ③ 第一步 / 契约 `m7_expedition.md:143`）：
-        //    **扎营的【后置阶段】= 夜袭判定**（契约：「③ 后置：33% 概率【夜袭】」）——
-        //    此前 `RollAmbush()` 包装与注释都在、**但 `Camp()` 里漏了这一步调用** ⇒ 夜袭从未发生（红线 21）。
-        //    触发语义（契约 `m7_expedition.md:35`）：**额外一场战斗，计入 6 场皆胜** ⇒ 由调用方据此插一场 ✓
-        //    · 守夜 ／ 站岗（`ambush_immunity_once`）的免疫由 `ExpeditionSession.RollAmbush` 消费 ✓
+    /// <summary>
+    /// 🔴 **结束扎营（阶段二→三）**：`EndCamp` ＋【阶段三：夜袭判定】（契约 `m7_expedition.md:143`）。
+    /// 触发夜袭 ⇒ `LastCampAmbushed = true` ⇒ 调用方插一场额外战斗（计入胜场）。
+    /// </summary>
+    public bool FinishCamp()
+    {
+        _session.EndCamp(_log);
         LastCampAmbushed = RollAmbush();
         return true;
     }
