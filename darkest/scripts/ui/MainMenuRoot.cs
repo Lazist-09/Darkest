@@ -77,6 +77,13 @@ public partial class MainMenuRoot : Node2D
             GD.Print("[MainMenuRoot] --expedition/--e2e/--hamlet-next ⇒ 直达地牢层（冒烟路径）");
             GetTree().CallDeferred("change_scene_to_file", ExpeditionScene);
         }
+
+        // 🔴 V8 点击路径冒烟：`--click-menu=N` ⇒ **发出真实 Pressed 信号**（验证按钮真的接上了）
+        string? click = Array.Find(args, a => a.StartsWith("--click-menu=", StringComparison.Ordinal));
+        if (click is not null && int.TryParse(click.Substring("--click-menu=".Length), out int menuIndex))
+        {
+            CallDeferred(nameof(PressMenu), menuIndex);
+        }
     }
 
     private void AddMenuButton(string text, string scenePath, int index)
@@ -90,5 +97,22 @@ public partial class MainMenuRoot : Node2D
         };
         button.Pressed += () => GetTree().ChangeSceneToFile(scenePath);
         AddChild(button);
+    }
+
+    /// <summary>
+    /// 🔴 V8 补条（`#289`）：**点击路径**的验收 —— `--e2e` 走的是 CLI 分支，**"CLI 能过 ≠ 点得动"**。
+    /// 本方法**发出真实的 `Pressed` 信号**（走按钮 → 回调这条链路），供 headless 冒烟验证按钮真的接上了。
+    /// </summary>
+    public void PressMenu(int index)
+    {
+        Button? button = GetNodeOrNull<Button>($"Menu{index}");
+        if (button is null)
+        {
+            GD.Print($"[MainMenuRoot] PressMenu({index})：**找不到按钮**（说明按钮没挂上 —— 红线 21）");
+            return;
+        }
+
+        GD.Print($"[MainMenuRoot] PressMenu({index})：发出真实 Pressed 信号（按钮「{button.Text}」）");
+        button.EmitSignal(BaseButton.SignalName.Pressed); // 走真实回调，不是直接切场景
     }
 }

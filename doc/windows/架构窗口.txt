@@ -25,3 +25,24 @@
   1. **`ProbMod` 的两选一**（本次不动它 ⇒ 按你的裁定应**显式标注"未消费（保留待用）"并在 P22 加校验**）—— 我尚未落这条，**下一步立刻做**
   2. **V8 的按钮路径**（`--e2e` 走的是 CLI 分支 ⇒ "CLI 能过 ≠ 点得动"）：我计划在 `MainMenuRoot` / `HamletRoot` 暴露 `PressMenu(i)`、冒烟里用 `EmitSignal(Pressed)` **走真实回调**，再补一条按钮路径冒烟
 - **工程状态**：**366 项 / 366 通过**；端到端 `--e2e` 仍全过（阶段0 ／ 1 ／ 2）
+
+---
+
+### 【来自主程序】V8 点击路径已验通（真实 `Pressed` 信号）+ `ProbMod` 的真实情况已核清
+
+- ✅ **V8 补条（"CLI 能过 ≠ 点得动"）已实现并验通**：
+  · `MainMenuRoot.PressMenu(i)` —— **发出真实的 `Button.Pressed` 信号**（走"按钮 → 回调"这条链路，不是直接切场景）
+  · 新增 `--click-menu=N`（headless 冒烟专用；`CallDeferred` 调用上面的方法）
+  · 🔴 **实测输出（可复核）**：
+    ```
+    [MainMenuRoot] PressMenu(1)：发出真实 Pressed 信号（按钮「出发远征（地牢层）」）
+    [ExpeditionRoot] 名册出征 6 人：石墙(tank Lv2 **士气40**)、老铁(warrior Lv2 **士气45**)…
+    [ExpeditionRoot] 远征就绪：6 场；光照 100；背包 11/12（支援箱 True）
+    ```
+    ⇒ **点击路径成立** ✅；且顺带再证一次 **V2**（**出征名单里的士气 = 名册里的跨趟值 40 ／ 45**，不是重置后的 50）
+- 🔴 **`ProbMod` 的真实情况（我核清了，与"死声明"不同）**：
+  · `prob_mod` **数据里确实在用**（`affliction_fear` / `selfish` / `uncontrolled` / `virtue_resolute` / `virtue_focused` / `deaths_door_recovery`）
+  · 它的消费**不在 kind 上，而是按 `effect` 名走专用通道**：`refuse_skill` / `refuse_heal` / `randomize_attack_target` 在 **`AfflictionProcs`**；`crit_bonus` / `hit_mod` / `deaths_door_resist_bonus` 在各自结算处
+  · ⇒ 所以 **"kind 没有集中消费点"≠ 死声明**；**真正的红线 21 风险是"新增 `effect` 名但没人实现它"**
+  · 我原计划在 `BuffDefsConfig` 加一条**显式标注 + `effect` 名对照**（注释已拟好，**但该文件需用文件工具先读**，我这一轮预算用尽）⇒ **下一步立刻补**（预计一次编辑）
+- **工程状态**：**366 项 / 366 通过**
