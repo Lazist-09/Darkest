@@ -348,6 +348,18 @@ public partial class BattleRoot : Node2D
         _awaitingPlayer = false;
         ResultText = what;
         ResultRound = Director.Round;
+
+        // 🔴 M7.5：若本次战斗属于一趟远征 ⇒ **回灌远征流程并切回远征场景**
+        //（战斗场景只负责"打完 + 回灌结果"；选路/侦察/光照/掉落/扎营/下一步全由 ExpeditionFlow 驱动）
+        if (ExpeditionContext.IsActive)
+        {
+            string result = what.Contains("撤退", System.StringComparison.Ordinal)
+                ? "DrawRetreat"
+                : Director.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+            ExpeditionContext.Flow!.OnBattleFinished(result, Director.Round);
+            GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
+            return; // 远征模式不在战斗场景停留（结算面板由远征场景显示）
+        }
         // T-M6-07 系统触发日志 + P0④ 结算面板数据（同一批计数）
         var events = Director.Log.Events;
         int collapse = events.OfType<CollapseResultEvent>().Count();

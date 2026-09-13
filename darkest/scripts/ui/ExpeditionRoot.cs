@@ -44,6 +44,12 @@ public partial class ExpeditionRoot : Node
     /// <summary>面板最后渲染的行（供自检/冒烟）。</summary>
     public IReadOnlyList<string> LastLines { get; private set; } = Array.Empty<string>();
 
+    /// <summary>M7.5：远征流程状态机（内核；场景层只驱动）。</summary>
+    private ExpeditionFlow? _flow;
+
+    /// <summary>最小版选路：交替选（真实玩家的选路来自 `PathChoicePanel`）。</summary>
+    private int _nextOption;
+
     public override void _Ready()
     {
         _panel = new ExpeditionListPanel { Name = "ExpeditionListPanel" };
@@ -83,8 +89,40 @@ public partial class ExpeditionRoot : Node
 
         var meter = new LightMeter(tuning.Light!);
         Initialize(session, meter, bag, tuning, handle.Nodes);
+        _flow = new ExpeditionFlow(session, meter, bag, new Scouting(tuning.Scouting!, tuning.Light!),
+            handle.Nodes, tuning, Log, new Darkest.Core.Rng.RngProvider(20260909));
+        ExpeditionContext.Bind(_flow, Log);
         GD.Print($"[ExpeditionRoot] 远征就绪：{tuning.Expedition.NBattles} 场；光照 {meter.Value}；" +
                  $"背包 {bag.Count}/{bag.SlotCap}（支援箱 {bag.CarriesSupportCrate}）");
+    }
+
+    /// <summary>推进到下一步（战斗 ⇒ 切到战斗场景；事件 ⇒ 显示二选一；走完 ⇒ 回城结算）。</summary>
+    public void AdvanceNextStep()
+    {
+        if (_flow is null)
+        {
+            return;
+        }
+
+        FlowStep step = _flow.Advance(optionIndex: _nextOption);
+        _nextOption = _nextOption == 0 ? 1 : 0; // 最小版：交替选择（真实玩家选路由 UI 决定）
+
+        switch (step.Kind)
+        {
+            case FlowStepKind.Battle:
+                ExpeditionContext.Bind(_flow, Log);
+                GetTree().ChangeSceneToFile("res://scenes/battle/Battle.tscn");
+                return;
+            case FlowStepKind.Event:
+                SetPendingEvent(step.NodeId);
+                RefreshPanel();
+                return;
+            default:
+                _flow.ReturnToTown("completed");
+                ExpeditionContext.End();
+                RefreshPanel();
+                return;
+        }
     }
 
     /// <summary>注入内核对象（数据由调用方按与 `BattleRoot` 同源的方式加载）。</summary>
