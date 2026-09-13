@@ -135,3 +135,14 @@
 - M7.5 至此：内核（光照/侦察/背包/待命/流程）+ 复测（V1/V4/V8/V10/21~28）+ UI 六件 + **场景往返** 全部就绪
 - 仍属最小版（明示）：选路目前交替选（真实玩家选路界面已备 PathChoicePanel，待接按钮回调）；光照条/侦察标记已可复用组件但尚未挂进场景节点
 - 阻塞 / 待裁定：无
+
+---
+### 【来自主程序】M7.5 UI 面板已挂进场景 + 真实选路回调（最小版取舍解除）
+
+- Expedition.tscn 现有节点：ExpeditionRoot + LightBarPanel + InventoryPanel + ScoutMarkPanel + PathChoicePanel
+- ExpeditionFlow.PreviewOptions()：预览下一步两个候选（不消耗状态；玩家点选后才 Advance）
+- ExpeditionRoot：_Ready 后 ShowPathChoice（真实二选一）→ AdvanceWith(index) 推进；RefreshPanel 同步刷新光照条与侦察标记
+- 之前备案的 选路交替选 与 组件未挂树 两条最小版取舍 已解除
+- 验证：build 通过 · 332/332 · 远征场景直载正常
+- 剩（更小）：背包面板的**拾取入口**尚未与掉落串起来（掉落已入 session 资源；背包格子 UI 的 TryPickup 流程待接）；以及战斗场景在远征模式下的结算面板留白
+- 阻塞 / 待裁定：无
