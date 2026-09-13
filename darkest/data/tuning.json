@@ -37,7 +37,7 @@
   "inventory": {
     "slot_cap": 12,
     "food_stackable": false,
-    "recommended_loadout": { "firewood": 2, "food": 9, "support_crate": 1 },
+    "recommended_loadout": { "firewood": 1, "food": 10, "support_crate": 1 },
     "full_policy": "choose_what_to_discard",
     "note": "P21 ⑥⑬：推荐配置 2/9/1 恰满 12 格（作默认）；**背包满禁止静默丢弃** → 必须让玩家【选择丢弃哪一格】（否则摸黑搏到的补给拿不回来，光照计收益端闭环会漏）；整备仅出发前、**局内不可改**"
   },
@@ -55,7 +55,7 @@
     "difficulty_note": "#255 (v0.96)：敌 HP 递进【不可行】→ **×1.1/×1.25 全部撤销、敌 HP 保持 ×1.0**（链式 ×1.1=10.45 破带 49%）；难度改由【眩晕抗性 +15pp】承担（30/25/40 → 45/40/55），该轴不改回合数、不改伤害",
     "pass_morale_delta": 0
   },
-  "resources": { "firewood": 2, "food": 12 },
+  "resources": { "firewood": 1, "food": 12 },
   "camp": { "food_tiers": { "starve": 0, "half": 3, "full": 6, "feast": 12 }, "respite_base": 6, "pep_talk_battles": 4, "ambush_chance": 0.33 },
   "retreat_formula": {
     "base_percent": 50,

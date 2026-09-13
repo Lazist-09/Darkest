@@ -283,6 +283,7 @@ public sealed class M75VerificationPackTests
         {
             (string name, int battleSteps, bool brighten) = strategies[s];
             int completed = 0, battles = 0, events = 0, loot = 0, retreats = 0, wins = 0;
+            int firewoodSpent = 0, minLight = 100; // ㉓ 柴火支出 / ㉑ 光照曲线（最暗）
             int battleGoal = tuning.Expedition.BattleGoal;
 
             for (int i = 0; i < runs; i++)
@@ -290,7 +291,7 @@ public sealed class M75VerificationPackTests
                 var log = new CombatLog();
                 var rng = new RngProvider(20260909 + i * 31 + s);
                 var session = new ExpeditionSession(_ => HeadlessDriver.NewDirector(new CombatLog()), 6,
-                    firewood: 2, food: 12, ambushChance: 0.6); // 激进档夜袭概率更高（同一 seed 口径下比较）
+                    firewood: tuning.Resources.Firewood, food: tuning.Resources.Food, ambushChance: 0.6); // 起手走 tuning（#274：禁硬编码）
                 var meter = new LightMeter(tuning.Light!);
                 meter.EmitStart(log);
                 IReadOnlyList<PathStep> path = ExpeditionPathPlanner.GeneratePath(log, rng, 6, nodes);
@@ -347,14 +348,21 @@ public sealed class M75VerificationPackTests
                     }
 
                     // 保守档：光照 ≤ 50 时**提亮**（1 柴火 +30；不足则拒且不变）
-                    if (brighten && meter.Value <= 50)
+                    if (brighten && meter.Value <= 50 && session.TrySpend(log, "firewood", 1, "torch"))
                     {
-                        meter.TryBrighten(log, () => session.TrySpend(log, "firewood", 1, "torch"));
+                        meter.TryBrighten(log, () => true);
+                        firewoodSpent++;
                     }
 
                     if (session.CanCamp && session.StartCamp(log, step + 1, tuning.Camp!.RespiteBase))
                     {
+                        firewoodSpent++;
                         meter.OnCamp(log);
+                    }
+
+                    if (meter.Value < minLight)
+                    {
+                        minLight = meter.Value; // ㉑：本趟最暗点（"摸黑到底有多黑"）
                     }
                 }
 
@@ -369,15 +377,20 @@ public sealed class M75VerificationPackTests
             completionRates.Add(rate);
             double eventShare = battles + events == 0 ? 0 : 100.0 * events / (battles + events);
             lines.Add($"[M7.5] V10 {name}：完成率 {rate:P0}（{completed}/{runs}）" +
-                      $"　㉙ 战斗 {battles}（胜 {wins}）／事件 {events}（事件占比 {eventShare:F0}%；门槛 battle_goal={battleGoal}）" +
-                      $"　㉔ 补给 {loot} 份（{loot / (double)runs:F2}/趟）　撤退/团灭 {retreats}");
+                      $"　㉙ 战斗 {battles}（胜 {wins}）／事件 {events}　门槛 battle_goal={battleGoal}" +
+                      $"　㉔ 补给 {loot} 份（{loot / (double)runs:F2}/趟）　㉓ 柴火支出 {firewoodSpent / (double)runs:F2}/趟" +
+                      $"　㉑ 最暗 {minLight}　撤退/团灭 {retreats}");
         }
 
         double spread = completionRates.Max() - completionRates.Min();
-        lines.Add($"[M7.5] V10 判读：三档完成率极差 **{spread:P0}**" +
-                  (spread >= 0.15
-                      ? " ⇒ ✅ **拉得开 → 设计成功**（玩家的选择真的改变结果）"
-                      : " ⇒ 🔴 **挤在一起 → 设计失败**：选择不影响结果 ⇒ 该调【收益端/难度端】，**不是调区间**"));
+        int bestIndex = completionRates.IndexOf(completionRates.Max());
+        string verdict = bestIndex == 1
+            ? "✅ **均衡最高 = 倒 U 成立 → 设计成功**（中等冒险收益刚好补偿风险）"
+            : bestIndex == 0
+                ? "🔴 **保守最高 → 收益不足**（应加收益 / 再减起手资源）"
+                : "🔴 **激进最高 → 风险不足**（应加难度）";
+        lines.Add($"[M7.5] V10 判读（#274 倒 U）：保守 {completionRates[0]:P0} ／ 均衡 {completionRates[1]:P0} ／ 激进 {completionRates[2]:P0}" +
+                  $"　极差 {spread:P0}　最优档 = {bestIndex switch { 0 => "保守", 1 => "均衡", _ => "激进" }}　⇒ {verdict}");
 
         string report = string.Join("\n", lines);
         Console.WriteLine(report);

@@ -42,9 +42,9 @@ public sealed class InventoryTests
         IReadOnlyList<InventoryItem> loadout = inv.RecommendedLoadout();
 
         Assert.AreEqual(12, Cfg().SlotCap, "12 格（P21 ⑥：不许调到 15）");
-        Assert.AreEqual(12, loadout.Count, "推荐配置 2/9/1 **恰满 12 格**");
-        Assert.AreEqual(2, loadout.Count(i => i.Kind == ItemKind.Firewood));
-        Assert.AreEqual(9, loadout.Count(i => i.Kind == ItemKind.Food), "口粮不堆叠 ⇒ 9 份占 9 格");
+        Assert.AreEqual(12, loadout.Count, "推荐配置 1/10/1（#274：起手柴火降为 1 后 firewood:2 不可实现）**恰满 12 格**");
+        Assert.AreEqual(1, loadout.Count(i => i.Kind == ItemKind.Firewood));
+        Assert.AreEqual(10, loadout.Count(i => i.Kind == ItemKind.Food), "口粮不堆叠 ⇒ 10 份占 10 格");
         Assert.AreEqual(1, loadout.Count(i => i.Kind == ItemKind.SupportCrate));
     }
 
@@ -141,7 +141,7 @@ public sealed class InventoryTests
     {
         // 推荐配置超格
         Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(
-            ReadData("tuning.json").Replace("\"food\": 9", "\"food\": 15", StringComparison.Ordinal)),
+            ReadData("tuning.json").Replace("\"food\": 10", "\"food\": 15", StringComparison.Ordinal)),
             "recommended_loadout 超格 → 启动报错（P21 ⑥）");
 
         // 包满策略被改回"静默丢弃"

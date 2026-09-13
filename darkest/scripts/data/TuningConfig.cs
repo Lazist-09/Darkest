@@ -478,6 +478,15 @@ public sealed record TuningConfig(
                 $"{ResPath}: recommended_loadout 合计 {recommended} > slot_cap {t.Inventory.SlotCap}（P21 ⑥）。");
         }
 
+        // 🔴 P20 ② / P21 ⑥（#274）：推荐配置的柴火必须**可实现**（≤ 起手柴火）——
+        // 起手柴火降到 1 后，`firewood:2` 就是不可实现的配置（架构按"可实现 + 正好 12 格"推为 1/10/1）。
+        if (t.Inventory.RecommendedLoadout.TryGetValue("firewood", out int recFirewood)
+            && recFirewood > t.Resources.Firewood)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: recommended_loadout.firewood({recFirewood}) 必须 ≤ 起手 firewood({t.Resources.Firewood})（P20 ② / #274）。");
+        }
+
         if (t.Inventory.FullPolicy != "choose_what_to_discard")
         {
             throw new InvalidDataException(

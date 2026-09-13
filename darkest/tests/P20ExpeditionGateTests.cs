@@ -48,8 +48,9 @@ public sealed class P20ExpeditionGateTests
         TuningConfig t = TuningConfig.Parse(ReadData("tuning.json"));
         Assert.AreEqual(6, t.Expedition.NBattles);
         Assert.AreEqual(0.33, t.Expedition.AmbushChance, 1e-9);
-        Assert.AreEqual(2, t.Resources.Firewood);
-        Assert.AreEqual(12, t.Resources.Food);
+        Assert.AreEqual(1, t.Resources.Firewood, "#274：起手柴火 2 → 1（扎营与提亮只能选一个）");
+        Assert.AreEqual(12, t.Resources.Food, "口粮 12 不动（保住 1+12+1 = 14 > 12 的背包超格）");
+        Assert.AreEqual(3, t.Expedition.BattleGoal, "#273：完成需打赢 ≥ 3 场");
         Assert.AreEqual(6, t.Camp.RespiteBase);
     }
 
