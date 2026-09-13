@@ -35,7 +35,8 @@ public static class DirectorBridge
     public static DirectorHandle BuildFromRes(Node host,
         System.Collections.Generic.IReadOnlyList<HeroConfig>? sortie = null,
         RosterLevelGrowth? growth = null,
-        System.Collections.Generic.IReadOnlyList<int>? openingMoraleBySlot = null)
+        System.Collections.Generic.IReadOnlyList<int>? openingMoraleBySlot = null,
+        System.Collections.Generic.IReadOnlyList<DiseasePenalty>? diseasePenaltyBySlot = null)
     {
         _ = host;
         string Read(string name) => FileAccess.GetFileAsString($"res://data/{name}");
@@ -79,6 +80,12 @@ public static class DirectorBridge
 
                 // 🔴 M8.0 ③（#289 (B)）：特质 → 单位修正（伤害类与士气类各归其道）
                 Darkest.Gameplay.Sim.Run.HeroProjection.ApplyTraits(sortie[i], board[i]);
+
+                // 🔴 M8.2（V14）：**疾病 → 单位**（属性惩罚投影；只记 Roster 不投影 = 红线 21）
+                if (diseasePenaltyBySlot is not null && i < diseasePenaltyBySlot.Count)
+                {
+                    Darkest.Gameplay.Sim.Run.HeroProjection.ApplyDisease(diseasePenaltyBySlot[i], board[i]);
+                }
 
                 // 🔴 #287（= #245 的落地）：**本趟开局士气来自名册**（跨趟累积；回城不恢复）
                 if (openingMoraleBySlot is not null && i < openingMoraleBySlot.Count)

@@ -148,6 +148,30 @@ public sealed class UnitRuntime
 
     public void ApplyTraitMoraleDamagePct(int pct) => MoraleDamageTakenPct += pct;
 
+    /// <summary>
+    /// M8.2（`m8_roadmap §2` + **V14**）：**疾病惩罚的运行时投影** —— 与 `ApplyLevelGrowth` / `ApplyOpeningMorale`
+    /// / 特质同款（**运行时投影、不改基准数据**）。
+    /// 🔴 **V14 的要点**：疾病**只记在 `Roster` 而不投影 = "写了但没接上"（红线 21）** ⇒ 必须落到单位上。
+    /// </summary>
+    public void ApplyDiseasePenalty(int hpDelta, int attackDelta, int moraleDelta)
+    {
+        if (hpDelta != 0)
+        {
+            MaxHp = Math.Max(1, MaxHp + hpDelta);
+            CurrentHp = Math.Min(CurrentHp, MaxHp);
+        }
+
+        if (attackDelta != 0)
+        {
+            AttackMod += attackDelta;
+        }
+
+        if (moraleDelta != 0)
+        {
+            Morale = Math.Clamp(Morale + moraleDelta, 0, 100);
+        }
+    }
+
     public void ApplyStunResistBonus(int pp)
     {
         if (pp != 0)

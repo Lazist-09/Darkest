@@ -57,6 +57,20 @@ public static class HeroProjection
         return eff;
     }
 
+    /// <summary>
+    /// M8.2（**V14**）：**疾病 → 单位**（属性惩罚投影；运行时投影、不改基准）。返回实际施加的惩罚。
+    /// </summary>
+    public static DiseasePenalty ApplyDisease(DiseasePenalty penalty, UnitRuntime unit)
+    {
+        if (penalty is null || penalty.IsNone || unit is null)
+        {
+            return penalty ?? new DiseasePenalty();
+        }
+
+        unit.ApplyDiseasePenalty(penalty.HpDelta, penalty.AttackDelta, penalty.MoraleDelta);
+        return penalty;
+    }
+
     /// <summary>汇总英雄特质效果（供伤害管线 / 士气通道接线时读取）。</summary>
     public static TraitEffects TraitEffectsOf(HeroConfig hero)
     {

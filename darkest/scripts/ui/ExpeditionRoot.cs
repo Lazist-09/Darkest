@@ -133,9 +133,13 @@ public partial class ExpeditionRoot : Node
         IReadOnlyList<HeroConfig> sortie = FormationSortie.SelectForTemplate(template, roster);
         Roster shared = ExpeditionContext.EnsureRoster(roster); // 🔴 跨趟名册（复用同一实例 ⇒ 士气不被重置）
         var openingMorale = new List<int>();
+        var diseasePenalties = new List<DiseasePenalty>();
+        SanitariumConfig saniCfg = SanitariumConfig.Parse(
+            Godot.FileAccess.GetFileAsString(SanitariumConfig.ResPath));
         foreach (HeroConfig h in sortie)
         {
             openingMorale.Add(shared.MoraleOf(h.Id));
+            diseasePenalties.Add(Sanitarium.TotalPenalty(saniCfg, shared, h.Id)); // 🔴 V14：疾病真的影响战斗
         }
 
         GD.Print($"[ExpeditionRoot] 名册出征 6 人（按模板槽位原型配人）：" +
@@ -146,7 +150,7 @@ public partial class ExpeditionRoot : Node
         bag.LockForRun();                // 🔴 出发后局内不可改
 
         var session = new ExpeditionSession(
-            _ => DirectorBridge.BuildFromRes(this, sortie, roster.LevelGrowth, openingMorale).Core,
+            _ => DirectorBridge.BuildFromRes(this, sortie, roster.LevelGrowth, openingMorale, diseasePenalties).Core,
             tuning.Expedition.NBattles,
             firewood: bag.CountOf(ItemKind.Firewood),
             food: bag.CountOf(ItemKind.Food),
