@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Core.Rng;
 using Darkest.Data;
@@ -38,6 +39,80 @@ public sealed class ExpeditionFlow
     private readonly Economy? _economy; // M8.0 ②（#283 硬要求①）：跨趟金钱（组合根持有注入；本类只是调用方）
     private readonly HeirloomStock? _heirlooms;      // M8.1：传家宝库存（与金钱同源的第三种资源）
     private readonly HeirloomConfig? _heirloomConfig; // M8.1：掉落曲线
+
+    // ---------------------------------------------------------------
+    // M7.6 片 (i)：**拓扑模式**（地图驱动）—— 与旧"线性 6 节点 + 每步二选一"并存但**互斥**
+    //   · 未注入 `mapCfg` ⇒ 走旧线性路径（**保留**：A1 判定闸 / 旧 e2e 依赖）
+    //   · 注入 `mapCfg`  ⇒ 走拓扑路径（StepTo(roomId) + 相邻未探索房间）
+    // ---------------------------------------------------------------
+    private ExpeditionMapConfig? _mapCfg;
+    private ExpeditionMap? _map;
+    private HashSet<int>? _visitedRooms;
+    private int _currentRoomId = -1;
+
+    /// <summary>是否拓扑模式（地图驱动）。</summary>
+    public bool IsTopologyMode => _map is not null;
+
+    /// <summary>当前房间（拓扑模式）。</summary>
+    public int CurrentRoomId => _currentRoomId;
+
+    /// <summary>🔴 M7.6：**开启拓扑模式** —— 生成地图（**所有随机写 `RngDraw`**）并落在起点。</summary>
+    public ExpeditionMap BeginTopology(ExpeditionMapConfig mapCfg)
+    {
+        _mapCfg = mapCfg ?? throw new ArgumentNullException(nameof(mapCfg));
+        _map = ExpeditionMapGenerator.Generate(_log, _rng, mapCfg);
+        _visitedRooms = new HashSet<int> { _map.StartId };
+        _currentRoomId = _map.StartId;
+        return _map;
+    }
+
+    /// <summary>拓扑模式：**当前位置的相邻未探索房间**（供 UI 渲染"选路"，取代旧的"每步二选一"）。</summary>
+    public IReadOnlyList<MapRoom> AdjacentUnexplored()
+    {
+        if (_map is null || _visitedRooms is null)
+        {
+            return Array.Empty<MapRoom>();
+        }
+
+        return _map.Edges
+            .Where(e => (e.From == _currentRoomId && !_visitedRooms.Contains(e.To))
+                        || (e.To == _currentRoomId && !_visitedRooms.Contains(e.From)))
+            .Select(e => e.From == _currentRoomId ? e.To : e.From)
+            .Distinct()
+            .Select(id => _map.Rooms.First(r => r.Id == id))
+            .ToArray();
+    }
+
+    /// <summary>
+    /// 🔴 M7.6：**走到某个相邻房间**（取代 `Advance(optionIndex)`）—— 按"新区域 −30 ／ 重走 −10"计价，
+    /// 推进光照；段数 +1（**只有新房间才算进度**）。
+    /// </summary>
+    public MoveOutcome StepTo(int roomId)
+    {
+        if (_map is null || _mapCfg?.Move is null || _visitedRooms is null)
+        {
+            throw new InvalidOperationException("未开启拓扑模式（先调用 BeginTopology）。");
+        }
+
+        bool wasVisited = _visitedRooms.Contains(roomId);
+        MoveOutcome outcome = MapTraversal.Step(_log, _map, _mapCfg.Move, _meter, _currentRoomId, roomId, _visitedRooms);
+        if (outcome.Moved)
+        {
+            _currentRoomId = roomId;
+            if (!wasVisited)
+            {
+                StepsDone++; // 只有**首次进入**才算推进了一步（回头不算进度）
+            }
+        }
+
+        return outcome;
+    }
+
+    /// <summary>拓扑模式：是否已走到终点（主干末房）—— 完成口径的另一半是 `Wins ≥ battle_goal`。</summary>
+    public bool ReachedGoal => _map is not null && _currentRoomId == _map.GoalId;
+
+    /// <summary>拓扑模式下当前房间的类型（battle / event ⇒ 决定进战斗还是进事件）。</summary>
+    public string? CurrentRoomType => _map?.Rooms.First(r => r.Id == _currentRoomId).Type;
 
     private IReadOnlyList<PathStep>? _path;
 
@@ -258,10 +333,12 @@ public sealed class ExpeditionFlow
     public int Wins { get; private set; }
 
     /// <summary>
-    /// **完成口径（#273）**：**走完 6 步** **且** **打赢 ≥ `battle_goal` 场**。
-    /// 🔴 "走完 6 步"只是**过程** —— 全事件路线（0 战斗）零代价走完 = **路过，不是完成**。
+    /// **完成口径（#273 + M7.6）**：**走完到终点** **且** **打赢 ≥ `battle_goal` 场**。
+    /// 🔴 拓扑模式下"走完"= **走到主干终点**（`ReachedGoal`）；线性模式下 = 走完 `n_battles` 步。
+    /// 🔴 **数值不变（3）**；**不得按房间数比例**（否则判据随拓扑漂移）。
     /// </summary>
-    public bool Completed => StepsDone >= _tuning.Expedition.NBattles && Wins >= _tuning.Expedition.BattleGoal;
+    public bool Completed => (IsTopologyMode ? ReachedGoal : StepsDone >= _tuning.Expedition.NBattles)
+                             && Wins >= _tuning.Expedition.BattleGoal;
 
     /// <summary>背包（供 UI 渲染格子）。</summary>
     public Inventory Bag => _bag;
