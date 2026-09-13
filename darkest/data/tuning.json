@@ -9,7 +9,7 @@
   "retreat": { "success_morale": -12, "with_death_morale": -15, "fail_morale": -5, "scope": "survivors" },
   "light": {
     "enter_value": 100,
-    "advance_cost": 15,
+    "node_step": -30,
     "brighten_gain": 30,
     "brighten_firewood_cost": 1,
     "camp_restore_to": 100,

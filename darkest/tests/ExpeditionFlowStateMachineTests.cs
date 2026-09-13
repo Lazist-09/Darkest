@@ -59,7 +59,7 @@ public sealed class ExpeditionFlowStateMachineTests
         FlowStep step = flow.Advance(optionIndex: 0);
 
         Assert.IsTrue(step.Kind is FlowStepKind.Battle or FlowStepKind.Event, "步骤类型只能是战斗或事件");
-        Assert.AreEqual(before - tuning.Light!.AdvanceCost, flow.Meter.Value, "前进一个节点 −15（D0.2）");
+        Assert.AreEqual(before + tuning.Light!.NodeStep, flow.Meter.Value, "#278：前进一个节点 −30");
         Assert.IsTrue(step.Options.Count == 2, "每步恰 2 个候选（P20 ⑤）");
 
         ScoutOutcome? sc = flow.LastScout;

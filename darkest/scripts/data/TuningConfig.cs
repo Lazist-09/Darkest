@@ -133,7 +133,7 @@ public sealed record TuningExpedition(
 /// <summary>M7.5 地牢层（#258 / D0）：光照计 + 侦察 + 背包。**效果表 7 项，禁止任何 HP 字段**（P21 ③）。</summary>
 public sealed record TuningLight(
     [property: JsonPropertyName("enter_value")] int EnterValue,
-    [property: JsonPropertyName("advance_cost")] int AdvanceCost,
+    [property: JsonPropertyName("node_step")] int NodeStep,
     [property: JsonPropertyName("brighten_gain")] int BrightenGain,
     [property: JsonPropertyName("brighten_firewood_cost")] int BrightenFirewoodCost,
     [property: JsonPropertyName("camp_restore_to")] int CampRestoreTo,

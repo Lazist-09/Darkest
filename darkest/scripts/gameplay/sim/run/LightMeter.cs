@@ -81,7 +81,8 @@ public sealed class LightMeter : ILightMeter
     public void TryAdvanceNode(CombatLog log)
     {
         int before = Value;
-        Value = Math.Clamp(Value - _config.AdvanceCost, Min, Max);
+        // 🔴 #278：`node_step` = **−30**（负值 = 前进消耗；提亮 +30 恰好抵消 ⇒ 提亮 = "买一个节点"）
+        Value = Math.Clamp(Value + _config.NodeStep, Min, Max);
         Log(log, before, "advance");
     }
 

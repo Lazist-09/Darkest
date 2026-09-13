@@ -57,22 +57,23 @@ public sealed class LightMeterTests
         var meter = new LightMeter(cfg);
 
         Assert.AreEqual(100, meter.Value, "进图 100（D0.1）");
-        Assert.IsTrue(cfg.AdvanceCost == 15 && cfg.BrightenGain == 30 && cfg.BrightenFirewoodCost == 1);
+        Assert.IsTrue(cfg.NodeStep == -30 && cfg.BrightenGain == 30 && cfg.BrightenFirewoodCost == 1,
+            "#278：前进 −30（提亮 +30 恰好抵消 ⇒ 提亮 = 买一个节点）");
 
         meter.TryAdvanceNode(log);
-        Assert.AreEqual(85, meter.Value, "前进 −15");
-        Assert.AreEqual(LightTier.Radiant, meter.Tier);
+        Assert.AreEqual(70, meter.Value, "#278：前进 −30（100 → 70）");
+        Assert.AreEqual(LightTier.Dim, meter.Tier, "70 属于 Dim（51~75）");
 
         int firewood = 2;
         Assert.IsTrue(meter.TryBrighten(log, () => firewood-- > 0), "提亮 +30（消耗 1 柴火）");
-        Assert.AreEqual(100, meter.Value, "提亮后封顶 100");
+        Assert.AreEqual(100, meter.Value, "提亮后封顶 100（−30 + 30 ⇒ 提亮 = 买一个节点）");
         Assert.AreEqual(1, firewood);
 
         meter.TryAdvanceNode(log);
-        meter.TryAdvanceNode(log); // 85 → 70（Dim）
-        Assert.AreEqual(70, meter.Value);
-        Assert.AreEqual(LightTier.Dim, meter.Tier);
-        Assert.AreEqual(10, meter.Effect.OurMoraleDamagePct, "Dim：我方士气伤害 +10%（D0.4）");
+        meter.TryAdvanceNode(log); // 100 → 70 → 40（Shadowy）
+        Assert.AreEqual(40, meter.Value);
+        Assert.AreEqual(LightTier.Shadowy, meter.Tier);
+        Assert.AreEqual(20, meter.Effect.OurMoraleDamagePct, "Shadowy：我方士气伤害 +20%（D0.4）");
 
         meter.OnCamp(log);
         Assert.AreEqual(100, meter.Value, "扎营 → 回满 100");
