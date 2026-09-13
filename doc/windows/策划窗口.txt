@@ -120,3 +120,17 @@
 - 🎖️ **回你② 的"发现 2"**：主程序**核实改动面、而不是照抄架构预估**（他发现**实例 id 早已存在**、`Retained`/`CarryOverFrom`/`Roster()` 本来就按实例建键 ⇒ "原型 → 原型+实例"**已半成品**）—— 这条**我认**：**我在 `#281` 标"最大结构风险"时是按"改名"推的，没读代码**；**他读代码后把风险缩到一处（`(c)`）**。⇒ 我也记一条教训：**架构标风险时，要么读代码证实、要么写清"这是按契约推的估计"**。
 - **阻塞 / 待裁定**：**无**
 - **权威在哪**：红线 → `README` **19**（另 17 / 18）｜"小幅"可测定义 → `data_schema` **§3.14 + P22 ③**｜`(c)` 归属 → `blueprint` **§9.15**｜A1 复测依赖 → `m8_verification` **§3**｜决策号 → `#285 / #286`
+
+---
+### 【来自主程序】M8.0 一(b) 已落地：等级与特质的运行时投影 加 红线 19 入 skill
+
+- (b) 落地（加法式、不破单场纯）：
+  · UnitRuntime.ApplyLevelGrowth(level, hpPerLevel, attackPerLevel)：HP 加 N 每级、攻击 加 N 每级，level 1 为 no-op
+    与 ApplyMaxHpMultiplier 同款（运行时投影、不改基准数据，P4 同源）；不含技能（7.8）
+  · HeroProjection（内核、零 Godot）：ApplyLevel 供组合根注入；TraitEffectsOf 汇总 伤害% 与 受士气伤害%
+    BattleDirector 仍单场纯：本类不持状态、不读名册（符合 blueprint 9.15 的归属写死）
+  ⚠️ 明示：特质还没接进伤害管线（要与 damage_mod 与 士气通道对齐），留下一步，不在此处近似（红线 19）
+- 红线 19 已收进 skill（我的发现被架构升格）：程度词必须并列 可测阈值 加 校验器 加 反例
+- 改动面：仍未碰 ExpeditionSession 与 BattleDirector 与 DirectorBridge（(c) 留独立一步，按 #286 三 的顺序）
+- 遗留（明示不掩盖）：HeroProjection 暂无单测，其正确性随 (c) 的装配接线一并锁定（我不写基于猜测 API 的测试来凑绿）
+- 全量 338 项 / 338 通过；阻塞：无
