@@ -81,3 +81,14 @@
   我目前按你 ui_spec 的原话实现为文字列表（最小版）
 - 阻塞 / 待裁定：无
 - 权威在哪：ui_spec §2（必显 11/12/13）；投影 -> ExpeditionProjector；面板 -> scripts/ui/ExpeditionListPanel.cs
+
+---
+### 【来自主程序】M7.5 场景层骨架已落地 + 冒烟通过
+
+- 已落地：scripts/ui/ExpeditionRoot.cs（Node 骨架；Initialize 注入内核对象，自己不读文件）
+  · RefreshPanel 行文本只来自 ExpeditionProjector.RenderList；扎营按钮禁用依据来自内核 CanCamp
+  · 已接线：事件二选一（无跳过；两个按钮标签取自节点数据）· 扎营入口（不足则禁用且内核拒扣）· 回城结算转发 · 光照 EmitStart
+- 验证：dotnet build 通过 · 全量 328/328 · **Godot headless 冒烟退出码 0**（工程仍可启动）
+- 未接线（下一件事）：地图/选路界面切换 · 背包格子交互（含包满选择丢弃 UI）· 光照条可视化控件 · 与战斗场景往返
+- 需要你：光照条的可视化形式（数值条 vs 档位文字 + 该档给敌人什么）—— 我暂按 ui_spec 原话做文字列表
+- 阻塞 / 待裁定：无
