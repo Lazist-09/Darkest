@@ -36,15 +36,15 @@ public sealed class InventoryTests
     private static TuningInventory Cfg() => TuningConfig.Parse(ReadData("tuning.json")).Inventory!;
 
     [TestMethod]
-    public void D2_RecommendedLoadout_IsExactlyTwelveSlots()
+    public void D2_RecommendedLoadout_IsElevenSlots_LeavingOneFree()
     {
         var inv = new Inventory(Cfg());
         IReadOnlyList<InventoryItem> loadout = inv.RecommendedLoadout();
 
         Assert.AreEqual(12, Cfg().SlotCap, "12 格（P21 ⑥：不许调到 15）");
-        Assert.AreEqual(12, loadout.Count, "推荐配置 1/10/1（#274：起手柴火降为 1 后 firewood:2 不可实现）**恰满 12 格**");
-        Assert.AreEqual(1, loadout.Count(i => i.Kind == ItemKind.Firewood));
-        Assert.AreEqual(10, loadout.Count(i => i.Kind == ItemKind.Food), "口粮不堆叠 ⇒ 10 份占 10 格");
+        Assert.AreEqual(11, loadout.Count, "#275：推荐配置 1/9/1 = **11 格**（留 1 格余量，给摸黑搏到的补给）");
+        Assert.AreEqual(1, loadout.Count(i => i.Kind == ItemKind.Firewood), "#274：起手柴火 1 ⇒ 推荐配置也只能 1");
+        Assert.AreEqual(9, loadout.Count(i => i.Kind == ItemKind.Food), "口粮不堆叠 ⇒ 9 份占 9 格");
         Assert.AreEqual(1, loadout.Count(i => i.Kind == ItemKind.SupportCrate));
     }
 
@@ -54,7 +54,7 @@ public sealed class InventoryTests
         var inv = new Inventory(Cfg());
         Assert.IsTrue(inv.ConfigureRecommended(out string r1), "出发前可整备");
         Assert.AreEqual("configured", r1);
-        Assert.AreEqual(12, inv.Count);
+        Assert.AreEqual(11, inv.Count, "#275：推荐配置 11 格");
 
         inv.LockForRun();
         Assert.IsFalse(inv.TryConfigure(new[] { new InventoryItem(ItemKind.Food, "f1") }, out string r2),
@@ -78,6 +78,7 @@ public sealed class InventoryTests
         var inv = new Inventory(Cfg());
         inv.ConfigureRecommended(out _);
         inv.LockForRun();
+        inv.TryAdd(new InventoryItem(ItemKind.Food, "fill_last"), out _); // #275：推荐配置留 1 格 ⇒ 手动填满
         Assert.IsTrue(inv.IsFull);
 
         // 🔴 包满：拾取失败且**不静默丢**（P21 ⑬）
@@ -141,7 +142,7 @@ public sealed class InventoryTests
     {
         // 推荐配置超格
         Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(
-            ReadData("tuning.json").Replace("\"food\": 10", "\"food\": 15", StringComparison.Ordinal)),
+            ReadData("tuning.json").Replace("\"food\": 9", "\"food\": 15", StringComparison.Ordinal)),
             "recommended_loadout 超格 → 启动报错（P21 ⑥）");
 
         // 包满策略被改回"静默丢弃"

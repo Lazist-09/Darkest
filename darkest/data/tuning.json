@@ -37,7 +37,7 @@
   "inventory": {
     "slot_cap": 12,
     "food_stackable": false,
-    "recommended_loadout": { "firewood": 1, "food": 10, "support_crate": 1 },
+    "recommended_loadout": { "firewood": 1, "food": 9, "support_crate": 1 },
     "full_policy": "choose_what_to_discard",
     "note": "P21 ⑥⑬：推荐配置 2/9/1 恰满 12 格（作默认）；**背包满禁止静默丢弃** → 必须让玩家【选择丢弃哪一格】（否则摸黑搏到的补给拿不回来，光照计收益端闭环会漏）；整备仅出发前、**局内不可改**"
   },

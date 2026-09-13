@@ -283,7 +283,7 @@ public sealed class M75VerificationPackTests
         {
             (string name, int battleSteps, bool brighten) = strategies[s];
             int completed = 0, battles = 0, events = 0, loot = 0, retreats = 0, wins = 0;
-            int firewoodSpent = 0, minLight = 100; // ㉓ 柴火支出 / ㉑ 光照曲线（最暗）
+            int firewoodSpent = 0, campCount = 0, brightenCount = 0, minLight = 100; // ㉓ 拆分：扎营 / 提亮
             int battleGoal = tuning.Expedition.BattleGoal;
 
             for (int i = 0; i < runs; i++)
@@ -347,17 +347,33 @@ public sealed class M75VerificationPackTests
                         loot += grant;
                     }
 
-                    // 保守档：光照 ≤ 50 时**提亮**（1 柴火 +30；不足则拒且不变）
+                    // 🔴 #275 ①：三档都【会花补给】—— **HP 低时扎营（有柴火就用）+ 有口粮就吃**
+                    //    （否则"补给多"永远不会体现为续航更好 ⇒ 倒 U 永远测不出来）
+                    double hpPct = session.Curve.Count == 0 ? 1.0 : session.Curve[^1].AvgHpPercent / 100.0;
+
+                    // 保守/均衡：光照 ≤ 50 时**提亮**（1 柴火 +30）—— 与扎营**争同一份柴火**（#274：尖锐取舍）
                     if (brighten && meter.Value <= 50 && session.TrySpend(log, "firewood", 1, "torch"))
                     {
                         meter.TryBrighten(log, () => true);
+                        brightenCount++;
                         firewoodSpent++;
                     }
 
-                    if (session.CanCamp && session.StartCamp(log, step + 1, tuning.Camp!.RespiteBase))
+                    if (hpPct < 0.80 && session.CanCamp && session.StartCamp(log, step + 1, tuning.Camp!.RespiteBase))
                     {
+                        campCount++;
                         firewoodSpent++;
-                        meter.OnCamp(log);
+                        meter.OnCamp(log); // 扎营回满光照（D0.2）
+                        string bestFood = session.CanAffordFood(tuning.Camp, "feast") ? "feast"
+                            : session.CanAffordFood(tuning.Camp, "full") ? "full"
+                            : session.CanAffordFood(tuning.Camp, "half") ? "half" : "starve";
+                        session.ChooseFood(log, tuning.Camp, bestFood);
+                        while (session.RespiteLeft >= 2)
+                        {
+                            session.UseCampSkill(log, "camp_warrior_sharpen", 2, UnitId.Of("warrior"));
+                        }
+
+                        session.EndCamp(log);
                     }
 
                     if (meter.Value < minLight)
@@ -378,7 +394,9 @@ public sealed class M75VerificationPackTests
             double eventShare = battles + events == 0 ? 0 : 100.0 * events / (battles + events);
             lines.Add($"[M7.5] V10 {name}：完成率 {rate:P0}（{completed}/{runs}）" +
                       $"　㉙ 战斗 {battles}（胜 {wins}）／事件 {events}　门槛 battle_goal={battleGoal}" +
-                      $"　㉔ 补给 {loot} 份（{loot / (double)runs:F2}/趟）　㉓ 柴火支出 {firewoodSpent / (double)runs:F2}/趟" +
+                      $"　㉔ 补给 {loot} 份（{loot / (double)runs:F2}/趟）" +
+                      $"　㉓ 扎营 **{campCount / (double)runs:F2}**/趟 ＋ 提亮 **{brightenCount / (double)runs:F2}**/趟" +
+                      $"（柴火支出 {firewoodSpent / (double)runs:F2}/趟）" +
                       $"　㉑ 最暗 {minLight}　撤退/团灭 {retreats}");
         }
 

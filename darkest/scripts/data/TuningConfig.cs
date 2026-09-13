@@ -478,8 +478,16 @@ public sealed record TuningConfig(
                 $"{ResPath}: recommended_loadout 合计 {recommended} > slot_cap {t.Inventory.SlotCap}（P21 ⑥）。");
         }
 
+        // 🔴 P21 ⑥（#275 改）：推荐配置**必须留 ≥1 格余量** —— 否则"摸黑搏到的补给"必须先丢东西，
+        // **收益端在入口就被堵住**（推荐配置 = 1/9/1 = 11 格，留 1 格）。
+        if (t.Inventory.SlotCap - recommended < 1)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: recommended_loadout 必须留 ≥1 格余量（{recommended}/{t.Inventory.SlotCap}；P21 ⑥ / #275）。");
+        }
+
         // 🔴 P20 ② / P21 ⑥（#274）：推荐配置的柴火必须**可实现**（≤ 起手柴火）——
-        // 起手柴火降到 1 后，`firewood:2` 就是不可实现的配置（架构按"可实现 + 正好 12 格"推为 1/10/1）。
+        // 起手柴火降到 1 后，`firewood:2` 就是不可实现的配置。
         if (t.Inventory.RecommendedLoadout.TryGetValue("firewood", out int recFirewood)
             && recFirewood > t.Resources.Firewood)
         {
