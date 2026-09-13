@@ -64,3 +64,18 @@
   · **已用 wiki 校验并留痕三点**：① **Abbey 与 Tavern「同价同效、风险不同」**（wiki 原话 *"cost the same and relieve the same amount of stress, but the Abbey is less risky concerning possible negative side-effects"* ⇒ **与你的硬要求② 一致**）② **Stage Coach 招募免费**（*"entirely free of charge"* ⇒ 硬要求③）③ **减压还会解除 affliction、副作用是 quirks（多为负偶尔为正）** ⇒ 我们 7.3 的「下一趟 −N 士气」是**简化替身**
 - **工程状态**：**355 项 / 355 通过**；无已知红
 - **下一步**：② 把「减压 到 下一趟开局士气」接进 **Hamlet UI 与远征装配**（内核已通，缺场景层那根线）到 ③ ⑤ 招募 到 ④ ⑥ 完整端到端
+
+---
+
+### 【来自主程序】士气回环已接进场景层（④ 减压 在游戏里真可用；V2 链路打通）
+
+- ✅ **三处接线**：
+  1. `UnitRuntime.ApplyOpeningMorale(...)` —— **运行时投影**（与 `ApplyLevelGrowth` 同款）
+  2. `DirectorBridge.BuildFromRes(..., openingMoraleBySlot)` —— 按槽位把**我方单位士气设为本趟开局值**（来自名册）
+  3. `ExpeditionContext.Roster` 加 `EnsureRoster(...)` —— **跨趟名册**（**复用同一实例 ⇒ 士气不被重置**；与 `Gold` 同层，**不随 `End()` 清空**）
+- ✅ **出征**：`ExpeditionRoot` 按名册算开局士气并传桥（冒烟实测：出征 6 人士气逐个来自名册）
+- ✅ **归来**：本趟结束把 `Session.Roster()` **写回名册**（`ApplyReturnFromRun`，**回城不解算不重置** = `#245` 原话）⇒ **士气跨趟累积成立**
+- ✅ **Hamlet 减压真可用**（④ 的 UI 出口）：酒馆（快而不稳）／修道院（慢而稳），**同价同效**，**只转发不算账**；招募仍置灰；状态区显示金钱与**全队士气**
+- ✅ **冒烟（启动 到 跑图 到 回城）**：`名册出征 6 人（… 士气50）` 与 `回城就绪：金钱 0…名册 12 人（士气跨趟；最低 30）` ⇒ **跨趟名册装载正确**
+- **工程状态**：**355 项 / 355 通过**
+- **下一步**：⑤ 招募（Stage Coach：**免费** 加 新兵 **level 1 / morale 50**，照 wiki「entirely free of charge」）到 ⑥ 端到端（启动 到 跑图 到 回城 到 **花钱** 到 再出发）
