@@ -20,6 +20,9 @@ public partial class HamletRoot : Node2D
     private Label _status = null!;
     private Label _hint = null!;
     private Label _upgradeStatus = null!;
+    private Label _saniStatus = null!;
+    private SanitariumConfig? _saniCfg;
+    private readonly Dictionary<string, Button> _saniButtons = new(); // M8.2：三项服务按钮（用于置灰）
     private EconomyConfig _cfg = null!;
     private string? _selectedHero;                       // ② 选人权：玩家选中的被减压者
     private readonly List<Button> _heroButtons = new();  // 动态重建（士气 < 50 的人）
@@ -31,6 +34,7 @@ public partial class HamletRoot : Node2D
     {
         // 跨趟经济与名册：与地牢层共用同一实例（回城不重置金钱与士气）
         _cfg = EconomyConfig.Parse(FileAccess.GetFileAsString(EconomyConfig.ResPath));
+        _saniCfg = SanitariumConfig.Parse(FileAccess.GetFileAsString(SanitariumConfig.ResPath));
         Economy economy = ExpeditionContext.EnsureEconomy(_cfg);
         RosterConfig rosterCfg = RosterConfig.Parse(FileAccess.GetFileAsString(RosterConfig.ResPath));
         Roster roster = ExpeditionContext.EnsureRoster(rosterCfg);
@@ -105,14 +109,41 @@ public partial class HamletRoot : Node2D
         };
         AddChild(_hint);
 
+        // 🔴 M8.1：升级状态区（传家宝库存 / 各级等级 / 生效值）
         _upgradeStatus = new Label
         {
             Name = "UpgradeStatus",
             Position = new Vector2(24, 386),
-            Size = new Vector2(1200, 60),
+            Size = new Vector2(1200, 40),
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
         };
         AddChild(_upgradeStatus);
+
+        // 🔴 M8.2：**Sanitarium 三项服务**（治病 ／ 除负面特质 ／ 锁正面特质）—— 消耗金钱 + 传家宝
+        string[] services = { "cure_disease", "remove_negative_trait", "lock_positive_trait" };
+        for (int i = 0; i < services.Length; i++)
+        {
+            string sName = services[i];
+            var sb = new Button
+            {
+                Name = $"Sani_{sName}",
+                Text = $"Sanitarium·{sName}",
+                Position = new Vector2(24 + (i * 260), 430),
+                Size = new Vector2(250, 36),
+            };
+            sb.Pressed += () => DoService(sName);
+            AddChild(sb);
+            _saniButtons[sName] = sb;
+        }
+
+        _saniStatus = new Label
+        {
+            Name = "SaniStatus",
+            Position = new Vector2(24, 474),
+            Size = new Vector2(1200, 60),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        };
+        AddChild(_saniStatus);
 
         Refresh();
         GD.Print($"[HamletRoot] 回城就绪：金钱 {economy.Gold}（跨趟持有；减压一次 {economy.StressReliefCost}）" +
@@ -136,6 +167,24 @@ public partial class HamletRoot : Node2D
             PressUpgrade("tavern");
             int costAfter = ExpeditionContext.Heirlooms?.EffectiveReliefCost(_cfg.StressReliefCost) ?? -1;
             GD.Print($"[E2E] 阶段1 升级：减压价 {costBefore} 到 {costAfter}");
+
+            // 🔴 M8.2 / V16：**患病 → 治病**（冒烟用：对**全队**按概率掷骰使其患病，再走**真实点击路径**治愈）
+            if (_saniCfg is not null)
+            {
+                Sanitarium.RollContract(_log, _rng, _saniCfg, roster, roster.Heroes.Select(h => h.Id).ToArray());
+                int sickTotal = roster.Heroes.Count(h => roster.DiseasesOf(h.Id).Count > 0);
+                string? sickHero = roster.Heroes.FirstOrDefault(h => roster.DiseasesOf(h.Id).Count > 0)?.Id;
+                GD.Print($"[E2E] 阶段1 患病：全队 {roster.Heroes.Count} 人掷骰 ⇒ 患病 {sickTotal} 人（概率 0.15/0.12/0.10 ×3 病）");
+
+                if (sickHero is not null)
+                {
+                    _selectedHero = sickHero; // 指定治疗对象（走"按人选"的入口）
+                    int before = roster.DiseasesOf(sickHero).Count;
+                    PressService("cure_disease");
+                    int after = roster.DiseasesOf(sickHero).Count;
+                    GD.Print($"[E2E] 阶段1 治病：{sickHero} 患病 {before} 到 {after}（V16：患病 → 治病 回路成立）");
+                }
+            }
 
             ExpeditionContext.E2EStage = 2;
             GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
@@ -237,6 +286,70 @@ public partial class HamletRoot : Node2D
         Refresh();
     }
 
+    /// <summary>
+    /// 🔴 M8.2 / V16：**Sanitarium 服务的真实点击路径**（发真实 `Pressed` 信号，不直接调业务方法）。
+    /// </summary>
+    public void PressService(string serviceName)
+    {
+        if (!_saniButtons.TryGetValue(serviceName, out Button? btn))
+        {
+            GD.Print($"[HamletRoot] PressService({serviceName})：找不到按钮（红线 21）");
+            return;
+        }
+
+        GD.Print($"[HamletRoot] PressService({serviceName})：发出真实 Pressed 信号（按钮「{btn.Text}」，置灰={btn.Disabled}）");
+        btn.EmitSignal(BaseButton.SignalName.Pressed);
+    }
+
+    /// <summary>**执行一项 Sanitarium 服务**：挑对象（优先玩家选中的、否则找有病/可改的人）→ 调用内核 → 打印结果。</summary>
+    public void DoService(string serviceName)
+    {
+        Roster? roster = ExpeditionContext.Roster;
+        Economy? economy = ExpeditionContext.Gold;
+        HeirloomStock? heirlooms = ExpeditionContext.Heirlooms;
+        if (roster is null || economy is null || heirlooms is null || _saniCfg is null)
+        {
+            return;
+        }
+
+        // 选对象：优先玩家选中的人；否则按服务挑一个"有事可做"的（有病 / 有负面特质 / 有正面特质）
+        string? hero = _selectedHero;
+        hero ??= serviceName switch
+        {
+            "cure_disease" => roster.Heroes.FirstOrDefault(h => roster.DiseasesOf(h.Id).Count > 0)?.Id,
+            "remove_negative_trait" => roster.Heroes.FirstOrDefault(h => roster.FindRemovableNegativeTrait(h.Id) is not null)?.Id,
+            _ => roster.Heroes.FirstOrDefault(h => roster.FindLockablePositiveTrait(h.Id) is not null)?.Id,
+        };
+
+        if (hero is null)
+        {
+            GD.Print($"[HamletRoot] Sanitarium·{serviceName}：**没有可用对象**（拒绝对空做事）");
+            Refresh();
+            return;
+        }
+
+        CureOutcome o = serviceName switch
+        {
+            "cure_disease" => CureFirstDisease(roster, economy, heirlooms, hero),
+            "remove_negative_trait" => Sanitarium.RemoveNegativeTrait(_log, _saniCfg, economy, heirlooms, roster, hero),
+            _ => Sanitarium.LockPositiveTrait(_log, _saniCfg, economy, heirlooms, roster, hero),
+        };
+
+        GD.Print($"[HamletRoot] Sanitarium·{serviceName}：{(o.Paid ? "成交" : "拒绝（钱/传家宝不足，或无事可做）")}" +
+                 $"　对象 {hero}　花 金钱{o.GoldSpent} 加 传家宝[{o.HeirloomSpent}]");
+        Refresh();
+    }
+
+    private CureOutcome CureFirstDisease(Roster roster, Economy economy, HeirloomStock heirlooms, string heroId)
+    {
+        foreach (string d in roster.DiseasesOf(heroId).ToArray())
+        {
+            return Sanitarium.CureDisease(_log, _saniCfg!, economy, heirlooms, roster, heroId, d);
+        }
+
+        return new CureOutcome(false, 0, string.Empty);
+    }
+
     /// <summary>刷新（只读跨趟状态，不自己算账）。</summary>
     public void Refresh()
     {
@@ -290,6 +403,26 @@ public partial class HamletRoot : Node2D
             : _selectedHero is null
                 ? "减压：请先点一位【士气低于 50】的人，再点酒馆/修道院（同价同效、风险不同）"
                 : $"减压对象：{_selectedHero}（士气 {roster.MoraleOf(_selectedHero)}）⇒ 请点酒馆或修道院";
+
+        // 🔴 M8.2 / V15：Sanitarium 三服务的**成本显示 + 可用性置灰**（红线 21 (b)：由内核回答）
+        HeirloomStock? saniHeirlooms = ExpeditionContext.Heirlooms;
+        if (_saniCfg is not null && saniHeirlooms is not null && ExpeditionContext.Gold is not null)
+        {
+            int saniAffordable = 0;
+            foreach ((string s, Button btn) in _saniButtons)
+            {
+                SanitariumService svc = _saniCfg.Service(s);
+                string svcCost = $"{svc.Gold}金＋{string.Join("/", svc.Heirlooms.Select(k => $"{k.Key}×{k.Value}"))}";
+                bool can = Sanitarium.CanAfford(_saniCfg, s, ExpeditionContext.Gold, saniHeirlooms);
+                btn.Disabled = !can;
+                btn.Text = $"Sanitarium·{s}（{svcCost}）";
+                saniAffordable += can ? 1 : 0;
+            }
+
+            int sick = roster?.Heroes.Count(h => roster.DiseasesOf(h.Id).Count > 0) ?? 0;
+            _saniStatus.Text = $"Sanitarium：可支付 {saniAffordable}/3 项服务（不足即置灰）　患病英雄 {sick} 人" +
+                               $"　负面特质可除 {roster?.Heroes.Count(h => roster.FindRemovableNegativeTrait(h.Id) is not null) ?? 0} 人";
+        }
 
         // 🔴 M8.1：传家宝库存 + 三栋建筑的等级与**生效值**（升级真的改变数字）
         HeirloomStock? heirlooms = ExpeditionContext.Heirlooms;

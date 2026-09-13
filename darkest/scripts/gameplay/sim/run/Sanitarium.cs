@@ -151,6 +151,10 @@ public static class Sanitarium
         return ok ? new CureOutcome(true, s.Gold, cost) : new CureOutcome(false, 0, string.Empty);
     }
 
+    /// <summary>🔴 红线 21 (b)：**按钮可用性由内核回答** —— 该服务的钱与传家宝是否都够（UI 只渲染）。</summary>
+    public static bool CanAfford(SanitariumConfig cfg, string serviceName, Economy economy, HeirloomStock heirlooms)
+        => CanPay(economy, heirlooms, cfg.Service(serviceName));
+
     private static bool CanPay(Economy economy, HeirloomStock heirlooms, SanitariumService s)
         => economy.Gold >= s.Gold && s.Heirlooms.All(kv => heirlooms.Count(kv.Key) >= kv.Value);
 
