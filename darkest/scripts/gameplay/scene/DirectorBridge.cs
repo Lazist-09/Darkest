@@ -36,7 +36,8 @@ public static class DirectorBridge
         System.Collections.Generic.IReadOnlyList<HeroConfig>? sortie = null,
         RosterLevelGrowth? growth = null,
         System.Collections.Generic.IReadOnlyList<int>? openingMoraleBySlot = null,
-        System.Collections.Generic.IReadOnlyList<DiseasePenalty>? diseasePenaltyBySlot = null)
+        System.Collections.Generic.IReadOnlyList<DiseasePenalty>? diseasePenaltyBySlot = null,
+        System.Collections.Generic.IReadOnlyList<Darkest.Gameplay.Sim.Run.TraitEffects>? traitEffectsBySlot = null)
     {
         _ = host;
         string Read(string name) => FileAccess.GetFileAsString($"res://data/{name}");
@@ -79,7 +80,15 @@ public static class DirectorBridge
                 Darkest.Gameplay.Sim.Run.HeroProjection.ApplyLevel(sortie[i], board[i], growth);
 
                 // 🔴 M8.0 ③（#289 (B)）：特质 → 单位修正（伤害类与士气类各归其道）
-                Darkest.Gameplay.Sim.Run.HeroProjection.ApplyTraits(sortie[i], board[i]);
+                // 🔴 M8.2 / V15：**优先用"当前特质效果"**（来自可变名册）⇒ 清除/固化后立即生效（红线 21）
+                if (traitEffectsBySlot is not null && i < traitEffectsBySlot.Count)
+                {
+                    Darkest.Gameplay.Sim.Run.HeroProjection.ApplyTraitEffects(traitEffectsBySlot[i], board[i]);
+                }
+                else
+                {
+                    Darkest.Gameplay.Sim.Run.HeroProjection.ApplyTraits(sortie[i], board[i]);
+                }
 
                 // 🔴 M8.2（V14）：**疾病 → 单位**（属性惩罚投影；只记 Roster 不投影 = 红线 21）
                 if (diseasePenaltyBySlot is not null && i < diseasePenaltyBySlot.Count)

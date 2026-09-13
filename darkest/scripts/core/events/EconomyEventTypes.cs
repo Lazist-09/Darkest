@@ -33,6 +33,13 @@ public sealed record HeroDiseasedEvent(string HeroId, string DiseaseId, string R
 /// <summary>M8.2：**治愈事件**（Sanitarium 治病：消耗金钱 + 传家宝）。</summary>
 public sealed record HeroCuredEvent(string HeroId, string DiseaseId, int GoldCost, string HeirloomCost) : BattleEvent;
 
+/// <summary>M8.2 / V15：**负面特质被清除**（Sanitarium：消耗金钱 + 传家宝）。</summary>
+public sealed record TraitRemovedEvent(string HeroId, string TraitId, int GoldCost, string HeirloomCost) : BattleEvent;
+
+/// <summary>M8.2 / V15：**正面特质被固化**（Sanitarium：消耗金钱 + 传家宝；固化后不可再被清除）。</summary>
+public sealed record TraitLockedEvent(string HeroId, string TraitId, int GoldCost, string HeirloomCost) : BattleEvent;
+
+
 
 
 

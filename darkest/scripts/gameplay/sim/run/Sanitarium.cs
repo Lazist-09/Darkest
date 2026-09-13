@@ -106,4 +106,60 @@ public static class Sanitarium
 
         return new DiseasePenalty(hp, atk, morale);
     }
+
+    /// <summary>**除负面特质**（V15）：先整体校验（钱与传家宝都够 + 不会把特质降到下限）再扣费。</summary>
+    public static CureOutcome RemoveNegativeTrait(CombatLog log, SanitariumConfig cfg, Economy economy,
+        HeirloomStock heirlooms, Roster roster, string heroId)
+    {
+        HeroTraitConfig? trait = roster.FindRemovableNegativeTrait(heroId);
+        if (trait is null || roster.TraitsOf(heroId).Count <= SanitariumConfig.MinTraitsPerHero)
+        {
+            return new CureOutcome(false, 0, string.Empty);
+        }
+
+        SanitariumService s = cfg.Service("remove_negative_trait");
+        if (!CanPay(economy, heirlooms, s))
+        {
+            return new CureOutcome(false, 0, string.Empty);
+        }
+
+        Pay(log, economy, heirlooms, s, "sanitarium:remove_negative_trait");
+        string cost = string.Join(",", s.Heirlooms.OrderBy(k => k.Key, StringComparer.Ordinal).Select(k => $"{k.Key}:{k.Value}"));
+        bool ok = roster.RemoveTrait(log, heroId, trait.Id, s.Gold, cost);
+        return ok ? new CureOutcome(true, s.Gold, cost) : new CureOutcome(false, 0, string.Empty);
+    }
+
+    /// <summary>**锁正面特质**（V15）：先整体校验再扣费。</summary>
+    public static CureOutcome LockPositiveTrait(CombatLog log, SanitariumConfig cfg, Economy economy,
+        HeirloomStock heirlooms, Roster roster, string heroId)
+    {
+        HeroTraitConfig? trait = roster.FindLockablePositiveTrait(heroId);
+        if (trait is null)
+        {
+            return new CureOutcome(false, 0, string.Empty);
+        }
+
+        SanitariumService s = cfg.Service("lock_positive_trait");
+        if (!CanPay(economy, heirlooms, s))
+        {
+            return new CureOutcome(false, 0, string.Empty);
+        }
+
+        Pay(log, economy, heirlooms, s, "sanitarium:lock_positive_trait");
+        string cost = string.Join(",", s.Heirlooms.OrderBy(k => k.Key, StringComparer.Ordinal).Select(k => $"{k.Key}:{k.Value}"));
+        bool ok = roster.LockTrait(log, heroId, trait.Id, s.Gold, cost);
+        return ok ? new CureOutcome(true, s.Gold, cost) : new CureOutcome(false, 0, string.Empty);
+    }
+
+    private static bool CanPay(Economy economy, HeirloomStock heirlooms, SanitariumService s)
+        => economy.Gold >= s.Gold && s.Heirlooms.All(kv => heirlooms.Count(kv.Key) >= kv.Value);
+
+    private static void Pay(CombatLog log, Economy economy, HeirloomStock heirlooms, SanitariumService s, string reason)
+    {
+        economy.TrySpend(log, s.Gold, reason);
+        foreach ((string kind, int need) in s.Heirlooms)
+        {
+            heirlooms.Add(log, kind, -need, reason);
+        }
+    }
 }

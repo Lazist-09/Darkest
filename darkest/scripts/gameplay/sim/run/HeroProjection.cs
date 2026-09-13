@@ -58,6 +58,22 @@ public static class HeroProjection
     }
 
     /// <summary>
+    /// M8.2 / V15：**按"当前特质效果"投影**（来源可以是**可变的名册**，而不是只读的 `HeroConfig`）——
+    /// 这样 Sanitarium 清除/固化特质后，**下一次出征立刻反映**（否则又是"写了但没接上"，红线 21）。
+    /// </summary>
+    public static TraitEffects ApplyTraitEffects(TraitEffects effects, UnitRuntime unit)
+    {
+        if (effects is null || effects.IsNone || unit is null)
+        {
+            return effects ?? TraitEffects.None;
+        }
+
+        unit.ApplyTraitDamagePct(effects.DamagePct);
+        unit.ApplyTraitMoraleDamagePct(effects.MoraleDamagePct);
+        return effects;
+    }
+
+    /// <summary>
     /// M8.2（**V14**）：**疾病 → 单位**（属性惩罚投影；运行时投影、不改基准）。返回实际施加的惩罚。
     /// </summary>
     public static DiseasePenalty ApplyDisease(DiseasePenalty penalty, UnitRuntime unit)

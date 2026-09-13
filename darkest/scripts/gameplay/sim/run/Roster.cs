@@ -92,6 +92,96 @@ public sealed class Roster
         return true;
     }
 
+    // ---------------------------------------------------------------
+    // M8.2 / V15（`m8_roadmap §2`）：**特质可变** —— 负面可"除"、正面可"锁"
+    // 🔴 规则：清除后**不得低于 `SanitariumConfig.MinTraitsPerHero` 条**（与 7.7「每人 2~3 条」一致）
+    // ---------------------------------------------------------------
+
+    private readonly Dictionary<string, List<HeroTraitConfig>> _traits = new();
+    private readonly HashSet<string> _lockedTraits = new(); // "heroId|traitId"
+
+    /// <summary>某英雄**当前**特质（可变；初始来自 `roster.json`）。</summary>
+    public IReadOnlyList<HeroTraitConfig> TraitsOf(string heroId)
+    {
+        if (!_traits.TryGetValue(heroId, out List<HeroTraitConfig>? list))
+        {
+            HeroConfig hero = _heroes.First(h => h.Id == heroId);
+            list = hero.Traits.ToList();
+            _traits[heroId] = list;
+        }
+
+        return list;
+    }
+
+    /// <summary>该特质是否已固化（固化后不可清除）。</summary>
+    public bool IsTraitLocked(string heroId, string traitId) => _lockedTraits.Contains($"{heroId}|{traitId}");
+
+    /// <summary>负面特质（伤害↓ 或 受士气伤害↑），未固化者优先。</summary>
+    public HeroTraitConfig? FindRemovableNegativeTrait(string heroId)
+        => TraitsOf(heroId).FirstOrDefault(t => (t.DamagePct < 0 || t.MoraleDamagePct > 0) && !IsTraitLocked(heroId, t.Id));
+
+    /// <summary>正面特质（伤害↑ 或 受士气伤害↓），未固化者。</summary>
+    public HeroTraitConfig? FindLockablePositiveTrait(string heroId)
+        => TraitsOf(heroId).FirstOrDefault(t => (t.DamagePct > 0 || t.MoraleDamagePct < 0) && !IsTraitLocked(heroId, t.Id));
+
+    /// <summary>清除一个负面特质（**不得使特质数低于下限**）；由 Sanitarium 在扣费后调用。</summary>
+    public bool RemoveTrait(CombatLog log, string heroId, string traitId, int goldCost, string heirloomCost)
+    {
+        if (log is null)
+        {
+            throw new ArgumentNullException(nameof(log));
+        }
+
+        List<HeroTraitConfig> list = _traits.TryGetValue(heroId, out List<HeroTraitConfig>? l)
+            ? l
+            : TraitsOf(heroId).ToList();
+
+        if (list.Count <= SanitariumConfig.MinTraitsPerHero)
+        {
+            return false; // 🔴 不得降到下限以下（V15）
+        }
+
+        int idx = list.FindIndex(t => t.Id == traitId);
+        if (idx < 0)
+        {
+            return false;
+        }
+
+        list.RemoveAt(idx);
+        log.Append(new TraitRemovedEvent(heroId, traitId, goldCost, heirloomCost));
+        return true;
+    }
+
+    /// <summary>固化一个正面特质（固化后不可清除）；由 Sanitarium 在扣费后调用。</summary>
+    public bool LockTrait(CombatLog log, string heroId, string traitId, int goldCost, string heirloomCost)
+    {
+        if (log is null)
+        {
+            throw new ArgumentNullException(nameof(log));
+        }
+
+        if (!TraitsOf(heroId).Any(t => t.Id == traitId) || !_lockedTraits.Add($"{heroId}|{traitId}"))
+        {
+            return false;
+        }
+
+        log.Append(new TraitLockedEvent(heroId, traitId, goldCost, heirloomCost));
+        return true;
+    }
+
+    /// <summary>某英雄**当前**特质的合计效果（供投影；**清除/固化后立即反映**）。</summary>
+    public TraitEffects TraitEffectsOf(string heroId)
+    {
+        int dmg = 0, morale = 0;
+        foreach (HeroTraitConfig t in TraitsOf(heroId))
+        {
+            dmg += t.DamagePct;
+            morale += t.MoraleDamagePct;
+        }
+
+        return new TraitEffects(dmg, morale);
+    }
+
     /// <summary>
     /// **招募**（M8.0 ⑤ / `#283` 硬要求③）：**免费**；新兵 `level == 1`、`morale == 50`（**不比老的强**）；
     /// 特质从既有英雄的特质池里取**一正一负**（与 7.7「小幅、正负都有」一致）。
