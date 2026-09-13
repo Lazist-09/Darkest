@@ -1,0 +1,9 @@
+{
+  "currency": "gold",
+  "note": "M8.0 ②（#283 7.1 + 硬要求①）：金钱是**跨趟回报**（#276~278 的补给只是单趟内的）。来源 = 战斗数 + 光照档 —— 越冒险、打得越多，跨趟积累越快。比例先定（绝对值待实测校准）：一场战斗 = 1 单位 / 一趟约 3~6 / 一次减压 = 3 单位，即一趟能减 1~2 次压。",
+  "battle_reward": 1,
+  "light_tier_bonus": { "radiant": 0, "dim": 0, "shadowy": 1, "dark": 2, "black": 3 },
+  "event_reward": 0,
+  "stress_relief_cost": 3,
+  "ratio_check": { "battles_per_run": 3, "expected_run_income_low": 3, "expected_run_income_high": 6 }
+}
