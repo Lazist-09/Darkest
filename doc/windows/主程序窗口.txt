@@ -75,4 +75,106 @@
 
 - **阻塞 / 待裁定**：⚠️ **§7 的 7.1 / 7.2 两条待你或架构一句**（其余可开工）
 
-- **权威在哪**：🆕 `doc/modules/curio.md`（DD wiki 原文 + 我们 6 个 + 验收 V1~V7 + 冲突表）；决策号 → `doc/state.md` **#313**
+- **权威在哪**：🆕 `doc/modules/curio.md`（DD wiki 原文 + 我们 6 个 + 验收 V1~V7 + 冲突表）；决策号 → `doc/state.md` **#313**---
+### 轮次：2026-09-14 · 【来自架构】专项目标：**Godot 内置工具利用率审计**（按用户指令）—— 结论 + 落点 + 一项正确性风险
+
+- ✅ **① 先回答"是否充分利用"：分层看，两个答案**
+  ```
+  内核（core/sim/data/tests）＝ 刻意【零 Godot】✅ —— 这是刻意的，不是浪费（headless 蒙特卡洛 / xUnit / 确定性）
+  表现层（ui / gameplay/scene / scenes）＝ 🔴 【未充分利用】 —— 该用内置而没用的地方成片
+  ```
+  我做了**独立复核**（`Select-String` 计数，不靠感觉），**结论与你的 `skills/主程序.md` 附 B.1 表一致**（`AddTheme*Override` ≈20 / 容器 2 / 锚点 0 / Tween 0 / Audio 0 / RichText 0 / TileMap·AStar 0 / `Resource` 0 / `[Export]`·`[Tool]` 0 / `InputMap` 5 ✅ 已落地 / `FileAccess` 20 ✅ / `CallDeferred` 17 ✅）。
+- 🔴🔴 **② 我抓到一个【你 B.1 表里没有】的正确性风险（这是本轮最重要的发现）**：
+  ```
+  ✅ 表现层 20 处用 FileAccess.GetFileAsString("res://data/…")  ← 导出安全
+  🔴 但 BattleUi.ReadData() 用 System.IO：AppContext.BaseDirectory → File.Exists → File.ReadAllText
+     ⇒ 导出构建里 data/*.json 在 PCK 内、不是磁盘目录
+     ⇒ File.Exists 找不到 ⇒ throw FileNotFoundException
+     ⇒ 🔴【单场战斗入口（Battle.tscn）在发行版直接崩】
+  ```
+  ⇒ 🔴 **架构裁定（已写进 `blueprint` §9.16 与红线 26）**：**同一职责不得有两个实现** ——
+  **表现层读数据一律 `FileAccess`/`ResourceLoader`**；**`System.IO` 只允许在内核**，且**由组合根把字符串喂进去**（内核不接触路径）；**组合根是唯一相接处**；**取证 = `Select-String 'File\.ReadAllText|DirectoryInfo'` ⇒ `scripts/ui` 与 `scripts/gameplay/scene` 命中必须为 0**。
+  ⇒ 登记 **`O-84`**，**建议作为一个"补欠账"小片**（**1 个函数 + 1 条 grep 门禁**），排在 `(i1)` 之后。
+- ✅ **③ 已按用户要求写进 skill**：`skills/架构师.md` **§7「Godot 内置工具优先（架构侧）」**（分层边界 · **五个判别问题** · 红线 · 跨层风险 · 例行审计 · 落点约定）；契约版落在 **`blueprint` §9.16**；**README 新增红线 26**。
+- ✅ **④ 我补了你 B.1 表缺的六项**（都是"该用没用"或"没有观测手段"）：
+  | 缺项 | 为什么重要 |
+  |---|---|
+  | **`Control` 焦点 / 手柄导航 = 0** | 🔴 **`InputMap` 只做了一半**：键位可重映射了，但**手柄/键盘导航没做** ⇒ **"可重映射"的收益没兑现** |
+  | **`Performance.GetMonitor` = 0** | **没有任何帧预算基线**（表现层性能无观测） |
+  | **`ShaderMaterial` / `Particles` = 0** | `ui_spec` 要求的"**深色粗描边**"本可由材质保证；受击/命中缺即时反馈 |
+  | **i18n（`Tr`/`TranslationServer`）= 0** | 文本全硬编码中文 ⇒ 长线必做，**且它反过来约束"锚点/容器"的优先级** |
+  | **`SceneTree.Paused` / `ProcessMode` = 0** | 缺"**逻辑停、表现仍跑**"的机制（与 Tween/Audio 同批） |
+  | **`scenes/battle/prefabs/` 已建但空 · `resources/` 只有 `.gitkeep`** | **预制件与资源这两条路【已预留、没走】** ⇒ 我把**落点目录**写进契约了（theme/shaders/audio/i18n/prefabs） |
+- ✅ **⑤ 优化清单（11 项，按收益/成本排序，写进审计 §4）**：**① 修 `System.IO`（`O-84`）→ ② Theme + 容器 + 锚点 → ③ Control 焦点/手柄 → ④ Tween 动效 → ⑤ 音效 → ⑥ 预制件 → ⑦ Shader 描边 → ⑧ `[Tool]` 数据面板 → ⑨ 帧预算 → ⑩ i18n → ⑪（仅表现层）`AStarGrid2D`/`TileMapLayer` 地图视图**。
+  🔴 **纪律**：**②~⑪ 一律不得反向要求内核改**（最短路/连通性/光照台账**留在内核**）；**每轮 UI 工作挑一项**（一次一个轴）。
+- 🔴 **⑥ 请你按此排**：**(a)** `O-84` 我建议**下一个"补欠账"小片**（它比任何"未充分利用"都更该先修 —— **那是会崩的**）；**(b)** 之后从清单 **②~⑪** 按你现有节奏挑（**优先 ②③**：Theme+容器+锚点、焦点/手柄）。
+- **阻塞 / 待裁定**：**无**（清单已定，等你排期）
+- **权威在哪**：🆕 `doc/architecture/godot_builtins_audit.md`｜`blueprint` **§9.16**｜`skills/架构师.md` **§7**｜`open_issues` **`O-84`**｜`README` **红线 26**
+---
+### 轮次：2026-09-14 · 【来自架构】真机（DD）架构侦察：**六条形态 + 三条不照抄 + 一条"我们缺一层"**
+
+- 🔴 **先守边界**：真机路径只读侦察（`E:\SteamLibrary\steamapps\common\DarkestDungeon`）。**只看格式/目录/数值组织** —— 🔴 **不抄文本·数值·美术·音频·动画**（真机含 **Spine `.atlas/.skel` 1886×2** 与 **FMOD `.bank`** 商业素材）⇒ 立成 **README 红线 27**（含"**三问**"与"**已拍板设计不因真机这么做而改**"）。
+- ✅ **① 印证的（我们做对了）**：真机 `raid/camping/default.camping_skills.json` 的形态 = **`effects[{selection, requirements, chance{code,amount}, type, sub_type, amount}]` + `hero_classes[]` + `upgrade_requirements[]{code, currency_cost[{type,amount}], prerequisite_requirements}`** ⇒ **与我们 `camp_skills.json` + `ConsumedEffectNames`（未登记 effect ⇒ 启动报错）同一个形态** ✅ ⇒ **`O-82`/红线 21 的方向被真机印证**。
+- 🔴🔴 **② 真机指出我们【缺一层】（本轮最有价值的结论）**：真机 `dungeons/<region>/<region>.<n>.mash.darkest` 的形态是
+  ```
+  hall: .chance 2 .types <怪物A> <怪物A> <怪物A>
+  room: .chance 1 .types <怪物A> <怪物C> …
+  ```
+  ⇒ 🔴 **它是【房间类型 → 可能的编成池 + 权重】的内容表**，与"地图怎么长（拓扑）"**完全分离**。
+  **对照我们**：拓扑 = `ExpeditionMapGenerator` ✅ · 内容 = `expedition_nodes.json` ✅ ⇒ **我们也是两层** —— **但我们调"支路含不含战斗房"用的是【全局旋钮 `branch_battle_weight`】**（`O-79`/`O-80` 那段调参史）。
+  ⇒ 🔴 **登记 `O-85`**：**把该旋钮演进为"按房间类型的内容表"（类型 → 编成池 + 权重，数据化）** —— **这同时解释了 `O-79` 为什么难调：我们缺的不是权重，是【类型 → 内容池】这一层**。
+- ✅ **③ 另四条可借鉴形态（登记，不自动开工）**：**`use_limit`（每趟使用次数上限）** · **统一 `chance{code,amount}` 结构**（利于 `ProbMod` 的"按名分发"一致性）· **按建筑分文件的升级树 + 每级 requirement（多货币 + 前置）**（供 **M8.3**；⚠️ **不得据此改 M8.1 已定三轴**）· **解锁 = 阈值表**（`generated_dungeons[{id, required_number_of_quests_finished}]`，供 **M8 解锁轴**）· **本地化 = 每语言 `.loc2` + 每域 `string_table`（数据存 key）**（= 我们审计 ⑩ i18n 的方案形态）。
+- ✅ **④ 三条【不照抄】（学形态 ≠ 抄结构）**：
+  | 真机做法 | 我们不抄的理由 |
+  |---|---|
+  | **技能定义里混 `anim/fx/sfx`**（`combat_skill: .id … .anim … .fx …`） | 真机是**自定义引擎**、一个英雄一个内容包；**我们是 Godot + 内核零 Godot** ⇒ 🔴 **规则数据里不得出现表现路径** ⇒ 表现绑定走 **`id → 表现资源` 映射（表现层拥有）** |
+  | **UI 布局数据化**（`*.layout.darkest`） | 真机没有编辑器内 UI 体系；**Godot 的正解是 `Control` 树 + 容器 + 锚点 + `Theme`**（红线 26）⇒ **布局数据化对我们 = 倒退**；**只借鉴"文案/图标 key 化"** |
+  | **Spine 动画 / FMOD 音频 / 位图字体** | **版权 + 商业中间件** ⇒ 素材一律不碰；唯一启示是"**动效与音频值得投入**"（红线 26 ④⑤） |
+- 📌 **产出**：🆕 `doc/architecture/dd_reference_lessons.md`（全景 + 六形态 + 三不照抄 + 候选清单）· `skills/架构师.md` **§7.6**（真机纪律）· `blueprint` **§9.16.4** · `README` **红线 27** · `open_issues` **`O-85`**。
+- 🔴 **建议排期**：**`O-85`（房间内容表）排在 `(i1)` 与净代价校准之后**（它与 `O-79/O-80` 是同一处病灶，且**只动数据组织、不动已调平数值**）；**M8.3/M8 的形态候选等策划点**。
+- **阻塞 / 待裁定**：**无**（`O-85` 与形态候选均已登记）
+- **权威在哪**：🆕 `dd_reference_lessons.md`｜`skills/架构师.md` **§7.6**｜`blueprint` **§9.16.4**｜`README` **红线 27**｜`open_issues` **`O-85`**
+---
+### 轮次：2026-09-14 · 【来自架构】`#315` 已全部落盘 + **`O-85` 采纳后的落法** + 一条实现提醒
+
+- ✅ **① 你给的四处口径我全部落进契约**：**⑦ 材质描边 ✅ 接受**（`godot_builtins_audit.md` §4.1：**"视觉规范"仍属 `ui_spec §1.4`，材质只是它的一致实现**）· **⑩ i18n = M8.3 后做、现在必须容器+锚点** · **②③ 同批** · **④⑤ 归 `ui_spec §12`**。
+- 🔴 **② `O-85`（房间类型 → 编成池 + 权重）已批"演进"，落法如下**（请照此实现，**它取代 `branch_battle_weight` 这个全局粗旋钮**）：
+  ```
+  ✅ 保留 #294① 的定性：「支路 = 额外机会」（不是"更长的路"）
+  ✅ 改【实现形态】：新增【房间类型 → 编成池 + 权重】的数据表
+     —— 真机形态：hall:/room: .chance N .types <编成…>（每行 = 一种组合 + 权重）
+  🔴 而我方要保留的既有约束（不得因这张表而破）：
+     · V3：支路总收益不得压倒性划算（"绕支路"档完成率不得高于保守/均衡）
+     · #299②：走支路的【净光照代价必须 > 0】（X < 30）
+     · O-76 原则①：光照/掉落/扎营数值不动
+  ⇒ 📌 所以这张表是【内容层的表】，不是【改数值】—— 数值仍走已调平的 tuning ✓
+  ```
+  · 🔴 **并且策划批了一句关键的**：**这张表与 `Curio` 【同层】**（都是"房间内容"）⇒ 📌 **建议与 Curio 一起设计**（同层的东西一起定，省一轮）。
+- 🔴 **③ 一条实现提醒（接 `O-85` 与你的 Curio 工作）**：主程序已落地 **Curio 九种 kind 全部接线**（`DeferredKinds` 清空、机制保留、**446/446、零数值改动**）—— ✅ **"机制保留供将来登记"与红线 21 不冲突**：**白名单只登记"已接线"的类型**（与 `CampSkillsConfig` / `BuffDefsConfig.ConsumedEffectNames` 同一做法）⇒ **请保持这个做法**（**未接线的 kind 不进白名单、UI 不显示**）。
+- 🔴 **④ 我另给了一条数据架构建议（供策划裁，登记 `O-87`）**：**不建议把 `expedition_nodes.json` 全量替换 + 迁移到 `curios.json`** ——
+  ```
+  两者是【不同层】：expedition_nodes = 选路/节点类型语义；curios = 房间内容（奇物）语义
+  真机佐证：*.mash.darkest（房间内容表）× curios/（奇物）也是分开的
+  ⇒ 全量替换会打破"选路 × 内容"的分层；而 O-85 要补的那一层，正是【内容层】
+  ⚠️ 若要"统一入口"：正解是【统一读取层、不统一数据文件】
+  ```
+  ⇒ **在策划裁定前，保持加法**（你现在这样是对的 ✅）
+- **阻塞 / 待裁定**：**无**（`O-84` 可立刻修 —— 仍是清单里唯一"会崩"的项；`O-85` 可开工但要**与 Curio 一起设计**）
+- **权威在哪**：`godot_builtins_audit.md` **§4.1**｜`dd_reference_lessons.md` **§3.1**｜`m7_6_verification.md` **V3 ④**｜`blueprint` **§9.16.4**｜`open_issues` **`O-84` / `O-85` / `O-86` / `O-87`**
+---
+### 轮次：2026-09-14 · 【来自架构】按你说的「**一起**」—— 出了一份**合并执行包**（`O-84` + `O-85` + Curio + `O-86`）
+
+- ✅ **可以一起做，而且本来就该一起做**（我把它写成了任务卡）：
+  | 片 | 内容 | 依赖 |
+  |---|---|---|
+  | **A** | 🔴 **修 `O-84`**：`BattleUi.ReadData()` → `FileAccess.GetFileAsString`（**唯一"会崩"的项**） | 无 |
+  | **B** | **内容表骨架**：`data/room_contents.json` = **房间类型 → [ {weight, encounter, curio_pool} ]** + `RoomContentsConfig` + **P26 校验**（引用 id 必须存在） | A |
+  | **C** | 🔴 **Curio 并入内容层（引用、不搬家）**：`curio_pool` **引用 `curios.json` 的 id** ⇒ **统一读取层、不统一数据文件**；**`expedition_nodes.json` 保持原样** | B |
+  | **D** | **`O-86` 解锁阈值表（形态）**：`data/unlocks.json` + **P27 校验**（**内容清单留白，先落形态**） | 可并行 |
+  | **E** | 🔴 **统一重跑**（**接完再跑、不得逐片跑**）：V10 四档 · A1 · A2/㉑㉒㉔㉗㉘㉙㉟ · `(a)/(c)/X` 对照 | B/C/D |
+- 🔴 **八条硬边界（违一条判红）**：**B1 光照/掉落/扎营数值不动** · **B2 `#294`①「支路 = 额外机会」定性保留** · **B3 V3 形态之二保留**（绕支路完成率不得高于保守/均衡）· **B4 `#299`② 净光照代价 > 0（X < 30）** · **B5 不做全量替换**（`expedition_nodes.json` 保留）· **B6 未接线 kind 不进白名单、UI 不显示** · **B7 表现层只走 `FileAccess`** · **B8 内核保持零 Godot**。
+- 🔴 **`branch_battle_weight` 的过渡处置我写清了**：**保留但【降级为覆盖项】**（默认 0 = 由内容表决定）—— **主 = 内容表**，旋钮只是**过渡/实验覆盖**（⚠️ **不留"两个都是主"的歧义**；它有消费点、不是死声明，但**归属必须写清**）。
+- 📌 **任务卡**：🆕 `doc/architecture/tasks/merged_content_layer_pack.md`（含**数据形态草案（字段级）** + **每片验收** + **取证命令**）；`open_issues` 的 **O-84/85/86/87** 已标注"并入合并包某片"。
+- 🔴 **请照片序做**：**A 先做**（它独立、且是唯一会崩的）⇒ B/C 一起 ⇒ D 可并行 ⇒ **E 最后统一重跑**（**别逐片跑**，否则会把"接线/迁移进度"混成新变量 —— `#244` 一次一个轴）。
+- **阻塞 / 待裁定**：**无**（A~D 都能开工；**D 的内容清单**与 M8.3/M7.6 一起定；**`O-87` 那条待策划一句**，但它的结论我已按"不替换"写进边界 B5，**若策划改口只需改 B5**）
+- **权威在哪**：🆕 `tasks/merged_content_layer_pack.md`｜`open_issues` **O-84~O-87**｜`#315`（策划裁定）｜`godot_builtins_audit.md` §4.1｜`dd_reference_lessons.md` §3.1

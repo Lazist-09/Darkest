@@ -911,20 +911,21 @@ public partial class BattleUi : CanvasLayer
         }
     }
 
+    /// <summary>
+    /// 🔴 **`O-84` 修复**（架构 `#314` 之后的裁定 / 红线 26）：表现层读数据**一律 `FileAccess`**。
+    /// 原实现用 `System.IO`（`AppContext.BaseDirectory` 逐级向上找 `data/`）——
+    /// 🔴 **导出构建里 `data/*.json` 在 PCK 内、不是磁盘目录** ⇒ `File.Exists` 永远找不到
+    /// ⇒ **单场战斗入口（`Battle.tscn`）在发行版直接 `FileNotFoundException` 崩溃** ⚠️
+    /// ⇒ 改用 `FileAccess.GetFileAsString("res://data/…")`（与其余 20 处同法，导出安全 ✓）
+    /// </summary>
     private static string ReadData(string name)
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null)
+        string path = $"res://data/{name}";
+        if (!Godot.FileAccess.FileExists(path))
         {
-            string candidate = Path.Combine(dir.FullName, "data", name);
-            if (File.Exists(candidate))
-            {
-                return File.ReadAllText(candidate);
-            }
-
-            dir = dir.Parent;
+            throw new FileNotFoundException($"{path}: 数据文件不存在（表现层只走 FileAccess/res://，见 O-84）。");
         }
 
-        throw new FileNotFoundException($"data/{name} 未找到。");
+        return Godot.FileAccess.GetFileAsString(path);
     }
 }

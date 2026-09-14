@@ -896,6 +896,72 @@ public interface IScouting {
 
 ---
 
+#### 9.16 🔴 Godot 内置工具优先（v1.32 · 用户指令 · 架构契约）
+
+> **审计与优化清单**：🆕 `doc/architecture/godot_builtins_audit.md`（**独立复核 + 11 项优化 + 落点约定**）。
+> **程序侧配套**：`skills/主程序.md` **附 B**（实测审计 B.1 + 落地纪律 B.2）；**架构侧规则**：`skills/架构师.md` **§7**。
+
+##### 9.16.1 分层边界（**判定的前提**）
+
+| 层 | 目录 | 规定 |
+|---|---|---|
+| **内核** | `scripts/core` · `gameplay/sim` · `data` · `tests` | 🔴 **刻意零 Godot**（headless 蒙特卡洛 / xUnit / 确定性复现）⇒ 自研**是分层的代价**；**理由必须写进注释**；由 `tools/check_godot_refs.py` 守门 |
+| **表现层** | `scripts/ui` · `gameplay/scene` · `scenes/` | 🔴 **必须优先用内置**（Theme / Container / Anchors / Tween / Audio / PackedScene / RichTextLabel / TileMapLayer / ShaderMaterial / Particles / InputMap + Control 焦点 / `[Export]` / `[Tool]`）⇒ **该用不用 = 缺陷** |
+
+##### 9.16.2 🔴 跨层风险：**同一职责不得有两个实现**（`O-84`，实测）
+
+```
+✅ 表现层 20 处用 FileAccess.GetFileAsString("res://data/…")  （导出安全）
+🔴 但 BattleUi.ReadData() 用 System.IO 磁盘路径（AppContext.BaseDirectory + File.Exists/ReadAllText）
+   ⇒ 导出构建：data/*.json 在 PCK 内 ⇒ File.Exists 失败 ⇒ throw FileNotFoundException
+   ⇒ 🔴 【单场战斗入口在发行版直接崩】
+```
+**规定**：
+| 角色 | 允许的读法 |
+|---|---|
+| **表现层** | 🔴 **`FileAccess`/`ResourceLoader`（唯一"打包内读取"通道）**；**禁止 `System.IO`** |
+| **内核** | 允许 `System.IO`（零 Godot 的代价），但**只接收字符串、不接触路径** |
+| **组合根**（`DirectorBridge` 等） | **Godot 读文件 + 内核解析的唯一相接处** ⇒ **这段适配必须有且只有一份** |
+| **取证** | `Select-String 'File\.ReadAllText|DirectoryInfo'` ⇒ **`scripts/ui` 与 `scripts/gameplay/scene` 命中数必须为 0** |
+
+##### 9.16.3 优化清单（详见审计 §4；**一次挑一项**）
+
+`①` 🔴 **修 `BattleUi` 的 `System.IO`**（1 个函数；消除导出崩溃）· `②` **中央 `Theme.tres` + 容器 + 锚点** · `③` **`Control` 焦点 + 手柄导航**（兑现 `InputMap` 收益）· `④` **`Tween`/`AnimationPlayer` 动效** · `⑤` **`AudioStreamPlayer` 三类音效** · `⑥` **预制场景**（`scenes/**/prefabs/` **目录已建空**）· `⑦` **`ShaderMaterial` 描边/暗角/闪白** · `⑧` **`[Tool]`/`[Export]` 数据校验面板** · `⑨` **`Performance.GetMonitor` 帧预算** · `⑩` **i18n** · `⑪` **`AStarGrid2D`/`TileMapLayer`（**仅表现层地图视图**，内核不动）**。
+
+🔴 **纪律**：**②~⑪ 一律不得反向要求内核改**（最短路/连通性/光照台账**留在内核**）；**每轮 UI 工作挑一项**（一次一个轴）。
+
+##### 9.16.4 真机（Darkest Dungeon）参考结论（v1.33 · 参考文档 `dd_reference_lessons.md`）
+
+**只读路径**：`E:\SteamLibrary\steamapps\common\DarkestDungeon`｜**纪律**：红线 **27**（**只看格式/结构；不抄文本·数值·美术·音频·动画**；**三问**；**已拍板设计不因"真机这么做"而改**）。
+
+| 结论 | 性质 |
+|---|---|
+| **内容 = 数据 + 目录**（40 个域）· **`dlc/` 与主内容同构** · **`mods/` = 纯目录覆盖且无清单** | 数据驱动的收益兑现（**DLC 不改 schema**） |
+| **"效果项数组 + 按名分发 + 加载级白名单"** ↔ 我们 `ConsumedEffectNames` | ✅ **同构 ⇒ 印证 `O-82`/红线 21 的方向对** |
+| 🔴 **拓扑生成 × 房间内容表【两层分离】**（`*.mash.darkest` = `hall/room + .chance + .types`） | ✅ **印证 M7.6 分法**；🔴 **并指出我们缺"类型 → 内容池"这一层** ⇒ **`O-85`**（替代全局旋钮 `branch_battle_weight`） |
+| **本地化 = 每语言 `.loc2` + 每域 `string_table`（数据存 key）** | i18n 的**方案形态**（红线 26 ⑩） |
+| **升级 = 按建筑分文件的升级树 + 每级 requirement（多货币 + 前置）** | **M8.3 形态候选**（⚠️ **不得据此改 M8.1 已定三轴**） |
+| **解锁 = 阈值表**（`generated_dungeons[{id, required_number_of_quests_finished}]`） | **M8 解锁轴形态候选** |
+
+🔴 **三条【不照抄】**：**① 技能定义里混 `anim/fx/sfx`**（真机自定义引擎可接受；**我们内核零 Godot ⇒ 不许**）· **② UI 布局数据化**（`*.layout.darkest`；**Godot 的正解是 `Control` 树 + 容器 + 锚点 + `Theme`**，退回数据化 = 倒退；**只借鉴"文案/图标 key 化"**）· **③ Spine/FMOD/位图字体素材**（**版权 + 商业中间件，一律不碰**）。
+
+🔴 **策划裁定（`#315`）**：**(a)** **升级树形态 ✅ M8.3 采纳**（一栋一文件 + 每级多货币 + 前置；**不动 M8.1 已定三轴**）· **(b)** **解锁阈值表 ✅ 采纳**（"解锁什么"属内容 ⇒ 与 M8.3/M7.6 一起定，**`O-86`**）· **(c)** **本地化 = M8.3 后做，但【现在必须】用容器 + 锚点**（`O-85` 邻域）· **(d)** 🔴 **`O-85`（房间类型 → 编成池 + 权重）✅ 采纳演进**，**不改 `#294`① 的「支路 = 额外机会」定性**（粗旋钮 → 细表），🔴 **且与 `Curio` 同层 ⇒ 与 Curio 一起设计** · **(e)** **材质描边 ✅ 接受**（视觉规范仍属 `ui_spec §1.4`）。
+
+##### 9.16.5 落点约定（避免各写各的）
+
+| 资产 | 目录 |
+|---|---|
+| 主题 `Theme.tres` | `darkest/resources/theme/` |
+| 材质/着色器 | `darkest/resources/shaders/` |
+| 音频 | `darkest/resources/audio/` |
+| 多语言 | `darkest/resources/i18n/` |
+| 预制件 | `darkest/scenes/**/prefabs/`（`scenes/battle/prefabs/` **已建、空**） |
+| 数据 | `darkest/data/*.json`（**表现层经 `FileAccess` 读成字符串 → 内核解析**） |
+
+
+
+---
+
 ## 10. 测试钩子与验收前置
 
 | 验收项 | 钩子/做法 | 判定式（可测） |

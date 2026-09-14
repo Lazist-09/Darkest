@@ -36,6 +36,18 @@ FORBIDDEN_REL = ("scripts/core", "scripts/gameplay/sim", "scripts/data", "tests"
 # the check below enforces the forbidden half of the rule).
 ALLOWED_REL = ("scripts/gameplay/scene", "scripts/ui")
 
+# --- Rule 2 (O-84 / 红线 26): presentation layers must read data via
+# `FileAccess`/`ResourceLoader`, never `System.IO` file APIs. In an exported
+# build `res://data/*.json` lives inside the PCK (not on disk), so
+# `File.Exists`/`DirectoryInfo` walks fail -> the scene crashes at runtime.
+IO_FORBIDDEN_REL = ("scripts/ui", "scripts/gameplay/scene")
+_IO_PATTERN = re.compile(
+    r"\bFile\.(ReadAllText|ReadAllBytes|ReadAllLines|Exists|Open|OpenRead)\b"
+    r"|\bDirectoryInfo\b"
+    r"|\bAppContext\.BaseDirectory\b"
+    r"|\bPath\.Combine\b"
+)
+
 
 def default_root() -> pathlib.Path:
     """tools/ lives at the repo root, darkest/ is its sibling."""
@@ -61,6 +73,30 @@ def scan(root: pathlib.Path) -> list[str]:
     return hits
 
 
+def scan_io(root: pathlib.Path) -> list[str]:
+    """Rule 2 (O-84): forbidden `System.IO` file APIs under the presentation layers."""
+    hits: list[str] = []
+    for rel in IO_FORBIDDEN_REL:
+        base = root / rel
+        if not base.is_dir():
+            continue
+        for file in sorted(base.rglob("*.cs")):
+            try:
+                lines = file.read_text(encoding="utf-8").splitlines()
+            except (OSError, UnicodeDecodeError) as exc:
+                hits.append(f"{file.relative_to(root)}: <unreadable: {exc}>")
+                continue
+            for lineno, text in enumerate(lines, start=1):
+                stripped = text.strip()
+                # Skip comments/doc lines: the rule is about real call sites, and
+                # the O-84 fix documents the old pattern in its XML comment.
+                if stripped.startswith("//") or stripped.startswith("///"):
+                    continue
+                if _IO_PATTERN.search(text):
+                    hits.append(f"{file.relative_to(root)}:{lineno}: {stripped}")
+    return hits
+
+
 def _resolve_root(value: str | None) -> pathlib.Path:
     root = pathlib.Path(value).resolve() if value else default_root()
     if not (root / "project.godot").is_file():
@@ -76,6 +112,7 @@ def run_selfcheck(root: pathlib.Path) -> int:
     if not target_dir.is_dir():
         raise SystemExit(f"selfcheck: {target_dir} not found — run against darkest/")
     probe = target_dir / f".godot_refs_selfcheck_{os.getpid()}.cs"
+    io_probe = root / "scripts" / "ui" / f".io_selfcheck_{os.getpid()}.cs"
     try:
         probe.write_text("// negative self-test probe\nusing Godot;\n", encoding="utf-8")
         hits = scan(root)
@@ -83,9 +120,22 @@ def run_selfcheck(root: pathlib.Path) -> int:
             print("[check_godot_refs] SELFTEST FAIL: injected `using Godot;` was NOT detected")
             return 1
         print(f"[check_godot_refs] SELFTEST PASS: negative probe caught -> {hits[0]}")
+
+        # Rule 2 (O-84) negative probe: System.IO under scripts/ui must be caught.
+        if (root / "scripts" / "ui").is_dir():
+            io_probe.write_text(
+                "// negative self-test probe (O-84)\n"
+                "var dir = new DirectoryInfo(AppContext.BaseDirectory);\n",
+                encoding="utf-8")
+            io_hits = scan_io(root)
+            if not io_hits:
+                print("[check_godot_refs] SELFTEST FAIL: injected System.IO in scripts/ui was NOT detected")
+                return 1
+            print(f"[check_godot_refs] SELFTEST PASS: O-84 probe caught -> {io_hits[0]}")
         return 0
     finally:
         probe.unlink(missing_ok=True)
+        io_probe.unlink(missing_ok=True)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -102,16 +152,32 @@ def main(argv: list[str] | None = None) -> int:
         return run_selfcheck(root)
 
     hits = scan(root)
+    io_hits = scan_io(root)
+    failed = False
+
     if hits:
         print("[check_godot_refs] VIOLATION: `using Godot` found in kernel dirs "
               f"({', '.join(FORBIDDEN_REL)}):")
         for hit in hits:
             print("  " + hit)
         print(f"[check_godot_refs] {len(hits)} hit(s) — block build (blueprint §3/§10).")
+        failed = True
+
+    if io_hits:
+        print("[check_godot_refs] VIOLATION: `System.IO` file APIs found in presentation layers "
+              f"({', '.join(IO_FORBIDDEN_REL)}) — rule O-84/红线 26:")
+        for hit in io_hits:
+            print("  " + hit)
+        print("[check_godot_refs] use `FileAccess`/`ResourceLoader` (res://) instead "
+              "— exported builds keep data inside the PCK.")
+        failed = True
+
+    if failed:
         return 1
 
     print("[check_godot_refs] OK: 0 hits in " + ", ".join(FORBIDDEN_REL)
-          + f" (allowed only in {', '.join(ALLOWED_REL)}).")
+          + f" (allowed only in {', '.join(ALLOWED_REL)})"
+          + f"; and 0 `System.IO` hits in {', '.join(IO_FORBIDDEN_REL)} (O-84).")
     return 0
 
 
