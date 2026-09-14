@@ -51,7 +51,11 @@ public partial class MainMenuRoot : Node2D
             Node target = tree.CurrentScene ?? tree.Root;
             (bool ok, string report) = Darkest.Ui.LayoutAudit.Check(target);
             GD.Print($"[UI 判据] 第 {fires} 次：{report}");
-            if (fires >= 5 || ok)
+
+            // ⚠️ **不因"第一次通过"就停**：实测踩到 —— 界面刚建好时状态/进度 Label 还是**空文本**，
+            //    判据跳过空 Label ⇒ 报"可见 Label 0 / ✅ 通过"（**过早判定**）⚠️
+            //    ⇒ 一律跑满 5 次，**以最后一次为准** ✓
+            if (fires >= 5)
             {
                 timer.QueueFree();
             }

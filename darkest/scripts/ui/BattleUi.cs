@@ -433,16 +433,82 @@ public partial class BattleUi : CanvasLayer
         //    ⇒ 我们只需断言"**锚点 1/1 且 size 跟随视口**"（见 `RootAudit`），不必自己算尺寸 ✓
         Darkest.Ui.DdTheme.Apply(_uiRoot);
         AddChild(_uiRoot);
+
+        // 🔴 `ui_spec §14.3`（`#319`）：**三行容器树**（顶部状态 ／ 中部单位卡 ／ 底部技能与 E 区）——
+        //    各分区一个 `PanelContainer`（不透明）＋ 内部 `HBoxContainer` ⇒ 子项自动排布**不可能重叠** ✓
+        var uiMargin = new MarginContainer { Name = "BattleMargin" };
+        uiMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        uiMargin.AddThemeConstantOverride("margin_left", 10);
+        uiMargin.AddThemeConstantOverride("margin_top", 8);
+        uiMargin.AddThemeConstantOverride("margin_right", 10);
+        uiMargin.AddThemeConstantOverride("margin_bottom", 8);
+        _uiRoot.AddChild(uiMargin);
+
+        var uiCol = new VBoxContainer { Name = "BattleCol" };
+        uiCol.AddThemeConstantOverride("separation", 6);
+        uiMargin.AddChild(uiCol);
+
+        var topPanel = new PanelContainer { Name = "TopRow" };
+        uiCol.AddChild(topPanel);
+        var topRow = new HBoxContainer { Name = "TopRowBox" };
+        topRow.AddThemeConstantOverride("separation", 10);
+        topPanel.AddChild(topRow);
+
+        var midPanel = new PanelContainer { Name = "MidRow", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        uiCol.AddChild(midPanel);
+        var midRow = new HBoxContainer { Name = "MidRowBox", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        midRow.AddThemeConstantOverride("separation", 8);
+        midPanel.AddChild(midRow);
+
+        var bottomPanel = new PanelContainer { Name = "BottomRow" };
+        uiCol.AddChild(bottomPanel);
+        var bottomRow = new HBoxContainer { Name = "BottomRowBox" };
+        bottomRow.AddThemeConstantOverride("separation", 10);
+        bottomPanel.AddChild(bottomRow);
+
+        // 背景**不进容器**（它要留在最底层铺满）；其余顶层控件按分组归位 ✓
+        // ⚠️ 遍历源必须是 **CanvasLayer 自己的子节点**（`GetChildren()`）而不是 `_uiRoot.GetChildren()` ——
+        //    我先前把"先把 CanvasLayer 的子控件收编进 `_uiRoot`"那一步漏掉了 ⇒ 循环遍历到一个空的 `_uiRoot`
+        //    ⇒ 实测判据报"可见 Label **0**"（假通过）⚠️
+        var keepOut = new System.Collections.Generic.HashSet<Node> { _uiRoot };
+        if (bg is not null)
+        {
+            keepOut.Add(bg);
+        }
+
         foreach (Node child in GetChildren().ToArray())
         {
-            if (!ReferenceEquals(child, _uiRoot) && child is Control ctl)
+            if (keepOut.Contains(child))
             {
-                RemoveChild(ctl);
-                _uiRoot.AddChild(ctl);
+                continue;
+            }
+
+            if (child is Control ctl)
+            {
+                _uiRoot.RemoveChild(ctl);
+                bool isTop = ReferenceEquals(ctl, _statusLabel) || ReferenceEquals(ctl, _progressLabel)
+                             || ReferenceEquals(ctl, _actionOrderLabel) || ReferenceEquals(ctl, _retreatButton);
+                bool isBottom = ReferenceEquals(ctl, _mfPanel) || ReferenceEquals(ctl, _devLogPanel)
+                                || ReferenceEquals(ctl, _resultPanel);
+                bool isCard = _cards.Any(c => ReferenceEquals(c.card, ctl));
+                Container target = isTop
+                    ? topRow
+                    : isBottom
+                        ? (Container)bottomRow
+                        : isCard
+                            ? (Container)midRow
+                            : uiCol;
+                target.AddChild(ctl);
             }
         }
 
-        GD.Print($"[BattleUi] 满屏 Control 根就绪（size={_uiRoot.Size}）⇒ ① Theme 可继承 ② 后续锚点/容器的落点 ✓");
+        // 顶部四件的可读性：状态/进度占满剩余宽度，按钮保持固定宽 ✓
+        _statusLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        _progressLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        _actionOrderLabel.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
+        _retreatButton.CustomMinimumSize = new Vector2(184, 32);
+
+        GD.Print($"[BattleUi] 满屏 Control 根就绪（size={_uiRoot.Size}）⇒ ① Theme 可继承 ② 锚点/容器的落点 ✓");
     }
 
     private Control _uiRoot = null!;
