@@ -174,15 +174,16 @@ public partial class BattleRoot : Node2D
 
     public override void _UnhandledInput(InputEvent e)
     {
-        if (e is InputEventKey { Pressed: true, PhysicalKeycode: Key.R })
+        // 🔴 动作化（附 B ①）：`dd_restart` 见 `project.godot [input]`（玩家可重映射）
+        if (e.IsAction("dd_restart"))
         {
             NewGame();
             GD.Print($"[BattleRoot] 重开（seed={_seed}）");
             return;
         }
 
-        // F0（#189）：Esc / 右键取消选目标（不消耗行动）
-        bool cancel = e is InputEventKey { Pressed: true, PhysicalKeycode: Key.Escape }
+        // F0（#189）：Esc / 右键取消选目标（不消耗行动）—— Esc 走**引擎内置** `ui_cancel` ✓
+        bool cancel = e.IsAction("ui_cancel")
                       || e is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right };
         if (cancel && (_pendingSkill is not null || _reinforcePhase != 0))
         {

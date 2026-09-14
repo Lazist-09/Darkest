@@ -69,6 +69,26 @@ public partial class MainMenuRoot : Node2D
         Darkest.Gameplay.Scene.SmokeScript.InitFromArgs();
         Darkest.Gameplay.Scene.SmokeScript.Step(this);
 
+        // 🔴 输入审计（附 B ① 的例行项）：`--input-audit` ⇒ 打印自定义动作与绑定键
+        //    （证据用途：任务动化是否真的生效 —— 不靠"我改了代码"自证）
+        if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--input-audit"))
+        {
+            foreach (string action in new[] { "dd_restart", "dd_toggle_log", "ui_cancel" })
+            {
+                if (!InputMap.HasAction(action))
+                {
+                    GD.Print($"[输入审计] 🔴 {action}：**未注册**（裸键改动作化未生效）");
+                    continue;
+                }
+
+                string[] keys = InputMap.ActionGetEvents(action)
+                    .OfType<InputEventKey>()
+                    .Select(k => $"physical={k.PhysicalKeycode}")
+                    .ToArray();
+                GD.Print($"[输入审计] {action}：已注册，键 = {(keys.Length == 0 ? "（无按键）" : string.Join("/", keys))}");
+            }
+        }
+
         // 🔴 CLI 全保留：启动即按参数直达（冒烟依赖；这些参数此前挂在 BattleRoot 上）
         string[] args = OS.GetCmdlineArgs();
         if (Array.Exists(args, a => a == "--hamlet"))

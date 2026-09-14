@@ -418,7 +418,8 @@ public partial class BattleUi : CanvasLayer
 
     public override void _UnhandledInput(InputEvent e)
     {
-        if (e is InputEventKey { Pressed: true, PhysicalKeycode: Key.F1 })
+        // 🔴 动作化（附 B ①）：`dd_toggle_log` 见 `project.godot [input]`（玩家可重映射）
+        if (e.IsAction("dd_toggle_log"))
         {
             ToggleDevLog();
         }
