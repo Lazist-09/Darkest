@@ -1,0 +1,26 @@
+# 数字纪律白名单（路径级 + 理由）—— tools/check_data_discipline.py 读取
+#
+# 🔴 纪律（用户 2026-09-14）：**只有【结构性常量】能进本白名单**；平衡数字（伤害/几率/时长/上限…）
+#    必须住 `darkest/data/*.json`。为了"让工具变绿"而把平衡数字写进来 = 违反该纪律，禁止。
+#
+# 格式：<相对路径或后缀> | <该行必须包含的片段> | <理由>
+#   · 一行一条；`#` 开头为注释；空行忽略
+#   · 路径用正斜杠；`*` 作为通配（简单前缀/后缀匹配）
+#   · 命中"路径 + 片段"的行，其数字字面量不再报可疑 ✓
+
+# ---- 位运算 / 哈希常量（结构性：算法定义的一部分，非可调平衡量）----
+scripts/core/rng/RngProvider.cs | z >> 30 | SplitMix64 位运算常量（算法定义）
+scripts/core/rng/RngProvider.cs | z >> 27 | 同上
+scripts/core/rng/RngProvider.cs | z >> 31 | 同上
+scripts/core/rng/RngProvider.cs | TwoPow64 | 2^64（double 精确表示上限；单位换算）
+
+# ---- 数据表的"结构校验"常量（校验收敛用，非平衡量）----
+scripts/data/SkillsConfig.cs | n != 9 | 每侧技能组数的结构断言（P 系列校验）
+scripts/data/SkillsConfig.cs | enemy is not [2, 3, 2] | 各槽技能条数的结构断言（P 系列校验）
+scripts/data/TuningConfig.cs | t.Inventory.SlotCap != 12 | 背包槽位结构断言（P22 系列校验）
+
+# ---- 百分比/单位换算（数学恒等式，不是可调值）----
+scripts/core/math/BattleMath.cs | / 100.0 | 百分数 → 小数
+scripts/core/math/BattleMath.cs | * 100.0 | 小数 → 百分数
+scripts/core/math/BattleMath.cs | * 2.0 - 1.0 | 0..1 → -1..1 归一
+scripts/core/math/BattleMath.cs | (double)(physDef + 30) | ⚠️ 待办：物理减免除数 30 应来自 tuning（本行暂留白名单会掩盖它，见提交说明）

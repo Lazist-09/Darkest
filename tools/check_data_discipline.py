@@ -46,12 +46,39 @@ SCRIPTS = REPO / "darkest" / "scripts"
 DATA = REPO / "darkest" / "data"
 KERNEL_DIRS = [SCRIPTS / "core", SCRIPTS / "data", SCRIPTS / "gameplay" / "sim"]
 
-# 结构性常量白名单（非平衡量：下标 / 协议 / 单位换算 / 哨兵）——
-# ⚠️ 白名单只收录"结构性"的数；**绝不**为了让它变绿而把平衡数字塞进来（那正是本纪律禁止的）
+# 结构性常量白名单（**按数值**的兜底下限）——
+# ⚠️ 优先用 `tools/number_allowlist.txt`（**按路径+片段+理由**放行，可审）；
+#    这里的按数值白名单只保留"到处都算结构性"的极小集合，**绝不**为了变绿而加平衡数字（那是本纪律禁止的）
 ALLOWED_NUMBERS = {
-    "0", "1", "2", "-1", "100", "255", "64", "32", "16", "8", "4", "6", "3", "5",  # 下标/槽位/位宽
-    "0.0", "1.0", "2.0", "100.0", "0.01", "1e-9", "18446744073709551616.0",        # 单位换算/归一/哨兵
+    "0", "1", "2", "-1", "100",                       # 下标 / 哨兵 / 百分数基数
+    "0.0", "1.0", "2.0", "100.0", "0.01", "1e-9",     # 归一 / 容差 / 单位换算
 }
+
+ALLOWLIST_FILE = REPO / "tools" / "number_allowlist.txt"
+
+
+def load_allowlist() -> list[tuple[str, str, str]]:
+    """读路径级白名单：`路径 | 片段 | 理由` ⇒ [(path_pattern, needle, reason)] ✓"""
+    rules: list[tuple[str, str, str]] = []
+    if not ALLOWLIST_FILE.exists():
+        return rules
+    for raw in ALLOWLIST_FILE.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) >= 2:
+            rules.append((parts[0], parts[1], parts[2] if len(parts) > 2 else ""))
+    return rules
+
+
+def allowlisted(rel_path: str, line: str, rules: list[tuple[str, str, str]]) -> bool:
+    norm = rel_path.replace("\\", "/")
+    for path_pat, needle, _reason in rules:
+        if needle and needle in line and (path_pat in norm or norm.endswith(path_pat.lstrip("*"))):
+            return True
+    return False
+
 
 NUM_RE = re.compile(r"(?<![\w.])(-?\d+(?:\.\d+)?(?:e-?\d+)?)(?![\w.])")
 LINE_COMMENT_RE = re.compile(r"//.*?$", re.MULTILINE)
@@ -77,11 +104,14 @@ def strip_code(text: str) -> str:
 def scan_numbers(files: list[Path], verbose: bool) -> tuple[int, list[str]]:
     suspicious: list[str] = []
     total_literals = 0
+    rules = load_allowlist()
     for f in files:
         raw = f.read_text(encoding="utf-8", errors="replace")
         code = strip_code(raw)
         for lineno, line in enumerate(code.splitlines(), start=1):
             if re.search(r"\bconst\b", line):  # const 声明行：命名常量 ⇒ 放行（但仍计入统计）
+                continue
+            if allowlisted(rel(f), line, rules):  # 路径级白名单（带理由）⇒ 放行 ✓
                 continue
             for m in NUM_RE.finditer(line):
                 lit = m.group(1)
@@ -89,7 +119,8 @@ def scan_numbers(files: list[Path], verbose: bool) -> tuple[int, list[str]]:
                 if lit not in ALLOWED_NUMBERS:
                     suspicious.append(f"{rel(f)}:{lineno}: 数字 {lit} ⇒ {line.strip()[:88]}")
     if verbose:
-        print(f"[numbers] 内核扫描：{len(files)} 文件 ／ 字面量 {total_literals} 处 ／ 可疑 {len(suspicious)} 处")
+        print(f"[numbers] 内核扫描：{len(files)} 文件 ／ 字面量 {total_literals} 处 ／ 可疑 {len(suspicious)} 处"
+              f"（路径级白名单 {len(rules)} 条）")
         for line in suspicious[:25]:
             print("  [!] " + line)
         if len(suspicious) > 25:

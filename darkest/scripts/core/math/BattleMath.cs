@@ -49,26 +49,29 @@ public static class BattleMath
 
     /// <summary>
     /// 撤退基础成功率（O-11/#169 拍板）：50% + (我方存活平均实际速度 − 敌方存活平均实际速度) × 4%，
-    /// 钳制 [clampMin, clampMax]（默认 [15,85]）。速度差每 1 点 ±4%，"先杀最快敌人再撤"成立。
+    /// 钳制 [clampMin, clampMax]。速度差每 1 点 ±perSpeedDiffPercent%，"先杀最快敌人再撤"成立。
+    /// 🔴 数字外置（用户 2026-09-14）：`basePercent/perSpeedDiffPercent/clampMin/clampMax` **必填**
+    ///    —— 它们住在 `tuning.json` 的 `retreat_formula`（经 `BalanceTable.RetreatFormula` 传入）✓
     /// </summary>
     public static double RetreatBaseRate(
         double avgSpeedDiff,
-        int basePercent = 50,
-        int perSpeedDiffPercent = 4,
-        int clampMin = 15,
-        int clampMax = 85)
+        int basePercent,
+        int perSpeedDiffPercent,
+        int clampMin,
+        int clampMax)
         => System.Math.Clamp(basePercent + avgSpeedDiff * perSpeedDiffPercent, (double)clampMin, clampMax);
 
     /// <summary>
-    /// 撤退最终成功率（#169）：基础率 + uniform(−randomRange, +randomRange)，钳制 [randClampMin, randClampMax]
-    /// （默认 ±10 → 钳制 [5,95]）。unitRoll ∈ [0,1)，由注入 RNG 提供（M5 调用点）。
+    /// 撤退最终成功率（#169）：基础率 + uniform(−randomRange, +randomRange)，钳制 [randClampMin, randClampMax]。
+    /// unitRoll ∈ [0,1)，由注入 RNG 提供（M5 调用点）。
+    /// 🔴 数字外置：`randomRange/randClampMin/randClampMax` **必填**（同样来自 `retreat_formula`）✓
     /// </summary>
     public static double RetreatFinalRate(
         double baseRate,
         double unitRoll,
-        int randomRange = 10,
-        int randClampMin = 5,
-        int randClampMax = 95)
+        int randomRange,
+        int randClampMin,
+        int randClampMax)
         => System.Math.Clamp(baseRate + (unitRoll * 2.0 - 1.0) * randomRange, (double)randClampMin, randClampMax);
 
     // ------------------------------------------------------------------
