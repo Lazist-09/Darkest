@@ -17,6 +17,15 @@ namespace Darkest.Ui;
 /// </summary>
 public static class LayoutAudit
 {
+    /// <summary>
+    /// 🔴 **瞬态特效层**（`ui_spec §12.1` 动效）的名字：判据**按口径跳过它**。
+    /// 理由（口径说明，不是放水）：消散中的伤害数字/闪白/暗角**按设计**会短暂叠在卡片上 ——
+    /// 那是**特效**，不是"布局重叠"；把它们算进判据只会让判据变噪声。
+    /// ⚠️ 所以该层里的东西**必须真的是瞬态**（`UiMotion` 只写 `Modulate/Position` 且用完即 `QueueFree`），
+    ///    且**必须 `MouseFilter = Ignore`**（否则它会吞输入 —— `#321`⑤）✓
+    /// </summary>
+    public const string MotionLayerName = "MotionLayer";
+
     /// <summary>跑两条判据（递归遍历整棵子树）。</summary>
     public static (bool Ok, string Report) Check(Node root)
     {
@@ -165,6 +174,11 @@ public static class LayoutAudit
     {
         foreach (Node child in node.GetChildren())
         {
+            if (child.Name == MotionLayerName)
+            {
+                continue; // 🔴 瞬态特效层 ⇒ 跳过（口径见常量注释）
+            }
+
             if (child is Label label && label.IsVisibleInTree() && !string.IsNullOrWhiteSpace(label.Text))
             {
                 // Label 的可视矩形：全局坐标（跨父容器一致口径）✓

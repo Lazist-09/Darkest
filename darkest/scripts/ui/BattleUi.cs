@@ -10,6 +10,7 @@ using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
+using UiMotion = Darkest.Ui.UiMotion; // ⚠️ 本文件命名空间是 `Darkest.UI`（大写）≠ `Darkest.Ui` ⇒ 用别名（最小改动）
 
 namespace Darkest.UI;
 
@@ -391,6 +392,25 @@ public partial class BattleUi : CanvasLayer
         _resultLabel = MakeOpaqueModal("ResultPanel", out _resultPanel);
         _devLogLabel = MakeOpaqueModal("DevLogPanel", out _devLogPanel);
 
+        // 🔴 `ui_spec §12.1` **动效层**（满屏 + 鼠标穿透）：瞬态 VFX（伤害数字 / 暗角）画在它上面。
+        //    ⚠️ 它挂在 `_uiRoot` 上而**不在容器树里**（不参与布局）；`LayoutAudit` 按口径**跳过 `MotionLayer`**
+        //       —— 瞬态特效**按设计**会短暂叠在卡片上，那不是"布局重叠"（口径见 `LayoutAudit` 注释）✓
+        _motionLayer = UiMotion.MakeLayer("MotionLayer");
+        _uiRoot.AddChild(_motionLayer);
+        _motionLayer.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+
+        _vignette = new TextureRect
+        {
+            Name = "Vignette",
+            Texture = UiMotion.MakeVignetteTexture(),
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.Scale,
+            MouseFilter = Control.MouseFilterEnum.Ignore, // 🔴 输入不被吞（`#321`⑤）
+            Visible = false,
+        };
+        _motionLayer.AddChild(_vignette);
+        _vignette.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+
         GD.Print("[BattleUi] 容器树就绪：顶栏／主体（我方 4+2 ←→ 敌方 4）／底栏（C 区含技能栏 ＋ E 区多功能框）" +
                  " ⇒ 控件**创建时进容器** ✓");
     }
@@ -575,6 +595,13 @@ public partial class BattleUi : CanvasLayer
     }
 
     private Control _uiRoot = null!;
+
+    // 🔴 `ui_spec §12.1`：动效层（伤害数字 / 暗角）与它的状态
+    private Control _motionLayer = null!;
+    private TextureRect _vignette = null!;
+    private int _seenEvents;      // 已消费的事件条数（**只对"新事件"播动效**，不重播）
+    private bool _resultShown;    // 结算淡入只播一次（不可见 → 可见那一次）
+    private bool _motionAuditPrinted;
 
     // 🔴 `ui_spec §14`：三行容器（顶部 / 中部卡片 / 底部技能与 E 区）——
     //    **重建路径**（行动顺序图标 / 技能键 / 卡片刻）也必须加进这些容器，
@@ -798,6 +825,25 @@ public partial class BattleUi : CanvasLayer
         FillCard(_cards[9], player[5], _portraits[9]);
 
         RefreshOrderStrip(support.ActionOrderThisRound, d);
+        PlayMotionFromNewEvents(d, p);
+
+        // ④ 结算：**面板出现 ⇒ 淡入 0.20s**（只在"不可见 → 可见"那一次播；可见性本身不被动效门控 ⇒ 不延迟可操作时刻）✓
+        if (_resultPanel.Visible && !_resultShown)
+        {
+            _resultShown = true;
+            UiMotion.Settle(_resultPanel);
+        }
+        else if (!_resultPanel.Visible)
+        {
+            _resultShown = false;
+        }
+
+        // 🔴 `§12.1` 取证（一次性）：战斗结束时打印动效读数（`--battle-auto-finish` 冒烟即可看到）
+        if (_host.GameOver && !_motionAuditPrinted)
+        {
+            _motionAuditPrinted = true;
+            GD.Print($"[UI 动效] {MotionAudit()}");
+        }
 
         int[] pending = _host.PendingCandidates;
         bool targeting = _host.IsTargeting;
@@ -1006,6 +1052,115 @@ public partial class BattleUi : CanvasLayer
             _skillBar.AddChild(b); // 🔴 §14：技能键进【C 区的技能栏容器】（不再手摆坐标）
             _skillButtons.Add(b);
         }
+    }
+
+    /// <summary>
+    /// 🔴 `ui_spec §12.1` ① ② ③：**只对【新事件】播动效**（事件流 = 唯一事实来源，不另造状态）：
+    /// 伤害 ⇒ 受击（抖动闪白）+ 上浮伤害数字；治疗 ⇒ 上浮绿色数字；进死门 ⇒ 士气崩溃（暗角 + 单位框红）✓
+    /// ⚠️ 动效**不改任何玩法状态**（只写 `Modulate`/`Position`）⇒ 不吞输入、不延迟可操作时刻（`#321`⑤）✓
+    /// </summary>
+    private void PlayMotionFromNewEvents(BattleDirector d, BattleProjector p)
+    {
+        if (_motionLayer is null)
+        {
+            return;
+        }
+
+        IReadOnlyList<BattleEvent> events = d.Log.Events;
+        if (events.Count < _seenEvents)
+        {
+            _seenEvents = 0; // 重开/换局 ⇒ 归零（事件流被重建）
+        }
+
+        for (int i = _seenEvents; i < events.Count; i++)
+        {
+            switch (events[i])
+            {
+                case DamageEvent { Target: { } dt, Amount: > 0 } dmg:
+                    PlayHitMotion(dt, $"-{dmg.Amount}",
+                        dmg.Axis == "mental" ? Darkest.Ui.DdTheme.Mental : Darkest.Ui.DdTheme.Danger, p);
+                    break;
+                case HealEvent { Target: { } ht, Amount: > 0 } heal:
+                    PlayHitMotion(ht, $"+{heal.Amount}", Darkest.Ui.DdTheme.Hp, p);
+                    break;
+                case DeathDoorEvent { Unit: { } dd }:
+                    PlayMoraleCrashMotion(dd, p);
+                    break;
+            }
+        }
+
+        _seenEvents = events.Count;
+    }
+
+    private void PlayHitMotion(UnitId unitId, string text, Color color, BattleProjector p)
+    {
+        if (FindCard(unitId, p) is not { } found)
+        {
+            return;
+        }
+
+        UiMotion.Hit(found.Card);
+        UiMotion.FloatText(_motionLayer, found.TextPos, text, color);
+    }
+
+    private void PlayMoraleCrashMotion(UnitId unitId, BattleProjector p)
+    {
+        UiMotion.MoraleCrash(_vignette, FindCard(unitId, p)?.Card);
+    }
+
+    /// <summary>把 `UnitId` 映射回它的卡片（下标编排见 `BuildBattlefield`：我方 4 → 敌方 4 → 支援 2）。</summary>
+    private (Control Card, Vector2 TextPos)? FindCard(UnitId unitId, BattleProjector p)
+    {
+        for (int side = 0; side < 2; side++)
+        {
+            foreach (UnitProjection u in p.Units(player: side == 0))
+            {
+                if (u.UnitId != unitId.Value)
+                {
+                    continue;
+                }
+
+                int idx = u.IsPlayer ? (u.Slot >= 5 ? 8 + (u.Slot - 5) : 4 - u.Slot) : 4 + (u.Slot - 1);
+                if (idx < 0 || idx >= _cards.Count)
+                {
+                    continue;
+                }
+
+                Control card = _cards[idx].card;
+                Vector2 textPos = card.GlobalPosition - _motionLayer.GlobalPosition + new Vector2(12, -4); // 两 Control 的全局坐标之差 = 层内局部坐标
+                return (card, textPos);
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// 🔴 `§12.1` 的**取证**（冒烟打印）：动效播了几次 ／ 运行中几次 ／ **输入为什么不会被吞** ——
+    /// 除了常量读数，还实测两件结构事实：动效层 `MouseFilter == Ignore`、且全屏**没有任何控件**被改成非继承 `ProcessMode`。
+    /// </summary>
+    public string MotionAudit()
+    {
+        bool ignore = _motionLayer is not null && _motionLayer.MouseFilter == Control.MouseFilterEnum.Ignore;
+        int frozen = CountFrozenProcessMode(_uiRoot);
+        return $"{UiMotion.Audit()}　动效层鼠标穿透实测={(ignore ? "✅ Ignore" : "🔴 会拦鼠标")}　" +
+               $"被冻结 ProcessMode 的控件={frozen}（应为 0）";
+    }
+
+    private static int CountFrozenProcessMode(Node? root)
+    {
+        if (root is null)
+        {
+            return 0;
+        }
+
+        int n = root is Control { ProcessMode: not Node.ProcessModeEnum.Inherit } ? 1 : 0;
+        foreach (Node child in root.GetChildren())
+        {
+            n += CountFrozenProcessMode(child);
+        }
+
+        return n;
     }
 
     /// <summary>
