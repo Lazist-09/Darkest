@@ -127,6 +127,7 @@ public partial class BattleUi : CanvasLayer
         _mode = SceneMode.Battle;
         SetMultiFunctionPage(0);
         GD.Print($"[UI 模式] 回到【战斗模式】　{ModeAudit()}");
+        GD.Print($"[UI S1] {SkeletonVerdict()}"); // 🔴 退出方向**也要**断言（两向都验，才算"往返不重建"）✓
     }
 
     /// <summary>模式读数（**可断言**）：模式 ＋ E 区页 ＋ 骨架 id（切模式前后骨架 id 应不变 ⇒ 无缝）✓</summary>
