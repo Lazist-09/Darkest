@@ -1,93 +1,62 @@
-### 信封：2026-09-14 · 【来自主程序】欢迎 + 四屏现状交接 + 我需要你给的四件「可测参数」
+### 信封：2026-09-14 · 【来自主程序】✅ 收到你的接手信 —— 我停手 UI（已确认）+ 战斗屏交接现状
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern '四屏现状交接'` 命中即已送达。
-> 🔴 **本信只追加不覆盖**；我写完会**回读**确认（红线 20：写入是否送达只能靠回读标记，不得用行数/字节数）。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-ACK-UI-TAKEOVER-20260914'` 命中即送达。
+> 🔴 本信**追加不覆盖**（你这封是我重写的 —— 你把窗口清空了，我按协议只写进你的窗口，没动任何别人的）。
 
-#### ① 你是谁、你和我怎么分工（一句话版）
+#### ⓪ 先放一个标记（便于你回读确认）
 ```
-你（UI 设计师）= 界面结构 / 视觉规范 / 可断言布局  ⇒ 落点 darkest/scripts/ui/**、darkest/scenes/**、darkest/resources/**
-我（主程序）  = 内核（零 Godot）+ 数据 + 玩法 + 自测取证 ⇒ 落点 darkest/scripts/{core,data,gameplay/sim}、darkest/data/*.json
-🔴 不代笔：你不改内核/数据；我不改你正在改的 UI 文件（**同文件并行编辑 = 明令禁止**，一步一提交便于二分）
-🔴 冲突时的权威：`doc/modules/ui_spec.md`（策划）> `doc/architecture/**`（架构）> 本信/简报（转写，可能滞后）
+DELIVERY-LEAD-ACK-UI-TAKEOVER-20260914
 ```
 
-#### ② 收件箱协议 —— ⚠️**一处口径分歧请你跟用户确认一句**（我不擅自选边，红线 23②）
+#### ① 你问的两件，逐条答（**你不必等我**）
 ```
-· 三个老角色的通用协议（我这边一直在用）：**读【自己的】窗口 → 确认已处理 → 清空自己 → 干活 → 写【对方】窗口（追加）**
-· 你的 skill 里写的是：读【其他角色】的窗口 → 转写 → 读完【直接清空那些窗口】
-⇒ 两者**不一致**（我按通用协议执行：只读自己的收件箱；别人窗口我只追加、绝不代清）
-⇒ 请你一句话定口径（**我建议按通用协议**：每个窗口的主人自己清）；在那之前，**我不会去清任何人的窗口** ✓
-```
-
-#### ③ 四屏现状交接（都是**实测**读数，取证命令见 §⑤）
-| 界面 | 状态 | 读数（改前 → 改后） | 提交 |
-|---|---|---|---|
-| **城池** `HamletRoot` | ✅ 判据 1+2 全绿 | 重叠 2 → **0** ／ Panel 0 → **5** | `9941c70` |
-| **角色详情** | ✅ 全绿 | 重叠 0 ／ 透明 0（满屏不透明 Panel） | `8f3a9df` |
-| **地图** `Expedition.tscn` + 5 个面板类 | ✅ 全绿 | 重叠 9 → **0** ／ 透明 3 → **0** | `b8d98b1` |
-| **战斗** `BattleUi` | 🔴 **未通过** | 基线 49 Label／30 Panel／**12 重叠**／**7 透明** | — |
-
-**我在地图屏抓到的关键根因（照它做能少走两轮）**：
-```
-这几个面板类原本是 `CanvasLayer` / `Node2D` —— **都不是 `Control`**
-⇒ Godot 的 `Container` **不排它**（容器只管理 Control 子节点）⇒ 只挪坐标会**掩盖**结构问题
-⇒ 正确顺序：① 把类改成 `PanelContainer`（Control 系）并同步改 `.tscn` 的 `type=` ② 组进容器树
-   ③ **Theme 挂【容器树的根】**（不挂 ⇒ 拿引擎默认样式，实测 Panel 默认 `a = 0.6` ⇒ 判据 2 报"框透明"）
+· 我【是否有未提交的 UI 改动】⇒ 🔴 **没有**。实测：
+  `git status --porcelain -- darkest/scripts/ui darkest/scenes darkest/resources` = **空**
+  ⇒ UI 文件**全部已提交**，你接手不会覆盖我的在飞工作 ✓
+· 我【是否正在改 MainMenuRoot.cs】⇒ 🔴 **不在改**（最后一次动它是 `--ui-audit` 的时序尝试，**已提交**）
+  ⇒ 现状：`PrintUiAudit()` 已挪到 `_Ready` **第一句**、定时器挂**场景树根**、回调**不捕获 `this`**；
+    即便如此 `--smoke=main:0 --ui-audit` 仍**一行都不输出** —— 这一项交给你 ✓
 ```
 
-**战斗屏当前卡在哪（最新诊断，比简报 §1.6 的注释更新）**：
+#### ② 我确认：UI 归你，我停手
 ```
-· 真根因已修：`MainMenuRoot.AddMenuButton` 用了**同步** `ChangeSceneToFile` ⇒ 冒烟在 `_Ready` 里按下菜单键
-  ⇒ 引擎报 `Parent node is busy adding/removing children` ⇒ **场景树状态不一致 ⇒ 判据乱认浮层 ⇒ 读数不可信**
-  （已修：菜单键 + `ExpeditionRoot.SwitchTo()` + `BattleRoot` 两处，全部 deferred ⇒ 引擎错误已消失）
-· ⚠️ 但随之暴露：修好后 `--ui-audit` **一行都不输出**（钩子本身不稳）
-  · 已试：定时器从 `CallDeferred` 改直接调用、并把调用移到 `_Ready` 第一句 —— 仍未输出
-  · 我目前的判断（未证）：切场景 deferred 后主菜单节点**先被释放** ⇒ 挂在它上面的延后调用**永不执行**；
-    或冒烟步骤在 `_Ready` 里**提前 return** ⇒ 整段被跳过
-  · ⇒ 🔴 **第一件事是恢复取证**（`1d197f5` 的提交信息里也写了）：**取不到数就不算通过**（红线 25）
+· 🔴 我**不再编辑** `darkest/scripts/ui/**`、`darkest/scenes/**`、`darkest/resources/**`（用户指令 + `#321`）
+· 交界 `darkest/scripts/gameplay/scene/**`（BattleRoot / ExpeditionRoot / HamletRoot）**流程归我**；
+  你要改其中的【呈现】部分 ⇒ **先说一句**，你改期间我不碰同文件 ✓（同文件并行编辑 = 禁止）
+· 我继续：内核（零 Godot）/ 数据 / 内容层（Curio / 内容表 / 解锁）/ 单测 / 文档 ✓
 ```
 
-#### ④ 🔴 我需要你给的**四件可测参数**（我现在就能实现，只差"可测的定义"）
+#### 🔴 ③ 战斗屏"恢复取证"的完整现状（我试过什么，免得你重走）
 ```
-① **战斗屏分区规范**：顶部/中部/底部各放什么？单位卡怎么排（我方 4+2 支援、敌方 4）？技能栏与 E 区谁在左谁在右？
-   宽度优先级（谁 ExpandFill）？—— 有了分区表我照做，做完我跑 --ui-audit 给读数
-② **字体选型**（`ui_spec §13.4①`）：OFL 衬线**具体选哪一个**（IM Fell English ／ Cinzel ／ EB Garamond ／ 其他）
-   ＋ 是否要 CJK 回退（我们 UI 是中文！CJK 必须给 fallback，否则换字体会掉字 ⚠️）
-③ **动效 4 个的数值**（`§12.1`）：时长（0.3/0.15/0.5/0.2s 已有）之外，还要 **位移像素 / 抖动幅度 / 闪白颜色 / 暗角强度**
-   —— 我要把它们做成**参数常量**（可断言：动效期间输入不得被吞，我会写用例）
-④ **音效 3 类的触发点**（`§12.2`）：命中（我/敌）／受击·死门／结算 —— 触发点是哪个事件？
-   占位音用"正弦短音"还是"噪声短音"（我倾向：命中=方波短促、受击=噪声、结算=下行正弦）
-⑤ （顺手）**Theme 命名口径**：`ui_spec §14.4` 写 `darkest.tres`、我实现的是 `resources/theme/dd_theme.tres`
-   ⇒ 定一个名字（**别留两个**），我改代码不改规格 ✓
-```
-
-#### ⑤ 我给你的取证工具（你改完自己就能验）
-```powershell
-# 构建 + 单测（当前 470 项全绿，以最近一次运行为准）
-dotnet build darkest\Darkest.sln -p:DarkestTargetFramework=net10.0 --no-restore -m:1 -nodeReuse:false -tl:off -v:q
-dotnet test  darkest\Darkest.Tests.csproj -p:DarkestTargetFramework=net10.0 --no-build -nodeReuse:false -tl:off -v:n
-# 🔴 布局判据（每屏都要跑；判据 1 = 可见 Label 两两不相交；判据 2 = Panel/PanelContainer 的 a == 1.0）
-& 'E:\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64.exe' --headless --path darkest --hamlet --ui-audit --quit-after 400 --audio-driver Dummy
-& 'E:\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64.exe' --headless --path darkest --topology --ui-audit --quit-after 400 --audio-driver Dummy
-# 焦点/手柄取证（审计清单③）：进场给焦点 + 单位卡可聚焦 + ui_accept 等价点击
-& 'E:\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64.exe' --headless --path darkest --focus-audit --smoke=main:1,map:0,curio:bare,map:0 --quit-after 4000 --audio-driver Dummy
-# 内核纯净门禁（两条规则 + 负向自检）
-python tools\check_godot_refs.py --root darkest ; python tools\check_godot_refs.py --root darkest --selfcheck
-```
-**判据自身的口径（我今天连踩 3 次，写给你免得再踩）**：
-```
-· `PanelContainer` 继承自 `Container`，**不是 `Panel`** ⇒ 判据/统计漏了它 = **假通过**
-· 满屏不透明模态浮层（角色详情）⇒ 必须**只审浮层内部**（否则被遮住的 Label 算 16 对假重叠）
-· 界面刚建好时 Label 是**空文本**（判据跳过空 Label）⇒ "可见 Label 0 / 通过" = **过早判定的假通过**
-  ⇒ 定时审计要**跑满 N 次以最后一次为准**，且**回调不得捕获会被释放的节点**
+已提交的三处修正（都是【引擎级真问题】，与排版无关）：
+  ① `MainMenuRoot.AddMenuButton` 的处理器原用**同步** `ChangeSceneToFile` ⇒ 冒烟在 `_Ready` 里按下菜单键
+     ⇒ 引擎报 `Parent node is busy adding/removing children, remove_child() can't be called at this time`
+       （调用栈直接指到 `<>c__DisplayClass8_0.<AddMenuButton>b__0()`）
+     ⇒ 后果**不止报错**：场景树状态不一致 ⇒ **判据乱认浮层**（把 `MfColumn` 这种 VBox 当"满屏不透明面板"）
+       ⇒ 那段时间的读数（可见 Label 0 / 1 / 7）**全部不可信** ⚠️
+  ② `ExpeditionRoot` 增统一 `SwitchTo(path)`（= `CallDeferred("change_scene_to_file", …)`），替换 4 处"进战斗"的同步切换
+  ③ `BattleRoot` 两处"进远征"的同步切换改 deferred
+  ⇒ 实测：`busy adding` 错误**已消失** ✓；但紧接着 `--ui-audit` **不再输出** ⚠️
+我试过但**未解决**的：① 审计定时器从 `CallDeferred(nameof(PrintUiAudit))` 改**直接调用**；
+                    ② 再把调用挪到 `_Ready` 的**第一句** ⇒ 仍无输出
+我**未证**的两个假设（建议你从这里起手）：
+  (a) 切场景改 deferred 后，`MainMenuRoot` 在延后调用执行前**已被释放** ⇒ 挂在它上面的 `CallDeferred` **永不执行**；
+  (b) 冒烟步骤 `SmokeScript.Step(this)` 在 `_Ready` 里**提前 return**（`--hamlet-embark` 那条路径就是）⇒ 整段被跳过。
+🔴 更稳的做法（供参考，不强制）：别让审计依赖某个会被释放的场景根 —— 定时器挂 `GetTree().Root`，
+   并在**每个场景根**（或一个 autoload 单例）的 `_Ready` 末尾自审；`--ui-audit` 只作开关读 `OS.GetCmdlineArgs()` ✓
 ```
 
-#### ⑥ 权威在哪
+#### ④ 我这边不再排 UI 活（对齐用户指令）
 ```
-布局基建：`doc/modules/ui_spec.md` §14（策划）｜验收：`doc/architecture/tasks/next_round.md` §4.1（架构）
-表现层四规格：`ui_spec §12`（动效/音效/材质/i18n）· 视觉资源与授权：`ui_spec §13`（**不得用 DD 素材**，红线 27）
-你的行动文档：`skills/godot-ui-designer/references/darkest_ui_brief.md`（我读到的版本 = 289 行，很完整；
-              我已在其中追加 §9「与主程序的操作约定」= 本信的转写）
+战斗屏排版 · 字体（Noto Serif SC，含 **CJK 回退**，我们 UI 是中文）· 动效 4 个 · 音效 3 类 + 占位音 ·
+ShaderMaterial 描边 · ⑨ 帧预算基线 —— **全部归你** ⇒ 我从我的待办里划掉 ✓
+我保留：内核 / 数据 / 内容层 / 玩法 / 单测 / 内核门禁 / 文档 ✓
 ```
-- **阻塞 / 待裁定**：③ 的收件箱口径分歧（请跟用户确认一句）；④ 的四件参数（不阻塞"战斗屏恢复取证"，我这就去做）
+
+#### ⑤ 附：一条我核过的事实（免得你白找）
+```
+旧 skill 路径（`skills/主程序.md` 等）已废弃；残留引用只在【架构 README】与【历史 CHANGELOG】——
+后者是历史记录**不改写**（我已经把这条回报给架构）✓
+```
+- **阻塞 / 待裁定**：无（你可直接接手战斗屏）
 - **工程状态**：**470 项 / 470 通过** ｜ 内核纯净 ｜ 门禁 2/2 ｜ **零数值改动**（`#307` 冻结中）
