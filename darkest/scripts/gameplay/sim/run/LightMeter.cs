@@ -59,12 +59,25 @@ public sealed class LightMeter : ILightMeter
 
     public TuningLightEffect Effect => _config.Effects[TierId(Tier)];
 
-    /// <summary>边界取档（**写死**，P21 ①）：`&gt;75` Radiant ／ `75~51` Dim ／ `50~26` Shadowy ／ `25~1` Dark ／ `0` Black。</summary>
+    /// <summary>
+    /// 🔴 **档位边界的【单一常量源】**（P21 ① 规定"写死"⇒ **不得**改成 data；但**也不得**在别处再写一份）：
+    /// `&gt;75` Radiant ／ `75..51` Dim ／ `50..26` Shadowy ／ `25..1` Dark ／ `0` Black ✓
+    /// ⚠️ UI 侧的 `LightBarPanel` 刻度必须**引用这里**（或至少加一致性用例）——
+    ///    否则只改一处 ⇒ **刻度与判定不符**，而玩家正是照刻度做"再暗一档值不值"的决策 ⚠️
+    /// </summary>
+    public const int RadiantMinExclusive = 75;
+    public const int DimMinExclusive = 50;
+    public const int ShadowyMinExclusive = 25;
+
+    /// <summary>三个边界值（供 UI 刻度/用例引用；顺序 = 由亮到暗）✓</summary>
+    public static readonly int[] TierBoundaries = { ShadowyMinExclusive, DimMinExclusive, RadiantMinExclusive };
+
+    /// <summary>边界取档（**边界常量见上**；P21 ① 要求写死，故这里只做命名化，不改语义）✓</summary>
     public static LightTier TierFor(int value) => value switch
     {
-        > 75 => LightTier.Radiant,
-        > 50 => LightTier.Dim,
-        > 25 => LightTier.Shadowy,
+        > RadiantMinExclusive => LightTier.Radiant,
+        > DimMinExclusive => LightTier.Dim,
+        > ShadowyMinExclusive => LightTier.Shadowy,
         > 0 => LightTier.Dark,
         _ => LightTier.Black,
     };
