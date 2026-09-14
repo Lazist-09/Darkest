@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Darkest.Core.Events;
@@ -92,12 +93,14 @@ public sealed class UnlockConsumptionTests
         RoomContentsConfig contents = RoomContentsConfig.Parse(ReadData("room_contents.json"), curios);
         var p = new RunProgress();
 
-        // 起手：只允许【未解锁的书堆/圣坛之外】的 4 种
-        var allowed = curios.RealCurios.Select(c => c.Id)
-            .Where(id => !p.UnlockedCurios(unlocks).Contains(id)).ToHashSet(StringComparer.Ordinal);
-        Assert.IsTrue(allowed.Contains("cur_book_stack"), "书堆此时**未**解锁 ⇒ 它属于「允许」集合的补集口径");
+        // 🔴 **C3 起手态**：可用 Curio = **基础 4 种**（书堆/圣坛**不在**其中）
+        IReadOnlySet<string> available = p.AvailableCurios(unlocks);
+        Assert.AreEqual(4, available.Count, "起手可用 4 种（C3）");
+        Assert.IsTrue(available.Contains("cur_supply_crate"), "基础 4 种里有补给箱");
+        Assert.IsFalse(available.Contains("cur_book_stack"), "书堆**未**解锁（第 3 趟才有）");
+        Assert.IsFalse(available.Contains("cur_altar"), "圣坛**未**解锁（第 3 趟才有）");
 
-        // 抽 200 次：**未解锁的**（书堆/圣坛）一次都不该出现（内核级拦截）
+        // 抽 200 次：**只可能在基础 4 种里**（未解锁的书堆/圣坛一次都不该出现 ⇒ 内核级拦截）
         TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
         ExpeditionNodesConfig nodes = ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json"));
         var bag = new Inventory(tuning.Inventory!);
@@ -109,11 +112,18 @@ public sealed class UnlockConsumptionTests
             new Scouting(tuning.Scouting!, tuning.Light!), nodes, tuning, new CombatLog(),
             new Darkest.Core.Rng.RngProvider(20260909));
 
-        var unlockedCurios = p.UnlockedCurios(unlocks); // 起手为空集
         for (int i = 0; i < 200; i++)
         {
-            string? picked = flow.PickCurioForRoom(contents, "event", isBranch: false, allowedCurios: unlockedCurios);
-            Assert.IsNull(picked, "起手【未解锁任何 Curio】⇒ 池被内核拦空 ⇒ 返回 null（不是偷偷给一个）");
+            string? picked = flow.PickCurioForRoom(contents, "event", isBranch: false, allowedCurios: available);
+            Assert.IsNotNull(picked, "基础 4 种可用 ⇒ 应当抽得到（不是 null）");
+            Assert.IsTrue(available.Contains(picked), $"抽到的 \"{picked}\" 必须在【当前可用】集合里");
+        }
+
+        // 把可用集合收窄成空集 ⇒ 必须返回 null（内核**不偷偷给一个**）
+        for (int i = 0; i < 20; i++)
+        {
+            Assert.IsNull(flow.PickCurioForRoom(contents, "event", isBranch: false,
+                allowedCurios: new HashSet<string>(StringComparer.Ordinal)), "空可用集 ⇒ null");
         }
     }
 

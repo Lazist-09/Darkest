@@ -643,8 +643,26 @@ public sealed class ExpeditionFlow
     public int ReturnToTown(string outcome)
     {
         IsFinished = true;
+
+        // 🔴 `next_round` ③：**记"一趟结束"到跨趟进度** —— 这里是**所有路径的唯一咽喉**
+        //    （UI 有 `FinishRunToTown` ／线性 e2e 直接调本方法 ⇒ 只挂在 UI 上会**漏计**：我实测踩到，
+        //      e2e 跑完一趟仍显示"已完成出征 0 趟" ⚠️）⇒ 挂在流程层，并按 `IsFinished` 防重复计数 ✓
+        if (!_runCounted)
+        {
+            _runCounted = true;
+            Progress?.FinishRun(_log, outcome, Wins);
+        }
+
         return _session.ReturnToTown(_log, outcome);
     }
+
+    private bool _runCounted;
+
+    /// <summary>
+    /// 跨趟进度（解锁阈值表的输入）。**由组合根注入**（内核层不接触 UI 层持有者）✓
+    /// `null` ⇒ 不记（测试/旧路径）—— 不静默：`ReturnToTown` 里的判断是显式的 ✓
+    /// </summary>
+    public RunProgress? Progress { get; init; }
 
     /// <summary>本趟**掉落的柴火份数**（㉓ 第三列：与扎营次数配对，看"摸黑换来的续航"）。</summary>
     public int LootFirewood { get; private set; }

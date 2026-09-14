@@ -332,7 +332,11 @@ public partial class ExpeditionRoot : Node
         HeirloomConfig heirloomCfg = HeirloomConfig.Parse(Godot.FileAccess.GetFileAsString(HeirloomConfig.ResPath));
         HeirloomStock heirlooms = ExpeditionContext.EnsureHeirlooms(heirloomCfg);
         _flow = new ExpeditionFlow(session, meter, bag, new Scouting(tuning.Scouting!, tuning.Light!),
-            handle.Nodes, tuning, Log, new Darkest.Core.Rng.RngProvider(20260909), economy, heirlooms, heirloomCfg);
+            handle.Nodes, tuning, Log, new Darkest.Core.Rng.RngProvider(20260909), economy, heirlooms, heirloomCfg)
+        {
+            // 🔴 `next_round` ③：把**跨趟进度**注入流程（内核层不接触 UI 持有者 ⇒ 由组合根喂）✓
+            Progress = ExpeditionContext.Progress,
+        };
         ExpeditionContext.Bind(_flow, Log);
 
         // 🔴 扎营技能：**加载即校验**（红线 21 防线，照 `BuffDefsConfig.ConsumedEffectNames`）——
@@ -1204,9 +1208,8 @@ public partial class ExpeditionRoot : Node
         }
 
         _flow.ReturnToTown(outcome);
-        // 🔴 `next_round` ③：**记"一趟结束"到跨趟进度** ⇒ 解锁阈值表的输入（C2 的消费点从此有输入 ✓）
-        //    口径（如实标注）：统计**已结束的出征**（不论结局）—— 否则撤退/团灭的玩家永远解锁不了东西 ✓
-        ExpeditionContext.Progress.FinishRun(Log, outcome, _flow.Wins);
+        // 🔴 注意：**不在这里**记"一趟结束" —— 已挂到 `ExpeditionFlow.ReturnToTown`（所有路径的唯一咽喉，
+        //    否则线性 e2e 会漏计；我实测踩到过）✓
         ExpeditionContext.Roster?.ApplyReturnFromRun(Log, Session!.Roster().Select(r => (r.Id, r.Morale)));
         ExpeditionContext.End();
         GD.Print($"[拓扑UI] 回城：本趟结束（outcome={outcome}，共走 {_flow.StepsDone} 段 ／ 胜 {_flow.Wins}）" +

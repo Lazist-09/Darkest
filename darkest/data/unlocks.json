@@ -1,5 +1,6 @@
 {
-  "config": { "version": 1, "roster_base_cap": 8 },
+  "config": { "version": 1, "roster_base_cap": 8,
+    "base_curios": ["cur_supply_crate", "cur_discarded_camp", "cur_sconce", "cur_bone_pile"] },
   "_note": "解锁阈值表（O-86 内容清单来自 #316③）：按【已完成出征数 runs】逐步解锁。id 命名空间：building:<id> ／ curio:<id> ／ roster_cap:<N>。起手态：城池只有 Stage Coach ＋ 4 种 Curio ＋ 名册可用上限 8（硬上限 12 见 C1）。",
   "unlocks": [
     { "id": "unlock_tavern", "required_runs_finished": 1, "required_battles_won": 0,

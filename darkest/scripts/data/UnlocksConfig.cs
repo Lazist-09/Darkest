@@ -17,7 +17,8 @@ public sealed record UnlockEntry(
 
 public sealed record UnlocksHeader(
     [property: JsonPropertyName("version")] int Version = 1,
-    [property: JsonPropertyName("roster_base_cap")] int RosterBaseCap = 8);
+    [property: JsonPropertyName("roster_base_cap")] int RosterBaseCap = 8,
+    [property: JsonPropertyName("base_curios")] IReadOnlyList<string>? BaseCurios = null);
 
 /// <summary>
 /// 🔴 **解锁阈值表**（`O-86` / 合并包片 D）—— 形态参照真机

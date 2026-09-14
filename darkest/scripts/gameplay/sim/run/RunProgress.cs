@@ -47,6 +47,27 @@ public sealed class RunProgress
         => UnlockedIds(cfg).Where(s => s.StartsWith("curio:", StringComparison.Ordinal))
             .Select(s => s["curio:".Length..]).ToHashSet(StringComparer.Ordinal);
 
+    /// <summary>
+    /// 🔴 **当前可用的 Curio**（C3 起手态 = **基础 4 种**）：`config.base_curios` **∪** 已解锁的。
+    /// ⚠️ 我最初只传"已解锁集合"给内核过滤 ⇒ 起手会变成 **0 种**（与 C3 的"起手 4 种"矛盾）——
+    ///    所以**基础集合必须来自数据**（`base_curios`），由本方法合并 ✓
+    /// </summary>
+    public IReadOnlySet<string> AvailableCurios(UnlocksConfig cfg)
+    {
+        var set = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string id in cfg.Config?.BaseCurios ?? Array.Empty<string>())
+        {
+            set.Add(id);
+        }
+
+        foreach (string id in UnlockedCurios(cfg))
+        {
+            set.Add(id);
+        }
+
+        return set;
+    }
+
     /// <summary>已解锁的建筑 id（`building:` 前缀去壳）。</summary>
     public IReadOnlySet<string> UnlockedBuildings(UnlocksConfig cfg)
         => UnlockedIds(cfg).Where(s => s.StartsWith("building:", StringComparison.Ordinal))

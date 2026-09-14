@@ -165,10 +165,39 @@ public partial class HamletRoot : Node2D
         //    名称 + 功能 + 当前等级 + 下一级所需传家宝（**不是写死文本**）
         string[] upgradable = { "tavern", "abbey", "stagecoach" };
         string[] buildingNames = { "酒馆 Tavern", "修道院 Abbey", "驿站 Stage Coach" };
+
+        // 🔴 `next_round` ③ 消费点 (a)：**三栋按【解锁】显示**
+        //    · 已解锁（或起手就有：Stage Coach）⇒ 正常按钮（可点、可悬停）✓
+        //    · 未解锁 ⇒ 显示 **「🔒 名称（第 N 趟后解锁）」** —— 🔴 **说明"何时解锁"**，
+        //      而不是留一个不可解释的禁用按钮（红线 21）✓
+        UnlocksConfig unlockCfg = UnlocksConfig.Parse(FileAccess.GetFileAsString(UnlocksConfig.ResPath),
+            HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
+            CuriosConfig.Parse(FileAccess.GetFileAsString(CuriosConfig.ResPath)).RealCurios
+                .Select(c => c.Id).ToHashSet(StringComparer.Ordinal),
+            roster.Cap);
+        IReadOnlySet<string> unlockedBuildings = ExpeditionContext.Progress.UnlockedBuildings(unlockCfg);
+
         for (int i = 0; i < upgradable.Length; i++)
         {
             string bId = upgradable[i];
             string label = buildingNames[i];
+            bool unlocked = bId == "stagecoach" || unlockedBuildings.Contains(bId);
+
+            if (!unlocked)
+            {
+                int need = RunsRequiredFor(unlockCfg, $"building:{bId}");
+                var locked = new Label
+                {
+                    Name = $"Locked_{bId}",
+                    Text = $"🔒 {label}（第 {need} 趟后解锁）",
+                    Position = new Vector2(24 + (i * 190), 306),
+                    Size = new Vector2(180, 30),
+                };
+                locked.AddThemeColorOverride("font_color", new Color(0.62f, 0.62f, 0.68f));
+                AddChild(locked);
+                continue;
+            }
+
             var ub = new Button
             {
                 Name = $"Upgrade_{bId}",
@@ -182,6 +211,9 @@ public partial class HamletRoot : Node2D
             AddChild(ub);
             _upgradeButtons[bId] = ub;
         }
+
+        GD.Print($"[HamletRoot] 城池建筑：已解锁 {unlockedBuildings.Count + 1} ／ 3" +
+                 $"（起手只有 Stage Coach；已完成出征 {ExpeditionContext.Progress.RunsFinished} 趟）");
 
         // ② 选人权：**减压按【人】选**（列出名册里士气 < 基准者）；选完再选建筑
         _hint = new Label
@@ -585,6 +617,23 @@ public partial class HamletRoot : Node2D
     /// <summary>🔴 片① ③：**悬停/点击某栋建筑 ⇒ 显示名称 + 功能 + 当前等级 + 下一级所需传家宝** ——
     /// **真读 `HeirloomStock`（`LevelOf` / `NextLevel().Cost`）**，不是写死文本（卡 §1.3 的验收要求）。
     /// </summary>
+    /// <summary>
+    /// 🔴 `next_round` ③ 辅助：某个解锁目标（如 `building:tavern`）需要**第几趟** ——
+    /// 用于给"锁着的建筑"写出**可解释的**解锁条件（红线 21：不留不可解释的禁用）✓
+    /// </summary>
+    internal static int RunsRequiredFor(UnlocksConfig cfg, string target)
+    {
+        foreach (UnlockEntry e in cfg.Unlocks)
+        {
+            if (e.Unlocks.Contains(target))
+            {
+                return e.RequiredRunsFinished > 0 ? e.RequiredRunsFinished : 1;
+            }
+        }
+
+        return 0;
+    }
+
     public void ShowBuildingInfo(string building)
     {
         HeirloomStock? h = ExpeditionContext.Heirlooms;
@@ -761,7 +810,8 @@ public partial class HamletRoot : Node2D
         // 🔴 片①：**名册计数 / 资源条 / 建筑信息默认行**（都真读跨趟持有者，不写死）
         _rosterCount.Text = roster is null
             ? "名册 -/-"
-            : $"名册 {roster.Heroes.Count} / {roster.Cap}";
+            : $"名册 {roster.Heroes.Count} / {((roster.CurrentCap > 0) ? roster.CurrentCap : roster.Cap)}" +
+              $"（上限 {roster.Cap}）";
         HeirloomStock? resHeirlooms = ExpeditionContext.Heirlooms;
         Economy? resGold = ExpeditionContext.Gold;
         _resourceBar.Text = resGold is null || resHeirlooms is null
