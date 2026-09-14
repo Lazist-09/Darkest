@@ -43,7 +43,9 @@ public static class LayoutAudit
                     overlaps++;
                     if (overlaps <= 6) // 报告前几条即可（防刷屏）
                     {
-                        problems.Append($"\n  🔴 重叠：{labels[i].Path} ⟷ {labels[j].Path}");
+                        // 🔴 带**矩形坐标**：光有"谁压谁"不够 —— 实测踩过"整列溢出 ⇒ 子控件拿到负尺寸 ⇒ 假/真重叠"
+                        //    ⇒ 有坐标才能一眼看出是"放错位置"还是"容器被挤爆"（取证 > 猜）
+                        problems.Append($"\n  🔴 重叠：{labels[i].Path} {Fmt(labels[i].Rect)} ⟷ {labels[j].Path} {Fmt(labels[j].Rect)}");
                     }
                 }
             }
@@ -103,6 +105,10 @@ public static class LayoutAudit
         return box is StyleBoxFlat flat ? flat.BgColor.A : -1f;
     }
 
+    /// <summary>矩形格式化（诊断用）：`pos=(x,y) size=(w,h)`。</summary>
+    private static string Fmt(Rect2 r)
+        => $"pos=({r.Position.X:0},{r.Position.Y:0}) size=({r.Size.X:0},{r.Size.Y:0})";
+
     /// <summary>找"满屏且不透明"的面板（= 模态覆盖层）；没有则返回 `null`。</summary>
     /// <remarks>
     /// 🔴 **必须是【能画底的 Panel 系】节点**（`Panel` / `PanelContainer` / `PopupPanel`）：
@@ -115,7 +121,7 @@ public static class LayoutAudit
         Control? found = null;
         foreach (Node child in Walk(root))
         {
-            if (child is not Control ctl || !ctl.Visible)
+            if (child is not Control ctl || !ctl.IsVisibleInTree())
             {
                 continue;
             }
@@ -159,14 +165,16 @@ public static class LayoutAudit
     {
         foreach (Node child in node.GetChildren())
         {
-            if (child is Label label && label.Visible && !string.IsNullOrWhiteSpace(label.Text))
+            if (child is Label label && label.IsVisibleInTree() && !string.IsNullOrWhiteSpace(label.Text))
             {
                 // Label 的可视矩形：全局坐标（跨父容器一致口径）✓
                 labels.Add((Path(root, label), new Rect2(label.GlobalPosition, label.Size)));
             }
 
             // 🔴 `Panel` **与** `PanelContainer` 两类都要查（后者继承自 Container，不是 Panel）✓
-            if (child is Panel or PanelContainer && child is Control ctl && ctl.Visible)
+            // ⚠️ 可见性用 `IsVisibleInTree()`（**有效可见性**）：`Visible` 只看自己的标记 ——
+            //    实测踩过：面板被 `Hide()` 收起后，其内部 Label 的 `Visible` 仍是 true ⇒ 被算成"重叠"（判据假红）
+            if (child is Panel or PanelContainer && child is Control ctl && ctl.IsVisibleInTree())
             {
                 panels.Add((Path(root, ctl), ctl));
             }

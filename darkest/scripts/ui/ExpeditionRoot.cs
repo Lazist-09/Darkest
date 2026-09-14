@@ -90,13 +90,19 @@ public partial class ExpeditionRoot : Node
         var choiceRow = new HBoxContainer { Name = "ChoiceRow" };
         choiceRow.AddThemeConstantOverride("separation", 8);
         uiHost.AddChild(choiceRow);
-        _choiceA = MakeButton("选项 A", new Vector2(0, 0), () => ChooseEventOption(0));
+        _choiceA = MakeButton("选项 A", () => ChooseEventOption(0));
         choiceRow.AddChild(_choiceA);
-        _choiceB = MakeButton("选项 B", new Vector2(0, 0), () => ChooseEventOption(1));
+        _choiceB = MakeButton("选项 B", () => ChooseEventOption(1));
         choiceRow.AddChild(_choiceB);
 
         // 扎营入口（柴火不足 ⇒ 禁用 = 灰显）
-        _campButton = MakeButton("扎营（1 柴火）", new Vector2(536, 660), Camp);
+        // 🔴 `ui_spec §14.2`①：**不许手摆坐标** ⇒ 按钮进容器（`MakeButton` 不再自己 `AddChild`：由调用方决定父节点，
+        //    否则"先挂场景根、再挂容器"会报 `Can't add child ... already has a parent` —— 实测抓到的引擎错误）
+        _campButton = MakeButton("扎营（1 柴火）", Camp);
+        _linearActions = new HBoxContainer { Name = "LinearActions" };
+        _linearActions.AddThemeConstantOverride("separation", 8);
+        uiHost.AddChild(_linearActions);
+        _linearActions.AddChild(_campButton);
 
         _panel.ShowPanel();
 
@@ -570,16 +576,15 @@ public partial class ExpeditionRoot : Node
         RefreshPanel();
     }
 
-    private Button MakeButton(string text, Vector2 position, Action onPressed)
+    private Button MakeButton(string text, Action onPressed)
     {
+        // 🔴 **不再在这里 `AddChild`**（`ui_spec §14.2`①）：父节点由调用方给 —— 否则"先挂场景根、再挂进容器"
+        //    会报引擎错误 `Can't add child '@Button@3' to 'ChoiceRow', already has a parent 'Expedition'`（实测）
         var button = new Button
         {
             Text = text,
-            Position = position,
-            Size = new Vector2(240, 40),
         };
         button.Pressed += onPressed;
-        AddChild(button);
         _buttons.Add(button);
         return button;
     }
@@ -595,6 +600,9 @@ public partial class ExpeditionRoot : Node
     private bool _routedToBattle; // 冒烟：本轮是否已切到战斗场景（供 `--run-full` 判断"该停了"）
     private readonly List<Node> _mapGraph = new(); // 拓扑图元素（线 + 房间方块；每次刷新重建）
     private readonly List<Button> _mapButtons = new();
+    private VBoxContainer? _mapOptionsRow;  // 可点房间按钮的容器（§14.2③ 容器堆叠 ⇒ 物理上不会重叠）
+    private Control? _mapGraphHost;         // 拓扑图宿主（线 + 房间方块，坐标**相对宿主**，不是布局坐标）
+    private HBoxContainer? _linearActions;  // 线性模式的行动行（扎营按钮的父节点）
 
     /// <summary>当前会话（供地图视图显示夜袭累计）。</summary>
     private ExpeditionSession? TopologySession => _flow?.Session;
@@ -610,29 +618,43 @@ public partial class ExpeditionRoot : Node
             return;
         }
 
+        // 🔴 `ui_spec §14.2/§14.3`：**地图视图整体进容器树** —— 此前 status ／ 选项标题 ／ 房间按钮 ／ 拓扑图
+        //    全挂在**场景根**上、按绝对坐标手摆 ⇒ 与容器化的列表面板**互压**（判据实测 2 对重叠的根因）✓
+        Node host = GetNodeOrNull<VBoxContainer>("UiMargin/UiCol") ?? (Node)this;
+        var mapRow = new PanelContainer { Name = "MapRow" };
+        var mapCol = new VBoxContainer { Name = "MapCol" };
+        mapCol.AddThemeConstantOverride("separation", 6);
+        mapRow.AddChild(mapCol);
+        host.AddChild(mapRow);
+
         _mapStatus = new Label
         {
             Name = "MapStatus",
-            Position = new Vector2(24, 470),
-            Size = new Vector2(1250, 40),
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
         };
-        AddChild(_mapStatus);
+        mapCol.AddChild(_mapStatus);
 
         _mapOptionsTitle = new Label
         {
             Name = "MapOptionsTitle",
-            Position = new Vector2(24, 512),
-            Size = new Vector2(1250, 24),
         };
-        AddChild(_mapOptionsTitle);
+        mapCol.AddChild(_mapOptionsTitle);
+
+        _mapOptionsRow = new VBoxContainer { Name = "MapOptions" }; // 可点房间（容器排布 ⇒ 不会重叠）
+        _mapOptionsRow.AddThemeConstantOverride("separation", 4);
+        mapCol.AddChild(_mapOptionsRow);
+
+        _mapGraphHost = new Control
+        {
+            Name = "MapGraphHost",
+            CustomMinimumSize = new Vector2(0, 130), // 🔴 §14.2④：容器/宿主必须给最小尺寸（否则塌陷 ⇒ 又重叠）
+        };
+        mapCol.AddChild(_mapGraphHost);
 
         _campInTopology = new Button
         {
             Name = "CampInTopology",
             Text = "扎营（回满光照；耗 1 柴火；后有夜袭判定）",
-            Position = new Vector2(24, 566),
-            Size = new Vector2(420, 36),
         };
         _campInTopology.Pressed += () =>
         {
@@ -655,8 +677,6 @@ public partial class ExpeditionRoot : Node
         {
             Name = "ReturnToTown",
             Text = "回城（完成本趟）",
-            Position = new Vector2(470, 566),
-            Size = new Vector2(280, 36),
         };
         _returnTown.Pressed += () =>
         {
@@ -665,8 +685,12 @@ public partial class ExpeditionRoot : Node
                      $"　outcome={outcome}");
             FinishRunToTown(outcome);
         };
-        AddChild(_returnTown);
-        AddChild(_campInTopology);
+        // 🔴 行动按钮进【同一容器行】（§14.2③）：容器自动排布 ⇒ 不可能重叠
+        var mapActions = new HBoxContainer { Name = "MapActions" };
+        mapActions.AddThemeConstantOverride("separation", 8);
+        mapCol.AddChild(mapActions);
+        mapActions.AddChild(_campInTopology);
+        mapActions.AddChild(_returnTown);
 
         RefreshMapView();
         GD.Print($"[拓扑UI] 地图视图就绪：当前房间 {_flow.CurrentRoomId}　可点房间 {_mapButtons.Count} 个（红线 18：玩家可点）");
@@ -706,9 +730,9 @@ public partial class ExpeditionRoot : Node
                 Name = $"Edge_{e.From}_{e.To}",
                 Width = 2f,
                 DefaultColor = new Color(0.55f, 0.55f, 0.6f),
-                Points = new[] { RoomScreenPos(a), RoomScreenPos(b) },
+                Points = new[] { RoomLocalPos(a), RoomLocalPos(b) },
             };
-            AddChild(line);
+            (_mapGraphHost as Node ?? this).AddChild(line);
             _mapGraph.Add(line);
         }
 
@@ -724,19 +748,22 @@ public partial class ExpeditionRoot : Node
             {
                 Name = $"RoomBox_{room.Id}",
                 Text = $"{(current ? "▶" : string.Empty)}{room.Id}\n{room.Type}",
-                Position = RoomScreenPos(room) - new Vector2(40, 16),
+                Position = RoomLocalPos(room) - new Vector2(40, 16), // 图宿主内的图形坐标（不是布局坐标）
                 Size = new Vector2(80, 32),
                 Disabled = !canGo,
                 Modulate = explored ? new Color(0.55f, 0.55f, 0.55f) : Colors.White,
             };
-            AddChild(box);
+            (_mapGraphHost as Node ?? this).AddChild(box);
             _mapGraph.Add(box);
         }
     }
 
-    /// <summary>房间在屏幕上的位置（主干下排 ／ 支路上排，按 `Depth` 排开）。</summary>
-    private static Vector2 RoomScreenPos(MapRoom room)
-        => new(60 + (room.Depth * 80), room.IsBranch ? 600 : 660);
+    /// <summary>
+    /// 房间在【图宿主】内的坐标（主干下排 ／ 支路上排，按 `Depth` 排开）。
+    /// ⚠️ 这是**图形坐标**（画在专用宿主里），不是 §14.2① 禁止的"布局坐标" —— 布局由容器树负责 ✓
+    /// </summary>
+    private static Vector2 RoomLocalPos(MapRoom room)
+        => new(20 + (room.Depth * 80), room.IsBranch ? 84 : 20);
 
     /// <summary>刷新地图视图（当前状态 + 相邻可选房间按钮）。</summary>
     public void RefreshMapView()
@@ -745,6 +772,9 @@ public partial class ExpeditionRoot : Node
         {
             return;
         }
+
+        // 🔴 继续走路 ⇒ 收起 Curio 结果模态（看完了就该让开，不再挡住地图）
+        _curioPanel?.Hide();
 
         foreach (Button b in _mapButtons)
         {
@@ -771,8 +801,6 @@ public partial class ExpeditionRoot : Node
             {
                 Name = $"MapRoom_{room.Id}",
                 Text = $"房间 {room.Id}（{room.Type}{(room.IsBranch ? "·支路" : string.Empty)}）",
-                Position = new Vector2(24 + (i * 250), 536),
-                Size = new Vector2(240, 26),
             };
             int target = room.Id;
             string roomType = room.Type;
@@ -835,11 +863,74 @@ public partial class ExpeditionRoot : Node
 
                 RefreshMapView();
             };
-            AddChild(b);
+            // 🔴 进【容器】（§14.2①：不再手摆坐标；容器排布 ⇒ 房间按钮之间也不可能重叠）
+            if (_mapOptionsRow is not null)
+            {
+                _mapOptionsRow.AddChild(b);
+            }
+            else
+            {
+                AddChild(b); // 兜底：极端情况下容器还没建好（如实降级，不静默）
+            }
+
             _mapButtons.Add(b);
         }
 
         DrawMapGraph(); // 🔴 图形化：房间 + 走廊（玩家能看见拓扑）
+    }
+
+    private Control? _modalHost;
+
+    /// <summary>
+    /// 🔴 **模态宿主**：一个**锚点相等（TopLeft）+ 显式 `Size`** 的满屏 `Control`。
+    /// 为什么要它：本屏根是 `Node2D` ⇒ Godot 的 `get_parent_anchorable_rect()` 为**空**
+    /// ⇒ 直接给模态面板设 `FullRect` 锚点会得到 0 尺寸（实测：内部 Label 挤到 (22,22) 并压住光照条），
+    /// 而"锚点不动、只设 `Size`"又会被引擎覆盖（实测警告：*Nodes with non-equal opposite anchors will have
+    /// their size overridden after _ready()*）⇒ **正解是先造一个有真实矩形且锚点相等的宿主**，模态再挂在它下面 ✓
+    /// </summary>
+    private Control ModalHost()
+    {
+        if (_modalHost is not null)
+        {
+            return _modalHost;
+        }
+
+        _modalHost = new Control
+        {
+            Name = "ModalHost",
+            Size = GetViewport().GetVisibleRect().Size, // 锚点相等（默认 0,0,0,0）⇒ 显式 Size 生效
+        };
+        AddChild(_modalHost);
+        GetViewport().SizeChanged += () => _modalHost.Size = GetViewport().GetVisibleRect().Size;
+        return _modalHost;
+    }
+
+    /// <summary>
+    /// 🔴 建一个【满屏不透明模态面板】（`ui_spec §14.2`：「框」= `PanelContainer` + **不透明**底）——
+    /// 面板类浮层（Curio ／ 扎营技能）一律走这里：
+    /// ① 它是 `PanelContainer` ⇒ **自己不会被别的控件压**（有框、受 Theme 管）；
+    /// ② **满屏 + 不透明** ⇒ 判据能识别它是**模态**（只审它内部）⇒ **不会**把"被它盖住的 Label"算成重叠 ✓
+    /// </summary>
+    private (PanelContainer Panel, VBoxContainer Col) MakeModal(string name)
+    {
+        var panel = new PanelContainer { Name = name };
+        var margin = new MarginContainer();
+        foreach (string side in new[] { "margin_left", "margin_top", "margin_right", "margin_bottom" })
+        {
+            margin.AddThemeConstantOverride(side, 16);
+        }
+
+        var col = new VBoxContainer { Name = $"{name}Col" };
+        col.AddThemeConstantOverride("separation", 8);
+        margin.AddChild(col);
+        panel.AddChild(margin);
+
+        // 🔴 挂到【模态宿主】（有真实矩形的 Control）⇒ 模态的 `FullRect` 锚点才算得出满屏尺寸 ✓
+        Control host = ModalHost();
+        host.AddChild(panel);
+        panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        Darkest.Ui.DdTheme.Apply(panel); // 显式挂中央 Theme（本屏根是 Node2D，主题链不经过它）
+        return (panel, col);
     }
 
     /// <summary>🔴 供冒烟/测试：**点一下第 i 个可选房间**（发真实 `Pressed` ⇒ 走玩家路径）。</summary>
@@ -865,6 +956,8 @@ public partial class ExpeditionRoot : Node
 
     private Label? _campSkillStatus;
     private Button? _finishCamp;
+    private PanelContainer? _campPanel;       // 扎营技能面板 = 满屏不透明模态（§14.2）
+    private VBoxContainer? _campButtonBox;    // 技能按钮的容器
     private readonly List<Button> _campSkillButtons = new();
     private CampSkillsConfig? _campSkills;                       // 扎营技能数据（装配时读入）
     private RosterConfig? _rosterCfg;                            // 名册配置（角色专属判定用）
@@ -884,6 +977,8 @@ public partial class ExpeditionRoot : Node
     private Darkest.Data.SanitariumConfig? _saniCfgForCurio; // Curio 患病用（与 Sanitarium 同源）
     private Darkest.Data.CurioConfig? _pendingCurio;
     private Label? _curioText;
+    private PanelContainer? _curioPanel;      // Curio 面板 = 满屏不透明模态（§14.2）
+    private VBoxContainer? _curioButtonBox;   // 三按钮的容器
     private readonly List<Button> _curioButtons = new();
 
     /// <summary>当前 Curio 面板的可选项数（供冒烟断言）。</summary>
@@ -952,17 +1047,26 @@ public partial class ExpeditionRoot : Node
             return;
         }
 
-        if (_curioText is null)
+        if (_curioPanel is null)
         {
+            // 🔴 `ui_spec §14.2`：Curio 面板 = **满屏不透明模态**（此前 `CurioText` 挂在场景根上、手摆 `pos=(24,596)`
+            //    ⇒ 实测压住列表体 `pos=(18,352) size=(735,247)`，判据报 1 对重叠）✓
+            (PanelContainer panel, VBoxContainer col) = MakeModal("CurioPanel");
+            _curioPanel = panel;
             _curioText = new Label
             {
                 Name = "CurioText",
-                Position = new Vector2(24, 596),
-                Size = new Vector2(1200, 60),
                 AutowrapMode = TextServer.AutowrapMode.WordSmart,
+                CustomMinimumSize = new Vector2(0, 48), // §14.2④：给最小尺寸，防塌陷
             };
-            AddChild(_curioText);
+            col.AddChild(_curioText);
+
+            _curioButtonBox = new VBoxContainer { Name = "CurioActions" };
+            _curioButtonBox.AddThemeConstantOverride("separation", 6);
+            col.AddChild(_curioButtonBox);
         }
+
+        _curioPanel.Show();
 
         foreach (Button b in _curioButtons)
         {
@@ -1003,11 +1107,21 @@ public partial class ExpeditionRoot : Node
         {
             Name = $"Curio_{_curioButtons.Count}",
             Text = text,
-            Position = new Vector2(24 + (_curioButtons.Count * 200), 560),
-            Size = new Vector2(190, 28),
+            CustomMinimumSize = new Vector2(360, 30), // 进容器（不再手摆坐标）
         };
         b.Pressed += onPressed;
-        AddChild(b);
+
+        // 🔴 §14.2①：进容器（容器堆叠 ⇒ 选项之间不可能重叠）
+        if (_curioButtonBox is not null)
+        {
+            _curioButtonBox.AddChild(b);
+        }
+        else
+        {
+            AddChild(b); // 兜底（不静默：打印原因）
+            GD.Print("[Curio] ⚠️ 容器未建好 ⇒ 选项临时挂在场景根上（如实降级）");
+        }
+
         _curioButtons.Add(b);
     }
 
@@ -1078,20 +1192,27 @@ public partial class ExpeditionRoot : Node
 
         if (_campSkillStatus is null)
         {
+            // 🔴 `ui_spec §14.2`：扎营技能面板 = **满屏不透明模态**（此前 status/按钮都是挂在场景根上的孤儿 ⇒ 手摆坐标）
+            (PanelContainer campPanel, VBoxContainer campCol) = MakeModal("CampSkillPanel");
+            _campPanel = campPanel;
+
             _campSkillStatus = new Label
             {
                 Name = "CampSkillStatus",
-                Position = new Vector2(24, 606),
-                Size = new Vector2(1250, 26),
+                AutowrapMode = TextServer.AutowrapMode.WordSmart,
+                CustomMinimumSize = new Vector2(0, 26),
             };
-            AddChild(_campSkillStatus);
+            campCol.AddChild(_campSkillStatus);
+
+            _campButtonBox = new VBoxContainer { Name = "CampSkillActions" };
+            _campButtonBox.AddThemeConstantOverride("separation", 6);
+            campCol.AddChild(_campButtonBox);
 
             _finishCamp = new Button
             {
                 Name = "FinishCamp",
                 Text = "结束扎营（阶段三：夜袭判定）",
-                Position = new Vector2(24, 636),
-                Size = new Vector2(360, 34),
+                CustomMinimumSize = new Vector2(360, 34),
             };
             _finishCamp.Pressed += () =>
             {
@@ -1109,7 +1230,7 @@ public partial class ExpeditionRoot : Node
                 ClearCampSkillPanel();
                 RefreshMapView();
             };
-            AddChild(_finishCamp);
+            _campButtonBox!.AddChild(_finishCamp);
         }
 
         foreach (Button b in _campSkillButtons)
@@ -1149,8 +1270,7 @@ public partial class ExpeditionRoot : Node
             {
                 Name = $"CampSkill_{skill.Id}",
                 Text = $"{skill.Name}（{skill.Cost} 点）",
-                Position = new Vector2(24 + (i * 200), 570),
-                Size = new Vector2(190, 30),
+                CustomMinimumSize = new Vector2(360, 30),
                 Disabled = !afford,
             };
             string effect = skill.Effect;
@@ -1161,7 +1281,7 @@ public partial class ExpeditionRoot : Node
                 GD.Print($"[拓扑UI] 扎营技能 {skill.Name}：{(used ? "已使用" : "拒绝")}　剩余 Respite {Session.RespiteLeft}");
                 BuildCampSkillPanel(); // 刷新（点数/可用性变化）
             };
-            AddChild(b);
+            _campButtonBox!.AddChild(b); // 🔴 进容器（不再手摆坐标）
             _campSkillButtons.Add(b);
         }
     }
@@ -1175,6 +1295,7 @@ public partial class ExpeditionRoot : Node
         }
 
         _campSkillButtons.Clear();
+        _campPanel?.Hide(); // 🔴 模态面板一并收起（否则它会一直挡住地图）
     }
 
     /// <summary>🔴 供冒烟：**真实点击第 i 个扎营技能**。</summary>

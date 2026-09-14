@@ -12,7 +12,10 @@ namespace Darkest.Ui;
 /// 本类只把候选画成按钮并**转发选择**给 `ExpeditionPathPlanner.ChoosePath`（由调用方传入回调）。
 /// 🔴 阶段一每步恰 2 个可选项 ⇒ **不存在"只有 1 个选项"或"跳过"的按钮**（P20 ⑤ / E1 验收）。
 /// </summary>
-public partial class PathChoicePanel : CanvasLayer
+/// 🔴 `#319` **改类（实机取证）**：本类**原来是 `CanvasLayer`**，而 `Expedition.tscn` 把它声明为 `PanelContainer`
+/// ⇒ 引擎报 `Script inherits from native type 'CanvasLayer' …` ⇒ **脚本没挂上 ⇒ 选路面板是死的**（红线 18：玩家碰不到选路）
+/// ⇒ 正解 = 本类自己就是面板（`PanelContainer`）+ 内部 `VBoxContainer` 堆叠（不再手写 `Position`）✓
+public partial class PathChoicePanel : PanelContainer
 {
     private VBoxContainer _box = null!;
     private Label _title = null!;
@@ -20,20 +23,23 @@ public partial class PathChoicePanel : CanvasLayer
 
     public override void _Ready()
     {
+        var col = new VBoxContainer { Name = "PathChoiceCol" };
+        col.AddThemeConstantOverride("separation", 6);
+        AddChild(col);
+
         _title = new Label
         {
             Name = "PathTitle",
-            Position = new Vector2(24, 160),
-            Size = new Vector2(900, 30),
+            CustomMinimumSize = new Vector2(0, 26), // §14.2④：给最小尺寸，防高度塌陷
         };
-        AddChild(_title);
+        col.AddChild(_title);
 
         _box = new VBoxContainer
         {
             Name = "PathOptions",
-            Position = new Vector2(24, 196),
         };
-        AddChild(_box);
+        _box.AddThemeConstantOverride("separation", 6);
+        col.AddChild(_box);
         Visible = false;
     }
 

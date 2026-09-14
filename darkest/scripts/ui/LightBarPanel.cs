@@ -14,7 +14,12 @@ namespace Darkest.Ui;
 ///
 /// 🔴 分工：数值全部来自内核（`LightMeter.Value` / `Tier` / `Effect`），本类**不做任何光照计算**。
 /// </summary>
-public partial class LightBarPanel : CanvasLayer
+/// 🔴 `#319` **改类（实机取证）**：本类**原来是 `CanvasLayer`** ⇒ **不是 `Control`** ⇒ 容器不排它、不受 Theme 管；
+/// 更糟：`Expedition.tscn` 把这个节点声明为 `PanelContainer` ⇒ 引擎报
+/// `Script inherits from native type 'CanvasLayer', so it can't be assigned to an object of type: 'PanelContainer'`
+/// ⇒ **脚本根本没挂上 ⇒ 整个光照条是死的**（实测同类错误 3 条：本类 + `PathChoicePanel` + `InventoryPanel`）⚠️
+/// ⇒ 正解 = **本类自己就是面板**（`PanelContainer`）+ 内部 `VBoxContainer` 堆叠 ✓
+public partial class LightBarPanel : PanelContainer
 {
     private ProgressBar _bar = null!;
     private Label _text = null!;
@@ -28,18 +33,11 @@ public partial class LightBarPanel : CanvasLayer
 
     public override void _Ready()
     {
-        // 🔴 `ui_spec §14`（`#319`）：本类是 `CanvasLayer`（**不是 `Control`**）⇒ 子控件**不在 Control 链上**
-        //    ⇒ 既没有"框"，也不受 Theme 管（实测：这一屏 `Panel+PC = 0`、8 对重叠）⚠️
-        //    修法：**自建一个【顶部通栏】`PanelContainer` 根**（不透明、挂 Theme），内部用 `VBox` 堆叠 ✓
-        //    并把原来"相对屏幕的绝对坐标"改成**相对本容器**的坐标（容器给最小尺寸 ⇒ 不会再压到下面的列表）✓
-        var root = new PanelContainer { Name = "LightBarRoot" };
-        root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopWide);
-        Darkest.Ui.DdTheme.Apply(root);
-        AddChild(root);
-
+        // 🔴 本类**自己就是面板**（`PanelContainer`）⇒ 直接放 `VBox` 堆叠即可：
+        //    Theme（不透明 panel 样式）由**容器树的根**（`UiMargin`）继承下来，不必自己挂 ✓
         var col = new VBoxContainer { Name = "LightBarCol" };
         col.AddThemeConstantOverride("separation", 4);
-        root.AddChild(col);
+        AddChild(col);
 
         // 第 1 行：光照条 + 档位边界刻度（刻度是"相对条"的仪表 ⇒ 放在一个固定尺寸的宿主里，避免用屏幕坐标）
         var barHost = new Control { Name = "LightBarHost", CustomMinimumSize = new Vector2(360, 66) };

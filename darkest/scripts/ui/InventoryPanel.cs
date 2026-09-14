@@ -17,7 +17,10 @@ namespace Darkest.Ui;
 ///   拾取时若 `TryAdd` 返回 `full_choose_discard` ⇒ 进入 **「选择丢弃哪一格」** 状态（格子高亮可点），
 ///   玩家点某一格 ⇒ `TryDiscardAt` 腾格 ⇒ **自动重试拾取**（不静默丢、也不丢玩家的东西而不告知）。
 /// </summary>
-public partial class InventoryPanel : CanvasLayer
+/// 🔴 `#319` **改类（实机取证）**：本类**原来是 `CanvasLayer`**，而 `Expedition.tscn` 把它声明为 `PanelContainer`
+/// ⇒ 引擎报 `Script inherits from native type 'CanvasLayer' …` ⇒ **脚本没挂上 ⇒ 背包格子面板是死的**（P21 ⑬ 的界面端失效）
+/// ⇒ 正解 = 本类自己就是面板（`PanelContainer`）+ 内部 `VBox`（提示 + 格子）堆叠（不再手写 `Position`）✓
+public partial class InventoryPanel : PanelContainer
 {
     private Inventory? _bag;
     private Action? _onChanged;
@@ -32,21 +35,26 @@ public partial class InventoryPanel : CanvasLayer
 
     public override void _Ready()
     {
+        var col = new VBoxContainer { Name = "InventoryCol" };
+        col.AddThemeConstantOverride("separation", 6);
+        AddChild(col);
+
         _hint = new Label
         {
             Name = "InventoryHint",
-            Position = new Vector2(24, 560),
-            Size = new Vector2(600, 30),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(0, 24), // §14.2④：给最小尺寸，防塌陷
         };
-        AddChild(_hint);
+        col.AddChild(_hint);
 
         _grid = new GridContainer
         {
             Name = "InventoryGrid",
             Columns = 4,
-            Position = new Vector2(24, 600),
         };
-        AddChild(_grid);
+        _grid.AddThemeConstantOverride("h_separation", 6);
+        _grid.AddThemeConstantOverride("v_separation", 6);
+        col.AddChild(_grid);
         Visible = false;
     }
 

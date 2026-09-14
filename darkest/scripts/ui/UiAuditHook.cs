@@ -31,8 +31,13 @@ public static class UiAuditHook
     /// <summary>每屏打印几次（都以**最后一次**为准；防"过早判定的假通过"）。</summary>
     private const int FiresPerScene = 5;
 
+    /// <summary>每屏最多打印多少条（含"读数变化"的追加打印；防刷屏）。</summary>
+    private const int MaxPrintsPerScene = 30;
+
     private static bool _installed;
     private static Node? _lastScene;
+    private static string _lastReport = string.Empty;
+    private static int _printsThisScene;
 
     /// <summary>`--ui-audit` 是否开启（唯一开关，读命令行）。</summary>
     public static bool Requested => System.Array.Exists(OS.GetCmdlineArgs(), a => a == Flag);
@@ -80,16 +85,31 @@ public static class UiAuditHook
             {
                 _lastScene = target;
                 fires = 0;
+                _printsThisScene = 0;
+                _lastReport = string.Empty;
             }
 
             fires++;
-            if (fires > FiresPerScene)
+            (bool ok, string report) = LayoutAudit.Check(target);
+
+            // 🔴 打印口径（两条，缺一不可）：
+            //   ① 每屏前 5 次**必打**（"以最后一次为准"，防"过早判定的假通过"）；
+            //   ② 之后**读数一变就打** —— 同场景内换面板/开模态（Curio ／ 扎营 ／ 详情…）也会被审到
+            //      ⚠️ 我第一版只做 ① ⇒ 同场景内的面板切换**完全审不到**（漏审 = 假绿）
+            bool reportChanged = report != _lastReport;
+            bool withinBurst = fires <= FiresPerScene;
+            if (!withinBurst && !reportChanged)
             {
-                return; // 本屏已跑满 ⇒ 静默等待下一屏（防刷屏）
+                return;
             }
 
-            (bool ok, string report) = LayoutAudit.Check(target);
-            GD.Print($"[UI 判据] {target.Name} 第 {fires}/{FiresPerScene} 次：{report}");
+            if (_printsThisScene++ > MaxPrintsPerScene)
+            {
+                return; // 防刷屏
+            }
+
+            _lastReport = report;
+            GD.Print($"[UI 判据] {target.Name} 第 {fires} 次：{report}");
             if (fires == FiresPerScene)
             {
                 GD.Print($"[UI 判据] {target.Name} 结论（以最后一次为准）：{(ok ? "✅ 两条判据通过" : "🔴 未通过")}");
