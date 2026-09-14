@@ -899,7 +899,7 @@ public interface IScouting {
 #### 9.16 🔴 Godot 内置工具优先（v1.32 · 用户指令 · 架构契约）
 
 > **审计与优化清单**：🆕 `doc/architecture/godot_builtins_audit.md`（**独立复核 + 11 项优化 + 落点约定**）。
-> **程序侧配套**：`skills/主程序.md` **附 B**（实测审计 B.1 + 落地纪律 B.2）；**架构侧规则**：`skills/架构师.md` **§7**。
+> **程序侧配套**：`skills/darkest-lead-programmer/SKILL.md` **附 B**（实测审计 B.1 + 落地纪律 B.2）；**架构侧规则**：`skills/darkest-architect/SKILL.md` **§「Godot 内置工具优先」**。
 
 ##### 9.16.1 分层边界（**判定的前提**）
 

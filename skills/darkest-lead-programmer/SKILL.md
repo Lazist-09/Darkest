@@ -124,6 +124,14 @@ agent_created: true
 - 🔴 **`CallDeferred` 到"即将被释放的节点"= 永不执行**：切场景改 deferred 后，主菜单节点会先被释放 ⇒ 挂在它上面的延后调用（含建审计定时器）**一行都不输出** ⇒ 审计定时器要挂**场景树根**并**在 `_Ready` 第一句**建立。
 - **容器子项要给最小尺寸**；`GetViewport().GetVisibleRect()` 在 headless 下尺寸**会波动**（见过 1280×1280 与 2560×2000）⇒ **不要把某个具体尺寸当判据**，判"**是否跟随视口/锚点 1/1**"。
 
+## 四角色与 UI 侧的接口（2026-09-14 起）
+
+- 角色：**策划**（定义"什么算对"）· **架构**（定义"怎么核对"）· **主程序**（实现+自测+取证）· 🆕 **UI 设计师**（界面结构/视觉规范/可断言布局）。
+- UI 设计师落点：`darkest/scripts/ui/**`、`darkest/scenes/**`、`darkest/resources/**`；**不改**内核（`core|data|gameplay/sim`）、`darkest/data/*.json`、`doc/architecture/**`。
+- 🔴 **同文件并行编辑 = 明令禁止**：我在 UI 设计师改某文件期间不动该文件；**接口变化（例如某面板类 `CanvasLayer` → `PanelContainer`）必须写进 `doc/windows/UI设计师窗口.txt`**（追加不覆盖）。
+- 🔴 我给 UI 侧的**验收**永远是两条自动判据 + 焦点审计：`--ui-audit`（可见 Label 两两不相交 ／ `Panel`+`PanelContainer` 的 `BgColor.a == 1.0`，**每屏都跑**）与 `--focus-audit`；**取不到数不算通过**（红线 25）。
+- 待 UI 侧给的**可测参数**（给了我就能实现）：战斗屏分区规范 · OFL 字体（**含 CJK 回退**）· 动效数值（位移/抖动/闪白/暗角）· 音效触发点与占位音类型 · Theme 命名口径（`darkest.tres` vs `dd_theme.tres`）。
+
 ## 提交纪律（附 C，实证教训）
 
 - 提交前 `git status --porcelain` 看清单；大文件(>1MB)/外来目录（参考副本、缓存、导出物）先看再决定。

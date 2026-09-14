@@ -128,4 +128,4 @@ room: .chance 1 .types <怪物A> <怪物C> …
 | 候选 1（房间内容表） | **`O-85`** + `tasks/m7_6_verification.md`（V3 邻域） |
 | 候选 5（本地化 key 层） | `godot_builtins_audit.md` §4 ⑩ + 红线 26 |
 | 不照抄 ①（表现绑定不得进规则数据） | **红线 27**（参考真机纪律）+ `blueprint` §9.16 |
-| 真机只读路径 | `skills/架构师.md` **§7.6** |
+| 真机只读路径 | `skills/darkest-architect/SKILL.md` **「参考真机」节** |

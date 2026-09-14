@@ -20,6 +20,23 @@ agent_created: true
 - 用户要求写 UI 与游戏逻辑解耦的 GDScript（事件/信号驱动、UI 管理器基类）。
 - 用户要搭一套统一的 Godot 视觉主题（Theme 资源、StyleBox、字体方案）。
 
+## 本项目（Darkest）：角色 · 收件箱协议 · 当前战线
+
+**身份**：本工作区的第四个角色「UI 设计师」（与 策划 / 架构 / 主程序 并列）。我只动 `darkest/scripts/ui/**`、`darkest/scenes/**`、`darkest/resources/**`；**不改**内核（`scripts/core|data|gameplay/sim`，零 Godot）、`darkest/data/*.json`、`doc/architecture/**`（发现别层问题 ⇒ 登记 + 交接，不代笔）。
+
+**🔴 收件箱协议（用户指定，强制）**
+```
+① 读 `doc/windows/` 下【其他角色的窗口】（`主程序窗口.txt` / `策划窗口.txt` / `架构窗口.txt`）
+② 转写进本 skill —— 🔴 主落点是 `references/darkest_ui_brief.md`（含"投递台账"+ 行动摘要）
+③ 🔴 读完【直接清空】那些窗口（清前必须已转写；全文可由 git 恢复 `git show HEAD:doc/windows/<文件>`）
+④ 再干 UI 的活；需要回信时【追加不覆盖】写对方窗口（先读 → 拼接 → 整体写回）
+🔴 送达判据 = 【回读我的投递标记】，不得用行数/字节数（README 红线 20）
+```
+
+**项目红线（UI 侧必守）**：零数值改动（`#307` 冻结中）· 一次一个轴（`#244`）· 不留不可解释的状态（红线 21：禁用必须说明原因）· **"看起来对了"不算验收，"能断言"才算**（红线 25）· 表现层读数据只走 `FileAccess`/`ResourceLoader`（硬边界 B7 / 红线 26）· **不得使用 DD 的任何素材**（红线 27）· **布局必须容器 + 锚点**（i18n 前提）。
+
+**当前战线（`#319` 布局基建，最高优先）**：两条自动判据（可见 `Label` 两两不相交 ／ `Panel` 的 `BgColor.a == 1.0`）逐屏挂测 —— 城池 ✅ / 角色详情 ✅ / 地图 ✅ / **战斗 🔴 未通过**（基线 12 重叠 / 7 透明框，且审计钩子在 `81329e6` 修复后不再输出 ⇒ **先恢复取证**）。之后：字体（`§13.4①`）→ 动效（`§12.1` 4 个）→ 音效（`§12.2` 3 类 + 占位音）→ 材质描边（`§12.3`）→ 帧预算（⑨）。细节、读数、坑清单、取证命令见 `references/darkest_ui_brief.md`。
+
 ## 核心原则（非显而易见的关键点）
 
 1. **Control 优先，Node2D 不用于 UI。** 所有 UI 节点必须继承 `Control`。纯世界物体才用 Node2D/Sprite。
@@ -71,6 +88,7 @@ agent_created: true
 ## 资源索引
 
 - `references/godot4_ui_cookbook.md` — 详细参考：Control 节点族、Anchors/Containers/Size Flags 速查、Theme 完整属性、响应式设置清单、常见 UI 模式结构（HUD/菜单/背包/对话框）、可访问性清单、性能要点、Godot 3 vs 4 差异。
+- `references/darkest_ui_brief.md` — 🔴 **本项目（Darkest）UI 设计师简报**：收件箱投递台账（每次清空窗口前必写）· `#319` 布局基建（两根因/四硬规则/顶层结构/Theme/两条自动判据）· 逐屏进度与实测读数 · `ui_spec §12/§13/§14` 摘要 · 代码落点与取证命令 · 8 条已知坑 · 下一步清单。
 - `assets/ui_manager.gd` — GDScript UI 管理器基类模板：子 UI 注册、信号自动连接、Tween 过渡、安全获取节点。
 - `assets/responsive_menu.tscn` — 响应式主菜单场景骨架（MarginContainer + VBox + 按钮），可直接复制改造。
 - `assets/game_theme.tres` — 起步用项目 Theme 资源（字体占位、StyleBoxFlat 预设、配色常量）。
@@ -86,3 +104,7 @@ agent_created: true
 - [ ] 是否仅靠颜色区分状态（如红绿血条）？→ 加图标/形状，保证色盲可辨。
 - [ ] 长文本/本地化是否溢出或截断？→ `autowrap_mode` / `clip_text` / 容器最小尺寸。
 - [ ] Control 节点是否过多导致卡顿？→ 合并、用原生列表控件或对象池。
+- [ ] 🔴 面板/容器类是否误用 `CanvasLayer` / `Node2D`？→ 它们**不是 `Control`**：Godot 的 `Container` 只排 `Control` 子节点 ⇒ 既没有"框"、也不受 `Theme` 管、**根本进不了容器树**（本项目地图屏的真实根因：只挪坐标会掩盖它）。→ 改成 `PanelContainer` / `Control` 并组进容器树。
+- [ ] `Theme` 是否挂在了**容器树的根 `Control`** 上？→ `Theme` 只沿 `Control`/`Window` 祖先链继承；子树漏挂 ⇒ 拿引擎默认样式（实测 Panel 默认 `BgColor.a = 0.6` ⇒ 判据 2 报"框透明"）。
+- [ ] 代码里**动态新建**的控件是否也加进了同一容器？→ 否则逃出子树（审计看不到、且仍互相压）。
+- [ ] 审计/判据**自身的口径**是否可信？→ `PanelContainer` 继承自 `Container` 而非 `Panel`（漏检 = 假通过）；满屏不透明模态浮层必须只审浮层内部（否则被遮住的 Label 算成假重叠）。**"通过了"之前先问"它到底检查了什么"**。
