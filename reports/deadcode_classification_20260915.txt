@@ -1,0 +1,39 @@
+# 死代码候选 · 分类表（2026-09-15 · 第 3 版：逐条核过）
+#
+# 来源：`tools/check_data_discipline.py --deadfuncs`（**候选清单，判罪前必须人工核**）+ 我逐条读文档/查数据
+# 判据：该 public 方法在**生产代码**里没有调用点（本文件内调用已计入；只被测试调用也算）
+#
+# 🔴 分类（**不是"死"就删** —— 三类处置完全不同）：
+#   [D] dormant-by-data：**数据一改就该生效**的保留路径 ⇒ **不许删**，注释要写启用条件
+#   [U] UI-facing：**设计上由界面调用**（背包/战斗界面尚未接线）⇒ 待 UI 侧接；不许删
+#   [P] 备选/规格保留：策划明确给的备选路径 ⇒ 保留并注明来源
+#   [X] 真死代码：既无数据可启用、也非界面 API、也无规格依据 ⇒ **接线或删**
+#
+# ── [D] dormant-by-data ────────────────────────────────────────────────
+# BattleDirector.EnemyPhase            文档原文：`enemy_actions_per_round>1` 时走它（策划保留否决键）；data=1
+# FormationBoard.TryGetObstacleHp      障碍血量（obstacles 可带 hp）；data: obstacles = 0 条
+# FormationBoard.RemoveObstacle        血量归零→移除；同上 ⇒ ⚠️ 数据一旦加 hp 障碍，**需要接线掉血/移除**
+#
+# ── [U] UI-facing（等界面接线；我已投递 UI 设计师）─────────────────────
+# ExpeditionFlow.TryCollectLoot(InventoryItem)  文档原文：「**背包界面在"选择丢弃"流程里调用**」
+# ExpeditionFlow.RetryPendingLoot              文档原文：「把"待处理"补给再尝试收一次（**玩家腾出格子后调用**）」
+# Inventory.TryUseSupportPack                  文档原文：「消耗 1 个支援包（一次性 +2 SP）：扣格成功 ⇒ 调用方记事件」
+# BattleDirector.TryUseSupportPackForSp        上者的战斗侧落点（+2 SP）⇒ 两者都要由"使用支援包"入口串起来
+# BattleProjector.IntentPreview                敌方意图预览（战斗界面尚未展示意图）
+# ExpeditionProjector.Reconciles               事件流复算校验（UI 数字可信性校验；界面尚未调用）
+# LightMeter.Recompute                         从事件流复算光照（UI 必显 11 / ㉑㉒ 的复算口）
+# MapTraversal.ShortestPathLength              报告"这张图要走几段"（地图/报告界面）
+# Inventory.TryConsumeFoodToFreeSlot           文档原文：「策划 `#264` 给的**备选路径**」⇒ [P] 备选（可归 [U]）
+#
+# ── [X] 待判定（我下一步逐条核；倾向"接线或删"）───────────────────────
+# StressRelief.NextRunOpeningMorale    文档：下一趟开局士气（#283 7.3 副作用 = 下一趟 −N）
+#   ⚠️ 值得注意：减压的"下一趟开局士气 −N"**当前无人计算/施加** ⇒ 疑【设计生效但未接线】
+#   ⇒ 归我的域（会话/名册侧施加），但"记录副作用"要 UI 的减压动作参与 ⇒ 需协调
+# ExpeditionSession.CarryOverFrom      会话结转（跨趟沿用）⇒ 待核：是否为下一趟的入口，或已被别处取代
+# MoraleLedger.ResetTurnCounters       回合计数重置 ⇒ 待核：是否应由"回合开始"调用（若应则属未接线）
+# MoraleLedger.IsCollapseEmber         崩溃余烬判定 ⇒ 待核：是否应由崩溃流程调用
+# RunProgress.AvailableCurios          ✅ **已修**（见提交 2b34478：改为在 `PickCurioForRoom` 内部自动过滤 ⇒
+#                                      现在生产路径在用它了 —— 本轮扫描器唯一抓到的【真缺陷】）
+#
+# 📌 结论：**18 条里没有一条该"直接删"** —— 2 条 dormant-by-data、9 条 UI-facing/备选、5 条待核（其中 1 条已修）。
+#    这印证了那句话：**"没有生产调用点"≠"死代码"**，必须逐条读文档 + 查数据才能判。
