@@ -102,3 +102,62 @@ size overridden after _ready()*）⇒ 模态面板只有 min size，内容挤到
 
 - **阻塞 / 待裁定**：无
 - **权威在哪**：`skills/godot-ui-designer/references/darkest_ui_brief.md`（§1.6/§1.7/§6）｜`ui_spec §14.2/§14.5`｜`#319`
+
+---
+### 信封：2026-09-14 · 【来自 UI 设计师】🔴 **四屏判据全绿**（第 3 次读数留档；`#319` 布局基建收口）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-READINGS-3-20260914' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-READINGS-3-20260914
+```
+
+#### ① 四屏读数（提交 `0ce286a`；`--ui-audit --fixed-fps 60 --quit-after 600~700`，均为**全界面**口径）
+| 界面 / 状态 | 入口 | 可见 Label | Panel+PC | 重叠对 | 透明框 | 结论 |
+|---|---|---|---|---|---|---|
+| 城池 Hamlet | `--hamlet` | 11 | 5 | **0** | **0** | ✅ |
+| 角色详情（模态） | `--hamlet --hamlet-row=0` | 4（只审 `HeroDetailPanel`） | 0 | **0** | **0** | ✅ |
+| 地图 Expedition | `--topology` | 9 | 5 | **0** | **0** | ✅ |
+| 地图·Curio 面板（模态） | `--topology --click-map=1` | 1（只审 `CurioPanel`） | 0 | **0** | **0** | ✅ |
+| 地图·扎营技能（模态） | `--topology --click-map=1 --camp` | 1（只审 `CampSkillPanel`） | 0 | **0** | **0** | ✅ |
+| **战斗 Battle** | `--click-menu=0` | **58** | 37 | **0** | **0** | ✅ |
+| 战斗·E 区地图页 | `--click-menu=0 --battle-tab=4` | 57 | 37 | **0** | **0** | ✅ |
+| 战斗·结算模态 | `--click-menu=0 --battle-auto-finish` | 1（只审 `ResultPanel`） | 0 | **0** | **0** | ✅ |
+| 战斗·焦点/手柄路径 | `--click-menu=0 --focus-audit` | 58 | 37 | **0** | **0** | ✅ |
+
+**战前 → 战后（战斗屏）**：`59 Label / 391 重叠 / 22 透明` ⇒ **`58 / 0 / 0`**；单测 **475/475**；全程零数值改动。
+
+#### 🔴 ② 战斗屏的做法（与主程序踩到的坑不同路，供契约留档）
+```
+主程序实测："**事后搬运**"（`Reparent()` / `RemoveChild+AddChild`，边遍历边搬）会触发引擎断言
+  `Condition "p_child->data.parent != this" is true` ⇒ 树状态不一致 ⇒ 判据随后乱认浮层。
+⇒ 本轮按 `#321`③ 分区表**重建**（**控件在【创建时】就 `AddChild` 到目标容器**）：
+  A 顶栏 ［状态 ｜ 本回合顺序 ｜ 行动顺序头像 ｜ 进度 ｜ 日志 ｜ 撤退］
+  主体   ［我方区(前排 4 ＋ 支援位 2) ←→ VS ←→ 敌方区(4)］（卡片均分宽 ⇒ 位置编号稳定映射横坐标）
+  底栏   ［C 区 PanelContainer(固定宽 380，不 ExpandFill，**技能栏在 C 区内**) ｜ E 区 PanelContainer(**唯一 ExpandFill**)］
+  结算 / 开发者日志 = **满屏不透明模态**（挂满屏 `Control` 根 ⇒ `FullRect` 算得出满屏）
+🔴 另：**背景 Panel 刻意不做成 0/0/1/1 锚点** —— 否则判据会把它当"模态覆盖层"，只审它的子树（空）⇒ **假通过**
+```
+
+#### ③ 我这边判据口径的最终清单（**共 6 条**，建议一并写进 `ui_spec §14.5`）
+```
+① 覆盖层判定只认【能画底的 Panel/PanelContainer 类】（纯容器遮不住东西）——否则审计范围被悄悄缩小 ⇒ 假绿
+② 可见性用 `IsVisibleInTree()`（有效可见性）——面板 Hide() 后内部 Label 的 Visible 仍是 true ⇒ 假红
+③ 重叠行必须带【矩形坐标 pos=/size=】——否则分不清"放错位置"还是"容器被挤爆"
+④ 模态必须**真的满屏**：父是 `Node2D` 时 `FullRect` 锚点算不出尺寸、"只设 Size"又被引擎覆盖
+   ⇒ 先造【锚点相等 + 显式 Size】的满屏 `Control` 宿主（`Node2D` 根的场景）；父是真 `Control` 时可直接用 `FullRect`
+⑤ 每屏跑满 N 次**且读数一变就报** —— 只报前 N 次 ⇒ **同场景内换面板/开模态完全审不到**（漏审 = 假绿）
+⑥ 报告必须自带【口径自证】：审计范围 + 覆盖层是谁/什么类 + 全场景计数 + 范围外控件数
+```
+
+#### 🔴 ④ 一条**判据查不出**的缺陷类（请考虑加静态检查）
+```
+`.tscn` 的 `type=` 与脚本基类不一致 ⇒ 引擎报
+  `Script inherits from native type 'CanvasLayer', so it can't be assigned to an object of type: 'PanelContainer'`
+⇒ **脚本根本没挂上 ⇒ 面板内容与交互全死**（本轮在地图屏抓到 3 个：光照条 / 选路 / 背包格子；可见 Label 4 → 9 才发现）
+判据只测"重叠/透明" ⇒ 对这类缺陷**天然免疫**（"绿"可能只是"空"）
+⇒ 建议加一条门禁：**扫 `.tscn` 的 `type=` 与 `ExtResource` 脚本的基类是否一致**（可静态做，成本低）
+```
+
+- **阻塞 / 待裁定**：无（`#319` 四屏判据已收口；下一步按 `§12/§13` 做字体 → 配色 → 动效 → 音效 → 材质描边）
+- **权威在哪**：`skills/godot-ui-designer/references/darkest_ui_brief.md`（§1.6 读数 / §1.7 坑 11 条 / §6 顺序）｜`ui_spec §12/§13/§14`｜`#319` / `#321` / `#324` / `#325`

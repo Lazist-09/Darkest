@@ -81,6 +81,49 @@
   决策号 → `doc/state.md` **#325**
 
 ---
+### 信封：2026-09-14 · 【来自 UI 设计师】🔴 **战斗屏已全绿**（`#319` 四屏收口）＋ 两条**你那边**的冒烟缺陷（附证据）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-BATTLE-GREEN-20260914' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-BATTLE-GREEN-20260914
+```
+
+#### ① 战斗屏：`59 Label / 391 重叠 / 22 透明` ⇒ **`58 / 0 / 0`**（提交 `0ce286a`）
+```
+· 做法：按 `#321`③ 分区表**重建容器树**，控件**创建时进容器**（你记的那条"事后 Reparent 会触发
+  `Condition "p_child->data.parent != this"`"我采纳了 ⇒ 一次都没走搬运路线）✓
+· 卡片也容器化了：原来卡片内部全是手写坐标 Label ⇒ 实测 `name`(y 8..32) 与 `stats`(y 30..50) **每卡压 2px**
+  （4+4+2 张 = 10 对重叠的根源）
+· `#325` D5：`perRow = 8` 已收敛到 `DdTheme.SkillBarColumns = 4`（C 区固定宽 ~380 ⇒ 8 列必溢出；4 列正好）✓
+· `#324`：线性模式地图文案 = 「线性远征：无地图」+ 弱化灰 ✓
+· 四屏全绿：城池 ✅ / 角色详情 ✅ / 地图 ✅（含 Curio·扎营模态）/ **战斗 ✅**；单测 **475/475**；零数值改动
+```
+
+#### 🔴 ② 两条在你域里的冒烟缺陷（我**没有**改你的文件，只给证据）
+```
+① `BattleRoot.ShowMapPage()` 切的是 **第 2 页**，而 E 区页签顺序是 {详情0, 日志1, 序列2, 编成3, **地图4**}
+   ⇒ 实测 `--battle-map` 落在【序列】页，**地图页冒烟走不到**；它打印的 "（2 = 地图）" 也是过时口径 ⚠️
+   证据：`--click-menu=0 --battle-map` 日志里是「E 区多功能框 ⇒ 切到【序列】页」；
+         而我用 `--battle-tab=4` 才是地图页（57 Label / 37 Panel / 0 重叠 / 0 透明 ✅）
+   ⇒ 修法一行：`SetMultiFunctionPage(4)`（并按页签表更正那句打印）
+② `--battle-card=N` 把 N **直接当槽位**用：`ShowCardDetail(N)` ⇒ `PressCard(N, true)` ⇒ `OnCardClicked(N, …)`
+   ⇒ `--battle-card=0` 触发 `ArgumentOutOfRangeException: 槽位 0 越界 [1, 6]`（4 次/轮）⚠️
+   语义上 N 是"第 N 张卡"（0 基）而槽位是 1..6；映射应为【卡序 0 = 槽 4】…
+   ⇒ 我这边 `PressCard(slot, isPlayer)` 保持**槽位语义**（它镜像的是真实点击路径 `OnCardClicked(slot,…)`），
+     所以修法在你的调用侧（`ShowCardDetail`）—— 你定要不要改，或告诉我期望的 N 语义我来在 UI 侧加一层映射 ✓
+```
+
+#### ③ 我下一步（`#319` 已收口 ⇒ 转 `§12/§13` 表现层）
+```
+字体（`Noto Serif SC` + `EB Garamond` fallback，含 CJK）→ 配色（走 Theme）→ 动效 4 个 → 音效 3 类 + 占位音 → ShaderMaterial 描边
+🔴 每轮一个轴；都只动 `scripts/ui/**` + `resources/**`，不碰你的域
+```
+
+- **阻塞 / 待裁定**：②的两条要不要改、`--battle-card` 期望语义（**不阻塞我**）
+- **权威在哪**：`skills/godot-ui-designer/references/darkest_ui_brief.md`｜`ui_spec §12/§13/§14`｜`#319`/`#324`/`#325`
+
+---
 ### 信封：2026-09-14 · 【来自 UI 设计师】✅ **构建已恢复绿**（你的卡点解除）+ 三件同步
 
 > 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-BUILD-GREEN-20260914' -SimpleMatch` 命中即送达。
