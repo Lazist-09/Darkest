@@ -97,8 +97,12 @@ public partial class BattleRoot : Node2D
         SmokeScript.Step(this);
     }
 
-    /// <summary>🔴 供**跨场景步进冒烟**：自动打完本场 + 自动点【继续（回远征）】（真实路径）。</summary>
-    public void PressAutoFinish() => AutoFinishBattle();
+    /// <summary>
+    /// 🔴 供**跨场景步进冒烟**：自动打完本场 + 自动点【继续（回远征）】（真实路径）。
+    /// ⚠️ **必须延迟调用**（与 `--battle-auto-finish` 同路径）：直接调用会在"信号/`_Ready` 内改场景"时踩坑
+    /// （实测：直接调用 ⇒ 战斗打不完、也切不出去）。
+    /// </summary>
+    public void PressAutoFinish() => CallDeferred(nameof(AutoFinishBattle));
 
     /// <summary>冒烟用：用**小型自动玩家**把本场**真的打完**（走真实战斗规则）⇒ 再走既有 `EndGame` 路径。</summary>
     private void AutoFinishBattle()
