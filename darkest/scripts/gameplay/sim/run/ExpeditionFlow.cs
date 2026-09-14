@@ -335,6 +335,15 @@ public sealed class ExpeditionFlow
     public string? PickCurioForRoom(Darkest.Data.RoomContentsConfig contents, string roomType, bool isBranch,
         IReadOnlySet<string>? allowedCurios = null)
     {
+        // 🔴 `O-86` / C2 消费点 (b) 的**内部门禁**（修一个真缺陷）：
+        //    生产调用点（UI）一度**没传** `allowedCurios` ⇒ 未解锁的 Curio 也能被抽到 ⚠️
+        //    ⇒ 于是一旦组合根注入了 `Unlocks` + `Progress`，**这里自动按"当前可用 Curio"过滤**，
+        //      调用方无需记得传参（少一个"必须记得"的接口 = 少一个漏接的机会）✓
+        if (allowedCurios is null && Unlocks is not null && Progress is not null)
+        {
+            allowedCurios = Progress.AvailableCurios(Unlocks);
+        }
+
         // 候选 = 该类型的行 ∪（支路房）branch 行；权重取【行 weight】（组内权重）
         var candidates = new List<(int Weight, string CurioId)>();
         void Collect(IReadOnlyList<Darkest.Data.RoomContentEntry> rows)
@@ -679,6 +688,12 @@ public sealed class ExpeditionFlow
     /// `null` ⇒ 不记（测试/旧路径）—— 不静默：`ReturnToTown` 里的判断是显式的 ✓
     /// </summary>
     public RunProgress? Progress { get; init; }
+
+    /// <summary>
+    /// 🔴 **解锁阈值表**（`O-86`）：与 `Progress` 一起由组合根注入 ⇒ 供 `PickCurioForRoom` 内部做
+    /// "只从【当前可用】Curio 里抽"的门禁（C2 消费点 (b)）✓ 内核层不读文件（组合根喂字符串解析出的对象）✓
+    /// </summary>
+    public Darkest.Data.UnlocksConfig? Unlocks { get; init; }
 
     /// <summary>本趟**掉落的柴火份数**（㉓ 第三列：与扎营次数配对，看"摸黑换来的续航"）。</summary>
     public int LootFirewood { get; private set; }
