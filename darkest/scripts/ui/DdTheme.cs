@@ -42,13 +42,27 @@ public static class DdTheme
     /// <summary>共享实例（Theme 是 Resource ⇒ 全场景共用一份，不重复构建）✓</summary>
     public static Theme Shared => _shared ??= Build();
 
-    /// <summary>构建中央 Theme：默认字号 + 三类控件的字号/颜色（其余走引擎默认）。</summary>
+    /// <summary>构建中央 Theme：默认字体/字号 + 三类控件的字号/颜色（其余走引擎默认）。</summary>
     public static Theme Build()
     {
         var theme = new Theme
         {
             DefaultFontSize = FontBody,
         };
+
+        // 🔴 `ui_spec §13.4①`（策划 `#321`④ 裁定）：**字体 = 收益最大、成本最低的一步**
+        //    · **CJK 必须给**（我们 UI 是中文）⇒ 主字体 = `Noto Serif SC`（思源宋体，**OFL**，含 CJK）
+        //    · 拉丁/数字优先 `EB Garamond`（OFL）⇒ fallback 链：`EB Garamond` → `Noto Serif SC`
+        //    🔴 落点固定 = `res://resources/theme/fonts/`（**放进去即生效**，不必改代码）：
+        //        `EBGaramond.ttf`（可选）· `NotoSerifSC-Subset.ttf`（必需，**建议子集**：全量可变字重 25MB）
+        //    ⚠️ **缺文件 ⇒ 不崩、不静默**：用引擎默认字体 + **打印留痕**（红线 21：不留不可分辨的状态）✓
+        (Font? main, string fontNote) = ResolveFonts();
+        if (main is not null)
+        {
+            theme.DefaultFont = main;
+        }
+
+        GD.Print($"[Theme] 字体：{fontNote}");
 
         // Label：三档字号（正文 / 标题 / 小字），颜色**不设默认**（各类文本语义不同，由语义色显式指定）
         theme.SetFontSize("font_size", "Label", FontBody);
@@ -68,6 +82,34 @@ public static class DdTheme
         theme.SetStylebox("panel", "PopupPanel", MakePanelStyle());
         return theme;
     }
+
+    /// <summary>字体目录（**放进去即生效**；`§13.4①` 的实施落点）。</summary>
+    public const string FontDir = "res://resources/theme/fonts/";
+
+    private static (Font? Main, string Note) ResolveFonts()
+    {
+        Font? latin = TryLoadFont($"{FontDir}EBGaramond.ttf");
+        Font? cjk = TryLoadFont($"{FontDir}NotoSerifSC-Subset.ttf");
+        Font? main = latin ?? cjk;
+        if (main is null)
+        {
+            return (null, $"🔴 未找到字体文件（预期 {FontDir}EBGaramond.ttf ／ NotoSerifSC-Subset.ttf）" +
+                          " ⇒ **用引擎默认字体（占位）**；把 OFL 字体放进该目录即自动生效");
+        }
+
+        // 🔴 fallback 链：拉丁字体在前、CJK 在后（缺字形时逐级回退）✓
+        if (latin is not null && cjk is not null)
+        {
+            latin.Fallbacks = new Godot.Collections.Array<Font> { cjk };
+        }
+
+        return (main, $"{Describe(main)}（fallback {(cjk is null ? "无" : Describe(cjk))}）⇒ 已接（`§13.4①`）");
+    }
+
+    private static string Describe(Font f) => $"{f.ResourcePath.GetFile()}";
+
+    private static Font? TryLoadFont(string resPath)
+        => ResourceLoader.Exists(resPath) ? ResourceLoader.Load<Font>(resPath) : null;
 
     /// <summary>🔴 不透明面板样式（§14.2 ②）：底深色 + a=1.0 + 1px 边框 + 圆角 0。</summary>
     public static StyleBoxFlat MakePanelStyle(Color? bg = null, Color? border = null)
