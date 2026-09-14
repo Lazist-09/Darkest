@@ -85,7 +85,7 @@ public partial class BattleUi : CanvasLayer
         // 🔴 `#321`③：E 区 = 底栏**唯一 ExpandFill** 的分区 ⇒ 多功能框**创建时进 `_eArea`**
         //    （容器负责尺寸 ⇒ 不再写 `BottomRight` 锚点与负偏移）
         _mfPanel = new Panel { Name = "MultiFunctionBox" };
-        _mfPanel.Modulate = new Color(0.09f, 0.1f, 0.14f, 0.98f);
+        _mfPanel.Modulate = Darkest.Ui.DdTheme.PanelBgRaised;
         _eArea.AddChild(_mfPanel);
 
         var column = new VBoxContainer { Name = "MfColumn" };
@@ -167,7 +167,7 @@ public partial class BattleUi : CanvasLayer
         // 页签高亮（当前页亮、其余暗）
         for (int i = 0; i < _mfTabs.Count; i++)
         {
-            _mfTabs[i].Modulate = i == page ? new Color(1f, 0.95f, 0.7f) : new Color(0.75f, 0.75f, 0.8f);
+            _mfTabs[i].Modulate = i == page ? Darkest.Ui.DdTheme.Highlight : Darkest.Ui.DdTheme.Disabled;
         }
 
         GD.Print($"[片③] E 区多功能框 ⇒ 切到【{_mfTabs.ElementAtOrDefault(page)?.Text ?? "?"}】页");
@@ -347,7 +347,7 @@ public partial class BattleUi : CanvasLayer
         // 背景：**刻意不让它成为"满屏不透明 Panel"**（锚点不是 0/0/1/1）——
         //   否则判据会把它当成**模态覆盖层**，只审它自己的子树（= 空）⇒ 报 ✅ 却是**假通过** ⚠️（实测踩过两次）
         var bg = new Panel { Name = "BattleBg", Size = GetViewport().GetVisibleRect().Size };
-        bg.Modulate = new Color(0.12f, 0.12f, 0.16f, 0.97f);
+        bg.Modulate = Darkest.Ui.DdTheme.BgDeep;
         _uiRoot.AddChild(bg);
 
         var uiMargin = new MarginContainer { Name = "BattleMargin" };
@@ -399,7 +399,7 @@ public partial class BattleUi : CanvasLayer
     private void BuildTopRow()
     {
         _statusLabel = new Label { Text = "" };
-        _statusLabel.AddThemeColorOverride("font_color", new Color(1, 1, 0.85f));
+        _statusLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
         _statusLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; // 占满剩余宽度
         _topRow.AddChild(_statusLabel);
 
@@ -413,7 +413,7 @@ public partial class BattleUi : CanvasLayer
 
         _progressLabel = new Label { Text = "" };
         _progressLabel.AddThemeFontSizeOverride("font_size", 13);
-        _progressLabel.AddThemeColorOverride("font_color", new Color(0.85f, 0.9f, 1f));
+        _progressLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
         _progressLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         _topRow.AddChild(_progressLabel);
 
@@ -447,7 +447,7 @@ public partial class BattleUi : CanvasLayer
         playerArea.AddChild(_playerSupport);
 
         var vs = new Label { Text = "VS", CustomMinimumSize = new Vector2(24, 24), VerticalAlignment = VerticalAlignment.Center };
-        vs.AddThemeColorOverride("font_color", new Color(1, 0.6f, 0.6f));
+        vs.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.Danger);
         _midRow.AddChild(vs);
 
         var enemyArea = new VBoxContainer { Name = "EnemyArea", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
@@ -491,7 +491,7 @@ public partial class BattleUi : CanvasLayer
         _bottomRow.AddChild(_cArea);
 
         _skillTitle = new Label { Text = "技能栏（轮到行动者时可用）", AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        _skillTitle.AddThemeColorOverride("font_color", new Color(0.9f, 1, 0.9f));
+        _skillTitle.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextSkill);
         cCol.AddChild(_skillTitle);
 
         _skillBar = new GridContainer
@@ -504,7 +504,7 @@ public partial class BattleUi : CanvasLayer
         cCol.AddChild(_skillBar);
 
         _hintLabel = new Label { Text = "", AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        _hintLabel.AddThemeColorOverride("font_color", new Color(1, 0.85f, 0.5f));
+        _hintLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextHint);
         cCol.AddChild(_hintLabel);
 
         _actionButtons = new HBoxContainer { Name = "ActionButtons" };
@@ -538,7 +538,7 @@ public partial class BattleUi : CanvasLayer
     private static Label TitleLabel(string text)
     {
         var label = new Label { Text = text };
-        label.AddThemeColorOverride("font_color", new Color(0.72f, 0.82f, 1f));
+        label.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextAccent);
         return label;
     }
 
@@ -709,7 +709,7 @@ public partial class BattleUi : CanvasLayer
             VerticalAlignment = VerticalAlignment.Center,
         };
         glyph.AddThemeFontSizeOverride("font_size", 20);
-        glyph.AddThemeColorOverride("font_color", new Color(1, 1, 1));
+        glyph.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
         portraitBox.AddChild(glyph);
 
         var nameCol = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
@@ -821,8 +821,8 @@ public partial class BattleUi : CanvasLayer
             }
 
             c.card.Modulate = isActive
-                ? new Color(1.2f, 1.2f, 0.7f)
-                : hl ? new Color(0.6f, 0.88f, 1.3f) : new Color(1, 1, 1);
+                ? Darkest.Ui.DdTheme.Highlight
+                : hl ? Darkest.Ui.DdTheme.Ally : Darkest.Ui.DdTheme.TextPrimary;
 
             // G3（O-56）：悬停单位卡 → 详情（属性/士气/buff/技能表；敌方同样全暴露）
             c.card.TooltipText = DetailTooltip(c.isPlayer, c.slot);
@@ -838,7 +838,7 @@ public partial class BattleUi : CanvasLayer
             if (tagOverride is not null)
             {
                 c.tag.Text = tagOverride;
-                c.tag.AddThemeColorOverride("font_color", new Color(1f, 0.6f, 0.2f));
+                c.tag.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.Shock);
             }
         }
 
@@ -883,18 +883,6 @@ public partial class BattleUi : CanvasLayer
         _hintTimer = 3.0;
     }
 
-    private static Color ArchetypeColor(string archetype, bool isPlayer) => archetype switch
-    {
-        "tank" => new Color(0.42f, 0.52f, 0.62f),
-        "warrior" => new Color(0.62f, 0.35f, 0.32f),
-        "commissar" => new Color(0.66f, 0.58f, 0.3f),
-        "medic" => new Color(0.34f, 0.55f, 0.42f),
-        "melee_soldier" => new Color(0.5f, 0.28f, 0.3f),
-        "ranged_archer" => new Color(0.42f, 0.44f, 0.28f),
-        "caster" => new Color(0.45f, 0.32f, 0.58f),
-        _ => isPlayer ? new Color(0.4f, 0.45f, 0.55f) : new Color(0.5f, 0.35f, 0.35f),
-    };
-
     /// <summary>① 顶部回合条：头像格（首字 + 阵营色，当前行动者金框），替代纯文字。</summary>
     private void RefreshOrderStrip(IReadOnlyList<string> order, BattleDirector d)
     {
@@ -925,8 +913,8 @@ public partial class BattleUi : CanvasLayer
             panel.AddChild(glyph);
             bool isActive = _host.IsAwaitingPlayer && id == _host.ActiveActor.Value;
             panel.Modulate = isActive
-                ? new Color(1.25f, 1.25f, 0.7f)
-                : isPlayer ? new Color(0.62f, 0.72f, 0.95f) : new Color(0.95f, 0.6f, 0.6f);
+                ? Darkest.Ui.DdTheme.Highlight
+                : isPlayer ? Darkest.Ui.DdTheme.Ally : Darkest.Ui.DdTheme.Danger;
             _orderBox.AddChild(panel); // 🔴 §14：行动顺序头像进【顶栏的顺序容器】（不再加回 CanvasLayer）
             _orderIcons.Add((panel, glyph));
             x += 40f;
@@ -943,21 +931,21 @@ public partial class BattleUi : CanvasLayer
         portrait.Text = empty ? "—" : display.Substring(0, 1);
         if (portrait.GetParent() is Panel box)
         {
-            box.Modulate = empty ? new Color(0.35f, 0.35f, 0.35f) : ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, c.isPlayer);
+            box.Modulate = empty ? Darkest.Ui.DdTheme.Muted : Darkest.Ui.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, c.isPlayer);
         }
 
         c.hp.MaxValue = u.MaxHp > 0 ? u.MaxHp : 1;
         c.hp.Value = u.Hp;
-        c.hp.Modulate = u.Weak ? new Color(1, 0.5f, 0.5f) : new Color(0.5f, 1, 0.6f);
+        c.hp.Modulate = u.Weak ? Darkest.Ui.DdTheme.HpWeak : Darkest.Ui.DdTheme.Hp;
         c.morale.MaxValue = 100;
         c.morale.Value = u.Morale;
-        c.morale.Modulate = c.isPlayer ? new Color(1, 0.92f, 0.5f) : new Color(0.55f, 0.55f, 0.55f);
+        c.morale.Modulate = c.isPlayer ? Darkest.Ui.DdTheme.Morale : Darkest.Ui.DdTheme.MoraleEnemy;
         c.tag.Text = empty ? "" : (u.Weak ? "虚弱" : (c.isPlayer ? "我方" : "敌方"));
         // D4（#206）：死门后遗症必须显著标注（橙字）
         if (!empty && _host?.Director is { } dir && dir.Buffs.Has(new UnitId(u.UnitId), "deaths_door_recovery"))
         {
             c.tag.Text = "死门后遗症（伤+10% 命中−5 速−1）";
-            c.tag.AddThemeColorOverride("font_color", new Color(1f, 0.55f, 0.2f));
+            c.tag.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.Shock);
         }
     }
 
@@ -1055,10 +1043,10 @@ public partial class BattleUi : CanvasLayer
 
         if (shock)
         {
-            return (new Color(1f, 0.62f, 0.25f), "震慑");
+            return (Darkest.Ui.DdTheme.Shock, "震慑");
         }
 
-        return mental ? (new Color(0.78f, 0.55f, 1f), null) : (default, null);
+        return mental ? (Darkest.Ui.DdTheme.Mental, null) : (default, null);
     }
 
     /// <summary>G3（O-56）：单位详情文本（含敌方全暴露：物防/速度/四抗/死门/buff/技能表）。</summary>

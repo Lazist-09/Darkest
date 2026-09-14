@@ -295,7 +295,7 @@ public partial class HamletRoot : Node2D
             Name = "Embark",
             Text = "再出发（远征）· EMBARK",
             CustomMinimumSize = new Vector2(280, 44),
-            Modulate = new Color(1.0f, 0.35f, 0.35f),
+            Modulate = Darkest.Ui.DdTheme.Danger, // 🔴 `§14.4`：颜色不得在节点上硬写 ⇒ 走语义色（Embark = 危险红：出发是要付代价的）
         };
         embark.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
         bottomRow.AddChild(embark);

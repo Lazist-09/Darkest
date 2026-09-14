@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Run;
@@ -66,7 +66,7 @@ public partial class BattleMiniMap : Control
         {
             if (pos.TryGetValue(e.From, out Vector2 a) && pos.TryGetValue(e.To, out Vector2 b))
             {
-                DrawLine(a + new Vector2(5, 5), b + new Vector2(5, 5), new Color(0.35f, 0.35f, 0.42f), 1.5f);
+                DrawLine(a + new Vector2(5, 5), b + new Vector2(5, 5), Darkest.Ui.DdTheme.MapEdge, 1.5f);
             }
         }
 
@@ -77,17 +77,17 @@ public partial class BattleMiniMap : Control
             Vector2 p = pos[r.Id];
             bool visited = flow.HasVisited(r.Id);
             bool here = r.Id == current;
-            Color fill = here ? new Color(1f, 0.85f, 0.3f)                 // 当前房间（队伍位置）
-                : reachable.Contains(r.Id) ? new Color(0.45f, 0.75f, 0.45f) // 可走高亮
-                : visited ? new Color(0.35f, 0.35f, 0.4f)                   // 已探索变暗
-                : new Color(0.18f, 0.18f, 0.24f);                           // 未探索
+            Color fill = here ? Darkest.Ui.DdTheme.MapCurrent                 // 当前房间（队伍位置）
+                : reachable.Contains(r.Id) ? Darkest.Ui.DdTheme.MapReachable // 可走高亮
+                : visited ? Darkest.Ui.DdTheme.MapVisited                   // 已探索变暗
+                : Darkest.Ui.DdTheme.MapUnknown;                           // 未探索
             DrawRect(new Rect2(p, new Vector2(11, 11)), fill, filled: true);
-            DrawRect(new Rect2(p, new Vector2(11, 11)), new Color(0.7f, 0.7f, 0.8f), filled: false, width: 1f);
+            DrawRect(new Rect2(p, new Vector2(11, 11)), Darkest.Ui.DdTheme.MapFrame, filled: false, width: 1f);
 
             if (here)
             {
                 // 🔴 队伍位置：火把（小黄点 + 「▶」）
-                DrawCircle(p + new Vector2(5.5f, -4f), 2.5f, new Color(1f, 0.7f, 0.2f));
+                DrawCircle(p + new Vector2(5.5f, -4f), 2.5f, Darkest.Ui.DdTheme.TeamDot);
                 DrawString(ThemeDB.FallbackFont, p + new Vector2(1f, 9f), "▶", HorizontalAlignment.Left, -1, 9);
             }
 

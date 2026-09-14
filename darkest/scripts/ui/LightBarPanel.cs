@@ -60,7 +60,7 @@ public partial class LightBarPanel : PanelContainer
             var mark = new ColorRect
             {
                 Name = $"LightMark{boundary}",
-                Color = new Color(0.9f, 0.9f, 0.4f, 0.9f),
+                Color = new Color(Darkest.Ui.DdTheme.Gold, 0.9f), // 🔴 `§14.4`：边界刻度 = 强调金（不再硬写字面量）
                 Position = new Vector2((int)(360 * boundary / 100.0) - 1, 0),
                 Size = new Vector2(2, 32),
             };

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Data;
@@ -21,7 +22,10 @@ namespace Darkest.Ui;
 /// · **只渲染 + 转发**（本类不持游戏状态）。
 /// 验收（红线 18）：三项**从启动场景可达**（不是场景直载）。
 /// </summary>
-public partial class MainMenuRoot : Node2D
+/// 🔴 `#319` **改类（第五屏补齐）**：本类原来是 `Node2D` ⇒ **不是 `Control`** ⇒
+/// ① 锚点算不出父矩形（`Node2D` 没有 `get_anchorable_rect()`）⇒ 只能手摆坐标；② Theme 链不经过它。
+/// ⇒ 改成 **`Control`**（场景节点类型同步改为 `Control` + FullRect）后，才能按 `§14.2/§14.3` 用容器 + 不透明 Panel ✓
+public partial class MainMenuRoot : Control
 {
     public const string BattleScene = "res://scenes/battle/Battle.tscn";
     public const string ExpeditionScene = "res://scenes/expedition/Expedition.tscn";
@@ -29,6 +33,9 @@ public partial class MainMenuRoot : Node2D
 
     private Label _title = null!;
     private Label _status = null!;
+    private VBoxContainer _menuCol = null!;   // 主菜单的纵向容器（标题 / 三选一 / 状态）
+    private VBoxContainer _optionsCol = null!; // 三选一按钮的容器
+    private readonly List<Button> _menuButtons = new(); // 🔴 按钮现在在容器里（不再是场景根的直接子节点）⇒ 用列表按下标取
 
     public override void _Ready()
     {
@@ -40,14 +47,37 @@ public partial class MainMenuRoot : Node2D
         //     ⇒ `--ui-audit` 一行都不输出（**取证失败 ≠ 通过**，红线 25）—— 已修 ✓
         UiAuditHook.InstallIfRequested(this);
 
+        // 🔴 `ui_spec §14.2/§14.3`（`#319` 第五屏补齐）：**主菜单也是"容器 + 不透明 Panel"** ——
+        //    它是玩家**第一眼**看到的一屏（此前是手摆坐标、一个 `Panel` 都没有 ⇒ 四屏审计没覆盖到它）✓
+        Darkest.Ui.DdTheme.Apply(this); // 本类现在是 `Control` ⇒ 主题沿祖先链继承
+        var menuMargin = new MarginContainer { Name = "MenuMargin" };
+        menuMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        foreach (string side in new[] { "margin_left", "margin_top", "margin_right", "margin_bottom" })
+        {
+            menuMargin.AddThemeConstantOverride(side, 24);
+        }
+
+        AddChild(menuMargin);
+
+        _menuCol = new VBoxContainer { Name = "MenuCol" };
+        _menuCol.AddThemeConstantOverride("separation", 12);
+        menuMargin.AddChild(_menuCol);
+
+        var titlePanel = new PanelContainer { Name = "TitlePanel" };
+        _menuCol.AddChild(titlePanel);
         _title = new Label
         {
             Name = "MenuTitle",
             Text = "【主菜单】选择去向（三选一；单场战斗保留 —— 它是 A1 判定闸的基础）",
-            Position = new Vector2(24, 24),
-            Size = new Vector2(1200, 40),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
         };
-        AddChild(_title);
+        titlePanel.AddChild(_title);
+
+        var optionsPanel = new PanelContainer { Name = "OptionsPanel", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        _menuCol.AddChild(optionsPanel);
+        _optionsCol = new VBoxContainer { Name = "OptionsCol" };
+        _optionsCol.AddThemeConstantOverride("separation", 8);
+        optionsPanel.AddChild(_optionsCol);
 
         AddMenuButton("单场战斗（A1 判定闸）", BattleScene, 0);
         AddMenuButton("出发远征（地牢层）", ExpeditionScene, 1);
@@ -75,14 +105,14 @@ public partial class MainMenuRoot : Node2D
                  $"起手可用上限 {unlocks.RosterBaseCap}（硬上限 {roster.Cap}）　" +
                  $"{ExpeditionContext.Progress.Audit(unlocks, roster.Cap)}");
 
+        var statusPanel = new PanelContainer { Name = "StatusPanel" };
+        _menuCol.AddChild(statusPanel);
         _status = new Label
         {
             Name = "MenuStatus",
-            Position = new Vector2(24, 220),
-            Size = new Vector2(1200, 80),
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
         };
-        AddChild(_status);
+        statusPanel.AddChild(_status);
         _status.Text = $"跨趟状态：金钱 {economy.Gold}　名册 {roster.Heroes.Count}/{roster.Cap}　" +
                        $"最低士气 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}";
 
@@ -164,28 +194,29 @@ public partial class MainMenuRoot : Node2D
         {
             Name = $"Menu{index}",
             Text = text,
-            Position = new Vector2(24, 80 + (index * 44)),
-            Size = new Vector2(420, 38),
+            CustomMinimumSize = new Vector2(420, 38), // 🔴 容器排布 ⇒ 只给最小尺寸（不再手摆 `Position/Size`）
         };
         // 🔴 必须 **deferred**：冒烟会在 `_Ready` 里直接按下菜单键 ⇒ 同步切场景会报
         //    `Parent node is busy adding/removing children`（实测抓到的真凶就在这一行）
         button.Pressed += () => GetTree().CallDeferred("change_scene_to_file", scenePath);
-        AddChild(button);
+        _optionsCol.AddChild(button); // 🔴 `§14.2`①：**创建时进容器**
+        _menuButtons.Add(button);
     }
 
     /// <summary>
     /// 🔴 V8 补条（`#289`）：**点击路径**的验收 —— `--e2e` 走的是 CLI 分支，**"CLI 能过 ≠ 点得动"**。
     /// 本方法**发出真实的 `Pressed` 信号**（走按钮 → 回调这条链路），供 headless 冒烟验证按钮真的接上了。
+    /// ⚠️ 按钮已进容器树 ⇒ 不能用 `GetNodeOrNull("Menu{i}")`（那假设它是场景根的**直接**子节点）⇒ 按列表下标取 ✓
     /// </summary>
     public void PressMenu(int index)
     {
-        Button? button = GetNodeOrNull<Button>($"Menu{index}");
-        if (button is null)
+        if (index < 0 || index >= _menuButtons.Count)
         {
-            GD.Print($"[MainMenuRoot] PressMenu({index})：**找不到按钮**（说明按钮没挂上 —— 红线 21）");
+            GD.Print($"[MainMenuRoot] PressMenu({index})：**找不到按钮**（当前 {_menuButtons.Count} 个 —— 红线 21：不留不可解释的状态）");
             return;
         }
 
+        Button button = _menuButtons[index];
         GD.Print($"[MainMenuRoot] PressMenu({index})：发出真实 Pressed 信号（按钮「{button.Text}」）");
         button.EmitSignal(BaseButton.SignalName.Pressed); // 走真实回调，不是直接切场景
     }

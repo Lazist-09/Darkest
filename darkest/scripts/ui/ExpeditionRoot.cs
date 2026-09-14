@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Events;
@@ -729,7 +729,7 @@ public partial class ExpeditionRoot : Node
             {
                 Name = $"Edge_{e.From}_{e.To}",
                 Width = 2f,
-                DefaultColor = new Color(0.55f, 0.55f, 0.6f),
+                DefaultColor = Darkest.Ui.DdTheme.MapEdge,
                 Points = new[] { RoomLocalPos(a), RoomLocalPos(b) },
             };
             (_mapGraphHost as Node ?? this).AddChild(line);
@@ -751,7 +751,7 @@ public partial class ExpeditionRoot : Node
                 Position = RoomLocalPos(room) - new Vector2(40, 16), // 图宿主内的图形坐标（不是布局坐标）
                 Size = new Vector2(80, 32),
                 Disabled = !canGo,
-                Modulate = explored ? new Color(0.55f, 0.55f, 0.55f) : Colors.White,
+                Modulate = explored ? Darkest.Ui.DdTheme.Disabled : Colors.White,
             };
             (_mapGraphHost as Node ?? this).AddChild(box);
             _mapGraph.Add(box);

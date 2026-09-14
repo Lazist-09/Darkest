@@ -1,4 +1,4 @@
-using Darkest.Gameplay.Sim.Run;
+﻿using Darkest.Gameplay.Sim.Run;
 using Godot;
 
 namespace Darkest.Ui;
@@ -43,8 +43,8 @@ public partial class ScoutMarkPanel : PanelContainer
         _label.Text = Describe(outcome);
         // 两态在**视觉上也不同**（文字前缀 + 颜色），不只靠措辞
         _label.Modulate = outcome is { Success: true }
-            ? new Color(0.7f, 1.0f, 0.7f)  // 已揭示：偏绿
-            : new Color(1.0f, 0.85f, 0.6f); // 未知：偏黄
+            ? Darkest.Ui.DdTheme.Positive  // 已揭示：偏绿
+            : Darkest.Ui.DdTheme.TextHint; // 未知：偏黄
     }
 
     /// <summary>两态文本（**必须可区分**：未知时不带任何类型信息）。</summary>
