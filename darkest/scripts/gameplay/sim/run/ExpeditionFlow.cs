@@ -322,6 +322,93 @@ public sealed class ExpeditionFlow
     /// <summary>夜袭判定（扎营后调用；触发则插一场额外战斗，计入完成）。</summary>
     public bool RollAmbush() => _session.RollAmbush(_log, _rng);
 
+    /// <summary>
+    /// 🔴 **Curio 结算**（`doc/modules/curio.md` / `#313`）—— 流程层负责它持有的两种 kind：
+    /// `light`（`LightMeter`）与 `scout`（`Scouting`）；其余走会话（资源/士气）。
+    /// · `itemUsed is null` ⇒ **空手**（内核掷骰 + 写 `RngDraw`）
+    /// · 否则 ⇒ **道具直查**（不掷骰）；数据没定义该道具 ⇒ 返回 `null`（调用方应拒绝，V7）
+    /// · 命中**阶段二 kind** ⇒ **不施加效果**，以 `LastCurioDeferred = true` 显式告知（红线 21，不静默）
+    /// · **走开**走 <see cref="LeaveCurio"/>（零变化）
+    /// </summary>
+    public CurioOutcome? ResolveCurio(Darkest.Data.CurioConfig curio, string? itemUsed)
+    {
+        CurioOutcome? outcome = itemUsed is null
+            ? CurioResolver.ResolveBare(curio, _rng, _log)
+            : CurioResolver.ResolveItem(curio, itemUsed);
+        if (outcome is null)
+        {
+            LastCurioDeferred = false;
+            LastCurioText = null;
+            return null; // 该道具对此 Curio 未定义 ⇒ 拒绝（V7：UI 不该列它）
+        }
+
+        LastCurioDeferred = outcome.Deferred;
+        LastCurioText = outcome.Text;
+        if (outcome.Deferred)
+        {
+            // 🔴 阶段二：**显式不生效**（写可审计事件 + UI 标注"未接线"）
+            _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                $"curio_deferred:{curio.Id}:{outcome.Kind}", 0.0, Triggered: false));
+            _log.Append(new EventNodeResolvedEvent(curio.Id, outcome.Route, $"deferred:{outcome.Kind}"));
+            return outcome;
+        }
+
+        ApplyCurioEffect(outcome.Kind, outcome.Amount);
+        if (outcome.ExtraKind is { } extra && outcome.ExtraAmount != 0)
+        {
+            ApplyCurioEffect(extra, outcome.ExtraAmount);
+        }
+
+        _log.Append(new EventNodeResolvedEvent(curio.Id, outcome.Route,
+            $"{outcome.Kind}:{outcome.Amount}" +
+            (outcome.ItemUsed is null ? string.Empty : $";item:{outcome.ItemUsed}")));
+        return outcome;
+    }
+
+    /// <summary>🔴 **走开**（V4）：零变化、不掷骰、不阻塞 —— 只写一条"未交互"事件 + 文本。</summary>
+    public CurioOutcome LeaveCurio(Darkest.Data.CurioConfig curio)
+    {
+        CurioOutcome outcome = CurioResolver.Leave(curio);
+        LastCurioDeferred = false;
+        LastCurioText = outcome.Text;
+        _log.Append(new EventNodeResolvedEvent(curio.Id, "leave", "none:0"));
+        return outcome;
+    }
+
+    /// <summary>施加一种 Curio 效果（`light`/`scout` 走流程层持有者；其余走会话）。</summary>
+    private void ApplyCurioEffect(string kind, int amount)
+    {
+        switch (kind)
+        {
+            case "none":
+                break;
+            case "food":
+            case "firewood":
+            case "gold":
+                _session.Gain(_log, kind, amount, "curio");
+                break;
+            case "morale_team":
+                _session.ApplyTeamMorale(_log, amount, "curio");
+                break;
+            case "light":
+                _meter.TryAdvanceBy(_log, amount, "curio"); // 🔴 流程层持有光照计
+                break;
+            case "scout":
+                LastScout = _scout.Roll(_log, _rng, _meter.Value, "curio");
+                break;
+            default:
+                // 已登记的阶段二 kind 不会走到这里（上面已提前返回）；走到这里说明数据用了**未登记**kind
+                // ⇒ 加载期就该炸（`CuriosConfig.Parse`）⇒ 这里也不静默：
+                throw new InvalidOperationException($"Curio 效果 kind \"{kind}\" 没有消费通道（红线 21）。");
+        }
+    }
+
+    /// <summary>最近一次 Curio 的**描述文本**（V6；供 UI 显示）。</summary>
+    public string? LastCurioText { get; private set; }
+
+    /// <summary>最近一次 Curio 是否命中**阶段二（未接线）**分支（UI 必须据此标注，红线 21）。</summary>
+    public bool LastCurioDeferred { get; private set; }
+
     /// <summary>扎营（柴火不足 ⇒ 拒绝；成功则光照回满）。**最小版：一调用到底**（供测试/旧路径）。</summary>
     public bool Camp()
     {
