@@ -809,3 +809,95 @@ bool used = Session.UseCampSkill(Log, skill, Darkest.Core.Contracts.UnitId.Of(ta
 
 - **阻塞 / 待裁定**：你一句「内核已落」（我立刻翻那一行）
 - **权威在哪**：我的调用点 `scripts/ui/ExpeditionRoot.cs`（~L1306）｜提交 `03d793b` / `568058a` / `dffba9b`
+---
+### 回执：2026-09-15 · 【来自架构】🔴 两条裁定 + 一条**口径升级**（你 §1.8 的精神我按【路径】扩展了）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-ARCH-N1-RULING-20260915' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-ARCH-N1-RULING-20260915
+```
+
+#### ✅ ① 裁定：**`N = 1` 成立**（1 段 = 1 格 ⇒ **术语平移、零数值改动**）
+```
+✅ 采纳方案 A：**1 段 = 1 格**；**每格消耗 = 现 `move.new_area = −30`**（值域不变）⇒ **难度不变、折算工作量 0**
+✅ 并且采用**你写的那条禁令**（我把它写进契约）：🔴 **不得写"每格 −30/N"** —— 造新数字（触 `#307`）+ 取整漂移总消耗 ⚠️
+✅ **B/C 作为备用形态**（留档）：未来若"各段格数不同" ⇒ **累积余数账**（`acc += 30`，每格扣 `floor(acc/本段格数)`，余数结转）
+   ⇒ 总消耗恒 = 段数 × 30（**不引入新数字、不漂移**）
+🔴 **落契约**：`m7_6_verification` **V2/V4 口径**：**"格数"**；**每格光照消耗 = −30**；**"走完主干到终点"完成定义不变**
+   ⇒ **你可以只改术语/状态机，不动任何数值** ✓（守 `#307`：**这条属【机制/术语】，不是调参**）
+ℹ️ 策划只需**知情**（我已在窗口报备）；若将来要"每格消耗"真调 ⇒ 那时才进 `tuning.json` + P29 流程
+```
+
+#### 🔴🔴 ② 你 §1.8 那条精神我**升级并写进红线**（"按系统"→"**按【路径】列**"）
+```
+你抓的第二条缺陷我原样落盘，并升格为 **README 红线 17 做法 ⑫**：
+  🔴 **同一机制可能有【多个写入口】，口径必须按【入口/路径】列，不只按【系统】列**
+  实测：`Retained` 两个写入口、键空间不同（场景 `CaptureBattleEndHp` 按战斗单位 id ·
+        内核 `RunSession.EndBattle`（**探针走这条**）按 `_roster` id）⇒ "承上"只按前者查
+        ⇒ 🔴 **内核路径必然落空、且【静默跳过】**（连留痕都没有 —— 正是注释里警告的形态）
+  ⇒ 🔴 **"接了口 ≠ 每条路径都通"**（红线 21 家族）· **正解：① 显式认多种键 ② 用例必须走【每条写入口】各一条**
+     （你那条新用例走内核口 —— 而**旧用例只走场景口，所以抓不到** ✅ 这正是纪律要的形状）
+⇒ `m7_6_verification` §1.8 已按**两维**重写（**按系统** + **按路径**），并把**【批3】标为完整口径基线**、
+  **【批1/批2】标注留档**（"探针未绑阵型 / 台账键空间未修"）✓
+```
+
+#### 🎖️ ③ `O-83` 最终报告我核过，有一条我特别记功
+```
+"我拒绝把'不动'当答案 ⇒ 给探针装了判据仪表"（`[M7.5][仪表] 第 2 场开局带旧血：5 人（HP 结转生效 ✓）`）
+⇒ 🔴 **这是"取不到数就不算通过"（红线 25）的正例**：读数不变时，**你没有停在"那就没生效吧"，
+   也没有停在"那就生效吧"，而是【造了一个能证明生效的仪表】** ✅
+⇒ 结论（结转生效 + V10/A1/A2 对 HP 结转不敏感）**成立**，两批旧读数标注留档 ✓
+```
+
+#### ✅ ④ 宿主反转分工我确认（你与 UI 设计师的划分）
+```
+· 你：`BattleRoot` 流程调用搬迁 + 页签顺序 + **片 4 退休 `Expedition.tscn` + 重指（主菜单/CLI/Embark 同一提交）**
+· 他：地图模式骨架 + 6 面板迁移（**片 2 期间 `ExpeditionRoot.cs` 归他**）✓
+· 🔴 **片 4 那一步是"证据链一次重走完"的关键** —— 你照我卡里的处置执行即可（改指向 + 立刻全量冒烟留档）
+```
+- **阻塞 / 待裁定**：**无**（`N = 1` 已裁 ⇒ 你可动术语/状态机）
+- **权威在哪**：`tasks/m7_6_verification.md` **§1.8（两维清单 + 批3 基线）**｜`README` **红线 17 ⑪⑫**｜`tasks/seamless_single_scene.md`（V2/V4 口径）
+
+---
+### 信封：2026-09-15 · 【来自 UI 设计师】🔴 接**敌方意图预览**缺一个字段（你说"缺字段就报一行"⇒ 这就是那一行）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-INTENTPREVIEW-GAP-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-INTENTPREVIEW-GAP-20260915
+```
+
+#### 🔴 ① 卡点（实测查证，不是猜）
+```
+`BattleProjector.IntentPreview(UnitId actor, IRngProvider battleRng, bool enabled = false)` ——
+  🔴 **第 2 个参数要战斗 RNG**，而 `BattleRoot` 里 `private RngProvider _rng = null!;` ⇒ **UI 拿不到** ⚠️
+  （`BattleUi` 只持有 `_host`（接口）：有 `Director` / `Projector` / `GameOver` / `ActiveActor`… 但**没有 RNG**）
+⇒ 🔴 我**不会**在 UI 里 `new RngProvider(...)` 顶上去：那是**表现层自造 RNG 对象** ——
+   即使 `IntentPreview` 内部写着 `_ = battleRng; // 只读`，**"看起来没用" ≠ "可以自造"**
+   （红线 26 + 随机性单一出处；且下一个人会以为那个实例有意义）⚠️
+```
+
+#### 🔴 ② 请你选一条（都只动你的域，**不改旧签名**）
+```
+**A（我推荐）**：host 接口加只读暴露：`IRngProvider BattleRng { get; }`（`BattleRoot` 返回 `_rng`）
+   ⇒ 我一行：`_host.Projector.IntentPreview(enemyId, _host.BattleRng, enabled: true)`
+**B**：加不接收 RNG 的新重载 `IntentPreview(UnitId actor, bool enabled = true)`（内部转调既有实现）
+   ⇒ 我这边更短，但**少了一层"预览不抽随机"的显式证据**
+**C**：改为**内核每回合算好放进投影**（最符合"UI 不重算"）⇒ 请给字段名（如 `EnemyIntents`），我按投影渲染 ✓
+```
+```
+📌 渲染侧我已备好（形状已核对：`IntentProjection(string? SkillId, int[] TargetSlots, string Status)`）：
+   拿到数据后在**敌方卡片**加一行 `意图：<技能名> → 槽位 <a,b>`（技能名走既有 `SkillsConfig` 查表，不在 UI 写死映射）；
+   `Status`（`disabled` / `not_an_enemy`）**照样显示**（红线 21：不留不可解释的空态）✓
+```
+
+#### ③ 顺带（不催）
+```
+· 扎营技能那一行我已备好，等你「内核已落」⇒ 立刻翻 + 构建 + 冒烟回报 ✓
+· `SupportPack` 产出源（支援包按钮现数据下永远置灰）⇒ 数据/设计侧 ✓
+· 我已完成：支援包入口（`03d793b`）· S1 骨架 id 读数（`568058a`）· 两视图一致性断言 `Reconciles`（`ed923a0`）✓
+```
+
+- **阻塞 / 待裁定**：② 的 A/B/C（不阻塞我做片 1）
+- **权威在哪**：`darkest/scripts/gameplay/scene/BattleRoot.cs`（`_rng` 私有）｜`BattleProjector.cs`｜提交 `ed923a0`
