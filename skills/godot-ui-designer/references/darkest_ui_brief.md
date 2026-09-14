@@ -1,4 +1,4 @@
-﻿# Darkest 项目 · UI 设计师简报（收件箱转写）
+# Darkest 项目 · UI 设计师简报（收件箱转写）
 
 > 🔴 **转写标记（回读这就是"已写进 skill"的证据，红线 20）**：`INBOX-TRANSCRIBED-DARKEST-UI-20260914`
 > **转写来源**：`doc/windows/主程序窗口.txt`（508 行）· `doc/windows/策划窗口.txt`（950 行）· `doc/windows/架构窗口.txt`（空）
@@ -133,7 +133,7 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 ⚠️ **不要走"事后搬运"**（`Reparent`/`RemoveChild+AddChild` 边遍历边搬）⇒ 主程序实测触发引擎断言
 `Condition "p_child->data.parent != this" is true` ⇒ 树状态不一致 ⇒ 判据乱认浮层。
 
-### 1.7 已知坑（19 条，全部实机踩过）
+### 1.7 已知坑（20 条，全部实机踩过）
 ```
 ① CanvasLayer / Node2D 不是 Control ⇒ 🔴 Godot 的 Container【不排它】（Container 只管理 Control 子节点）
    ⇒ 既没有"框"（不在 Control 链上 ⇒ 不受 Theme 管）又根本进不了容器树 ⇒ **只挪坐标会掩盖结构问题**
@@ -183,7 +183,10 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 ⚠️ 事故记录（我自己的）：用 PowerShell 批量替换颜色时把**参数写成了"字符对"** ⇒ `Replace('M','o')` 把
    `HamletRoot.cs` / `LightBarPanel.cs` 里的字母全换掉 ⇒ **必须 `git checkout --` 回滚再用 `edit` 工具重做**
    ⇒ 教训：**批量文本替换只用 `edit` 工具**（它校验唯一匹配）；`Set-Content` 生成代码要避免"逐字符替换"
-📌 总纪律："通过了"之前先问【它到底检查了什么】—— 判据自身的口径也要自检
+⑳ 🔴 **瞬态特效不能算"布局重叠"**（判据口径第 7 条）：动效产生的伤害数字/闪白/暗角**按设计**会短暂叠在卡片上
+   ⇒ LayoutAudit **按名字跳过 MotionLayer**；⚠️ 但有两条**前置条件**（否则就是放水）：
+   ① 层里的东西必须**真瞬态**（用完即 QueueFree）② 该层必须 MouseFilter = Ignore（不吞输入）
+📌 总纪律：""通过了""之前先问【它到底检查了什么】—— 判据自身的口径也要自检
 ```
 
 ---
@@ -330,10 +333,13 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
       ⚠️ 沙箱内 PowerShell **取不到外网**（curl / Invoke-WebRequest 均失败）⇒ 字体文件只能由用户侧提供
       📌 文件到位后我要做三件：① 跑一次让 Godot 导入（`.import`）② 核日志变成"已接" ③ 记 `doc/assets_credits.md`
    ```
-② 配色（`§14.4`）：Deep 底 + 强对比 + 金/红点缀 ⇒ 全部走 `Theme`（命名统一 `dd_theme.tres`）
-③ 动效（`§12.1` 四个 + `#321`⑤ 常量：上浮 8px／抖动 ±4px·2 往返／闪白 #FFFFFF@60%／暗角 40% + 单位框 #C0202A）
-   🔴 两条可测约束：**动效期间输入不得被吞** · 不得延迟【可操作时刻】
-④ 音效（`§12.2` 三类 + **占位音**：命中=方波短促 / 受击=噪声 / 结算=下行正弦；**音源缺失必须能跑**）
+② 配色（`§14.4`）：✅ **已完成**（`8582555`）—— 四色（正文近白 `#ede8db`／金 `#d9b25c`／红 `#cc4742`／灰 `#858078`）
+   ＋ 不透明暖黑底 `#1a1714` ＋ 1px 边框 ＋ **按钮四态** ＋ 焦点态（2px 金边）＋ 条样式；硬写颜色收敛到 `DdTheme` 单一出处
+   ＋ **主题继承实测生效**（`生效值 font_size = 15 ＝ 中央 Theme 期望`）
+③ ✅ **动效已完成**（`41a73b5`）：`scripts/ui/UiMotion.cs` —— 出现（上浮 8px/0.30s）· 受击（抖动 ±4px/0.15s·2 往返 + 闪白 60%）
+   · 士气崩溃（暗角 40% + 框红 #C0202A/0.50s）· 结算（淡入 0.20s）；**只对真实事件流的新事件播**
+   🔴 两条可测约束**取证**：`动效层 MouseFilter=Ignore ／ 被冻结 ProcessMode 的控件=0` ⇒ 输入不被吞（实测已播 26 次）
+4️⃣ 音效（`§12.2` 三类 + **占位音**：命中=方波短促 / 受击=噪声 / 结算=下行正弦；**音源缺失必须能跑**）
   触发点（事件名）：`DamageEvent`（我方/敌方）· `DamageEvent`(我方被击)/`DeathDoorEvent`/阵亡 · 结算三事件
 ⑤ ShaderMaterial 描边/暗角/闪白（`§12.3` 已接受材质统一实现；视觉规范仍属 `ui_spec §1.4`）→ ⑨ 帧预算基线
 ⑥ ⑩ i18n：只做"布局先对"（随容器化已达成）
@@ -615,6 +621,7 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-READINGS-3-20260914` | 🔴 **四屏全绿读数留档**（`0ce286a`）+ 判据口径 6 条 + `.tscn` 类型一致性静态门禁建议 | ✅ 已投（回读命中 L109） |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-BATTLE-GREEN-20260914` | 战斗屏全绿 + 他域两条冒烟缺陷（`--battle-map` 页号 2≠4；`--battle-card=N` 当槽位用致 0 越界） | ✅ 已投（回读命中 L86） |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-READINGS-4-20260914` | 第五屏（主菜单）纳入审计 + 配色轴读数（四色/按钮四态/继承生效）+ 建议把判据口径改为**五屏** | ✅ 已投（回读命中 L168） |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-MOTION-20260914` | `§12.1` 动效四个落地（真实事件流驱动）+ 两条可测约束取证 + 判据口径第 7 条（MotionLayer 例外）待你点头 | ✅ 已投（回读命中 L220） |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
