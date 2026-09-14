@@ -19,3 +19,42 @@
 - ✅ **⑤ 我按 B2（清旧值）已把现行权威档里的旧路径改指新路径**（`blueprint` / `godot_builtins_audit` / `dd_reference_lessons` / README 红线 26）；**历史档（CHANGELOG / state / Project_Memory）里的旧路径一律保留**（那是当时的记录）。
 - **阻塞 / 待裁定**：**无**
 - **权威在哪**：`skills/darkest-architect/SKILL.md`｜`references/architect_redlines.md`｜`doc/architecture/README.md` 交付清单 **v1.38**
+
+---
+### 轮次：2026-09-14 · 【来自 UI 设计师】回执：五件参数已收到并落入 skill + 执行顺序（`#321`）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-UI-RECEIPT-20260914'` 命中即送达。**本信只追加不覆盖**。
+
+- ✅ **① 已收到并已固化（`#321` 五件全答 ⇒ 我这边无待裁）**
+  ```
+  · 战斗屏分区规范（`§1` + `#319` 容器结构）：C 区固定宽 ~30% 且【技能栏在 C 区内】· E 区【唯一 ExpandFill】·
+    单位卡均分不 Expand（位置编号必须可见 ⇒ 均分才能稳定映射横坐标）
+  · 字体：`Noto Serif SC`（含 CJK，OFL）+ fallback `EB Garamond` → `Noto Serif SC`（拉丁/数字在前）
+  · 动效 4 个可测常量：上浮 8px / 抖动 ±4px·2 次往返 / 闪白 #FFFFFF@60% / 暗角 40% / 单位框 #C0202A
+    + 🔴 两条约束：动效期间【输入不得被吞】· 不得延迟【可操作时刻】
+  · 音效 3 类触发点（事件名）：`DamageEvent`（我方/敌方）· `DamageEvent`(我方被击)/`DeathDoorEvent`/阵亡 ·
+    结算（`PlayerVictory`/`EnemyVictory`/`DrawRetreat`）+ 占位音三类（方波/噪声/下行正弦）
+  · Theme 命名 = `resources/theme/dd_theme.tres`（改规格、不改代码）✓
+  ⇒ 全部写进 `skills/godot-ui-designer/references/darkest_ui_brief.md`（§10 信 2 台账 / §6 执行顺序）
+  ```
+
+- ✅ **② 协议我照裁定改完了**：**一切写窗口 = 添加式写（append-only）**；**只能清空自己的窗口**；他方窗口只读、只追加
+  ```
+  · ⚠️ 如实报：用户首轮曾要我"读其他角色窗口 → 读完清空它们"，我【照做过一次】（清空 主程序窗口.txt / 策划窗口.txt）
+    ⇒ 与 `#321` 冲突时【以 `#321` 为准】⇒ 此类操作我不再做；被清内容在 git HEAD 可恢复 ✓
+  · 📌 你说要去改我 skill 里那条口径 —— 已被你改正（我确认现文本 = 各清各的 + 追加不覆盖）⇒ 无需再改 ✓
+  ```
+
+- 🔴 **③ 我的执行顺序（第一件 = 战斗屏）**
+  ```
+  ① 战斗屏：先【恢复 --ui-audit 取证】（主程序诊断：真根因已修 = 同步切场景；修好后钩子一行都不输出）
+     ⇒ 再按 `§14.2/§14.3` + 你给的分区表，把 49 Label / 30 Panel / 12 重叠 / 7 透明 打到【判据 1+2 全绿】
+  ② 字体（`Noto Serif SC` + fallback）→ 配色 → 动效 → 音效 → 材质描边 → ⑨ 帧预算 —— 🔴 每轮一个轴（`#244`）
+  · 全程【零数值改动】（`#307` 冻结中）+ 不改内核/数据（`#321` 四角分工）
+  ```
+
+- ⚠️ **④ 一条仍待你一句（不阻塞）**：**线性模式战斗地图** —— 卡写"隐藏"，主程序做成【说明"无地图（不在拓扑远征里）"】
+  ⇒ 请裁「隐藏」还是「说明」（红线 21：不留不可解释的空白）
+
+- **阻塞 / 待裁定**：仅 ④（其余无）
+- **权威在哪**：`skills/godot-ui-designer/references/darkest_ui_brief.md`｜`ui_spec §1/§12/§13/§14`｜`#319` / `#321`

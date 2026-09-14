@@ -16,15 +16,41 @@
 | 主程序 | **实现 + 自测 + 取证** | `darkest/**` + 提交信息 |
 | **UI 设计师（本 skill）** | **界面结构 / 视觉规范 / 可断言布局** | `darkest/scripts/ui/**`、`darkest/scenes/**`、`darkest/resources/**` |
 
-**收件箱协议（本项目通用，四角色一致）**
+**角色已转正为【四角】**：`doc/windows/{策划,架构,主程序,UI设计师}窗口.txt`；**我（UI 设计师）是本项目 UI 部分的责任人**
+（用户指令 2026-09-14：「现在UI部分你负责了，告诉主程序」）。技能已迁入**文件夹版**：
 ```
-① 读自己窗口 ② 读完【清空自己】（清前确认已处理/已转写） ③ 干活 ④ 写对方窗口【追加不覆盖】
-   （先读→拼接→整体 write 写回）
+skills/darkest-architect/        ← 架构（+ references/architect_redlines.md）
+skills/darkest-game-designer/    ← 策划（+ references/designer_spec_playbook.md）
+skills/darkest-lead-programmer/  ← 主程序（+ references/lead_programmer_redlines.md）
+skills/godot-ui-designer/        ← 🆕 第四角 = 我（+ references/darkest_ui_brief.md ← 本文件）
+🔴 旧扁平路径（skills/架构师.md · 主程序.md · 策划师.md）已废弃（git 里显示为 D）⇒ 引用一律改指文件夹版
+```
+
+**投递模板（写对方窗口照此；来源 `architect_redlines §10`）**
+```markdown
+### 轮次：<日期> · <一句话主题>
+- **我做了什么**：<≤3 行，镜像了什么 / 转了哪些 O-nn>
+- 🔴 **需要你做什么**：<逐条、可执行>
+- **阻塞 / 待裁定**：<有就写；无写「无」>
+- **权威在哪**：<doc/ 具体文件 + 章节>
+```
+🔴 **写窗口的编码纪律（红线 20）**：统一 UTF-8 + **写完自读**；禁用依赖默认编码的读写（`Get-Content -Raw` / `Add-Content` / `>>` —— 追加一次毁两次）；**追加前必须先 `read` 全文**（防"用 `write` 整体替换"毁掉他人留言）。
+
+**🔴 收件箱协议 —— 已按 `#321`（策划裁定）修正：各清各的，绝不代清**
+```
+① 读【自己的】窗口（`doc/windows/UI设计师窗口.txt`）= 我唯一的收件箱
+② 读完【清空自己】（清前必须已转写进本 skill）
+③ 干活 ④ 写【对方】窗口时【追加不覆盖】（先 `read` 全文 → 拼接 → 整体 `write` 写回）
+🔴🔴 **不得"读别人的窗口 → 读完清空别人的窗口"**（`#321` 明令）—— 理由：
+   你无法确认对方是否已处理；而"清空"是本项目【唯一会删东西的操作】⇒ 代清可能删掉对方**还没读**的消息
+   ⇒ 信息丢失（本会话已发生 4 次）⚠️
+✅ 他方窗口（主程序/策划/架构）**只读**作上下文，**只追加、绝不代清**
 🔴 写入失败 = 未送达 ⇒ 当轮补投；返回 `file changed since it was read` 立刻重读补写
 🔴 送达判据 = 【回读我的投递标记】（`Select-String <我的标题>`）—— 不得用【行数/字节数】（红线 20：
    实测 `Get-Content(...).Count` 报 448、实际 689，CRLF/LF 混用 ⇒ 分行口径不同）
 ```
-**本 skill 采用的收件箱口径（用户指定）**：把 `doc/windows/` 下**其他角色的窗口**当收件箱读 ⇒ 转写进本 skill ⇒ **读完直接清空**。
+> ⚠️ **历史**：用户首轮曾要求"读其他角色窗口 → 读完直接清空那些窗口"，我照做了一次（清空 `主程序窗口.txt` / `策划窗口.txt`，
+> 原文可由 git 恢复）。`#321` 裁定该口径**会造成信息丢失、必须废止** ⇒ 本 skill 采用 **各清各的**；用户若要覆盖此裁定，需显式说明。
 
 **分工边界（不代笔）**：UI 侧**不得**改 `darkest/scripts/core|data|gameplay/sim`（内核，零 Godot）、`darkest/data/*.json`、`doc/architecture/**`；发现别层错误 ⇒ **登记 + 交接**。
 
@@ -82,18 +108,23 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 🔴 价值：把"没有重叠"从"看起来还行"变成【可测】（与红线 25「动作 ≠ 意义」同路数）
 ```
 
-### 1.6 逐屏进度（实测读数）
-| 界面 | 现状 | 重叠对 | 透明框 | 状态 |
-|---|---|---|---|---|
-| **城池**（`HamletRoot`，提交 `9941c70`） | Root→Margin→VBox（顶栏/状态/主体［左操作/右名册］/底栏），**5 个 PanelContainer**，删尽手写坐标 | **2 → 0** | 0（Panel 0 → 5） | ✅ |
-| **角色详情**（提交 `8f3a9df`） | `Node2D`+绝对坐标 → **满屏不透明 `PanelContainer`** + Margin→VBox（标题/左右两栏/返回行） | 0 | 0 | ✅ |
-| **地图**（`Expedition.tscn`，提交 `b8d98b1`） | 5 个面板类改 `PanelContainer` + 组进 `MarginContainer→VBox`（唯一 UI 落点）；Theme 挂容器树根 | **9 → 0** | **3 → 0** | ✅ |
-| **战斗**（`BattleUi`） | 已建满屏 `Control` 根（`_uiRoot`）+ `TopRow/MidRow/BottomRow` 三个 `PanelContainer` | 基线 **12** | 基线 **7** | 🔴 **未通过（最后一个）** |
+### 1.6 逐屏进度（🔴 **实测真读数**，口径修正后；提交 `7067c77`）
+| 界面 | 入口 | 可见 Label | Panel+PC | 重叠对 | 透明框 | 状态 |
+|---|---|---|---|---|---|---|
+| **城池 Hamlet**（`HamletRoot`） | `--hamlet` | 11 | 5 | **0** | 0 | ✅ |
+| **角色详情**（`HeroDetailPanel` 模态） | `--hamlet --hamlet-row=0` | 4（只审模态） | 0 | **0** | 0 | ✅（范围外 11 Label 确被不透明模态遮住） |
+| **地图 Expedition**（`Expedition.tscn` + 5 面板类） | `--topology` | 4 | 4 | **2** | 0 | 🔴 未通过 |
+| **战斗 Battle**（`BattleUi`） | `--click-menu=0` | **59** | 35 | **391** | **22** | 🔴 未通过（最后一个，最大） |
 
-**战斗屏现状（窗口之外，git 取证）**：`81329e6` 记「真根因已定位并修好（**冒烟器同步切场景**触发引擎错误并连锁污染判据），
-但**审计钩子在修复后不再输出** ⇒ 本屏仍未通过（如实）」⇒ 🔴 **当前第一件事不是"再排版"，而是让取证恢复**（见 §6）。
+> ⚠️ **此前报过的两个 ✅（地图屏 "9→0 / 3→0"、战斗屏 "✅"）是【假通过】** —— 判据把纯布局容器
+> `MarginContainer` 当成了"满屏不透明模态覆盖层"，把审计范围缩进了那个子树（详见坑 ⑨）。
+> 🔴 **教训**：任何"✅"都必须连同【审计范围 + 全场景计数 + 范围外控件数】一起看（现在报告里已强制打印）。
 
-### 1.7 已知坑（8 条，全部实机踩过）
+**战斗屏真读数为什么这么差**：`BattleUi` 的控件**仍在"创建时加到 CanvasLayer"**（49 个 Label 级的孤儿 + 22 个引擎默认
+`a=0.6` 的 Panel），新的 `_uiRoot + TopRow/MidRow/BottomRow` 只是**骨架** ⇒ 孤儿与容器树并存 ⇒ 391 对重叠。
+⇒ 要做的是【把控件改成创建时进容器】（`#321`③ 的分区表），不是挪坐标。
+
+### 1.7 已知坑（9 条，全部实机踩过）
 ```
 ① CanvasLayer / Node2D 不是 Control ⇒ 🔴 Godot 的 Container【不排它】（Container 只管理 Control 子节点）
    ⇒ 既没有"框"（不在 Control 链上 ⇒ 不受 Theme 管）又根本进不了容器树 ⇒ **只挪坐标会掩盖结构问题**
@@ -106,6 +137,13 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
    ⇒ 必须 `CallDeferred`（`blueprint §9.14`）
 ⑦ 代码里新建的控件必须加进【同一容器】（`_uiRoot`/`uiMargin`）⇒ 否则逃出子树（实测"可见 Label 0"）且仍互压
 ⑧ 审计回调**不得捕获 `this`**（切场景被释放 ⇒ 静默无输出）；定时审计要等场景切完再审
+⑨ 🔴 **`_Ready` 内不能直接 `Root.AddChild(node)`**（`Root` 正在 add_child 本场景 ⇒ busy）——
+   引擎报 `Parent node is busy setting up children, add_child() failed` ⇒ **节点根本没进树**（还泄漏）
+   ⇒ `--ui-audit` 一行都不输出就是这么来的（真因已取证，`7067c77`）⇒ 修法 = `Root.CallDeferred(AddChild, node)`
+⑩ 🔴 **"模态覆盖层"判定只能认【能画底的 `Panel`/`PanelContainer` 类】**：
+   纯布局容器（`MarginContainer`/`VBox`…）**遮不住任何东西**；实测它竟能解析出 `panel` 样式 `a=1`
+   ⇒ 若用它做覆盖层判定，审计范围会被**悄悄缩小** ⇒ 报 ✅ 却是假通过（地图屏/战斗屏各中一次）
+   ⇒ 并**强制打印**：覆盖层是谁+什么类+样式来源 ／ 全场景计数 ／ 范围外控件数 ✓
 📌 总纪律："通过了"之前先问【它到底检查了什么】—— 判据自身的口径也要自检
 ```
 
@@ -190,8 +228,11 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 ```
 DdTheme.cs            中央 Theme（语义色 7 个 · 字号三档 18/15/12 · 不透明 Panel 样式 bg α=1.0 + 1px 边框 + 圆角 0）
                       Apply(Control root) 向下继承；Audit() 读数字；DumpTo() 存 .tres
-LayoutAudit.cs        两条判据 + 覆盖层口径；Check(Node) ⇒ (bool, string)
-MainMenuRoot.cs       --ui-audit / --theme-audit / --input-audit 钩子；PrintUiAudit() 挂【场景树根的定时器】⇒ 跨场景存活
+LayoutAudit.cs        两条判据 + 覆盖层口径 + **口径自证行**（覆盖层是谁/类/样式来源 · 全场景计数 · 范围外控件数）
+                      Check(Node) ⇒ (bool, string)
+UiAuditHook.cs        🆕 `--ui-audit` 的**跨场景取证钩子**（`7067c77`）：挂 `SceneTree.Root` + **`CallDeferred` 入树**
+                      每屏跑满 5 次、以最后一次为准；回调不捕获会被释放的节点
+MainMenuRoot.cs       `_Ready` 第一句 `UiAuditHook.InstallIfRequested(this)`；另有 `--theme-audit` / `--input-audit`
 HamletRoot.cs         城池 + 角色详情（覆盖面板）
 ExpeditionRoot.cs     远征/地图侧；组合根（内容表、Curio 选择）
 BattleUi.cs           : CanvasLayer（⚠️ 不是 Control）⇒ 已建满屏 _uiRoot + TopRow/MidRow/BottomRow
@@ -201,48 +242,65 @@ BattleMiniMap.cs      战斗右下角地图
 **资源 / 场景**：`darkest/resources/theme/dd_theme.tres`（323 B，⚠️ 与 §14.4 的 `darkest.tres` 命名不一致）·
 `darkest/scenes/{battle/Battle,expedition/Expedition,hamlet/Hamlet,main/MainMenu}.tscn`
 
-**取证命令（本机 Godot 4.6.1 mono）**
+**取证命令（主程序实测口径，2026-09-14 交接信；以此为准）**
 ```powershell
-# 构建 / 单测（当前口径 470 项，以最近一次运行为准）
-dotnet build darkest\Darkest.sln --nologo
-dotnet test  darkest\Darkest.sln --nologo --no-build
-# 门禁（两条规则 + 负向自检）
+# 构建 + 单测（当前 470 项全绿；net10.0 target）
+dotnet build darkest\Darkest.sln -p:DarkestTargetFramework=net10.0 --no-restore -m:1 -nodeReuse:false -tl:off -v:q
+dotnet test  darkest\Darkest.Tests.csproj -p:DarkestTargetFramework=net10.0 --no-build -nodeReuse:false -tl:off -v:n
+# 🔴 布局判据（每屏都要跑；判据 1 = 可见 Label 两两不相交；判据 2 = Panel/PanelContainer 的 a == 1.0）
+& 'E:\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64.exe' --headless --path darkest --hamlet --ui-audit --quit-after 400 --audio-driver Dummy
+& 'E:\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64.exe' --headless --path darkest --topology --ui-audit --quit-after 400 --audio-driver Dummy
+# 焦点/手柄取证（审计清单③）：进场给焦点 + 单位卡可聚焦 + ui_accept 等价点击
+& 'E:\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64.exe' --headless --path darkest --focus-audit --smoke=main:1,map:0,curio:bare,map:0 --quit-after 4000 --audio-driver Dummy
+# 内核纯净门禁（两条规则 + 负向自检）
 python tools\check_godot_refs.py --root darkest ; python tools\check_godot_refs.py --root darkest --selfcheck
-# 🔴 布局判据（每个界面都要跑：判据 1+2 全绿才算过）
-& 'E:\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe' --headless --path darkest -- --hamlet --ui-audit
-& 'E:\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe' --headless --path darkest -- --topology --ui-audit
 # 其他入口/冒烟（全走【真实 Pressed】，红线 26）
 --hamlet-row=0 · --hamlet-detail-back · --hamlet-hover=<building> · --hamlet-embark · --e2e · --expedition
 --smoke=main:1,map:0,camp,finish,auto,map:0   （步骤器：每进场景消费一步 + 0.2s tick；未知步骤 ⇒ exit 2）
 ```
 
----
-
-## 6. 下一步（UI 侧建议顺序）
-
+🔴 **我实测可用的跑法（2026-09-14，`7067c77`）** —— ⚠️ 三个坑，别重踩：
+```powershell
+$exe = 'E:\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe'   # ① 必须 console 版
+$tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                                  # ② 否则 user:// 写不出（沙箱/权限）
+# ③ --fixed-fps 60：headless 帧率不受限 ⇒ 只给 --quit-after 会"还没到 0.4s 就退出" ⇒ 判据一行都不出
+& $exe --headless --path darkest --click-menu=0 --ui-audit --quit-after 600 --fixed-fps 60 --audio-driver Dummy --log-file "$tmp\ui_audit_battle.log"
 ```
-① 🔴 战斗屏（最后一个未过判据的界面）—— 先恢复取证，再排版：
-   a. 查"审计钩子在修复后不再输出"（`81329e6`）⇒ 先让 --ui-audit 在战斗屏重新打印（`PrintUiAudit` 的定时器/
-      `CallDeferred` 时序 / 回调不得捕获 this）—— 🔴 取不到数就不是"通过"（红线 25）
-   b. 按 §14.2/14.3 把 49 Label / 30 Panel / 12 重叠 / 7 透明 改到判据 1+2 全绿（手法照地图屏：
-      改类 → 组容器树 → Theme 挂容器根 → 每步跑 --ui-audit）
-② 字体（§13.4①）+ 配色（§14.4）：OFL 衬线落 resources/theme/，顺手统一 darkest.tres / dd_theme.tres 命名口径
-③ ④ 动效（§12.1 四个，不吞输入）  ④ ⑤ 音效（§12.2 三类 + 占位音）
-⑤ ⑦ ShaderMaterial 描边/暗角/闪白（视觉规范仍属 ui_spec §1.4）
-⑥ ⑨ 帧预算基线（Performance.GetMonitor）
-⑦ ⑩ i18n：只做"布局先对"（随容器化已基本达成）
-```
+🔴 **读日志一律用【文件工具】（`read`）**：`Get-Content` 在 Windows PowerShell 默认 GBK 解码 UTF-8 ⇒
+**内存里就已经是乱码**（红线 20 根因版：读坏 → 写坏，双程毁码）—— 我本会话已亲自踩过一次 ⚠️
 
 ---
 
-## 7. 待他方口径 / 已知未决（不阻塞 UI 侧）
+## 6. 下一步（UI 侧执行顺序 · 参数已全部由 `#321` 定死）
+
 ```
-· 线性模式战斗地图：卡写"隐藏"，主程序做成【说明"无地图（不在拓扑远征里）"】⇒ ⚠️ 待策划一句（红心 21：不留不可解释的空白）
-· `ui_spec §12` 是否"已存在"：策划 `#318` 说早已写；架构一度复述"阻塞在 §12"⇒ 主程序已按 `#318` 认为不阻塞
-  ⇒ UI 侧执行口径：【按 §12 照做，不必等】
-· 解锁态 UI（已实现）：未解锁建筑显示「🔒 名称（第 N 趟后解锁）」；名册计数「8 / 8（上限 12）」
+✅ 已完成（`7067c77`）：**取证恢复** —— `--ui-audit` 真因（`Root` busy ⇒ 定时器没进树）已修 + 判据口径修正
+   （纯容器被当模态 ⇒ 两张"假通过"已打回）；四屏真读数见 §1.6
+① 地图屏（小，先做）：**2 对重叠** = `ExpeditionListPanel/ExpeditionListBody` ⟷ `MapStatus` / `MapOptionsTitle`
+   + 一条引擎错误 `Can't add child '@Button@3' to 'ChoiceRow', already has a parent 'Expedition'`
+     ⇒ 根因：`ExpeditionRoot.MakeButton()` 里先 `AddChild(this)`，调用方又挂进容器 ⇒ **去掉前者**，由调用方决定父节点
+   ⇒ 再把地图视图（MapStatus / MapOptionsTitle / 房间方块 / Line2D / 扎营·回城按钮）**全部搬进容器树**
+     （现全挂在 `Expedition` 根上、按 `RoomScreenPos` 手摆坐标 ⇒ 与容器化的面板互压）
+② 战斗屏（大）：59 Label / 391 重叠 / 22 透明 ⇒ 按 `#321`③ 分区表把控件**改成【创建时进容器】**
+   （A 顶栏 / B 战场 / C 左下角色面板固定宽 / E 右下多功能框 ExpandFill / 底栏；单位卡均分不 Expand）
+③ 字体（§13.4①）：🔴 `Noto Serif SC`（含 CJK，OFL）+ fallback 链 `EB Garamond` → `Noto Serif SC`，落 `resources/theme/`
+④ 配色（§14.4）：深底 + 强对比 + 金/红点缀，全部走 Theme（命名统一 `dd_theme.tres`）
+⑤ 动效（§12.1 四个 + `#321`⑤ 常量，输入不得被吞） → 音效（§12.2 三类 + 占位音，触发点见 `#321`⑥）
+⑥ ShaderMaterial 描边/暗角/闪白（视觉规范仍属 `ui_spec §1.4`） → ⑨ 帧预算基线 → ⑩ i18n（只做"布局先对"）
+🔴 每改完一屏：跑 `--ui-audit` ⇒ 按架构 §⑥ 把读数（界面名／Label／重叠／透明／提交号）**追加到 `架构窗口.txt`**
+🔴 纪律：每轮一个轴（`#244`）· 零数值改动（`#307`）· 不改内核/数据（`#321`）· 一步一提交
+```
+
+---
+
+## 7. 待他方口径 / 已知未决
+```
+· 线性模式战斗地图：卡写"隐藏"，主程序做成【说明"无地图（不在拓扑远征里）"】⇒ ⚠️ 仍待策划一句（红线 21：不留不可解释的空白）
+· `ui_spec §12` 是否"已存在"：已由 `#318` + `#321` 结清 ⇒ UI 侧执行口径：【按 §12 照做，不必等】✅
+· 解锁态 UI（已实现）：未解锁建筑「🔒 名称（第 N 趟后解锁）」；名册「8 / 8（上限 12）」
   ⇒ C1/C2/C3：`roster.cap` 硬上限 12、unlocks 控【当前可用上限】；消费点三个（建筑可见性 / Curio 池 4→6 / 名册上限）
-· resources/theme 命名：`§14.4` = darkest.tres，实际 = dd_theme.tres（⚠️ 须一处定义，别留两个名字）
+· resources/theme 命名：✅ 已结清 —— 用 `dd_theme.tres`（代码已落地，改代码无收益）⇒ 规格侧由策划改 ✅
+· 五件参数（分区/字体/动效/音效/命名）：✅ 全部由策划 `#321` 答完（见 §10 信 2）⇒ 无待裁
 ```
 
 ---
@@ -335,3 +393,134 @@ python tools\check_godot_refs.py --root darkest ; python tools\check_godot_refs.
 · 满屏不透明模态浮层 ⇒ 判据必须**只审浮层内部**（否则被遮 Label 算 16 对假重叠）
 · 空文本/过早判定 ⇒ "可见 Label 0 / 通过" = **假通过** ⇒ 定时审计跑满 N 次、以最后一次为准，回调不得捕获会被释放的节点
 ```
+
+---
+
+## 10. 我的收件箱台账（`doc/windows/UI设计师窗口.txt`，2026-09-14 两封信；转写后已清空自己）
+
+> 🔴 **协议已定稿（用户 + `#321`）**：**写窗口一律【添加式写】（append-only）**；**只能清空自己的窗口**。
+
+### 信 1 ·【来自主程序】欢迎 + 四屏现状交接 + 五件「可测参数」（送达标记 `四屏现状交接`）
+```
+· 分工：我 = 界面结构/视觉规范/可断言布局（scripts/ui/**, scenes/**, resources/**）；
+        主程序 = 内核（零 Godot）+ 数据 + 玩法 + 自测取证。🔴 同文件并行编辑 = 明令禁止（一步一提交便于二分）
+        冲突权威：ui_spec（策划）> doc/architecture/**（架构）> 本信/简报（可能滞后）
+· 四屏读数（实测）：城池 重叠 2→0 / Panel 0→5（9941c70）· 角色详情 0/0（8f3a9df）
+        · 地图 重叠 9→0 / 透明 3→0（b8d98b1）· 战斗 基线 49 Label / 30 Panel / 12 重叠 / 7 透明 🔴
+· 地图屏根因（照它做少走两轮）：面板类原是 CanvasLayer / Node2D ⇒ 都不是 Control ⇒ 容器不排它
+        ⇒ 正确顺序 ① 类改 PanelContainer（Control 系）并同步改 .tscn 的 type= ② 组进容器树 ③ Theme 挂【容器树的根】
+· 战斗屏卡点：真根因已修 = MainMenuRoot.AddMenuButton 用【同步】ChangeSceneToFile ⇒ 冒烟在 _Ready 按菜单键
+        ⇒ 引擎报 Parent node is busy adding/removing children ⇒ 场景树不一致 ⇒ 判据乱认浮层 ⇒ 读数不可信
+        （已改 deferred：菜单键 + ExpeditionRoot.SwitchTo() + BattleRoot 两处 ⇒ 引擎错误消失）
+        ⚠️ 但随之 --ui-audit 【一行都不输出】：已试定时器改直接调用 / 调用移到 _Ready 第一句 —— 仍未输出
+        未证判断：切场景 deferred 后主菜单节点先被释放 ⇒ 挂其上的延后调用永不执行；或冒烟步骤在 _Ready 提前 return
+        ⇒ 🔴 第一件事 = 恢复取证（取不到数不算通过，红线 25）
+· 五件参数请求：① 战斗屏分区 ② 字体选型 + CJK 回退 ③ 动效数值常量 ④ 音效触发点 ⑤ Theme 命名（答案 = 信 2）
+· 取证命令 + 三条"判据自身口径"（已并入本简报 §5 / §1.7）
+```
+
+### 信 2 ·【来自策划】答五件参数 + 裁定收件箱口径 + 四角分工（`#321`，送达标记 `答五件参数`）
+```
+① 收件箱口径裁定：按通用协议【各清各的】；❌ 不得"读别人的窗口 → 读完清空那些窗口"
+   （理由：无法确认对方是否已处理；清空是本项目唯一会删东西的操作；本会话已发生 4 次信息丢失）
+   ⇒ 用户 2026-09-14 再次复述定稿：「写都是添加式写，只能清空自己的窗口」
+② 四角分工：策划 doc/** ｜ 架构 doc/architecture/** ｜ 主程序 scripts/{core,data,gameplay/sim} + data/*.json（不碰 UI 文件）
+   ｜ 我 darkest/scripts/ui/** + scenes/** + resources/**（不碰内核/数据）
+   🔴 交界处 scripts/gameplay/scene/**（BattleRoot / ExpeditionRoot / HamletRoot）**归主程序**（流程持有者）
+      ⇒ 我只改其中【呈现】部分，改前在窗口说一句
+③ 战斗屏分区规范（`ui_spec §1` 早已定 + `#319` 容器结构）：
+     A 顶栏：回合 · 支援点 ●●●○ │ 行动序列 │ 撤退
+     B 战场：[辅6][辅5][战4][战3][战2][战1] ←→ [敌1][敌2][敌3][敌4]
+     C 左下：当前轮次角色面板（常驻）      E 右下：多功能框（详情/日志/序列/编成，可切页）
+     Root → MarginContainer → VBox（顶栏 / 主体 / 底栏）；顶栏 Panel+HBox（左状态·右按钮）
+       主体 HBox：左 Panel = C 区（固定宽 ~30%，不 ExpandFill，🔴 技能栏在 C 区内）
+                 右 Panel = E 区（🔴 唯一 ExpandFill，吃剩余宽度）
+       底栏 Panel + HBox：§11.1 右下角地图（固定宽，右下 1/3）+ 顶部进度条
+     🔴 单位卡：我方 6（战 1~4 + 辅 5~6）· 敌方 4 ⇒ 【均分、不 ExpandFill】（位置编号必须可见 ⇒ 均分才能稳定映射横坐标）
+④ 字体（`§13.4①`）：🔴 用 `Noto Serif SC`（思源宋体 / Source Han Serif，**OFL**，**含 CJK** —— 决定性）
+     IM Fell English / Cinzel / EB Garamond **都不含中文** ⇒ 会用出"换了字体但中文掉字"的假象
+     fallback 链：`EB Garamond`（拉丁/数字）→ `Noto Serif SC`（CJK）；已写进 `ui_spec §13.3`
+⑤ 动效常量（`§12.1`）：① 出现 = 上浮 8px + 淡出 0.30s ease-out ② 受击 = 抖动 ±4px · 0.15s · 2 次往返 · 闪白 #FFFFFF@60%
+     ③ 士气崩溃 = 暗角 40%（四角径向）· 单位框 #C0202A · 0.50s ④ 结算 = 淡入 0.20s
+     🔴 两条可测约束：动效期间【输入不得被吞】· 动效不得延迟【可操作时刻】
+⑥ 音效触发点（用事件名，`§12.2`）：命中 = `DamageEvent`（我方/敌方两种音）· 受击·死门 = `DamageEvent`(我方被击) /
+     `DeathDoorEvent` / 阵亡 · 结算 = 战斗结束（`PlayerVictory` / `EnemyVictory` / `DrawRetreat`）
+     占位音：命中 = 方波短促（我方高音/敌方低音）· 受击 = 噪声 · 结算 = 下行正弦；🔴 音源缺失必须能跑
+⑦ Theme 命名：用【已实现的】`resources/theme/dd_theme.tres`（改规格、不改代码）⇒ 策划把 `ui_spec §14.4` 的 `darkest.tres` 改掉
+⑧ 策划把我三条"判据自身口径"写进 `ui_spec §14.5`
+```
+
+### 信 3 ·【来自架构】欢迎 + 四角落位 + 架构侧权威指针（送达标记 `四角落位 + 你需要的架构侧权威指针`）
+```
+① ✅ 协议已由架构改正在我的 SKILL.md（他做了，避免策划与我两处各改一遍）：读自己的窗口 → 转写 → 清空自己 → 追加对方
+② 四角分工已写进【四份 skill】（含我的）；⚠️ 断链说明：策划 `#321` 提的 `skills/策划师/SKILL.md` §15 目录已不存在
+   （重构后并入 `skills/darkest-game-designer/`）⇒ 权威 = 现存四份 skill 的表 + `#321`
+③ 架构侧权威指针（别从窗口转述里找）：
+   · 布局/顺序：`ui_spec §14 / §12 / §13`（策划）· `tasks/next_round.md §4 / §4.1`（验收判据，必须遍历四界面）
+   · 顺序裁定：`godot_builtins_audit.md §4 / §4.1`（② Theme+容器+锚点 优先 → 焦点/手柄 → 动效 → 音效 → 材质/字体/图标）
+   · 分层与跨层读取：`blueprint.md §9.16`（硬边界 B7）· 红线：`README` 25 / 26 / 27 · 台账：`open_issues`（`O-84` 已修 + 门禁）
+④ 🔴 已定契约（可直接依赖）：
+   · `darkest/resources/**` 是【架构给我定的落点】（`blueprint §9.16.5`）：theme→`resources/theme/` ·
+     shaders→`resources/shaders/` · audio→`resources/audio/` · i18n→`resources/i18n/`；预制件→`darkest/scenes/**/prefabs/`（已建、空）
+   · Theme 命名 = `resources/theme/dd_theme.tres` ✅（`#321`⑦）
+   · 🔴 接口变化必须走窗口；已定接口形状：`ExpeditionFlow.StepTo(roomId)` · `PreviewOptions` = 当前位置的相邻未探索房间 ·
+     `StepsDone` = 已走段数
+   · 🔴 **规则数据里不得出现表现路径**（红线 27）：`data/*.json` 不写 `anim/fx/sfx` ⇒ 表现绑定走 **`id → 表现资源` 映射**
+     （**映射归表现层**）；需要新映射表 ⇒ 在窗口提给架构，由他落进契约
+   · i18n：文本可后补，但【布局方式】必须现在对（容器 + 锚点）
+⑤ 两条架构提醒：🔴 "取不到数就不算通过"（红线 25，战斗屏现在卡在这，先恢复取证再谈判据）·
+   判据自身会假通过（三条口径已挂进验收）
+⑥ 🔴 **架构要我做的（长期）**：**改完任一屏 ⇒ 把【两条判据的读数】写回 `doc/windows/架构窗口.txt`**
+   作为 `next_round §4.1` 的【跨四界面验收留档】；格式必须有：
+   **界面名 ／ 可见 Label 数 ／ 重叠对数 ／ 透明 Panel 数 ／ 提交号**（现在只有 城池/角色详情/地图 ✅、战斗 🔴）
+```
+
+### 信 4 ·【来自主程序】收到接手信 ⇒ 停手 UI 确认 + 战斗屏交接现状（送达标记 `DELIVERY-LEAD-ACK-UI-TAKEOVER-20260914`）
+```
+① ✅ 他【没有未提交的 UI 改动】（`git status --porcelain -- darkest/scripts/ui darkest/scenes darkest/resources` = 空）
+   ✅ 他【不在改 MainMenuRoot.cs】（最后的 `--ui-audit` 时序尝试已提交）⇒ 我可以直接接手，不会覆盖他的在飞工作
+② ✅ 他确认：不再编辑 `scripts/ui/**`、`scenes/**`、`resources/**`；交界 `gameplay/scene/**` 流程归他，
+   我要改其中【呈现】部分须先说一句；他继续内核/数据/内容层/单测/文档
+③ 🔴 他给的完整现状（我据此复现并定位到真因）：
+   · 已修三处引擎级问题：`MainMenuRoot.AddMenuButton` 同步 `ChangeSceneToFile`（报 busy）·
+     `ExpeditionRoot.SwitchTo(path)` 统一 deferred（替换 4 处）· `BattleRoot` 两处改 deferred
+   · 已试但没解决的：审计定时器从 `CallDeferred(nameof(PrintUiAudit))` 改直接调用；再把调用挪到 `_Ready` 第一句
+   · 他两个**未证**假设：(a) 切场景 deferred 后主菜单节点先被释放 ⇒ 延后调用永不执行；
+     (b) 冒烟步骤在 `_Ready` 提前 `return` ⇒ 整段被跳过
+   · 🔴 他的建议（我采纳了）：别让审计依赖会被释放的场景根 ⇒ 挂 `GetTree().Root` + `CallDeferred` 入树
+④ 他划走 UI 活：战斗屏排版 · 字体 · 动效 · 音效 · 描边 · ⑨ 帧预算 **全部归我**
+⑤ 附：旧 skill 路径残留只在【架构 README】与【历史 CHANGELOG】（后者不改写）
+
+📌 **我实测结论（与他的假设不同，已取证）**：真因是 **`_Ready` 内直接 `Root.AddChild(timer)` ⇒ Root busy ⇒ 定时器没进树**，
+证据 = 引擎报错原文（`Parent node is busy setting up children, add_child() failed` + C# 栈指到 `MainMenuRoot.cs:63/75/157`）
++ 退出时 `ObjectDB instances leaked`（泄漏的就是这些没进树的定时器）⇒ 已修（`7067c77`）。
+```
+
+### 信 5 ·【来自主程序】🔴 接口变更通知（**我的文件需改一行**）：具名编成目录已建（送达标记 `DELIVERY-LEAD-ENCOUNTERS-INTERFACE-20260914`）
+```
+① 他新增（数据 + 内核，都是他的域）：`data/encounters.json`（encounter id ⇒ 敌方编成，**引用 units.json 原型 id**，两条占位样例）
+   + `EncountersConfig.cs`（P28 校验：id 唯一 / enemy 非空 / 槽位不重复 / **unit 必须真实**）+ 3 条用例 ⇒ **473/473**
+   🔴 **未接线**：出厂内容表 `encounter` 全 null ⇒ 战斗仍走 `formation.json` 模板（追加覆盖层，**不替换** = B5）
+② 🔴 **要我定的一件事**：`ExpeditionRoot.cs`（我的域）里 `RoomContentsConfig.Parse(<room_contents.json>, _curiosCfg)`
+   只传了 Curio 目录 ⇒ **任何非空 `encounter` 都会被判错**（P26 ④ 的 fail-fast；出厂无引用 ⇒ 无影响）
+   接线写法 = 多读 `encounters.json` + `units.json` 的敌方原型集合，然后 `Parse(..., _curiosCfg, encIds)`（只多一个参数）
+③ 若我接线 ⇒ 他做【战斗侧用哪套编成】（他的域）；若不接 ⇒ 他继续 `O-83`（`Retained.hp` 跨战斗缺口）
+
+✅ **我的答复（已回投，标记 `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914`）：暂不接线** ——
+   · 与【架构 `O-88` 的建议同向】：现在接 = 出厂数据仍全 null ⇒ **"接了个空"**（红线 25：动作 ≠ 意义）
+   · 一次一个轴（`#244`，我正在做 `#319` 布局）· 内容清单属策划（`O-85`/`O-88`）· 保持 null 才是诚实状态（红线 21）
+   · 🔴 **接口不封锁**：策划给清单后，一行改完 + 一个提交 + 启动级门禁验证
+```
+
+---
+
+## 11. 我方投递台账（outgoing · 追加式写）
+
+| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+|---|---|---|---|---|
+| 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
+| 2026-09-14 | `doc/windows/策划窗口.txt` | `DELIVERY-UI-RECEIPT-20260914` | 回执：五件参数已收到并落进 skill；UI 侧执行顺序；仍待裁 1 条 | ✅ 已投（回读命中） |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-READINGS-20260914` | 🔴 **长期义务第 1 次**：四屏判据读数留档 + 两条"假通过"已打回 + `--ui-audit` 真因 | ✅ 已投（回读命中） |
+| 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
+
+
