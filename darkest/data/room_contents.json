@@ -1,0 +1,18 @@
+{
+  "config": { "version": 1 },
+  "_note": "内容层（O-85 / 合并包片 B）：房间类型 → [{weight, encounter, curio_pool}]。主 = 本表；ExpeditionMapConfig 的类型概率属【拓扑层】；branch_battle_weight 降级为【过渡覆盖项，默认 0】。",
+  "rooms": {
+    "battle": [
+      { "weight": 2, "encounter": null, "curio_pool": [] },
+      { "weight": 1, "encounter": null, "curio_pool": ["cur_supply_crate", "cur_bone_pile"] }
+    ],
+    "event": [
+      { "weight": 1, "encounter": null,
+        "curio_pool": ["cur_supply_crate", "cur_discarded_camp", "cur_sconce",
+                       "cur_book_stack", "cur_altar", "cur_bone_pile"] }
+    ],
+    "branch": [
+      { "weight": 1, "encounter": null, "curio_pool": ["cur_discarded_camp", "cur_sconce"] }
+    ]
+  }
+}

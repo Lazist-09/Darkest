@@ -348,6 +348,12 @@ public partial class ExpeditionRoot : Node
         // 🔴 Curio 数据（`#313`）：拓扑模式下**事件房 = Curio 房**（空手 ／ 用道具 ／ 走开）
         _curiosCfg = Darkest.Data.CuriosConfig.Parse(
             Godot.FileAccess.GetFileAsString(Darkest.Data.CuriosConfig.ResPath));
+
+        // 🔴 合并包片 B：**内容表启动级门禁**（P26：引用必须存在；编成目录未建立 ⇒ 不得引用任何 encounter）
+        _roomContentsCfg = Darkest.Data.RoomContentsConfig.Parse(
+            Godot.FileAccess.GetFileAsString(Darkest.Data.RoomContentsConfig.ResPath), _curiosCfg);
+        GD.Print($"[拓扑UI] 内容表：{_roomContentsCfg.Rooms.Count} 类房间（主 = 内容表；" +
+                 "branch_battle_weight 为过渡覆盖项，默认 0）");
         // 🔴 Curio 的 `disease_one` 需要疾病目录（与 Sanitarium 同源，不另造数据）
         _saniCfgForCurio = Darkest.Data.SanitariumConfig.Parse(
             Godot.FileAccess.GetFileAsString(Darkest.Data.SanitariumConfig.ResPath));
@@ -844,6 +850,7 @@ public partial class ExpeditionRoot : Node
     // ------------------------------------------------------------------
 
     private Darkest.Data.CuriosConfig? _curiosCfg;
+    private Darkest.Data.RoomContentsConfig? _roomContentsCfg; // 片 B：内容层（房间类型 → 编成池/Curio 池 + 权重）
     private Darkest.Data.SanitariumConfig? _saniCfgForCurio; // Curio 患病用（与 Sanitarium 同源）
     private Darkest.Data.CurioConfig? _pendingCurio;
     private Label? _curioText;
