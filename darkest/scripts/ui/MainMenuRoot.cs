@@ -30,6 +30,38 @@ public partial class MainMenuRoot : Node2D
     private Label _title = null!;
     private Label _status = null!;
 
+    /// <summary>🔴 `#319`⑤ 判据取证：**跨场景**定时审计当前界面（挂到场景树根 ⇒ 不随切场景丢失）。</summary>
+    public void PrintUiAudit()
+    {
+        // ⚠️ 两个坑（我都踩过）：
+        //    ① 必须"切到目标场景之后再审"：`--hamlet` 是 **CallDeferred 切场景** ⇒ 立即审会审到 MainMenu；
+        //    ② 回调**不得捕获 `this`**（MainMenuRoot 在切场景时被释放 ⇒ 回调打到已释放对象 ⇒ 什么都不打印）
+        //    ⇒ 挂到 `Root` 上按间隔审几次，回调只用 **Timer 自己**的 `GetTree()` ✓
+        var timer = new Timer { Name = "UiAuditTick", WaitTime = 0.4, OneShot = false, Autostart = true };
+        int fires = 0;
+        timer.Timeout += () =>
+        {
+            SceneTree? tree = timer.GetTree();
+            if (tree is null)
+            {
+                return;
+            }
+
+            fires++;
+            Node target = tree.CurrentScene ?? tree.Root;
+            (bool ok, string report) = Darkest.Ui.LayoutAudit.Check(target);
+            GD.Print($"[UI 判据] 第 {fires} 次：{report}");
+            if (fires >= 5 || ok)
+            {
+                timer.QueueFree();
+            }
+        };
+        GetTree().Root.AddChild(timer);
+    }
+
+    /// <summary>🔴 `#319`⑤ 判据：供外部（冒烟/测试）调用。</summary>
+    public (bool Ok, string Report) RunUiAudit() => Darkest.Ui.LayoutAudit.Check(GetTree().CurrentScene ?? this);
+
     public override void _Ready()
     {
         _title = new Label
@@ -104,6 +136,14 @@ public partial class MainMenuRoot : Node2D
         // 🔴 跨场景步进冒烟：**先解析步骤**（只解析一次）—— 解析后本场景也要消费一步
         Darkest.Gameplay.Scene.SmokeScript.InitFromArgs();
         Darkest.Gameplay.Scene.SmokeScript.Step(this);
+
+        // 🔴 `ui_spec §14.5` / `#319`⑤ 的**两条自动判据**：`--ui-audit` ⇒ 遍历当前界面
+        //    ① 可见 Label 两两不相交 ② 每个 Panel 的 BgColor.a == 1.0
+        //    （把"文字重叠 / 框透明"从"看起来还行"变成**可断言**）✓
+        if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--ui-audit"))
+        {
+            CallDeferred(nameof(PrintUiAudit));
+        }
 
         // 🔴 输入审计（附 B ① 的例行项）：`--input-audit` ⇒ 打印自定义动作与绑定键
         //    （证据用途：任务动化是否真的生效 —— 不靠"我改了代码"自证）

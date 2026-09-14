@@ -51,8 +51,38 @@ public static class DdTheme
         // 提示条/进度等常用控件的默认字号（原来每处都写一遍）
         theme.SetFontSize("font_size", "ProgressBar", FontSmall);
         theme.SetFontSize("font_size", "TooltipLabel", FontSmall);
+
+        // 🔴 `ui_spec §14.4`（`#319`）：**Panel 样式一处定义** ——
+        //    底深色 · **`BgColor.a = 1.0`（不透明！用户原话"框不能是透明的"）** · 1px 边框 · 圆角 0 ✓
+        //    这样 ① "框"有了（读得出边界）② 判据 2（`BgColor.a == 1.0`）天然成立 ✓
+        theme.SetStylebox("panel", "PanelContainer", MakePanelStyle());
+        theme.SetStylebox("panel", "Panel", MakePanelStyle());
+        theme.SetStylebox("panel", "PopupPanel", MakePanelStyle());
         return theme;
     }
+
+    /// <summary>🔴 不透明面板样式（§14.2 ②）：底深色 + a=1.0 + 1px 边框 + 圆角 0。</summary>
+    public static StyleBoxFlat MakePanelStyle(Color? bg = null, Color? border = null)
+    {
+        var box = new StyleBoxFlat
+        {
+            BgColor = bg ?? PanelBg,          // ⚠️ a 必须 = 1.0（判据 2 直接断言它）
+            BorderColor = border ?? PanelBorder,
+            CornerRadiusTopLeft = 0,
+            CornerRadiusTopRight = 0,
+            CornerRadiusBottomLeft = 0,
+            CornerRadiusBottomRight = 0,
+        };
+        box.SetBorderWidthAll(1);              // 1px 边框（§14.2 ②）
+        box.SetContentMarginAll(6);            // 内边距（配合 MarginContainer 用；容器给最小尺寸见 §14.2 ④）
+        return box;
+    }
+
+    /// <summary>深色面板底（**不透明**）：`BgColor.a = 1.0` ✓</summary>
+    public static readonly Color PanelBg = new(0.09f, 0.10f, 0.14f, 1.0f);
+
+    /// <summary>面板边框（1px）</summary>
+    public static readonly Color PanelBorder = new(0.28f, 0.29f, 0.34f, 1.0f);
 
     /// <summary>把中央 Theme 挂到某根控件上（**向下继承** ⇒ 子控件自动套用）✓</summary>
     public static void Apply(Control root)
