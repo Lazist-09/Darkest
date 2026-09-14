@@ -62,6 +62,12 @@ public static class ExpeditionContext
     }
 
     /// <summary>
+    /// 🔴 **跨趟进度 + 解锁评估**（`O-86` / `next_round` ③）：与 `Gold`/`Roster`/`Heirlooms` **同层**、
+    /// **不随 `End()` 清空** ✓（此前**不存在**任何跨趟出征计数器 ⇒ 解锁阈值表没有输入 ⚠️；本属性补上这一层）
+    /// </summary>
+    public static Darkest.Gameplay.Sim.Run.RunProgress Progress { get; } = new();
+
+    /// <summary>
     /// **端到端冒烟阶段计数**（M8.0 ⑥）：`0` 未开始 ／ `1` 已跑完一趟回城 ／ `2` 已再出发。
     /// 只服务 `--e2e` 冒烟（**不参与游戏逻辑**），用于把"启动 到 跑图 到 回城 到 花钱 到 再出发"串成一次运行。
     /// </summary>

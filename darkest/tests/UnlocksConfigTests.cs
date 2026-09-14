@@ -35,23 +35,31 @@ public sealed class UnlocksConfigTests
     [TestMethod]
     public void ShippedUnlocks_LoadAndPassP27()
     {
-        UnlocksConfig cfg = UnlocksConfig.Parse(ReadData("unlocks.json"));
+        CuriosConfig curios = CuriosConfig.Parse(ReadData("curios.json"));
+        UnlocksConfig cfg = UnlocksConfig.Parse(ReadData("unlocks.json"),
+            HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
+            curios.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal), 12);
 
-        Assert.IsTrue(cfg.Unlocks.Count >= 1, "至少一条占位示例（形态要求）");
+        // 🔴 `#316`③ 的真清单（4 条：第 1／3／6／10 趟）—— 不再是占位
+        Assert.AreEqual(4, cfg.Unlocks.Count, "四条阈值（1／3／6／10 趟）");
+        CollectionAssert.AreEquivalent(new[] { 1, 3, 6, 10 },
+            cfg.Unlocks.Select(e => e.RequiredRunsFinished).ToArray(), "阈值 = 1／3／6／10");
+        Assert.AreEqual(8, cfg.RosterBaseCap, "起手名册可用上限 8（硬上限 12 见 C1）");
+
+        // 命名空间三种都必须出现（覆盖 C2 的三个消费点）
+        var targets = cfg.Unlocks.SelectMany(e => e.Unlocks).ToArray();
+        Assert.IsTrue(targets.Any(t => t.StartsWith("building:", StringComparison.Ordinal)), "有 building: 项");
+        Assert.IsTrue(targets.Any(t => t.StartsWith("curio:", StringComparison.Ordinal)), "有 curio: 项");
+        Assert.IsTrue(targets.Any(t => t.StartsWith("roster_cap:", StringComparison.Ordinal)), "有 roster_cap: 项");
+
         foreach (UnlockEntry e in cfg.Unlocks)
         {
             Assert.IsTrue(e.RequiredRunsFinished > 0 || e.RequiredBattlesWon > 0, "至少给一个阈值");
             Assert.IsTrue(e.Unlocks.Count > 0, "unlocks 非空");
         }
 
-        // 🔴 同一条 id 只能被一个条目解锁（P27 ②）
         var all = cfg.Unlocks.SelectMany(e => e.Unlocks).ToArray();
-        Assert.AreEqual(all.Length, all.Distinct(StringComparer.Ordinal).Count(),
-            "不得有两个条目解锁同一 id");
-
-        // 占位示例必须**显式标为占位**（避免将来被误当成真实内容）
-        Assert.IsTrue(cfg.Unlocks.Any(e => e.Unlocks.Contains("__placeholder__")),
-            "出厂数据应只有**占位**（内容清单待策划 O-86）");
+        Assert.AreEqual(all.Length, all.Distinct(StringComparer.Ordinal).Count(), "不得有两个条目解锁同一 id");
     }
 
     [TestMethod]

@@ -51,11 +51,21 @@ public partial class MainMenuRoot : Node2D
         Roster roster = ExpeditionContext.EnsureRoster(
             RosterConfig.Parse(FileAccess.GetFileAsString(RosterConfig.ResPath)));
 
-        // 🔴 合并包片 D：**解锁阈值表的启动级门禁**（P27）—— 形态先落，内容待策划（`O-86`）
-        //    放在**最早的启动点**：数据写错在进游戏前就炸，而不是等到第一次解锁判定才炸 ✓
-        UnlocksConfig unlocks = UnlocksConfig.Parse(FileAccess.GetFileAsString(UnlocksConfig.ResPath));
-        GD.Print($"[MainMenuRoot] 解锁阈值表：{unlocks.Unlocks.Count} 条（形态已落；**内容清单待策划 `O-86`**，" +
-                 "当前**无消费点** —— 登记过的形态，不是死声明）");
+        // 🔴 合并包片 D + `next_round` ③：**解锁阈值表**（P27）—— 用**真实目录**校验引用（C2：内核也要拦）
+        //    · 建筑目录 = `HeirloomConfig.AllowedBuildings`（tavern/abbey/stagecoach）
+        //    · Curio 目录 = `curios.json`
+        //    · 名册**硬上限** = `roster.Cap`（= 12；C1：解锁只抬高【当前可用上限】，起手 8）
+        CuriosConfig curiosCfg = CuriosConfig.Parse(FileAccess.GetFileAsString(CuriosConfig.ResPath));
+        UnlocksConfig unlocks = UnlocksConfig.Parse(FileAccess.GetFileAsString(UnlocksConfig.ResPath),
+            HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
+            curiosCfg.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal),
+            roster.Cap);
+
+        // 🔴 C1 的消费点：**把"当前可用上限"写进名册**（招募的满员判定按它；硬上限仍 12）
+        roster.CurrentCap = ExpeditionContext.Progress.CurrentRosterCap(unlocks, roster.Cap);
+        GD.Print($"[MainMenuRoot] 解锁阈值表：{unlocks.Unlocks.Count} 条　" +
+                 $"起手可用上限 {unlocks.RosterBaseCap}（硬上限 {roster.Cap}）　" +
+                 $"{ExpeditionContext.Progress.Audit(unlocks, roster.Cap)}");
 
         _status = new Label
         {

@@ -1204,6 +1204,9 @@ public partial class ExpeditionRoot : Node
         }
 
         _flow.ReturnToTown(outcome);
+        // 🔴 `next_round` ③：**记"一趟结束"到跨趟进度** ⇒ 解锁阈值表的输入（C2 的消费点从此有输入 ✓）
+        //    口径（如实标注）：统计**已结束的出征**（不论结局）—— 否则撤退/团灭的玩家永远解锁不了东西 ✓
+        ExpeditionContext.Progress.FinishRun(Log, outcome, _flow.Wins);
         ExpeditionContext.Roster?.ApplyReturnFromRun(Log, Session!.Roster().Select(r => (r.Id, r.Morale)));
         ExpeditionContext.End();
         GD.Print($"[拓扑UI] 回城：本趟结束（outcome={outcome}，共走 {_flow.StepsDone} 段 ／ 胜 {_flow.Wins}）" +

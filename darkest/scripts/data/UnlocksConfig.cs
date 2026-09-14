@@ -16,7 +16,8 @@ public sealed record UnlockEntry(
     [property: JsonPropertyName("source")] string? Source = null);
 
 public sealed record UnlocksHeader(
-    [property: JsonPropertyName("version")] int Version = 1);
+    [property: JsonPropertyName("version")] int Version = 1,
+    [property: JsonPropertyName("roster_base_cap")] int RosterBaseCap = 8);
 
 /// <summary>
 /// 🔴 **解锁阈值表**（`O-86` / 合并包片 D）—— 形态参照真机
@@ -36,7 +37,11 @@ public sealed record UnlocksConfig(
 {
     public const string ResPath = "res://data/unlocks.json";
 
-    public static UnlocksConfig Parse(string json)
+    /// <summary>起手【名册可用上限】（`config.roster_base_cap`；**硬上限**是 `roster.cap = 12`，见 C1）。</summary>
+    public int RosterBaseCap => Config?.RosterBaseCap ?? 8;
+
+    public static UnlocksConfig Parse(string json, IReadOnlySet<string>? buildingIds = null,
+        IReadOnlySet<string>? curioIds = null, int rosterHardCap = 12)
     {
         if (string.IsNullOrWhiteSpace(json))
         {
@@ -58,12 +63,13 @@ public sealed record UnlocksConfig(
             throw new InvalidDataException($"{ResPath}: JSON 解析失败 —— {ex.Message}", ex);
         }
 
-        Validate(cfg);
+        Validate(cfg, buildingIds, curioIds, rosterHardCap);
         return cfg;
     }
 
-    /// <summary>**P27 校验**（合并包片 D 的验收）。</summary>
-    public static void Validate(UnlocksConfig cfg)
+    /// <summary>**P27 校验**（合并包片 D 的验收）+ 🔴 **id 命名空间校验**（`#316`③ 的三种解锁对象）。</summary>
+    public static void Validate(UnlocksConfig cfg, IReadOnlySet<string>? buildingIds = null,
+        IReadOnlySet<string>? curioIds = null, int rosterHardCap = 12)
     {
         if (cfg.Unlocks is null)
         {
@@ -100,6 +106,40 @@ public sealed record UnlocksConfig(
                 }
 
                 seen[target] = e.Id;
+
+                // 🔴 命名空间校验（**引用的对象必须存在** —— 与 P26 同一条纪律）：
+                //    building:<id> ／ curio:<id> ／ roster_cap:<N>（N ≤ 硬上限，见 C1）
+                if (target.StartsWith("building:", StringComparison.Ordinal))
+                {
+                    string id = target["building:".Length..];
+                    if (buildingIds is null || !buildingIds.Contains(id))
+                    {
+                        throw new InvalidDataException(
+                            $"{ResPath}: 解锁引用了不存在的建筑 \"{id}\"（须在建筑目录里）（P27 ④）。");
+                    }
+                }
+                else if (target.StartsWith("curio:", StringComparison.Ordinal))
+                {
+                    string id = target["curio:".Length..];
+                    if (curioIds is null || !curioIds.Contains(id))
+                    {
+                        throw new InvalidDataException(
+                            $"{ResPath}: 解锁引用了不存在的 Curio \"{id}\"（须在 `curios.json` 里）（P27 ④）。");
+                    }
+                }
+                else if (target.StartsWith("roster_cap:", StringComparison.Ordinal))
+                {
+                    if (!int.TryParse(target["roster_cap:".Length..], out int cap) || cap <= 0 || cap > rosterHardCap)
+                    {
+                        throw new InvalidDataException(
+                            $"{ResPath}: `roster_cap:` 的值必须是 1..{rosterHardCap}（**硬上限**，见 C1）—— 实际 \"{target}\"。");
+                    }
+                }
+                else
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: \"{target}\" 的命名空间未知（合法：`building:` ／ `curio:` ／ `roster_cap:`）（P27 ④）。");
+                }
             }
         }
     }

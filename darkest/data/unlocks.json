@@ -1,9 +1,18 @@
 {
-  "config": { "version": 1 },
-  "_note": "解锁阈值表（O-86 / 合并包片 D）：【形态先落】，内容清单待策划。阈值 = 已完成出征数 / 已打赢场数。当前【无消费点】（内容未定）—— 这是登记过的形态，不是死声明。",
+  "config": { "version": 1, "roster_base_cap": 8 },
+  "_note": "解锁阈值表（O-86 内容清单来自 #316③）：按【已完成出征数 runs】逐步解锁。id 命名空间：building:<id> ／ curio:<id> ／ roster_cap:<N>。起手态：城池只有 Stage Coach ＋ 4 种 Curio ＋ 名册可用上限 8（硬上限 12 见 C1）。",
   "unlocks": [
-    { "id": "placeholder_first_unlock", "required_runs_finished": 1, "required_battles_won": 0,
-      "unlocks": ["__placeholder__"],
-      "source": "形态占位示例（真机形态：generated_dungeons[{id, required_number_of_quests_finished}]）；内容待策划（O-86）" }
+    { "id": "unlock_tavern", "required_runs_finished": 1, "required_battles_won": 0,
+      "unlocks": ["building:tavern"],
+      "source": "#316③：第 1 趟后 ⇒ 解锁 Tavern（减压）" },
+    { "id": "unlock_abbey_and_curios", "required_runs_finished": 3, "required_battles_won": 0,
+      "unlocks": ["building:abbey", "curio:cur_book_stack", "curio:cur_altar"],
+      "source": "#316③：第 3 趟后 ⇒ 解锁 Abbey ＋ Curio【书堆/圣坛】（起手 4 种 → 6 种）" },
+    { "id": "unlock_roster_10", "required_runs_finished": 6, "required_battles_won": 0,
+      "unlocks": ["roster_cap:10"],
+      "source": "#316③：第 6 趟后 ⇒ 名册可用上限 8 → 10" },
+    { "id": "unlock_roster_12", "required_runs_finished": 10, "required_battles_won": 0,
+      "unlocks": ["roster_cap:12"],
+      "source": "#316③：第 10 趟后 ⇒ 名册可用上限 10 → 12（= 硬上限，见 C1）" }
   ]
 }

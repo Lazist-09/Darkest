@@ -332,7 +332,8 @@ public sealed class ExpeditionFlow
     /// · 池为空 ⇒ 返回 `null`（**该房间没有内容** ⇒ 调用方走既有回退，不静默造一个）✓
     /// 🔴 主 = 内容表；`branch_battle_weight` 只是**过渡覆盖项**（默认 0），不得与主混（契约 §3 尾注）。
     /// </summary>
-    public string? PickCurioForRoom(Darkest.Data.RoomContentsConfig contents, string roomType, bool isBranch)
+    public string? PickCurioForRoom(Darkest.Data.RoomContentsConfig contents, string roomType, bool isBranch,
+        IReadOnlySet<string>? allowedCurios = null)
     {
         // 候选 = 该类型的行 ∪（支路房）branch 行；权重取【行 weight】（组内权重）
         var candidates = new List<(int Weight, string CurioId)>();
@@ -342,6 +343,13 @@ public sealed class ExpeditionFlow
             {
                 foreach (string id in row.CurioPool ?? System.Array.Empty<string>())
                 {
+                    // 🔴 消费点 (b)：**只从【已解锁】的 Curio 里抽**（`O-86` 起手 4 种 → 解锁后 6 种）——
+                    //    这是**内核级**拦截（C2：不能只在 UI 上"锁着"）✓ `allowedCurios == null` ⇒ 不限制（测试/旧路径）
+                    if (allowedCurios is not null && !allowedCurios.Contains(id))
+                    {
+                        continue;
+                    }
+
                     candidates.Add((row.Weight, id));
                 }
             }
