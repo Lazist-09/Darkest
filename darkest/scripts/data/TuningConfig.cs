@@ -65,8 +65,11 @@ public sealed record TuningOvertimeReinforcement(
     [property: JsonPropertyName("fill_or_buff")] string FillOrBuff,
     [property: JsonPropertyName("buff_attack_delta")] int BuffAttackDelta,
     [property: JsonPropertyName("buff_speed_delta")] int BuffSpeedDelta,
-    [property: JsonPropertyName("wave_interval_rounds")] int WaveIntervalRounds = 3,
-    [property: JsonPropertyName("safety_factor")] double SafetyFactor = 0.8,
+    // 🔴 数字外置：同样**不给默认值**（原先 `= 3` 而 data 里根本没这个键 ⇒ 3 是"藏在代码里的平衡数字"）✓
+    [property: JsonPropertyName("wave_interval_rounds")] int WaveIntervalRounds,
+    // 🔴 数字外置（用户 2026-09-14）：**不给默认值** —— JSON 若缺 `safety_factor` ⇒ 取 0 ⇒
+    //    被下面的 `o.SafetyFactor <= 0` 校验**启动即拦下**（旧写法 `= 0.8` 会让"缺键"静默变成 0.8 ⚠️）
+    [property: JsonPropertyName("safety_factor")] double SafetyFactor,
     [property: JsonPropertyName("m_value")] int? MValue = null,
     [property: JsonPropertyName("measured_d")] double MeasuredD = 0,
     [property: JsonPropertyName("enemy_full_hp")] int EnemyFullHp = 0,
@@ -607,7 +610,14 @@ public sealed record TuningConfig(
         if (o.MeasuredD <= 0 || o.EnemyFullHp <= 0 || o.SafetyFactor <= 0)
         {
             throw new InvalidDataException(
-                $"{ResPath}: overtime_reinforcement 需 measured_d > 0 / enemy_full_hp > 0 / safety_factor > 0（P16）。");
+                $"{ResPath}: overtime_reinforcement 非法（measured_d / enemy_full_hp / safety_factor 必须 > 0）" +
+                " —— 🔴 这几项**必须来自数据**，不许靠 C# 默认值兜底（数字外置纪律）。");
+        }
+
+        if (o.WaveIntervalRounds <= 0)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: overtime_reinforcement.wave_interval_rounds 必须 > 0（数字外置：data 里没有它就算缺键）。");
         }
 
         int expectedM = Math.Max(3, (int)Math.Ceiling(o.EnemyFullHp / (o.MeasuredD * o.SafetyFactor)));

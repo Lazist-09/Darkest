@@ -152,18 +152,38 @@ public partial class BattleRoot : Node2D
         GD.Print($"[片③·页内容] {_ui.DescribeCurrentPage()}");
     }
 
-    /// <summary>🔴 片③ 冒烟：**真实点击第 N 张我方卡** ⇒ 应锁进 E 区详情页。</summary>
-    private void ShowCardDetail(int slot)
+    /// <summary>
+    /// 🔴 片③ 冒烟：**真实点击第 N 张我方卡**（`N` = **卡序，0 基**）⇒ 应锁进 E 区详情页。
+    /// ⚠️ 卡序 ≠ 槽位：我方卡按 DD 式从左到右显示 **4 · 3 · 2 · 1** ⇒ 卡序 0 = **槽位 4** ✓
+    ///    我原先把 `N` 直接当槽位用 ⇒ `--battle-card=0` 触发 `ArgumentOutOfRangeException: 槽位 0 越界 [1,6]` ⚠️
+    ///    （由 UI 设计师在窗口指出，附证据）⇒ 现按【卡序 → 槽位】映射，且**越界只打印不抛异常** ✓
+    /// </summary>
+    private void ShowCardDetail(int cardIndex)
     {
+        const int PlayerCombatCards = 4; // 我方战斗位 4 张（显示顺序 4·3·2·1）
+        if (cardIndex < 0 || cardIndex >= PlayerCombatCards)
+        {
+            GD.Print($"[片③] --battle-card={cardIndex} 越界：卡序合法范围 0..{PlayerCombatCards - 1}" +
+                     "（我方卡从左到右显示 4·3·2·1；卡序 0 = 槽位 4）—— 不抛异常，仅提示 ✓");
+            return;
+        }
+
+        int slot = PlayerCombatCards - cardIndex; // 卡序 0 → 槽 4；1 → 3；2 → 2；3 → 1 ✓
         _ui.PressCard(slot, isPlayer: true);
-        GD.Print($"[片③] 点单位卡 ⇒ E 区详情页锁定槽位 = {_ui.LockedSlot}（应为 {slot}）");
+        GD.Print($"[片③] 点单位卡 ⇒ 卡序 {cardIndex} 映射到槽位 {slot}；E 区详情页锁定槽位 = {_ui.LockedSlot}");
     }
 
-    /// <summary>🔴 片③ 冒烟：**切到 E 区多功能框的【地图】页**（真实走 `SetMultiFunctionPage` 同一入口）。</summary>
+    /// <summary>
+    /// 🔴 片③ 冒烟：**切到 E 区多功能框的【地图】页**（真实走 `SetMultiFunctionPage` 同一入口）。
+    /// ⚠️ 页签顺序 = { 详情 0 ／ 日志 1 ／ 序列 2 ／ 编成 3 ／ **地图 4** } ⇒ 这里必须是 **4**。
+    ///    我原先写 2（= 序列）⇒ 实测 `--battle-map` 落在【序列】页，**地图页冒烟根本走不到** ⚠️
+    ///    （由 UI 设计师在窗口指出，附证据：`--battle-tab=4` 才是地图页）—— 已修 ✓
+    /// </summary>
     private void ShowMapPage()
     {
-        _ui.SetMultiFunctionPage(2);
-        GD.Print($"[片③] 战斗界面：E 区当前页 = {_ui.MultiFunctionPage}（2 = 地图）");
+        const int MapPageIndex = 4; // 与 `BattleUi` 的页签表同源；改页签表时必须同步（否则冒烟又走错页）
+        _ui.SetMultiFunctionPage(MapPageIndex);
+        GD.Print($"[片③] 战斗界面：E 区当前页 = {_ui.MultiFunctionPage}（{MapPageIndex} = 地图）");
         GD.Print($"[片③] {_ui.DescribeMiniMap()}");
     }
 

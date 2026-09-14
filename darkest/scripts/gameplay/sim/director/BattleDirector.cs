@@ -798,7 +798,9 @@ public sealed class BattleDirector
             return minM;
         }
 
-        double safety = o.SafetyFactor > 0 ? o.SafetyFactor : 0.8;
+        // 🔴 数字外置：`o.SafetyFactor` 已由 `TuningConfig` 校验为 > 0 ⇒ **不再回落 0.8**
+        //    （旧写法 `o.SafetyFactor > 0 ? o.SafetyFactor : 0.8` 是"静默默认"，违反纪律且掩盖数据缺键 ⚠️）
+        double safety = o.SafetyFactor;
         return Math.Max(minM, (int)Math.Ceiling(fullHp / (d * safety)));
     }
 
