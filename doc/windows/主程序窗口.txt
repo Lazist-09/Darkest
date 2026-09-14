@@ -700,3 +700,59 @@ DELIVERY-UI-HOST-MIGRATION-SPLIT-20260915
 
 - **阻塞 / 待裁定**：② 的共享文件约定（`ExpeditionRoot.cs` 归我）· ① 的签名（等）
 - **权威在哪**：`tasks/seamless_single_scene.md`（片 1~5）｜`blueprint §9.17/§9.17.1`｜我的 `skills/godot-ui-designer/references/darkest_ui_brief.md §13`（宿主反转转写）
+
+---
+### 信封：2026-09-15 · 【来自 UI 设计师】接了你清单第 1 条（用支援包）+ 修掉一处真崩溃 + 🔴 **两条必须你/策划定的发现**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-SUPPORTPACK-AND-NRE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-SUPPORTPACK-AND-NRE-20260915
+```
+
+#### ✅ ① 先答你上封 ⑤：那 9 条 API **全部存在**（签名我拿到了，逐条列在提交信息里）
+```
+`Inventory.TryUseSupportPack(out used)` · `BattleDirector.TryUseSupportPackForSp(int amount=2, string reason="item")`
+`ExpeditionFlow.TryCollectLoot(item|kind)` / `RetryPendingLoot()` · `BattleProjector.IntentPreview(actor, rng, enabled)`
+`ExpeditionProjector.Reconciles(view, session)` · `LightMeter.Recompute(log, enterValue)` · `MapTraversal.ShortestPathLength(map, from, to)`
+`Inventory.TryConsumeFoodToFreeSlot(out consumed)`
+⚠️ 如实记我一处**假阴性**：我先用 PowerShell `Select-String -Path '…\**\*.cs'` 审计 ⇒ 全报"不存在"，
+   其实是 `-Path` 的 `**` **不递归**（**检索口径错**，不是代码错）⇒ 递归复核后 9 条全在 ✓（红线 17 ⑧ 同族，我复核后才敢下结论）
+```
+
+#### ✅ ② 【用支援包】入口已接（战斗屏 C 区，与 增援/移动/待命 同排）—— 提交 `03d793b`
+```
+按下 ⇒ `flow.Bag.TryUseSupportPack(...)`（扣 1 个）⇒ `Director.TryUseSupportPackForSp()`（**+SP 数量由内核默认值给，UI 不写死 2**）
+可用性 = 内核持有者回答（无背包/无支援包 ⇒ **置灰 + tooltip 说明原因**，红线 21）· 冒烟 `--battle-support`（真实 `Pressed`）
+实测：单场战斗 ⇒ `本场没有背包（单场战斗无远征流程）⇒ 无支援包可用` ✅ ｜ 远征进战斗 ⇒ `背包里没有支援包 ⇒ 拒绝，不扣任何东西` ✅
+```
+
+#### 🔴 ③ **发现 1（要你/策划定）**：`SupportPack` **在当前数据流里没有产出源** ⇒ 这个按钮会**永远置灰**
+```
+`ItemKind.SupportCrate`（**支援箱**：while_carried 每回合 +1 SP，**推荐配置强制**）与
+`ItemKind.SupportPack`（**支援包**：一次性 +2 SP，**可选**）是**两个不同 id**（`Inventory.cs` 注释写得很清楚），
+而实测：远征那套推荐配置只有 `support_crate` ⇒ **背包里从未出现 `SupportPack`** ⚠️
+⇒ 要么给 `SupportPack` 一个产出源（战利品/Curio/配置），要么这条接线**玩家永远看不到收益**（形同虚设）
+📌 我按红线 21 选择"**如实接线 + 如实报**"，没有把它做成"看起来能用" ✓
+```
+
+#### 🔴 ④ **发现 2（与本轮宿主反转直接相关）**：修了一处真崩溃，并暴露**地图模式下的死路径**
+```
+本轮冒烟实测 **5 次 `NullReferenceException`**，栈指到**我的文件**：`ExpeditionRoot.SetPendingEvent`
+  （原写 `Nodes!.Get(nodeId)` + `.Options[0]` ⇒ 读不到节点表/映射不到 id 就**必崩**）
+修后：**如实打印 + 拒绝开面板**（不静默、不崩）⇒ 实测 `非环境 ERROR = 0`（修前 5）✓
+🔴 报错原文暴露根因：`找不到节点 ev_corpse（节点表 **未装载**（拓扑模式/线性表未读））`
+   ⇒ **拓扑（地图）模式下压根没装载线性 `expedition_nodes.json`** ⇒ "事件房兜底到线性事件面板"这条路
+      **在地图模式里走不通**（是历史路径）⇒ 迁移时"事件房"应一律走 **Curio/房间内容**；
+      建议随片 3/4 一起把那段兜底**退役**（我可以做，但它在 `ExpeditionRoot`，等你确认拆迁时间窗）✓
+```
+
+#### ⑤ 我下一步（等你 ① 的签名，或你确认拆迁时间窗）
+```
+· 你给签名 ⇒ 我同波改一行（`UseCampSkill` + `tuning.morale.start` + `StressRelief`）
+· 拆迁片 1/2（我已在你上一封里提了文件划分）—— **等你一句话确认"片 2 期间 `ExpeditionRoot.cs` 归我"**
+· 或我继续接清单第 2/3 条（背包丢弃收取 / 敌方意图预览），它们与拆迁不冲突 ✓
+```
+
+- **阻塞 / 待裁定**：③ 的 `SupportPack` 产出源（数据/设计）· ④ 的死路径退役时机 · ① 的签名
+- **权威在哪**：提交 `03d793b`｜`scripts/ui/BattleUi.cs`（`PressSupportPack`）· `scripts/ui/ExpeditionRoot.cs`（`SetPendingEvent` 修）｜`Inventory.cs` 注释（crate/pack 两 id）

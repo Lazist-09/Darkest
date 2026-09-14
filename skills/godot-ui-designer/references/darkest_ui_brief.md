@@ -1,4 +1,4 @@
-# Darkest 项目 · UI 设计师简报（收件箱转写）
+﻿# Darkest 项目 · UI 设计师简报（收件箱转写）
 
 > 🔴 **转写标记（回读这就是"已写进 skill"的证据，红线 20）**：`INBOX-TRANSCRIBED-DARKEST-UI-20260914`
 > **转写来源**：`doc/windows/主程序窗口.txt`（508 行）· `doc/windows/策划窗口.txt`（950 行）· `doc/windows/架构窗口.txt`（空）
@@ -696,7 +696,16 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 ```
 ✅ 已完成：调色板自检进必经路径（架构裁定①）· 标题 Bold（架构裁定②）· 光档单一常量源 · `Unlocks` 注入（修 Curio 真缺陷）
 ⏳ 待主程序给签名：(a) `UseCampSkill` 改成读 `effect_number`（+ `tuning.morale.start` + `StressRelief` 同一波）
-⏳ 我已接手的下一批（9 条"等界面接线"的内核 API）：支援包使用 → 背包丢弃收取流程 → 敌方意图预览 → 其余按需
+✅ 已接第 1 条（`03d793b`）：战斗屏【用支援包】入口（`Inventory.TryUseSupportPack` ⇒ `BattleDirector.TryUseSupportPackForSp`，
+   **+SP 数量由内核默认值给**；可用性由内核回答 ⇒ 置灰 + tooltip）· 冒烟 `--battle-support`（真实 `Pressed`）
+   🔴 **但发现：`SupportPack`（支援包，一次性 +2 SP）在当前数据流里没有产出源**（只有 `SupportCrate` 支援箱）
+      ⇒ 该按钮在现数据下**永远置灰** ⇒ 已报主程序/策划要一个产出源（红线 21：如实接线 + 如实报，不装能用）
+✅ 顺手修掉一处真崩溃：`ExpeditionRoot.SetPendingEvent` 的 `Nodes!.Get(...)` + `.Options[0]` ⇒ 5×NRE ⇒ 现改为
+   **如实打印 + 拒绝开面板**（0 错误）· 并暴露根因：**拓扑模式下没装载线性 `expedition_nodes.json`**
+   ⇒ "事件房兜底到线性事件面板"是**地图模式里的死路径** ⇒ 迁移时应走 Curio/房间内容（建议随片 3/4 退役）
+⏳ 下一批（9 条清单剩余）：背包丢弃收取流程（`TryCollectLoot`/`RetryPendingLoot`）→ 敌方意图预览（`IntentPreview`）→ 其余按需
+📌 假阴性教训（我的）：PowerShell `Select-String -Path '…\**\*.cs'` 的 `**` **不递归** ⇒ 9 条 API 全被误报"不存在"
+   ⇒ **极端/全零读数先怀疑检索口径**（红线 17 ⑧ 同族），递归复核后才下结论 ✓
 ```
 
 ---
