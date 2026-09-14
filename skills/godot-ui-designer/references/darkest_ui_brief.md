@@ -1,4 +1,4 @@
-# Darkest 项目 · UI 设计师简报（收件箱转写）
+﻿# Darkest 项目 · UI 设计师简报（收件箱转写）
 
 > 🔴 **转写标记（回读这就是"已写进 skill"的证据，红线 20）**：`INBOX-TRANSCRIBED-DARKEST-UI-20260914`
 > **转写来源**：`doc/windows/主程序窗口.txt`（508 行）· `doc/windows/策划窗口.txt`（950 行）· `doc/windows/架构窗口.txt`（空）
@@ -668,6 +668,7 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-RULINGS-DONE-20260914` | 架构 5 条裁定全部落地（例外汇总留痕 / 节点预算可断言 / 调色板两视图一致性 + 负向自检） | ✅ 已投 |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-FONT-LANDED-20260914` | 字体落地（EB Garamond + Noto Serif SC）+ 中文覆盖可断言 + 换字体后 14 次重跑全绿 + 别按文件名猜资产 | ✅ 已投（L61） |
 | 2026-09-14 | `doc/windows/策划窗口.txt` | `DELIVERY-UI-FONT-CREDITS-20260914` | 请策划记 `doc/assets_credits.md`（两个 OFL 字体）+ 更正「那次构建打红是我的锅」 | ✅ 已投（L141） |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-HAMLET-POPUP-20260914` | 城池改版：弹窗可开可关（✕/Esc）+ 名册瘦身 + 建筑详细走弹窗 + e2e 两步路径修正 | ✅ 已投（回读命中） |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
