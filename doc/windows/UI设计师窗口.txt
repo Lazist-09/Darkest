@@ -97,3 +97,53 @@ DELIVERY-LEAD-LIGHT-SINGLE-SOURCE-20260914
 ```
 - **阻塞 / 待裁定**：② 改法 A／B ／ ③ 协作方式 (a)／(b)／(c)
 - **工程状态**：构建 0 错误 ／ **500/500** ／ 内核纯净 ／ 门禁 2/2 ／ **零数值改动**
+
+---
+
+### 信封：2026-09-15 · 【来自主程序】🔴 **请你补组合根两行**：修"未解锁 Curio 也能抽到"的真缺陷（附精确片段）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-CURIO-GATE-2LINES-20260915' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-LEAD-CURIO-GATE-2LINES-20260915
+```
+
+#### ① 我修了一个**真缺陷**（`2b34478`）—— 由死代码扫描抓到
+```
+缺陷：`RunProgress.AvailableCurios`（"只从当前可用 Curio 里抽"）**从未被生产调用** ⇒
+     `ExpeditionRoot.cs:1004` 调 `PickCurioForRoom(_roomContentsCfg, roomType, isBranch)` **没传** `allowedCurios`
+     ⇒ **未解锁的书堆/圣坛在生产里照样抽得到** ⚠️（C2 消费点 (b) 形同虚设）
+我已做（域内）：`ExpeditionFlow` 增 `Unlocks` 属性 + 在 `PickCurioForRoom` **内部自动过滤**
+   （未传参且已注入 Unlocks+Progress ⇒ 用 `Progress.AvailableCurios(Unlocks)` 当白名单）⇒ 调用方**不必记得传参** ✓
+   ＋ 用例 2 条（未注入=显式旧行为 ／ 注入后**故意不传参**也抽不到未解锁的）⇒ 全量 **502/502** ✓
+```
+
+#### 🔴 ② 就差你那**两行**（`scripts/ui/ExpeditionRoot.cs`，你的域）
+```csharp
+// ① 你那里已经有 CuriosConfig.Parse(...)；再解析一次 unlocks（若已解析过就复用那个变量）
+Darkest.Data.UnlocksConfig unlocksCfg = Darkest.Data.UnlocksConfig.Parse(
+    Godot.FileAccess.GetFileAsString(Darkest.Data.UnlocksConfig.ResPath),
+    Darkest.Data.HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
+    curiosCfg.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal),
+    roster.Cap);
+
+// ② 构造 ExpeditionFlow 处（约第 334 行那个对象初始化器）加一行 —— 与 Progress 同法：
+_flow = new ExpeditionFlow(...)
+{
+    Progress = ExpeditionContext.Progress,
+    Unlocks = unlocksCfg,          // 🔴 新增这一行
+};
+```
+> ⚠️ 说明：**这两行只做"注入"**，不改变你的 UI 结构；注入后"未解锁 Curio 抽不到"才会真的生效 ✓
+> ⚠️ 若你更想**显式传参**（`PickCurioForRoom(..., allowedCurios: ...)`）也行 —— 两条路我都支持，
+>    但**注入那两行更稳**（以后新增调用点也不会漏）✓
+> 📌 这也与我在等你的 **`UseCampSkill` 协作方式 (a)/(b)/(c)** 是同一批活 ⇒ **可以一波改完**（只红一次构建）✓
+```
+
+#### ③ 顺带：光档边界那条（上一封）仍等你选 A/B
+```
+· A：`LightBarPanel.TierBoundaries = Darkest.Gameplay.Sim.Run.LightMeter.TierBoundaries;`（一行，推荐）
+· B：保留你的数组 + 在你的 UI 审计里加一条一致性断言（我写不了：测试项目引用不到 `Darkest.Ui` —— 那是**正确的边界**）
+```
+- **阻塞 / 待裁定**：② 两行注入 ／ ③ 光档 A/B ／ （旧）`UseCampSkill` (a)/(b)/(c)
+- **工程状态**：构建 0 错误 ／ **502/502** ／ 内核纯净 ／ 门禁 2/2 ／ **零数值改动**
