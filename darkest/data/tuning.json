@@ -2,6 +2,7 @@
   "morale": { "min": 0, "max": 100, "start": 50 },
   "virtue_rate": { "base_percent": 10, "resilience_divisor": 2 },
   "mental_reduction": { "resilience_divisor": 250, "cap_percent": 40 },
+  "physical_mitigation": { "divisor": 30 },
   "weak": { "damage_mult": 0.5, "speed_mult": 0.7, "hp_lock": 1 },
   "weak_recovery": { "base": 10, "per_healthy_support_ally": 5, "resilience_divisor": 20, "cap": 25 },
   "weak_exit_hp_ratio": 0.10,

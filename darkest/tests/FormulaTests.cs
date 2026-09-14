@@ -40,31 +40,31 @@ public sealed class FormulaTests
 
     [TestMethod]
     public void Warrior_To_MeleeMook_Is_9()
-        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 8));
+        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 8, mitigationDivisor: 30));
 
     [TestMethod]
     public void Medic_To_MeleeMook_Is_9()
-        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 11, skillMultiplier: 1.0, defense: 8));
+        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 11, skillMultiplier: 1.0, defense: 8, mitigationDivisor: 30));
 
     [TestMethod]
     public void Commissar_To_RangedArcher_Is_9()
-        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 11, skillMultiplier: 0.95, defense: 4));
+        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 11, skillMultiplier: 0.95, defense: 4, mitigationDivisor: 30));
 
     [TestMethod]
     public void Tank_To_MeleeMook_Is_6()
-        => Assert.AreEqual(6, BattleMath.PhysicalHit(attack: 8, skillMultiplier: 0.9, defense: 8));
+        => Assert.AreEqual(6, BattleMath.PhysicalHit(attack: 8, skillMultiplier: 0.9, defense: 8, mitigationDivisor: 30));
 
     [TestMethod]
     public void MeleeMook_To_Warrior_Is_9()
-        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 8));
+        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 8, mitigationDivisor: 30));
 
     [TestMethod]
     public void MeleeMook_To_Tank_Is_9()
-        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 12));
+        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 12, mitigationDivisor: 30));
 
     [TestMethod]
     public void RangedArcher_To_Medic_Is_10()
-        => Assert.AreEqual(10, BattleMath.PhysicalHit(attack: 13, skillMultiplier: 0.9, defense: 4));
+        => Assert.AreEqual(10, BattleMath.PhysicalHit(attack: 13, skillMultiplier: 0.9, defense: 4, mitigationDivisor: 30));
 
     /// 🔴 数字外置（用户 2026-09-14）：`SpiritHit` 的**精神减免参数改为必填** ⇒
     ///    用例显式传【夹具值 250/40】（= 出厂 `tuning.json` 的 `mental_reduction` 两值）；
@@ -107,8 +107,9 @@ public sealed class FormulaTests
     [TestMethod]
     public void PhysicalMitigation_Converges_NeverNegative()
     {
-        Assert.AreEqual(8 / 38.0, BattleMath.PhysicalMitigation(8), 1e-12);
-        double highDef = BattleMath.PhysicalMitigation(10_000);
+        // 🔴 数字外置：减免除数必填（夹具值 30 = 出厂 tuning 的 physical_mitigation.divisor）✓
+        Assert.AreEqual(8 / 38.0, BattleMath.PhysicalMitigation(8, divisor: 30), 1e-12);
+        double highDef = BattleMath.PhysicalMitigation(10_000, divisor: 30);
         Assert.IsTrue(highDef < 1.0 && highDef > 0.99, "高防收敛向 1 但永不为 1/负");
     }
 

@@ -18,6 +18,7 @@ public sealed record BalanceTable(TuningConfig Tuning)
     public double CritMultiplier => Tuning.CritMultiplier;
     public bool DamageFloatEnabled => Tuning.DamageFloat.Enabled;
     public int MentalReductionDivisor => Tuning.MentalReduction.ResilienceDivisor;
+    public int PhysicalMitigationDivisor => Tuning.PhysicalMitigation.Divisor; // 🔴 数字外置：物防减免除数来自 data ✓
     public int MentalReductionCapPercent => Tuning.MentalReduction.CapPercent;
     public int SpeedFloatPercent => Tuning.SpeedFloat.Percent;
     public bool SpeedFloatEnabled => Tuning.SpeedFloat.Enabled;

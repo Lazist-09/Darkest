@@ -21,8 +21,10 @@ public static class BattleMath
         => System.Math.Clamp(100 - dodge + hitMod, clampMin, clampMax);
 
     /// <summary>物理减免率（§2.1 递减公式，高防边际递减、收敛）：physDef / (physDef + 30)。</summary>
-    public static double PhysicalMitigation(int physDef)
-        => physDef / (double)(physDef + 30);
+    // 🔴 数字外置（用户 2026-09-14）：`divisor`（原先硬编码 30）**必填** —— 由 `BalanceTable.PhysicalMitigationDivisor`
+    //    从 `tuning.json` 的 `physical_mitigation.divisor` 传入 ✓（值不变 = 零数值改动）
+    public static double PhysicalMitigation(int physDef, int divisor)
+        => physDef / (double)(physDef + divisor);
 
     /// <summary>精神减免率（§2.2 / #158 连续公式）：min(韧性/250, capPercent%)。韧性 50 → 20%。</summary>
     // 🔴 数字外置纪律（用户 2026-09-14）：**平衡数字不得以 C# 默认参数形式存在** ——
@@ -91,12 +93,13 @@ public static class BattleMath
         int attack,
         double skillMultiplier,
         int defense,
+        int mitigationDivisor,
         double critMultiplier = 1.0,
         double damageFloat = 1.0,
         int damageFloor = 1)
     {
         double baseValue = attack * skillMultiplier;              // §2.1 基础值
-        double mitigation = PhysicalMitigation(defense);          // §2.1 减免率（递减，收敛）
+        double mitigation = PhysicalMitigation(defense, mitigationDivisor); // §2.1 减免率（除数来自 data ✓）
         double raw = baseValue * (1.0 - mitigation)               // §2.1 实际伤害
                    * critMultiplier
                    * damageFloat;

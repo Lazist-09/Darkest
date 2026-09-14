@@ -23,4 +23,5 @@ scripts/data/TuningConfig.cs | t.Inventory.SlotCap != 12 | 背包槽位结构断
 scripts/core/math/BattleMath.cs | / 100.0 | 百分数 → 小数
 scripts/core/math/BattleMath.cs | * 100.0 | 小数 → 百分数
 scripts/core/math/BattleMath.cs | * 2.0 - 1.0 | 0..1 → -1..1 归一
-scripts/core/math/BattleMath.cs | (double)(physDef + 30) | ⚠️ 待办：物理减免除数 30 应来自 tuning（本行暂留白名单会掩盖它，见提交说明）
+# ⚠️ 曾经的 `(double)(physDef + 30)` 条目已删除：那个 30 已搬到 `tuning.json` 的 `physical_mitigation.divisor` ✓
+#    （白名单条目也要"不许死条目"：代码改了就要同步删，否则它会掩盖以后新写进同一行的硬编码 ⚠️）

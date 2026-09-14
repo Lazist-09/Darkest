@@ -16,7 +16,7 @@ public sealed class FormulaSmokeTests
     [TestMethod]
     public void Warrior_To_MeleeMook_Physical_Is_9()
     {
-        int damage = BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 8);
+        int damage = BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 8, mitigationDivisor: 30);
         Assert.AreEqual(9, damage);
     }
 
@@ -37,7 +37,7 @@ public sealed class FormulaSmokeTests
     [TestMethod]
     public void Damage_Never_Below_One()
     {
-        Assert.AreEqual(1, BattleMath.PhysicalHit(attack: 1, skillMultiplier: 0.1, defense: 999));
+        Assert.AreEqual(1, BattleMath.PhysicalHit(attack: 1, skillMultiplier: 0.1, defense: 999, mitigationDivisor: 30));
         Assert.AreEqual(1, BattleMath.SpiritHit(attack: 1, skillMultiplier: 0.1, resilience: 1000,
             mentalDivisor: 250, mentalCapPercent: 40));
     }

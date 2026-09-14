@@ -211,7 +211,7 @@ public sealed class BattleProjector
             }
             else
             {
-                double mitig = Core.Math.BattleMath.PhysicalMitigation(victim.EffectivePhysDef);
+                double mitig = Core.Math.BattleMath.PhysicalMitigation(victim.EffectivePhysDef, _balance.PhysicalMitigationDivisor);
                 raw = attacker.EffectiveAttack * mult * (1.0 - mitig);
             }
 

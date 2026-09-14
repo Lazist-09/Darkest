@@ -23,6 +23,14 @@ public sealed record TuningMentalReduction(
     [property: JsonPropertyName("resilience_divisor")] int ResilienceDivisor,
     [property: JsonPropertyName("cap_percent")] int CapPercent);
 
+/// <summary>
+/// 🔴 物理减免除数（数字外置，用户 2026-09-14）：`减免率 = 物防 / (物防 + divisor)`。
+/// 原先 30 **硬写在 `BattleMath.PhysicalMitigation` 函数体里** ⇒ 策划改平衡必须改 C# ⚠️
+/// ⇒ 现搬到 `tuning.json` 的 `physical_mitigation.divisor`（**值不变 = 零数值改动**）✓
+/// </summary>
+public sealed record TuningPhysicalMitigation(
+    [property: JsonPropertyName("divisor")] int Divisor);
+
 /// <summary>虚弱减益（GDD §3.3 / #37）：伤害 −50%、速度 −30%、HP 锁 1。</summary>
 public sealed record TuningWeak(
     [property: JsonPropertyName("damage_mult")] double DamageMult,
@@ -235,6 +243,7 @@ public sealed record TuningConfig(
     [property: JsonPropertyName("morale")] TuningMorale Morale,
     [property: JsonPropertyName("virtue_rate")] TuningVirtueRate VirtueRate,
     [property: JsonPropertyName("mental_reduction")] TuningMentalReduction MentalReduction,
+    [property: JsonPropertyName("physical_mitigation")] TuningPhysicalMitigation PhysicalMitigation,
     [property: JsonPropertyName("weak")] TuningWeak Weak,
     [property: JsonPropertyName("weak_recovery")] TuningWeakRecovery WeakRecovery,
     [property: JsonPropertyName("weak_exit_hp_ratio")] double WeakExitHpRatio,
@@ -612,6 +621,13 @@ public sealed record TuningConfig(
         if (t.MentalReduction.CapPercent is <= 0 or > 100 || t.MentalReduction.ResilienceDivisor <= 0)
         {
             throw new InvalidDataException($"{ResPath}: mental_reduction 取值非法。");
+        }
+
+        // 🔴 物理减免除数（数字外置，用户 2026-09-14）：**必填且 > 0** ⇒ 不许回落到代码里的默认值 ✓
+        if (t.PhysicalMitigation is null || t.PhysicalMitigation.Divisor <= 0)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: physical_mitigation.divisor 缺失或 ≤ 0 —— 物理减免除数**必须**来自数据（数字外置纪律）。");
         }
 
         if (t.DamageFloor < 1)
