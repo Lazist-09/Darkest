@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Events;
@@ -363,11 +363,27 @@ public partial class ExpeditionRoot : Node
         Economy economy = ExpeditionContext.EnsureEconomy(econCfg);
         HeirloomConfig heirloomCfg = HeirloomConfig.Parse(Godot.FileAccess.GetFileAsString(HeirloomConfig.ResPath));
         HeirloomStock heirlooms = ExpeditionContext.EnsureHeirlooms(heirloomCfg);
+
+        // 🔴 主程序 `2b34478` 修的真缺陷：**"未解锁的 Curio 也能抽到"** —— 原因是组合根没把解锁表注入流程
+        //    ⚠️ `ExpeditionFlow.Unlocks` 是 **`{ get; init; }`** ⇒ 只能在对象初始化器里给 ⇒ **必须在构造前备好数据** ✓
+        //    ⇒ 所以这里**提前解析 Curio 目录**（解锁表校验要用它的真实 id 集合；后面内容表门禁复用同一份）✓
+        _curiosCfg = Darkest.Data.CuriosConfig.Parse(
+            Godot.FileAccess.GetFileAsString(Darkest.Data.CuriosConfig.ResPath));
+
+        //    建筑目录 = `HeirloomConfig.AllowedBuildings`；Curio 目录 = `curios.json`；
+        //    名册**硬上限** = `shared.Cap`（= 12；`#316` C1：解锁只抬高【当前可用上限】）✓
+        Darkest.Data.UnlocksConfig unlocksCfg = Darkest.Data.UnlocksConfig.Parse(
+            Godot.FileAccess.GetFileAsString(Darkest.Data.UnlocksConfig.ResPath),
+            Darkest.Data.HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
+            _curiosCfg.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal),
+            shared.Cap);
+
         _flow = new ExpeditionFlow(session, meter, bag, new Scouting(tuning.Scouting!, tuning.Light!),
             handle.Nodes, tuning, Log, new Darkest.Core.Rng.RngProvider(20260909), economy, heirlooms, heirloomCfg)
         {
             // 🔴 `next_round` ③：把**跨趟进度**注入流程（内核层不接触 UI 持有者 ⇒ 由组合根喂）✓
             Progress = ExpeditionContext.Progress,
+            Unlocks = unlocksCfg, // 🔴 解锁表注入 ⇒ "未解锁 Curio 抽不到"真正生效（C2 消费点 (b)）✓
         };
         ExpeditionContext.Bind(_flow, Log);
 
@@ -381,9 +397,7 @@ public partial class ExpeditionRoot : Node
         _rosterCfg = RosterConfig.Parse(
             Godot.FileAccess.GetFileAsString(RosterConfig.ResPath));
 
-        // 🔴 Curio 数据（`#313`）：拓扑模式下**事件房 = Curio 房**（空手 ／ 用道具 ／ 走开）
-        _curiosCfg = Darkest.Data.CuriosConfig.Parse(
-            Godot.FileAccess.GetFileAsString(Darkest.Data.CuriosConfig.ResPath));
+        // 🔴 Curio 数据（`#313`）：**已在上面提前解析**（解锁表校验要用它的 id 集合）⇒ 这里不重复解析 ✓
 
         // 🔴 合并包片 B：**内容表启动级门禁**（P26：引用必须存在；编成目录未建立 ⇒ 不得引用任何 encounter）
         _roomContentsCfg = Darkest.Data.RoomContentsConfig.Parse(

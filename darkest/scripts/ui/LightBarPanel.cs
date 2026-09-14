@@ -28,8 +28,10 @@ public partial class LightBarPanel : PanelContainer
     /// 档位**边界视觉标记**（`#272` ③ / `m7_verification` V11 ④）：
     /// 在 25 / 50 / 75 三处画竖线 + 文字 —— 否则玩家看不出"**再走一步就进 Dark**"，
     /// 而"自选风险"要求玩家能**预判**（看不见边界就无法预判）。
+    /// 🔴 **单一常量源**（主程序 `e70be44` / 改法 A）：**直接引用内核的 `LightMeter.TierBoundaries`** ——
+    ///    此前这里另写一份 `{25,50,75}` ⇒ **跨层两处真值**（只改一处 ⇒ 刻度与判定不符，玩家会按错刻度做决策）⚠️
     /// </summary>
-    public static readonly int[] TierBoundaries = { 25, 50, 75 };
+    public static readonly int[] TierBoundaries = Darkest.Gameplay.Sim.Run.LightMeter.TierBoundaries;
 
     public override void _Ready()
     {

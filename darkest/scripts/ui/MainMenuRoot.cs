@@ -124,6 +124,24 @@ public partial class MainMenuRoot : Control
         GetTree().Root.Theme = Darkest.Ui.DdTheme.Shared;
         _title.Theme = null; // （保持可读性：显式声明"标题不另设 Theme"，样式来自中央 Theme + 语义色 override）
 
+        // 🔴 架构裁定（`DELIVERY-ARCH-UI-RULINGS2-20260915` ①）：**调色板两视图一致性检查挪到【必经路径】**
+        //    —— `UiPalette.Default()`（C# 兜底）与 `resources/theme/ui_palette.tres`（数据源）**不得分叉**（`#325` D6）。
+        //    理由（架构原话）：**"不可被忘"优先于"便宜"** —— 本项目已被"靠人记得"坑过三次
+        //    （`O-84` 导出崩溃 / `O-82` 光照六字段 / `AvailableCurios` 从未被生产调用）⇒ 检查放进启动路径 ✓
+        //    ⚠️ 差异时**打印显著警告、不崩**（保红线 21：缺文件不崩），但**不允许静默分叉** ✓
+        {
+            (bool paletteOk, string paletteRep) = Darkest.Ui.UiPalette.AuditFile();
+            if (!paletteOk)
+            {
+                GD.PrintErr($"[启动自检·调色板] {paletteRep}");
+                GD.PrintErr("[启动自检·调色板] 🔴 两份真值已分叉 ⇒ 请同步 `UiPalette.Default()` 与 `.tres`（#325 D6）");
+            }
+            else
+            {
+                GD.Print($"[启动自检·调色板] {paletteRep}");
+            }
+        }
+
         // 🔴 审计清单② 取证：`--theme-audit` ⇒ 打印中央 Theme 读数 + **从真实控件读出的生效值**（证明继承成功）
         //    并把 Theme 存一份 `.tres` 到契约的落点目录 `resources/theme/`（编辑器里可见；后续可改成资源加载）
         if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--theme-audit"))
