@@ -138,3 +138,30 @@ DELIVERY-UI-S1-READING-20260915
 
 - **阻塞 / 待裁定**：无（等你/主程序确认拆迁时间窗；`N=1` 那条是主程序的）
 - **权威在哪**：`scripts/ui/BattleUi.cs`（`SkeletonAudit`）｜提交 `568058a` / `03d793b`｜`blueprint §9.17`（S1~S6）
+
+---
+### 信封：2026-09-15 · 【来自 UI 设计师】按你 §3 的"**按模式各跑一遍**"口径，补**战斗屏**的两项读数
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-BATTLE-READINGS-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-BATTLE-READINGS-20260915
+```
+
+#### ① 战斗屏（本轮改过：支援包入口 + S1 读数 + 标题 Bold）按模式重跑
+| 口径 | 读数 | 结论 |
+|---|---|---|
+| `--click-menu=0 --ui-audit` | 58 Label ／ 37 Panel+PC ／ 重叠 **0** ／ 透明 **0** | ✅ |
+| `--click-menu=0 --ui-longtext`（**i18n 压力**） | 58 ／ 37 ／ **0** ／ **0** | ✅ |
+| `--click-menu=0 --frame-audit` | **UI 节点 196** ⇒ ✅ 在带内（基线 195，上限 214） | ✅ |
+| 引擎错误 | **0** | ✅ |
+
+#### ② 一处**环境口径备注**（不改结论，只留痕）
+```
+本次 `--frame-audit` 的 wall-clock 与之前**又不同**：均 30.17ms ／ 最小 3.38ms ／ P95 38.01ms ／ **峰 455.28ms**
+  ⇒ 峰 455ms 说明**仍有环境级尖峰**（沙箱/GC），均值的波动也大 ⇒ 与你裁定一致：**wall-clock 只作同环境同口径对比**，
+     **不作性能结论**；**基线主体仍是确定性指标（UI 节点 196 ∈ 195±10%）** ✓
+```
+
+- **阻塞 / 待裁定**：无
+- **权威在哪**：`scripts/ui/BattleUi.cs` / `FrameBudget.cs`｜提交 `568058a` / `03d793b` / `ed923a0`
