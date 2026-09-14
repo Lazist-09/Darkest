@@ -133,7 +133,7 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 ⚠️ **不要走"事后搬运"**（`Reparent`/`RemoveChild+AddChild` 边遍历边搬）⇒ 主程序实测触发引擎断言
 `Condition "p_child->data.parent != this" is true` ⇒ 树状态不一致 ⇒ 判据乱认浮层。
 
-### 1.7 已知坑（20 条，全部实机踩过）
+### 1.7 已知坑（21 条，全部实机踩过）
 ```
 ① CanvasLayer / Node2D 不是 Control ⇒ 🔴 Godot 的 Container【不排它】（Container 只管理 Control 子节点）
    ⇒ 既没有"框"（不在 Control 链上 ⇒ 不受 Theme 管）又根本进不了容器树 ⇒ **只挪坐标会掩盖结构问题**
@@ -183,6 +183,10 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 ⚠️ 事故记录（我自己的）：用 PowerShell 批量替换颜色时把**参数写成了"字符对"** ⇒ `Replace('M','o')` 把
    `HamletRoot.cs` / `LightBarPanel.cs` 里的字母全换掉 ⇒ **必须 `git checkout --` 回滚再用 `edit` 工具重做**
    ⇒ 教训：**批量文本替换只用 `edit` 工具**（它校验唯一匹配）；`Set-Content` 生成代码要避免"逐字符替换"
+㉑ 🔴 **改文本一律用 `edit` 工具，禁用 shell 整文件重写**（我两次踩同一类）：
+   ① PowerShell `Replace('M','o')` 因"参数写成了字符对"把两个文件的字母换掉；
+   ② PowerShell `Set-Content` 整文件重写 `.tres` ⇒ 引入 **BOM** ⇒ Godot 报 `加载失败`（看着像检测坏了，其实是文件坏了）
+   ⇒ 回滚 `git checkout --`，重做用 `edit`（写无 BOM UTF-8）
 ⑳ 🔴 **瞬态特效不能算"布局重叠"**（判据口径第 7 条）：动效产生的伤害数字/闪白/暗角**按设计**会短暂叠在卡片上
    ⇒ LayoutAudit **按名字跳过 MotionLayer**；⚠️ 但有两条**前置条件**（否则就是放水）：
    ① 层里的东西必须**真瞬态**（用完即 QueueFree）② 该层必须 MouseFilter = Ignore（不吞输入）
@@ -653,6 +657,7 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-PALETTE-20260914` | 表现层数据驱动：调色板 = .tres 源（33 项）+ D1 负向验证 + 两条交界待裁 | ✅ 已投 |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-I18N-20260914` | §12.4 i18n 布局验收可自动化（--ui-longtext）+ 修掉 Panel 溢出缺陷 | ✅ 已投 |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-ACCEPTANCE-20260914` | 🔴 **UI 侧总验收**：7 状态 × 2 条件全绿 + 475/475 + 四类读数收齐（唯一未落=字体资产） | ✅ 已投 |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-RULINGS-DONE-20260914` | 架构 5 条裁定全部落地（例外汇总留痕 / 节点预算可断言 / 调色板两视图一致性 + 负向自检） | ✅ 已投 |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
