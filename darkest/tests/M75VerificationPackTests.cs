@@ -61,6 +61,15 @@ public sealed class M75VerificationPackTests
         var session = new ExpeditionSession(_ => HeadlessDriver.NewDirector(new CombatLog()), 6,
             firewood: inv.CountOf(ItemKind.Firewood), food: inv.CountOf(ItemKind.Food), ambushChance: tuning.Expedition.AmbushChance);
 
+        // 🔴🔴 **探针口径裁定 `#327`①(a)：探针必须补 `BindSortie`！**
+        //    此前探针**从未绑定阵型** ⇒ 凡"按槽位映射"的每场效果（**扎营加成 / 跨场 buff / HP 结转**）
+        //    在 V10/A1/A2 读数里**全部不生效** ⚠️（我差点把"读数逐字不变"误判成"改动无效"）
+        //    映射用**单一来源** `FormationSortie.HeroSlotMap`（与场景同一套选人/槽位顺序 ✓）
+        //    ⇒ 绑定后这些读数才**等于真实玩家路径** ✓（架构已把它落成 `m7_6_verification §1.8` + 红线 17 ⑪）
+        session.BindSortie(FormationSortie.HeroSlotMap(
+            FormationConfig.Parse(ReadData("formation.json")),
+            RosterConfig.Parse(ReadData("roster.json"))));
+
         var meter = new LightMeter(lightCfg);
         meter.EmitStart(log);
         var scout = new Scouting(tuning.Scouting!, lightCfg);

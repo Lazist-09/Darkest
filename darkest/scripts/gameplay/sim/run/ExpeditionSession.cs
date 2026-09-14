@@ -706,8 +706,19 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             }
 
             // 上一场的战斗单位 id（本方法在 `ApplyCampBonusesToBattle` 之前 ⇒ 此刻仍是上一场的）✓
-            if (_heroBattleIds.TryGetValue(heroId, out string? prevBattleId)
-                && Retained.TryGetValue(prevBattleId, out (int Hp, int Morale, bool Weak) prev))
+            // 🔴🔴 **两种键空间都要认**（`O-83` 真缺陷，靠"绑了阵型读数仍逐字不变"追出来的）：
+            //    · **场景路径**：`CaptureBattleEndHp`（我加的）按【战斗单位 id】写 `Retained` ⇒ 这里用 `prevBattleId` 命中 ✓
+            //    · **内核路径**（探针 / `RunSession.EndBattle`）：按【`_roster` 里的 id】写 `Retained`
+            //      ⇒ 用战斗单位 id 查**必然落空** ⇒ 于是"承上"在这条路上**静默跳过**（连留痕都没有）⚠️
+            //    ⇒ 只认一种键 = 一半路径永远不生效（两套 id 体系的老陷阱的又一形态）；这里显式认两种 ✓
+            (int Hp, int Morale, bool Weak) prev = default;
+            bool found = _heroBattleIds.TryGetValue(heroId, out string? prevBattleId)
+                         && Retained.TryGetValue(prevBattleId, out prev);
+            if (!found)
+            {
+                found = Retained.TryGetValue(heroId, out prev);
+            }
+            if (found)
             {
                 // 🔴 **开局 HP = 结转值**（无条件设置 + **必留痕**）——
                 //    我第一版写成"只在 carried < u.CurrentHp 时才压低"，那是**静默分支**：
