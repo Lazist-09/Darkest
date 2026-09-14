@@ -393,7 +393,9 @@ public partial class BattleUi : CanvasLayer
         // ⚠️ 只 `SetAnchorsPreset`（或 `SetAnchorsAndOffsetsPreset`）在**入树前**算不出正确尺寸
         //    ⇒ 实测解成 1280×1280（应 1280×720）⇒ 显式取**视口可见矩形**，与项目基准分辨率一致 ✓
         _uiRoot.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        _uiRoot.Size = GetViewport().GetVisibleRect().Size;
+        // ⚠️ **不要**再显式赋 `Size`：锚点（0→1）之下 Godot 每个布局帧都会用**父矩形**重算 ⇒ 赋值必被覆盖 = 死代码。
+        //    实测（headless）该环境的视口是 2560×2000；窗口模式下 = 基准 1280×720 × `stretch=canvas_items` 缩放
+        //    ⇒ 我们只需断言"**锚点 1/1 且 size 跟随视口**"（见 `RootAudit`），不必自己算尺寸 ✓
         Darkest.Ui.DdTheme.Apply(_uiRoot);
         AddChild(_uiRoot);
         foreach (Node child in GetChildren().ToArray())
