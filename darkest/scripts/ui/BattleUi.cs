@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,7 +48,7 @@ public partial class BattleUi : CanvasLayer
     // 卡序：0..3=我方 4,3,2,1；4..7=敌方 1,2,3,4；8..9=支援位 5,6
     private readonly List<(Control card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer)> _cards = new();
     private readonly List<Label> _portraits = new();          // 立绘占位框文字（与 _cards 同序）
-    private readonly List<(Panel panel, Label glyph)> _orderIcons = new(); // 顶部回合条头像
+    private readonly List<(PanelContainer panel, Label glyph)> _orderIcons = new(); // 顶部回合条头像
     private string _orderFor = "";
     private readonly List<Button> _skillButtons = new();
     private Button _reinforceButton = null!;
@@ -721,8 +721,8 @@ public partial class BattleUi : CanvasLayer
         head.AddThemeConstantOverride("separation", 4);
         col.AddChild(head);
 
-        // ② 立绘占位框（色块 + 首字）
-        var portraitBox = new Panel { CustomMinimumSize = new Vector2(44, 44) };
+        // ② 立绘占位框（色块 + 首字）—— 🔴 **必须是 `PanelContainer`**：`Panel` 不是容器 ⇒ Label 变宽会溢出压邻居（同上）
+        var portraitBox = new PanelContainer { CustomMinimumSize = new Vector2(44, 44) };
         head.AddChild(portraitBox);
         var glyph = new Label
         {
@@ -730,6 +730,7 @@ public partial class BattleUi : CanvasLayer
             CustomMinimumSize = new Vector2(44, 30),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
+            ClipText = true, // 🔴 长文本裁切（`§14.6`）
         };
         glyph.AddThemeFontSizeOverride("font_size", 20);
         glyph.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
@@ -938,7 +939,7 @@ public partial class BattleUi : CanvasLayer
         }
 
         _orderFor = key;
-        foreach ((Panel panel, Label glyph) icon in _orderIcons)
+        foreach ((PanelContainer panel, Label glyph) icon in _orderIcons)
         {
             icon.panel.QueueFree();
         }
@@ -950,9 +951,18 @@ public partial class BattleUi : CanvasLayer
             var unitId = new UnitId(id);
             bool isPlayer = d.Player.UnitAtPosition(unitId) is not null;
             string archetype = _host.ArchetypeOf(unitId);
-            // 🔴 §14.2 ④：容器里必须给【最小尺寸】—— 只给 `Position/Size` 的话 HBox 分配 0 宽 ⇒ 互相重叠（实测）
-            var panel = new Panel { CustomMinimumSize = new Vector2(36, 34) };
-            var glyph = new Label { CustomMinimumSize = new Vector2(36, 26), Text = NameOf(archetype).Substring(0, 1), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            // 🔴 `§14.2`：面板必须是 **`PanelContainer`**（`Panel` **不是容器** ⇒ 内部 Label 一旦变宽就**溢出并压住邻居**）
+            //    实测（`--ui-longtext` 长文本压力，`§12.4`）：`Panel` + 宽 Label ⇒ **10 对重叠**；
+            //    改 `PanelContainer` + `ClipText` ⇒ 文本被**裁在框内**、不再溢出 ✓
+            var panel = new PanelContainer { CustomMinimumSize = new Vector2(42, 34) };
+            var glyph = new Label
+            {
+                CustomMinimumSize = new Vector2(42, 26),
+                Text = NameOf(archetype).Substring(0, 1),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                ClipText = true, // 🔴 长文本**裁切**而非溢出（`§14.6`）
+            };
             glyph.AddThemeFontSizeOverride("font_size", 14);
             panel.AddChild(glyph);
             bool isActive = _host.IsAwaitingPlayer && id == _host.ActiveActor.Value;
@@ -973,7 +983,7 @@ public partial class BattleUi : CanvasLayer
         c.stats.Text = empty ? "" : $"HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
         // ② 立绘占位框：首字 + 阵营/原型色块
         portrait.Text = empty ? "—" : display.Substring(0, 1);
-        if (portrait.GetParent() is Panel box)
+        if (portrait.GetParent() is PanelContainer box)
         {
             box.Modulate = empty ? Darkest.Ui.DdTheme.Muted : Darkest.Ui.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, c.isPlayer);
         }

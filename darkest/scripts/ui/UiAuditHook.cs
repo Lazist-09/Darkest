@@ -87,6 +87,13 @@ public static class UiAuditHook
                 fires = 0;
                 _printsThisScene = 0;
                 _lastReport = string.Empty;
+
+                // 🔴 `§12.4` i18n 验收：`--ui-longtext` ⇒ 先把文本膨胀 ~40%，再照跑同一套判据 ✓
+                if (LongTextProbe.Requested)
+                {
+                    int inflated = LongTextProbe.Inflate(target);
+                    GD.Print($"[UI i18n] 长文本压力（§12.4）：已膨胀 {inflated} 个 Label（+~40% 宽字）⇒ 判据随后照跑");
+                }
             }
 
             fires++;
