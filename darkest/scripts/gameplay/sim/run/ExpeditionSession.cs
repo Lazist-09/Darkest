@@ -145,6 +145,30 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     // ------------------------------------------------------------------
 
     /// <summary>
+    /// 全队士气变化（Curio/事件共用）：只影响**存活**单位；钳制到 [0,100]。
+    /// </summary>
+    public void ApplyTeamMorale(CombatLog log, int delta, string reason)
+    {
+        if (delta == 0)
+        {
+            return;
+        }
+
+        foreach (string id in Retained.Keys.ToArray())
+        {
+            (int hp, int morale, bool weak) = Retained[id];
+            if (hp <= 0)
+            {
+                continue; // 阵亡者不受影响
+            }
+
+            Retained[id] = (hp, Math.Clamp(morale + delta, 0, 100), weak);
+        }
+
+        log.Append(new EffectEvent(default, $"team_morale:{reason}:{delta}", 100.0, true));
+    }
+
+    /// <summary>
     /// 结算事件节点：应用所选选项的资源/士气效果，并写 `EventNodeResolvedEvent`。
     /// **必须二选一**（节点选项数 ≠ 2 或越界 → 抛错，P20 ⑤）。
     /// </summary>
