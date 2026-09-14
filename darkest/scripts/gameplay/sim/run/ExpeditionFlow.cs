@@ -323,6 +323,60 @@ public sealed class ExpeditionFlow
         return true;
     }
 
+    /// <summary>
+    /// 🔴 **片 C：由【内容表】决定该房间放哪个 Curio**（取代原先的临时确定性映射 `roomId % N`）。
+    ///
+    /// 读法（`tasks/merged_content_layer_pack.md` §4）：
+    /// · `roomType` 行的 `curio_pool` 组成候选池；**支路房**再并入 `branch` 行的池（支路专用覆盖键）✓
+    /// · 抽取按**组内权重**（行 `weight`）⇒ 🔴 **写 `RngDraw`**（随机必须留痕：可审计、可复现）✓
+    /// · 池为空 ⇒ 返回 `null`（**该房间没有内容** ⇒ 调用方走既有回退，不静默造一个）✓
+    /// 🔴 主 = 内容表；`branch_battle_weight` 只是**过渡覆盖项**（默认 0），不得与主混（契约 §3 尾注）。
+    /// </summary>
+    public string? PickCurioForRoom(Darkest.Data.RoomContentsConfig contents, string roomType, bool isBranch)
+    {
+        // 候选 = 该类型的行 ∪（支路房）branch 行；权重取【行 weight】（组内权重）
+        var candidates = new List<(int Weight, string CurioId)>();
+        void Collect(IReadOnlyList<Darkest.Data.RoomContentEntry> rows)
+        {
+            foreach (Darkest.Data.RoomContentEntry row in rows)
+            {
+                foreach (string id in row.CurioPool ?? System.Array.Empty<string>())
+                {
+                    candidates.Add((row.Weight, id));
+                }
+            }
+        }
+
+        Collect(contents.ForType(roomType));
+        if (isBranch)
+        {
+            Collect(contents.ForType("branch"));
+        }
+
+        if (candidates.Count == 0)
+        {
+            return null; // 内容表没给这个房间任何内容 ⇒ 交回调用方（不静默造）
+        }
+
+        int total = candidates.Sum(c => c.Weight);
+        int roll = _rng.NextInt(0, total); // 组内加权抽取
+        _log.Append(new RngDraw(_rng.DrawCount, roll)); // 🔴 随机留痕
+
+        int acc = 0;
+        foreach ((int weight, string curioId) in candidates)
+        {
+            acc += weight;
+            if (roll < acc)
+            {
+                _log.Append(new EventNodeResolvedEvent(curioId, "room_content",
+                    $"picked:type={roomType}:branch={isBranch}:roll={roll}"));
+                return curioId;
+            }
+        }
+
+        return candidates[^1].CurioId; // 理论到不了（roll < total）；兜底也**不静默**：上面已写留痕
+    }
+
     /// <summary>夜袭判定（扎营后调用；触发则插一场额外战斗，计入完成）。</summary>
     public bool RollAmbush() => _session.RollAmbush(_log, _rng);
 

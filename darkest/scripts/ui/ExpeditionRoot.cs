@@ -767,11 +767,11 @@ public partial class ExpeditionRoot : Node
 
                 // 🔴 `#313`（Curio）：**事件房 ⇒ Curio（可交互物体）面板**（空手 ／ 用道具 ／ 走开）
                 //    · 线性模式仍走既有事件面板（两条路径分开，互不影响）
-                //    · 映射：`roomId % curios.Count`（确定性，不掷骰；与事件映射同法）
+                //    · 🔴 **片 C**：Curio 由【内容表】决定（`roomType` + 支路覆盖；按组内权重抽取 + 写 RngDraw）
                 if (o.Moved && roomType == "event" && _curiosCfg is not null)
                 {
-                    GD.Print($"[拓扑UI] 进入【Curio 房】⇒ 房间 {target} 映射到物件（roomId % {_curiosCfg.RealCurios.Count}）");
-                    SetPendingCurio(target);
+                    GD.Print($"[拓扑UI] 进入【Curio 房】⇒ 房间 {target}（roomType={roomType} ／ 支路={room.IsBranch}）");
+                    SetPendingCurio(target, roomType, room.IsBranch);
 
                     // 🔴 冒烟（`#310`⑦ 的"场景内步骤"补丁）：`--curio-bare` / `--curio-leave`
                     //    ⇒ 面板建好后**同一帧内真实点击**（步进器只在"进场景"时消费一步，覆盖不到场景内下一步）
@@ -862,12 +862,28 @@ public partial class ExpeditionRoot : Node
     /// <summary>当前待交互的 Curio id（供冒烟断言）。</summary>
     public string? PendingCurioId => _pendingCurio?.Id;
 
-    /// <summary>🔴 按房间确定性映射到 Curio（`roomId % N`，**不掷骰** —— 与事件映射同法）。</summary>
-    public void SetPendingCurio(int roomId)
+    /// <summary>
+    /// 🔴 片 C：**由内容表**决定该房间的 Curio（取代临时映射 `roomId % N`）——
+    /// 读出 `roomType`（+支路覆盖）的候选池 ⇒ 按组内权重抽取（**写 `RngDraw`**，见流程层）⇒ 取 id ✓
+    /// 池为空 ⇒ **回退到该类型的既有映射**（并如实打印，不静默）✓
+    /// </summary>
+    public void SetPendingCurio(int roomId, string roomType, bool isBranch = false)
     {
         if (_curiosCfg is null)
         {
             return;
+        }
+
+        if (_roomContentsCfg is not null && _flow is not null)
+        {
+            string? picked = _flow.PickCurioForRoom(_roomContentsCfg, roomType, isBranch);
+            if (picked is not null && SetPendingCurioById(picked))
+            {
+                GD.Print($"[拓扑UI] 片 C：内容表选中 Curio = {picked}（roomType={roomType} ／ 支路={isBranch}）");
+                return;
+            }
+
+            GD.Print($"[拓扑UI] 内容表对 roomType={roomType}（支路={isBranch}）**没给池** ⇒ 回退既有映射（如实报）");
         }
 
         IReadOnlyList<Darkest.Data.CurioConfig> list = _curiosCfg.RealCurios;
