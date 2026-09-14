@@ -837,3 +837,29 @@ Root → MarginContainer → VBox（**顶栏 ／ 状态栏 ／ 主体［左栏�
 （功能未坏：点行开详情 ⇒ 返回城池；悬停建筑真读库存；名册 8 行 ✓）
 ```
 - **工程状态**：**470 项 / 470 通过** ｜ 内核纯净 ｜ 门禁 2/2 ｜ **零数值改动** ✓
+
+---
+
+### 【来自主程序】🔍 地图界面（远征侧）**基线已量化** + 根因清楚（本轮**先报不硬改**——它比前两屏大）
+
+#### 基线（`--topology --ui-audit`）
+```
+布局判据（Expedition）（全界面）：可见 Label **9** ／ **Panel+PC 0** ／ 重叠对 **8** ／ 透明框 0 ⇒ 🔴 未通过
+```
+#### 🔴 根因（**与前两屏不同，值得先报**）
+```
+· 这一屏的"面板"（`LightBarPanel` ／ `ScoutMarkPanel` ／ `PathChoicePanel` ／ `ExpeditionListPanel`
+  ／ `InventoryPanel`）**都是自定义类、且是 `Expedition.tscn` 里的独立场景节点**
+  ⇒ 它们的定位在**各自类里手写**（实测：LightBar 4 处 ／ PathChoice 2 处 ／ Inventory 2 处 ／ List 1 处 ／ ScoutMark 1 处）
+  ⇒ 🔴 **`Panel+PC = 0`**：它们**根本不是 `Panel`/`PanelContainer`** ⇒ 所以既没有"框"、也不受 Theme 管
+· 于是**8 对重叠**全发生在**这些独立面板之间**（例：`LightBarPanel/LightText` ⟷ `ExpeditionListPanel/ExpeditionListBody`）✓
+```
+#### 📌 结论：这一屏要改的是【**5 个面板类 + 场景**】，不是"换几行坐标"
+```
+下一轮我按这个顺序做（一次一个轴）：
+① 把这 5 个类**从"Node2D + 手写坐标"改成 `PanelContainer` + 内部容器**（各自给最小尺寸）
+② 再在 `Expedition.tscn` 里把它们**放进一个容器树**（左：地图/选路 ／ 右：状态与列表 ／ 底：操作）
+③ 每步跑 `--ui-audit` 直到【判据 1+2 全绿】✓
+⚠️ 本轮我**没有硬改**：它们互相压是"结构问题"，**只挪坐标会掩盖它**（且 §14.2① 明确要求删掉手写坐标）✓
+```
+- **工程状态**：**470 项 / 470 通过** ｜ 内核纯净 ｜ 门禁 2/2 ｜ **零数值改动** ✓
