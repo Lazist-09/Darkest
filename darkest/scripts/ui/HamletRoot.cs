@@ -491,7 +491,7 @@ public partial class HamletRoot : Node2D
     //    "返回城池"= 关闭面板（红线 18：不是孤岛）。数据全部真读既有持有者。
     // ------------------------------------------------------------------
 
-    private Node2D? _detailPanel;
+    private PanelContainer? _detailPanel; // 🔴 §14：详情面板 = 满屏不透明 PanelContainer（不再是 Node2D 浮层）
     private Label? _detailLeft;
     private Label? _detailRight;
     private Label? _detailCampSkills;
@@ -525,45 +525,84 @@ public partial class HamletRoot : Node2D
 
         if (_detailPanel is null)
         {
-            _detailPanel = new Node2D { Name = "HeroDetailPanel" };
-            AddChild(_detailPanel);
+            // 🔴 `ui_spec §14`（`#319`）：详情面板**不再用绝对坐标 + 也不再是透明浮层** ——
+            //    改【**满屏 `PanelContainer`（不透明）+ 容器树**】：Margin → VBox（标题行 ／ 左右两栏 ／ 返回行）
+            //    左栏 `VBox`（立绘/属性/特质/疾病）· 右栏 `VBox`（技能/抗性/扎营技能/装备）✓
+            var detailRoot = new PanelContainer { Name = "HeroDetailPanel" };
+            detailRoot.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            // ⚠️ **必须显式挂 Theme**：本节点是 `HamletRoot`(Node2D) 的子节点，**不在带 Theme 的 `margin` 之下**
+            //    ⇒ 否则它用**引擎默认面板样式**（实测 `a=0.6` ⇒ 判据 2 直接抓到"框透明"）✓
+            Darkest.Ui.DdTheme.Apply(detailRoot);
+            AddChild(detailRoot);
+            _detailPanel = detailRoot;
+
+            var dMargin = new MarginContainer { Name = "DetailMargin" };
+            dMargin.AddThemeConstantOverride("margin_left", 16);
+            dMargin.AddThemeConstantOverride("margin_top", 12);
+            dMargin.AddThemeConstantOverride("margin_right", 16);
+            dMargin.AddThemeConstantOverride("margin_bottom", 12);
+            detailRoot.AddChild(dMargin);
+
+            var dCol = new VBoxContainer { Name = "DetailCol" };
+            dCol.AddThemeConstantOverride("separation", 8);
+            dMargin.AddChild(dCol);
+
+            var dTitle = new Label
+            {
+                Name = "DetailTitle",
+                Text = "【角色详情】",
+                CustomMinimumSize = new Vector2(0, 28),
+            };
+            dTitle.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontTitle);
+            dCol.AddChild(dTitle);
+
+            var dBody = new HBoxContainer { Name = "DetailBody", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+            dBody.AddThemeConstantOverride("separation", 10);
+            dCol.AddChild(dBody);
+
+            var dLeftCol = new VBoxContainer { Name = "DetailLeftCol", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+            dLeftCol.AddThemeConstantOverride("separation", 6);
+            dBody.AddChild(dLeftCol);
+            var dRightCol = new VBoxContainer { Name = "DetailRightCol", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+            dRightCol.AddThemeConstantOverride("separation", 6);
+            dBody.AddChild(dRightCol);
 
             _detailLeft = new Label
             {
                 Name = "DetailLeft",
-                Position = new Vector2(24, 60),
-                Size = new Vector2(430, 560),
                 AutowrapMode = TextServer.AutowrapMode.WordSmart,
+                SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+                CustomMinimumSize = new Vector2(360, 380),
             };
-            _detailPanel.AddChild(_detailLeft);
+            dLeftCol.AddChild(_detailLeft);
 
             _detailRight = new Label
             {
                 Name = "DetailRight",
-                Position = new Vector2(470, 60),
-                Size = new Vector2(620, 430),
                 AutowrapMode = TextServer.AutowrapMode.WordSmart,
+                SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+                CustomMinimumSize = new Vector2(360, 300),
             };
-            _detailPanel.AddChild(_detailRight);
+            dRightCol.AddChild(_detailRight);
 
             _detailCampSkills = new Label
             {
                 Name = "DetailCampSkills",
-                Position = new Vector2(470, 496),
-                Size = new Vector2(620, 90),
                 AutowrapMode = TextServer.AutowrapMode.WordSmart,
+                CustomMinimumSize = new Vector2(360, 90),
             };
-            _detailPanel.AddChild(_detailCampSkills);
+            dRightCol.AddChild(_detailCampSkills);
 
+            var dBackRow = new HBoxContainer { Name = "DetailBackRow" };
+            dCol.AddChild(dBackRow);
             var back = new Button
             {
                 Name = "DetailBack",
                 Text = "返回城池",
-                Position = new Vector2(470, 600),
-                Size = new Vector2(180, 36),
+                CustomMinimumSize = new Vector2(180, 36),
             };
             back.Pressed += CloseHeroDetail;
-            _detailPanel.AddChild(back);
+            dBackRow.AddChild(back);
         }
 
         // ① 左栏：立绘占位 + 名字/原型/等级/士气（数值 + 条）

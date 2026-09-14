@@ -20,9 +20,15 @@ public static class LayoutAudit
     /// <summary>跑两条判据（递归遍历整棵子树）。</summary>
     public static (bool Ok, string Report) Check(Node root)
     {
+        // 🔴 **覆盖层口径**：若存在"**满屏不透明**"的面板（模态浮层，如角色详情），
+        //    则**只审该浮层内部** —— 否则浮层【下面】那些被遮住的 Label 会被算成"重叠"
+        //    （实测：详情打开时报 16 对"重叠"，全都是 Hamlet 的 Label ⟷ 详情 Label ⇒ 那是**口径问题**，不是布局问题）✓
+        Control? overlay = FindOpaqueFullScreenOverlay(root);
+        Node scope = overlay ?? root;
+
         var labels = new List<(string Path, Rect2 Rect)>();
         var panels = new List<(string Path, Control Panel)>();
-        Collect(root, root, labels, panels);
+        Collect(scope, scope, labels, panels);
 
         var problems = new StringBuilder();
 
@@ -62,10 +68,50 @@ public static class LayoutAudit
         }
 
         bool ok = overlaps == 0 && transparent == 0;
-        string report = $"布局判据（{root.Name}）：可见 Label {labels.Count} 个 ／ Panel {panels.Count} 个　" +
+        string scopeNote = overlay is null ? "（全界面）" : $"（**只审覆盖层 {overlay.Name}**）";
+        string report = $"布局判据（{root.Name}）{scopeNote}：可见 Label {labels.Count} 个 ／ Panel+PC {panels.Count} 个　" +
                         $"重叠对 {overlaps} ／ 透明框 {transparent}　=> {(ok ? "✅ 通过" : "🔴 未通过")}" +
                         (ok ? string.Empty : problems.ToString());
         return (ok, report);
+    }
+
+    /// <summary>找"满屏且不透明"的面板（= 模态覆盖层）；没有则返回 `null`。</summary>
+    private static Control? FindOpaqueFullScreenOverlay(Node root)
+    {
+        Control? found = null;
+        foreach (Node child in Walk(root))
+        {
+            if (child is not Control ctl || !ctl.Visible)
+            {
+                continue;
+            }
+
+            bool fullScreen = ctl.AnchorLeft == 0 && ctl.AnchorTop == 0 && ctl.AnchorRight == 1 && ctl.AnchorBottom == 1;
+            if (!fullScreen)
+            {
+                continue;
+            }
+
+            StyleBox? box = ctl.GetThemeStylebox("panel");
+            if (box is StyleBoxFlat { BgColor.A: >= 1.0f })
+            {
+                found = ctl; // 取最后一个（最上层）
+            }
+        }
+
+        return found;
+    }
+
+    private static IEnumerable<Node> Walk(Node node)
+    {
+        foreach (Node child in node.GetChildren())
+        {
+            yield return child;
+            foreach (Node grand in Walk(child))
+            {
+                yield return grand;
+            }
+        }
     }
 
     private static void Collect(Node node, Node root, List<(string, Rect2)> labels, List<(string, Control)> panels)
