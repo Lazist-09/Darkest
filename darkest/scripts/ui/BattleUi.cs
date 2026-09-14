@@ -425,8 +425,14 @@ public partial class BattleUi : CanvasLayer
         string inherited = effective == Darkest.Ui.DdTheme.FontBody
             ? $"✅ Theme 继承生效（生效字号 {effective} = 中央 Theme）"
             : $"🔴 Theme 未生效（生效字号 {effective} ≠ 中央 {Darkest.Ui.DdTheme.FontBody}）";
-        return $"Control 根：size={_uiRoot.Size}　Theme={(_uiRoot.Theme is null ? "（无）" : "已挂中央 Theme")}　" +
-               $"锚点={(int)_uiRoot.AnchorRight}/{(int)_uiRoot.AnchorBottom}　{inherited}";
+
+        // ⚠️ 尺寸**不作为判据**：headless 下视口尺寸会在运行间波动（实测见过 1280×1280 与 2560×2000）
+        //    ⇒ 只判"是否**跟随视口**"（锚点生效的正确含义），而不是把某个具体数当结论（红线 17⑧：极端/波动读数先怀疑口径）✓
+        Vector2 vp = GetViewport().GetVisibleRect().Size;
+        bool follows = _uiRoot.Size == vp || _uiRoot.AnchorRight == 1 && _uiRoot.AnchorBottom == 1;
+        return $"Control 根：锚点={(int)_uiRoot.AnchorRight}/{(int)_uiRoot.AnchorBottom}（1/1 = 满屏）　" +
+               $"跟随视口={(follows ? "✅" : "🔴")}（本帧 size={_uiRoot.Size} ／ 视口={vp}；**尺寸不作为判据**）　" +
+               $"Theme={(_uiRoot.Theme is null ? "（无）" : "已挂中央 Theme")}　{inherited}";
     }
 
     /// <summary>供 BattleRoot 的提示文案使用（单位原型中文名）。</summary>
