@@ -166,14 +166,34 @@ public static class DdTheme
     /// <summary>字体目录（**放进去即生效**；`§13.4①` 的实施落点）。</summary>
     public const string FontDir = "res://resources/theme/fonts/";
 
+    /// <summary>
+    /// 🔴 解析字体（`§13.4①` / 策划 `#321`④）：**优先拉丁 `EB Garamond` → CJK `Noto Serif SC` 的 fallback 链**。
+    /// ⚠️ **不要写死单一文件名**（实测教训）：用户实际放进来的是 `NotoSerifSC-Regular.otf`（Noto 官方**静态字重**命名），
+    ///    而不是我原先假定的 `NotoSerifSC-Subset.ttf` ⇒ 写死名字会"文件明明在却认不出"（且只报"未找到"，很误导）⚠️
+    /// ⇒ 正解 = **候选名按优先级试 + 目录扫描兜底**，并在读数里**打印真正用的是哪个文件** ✓
+    /// </summary>
     private static (Font? Main, string Note) ResolveFonts()
     {
-        Font? latin = TryLoadFont($"{FontDir}EBGaramond.ttf");
-        Font? cjk = TryLoadFont($"{FontDir}NotoSerifSC-Subset.ttf");
+        Font? latin = FirstExisting(
+            $"{FontDir}EBGaramond.ttf",
+            $"{FontDir}EBGaramond-VF.ttf",
+            $"{FontDir}EBGaramond-Regular.ttf");
+
+        // CJK 候选：正则权重（正文）优先；子集/可变字重次之
+        Font? cjk = FirstExisting(
+            $"{FontDir}NotoSerifSC-Subset.ttf",
+            $"{FontDir}NotoSerifSC-Regular.otf",
+            $"{FontDir}NotoSerifSC-Regular.ttf",
+            $"{FontDir}NotoSerifSC-VF.ttf",
+            $"{FontDir}NotoSerifSC-Subset.otf");
+
+        cjk ??= ScanFontDir("NotoSerifSC");   // 兜底：目录里任何 NotoSerifSC* 字体（按名字排序取第一个）
+        latin ??= ScanFontDir("EBGaramond");
+
         Font? main = latin ?? cjk;
         if (main is null)
         {
-            return (null, $"🔴 未找到字体文件（预期 {FontDir}EBGaramond.ttf ／ NotoSerifSC-Subset.ttf）" +
+            return (null, $"🔴 未找到字体文件（{FontDir} 下应有 EBGaramond*.ttf ／ NotoSerifSC*.otf|ttf）" +
                           " ⇒ **用引擎默认字体（占位）**；把 OFL 字体放进该目录即自动生效");
         }
 
@@ -183,7 +203,54 @@ public static class DdTheme
             latin.Fallbacks = new Godot.Collections.Array<Font> { cjk };
         }
 
-        return (main, $"{Describe(main)}（fallback {(cjk is null ? "无" : Describe(cjk))}）⇒ 已接（`§13.4①`）");
+        // 🔴 可断言：**字体是否真的覆盖中文**（不是"看起来像换了字体"）——
+        //    `Font.HasChar` 是引擎内置查询 ⇒ 拿一个中文常用字直接问它 ✓（红线 25：能断言才算）
+        const char Probe = '黑';
+        bool cjkCovered = cjk is not null && cjk.HasChar(Probe);
+        string cover = cjkCovered
+            ? $"✅ 中文覆盖（`HasChar('{Probe}')` = true）"
+            : "🔴 **中文未覆盖**（CJK 字体缺失或缺字形 ⇒ 中文会掉字）";
+
+        return (main, $"{Describe(main)}（fallback {(cjk is null ? "无" : Describe(cjk))}）⇒ 已接（`§13.4①`）　{cover}");
+    }
+
+    /// <summary>按顺序取第一个存在的字体。</summary>
+    private static Font? FirstExisting(params string[] paths)
+    {
+        foreach (string p in paths)
+        {
+            Font? f = TryLoadFont(p);
+            if (f is not null)
+            {
+                return f;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>兜底：扫 `resources/theme/fonts/` 里名字含关键字的字体（按名字排序，结果确定）✓</summary>
+    private static Font? ScanFontDir(string keyword)
+    {
+        using DirAccess? dir = DirAccess.Open(FontDir.TrimEnd('/'));
+        if (dir is null)
+        {
+            return null;
+        }
+
+        var names = new System.Collections.Generic.List<string>();
+        foreach (string file in dir.GetFiles())
+        {
+            if (file.Contains(keyword, System.StringComparison.OrdinalIgnoreCase) &&
+                (file.EndsWith(".ttf", System.StringComparison.OrdinalIgnoreCase) ||
+                 file.EndsWith(".otf", System.StringComparison.OrdinalIgnoreCase)))
+            {
+                names.Add(file);
+            }
+        }
+
+        names.Sort(System.StringComparer.Ordinal);
+        return names.Count == 0 ? null : TryLoadFont($"{FontDir}{names[0]}");
     }
 
     private static string Describe(Font f) => $"{f.ResourcePath.GetFile()}";
