@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -118,6 +118,7 @@ public partial class BattleUi : CanvasLayer
         _mode = SceneMode.Map;
         SetMultiFunctionPage(MapPageIndex);
         GD.Print($"[UI 模式] 进入【地图模式】　{ModeAudit()}");
+        GD.Print($"[UI S1] {SkeletonVerdict()}"); // 🔴 切模式后**立即**断言（不是只打印 id）✓
     }
 
     /// <summary>🔴 回到**战斗模式**（同样不重建）：把 E 区切回第 0 页（详情）✓</summary>
