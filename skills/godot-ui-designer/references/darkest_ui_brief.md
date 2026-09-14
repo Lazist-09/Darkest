@@ -356,7 +356,13 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
    · 🔴 **确定性基线**：MainMenu 12 Control ／ Hamlet 47 ／ Expedition 54 ／ **Battle 195**（对象 1516~1961 · 静态内存 38.6~68.2MB）
    · ⚠️ **口径警告**：headless 沙箱下 `TimeProcess` 与 FPS **自相矛盾**（均 100~120ms vs FPS 145，min 0~2.6ms、P95 250~480ms）
      ⇒ 该 wall-clock **不作性能结论**，只作同环境同口径对比；绘制调用在 headless 恒 0 ⇒ 已投架构请其定标
-⑦ ⑩ i18n：只做"布局先对"（随容器化已达成）
+⑦ ✅ **表现层数据驱动已完成**（`016b8ff`，`#325` D5/D6 在我这层的落法）：
+   `scripts/ui/UiPalette.cs`（`[GlobalClass] Resource`，**33 个 `[Export]`**）+ `resources/theme/ui_palette.tres`（**源**）
+   ⇒ `DdTheme` 改为**从资源读**（调用点一行未改）；缺文件 ⇒ 退回默认 + **留痕**（红线 21）
+   🔴 **D1 负向验证**：只改 `.tres` 的 `Gold`（代码零改动）⇒ 审计读数 `d9b25cff → ff00ffff` ✓
+   ⚠️ 两条交界待架构裁：① `[Export]` 写初值 ⇒ Godot 省略"等于默认值"的项 ⇒ 生成文件是空的（正解：属性不写初值）
+      ② `Default()` 里仍有 C# 数字兜底 ⇒ 与主程序新工具 `check_data_discipline.py`（数字外置纪律）可能冲突
+⑧ ⑩ i18n：只做"布局先对"（随容器化已达成）
 ⑥ ⑩ i18n：只做"布局先对"（随容器化已达成）
 🔴 每改完一屏/一轴：跑 `--ui-audit` ⇒ 把读数（界面名／Label／重叠／透明／提交号）**追加到 `架构窗口.txt`**
 🔴 待架构答复：建议加一条**静态门禁**（扫 `.tscn` 的 `type=` 与脚本基类是否一致 —— 坑 ⑪ 判据查不出）
@@ -640,6 +646,7 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-SFX-20260914` | `§12.2` 音效三类落地（占位音程序生成 + 掉落式替换）+ 敌方打击音的口径歧义待裁 | ✅ 已投（回读命中 L270） |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-SHADER-20260914` | `§12.3` 描边（内置主题项）/暗角/闪白（材质）落地 + 建议微调 §4.1 口径 | ✅ 已投（回读命中） |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-FRAMEBUDGET-20260914` | ⑨ 帧预算基线落地 + 读数口径警告（TimeProcess 与 FPS 矛盾）请架构定标 + 确定性基线表 | ✅ 已投（回读命中） |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-PALETTE-20260914` | 表现层数据驱动：调色板 = .tres 源（33 项）+ D1 负向验证 + 两条交界待裁 | ✅ 已投 |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
