@@ -19,8 +19,9 @@ public static class HitStep
         Darkest.Core.Contracts.IBuffLedger? buffs = null)
     {
         int shown = BattleMath.HitRate(target.Base.Dodge, hitMod, balance.HitClampMin, balance.HitClampMax);
-        // D1（#203）：连续未命中补偿 = max(0, 连续未命中−1) × 4，**隐藏**（不改面板显示值）
-        int hidden = Math.Max(0, attacker.ConsecutiveMisses - 1) * 4;
+        // D1（#203）：连续未命中补偿 = max(0, 连续未命中−1) × N，**隐藏**（不改面板显示值）
+        // 🔴 数字外置（P29）：N 来自 `tuning.consecutive_miss.hit_bonus_per_miss`（原硬编码 4）✓
+        int hidden = Math.Max(0, attacker.ConsecutiveMisses - 1) * balance.ConsecutiveMissHitBonusPerMiss;
         // D4（#206）：死门后遗症 命中 −5（约定：effect=hit_mod 的 percent 视为"点"）
         int aftereffect = buffs?.PercentMod(attacker.Id, "hit_mod") ?? 0;
         // 🔴 M7.5 补欠账（`#302` (i1) 片②）：**命中率修正**（`light.effects.enemy_acc`）

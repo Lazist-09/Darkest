@@ -21,6 +21,7 @@ public sealed record BalanceTable(TuningConfig Tuning)
     public int PhysicalMitigationDivisor => Tuning.PhysicalMitigation.Divisor; // 🔴 数字外置：物防减免除数来自 data ✓
     public int StunBuildupOnApply => Tuning.Stun.BuildupOnApply;               // 🔴 数字外置：眩晕抗性累积来自 data ✓
     public int WitnessCritShockChancePercent => Tuning.Morale.WitnessCritShockChancePercent; // 🔴 目睹暴击牵连概率来自 data ✓
+    public int ConsecutiveMissHitBonusPerMiss => Tuning.ConsecutiveMiss.HitBonusPerMiss;    // 🔴 连击补偿来自 data ✓
     public int MentalReductionCapPercent => Tuning.MentalReduction.CapPercent;
     public int SpeedFloatPercent => Tuning.SpeedFloat.Percent;
     public bool SpeedFloatEnabled => Tuning.SpeedFloat.Enabled;

@@ -240,6 +240,13 @@ public sealed record TuningFoodEffects(
     [property: JsonPropertyName("full")] TuningFoodEffect Full,
     [property: JsonPropertyName("feast")] TuningFoodEffect Feast);
 
+/// <summary>
+/// 🔴 连续未命中补偿（数字外置，P29）：每多未命中一次，**隐藏**命中加成 +N。
+/// 原先这个 4 **硬写在 `HitStep` 里**（`Math.Max(0, misses - 1) * 4`）⇒ 策划改不了 ⚠️
+/// </summary>
+public sealed record TuningConsecutiveMiss(
+    [property: JsonPropertyName("hit_bonus_per_miss")] int HitBonusPerMiss);
+
 /// <summary>命中率钳制 [55,100]（combat_math §1）。</summary>
 public sealed record TuningHitClamp(
     [property: JsonPropertyName("min")] int Min,
@@ -272,6 +279,8 @@ public sealed record TuningConfig(
     [property: JsonPropertyName("virtue_rate")] TuningVirtueRate VirtueRate,
     [property: JsonPropertyName("mental_reduction")] TuningMentalReduction MentalReduction,
     [property: JsonPropertyName("physical_mitigation")] TuningPhysicalMitigation PhysicalMitigation,
+    // 🔴 数字外置（P29）：连续未命中补偿（原先硬写在 `HitStep` 里是 `* 4`）✓
+    [property: JsonPropertyName("consecutive_miss")] TuningConsecutiveMiss ConsecutiveMiss,
     [property: JsonPropertyName("weak")] TuningWeak Weak,
     [property: JsonPropertyName("weak_recovery")] TuningWeakRecovery WeakRecovery,
     [property: JsonPropertyName("weak_exit_hp_ratio")] double WeakExitHpRatio,
@@ -310,7 +319,8 @@ public sealed record TuningConfig(
             "mental_reduction", "physical_mitigation", "deaths_door", "retreat_formula",
             "battle_goal", "virtue_inspired_morale_per_turn",
             "safety_factor", "wave_interval_rounds", "measured_d", "enemy_full_hp",
-            "stun", "buildup_on_apply", "witness_crit_shock_chance_percent", "food_effects");
+            "stun", "buildup_on_apply", "witness_crit_shock_chance_percent", "food_effects",
+            "consecutive_miss", "hit_bonus_per_miss");
 
         if (string.IsNullOrWhiteSpace(json))
         {
@@ -687,6 +697,14 @@ public sealed record TuningConfig(
         {
             throw new InvalidDataException(
                 $"{ResPath}: morale.witness_crit_shock_chance_percent = {t.Morale.WitnessCritShockChancePercent} 越界（须 0..100）。");
+        }
+
+        // 🔴 连续未命中补偿（数字外置，P29）：每多一次未命中 +N 隐藏命中，0..100 ✓
+        if (t.ConsecutiveMiss is null || t.ConsecutiveMiss.HitBonusPerMiss is < 0 or > 100)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: consecutive_miss.hit_bonus_per_miss 缺失或越界（须 0..100）" +
+                " —— 它**必须**来自数据（原先硬写在 `HitStep` 里是 4）✓");
         }
 
         if (t.DamageFloor < 1)
