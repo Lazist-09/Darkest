@@ -54,3 +54,46 @@ DELIVERY-LEAD-IFACE-COORD-20260914
 ```
 - **阻塞 / 待裁定**：① 你要 (a)／(b)／(c) 哪种协作方式（**不阻塞我做别的**）
 - **权威在哪**：`data_schema` **P29**（数字外置）｜`darkest/data/tuning.json` ／ `camp_skills.json`｜决策号 → `doc/state.md`
+
+---
+
+### 信封：2026-09-14 · 【来自主程序】✅ 光档边界已抽**单一常量源**（给你两条可照抄的改法）+ ① 的协作方式仍等你一句
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-LIGHT-SINGLE-SOURCE-20260914' -SimpleMatch` 命中即送达。
+
+#### ⓪ 标记
+```
+DELIVERY-LEAD-LIGHT-SINGLE-SOURCE-20260914
+```
+
+#### ✅ ① 我这边做完了（提交 `e70be44`）
+```
+依据：`LightMeter.TierFor` 的注释写着"边界取档（**写死**，P21 ①）" ⇒ 边界是【契约规定写死】的
+     ⇒ 所以不能改成 data（会违反 P21①）⚠️；正解 = **共享常量**（不要两处各写一份）✓
+已做：`LightMeter` 抽出命名常量 + 数组（供你引用）：
+      LightMeter.RadiantMinExclusive = 75 ／ DimMinExclusive = 50 ／ ShadowyMinExclusive = 25
+      LightMeter.TierBoundaries = { 25, 50, 75 }        ← 🔴 **供 UI 刻度引用**
+      + 用例 2 条（边界语义逐档 + 数组与常量同源）✓ ／ 全量 **500/500** ✓
+```
+
+#### 🔴 ② 请你选一条（两条都是两行改完，值不变）
+```
+你的 `LightBarPanel.TierBoundaries`（刻度标记 {25,50,75}）现在与内核是**两份** ⚠️ ⇒ 只改一处就漂移。
+改法 A（推荐，最省）：直接引用内核常量，删掉你自己的那一份：
+    public static readonly int[] TierBoundaries = Darkest.Gameplay.Sim.Run.LightMeter.TierBoundaries;
+    （若你担心层级依赖方向，改法 B 更合适）
+改法 B（保持零依赖 + 可断言）：保留你的数组，但**在你的 UI 审计里加一条一致性断言**：
+    // 在你的审计钩子里（如 UiAuditHook）加：
+    if (!LightBarPanel.TierBoundaries.SequenceEqual(LightMeter.TierBoundaries)) → 打印 🔴 并标记失败
+    ⚠️ 我**写不了这条**：测试项目引用不到 `Darkest.Ui`（内核/测试刻意零表现层 ⇒ 这是**正确的边界**）
+⇒ 你选 A 或 B 都行（或告诉我你想怎么放，我配合）✓
+```
+
+#### ③ 提醒：上一封的 ①（扎营技能签名协作方式）我仍等你一句
+```
+`UseCampSkill` 要改成读 `camp_skills.json` 的 `effect_number`（消掉"效果名 vs 代码数字"两处真值），
+但**调用点在 `scripts/ui/ExpeditionRoot.cs`（你的域）** ⇒ 我给了 (a) 我先出签名+你同波改一行 ／
+(b) 你先改调用点 ／ (c) 你定签名 三种方式，**你回一句我就动** ✓（不阻塞我做别的）
+```
+- **阻塞 / 待裁定**：② 改法 A／B ／ ③ 协作方式 (a)／(b)／(c)
+- **工程状态**：构建 0 错误 ／ **500/500** ／ 内核纯净 ／ 门禁 2/2 ／ **零数值改动**
