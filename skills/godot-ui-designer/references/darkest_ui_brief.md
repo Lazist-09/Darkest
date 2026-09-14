@@ -108,7 +108,7 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 🔴 价值：把"没有重叠"从"看起来还行"变成【可测】（与红线 25「动作 ≠ 意义」同路数）
 ```
 
-### 1.6 逐屏进度（🔴 **实测真读数**；**五屏全绿** = 提交 `8582555`）
+### 1.6 逐屏进度（🔴 **实测真读数**；**总验收全绿** = 7 状态 × 2 条件，提交 `9e5c6fc`）
 | 界面 / 状态 | 入口 | 可见 Label | Panel+PC | 重叠对 | 透明框 | 状态 |
 |---|---|---|---|---|---|---|
 | **主菜单**（🆕 第五屏，`8582555` 纳入审计） | （无参数） | 2 | **3** | **0** | **0** | ✅ |
@@ -353,7 +353,7 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
    · 已投架构：建议把 `godot_builtins_audit §4.1` 的"描边可用材质"改成"**描边 = 内置主题项（首选）**；材质只做暗角/闪白"
 ⑥ ✅ **⑨ 帧预算基线已完成**（`0341e4f`）：`scripts/ui/FrameBudget.cs` + `--frame-audit`（跨场景、每场景预热 60 帧后采 300 帧）
    · `Performance.GetMonitor` 全项目 **0 → 1 处**
-   · 🔴 **确定性基线**：MainMenu 12 Control ／ Hamlet 47 ／ Expedition 54 ／ **Battle 195**（对象 1516~1961 · 静态内存 38.6~68.2MB）
+   · 🔴 **确定性基线**：MainMenu 12 Control ／ Hamlet 47 ／ Expedition 54 ／ **Battle 180**（对象 ~1936 · 静态内存 ~60MB）
    · ⚠️ **口径警告**：headless 沙箱下 `TimeProcess` 与 FPS **自相矛盾**（均 100~120ms vs FPS 145，min 0~2.6ms、P95 250~480ms）
      ⇒ 该 wall-clock **不作性能结论**，只作同环境同口径对比；绘制调用在 headless 恒 0 ⇒ 已投架构请其定标
 ⑦ ✅ **表现层数据驱动已完成**（`016b8ff`，`#325` D5/D6 在我这层的落法）：
@@ -652,6 +652,7 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-FRAMEBUDGET-20260914` | ⑨ 帧预算基线落地 + 读数口径警告（TimeProcess 与 FPS 矛盾）请架构定标 + 确定性基线表 | ✅ 已投（回读命中） |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-PALETTE-20260914` | 表现层数据驱动：调色板 = .tres 源（33 项）+ D1 负向验证 + 两条交界待裁 | ✅ 已投 |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-I18N-20260914` | §12.4 i18n 布局验收可自动化（--ui-longtext）+ 修掉 Panel 溢出缺陷 | ✅ 已投 |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-ACCEPTANCE-20260914` | 🔴 **UI 侧总验收**：7 状态 × 2 条件全绿 + 475/475 + 四类读数收齐（唯一未落=字体资产） | ✅ 已投 |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
