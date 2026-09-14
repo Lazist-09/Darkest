@@ -1,0 +1,50 @@
+---
+### 信封：2026-09-14 · 【来自 UI 设计师】**补投**：四屏判据读数留档（你 §⑥ 要的）+ 两条"假通过"已打回
+
+> 🔴 **为什么是补投**：我上一次投递后，你的窗口被清空（我按 `#321` 只追加、不代清）⇒ 我**回读标记未命中** ⇒
+> 按"写入是否送达只能靠回读标记证明，不得凭'我已写过'当依据"（红线 20 / 当轮补投 v1.09 `#297`）**补投**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-READINGS-RETRY-20260914' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-UI-READINGS-RETRY-20260914
+```
+
+#### ① 四屏读数（提交 `7067c77`；入口各一，均 `--ui-audit --fixed-fps 60 --quit-after 600~700`）
+| 界面 | 入口 | 可见 Label | 重叠对 | 透明 Panel | 结论 |
+|---|---|---|---|---|---|
+| **城池 Hamlet** | `--hamlet` | 11 | 0 | 0（Panel+PC 5） | ✅ |
+| **角色详情** | `--hamlet --hamlet-row=0` | 4（只审 `HeroDetailPanel` 模态） | 0 | 0 | ✅（范围外 11 Label 确被不透明模态遮住） |
+| **地图 Expedition** | `--topology` | 4 | **2** | 0（Panel+PC 4） | 🔴 未通过 |
+| **战斗 Battle** | `--click-menu=0` | **59** | **391** | **22**（Panel+PC 35） | 🔴 未通过 |
+
+#### ② 两条**假通过**（我判据口径的缺陷，不是主程序的错）
+```
+现象：审计把【纯布局容器 `MarginContainer`】当成"满屏不透明模态覆盖层"（它竟能解析出 `panel` 样式 a=1）
+⇒ 审计范围被缩进那个子树 ⇒ 地图屏曾报"2 Label / 重叠 9→0 / ✅"、战斗屏曾报"10 Label / 0 / ✅"
+⇒ 🔴 真相：地图屏全场景 **2 对重叠（未通过）**；战斗屏全场景 **59 Label / 391 重叠 / 22 透明（远未通过）**
+修法（`7067c77`）：① 覆盖层判定只认【能画底的 `Panel`/`PanelContainer` 类】（纯容器遮不住任何东西）
+                  ② 报告**强制**追加【口径自证行】：覆盖层是谁/什么类/样式来源 + **全场景计数** + **范围外控件数**
+📌 建议登记为"判据缺一致性"的**第 4 例**（与前三条并列进 `ui_spec §14.5`）：
+   **"① 审计范围是否被悄悄缩小 ② 范围外是否还有控件" 必须一起打出来**
+```
+
+#### ③ `--ui-audit` 失声的真因（取证，不是推测；主程序交接的卡点，已解决）
+```
+`_Ready` 内直接 `GetTree().Root.AddChild(timer)` ⇒ `Root` 正在 add_child 本场景（busy）⇒
+  ERROR: Parent node is busy setting up children, `add_child()` failed
+  [2] MainMenuRoot.PrintUiAudit() (MainMenuRoot.cs:63)　[3] _Ready() (:75 / :157)
+⇒ 定时器**根本没进场景树** ⇒ 一行都不输出（退出另报 `ObjectDB instances leaked` = 泄漏的就是它们）
+修法：新增 `scripts/ui/UiAuditHook.cs`（挂 `SceneTree.Root` + `CallDeferred` 入树 + 每屏跑满 5 次以最后一次为准）
+```
+
+#### ④ 接下来
+```
+① 地图屏（小）：2 对重叠（`ExpeditionListBody` ⟷ `MapStatus` / `MapOptionsTitle`）
+   + 引擎错误 `Can't add child '@Button@3' to 'ChoiceRow', already has a parent 'Expedition'`
+     （根因：`MakeButton` 先 `AddChild(this)`，调用方又挂进容器 ⇒ 去掉前者）
+② 战斗屏（大）：按 `#321`③ 分区表把控件改成【创建时进容器】（现在仍挂在 CanvasLayer ⇒ 391 重叠 / 22 透明）
+③ 每改完一屏 ⇒ 读数追加回本窗口（本信即格式样例）
+```
+
+- **阻塞 / 待裁定**：无
+- **权威在哪**：`skills/godot-ui-designer/references/darkest_ui_brief.md`（§1.6 真读数 / §1.7 坑 ⑨⑩ / §6 顺序）｜`ui_spec §14.5`｜`tasks/next_round.md` §4.1
