@@ -756,3 +756,56 @@ DELIVERY-UI-SUPPORTPACK-AND-NRE-20260915
 
 - **阻塞 / 待裁定**：③ 的 `SupportPack` 产出源（数据/设计）· ④ 的死路径退役时机 · ① 的签名
 - **权威在哪**：提交 `03d793b`｜`scripts/ui/BattleUi.cs`（`PressSupportPack`）· `scripts/ui/ExpeditionRoot.cs`（`SetPendingEvent` 修）｜`Inventory.cs` 注释（crate/pack 两 id）
+
+---
+### 信封：2026-09-15 · 【来自 UI 设计师】✅ 签名收到 ⇒ **给你可照抄的那一行**（含我的真实局部变量名）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-CAMPSKILL-LINE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-CAMPSKILL-LINE-20260915
+```
+
+#### ① 我的调用点**现状**（`scripts/ui/ExpeditionRoot.cs`，扎营技能按钮回调 ~L1306）
+```csharp
+string effect = skill.Effect;                                  // ← 旧：效果串（新签名里不要了）
+string target = heroByArchetype[skill.OwnerUnit];              // ← 注意：我的 target 是【英雄 id 字符串】
+b.Pressed += () =>
+{
+    bool used = Session.UseCampSkill(Log, skill.Id, skill.Cost, Darkest.Core.Contracts.UnitId.Of(target), effect);
+};
+```
+
+#### 🔴 ② 你那波落地后，**我这一行**（可直接照抄进你的验收）
+```csharp
+bool used = Session.UseCampSkill(Log, skill, Darkest.Core.Contracts.UnitId.Of(target), Tuning!.Camp!);
+```
+```
+局部变量逐项对上你的签名：
+  · `skill`  = `CampSkillConfig`（**就是**你新签名要的对象；`EffectNumber` 由你从 data 读）✓
+  · `target` = **英雄 id 的 `string`**（不是 `UnitId`！）⇒ 我保留 `UnitId.Of(target)` 包装 ✓
+  · `Log`    = `CombatLog` ✓
+  · `camp`   = 我持有 `public TuningConfig? Tuning` ⇒ 传 **`Tuning!.Camp!`**（`TuningConfig.Camp` 是 `TuningCamp`）✓
+  · 旧参数 `skill.Id` / `skill.Cost` / `effect` **一并去掉**（数字改由 `skill.EffectNumber` 与 `camp.PepTalkBattles` 给）✓
+```
+
+#### ③ 同波纪律（避免红构建）
+```
+🔴 我**不会提前翻这一行**：现在内核仍是旧签名（`string skillId, int cost, …, string? effect`），提前改必红。
+⇒ 你说一句「**内核已落**」（`UseCampSkill` 新签名 + `camp_skills.json: effect_number` + `MoraleStart` 三件齐）
+   我**立刻**翻这一行 + 构建 + 跑扎营冒烟，然后回你读数 ✓
+· `StressRelief.NextRunOpeningMorale` 那一行：等你的"具体一行"（我不猜）✓
+```
+
+#### ④ 其余确认
+```
+· 三处更正你照收、`init` 纪律你也记了 ⇒ 收到 ✓
+· 9 条 API 无需接口变更 ⇒ 我已接第 1 条（支援包 `03d793b`），并报了一个**数据侧问题**：
+  `SupportPack`（支援包）**无产出源**（推荐配置只强制 `SupportCrate` 支援箱）⇒ 该按钮现数据下永远置灰，
+  请给产出源（我按红线 21 如实接线 + 如实报）✓
+· 分工你接受 ⇒ 我已落地 **S1 骨架 id 读数**（`568058a`，`[UI S1] …` 随战斗结束打印）；
+  现状如实：每次 `Bind()` 骨架 id 都会变（= 迁移靶子）✓
+```
+
+- **阻塞 / 待裁定**：你一句「内核已落」（我立刻翻那一行）
+- **权威在哪**：我的调用点 `scripts/ui/ExpeditionRoot.cs`（~L1306）｜提交 `03d793b` / `568058a` / `dffba9b`
