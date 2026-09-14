@@ -116,6 +116,39 @@ public sealed class Roster
     /// <summary>该特质是否已固化（固化后不可清除）。</summary>
     public bool IsTraitLocked(string heroId, string traitId) => _lockedTraits.Contains($"{heroId}|{traitId}");
 
+    /// <summary>
+    /// 🔴 **运行时加一个特质**（`curio.md` §3 #4 书堆：25% ⇒ **随机正面特质**）。
+    /// 走的是**既有的可变特质列表**（`_traits`，与 `RemoveTrait`/`LockTrait` 同一份）
+    /// ⇒ `TraitsOf` / `TraitEffectsOf` / 战斗投影**自动生效**（无需新管道）✓。
+    /// 重复加同一 id = **no-op**（与 `Infect` 的"重复患病 = no-op"一致）；变更**留痕**。
+    /// </summary>
+    public bool AddTrait(CombatLog log, string heroId, HeroTraitConfig trait, string reason)
+    {
+        if (log is null)
+        {
+            throw new ArgumentNullException(nameof(log));
+        }
+
+        if (trait is null)
+        {
+            throw new ArgumentNullException(nameof(trait));
+        }
+
+        List<HeroTraitConfig> list = _traits.TryGetValue(heroId, out List<HeroTraitConfig>? l)
+            ? l
+            : TraitsOf(heroId).ToList();
+        if (list.Any(t => t.Id == trait.Id))
+        {
+            return false; // 已有 ⇒ no-op（不重复加）
+        }
+
+        list.Add(trait);
+        _traits[heroId] = list;
+        log.Append(new Darkest.Core.Events.EffectEvent(default,
+            $"trait_added:{heroId}:{trait.Id}:{reason}", 100.0, true));
+        return true;
+    }
+
     /// <summary>负面特质（伤害↓ 或 受士气伤害↑），未固化者优先。</summary>
     public HeroTraitConfig? FindRemovableNegativeTrait(string heroId)
         => TraitsOf(heroId).FirstOrDefault(t => (t.DamagePct < 0 || t.MoraleDamagePct > 0) && !IsTraitLocked(heroId, t.Id));

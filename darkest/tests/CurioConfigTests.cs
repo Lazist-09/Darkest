@@ -89,16 +89,20 @@ public sealed class CurioConfigTests
     public void DeferredKinds_AreRegistered_SoStageTwoIsVisible()
     {
         // 🔴 阶段二（数据里有、内核未接线）：必须**登记**而不是静默（红线 21）
-        //    ⚠️ 只剩 `trait_positive` —— 名册**没有加特质的通道**（只有 Lock/Remove）⇒ 需【特质目录 + AddTrait + 投影】
-        Assert.AreEqual(1, CuriosConfig.DeferredKinds.Count, "阶段二应只剩 1 个 kind");
-        Assert.IsTrue(CuriosConfig.DeferredKinds.Contains("trait_positive"));
-
-        // ✅ `damage_buff`（圣坛）与 `disease_one`（骸骨堆）都已**转正**
-        Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains("damage_buff"), "圣坛已接线");
-        Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains("disease_one"), "骸骨堆的患病已接线（走 Roster.Infect）");
+        //    ✅ 当前**为空** —— 9 种 kind **全部接线**（阶段二机制保留，供将来新增 kind 显式登记）
+        Assert.AreEqual(0, CuriosConfig.DeferredKinds.Count,
+            "9 种 kind 都已接线 ⇒ 阶段二应为空；若你新增了未接线的 kind，请登记到 DeferredKinds");
 
         // 且已实现清单与阶段二清单**互斥**
         Assert.IsFalse(CuriosConfig.ConsumedKinds.Overlaps(CuriosConfig.DeferredKinds),
             "两个清单必须互斥（我踩过一次：同一条目同时在两边 ⇒ 计数虚高）");
+
+        // 🔴 九种 kind 逐一在位（防"悄悄少了一种"）
+        string[] expected = { "none", "food", "firewood", "gold", "morale_team", "light", "scout",
+            "damage_buff", "disease_one", "trait_positive" };
+        foreach (string k in expected)
+        {
+            Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains(k), $"kind 「{k}」应在已实现清单里");
+        }
     }
 }

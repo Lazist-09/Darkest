@@ -60,18 +60,15 @@ public sealed record CuriosConfig(
         "scout",           // 侦察（揭示相邻）—— 由 `ExpeditionFlow` 施加
         "damage_buff",     // 本趟 +N% 伤害（到扎营）—— 跨场 buff（`until_next_recovery`）＋扎营清 ✓ 已接线
         "disease_one",     // 一人患病 —— 走 `Roster.Infect`（疾病目录取自 `sanitarium.json`）✓ 已接线
+        "trait_positive",  // 随机正面特质 —— 走 `Roster.AddTrait`（特质目录取自名册；投影自动生效）✓ 已接线
     };
 
     /// <summary>
     /// 阶段二（**已登记但尚未接线**）：出现时**允许加载**，但内核必须**显式拒绝执行**（不静默）——
     /// 🔴 与 `ConsumedKinds` **互斥**（我踩过一次：同一条目同时在两边 ⇒ 计数虚高，用例当场抓住）。
+    /// ✅ 当前**为空**（9 种 kind 全部接线）—— 机制保留，供将来新增 kind 时显式登记。
     /// </summary>
-    public static readonly IReadOnlySet<string> DeferredKinds = new HashSet<string>(StringComparer.Ordinal)
-    {
-        // ⚠️ 只剩它一个：随机正面特质 ⇒ 需要【特质目录 + `Roster.AddTrait` + 投影】三件套
-        //    （名册里的特质来自 `roster.json`，运行时**没有加特质的通道** —— 只有 Lock/Remove）
-        "trait_positive",
-    };
+    public static readonly IReadOnlySet<string> DeferredKinds = new HashSet<string>(StringComparer.Ordinal);
 
     /// <summary>只含真正的 Curio（跳过 `type:"note"` 的文档行）。</summary>
     public IReadOnlyList<CurioConfig> RealCurios =>

@@ -109,23 +109,15 @@ public sealed class CurioResolverTests
     {
         CuriosConfig cfg = Load();
 
-        // 🔴 阶段二示例：**书堆的 `trait_positive`**（名册没有加特质的通道 ⇒ 需【特质目录 + AddTrait + 投影】）
+        // ✅ **原先三个阶段二 kind 全部转正**（`damage_buff` / `disease_one` / `trait_positive`）
+        Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains("damage_buff"), "圣坛已接线（跨场祝福 + 扎营清）");
+        Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains("disease_one"), "骸骨堆患病已接线（Roster.Infect）");
+        Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains("trait_positive"), "书堆随机正面特质已接线（Roster.AddTrait）");
+        Assert.AreEqual(0, CuriosConfig.DeferredKinds.Count, "⇒ 阶段二应为空（机制保留给将来新增 kind）");
+
+        // 并复核：书堆的空手表里那条正面特质分支**确实存在**（数据没被改坏）
         CurioConfig books = cfg.Get("cur_book_stack")!;
-        CurioBareResultConfig trait = books.BareHands.Single(b => b.Kind == "trait_positive");
-        Assert.IsTrue(CuriosConfig.DeferredKinds.Contains(trait.Kind),
-            "阶段二 kind 必须登记在 DeferredKinds（内核据此拒绝，不静默）");
-
-        // ✅ 骸骨堆的 `disease_one` 已**转正**（走 `Roster.Infect`）
-        CurioConfig bones = cfg.Get("cur_bone_pile")!;
-        Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains(bones.BareHands.Single(b => b.Kind == "disease_one").Kind),
-            "disease_one 已接线（跑图中患病走既有 Roster.Infect 通道）");
-        Assert.IsFalse(CuriosConfig.DeferredKinds.Contains("disease_one"));
-
-        // ✅ 圣坛的 `damage_buff` 已**转正**（跨场 buff + 扎营清都已具备）
-        CurioConfig altar = cfg.Get("cur_altar")!;
-        Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains(altar.BareHands.Single().Kind),
-            "damage_buff 已接线 ⇒ 圣坛的空手路径应可正常生效");
-        Assert.IsFalse(CuriosConfig.DeferredKinds.Contains("damage_buff"));
+        Assert.IsTrue(books.BareHands.Any(b => b.Kind == "trait_positive"), "书堆空手 25% ⇒ 随机正面特质");
     }
 
     [TestMethod]

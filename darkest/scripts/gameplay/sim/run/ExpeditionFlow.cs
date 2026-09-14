@@ -429,6 +429,57 @@ public sealed class ExpeditionFlow
                 _log.Append(new Darkest.Core.Events.EffectEvent(default,
                     $"curio_disease:{victim}:{diseaseId}:{infected}", 100.0, true));
                 break;
+            case "trait_positive":
+                // 🔴 书堆（`curio.md` §3 #4）：25% ⇒ **随机正面特质**
+                //    · 目录 = **名册里出现过的特质**（不新增数据文件 ✓）；正/负判定沿用既有口径
+                //      （与 `FindLockablePositiveTrait` 同一判据：`DamagePct > 0 || MoraleDamagePct < 0`）
+                //    · **两处随机**（谁 + 哪个特质）⇒ **各写一条 `RngDraw`**（红线：随机留痕）
+                if (roster is null)
+                {
+                    _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                        "curio_trait_no_roster", 0.0, Triggered: false));
+                    break;
+                }
+
+                Darkest.Data.HeroTraitConfig[] pool = roster.Heroes
+                    .SelectMany(h => h.Traits)
+                    .Where(t => t.DamagePct > 0 || t.MoraleDamagePct < 0)
+                    .GroupBy(t => t.Id)
+                    .Select(g => g.First())
+                    .ToArray();
+                if (pool.Length == 0)
+                {
+                    _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                        "curio_trait_no_catalog", 0.0, Triggered: false));
+                    break;
+                }
+
+                // 🔴 只在**合法对**（该英雄**还没有**的特质）里选 —— 否则会选到已有的 ⇒ `AddTrait` no-op
+                //    ⇒ **分支静默无效果**（我实测踩到：seed=17 时没人涨特质）⚠️
+                var pairs = new List<(string Hero, Darkest.Data.HeroTraitConfig Trait)>();
+                foreach (Darkest.Data.HeroConfig h in roster.Heroes)
+                {
+                    var owned = roster.TraitsOf(h.Id).Select(t => t.Id).ToHashSet();
+                    foreach (Darkest.Data.HeroTraitConfig t in pool.Where(t => !owned.Contains(t.Id)))
+                    {
+                        pairs.Add((h.Id, t));
+                    }
+                }
+
+                if (pairs.Count == 0)
+                {
+                    _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                        "curio_trait_all_owned", 0.0, Triggered: false)); // 全都有 ⇒ 留痕（不静默）
+                    break;
+                }
+
+                int pickPair = _rng.NextInt(0, pairs.Count);
+                _log.Append(new RngDraw(_rng.DrawCount, pickPair)); // 🔴 随机留痕
+                (string who, Darkest.Data.HeroTraitConfig what) = pairs[pickPair];
+                bool added = roster.AddTrait(_log, who, what, "curio");
+                _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                    $"curio_trait:{who}:{what.Id}:{added}", 100.0, true));
+                break;
             default:
                 // 已登记的阶段二 kind 不会走到这里（上面已提前返回）；走到这里说明数据用了**未登记**kind
                 // ⇒ 加载期就该炸（`CuriosConfig.Parse`）⇒ 这里也不静默：
