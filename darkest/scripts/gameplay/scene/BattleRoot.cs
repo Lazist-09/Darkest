@@ -54,7 +54,7 @@ public partial class BattleRoot : Node2D
             Position = new Vector2(520, 700),
             Size = new Vector2(240, 40),
         };
-        startExpedition.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
+        startExpedition.Pressed += () => GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
         AddChild(startExpedition);
 
         // 🔴 M8.0 ③（红线 18）：**回城入口也必须从启动场景可达**
@@ -511,7 +511,7 @@ public partial class BattleRoot : Node2D
                 Position = new Vector2(540, 660),
                 Size = new Vector2(200, 40),
             };
-            toExpedition.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
+            toExpedition.Pressed += () => GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
             AddChild(toExpedition);
             GD.Print($"[BattleRoot] 远征模式：本场结果 {result}，点【继续（回远征）】返回远征界面");
 

@@ -55,6 +55,15 @@ public partial class ExpeditionRoot : Node
     private ScoutMarkPanel? _scoutMark;
     private PathChoicePanel? _pathPanel;
 
+    /// <summary>
+    /// 🔴 **统一的安全切场景**（`#319` 实测验到的引擎约束）：
+    /// `_Ready` 期间父节点正忙于增删子节点 ⇒ **同步** `ChangeSceneToFile` 会报
+    /// `Parent node is busy adding/removing children, remove_child() can't be called at this time`
+    /// ⇒ 之后场景树状态不一致，连 UI 判据都会**乱认浮层**（实测）⚠️
+    /// ⇒ 一律走 `CallDeferred("change_scene_to_file", …)` ✓
+    /// </summary>
+    private void SwitchTo(string scenePath) => GetTree().CallDeferred("change_scene_to_file", scenePath);
+
     public override void _Ready()
     {
         // 🔴 `ui_spec §14.3`（`#319`）：**一切 UI 都进容器树** —— 场景里的 `UiMargin/UiCol` 是唯一的落点，
@@ -402,7 +411,7 @@ public partial class ExpeditionRoot : Node
         {
             case FlowStepKind.Battle:
                 ExpeditionContext.Bind(_flow, Log);
-                GetTree().ChangeSceneToFile("res://scenes/battle/Battle.tscn");
+                SwitchTo("res://scenes/battle/Battle.tscn");
                 return;
             case FlowStepKind.Event:
                 SetPendingEvent(step.NodeId);
@@ -491,7 +500,7 @@ public partial class ExpeditionRoot : Node
         {
             case FlowStepKind.Battle:
                 ExpeditionContext.Bind(_flow, Log);
-                GetTree().ChangeSceneToFile("res://scenes/battle/Battle.tscn");
+                SwitchTo("res://scenes/battle/Battle.tscn");
                 return;
             case FlowStepKind.Event:
                 SetPendingEvent(step.NodeId);
@@ -782,7 +791,7 @@ public partial class ExpeditionRoot : Node
                     _routedToBattle = true;
                     ExpeditionContext.PendingAmbush = false;
                     ExpeditionContext.Bind(_flow, Log);
-                    GetTree().ChangeSceneToFile("res://scenes/battle/Battle.tscn");
+                    SwitchTo("res://scenes/battle/Battle.tscn");
                     return;
                 }
 
@@ -1093,7 +1102,7 @@ public partial class ExpeditionRoot : Node
                     GD.Print("[拓扑UI] 夜袭已触发 ⇒ 插入一场额外战斗（切 Battle.tscn，真打）");
                     ExpeditionContext.PendingAmbush = true;
                     ExpeditionContext.Bind(_flow, Log);
-                    GetTree().ChangeSceneToFile("res://scenes/battle/Battle.tscn");
+                    SwitchTo("res://scenes/battle/Battle.tscn");
                     return;
                 }
 

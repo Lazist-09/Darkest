@@ -68,6 +68,12 @@ public partial class MainMenuRoot : Node2D
 
     public override void _Ready()
     {
+        // 🔴 `#319`⑤ 判据必须在 `_Ready` 的【第一句】建起来：冒烟步骤（`SmokeScript.Step`）在后面，
+        //    它可能提前 `return`（`--hamlet-embark` 那条路径就是）⇒ 放在后面会**整段被跳过**（实测无输出）⚠️
+        if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--ui-audit"))
+        {
+            PrintUiAudit();
+        }
         _title = new Label
         {
             Name = "MenuTitle",
@@ -146,7 +152,9 @@ public partial class MainMenuRoot : Node2D
         //    （把"文字重叠 / 框透明"从"看起来还行"变成**可断言**）✓
         if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--ui-audit"))
         {
-            CallDeferred(nameof(PrintUiAudit));
+            // ⚠️ **直接调用**（不要再 `CallDeferred`）：切场景现在也是 deferred ⇒ 本节点会**先被释放**
+            //    ⇒ 延后的调用就永远不会发生（实测：改了切场景之后判据一行都不输出）⚠️
+            PrintUiAudit();
         }
 
         // 🔴 输入审计（附 B ① 的例行项）：`--input-audit` ⇒ 打印自定义动作与绑定键
@@ -199,7 +207,9 @@ public partial class MainMenuRoot : Node2D
             Position = new Vector2(24, 80 + (index * 44)),
             Size = new Vector2(420, 38),
         };
-        button.Pressed += () => GetTree().ChangeSceneToFile(scenePath);
+        // 🔴 必须 **deferred**：冒烟会在 `_Ready` 里直接按下菜单键 ⇒ 同步切场景会报
+        //    `Parent node is busy adding/removing children`（实测抓到的真凶就在这一行）
+        button.Pressed += () => GetTree().CallDeferred("change_scene_to_file", scenePath);
         AddChild(button);
     }
 
