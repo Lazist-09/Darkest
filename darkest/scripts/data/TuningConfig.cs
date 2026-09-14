@@ -133,9 +133,11 @@ public sealed record TuningExpedition(
     [property: JsonPropertyName("n_battles")] int NBattles,
     [property: JsonPropertyName("ambush_chance")] double AmbushChance,
     [property: JsonPropertyName("retreat_penalty")] TuningRetreatPenalty RetreatPenalty,
+    // 🔴 数字外置：**必需参数放在可选参数之前**（C# 规则：可选参数必须都在最后）
+    //    并由 `DataPresence.RequireKeys` 断言该键**存在于数据**（缺键即报错）✓
+    [property: JsonPropertyName("battle_goal")] int BattleGoal,
     [property: JsonPropertyName("difficulty_tiers")] IReadOnlyList<TuningDifficultyTier>? DifficultyTiers = null,
-    [property: JsonPropertyName("pass_morale_delta")] int PassMoraleDelta = 0,
-    [property: JsonPropertyName("battle_goal")] int BattleGoal = 3);
+    [property: JsonPropertyName("pass_morale_delta")] int PassMoraleDelta = 0);
 
 /// <summary>
 /// 难度递进档（#250）：按**场序**施加的乘数（**远征层**，不得写进 `units.json` 的单场基准值）。
@@ -237,7 +239,8 @@ public sealed record TuningCollapse(
     [property: JsonPropertyName("affliction_pool")] IReadOnlyList<string> AfflictionPool,
     [property: JsonPropertyName("virtue_pool")] IReadOnlyList<string> VirtuePool,
     [property: JsonPropertyName("proc")] string Proc,
-    [property: JsonPropertyName("virtue_inspired_morale_per_turn")] int VirtueInspiredMoralePerTurn = 3);
+    // 🔴 数字外置：同上（去默认 + 存在性断言）✓
+    [property: JsonPropertyName("virtue_inspired_morale_per_turn")] int VirtueInspiredMoralePerTurn);
 
 /// <summary>
 /// tuning.json 绑定模型（data_schema §3.7 唯一权威；每键带出处）。启动一次性解析 → 冻结只读。
@@ -278,6 +281,14 @@ public sealed record TuningConfig(
 
     public static TuningConfig Parse(string json)
     {
+        // 🔴 数字外置纪律（P29）第一道：**必需键必须存在于数据**（否则 C# 默认值会静默生效）——
+        //    这里列的是"曾经靠记录默认值兜底"的可调数字（缺口由 `tools/check_data_discipline.py` 报出）✓
+        DataPresence.RequireKeys(ResPath, json,
+            "morale", "hit_clamp", "damage_floor", "crit_multiplier", "damage_float", "speed_float",
+            "mental_reduction", "physical_mitigation", "deaths_door", "retreat_formula",
+            "battle_goal", "virtue_inspired_morale_per_turn",
+            "safety_factor", "wave_interval_rounds", "measured_d", "enemy_full_hp");
+
         if (string.IsNullOrWhiteSpace(json))
         {
             throw new InvalidDataException($"{ResPath}: 内容为空。");
