@@ -41,3 +41,4 @@ scripts/gameplay/sim/director/BattleDirector.cs | Math.Max(3, o.MValue ?? o.Wave
 scripts/gameplay/sim/director/BattleDirector.cs | if (aPos is < 1 or > 4) | 槽位边界（1..4）
 scripts/gameplay/sim/director/BattleDirector.cs | _player.GetSlot(x) == SlotState.Empty && aPos == x | 槽位边界（同上）
 scripts/gameplay/sim/board/FormationBoard.cs | int guard = SlotCount * SlotCount + 8 | 环检测守卫上限（结构性防死循环）
+scripts/gameplay/sim/run/ExpeditionMap.cs | d >= 3 | 分叉点**度量定义**（度数 ≥3 的房间计数；改它=改口径，不是调平衡）
