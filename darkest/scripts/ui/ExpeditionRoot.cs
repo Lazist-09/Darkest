@@ -347,6 +347,9 @@ public partial class ExpeditionRoot : Node
         // 🔴 Curio 数据（`#313`）：拓扑模式下**事件房 = Curio 房**（空手 ／ 用道具 ／ 走开）
         _curiosCfg = Darkest.Data.CuriosConfig.Parse(
             Godot.FileAccess.GetFileAsString(Darkest.Data.CuriosConfig.ResPath));
+        // 🔴 Curio 的 `disease_one` 需要疾病目录（与 Sanitarium 同源，不另造数据）
+        _saniCfgForCurio = Darkest.Data.SanitariumConfig.Parse(
+            Godot.FileAccess.GetFileAsString(Darkest.Data.SanitariumConfig.ResPath));
         GD.Print($"[拓扑UI] Curio：{_curiosCfg.RealCurios.Count} 个（三按钮：空手 ／ 用道具 ／ 走开；" +
                  "阶段二道具选项**不列出**，红线 21）");
         GD.Print($"[ExpeditionRoot] 扎营技能：已接线 {campSkills.ConsumedCount} ／ 阶段二（未落点）{campSkills.DeferredCount}" +
@@ -840,6 +843,7 @@ public partial class ExpeditionRoot : Node
     // ------------------------------------------------------------------
 
     private Darkest.Data.CuriosConfig? _curiosCfg;
+    private Darkest.Data.SanitariumConfig? _saniCfgForCurio; // Curio 患病用（与 Sanitarium 同源）
     private Darkest.Data.CurioConfig? _pendingCurio;
     private Label? _curioText;
     private readonly List<Button> _curioButtons = new();
@@ -955,7 +959,9 @@ public partial class ExpeditionRoot : Node
 
     private void ResolveCurioRoute(string? itemUsed)
     {
-        Darkest.Gameplay.Sim.Run.CurioOutcome? outcome = _flow!.ResolveCurio(_pendingCurio!, itemUsed);
+        // 🔴 Curio 的两种效果需要**会话之外**的持有者：患病走名册（`Roster.Infect`）、疾病目录取 `sanitarium.json`
+        Darkest.Gameplay.Sim.Run.CurioOutcome? outcome = _flow!.ResolveCurio(
+            _pendingCurio!, itemUsed, ExpeditionContext.Roster, _saniCfgForCurio);
         if (outcome is null)
         {
             GD.Print($"[Curio] 道具 {itemUsed} 对该物件没有定义 ⇒ 拒绝（V7：UI 本不该列它）");

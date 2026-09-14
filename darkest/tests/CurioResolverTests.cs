@@ -109,13 +109,19 @@ public sealed class CurioResolverTests
     {
         CuriosConfig cfg = Load();
 
-        // 骸骨堆空手中的 `disease_one`（20%）属阶段二 ⇒ 命中时必须显式标 Deferred（红线 21）
-        CurioConfig bones = cfg.Get("cur_bone_pile")!;
-        CurioBareResultConfig disease = bones.BareHands.Single(b => b.Kind == "disease_one");
-        Assert.IsTrue(CuriosConfig.DeferredKinds.Contains(disease.Kind),
+        // 🔴 阶段二示例：**书堆的 `trait_positive`**（名册没有加特质的通道 ⇒ 需【特质目录 + AddTrait + 投影】）
+        CurioConfig books = cfg.Get("cur_book_stack")!;
+        CurioBareResultConfig trait = books.BareHands.Single(b => b.Kind == "trait_positive");
+        Assert.IsTrue(CuriosConfig.DeferredKinds.Contains(trait.Kind),
             "阶段二 kind 必须登记在 DeferredKinds（内核据此拒绝，不静默）");
 
-        // ✅ 圣坛的 `damage_buff` 已**转正**（跨场 buff + 扎营清都已具备）⇒ 不该再是阶段二
+        // ✅ 骸骨堆的 `disease_one` 已**转正**（走 `Roster.Infect`）
+        CurioConfig bones = cfg.Get("cur_bone_pile")!;
+        Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains(bones.BareHands.Single(b => b.Kind == "disease_one").Kind),
+            "disease_one 已接线（跑图中患病走既有 Roster.Infect 通道）");
+        Assert.IsFalse(CuriosConfig.DeferredKinds.Contains("disease_one"));
+
+        // ✅ 圣坛的 `damage_buff` 已**转正**（跨场 buff + 扎营清都已具备）
         CurioConfig altar = cfg.Get("cur_altar")!;
         Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains(altar.BareHands.Single().Kind),
             "damage_buff 已接线 ⇒ 圣坛的空手路径应可正常生效");

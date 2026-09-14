@@ -330,7 +330,8 @@ public sealed class ExpeditionFlow
     /// · 命中**阶段二 kind** ⇒ **不施加效果**，以 `LastCurioDeferred = true` 显式告知（红线 21，不静默）
     /// · **走开**走 <see cref="LeaveCurio"/>（零变化）
     /// </summary>
-    public CurioOutcome? ResolveCurio(Darkest.Data.CurioConfig curio, string? itemUsed)
+    public CurioOutcome? ResolveCurio(Darkest.Data.CurioConfig curio, string? itemUsed,
+        Roster? roster = null, Darkest.Data.SanitariumConfig? diseases = null)
     {
         CurioOutcome? outcome = itemUsed is null
             ? CurioResolver.ResolveBare(curio, _rng, _log)
@@ -353,10 +354,10 @@ public sealed class ExpeditionFlow
             return outcome;
         }
 
-        ApplyCurioEffect(outcome.Kind, outcome.Amount);
+        ApplyCurioEffect(outcome.Kind, outcome.Amount, roster, diseases);
         if (outcome.ExtraKind is { } extra && outcome.ExtraAmount != 0)
         {
-            ApplyCurioEffect(extra, outcome.ExtraAmount);
+            ApplyCurioEffect(extra, outcome.ExtraAmount, roster, diseases);
         }
 
         _log.Append(new EventNodeResolvedEvent(curio.Id, outcome.Route,
@@ -376,7 +377,8 @@ public sealed class ExpeditionFlow
     }
 
     /// <summary>施加一种 Curio 效果（`light`/`scout` 走流程层持有者；其余走会话）。</summary>
-    private void ApplyCurioEffect(string kind, int amount)
+    private void ApplyCurioEffect(string kind, int amount, Roster? roster = null,
+        Darkest.Data.SanitariumConfig? diseases = null)
     {
         switch (kind)
         {
@@ -401,6 +403,31 @@ public sealed class ExpeditionFlow
                 _session.GrantCurioDamageBlessing(amount);
                 _log.Append(new Darkest.Core.Events.EffectEvent(default,
                     $"curio_damage_blessing:{amount}", 100.0, true));
+                break;
+            case "disease_one":
+                // 🔴 骸骨堆（`curio.md` §3 #6）：**一人患病** —— 走既有 `Roster.Infect`（与回城患病同一通道）
+                //    ⚠️ 受害者是**随机**的 ⇒ **必须写 `RngDraw`**（红线：随机留痕）；
+                //    疾病种类取目录第一条（**确定性**，已记档：契约只写"一人患病"，未指定病种）
+                if (roster is null || diseases is null || diseases.Diseases.Count == 0)
+                {
+                    _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                        "curio_disease_no_catalog", 0.0, Triggered: false)); // 不静默：缺目录就留痕
+                    break;
+                }
+
+                string[] candidates = roster.Heroes.Select(h => h.Id).ToArray();
+                if (candidates.Length == 0)
+                {
+                    break;
+                }
+
+                int pick = _rng.NextInt(0, candidates.Length);
+                _log.Append(new RngDraw(_rng.DrawCount, pick)); // 🔴 随机留痕
+                string victim = candidates[pick];
+                string diseaseId = diseases.Diseases[0].Id;
+                bool infected = roster.Infect(_log, victim, diseaseId, "curio");
+                _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                    $"curio_disease:{victim}:{diseaseId}:{infected}", 100.0, true));
                 break;
             default:
                 // 已登记的阶段二 kind 不会走到这里（上面已提前返回）；走到这里说明数据用了**未登记**kind

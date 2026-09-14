@@ -59,6 +59,7 @@ public sealed record CuriosConfig(
         "light",           // 光照 +N（可负）—— 由 `ExpeditionFlow` 施加（它持有 LightMeter）
         "scout",           // 侦察（揭示相邻）—— 由 `ExpeditionFlow` 施加
         "damage_buff",     // 本趟 +N% 伤害（到扎营）—— 跨场 buff（`until_next_recovery`）＋扎营清 ✓ 已接线
+        "disease_one",     // 一人患病 —— 走 `Roster.Infect`（疾病目录取自 `sanitarium.json`）✓ 已接线
     };
 
     /// <summary>
@@ -67,8 +68,9 @@ public sealed record CuriosConfig(
     /// </summary>
     public static readonly IReadOnlySet<string> DeferredKinds = new HashSet<string>(StringComparer.Ordinal)
     {
-        "trait_positive",  // 随机正面特质 —— 待接 `TraitMutation`
-        "disease_one",     // 一人患病 —— 待接"跑图中患病"（现在只有【回城结算】会患病）
+        // ⚠️ 只剩它一个：随机正面特质 ⇒ 需要【特质目录 + `Roster.AddTrait` + 投影】三件套
+        //    （名册里的特质来自 `roster.json`，运行时**没有加特质的通道** —— 只有 Lock/Remove）
+        "trait_positive",
     };
 
     /// <summary>只含真正的 Curio（跳过 `type:"note"` 的文档行）。</summary>
