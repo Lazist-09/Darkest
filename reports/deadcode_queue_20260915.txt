@@ -1,35 +1,34 @@
-﻿# 死代码待清队列（20260915）—— 由 tools/check_data_discipline.py --deadfuncs 生成
+﻿# 死代码待清队列（2026-09-15 · 第 2 版）—— tools/check_data_discipline.py --deadfuncs
 #
-# 🔴 判据来源：内核 public 方法在【生产代码】里没有调用点（只被测试调用也算）。
-# ⚠️ 本清单是【候选】，处置前逐条人工核（抽查 4/4 已确认准确：EnemyPhase / WithRounds / RemoveObstacle / RecoveryAmount
-#    在定义文件之外确实零调用点）。
+# 🔴 判据：内核 public 方法在【生产代码】里没有调用点（**只被测试调用也算**）。
+#    判据细化（两轮修正后）：
+#      ① 调用点必须在【原始文本】里搜（剥离字符串/注释的正则会把代码一起吞掉 —— 实测踩过）
+#      ② **本文件内的调用也算**（
+ame( 在定义文件出现 ≥2 次 = 声明 + 调用 ⇒ 视为被用）
+#         —— 修正前 RollCollapse/WithRounds/WithCharges/BaseFood/ContainsId 都被误报死函数 ⚠️
+#    效果：85 → 53 → **19**（还剩 2 个走人工豁免清单：契约样例参考实现 PhysicalHit/SpiritHit）
 #
-# 处置三选一（P29 / 红线 21）：
-#   (a) **接线**：它本该被生产路径调用 ⇒ 接上（并加用例）
-#   (b) **删**：确属历史遗留 ⇒ 连同只依赖它的测试一起删（不留"以备将来"）
-#   (c) **显式登记**：确属"按设计只被测试调用"（如契约样例）⇒ 写进 tools/deadfunc_allowlist.txt 并写理由
+# ⚠️ **删之前必须逐条核**（红线 17：机制失效先查实现）——本清单里的方法可能是三类之一：
+#   (a) **本该生效但没接线** ⇒ 接线（这是缺陷，不是"死代码"）⚠️
+#   (b) 历史遗留 ⇒ 删（连同只依赖它的测试）
+#   (c) 按设计只被测试调用（契约样例）⇒ 写进 tools/deadfunc_allowlist.txt 并写理由
+#   📌 我已因此**避免了一次误删**：分类脚本一度把"只在自己文件里被调用"的 6 个方法判成"到处没人用" ✓
 darkest\scripts\gameplay\sim\board\FormationBoard.cs: public TryGetObstacleHp(…) 无生产调用点（只被测试调用也算死函数）
 darkest\scripts\gameplay\sim\board\FormationBoard.cs: public RemoveObstacle(…) 无生产调用点（只被测试调用也算死函数）
 darkest\scripts\gameplay\sim\board\FormationBoard.cs: public DryRunSwapChain(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\buffs\BuffLedger.cs: public WithRounds(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\buffs\BuffLedger.cs: public WithCharges(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\director\BattleDirector.cs: public TrySpendSupportPoints(…) 无生产调用点（只被测试调用也算死函数）
 darkest\scripts\gameplay\sim\director\BattleDirector.cs: public TryUseSupportPackForSp(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\director\BattleDirector.cs: public EmitBattleEnd(…) 无生产调用点（只被测试调用也算死函数）
 darkest\scripts\gameplay\sim\director\BattleDirector.cs: public EnemyPhase(…) 无生产调用点（只被测试调用也算死函数）
 darkest\scripts\gameplay\sim\director\BattleProjector.cs: public IntentPreview(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\enemy\EnemyAi.cs: public ContainsId(…) 无生产调用点（只被测试调用也算死函数）
 darkest\scripts\gameplay\sim\pipeline\MoraleLedger.cs: public ResetTurnCounters(…) 无生产调用点（只被测试调用也算死函数）
 darkest\scripts\gameplay\sim\pipeline\MoraleLedger.cs: public IsCollapseEmber(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\pipeline\MoraleLedger.cs: public RollCollapse(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\pipeline\MoraleLedger.cs: public RecoveryAmount(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\run\ExpeditionCampMath.cs: public BaseFood(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\run\ExpeditionFlow.cs: public ResolveEvent(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\run\ExpeditionFlow.cs: public TryCollectLoot(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\run\ExpeditionFlow.cs: public TryCollectLoot(…) 无生产调用点（只被测试调用也算死函数）
 darkest\scripts\gameplay\sim\run\ExpeditionFlow.cs: public RetryPendingLoot(…) 无生产调用点（只被测试调用也算死函数）
 darkest\scripts\gameplay\sim\run\ExpeditionFlow.cs: public BeginAmbushBattle(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\run\ExpeditionProjector.cs: public IsFoodTierDisabled(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\run\ExpeditionProjector.cs: public MultiplierFor(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\run\ExpeditionProjector.cs: public RangeFor(…) 无生产调用点（只被测试调用也算死函数）
-darkest\scripts\gameplay\sim\run\ExpeditionProjector.cs: public NextMultiplierFor(…) 无生产调用点（只被测试调用也算死函数）
+darkest\scripts\gameplay\sim\run\ExpeditionProjector.cs: public Reconciles(…) 无生产调用点（只被测试调用也算死函数）
+darkest\scripts\gameplay\sim\run\ExpeditionSession.cs: public CarryOverFrom(…) 无生产调用点（只被测试调用也算死函数）
+darkest\scripts\gameplay\sim\run\Inventory.cs: public TryConsumeFoodToFreeSlot(…) 无生产调用点（只被测试调用也算死函数）
+darkest\scripts\gameplay\sim\run\Inventory.cs: public TryUseSupportPack(…) 无生产调用点（只被测试调用也算死函数）
+darkest\scripts\gameplay\sim\run\LightMeter.cs: public ApplyEventChoice(…) 无生产调用点（只被测试调用也算死函数）
+darkest\scripts\gameplay\sim\run\LightMeter.cs: public Recompute(…) 无生产调用点（只被测试调用也算死函数）
+darkest\scripts\gameplay\sim\run\MapTraversal.cs: public ShortestPathLength(…) 无生产调用点（只被测试调用也算死函数）
+darkest\scripts\gameplay\sim\run\RunProgress.cs: public AvailableCurios(…) 无生产调用点（只被测试调用也算死函数）
+darkest\scripts\gameplay\sim\run\StressRelief.cs: public NextRunOpeningMorale(…) 无生产调用点（只被测试调用也算死函数）

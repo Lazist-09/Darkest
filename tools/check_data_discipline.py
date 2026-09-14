@@ -177,10 +177,15 @@ def scan_deadfuncs(verbose: bool) -> tuple[int, list[str]]:
             if any(rel(f).replace("\\", "/").endswith(p) and k == name for p, k, _r in allow):
                 exempted += 1
                 continue
-            # 生产调用点 = 除本文件与 tests 之外的任何地方出现该方法名
-            # 🔴 **必须在【原始文本】里搜**：`strip_code` 会误吞代码（实测：`DirectorBridge.cs` 里的
-            #    `BalanceTable.FromTuning(...)` 在剥离后消失 ⇒ 该扫一度把**明明在用的**方法报成死函数 ⚠️，
-            #    同类问题在 deadkeys 也犯过一次：**剥离字符串/注释的正则不能用来做"找引用"**）✓
+            # 生产调用点 = ①**本文件内**除声明之外还有调用（如 public 辅助方法只在类内用）
+            #               ②或其它非测试文件里有调用
+            # 🔴 本文件内的判据：`raw` 里 `name(` 出现 **≥2 次**（1 次=声明自己）⇒ 视为被用 ✓
+            #    （实测教训：`RollCollapse` / `WithRounds` / `WithCharges` / `BaseFood` / `ContainsId` 都被
+            #      "只搜其它文件"的旧口径误报成死函数 —— 它们其实都在**自己的文件里**被调用 ⚠️）
+            own_raw = raw.get(f, "")
+            if len(re.findall(rf"\b{re.escape(name)}\s*\(", own_raw)) >= 2:
+                continue
+
             callers = 0
             for g, gtext in raw.items():
                 if g == f or "tests" in g.parts:
