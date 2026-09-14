@@ -1,0 +1,15 @@
+# 死数据豁免清单（`tools/check_data_discipline.py --deadkeys` 读取）
+#
+# 🔴 纪律：豁免**只给"给人读的语义注解"**，且必须**逐条写理由**。
+#    已解析却无人读的键 **不许** 走本清单 —— 那种必须【接线】或【删】（P29 ④：不许为让工具变绿而放行）。
+#    命名约定内的文档键（`*_note` / `*_rule`）在工具里直接放行，无需列在这里。
+#
+# 格式：<json 文件名> | <键> | <理由>
+
+buff_defs.json | aoe_consumes | buff 语义注解：AOE 会不会消耗该 buff（当前无 AOE 实现 ⇒ 注解先行，接线时再读）
+buff_defs.json | guarded_ally_morale | buff 语义注解：守护盟友的士气交互（等价于设计说明，非运行时字段）
+buff_defs.json | not_consumed_by | buff 语义注解：哪些效果**不该**消耗它（防未来实现写错）
+buff_defs.json | protectors_def_after_redirect | buff 语义注解：守护者转移后的防御变化（设计说明）
+buff_defs.json | recalc_range_at_resolution | buff 语义注解：结算时是否重算射程（设计说明）
+buff_defs.json | weak_protector_triggers_deaths_door | buff 语义注解：虚弱守护者是否触发死门（设计说明）
+sanitarium.json | trait_rule | 规则语义注解（疗养院特质规则的可读说明）

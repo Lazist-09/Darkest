@@ -201,11 +201,36 @@ def leaf_keys(obj, prefix: str = "") -> list[str]:
 
 DOC_ONLY_KEYS = {"_note", "note", "source", "config", "version"}
 
+# 🔴 **文档键约定**（P29 允许的"显式登记未消费"形态之一）：以这些后缀结尾的键 = **给人读的设计说明**
+#    （`*_note` 写"为什么这么定/决策号"，`*_rule` 写规则语义）⇒ 它们**不进**死数据报告 ✓
+#    ⚠️ 约定必须**可审**：判据是"该键是否被任何 .cs 解析" —— 已解析却无人读的键**不许**走这条豁免 ⚠️
+DOC_KEY_SUFFIXES = ("_note", "_rule")
+
+# 其它**显式登记为未消费**的数据键（非 `_note` 命名，但同样是"给人看的语义注解"）—— 见 `tools/deadkey_allowlist.txt` ✓
+DEADKEY_ALLOWLIST_FILE = REPO / "tools" / "deadkey_allowlist.txt"
+
+
+def load_deadkey_allowlist() -> list[tuple[str, str, str]]:
+    """读 `json文件 | 键 | 理由` ⇒ [(json, key, reason)] ✓"""
+    rules: list[tuple[str, str, str]] = []
+    if not DEADKEY_ALLOWLIST_FILE.exists():
+        return rules
+    for raw in DEADKEY_ALLOWLIST_FILE.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) >= 2:
+            rules.append((parts[0], parts[1], parts[2] if len(parts) > 2 else ""))
+    return rules
+
 
 def scan_deadkeys(verbose: bool) -> tuple[int, list[str]]:
     # 🔴 **必须搜【原始文本】**：JSON 键在 C# 里就住在 `[JsonPropertyName("buffs")]` 这类**字符串字面量**中
     #    ⇒ 我第一版先 `strip_code()`（把字面量清空）再搜 ⇒ **395 个假死数据**（"buffs"/"duration" 全中招）⚠️
     code = "\n".join(f.read_text(encoding="utf-8", errors="replace") for f in cs_files([SCRIPTS]))
+    allow = load_deadkey_allowlist()
+    exempted = 0
     dead: list[str] = []
     for jf in sorted(DATA.glob("*.json")):
         try:
@@ -214,16 +239,21 @@ def scan_deadkeys(verbose: bool) -> tuple[int, list[str]]:
             dead.append(f"{jf.name}: JSON 解析失败（{ex}）")
             continue
         for key in sorted(set(leaf_keys(obj))):
-            if key in DOC_ONLY_KEYS:
+            # 🔴 放行两类（都属 P29 允许的"显式登记未消费"）：
+            #    ① 工具内置的文档键（`_note`/`source`/…）② **文档键约定**（`*_note` / `*_rule`）
+            #    ③ 显式豁免清单（`tools/deadkey_allowlist.txt`，逐条带理由）✓
+            if key in DOC_ONLY_KEYS or key.endswith(DOC_KEY_SUFFIXES):
+                exempted += 1
+                continue
+            if any(j == jf.name and k == key for j, k, _r in allow):
+                exempted += 1
                 continue
             if not re.search(rf'"{re.escape(key)}"', code):
                 dead.append(f"{jf.name}: 键 \"{key}\" 在任何 .cs 里都不出现 ⇒ 疑似死数据")
     if verbose:
-        print(f"[deadkeys] 数据键扫描完成 ⇒ 疑似死数据 {len(dead)} 个")
-        for line in dead[:25]:
-            print("  [!] " + line)
-        if len(dead) > 25:
-            print(f"  …（其余 {len(dead) - 25} 个略）")
+        print(f"[deadkeys] 数据键扫描完成 ⇒ 疑似死数据 {len(dead)} 个"
+              f"（按文档键约定/显式豁免放行 {exempted} 个）")
+        show(dead, "deadkeys")
     return len(dead), dead
 
 

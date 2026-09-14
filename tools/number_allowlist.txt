@@ -42,3 +42,10 @@ scripts/gameplay/sim/director/BattleDirector.cs | if (aPos is < 1 or > 4) | 槽�
 scripts/gameplay/sim/director/BattleDirector.cs | _player.GetSlot(x) == SlotState.Empty && aPos == x | 槽位边界（同上）
 scripts/gameplay/sim/board/FormationBoard.cs | int guard = SlotCount * SlotCount + 8 | 环检测守卫上限（结构性防死循环）
 scripts/gameplay/sim/run/ExpeditionMap.cs | d >= 3 | 分叉点**度量定义**（度数 ≥3 的房间计数；改它=改口径，不是调平衡）
+# ---- 其余结构性的（含一处跨层"两处真值"风险，已在提交/窗口里点名）----
+scripts/gameplay/sim/run/LightMeter.cs | > 75 => LightTier.Radiant | 光档边界（契约 `#272`：25/50/75）⚠️ UI 侧 LightBarPanel 也写着 25/50/75 ⇒ 两处真值，已报策划/UI
+scripts/gameplay/sim/run/LightMeter.cs | > 50 => LightTier.Dim | 同上
+scripts/gameplay/sim/run/LightMeter.cs | > 25 => LightTier.Shadowy | 同上
+scripts/gameplay/sim/run/RunSession.cs | Curve.Count >= 3 | 曲线最少样本数（结构性下限：少于 3 点画不出趋势）
+scripts/gameplay/sim/turn/TurnSequencer.cs | , 3, MidpointRounding | 数值保留 3 位小数（精度常量，非平衡量）
+scripts/gameplay/sim/run/SimplePlayerAuto.cs | .ThenBy(u => director.Enemy.UnitAtPosition | 自动玩家的**确定性顺序**（tie-break 项，不参与平衡）
