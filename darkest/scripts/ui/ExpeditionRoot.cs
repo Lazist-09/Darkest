@@ -186,6 +186,26 @@ public partial class ExpeditionRoot : Node
                 return;
             }
 
+            // 🔴 冒烟：`--curio-id=<id>` ＋ `--curio-item=N` / `--curio-bare` / `--curio-leave`
+            //    ⇒ **直接打开指定物件并真实点击**（验 V2 用对道具 ／ V3 错误道具 —— 那两件不一定被房间映射撞到）
+            string? curioIdArg = System.Array.Find(args, a => a.StartsWith("--curio-id=", StringComparison.Ordinal));
+            if (curioIdArg is not null && SetPendingCurioById(curioIdArg["--curio-id=".Length..]))
+            {
+                string? itemArg = System.Array.Find(args, a => a.StartsWith("--curio-item=", StringComparison.Ordinal));
+                if (itemArg is not null && int.TryParse(itemArg["--curio-item=".Length..], out int itemIdx))
+                {
+                    PressCurioItem(itemIdx);
+                }
+                else if (System.Array.Exists(args, a => a == "--curio-bare"))
+                {
+                    PressCurioBare();
+                }
+                else if (System.Array.Exists(args, a => a == "--curio-leave"))
+                {
+                    PressCurioLeave();
+                }
+            }
+
             // 🔴 跨场景步进冒烟：消费本场景的一步（`ui_three_screens.md` §3 / `#310`⑦）
             Darkest.Gameplay.Scene.SmokeScript.Step(this);
 
@@ -847,6 +867,24 @@ public partial class ExpeditionRoot : Node
         _pendingCurio = list[roomId % list.Count];
         BuildCurioPanel();
     }
+
+    /// <summary>🔴 冒烟用：**直接打开指定 id 的 Curio**（用于验 V2/V3 —— 那些物件不一定在房间映射里被撞到）。</summary>
+    public bool SetPendingCurioById(string curioId)
+    {
+        Darkest.Data.CurioConfig? c = _curiosCfg?.Get(curioId);
+        if (c is null)
+        {
+            GD.Print($"[Curio] 找不到物件 {curioId}");
+            return false;
+        }
+
+        _pendingCurio = c;
+        BuildCurioPanel();
+        return true;
+    }
+
+    /// <summary>🔴 供冒烟：**真实点击第 i 个"用道具"**（0 = 第一个已实现道具）。</summary>
+    public bool PressCurioItem(int index) => PressCurioButton(1 + index);
 
     /// <summary>建/刷新 Curio 面板（显示物件 + 三按钮）。</summary>
     public void BuildCurioPanel()
