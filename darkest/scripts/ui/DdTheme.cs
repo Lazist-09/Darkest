@@ -17,18 +17,57 @@ public static class DdTheme
 {
     // ---- 语义色（把散落各处的字面量收敛到这里；四色定义见下方 `§14.4` 段）----
 
-    // ---- 字号（把散落的 font_size override 收敛为三档）----
-    public const int FontTitle = 18;
-    public const int FontBody = 15;
-    public const int FontSmall = 12;
+    // ---- 🔴 表现层数据驱动（`#325` D5）：颜色/字号/描边/技能栏列数**都从 `.tres` 读**（不再是写死的常量）----
+    private static UiPalette? _palette;
 
-    // ---- 🔴 表现层常量（`#325` D5：「表现层常量不写死在 .cs」⇒ 集中到这里）----
     /// <summary>
-    /// C 区技能栏的**列数**（原先是 `BattleUi.cs` 里的局部常量 `perRow = 8` ⇒ 那是 `#325` D5 点名的唯一现存反例）。
-    /// ⚠️ **为什么是 4**：`#321`③ 定「C 区固定宽 ≈ 30%（1280 的 ~380px）」且「**技能栏在 C 区内**」
-    /// ⇒ 8 列（8×94 = 752px）在 C 区里必然溢出 ⇒ 4 列（4×94 = 376px）刚好 ✓
+    /// 调色板：**优先读** `res://resources/theme/ui_palette.tres`（策划可改，**不用改代码**）；
+    /// 缺文件/读失败 ⇒ 退回 <see cref="UiPalette.Default"/> + **打印留痕**（红线 21）✓
     /// </summary>
-    public const int SkillBarColumns = 4;
+    public static UiPalette Palette
+    {
+        get
+        {
+            if (_palette is not null)
+            {
+                return _palette;
+            }
+
+            if (ResourceLoader.Exists(UiPalette.ResPath))
+            {
+                var loaded = ResourceLoader.Load<UiPalette>(UiPalette.ResPath);
+                if (loaded is not null)
+                {
+                    _palette = loaded;
+                    return _palette;
+                }
+
+                GD.Print($"[Theme] 🔴 {UiPalette.ResPath} 加载失败 ⇒ 退回代码默认调色板（如实留痕）");
+            }
+            else
+            {
+                GD.Print($"[Theme] 调色板：未找到 {UiPalette.ResPath} ⇒ 用**代码默认**（`--dump-palette` 可导出成可编辑资源）");
+            }
+
+            _palette = UiPalette.Default();
+            return _palette;
+        }
+    }
+
+    /// <summary>把当前调色板存成 `.tres`（**一次性引导**：之后它就是可编辑的"源"）✓</summary>
+    public static Error DumpPalette()
+    {
+        DirAccess.MakeDirRecursiveAbsolute(UiPalette.ResPath.GetBaseDir());
+        return ResourceSaver.Save(Palette, UiPalette.ResPath);
+    }
+
+    // ---- 字号（三档；**值来自 `.tres`**）----
+    public static int FontTitle => Palette.FontTitle;
+    public static int FontBody => Palette.FontBody;
+    public static int FontSmall => Palette.FontSmall;
+
+    /// <summary>C 区技能栏列数（`#321`③；原先是 `BattleUi.cs` 里写死的 `perRow = 8` ⇒ `#325` D5 点名的反例）</summary>
+    public static int SkillBarColumns => Palette.SkillBarColumns;
 
     private static Theme? _shared;
 
@@ -170,59 +209,59 @@ public static class DdTheme
     }
 
     // ---- 🔴 `ui_spec §14.4` 的**四色**（正文近白 / 强调金 / 危险红 / 弱化灰）+ 不透明深底 ----
-    //    🔴 纪律：**颜色不得在节点上硬写**（`§14.4`）⇒ 一律走这里或 Theme；本类 = 语义色的唯一出处 ✓
-    public static readonly Color TextPrimary = new(0.93f, 0.91f, 0.86f);  // ① 正文【近白】（暖白，非冷白）
-    public static readonly Color Gold = new(0.85f, 0.70f, 0.36f);         // ② 【强调金】（标题 / 分组 / 提示）
-    public static readonly Color Danger = new(0.80f, 0.28f, 0.26f);       // ③ 【危险红】（敌方 / 死门 / 告警）
-    public static readonly Color Disabled = new(0.52f, 0.50f, 0.47f);     // ④ 【弱化灰】（**降饱和，不降透明度**：`§1.4`⑤）
+    //    🔴 纪律：**颜色不得在节点上硬写**（`§14.4`）⇒ 一律走这里或 Theme；**值来自 `ui_palette.tres`**（`#325` D5）✓
+    public static Color TextPrimary => Palette.TextPrimary;   // ① 正文【近白】（暖白，非冷白）
+    public static Color Gold => Palette.Gold;                 // ② 【强调金】（标题 / 分组 / 提示）
+    public static Color Danger => Palette.Danger;             // ③ 【危险红】（敌方 / 死门 / 告警）
+    public static Color Disabled => Palette.Disabled;         // ④ 【弱化灰】（**降饱和，不降透明度**：`§1.4`⑤）
 
-    // 语义别名（既有调用点不变；值统一到上面四色 —— 一次性去掉原来的冷蓝/浅绿）
-    public static readonly Color TextAccent = Gold;                       // 分组标题
-    public static readonly Color TextSkill = Gold;                        // 技能栏标题
-    public static readonly Color TextHint = Gold;                         // 提示
-    public static readonly Color TextInfo = new(0.86f, 0.84f, 0.78f);     // 情报 / 进度（暖白略压）
+    // 语义别名（调用点不变；值统一到上面四色）
+    public static Color TextAccent => Gold;                   // 分组标题
+    public static Color TextSkill => Gold;                    // 技能栏标题
+    public static Color TextHint => Gold;                     // 提示
+    public static Color TextInfo => Palette.TextInfo;         // 情报 / 进度（暖白略压）
 
-    // 条与状态（原来是 `BattleUi.FillCard` 里硬写的字面量 ⇒ 收敛到这里，`§14.4` 纪律）
-    public static readonly Color Hp = new(0.55f, 0.80f, 0.45f);           // HP 条（正常）
-    public static readonly Color HpWeak = new(0.92f, 0.38f, 0.34f);       // HP 条（虚弱）
-    public static readonly Color Morale = new(0.85f, 0.70f, 0.36f);       // 士气条（我方 = 金）
-    public static readonly Color MoraleEnemy = new(0.55f, 0.52f, 0.48f);  // 士气条（敌方 = 灰）
-    public static readonly Color Positive = new(0.62f, 0.78f, 0.45f);     // 正面/增益（可读性用的第 5 色，谨慎使用）
+    // 条与状态（`§14.4`：不再散落字面量）
+    public static Color Hp => Palette.Hp;                     // HP 条（正常）
+    public static Color HpWeak => Palette.HpWeak;             // HP 条（虚弱）
+    public static Color Morale => Palette.Morale;             // 士气条（我方 = 金）
+    public static Color MoraleEnemy => Palette.MoraleEnemy;   // 士气条（敌方 = 灰）
+    public static Color Positive => Palette.Positive;         // 正面 / 增益
 
     /// <summary>面板内部填充底（不透明近黑暖褐；`§13.2`① 底色 = 近黑 + 低饱和暖褐）。</summary>
-    public static readonly Color PanelBg = new(0.10f, 0.09f, 0.08f, 1.0f);
+    public static Color PanelBg => Palette.PanelBg;
 
     /// <summary>抬升面（按钮底、卡片内嵌块）—— 比 `PanelBg` 稍亮 ⇒ 满足 `§1.4`⑤「可交互项提亮」。</summary>
-    public static readonly Color PanelBgRaised = new(0.15f, 0.14f, 0.12f, 1.0f);
+    public static Color PanelBgRaised => Palette.PanelBgRaised;
 
     /// <summary>面板边框（1px；暖色线条）。</summary>
-    public static readonly Color PanelBorder = new(0.32f, 0.27f, 0.20f, 1.0f);
+    public static Color PanelBorder => Palette.PanelBorder;
 
     /// <summary>场景底（最深；`BattleUi` 背景等）。</summary>
-    public static readonly Color BgDeep = new(0.07f, 0.07f, 0.08f, 1.0f);
+    public static Color BgDeep => Palette.BgDeep;
 
     // ---- 🔴 `§1.4`① + `§12.3` 文字描边（**引擎内置**：`font_outline_color` + `outline_size`）----
     /// <summary>描边色：近黑暖（把文字从暗底"抠"出来；`§13.2`③）</summary>
-    public static readonly Color Outline = new(0.03f, 0.02f, 0.02f, 1.0f);
+    public static Color Outline => Palette.Outline;
 
     /// <summary>描边宽度（`§1.4`① "**深色粗描边**"；2px 在 15px 正文上可读且不糊）</summary>
-    public const int OutlineSize = 2;
+    public static int OutlineSize => Palette.OutlineSize;
 
     // ---- 交互 / 状态（`§1.4`④⑤：选中 = 提亮；灰显 = 降饱和）----
-    public static readonly Color Highlight = new(1.00f, 0.95f, 0.70f);    // 当前行动者 / 选中项（提亮）
-    public static readonly Color Ally = new(0.62f, 0.72f, 0.90f);         // 我方阵营底色（冷钢蓝，与红=敌方成对）
-    public static readonly Color Muted = new(0.35f, 0.35f, 0.35f);        // 空位 / 未探索（压暗）
-    public static readonly Color Mental = new(0.78f, 0.55f, 1.00f);       // 精神伤害（士气）
-    public static readonly Color Shock = new(1.00f, 0.62f, 0.25f);        // 震慑 / 死门后遗症
+    public static Color Highlight => Palette.Highlight;       // 当前行动者 / 选中项（提亮）
+    public static Color Ally => Palette.Ally;                 // 我方阵营底色（冷钢蓝，与红=敌方成对）
+    public static Color Muted => Palette.Muted;               // 空位 / 未探索（压暗）
+    public static Color Mental => Palette.Mental;             // 精神伤害（士气）
+    public static Color Shock => Palette.Shock;               // 震慑 / 死门后遗症
 
     // ---- 地图（远征地图视图 与 战斗小地图 **共用一套**，避免两处各写一套色）----
-    public static readonly Color MapEdge = new(0.35f, 0.35f, 0.42f);
-    public static readonly Color MapCurrent = new(1.00f, 0.85f, 0.30f);
-    public static readonly Color MapReachable = new(0.55f, 0.72f, 0.45f);
-    public static readonly Color MapVisited = new(0.35f, 0.35f, 0.40f);
-    public static readonly Color MapUnknown = new(0.18f, 0.18f, 0.24f);
-    public static readonly Color MapFrame = new(0.45f, 0.42f, 0.38f);
-    public static readonly Color TeamDot = new(1.00f, 0.70f, 0.20f);
+    public static Color MapEdge => Palette.MapEdge;
+    public static Color MapCurrent => Palette.MapCurrent;
+    public static Color MapReachable => Palette.MapReachable;
+    public static Color MapVisited => Palette.MapVisited;
+    public static Color MapUnknown => Palette.MapUnknown;
+    public static Color MapFrame => Palette.MapFrame;
+    public static Color TeamDot => Palette.TeamDot;
 
     /// <summary>原型色板（立绘占位块 / 单位卡）：**颜色集中在这里**，UI 侧不再硬写（`§14.4` 纪律）✓</summary>
     private static readonly System.Collections.Generic.Dictionary<string, Color> ArchetypePalette =

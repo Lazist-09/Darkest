@@ -132,6 +132,15 @@ public partial class MainMenuRoot : Control
             GD.Print($"[Theme审计] {Darkest.Ui.DdTheme.Audit()}");
             GD.Print($"[Theme审计] 落点：res://resources/theme/dd_theme.tres ⇒ {err}");
 
+            // 🔴 `#325` D5 的**一次性引导**：把**调色板**导出成可编辑资源（之后它就是"源" ⇒ 改它不用改代码）
+            string[] dumpArgs = OS.GetCmdlineArgs();
+            if (Array.Exists(dumpArgs, a => a == "--dump-palette"))
+            {
+                Error perr = Darkest.Ui.DdTheme.DumpPalette();
+                GD.Print($"[Theme审计] 调色板导出：{Darkest.Ui.UiPalette.ResPath} ⇒ {perr}" +
+                         "（**之后改它即生效**，不必改代码 —— `#325` D5）");
+            }
+
             // 🔴 **如实报**：生效值**不等于**中央 Theme ⇒ **继承没生效**
             //    根因：本屏根是 `Node2D`（`BattleUi` 是 `CanvasLayer`）—— **都不是 `Control`**
             //    ⇒ Godot 的主题查找沿 **Control/Window 祖先链**走，链上没有我们的 Theme ⇒ 落到引擎默认 16

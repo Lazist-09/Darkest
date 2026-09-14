@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="UiPalette" format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/UiPalette.cs" id="1_2nqq2"]
+
+[resource]
+script = ExtResource("1_2nqq2")
+TextPrimary = Color(0.93, 0.91, 0.86, 1)
+Gold = Color(0.85, 0.7, 0.36, 1)
+Danger = Color(0.8, 0.28, 0.26, 1)
+Disabled = Color(0.52, 0.5, 0.47, 1)
+TextInfo = Color(0.86, 0.84, 0.78, 1)
+PanelBg = Color(0.1, 0.09, 0.08, 1)
+PanelBgRaised = Color(0.15, 0.14, 0.12, 1)
+PanelBorder = Color(0.32, 0.27, 0.2, 1)
+BgDeep = Color(0.07, 0.07, 0.08, 1)
+Outline = Color(0.03, 0.02, 0.02, 1)
+OutlineSize = 2
+FontTitle = 18
+FontBody = 15
+FontSmall = 12
+SkillBarColumns = 4
+Hp = Color(0.55, 0.8, 0.45, 1)
+HpWeak = Color(0.92, 0.38, 0.34, 1)
+Morale = Color(0.85, 0.7, 0.36, 1)
+MoraleEnemy = Color(0.55, 0.52, 0.48, 1)
+Positive = Color(0.62, 0.78, 0.45, 1)
+Highlight = Color(1, 0.95, 0.7, 1)
+Ally = Color(0.62, 0.72, 0.9, 1)
+Muted = Color(0.35, 0.35, 0.35, 1)
+Mental = Color(0.78, 0.55, 1, 1)
+Shock = Color(1, 0.62, 0.25, 1)
+MapEdge = Color(0.35, 0.35, 0.42, 1)
+MapCurrent = Color(1, 0.85, 0.3, 1)
+MapReachable = Color(0.55, 0.72, 0.45, 1)
+MapVisited = Color(0.35, 0.35, 0.4, 1)
+MapUnknown = Color(0.18, 0.18, 0.24, 1)
+MapFrame = Color(0.45, 0.42, 0.38, 1)
+TeamDot = Color(1, 0.7, 0.2, 1)
