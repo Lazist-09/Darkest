@@ -93,6 +93,12 @@ public partial class BattleRoot : Node2D
             CallDeferred(nameof(AutoFinishBattle));
         }
 
+        // 🔴 审计清单③ 冒烟：`--focus-audit` ⇒ 打印焦点所有者与可聚焦控件数（键盘/手柄导航的取证）
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--focus-audit"))
+        {
+            CallDeferred(nameof(PrintFocusAudit));
+        }
+
         // 🔴 片③ 冒烟：`--battle-map` ⇒ **切到 E 区的【地图】页**（验"战斗里能看到同一趟的地图"）
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-map"))
         {
@@ -130,6 +136,12 @@ public partial class BattleRoot : Node2D
 
     /// <summary>本实例是否要"自动点继续"（由 `PressAutoFinish` 置位；命令行旗标仍并行生效）。</summary>
     private bool _autoContinue;
+
+    /// <summary>🔴 审计清单③ 冒烟：打印焦点审计（键盘/手柄导航的取证）。</summary>
+    private void PrintFocusAudit()
+    {
+        GD.Print($"[焦点审计] {_ui.FocusAudit()}");
+    }
 
     /// <summary>🔴 片③ 冒烟：**切到 E 区第 N 页**（0 详情 ／ 1 日志 ／ 2 序列 ／ 3 编成 ／ 4 地图）。</summary>
     public void ShowTab(int page)

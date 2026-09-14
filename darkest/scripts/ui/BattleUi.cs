@@ -271,6 +271,29 @@ public partial class BattleUi : CanvasLayer
         _skillBarWaiting = false;
         Build();
         GD.Print("[BattleUi] 暗黑地牢式排布就绪（横排：我方 4321 ｜ 敌方 1234；支援位后排；底部技能栏）。");
+
+        // 🔴 审计清单③：**进场就给焦点**（否则键盘/手柄用户"没有起点"，方向键无处可动）
+        if (_cards.Count > 0 && _cards[0].card is Control first)
+        {
+            first.GrabFocus();
+        }
+    }
+
+    /// <summary>🔴 审计清单③的**取证**：当前焦点所有者 + 可聚焦控件数（headless 可断言）。</summary>
+    public string FocusAudit()
+    {
+        Control? owner = GetViewport()?.GuiGetFocusOwner();
+        int focusableCards = _cards.Count(c => c.card is Control { FocusMode: not Control.FocusModeEnum.None });
+        int focusableButtons = _skillButtons.Count(b => b.FocusMode != Control.FocusModeEnum.None);
+        bool uiAccept = InputMap.HasAction("ui_accept") && InputMap.ActionGetEvents("ui_accept").Count > 0;
+        bool uiCancel = InputMap.HasAction("ui_cancel") && InputMap.ActionGetEvents("ui_cancel").Count > 0;
+
+        // ⚠️ 区分【未建】与【不可聚焦】：技能栏只在"轮到玩家"时才建 ⇒ 0 个 ≠ 不可聚焦（不误导）
+        string buttons = _skillButtons.Count == 0
+            ? "技能键：尚未建（未到玩家行动）"
+            : $"可聚焦技能键 {focusableButtons}/{_skillButtons.Count}";
+        return $"焦点所有者 = {owner?.Name ?? "（无）"}　可聚焦卡片 {focusableCards}/{_cards.Count}　{buttons}　" +
+               $"引擎内置动作 ui_accept={uiAccept}／ui_cancel={uiCancel}";
     }
 
     private static SkillsConfig SkillsCfg => _skillsCfg ??= SkillsConfig.Parse(ReadData("skills.json"));
@@ -465,9 +488,17 @@ public partial class BattleUi : CanvasLayer
         bool isPlayer = _cards.Count < 4 || _cards.Count >= 8;
         int slotCaptured = slot;
         bool playerCaptured = isPlayer;
+
+        // 🔴 Godot 内置（审计清单③：Control 焦点/手柄导航）：
+        //    ① 卡片**可聚焦**（`FocusMode = All`）⇒ 键盘方向键/手柄十字键能在单位间移动（引擎自动算邻居）✓
+        //    ② `ui_accept`（回车/空格/手柄 A，**引擎内置动作**）⇒ 与鼠标左键等价地"锁定该单位"✓
+        //    ⚠️ 没有这两行，"InputMap 动作化"只完成一半：键位可重映射了，但**导航收益兑现不了**（架构指出）
+        card.FocusMode = Control.FocusModeEnum.All;
         card.GuiInput += (InputEvent e) =>
         {
-            if (e is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: true })
+            bool activate = e is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: true }
+                            || e.IsAction("ui_accept"); // 🔴 键盘/手柄确认
+            if (activate)
             {
                 _host?.OnCardClicked(slotCaptured, playerCaptured);
             }
