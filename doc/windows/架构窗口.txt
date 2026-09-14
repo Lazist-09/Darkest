@@ -48,3 +48,57 @@ DELIVERY-UI-READINGS-RETRY-20260914
 
 - **阻塞 / 待裁定**：无
 - **权威在哪**：`skills/godot-ui-designer/references/darkest_ui_brief.md`（§1.6 真读数 / §1.7 坑 ⑨⑩ / §6 顺序）｜`ui_spec §14.5`｜`tasks/next_round.md` §4.1
+
+---
+### 信封：2026-09-14 · 【来自 UI 设计师】读数留档（第 2 次）：**地图屏真绿 + 三个"死掉"的面板复活** + 三条判据口径修正
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-READINGS-2-20260914' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-READINGS-2-20260914
+```
+
+#### ① 读数（提交 `e01dca1`；命令 = `--ui-audit --fixed-fps 60 --quit-after 700`）
+| 界面 / 状态 | 入口 | 可见 Label | 重叠对 | 透明 Panel | 结论 |
+|---|---|---|---|---|---|
+| 城池 Hamlet | `--hamlet` | 11 | 0 | 0（Panel+PC 5） | ✅ |
+| 角色详情 | `--hamlet --hamlet-row=0` | 4（只审 `HeroDetailPanel` 模态） | 0 | 0 | ✅ |
+| **地图 Expedition** | `--topology` | **9** | **0** | **0**（Panel+PC 5） | ✅ |
+| 地图·Curio 面板打开 | `--topology --click-map=1` | 1（只审 `CurioPanel` 模态） | 0 | 0 | ✅ |
+| 地图·扎营技能面板打开 | `--topology --click-map=1 --camp` | 1（只审 `CampSkillPanel` 模态） | 0 | 0 | ✅ |
+| **战斗 Battle** | `--click-menu=0` | **59** | **391** | **22** | 🔴 未通过（最后一个） |
+
+#### 🔴 ② 本轮抓到的最重要一条：**地图屏有三块 UI 一直是死的**（不是布局问题）
+```
+现象（引擎报错原文）：Script inherits from native type 'CanvasLayer', so it can't be assigned to an object of type: 'PanelContainer'.
+根因：`LightBarPanel` / `PathChoicePanel` / `InventoryPanel` 三个类的 C# 仍是 `CanvasLayer`，
+      而 `Expedition.tscn` 已把这三个节点声明为 `PanelContainer` ⇒ **脚本挂不上** ⇒
+      **光照条 / 选路面板 / 背包格子 = 内容与交互全死**（红线 18：玩家碰不到选路；P21 ⑬ 的界面端失效）⚠️
+证据（同一次运行的对比）：修之前该屏**可见 Label 只有 4 个**；修类之后 **9 个**（内容回来了），判据仍 0/0 ✅
+📌 这也解释了此前那次"地图屏 ✅ 可见 Label 2"为什么会绿：**面板没挂上 ⇒ 没内容 ⇒ 没重叠**（"绿"是因为空）
+```
+⇒ 建议：把"**场景节点类型 ↔ 脚本基类必须一致**"写进验收口径（或加一条静态检查：扫 `.tscn` 的 `type=` 与脚本基类）。
+⚠️ 这类缺陷**判据本身查不出来**（它只测重叠/透明）—— 只有"引擎错误清零 + 可见 Label 数合理"才暴露它。
+
+#### 🔴 ③ 判据口径再修三条（都属"判据自身会假通过"家族；前三条已给你们）
+```
+④ **纯布局容器被当成"模态覆盖层"**（上一封已报）⇒ 审计范围被悄悄缩小
+⑤ 🆕 **可见性必须用 `IsVisibleInTree()`（有效可见性）**：面板 `Hide()` 之后，其内部 Label 的 `Visible` 仍是 true
+   ⇒ 被算成"重叠"（**假红**，实测 8 对）—— 与"假绿"一样坏
+⑥ 🆕 **重叠行必须带【矩形坐标】**（`pos=/size=`）：本次正是靠它才看清"真凶是那个 `size=(1232,620)` 的巨型 Label"、
+   以及"模态其实没满屏（内容挤在 (22,22)）"⇒ 只报"谁压谁"分不清【放错位置】还是【容器被挤爆】
+```
+⇒ 建议与前三条并列写进 `ui_spec §14.5`（判据口径共 6 条）。
+
+#### 🔴 ④ 一条 Godot 引擎坑（值得进契约：它决定"满屏模态"能不能立起来）
+```
+本屏根是 `Node2D` ⇒ Godot 的 `get_parent_anchorable_rect()` 为**空** ⇒ Control 的 `FullRect` 锚点算不出尺寸；
+而"锚点不动、只设 `Size`"会被引擎覆盖（实测警告：*Nodes with non-equal opposite anchors will have their
+size overridden after _ready()*）⇒ 模态面板只有 min size，内容挤到左上角并压住光照条刻度（实测 6 对重叠）。
+✅ 正解（已落）：先造一个【锚点相等 + 显式 `Size` = 视口尺寸】的满屏 `Control` 宿主（`ModalHost`），
+   模态再挂在它下面 ⇒ `FullRect` 才算得出满屏 ⇒ 判据也才认得出"这是模态"✓
+   （`BattleUi` 当年用 `CanvasLayer` 做根刚好绕开了这个坑：`CanvasLayer` 不是 CanvasItem ⇒ 锚点直接对视口）
+```
+
+- **阻塞 / 待裁定**：无
+- **权威在哪**：`skills/godot-ui-designer/references/darkest_ui_brief.md`（§1.6/§1.7/§6）｜`ui_spec §14.2/§14.5`｜`#319`
