@@ -28,6 +28,7 @@ public partial class HamletRoot : Node2D
     private Label _resourceBar = null!;
     private Label _buildingInfo = null!;
     private Label _rosterTitle = null!;
+    private VBoxContainer _rosterList = null!; // 🔴 §14：名册竖列的容器（行由 Refresh 填，不再写坐标）
     private Button _embark = null!;
     // 🔴 片②：详情面板的数据源（装配时读入）
     private RosterConfig? _rosterCfgForDetail;
@@ -64,112 +65,120 @@ public partial class HamletRoot : Node2D
         _unitsCfg = UnitsConfig.Parse(FileAccess.GetFileAsString(UnitsConfig.ResPath));
         _campSkills ??= CampSkillsConfig.Parse(FileAccess.GetFileAsString(CampSkillsConfig.ResPath));
 
-        // 🔴 片①（`tasks/ui_three_screens.md` §1）：**地名横幅（左上）**
+        // 🔴 `ui_spec §14.3`（`#319` 布局基建）：**顶层 = 容器树**，不再手写坐标 ——
+        //    Root → MarginContainer → VBox（顶栏 ／ 主体 ／ 底栏）；**每个分区一个 `PanelContainer`**
+        //    ⇒ ① 各在各的框里 ② 子项由容器堆叠 ⇒ **物理上不可能重叠** ✓
+        //    ⚠️ §14.2 ④：容器必须给【最小尺寸】，否则高度塌陷 ⇒ 又重叠 ✓
+        var margin = new MarginContainer { Name = "HamletMargin" };
+        margin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        margin.AddThemeConstantOverride("margin_left", 12);
+        margin.AddThemeConstantOverride("margin_top", 10);
+        margin.AddThemeConstantOverride("margin_right", 12);
+        margin.AddThemeConstantOverride("margin_bottom", 10);
+        AddChild(margin);
+        Darkest.Ui.DdTheme.Apply(margin);
+
+        var rootCol = new VBoxContainer { Name = "HamletRootCol" };
+        rootCol.AddThemeConstantOverride("separation", 8);
+        margin.AddChild(rootCol);
+
+        // ---- 顶栏：横幅（左） + 名册计数（右）----
+        var topPanel = new PanelContainer { Name = "TopBar" };
+        rootCol.AddChild(topPanel);
+        var topRow = new HBoxContainer { Name = "TopRow" };
+        topRow.AddThemeConstantOverride("separation", 12);
+        topPanel.AddChild(topRow);
+
         _banner = new Label
         {
             Name = "HamletBanner",
             Text = "未命名庄园 · 回城",
-            Position = new Vector2(24, 2),
-            Size = new Vector2(600, 24),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            VerticalAlignment = VerticalAlignment.Center,
         };
-        AddChild(_banner);
+        _banner.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontTitle);
+        topRow.AddChild(_banner);
 
-        // 🔴 片① ②：**名册计数（右上）** —— `N / 12`（`#283` 7.4 cap = 12）
         _rosterCount = new Label
         {
             Name = "HamletRosterCount",
-            Position = new Vector2(940, 2),
-            Size = new Vector2(300, 24),
             HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Center,
         };
-        AddChild(_rosterCount);
+        topRow.AddChild(_rosterCount);
 
+        // ---- 状态栏（第二行，独占一条，避免与别的文字压在一起）----
+        var statusPanel = new PanelContainer { Name = "StatusBar" };
+        rootCol.AddChild(statusPanel);
         _status = new Label
         {
             Name = "HamletStatus",
-            Position = new Vector2(24, 30),
-            Size = new Vector2(1200, 84),
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(0, 56), // §14.2 ④：给最小高度（防塌陷）
         };
-        AddChild(_status);
+        statusPanel.AddChild(_status);
 
-        // 🔴 片① ⑥：**Embark 大红按钮（底部中央）** —— 既有【再出发】只换位置/呈现（**全屏唯一大红**）
-        var backToDungeon = new Button
+        // ---- 主体：左栏（操作） ／ 右栏（名册）----
+        var body = new HBoxContainer { Name = "Body", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        body.AddThemeConstantOverride("separation", 8);
+        rootCol.AddChild(body);
+
+        var leftPanel = new PanelContainer { Name = "LeftColumn", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        body.AddChild(leftPanel);
+        var leftCol = new VBoxContainer { Name = "LeftCol" };
+        leftCol.AddThemeConstantOverride("separation", 6);
+        leftPanel.AddChild(leftCol);
+
+        var rightPanel = new PanelContainer
         {
-            Name = "Embark",
-            Text = "再出发（远征）· EMBARK",
-            Position = new Vector2(470, 640),
-            Size = new Vector2(280, 48),
-            Modulate = new Color(1.0f, 0.35f, 0.35f),
+            Name = "RightColumn",
+            CustomMinimumSize = new Vector2(420, 0), // 名册列固定宽度（否则会被左栏挤扁）
         };
-        backToDungeon.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
-        AddChild(backToDungeon);
-        _embark = backToDungeon;
+        body.AddChild(rightPanel);
+        var rightCol = new VBoxContainer { Name = "RightCol" };
+        rightCol.AddThemeConstantOverride("separation", 6);
+        rightPanel.AddChild(rightCol);
 
-        // 🔴 片① ⑤：**底部资源条**（金钱大号 + 传家宝 4 种）
-        _resourceBar = new Label
+        // ---- 左栏内容（每块都是"容器里的一行"，不再写坐标）----
+        _hint = new Label
         {
-            Name = "HamletResourceBar",
-            Position = new Vector2(24, 606),
-            Size = new Vector2(900, 30),
-        };
-        AddChild(_resourceBar);
-
-        // 🔴 片① ③：**建筑区信息行**（悬停/点击某栋 ⇒ 名称 + 功能 + 当前等级 + 下一级所需传家宝）
-        _buildingInfo = new Label
-        {
-            Name = "HamletBuildingInfo",
-            Position = new Vector2(24, 336),
-            Size = new Vector2(900, 24),
+            Name = "ReliefHint",
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(0, 22),
         };
-        AddChild(_buildingInfo);
+        leftCol.AddChild(_hint);
 
-        // 🔴 片① ④：**右侧名册竖列**（标题）
-        _rosterTitle = new Label
-        {
-            Name = "HamletRosterTitle",
-            Text = "名册（点一行 ⇒ 选中 / 角色详情）",
-            Position = new Vector2(700, 30),
-            Size = new Vector2(400, 22),
-        };
-        AddChild(_rosterTitle);
-
-        // ④ 减压：**两栋同价同效、风险不同**（Tavern 更不稳 / Abbey 更稳）—— 真可用，选的是"风格"
-        var tavern = new Button { Name = "ReliefTavern", Text = "减压·酒馆（快而不稳）", Position = new Vector2(280, 160), Size = new Vector2(240, 40) };
+        // 减压：两栋同价同效、风险不同（真可用，选的是"风格"）
+        var reliefRow = new HBoxContainer { Name = "ReliefRow" };
+        reliefRow.AddThemeConstantOverride("separation", 6);
+        leftCol.AddChild(reliefRow);
+        var tavern = new Button { Name = "ReliefTavern", Text = "减压·酒馆（快而不稳）", CustomMinimumSize = new Vector2(220, 34) };
         tavern.Pressed += () => DoRelief("tavern");
-        AddChild(tavern);
-
-        var abbey = new Button { Name = "ReliefAbbey", Text = "减压·修道院（慢而稳）", Position = new Vector2(536, 160), Size = new Vector2(240, 40) };
+        reliefRow.AddChild(tavern);
+        var abbey = new Button { Name = "ReliefAbbey", Text = "减压·修道院（慢而稳）", CustomMinimumSize = new Vector2(220, 34) };
         abbey.Pressed += () => DoRelief("abbey");
-        AddChild(abbey);
+        reliefRow.AddChild(abbey);
 
-        // ⑤ 招募（Stage Coach）：**按原型选**（玩家决定招哪种人；免费 / Lv1 / morale 50 / 满员拒绝）
-        string[] archetypes = { "warrior", "tank", "medic", "commissar" };
-        for (int i = 0; i < archetypes.Length; i++)
+        // 招募（Stage Coach）：按原型选
+        var recruitRow = new HBoxContainer { Name = "RecruitRow" };
+        recruitRow.AddThemeConstantOverride("separation", 6);
+        leftCol.AddChild(recruitRow);
+        foreach (string a in new[] { "warrior", "tank", "medic", "commissar" })
         {
-            string a = archetypes[i];
+            string archetype = a;
             var b = new Button
             {
-                Name = $"Recruit_{a}",
-                Text = $"招募·{a}（免费）",
-                Position = new Vector2(24 + (i * 190), 260),
-                Size = new Vector2(180, 36),
+                Name = $"Recruit_{archetype}",
+                Text = $"招募·{archetype}（免费）",
+                CustomMinimumSize = new Vector2(150, 32),
             };
-            b.Pressed += () => RecruitArchetype(a);
-            AddChild(b);
+            b.Pressed += () => RecruitArchetype(archetype);
+            recruitRow.AddChild(b);
         }
 
-        // 🔴 M8.1：**建筑升级入口**（三栋首批建筑；两轴：降费 / 增强·解锁）—— 消耗传家宝
-        // 🔴 片① ③：**这就是"中央建筑区"**（照 DD）—— 悬停/点击 ⇒ 真读 `HeirloomStock` 显示
-        //    名称 + 功能 + 当前等级 + 下一级所需传家宝（**不是写死文本**）
+        // 🔴 M8.1 建筑区（= 片① 的"中央建筑区"）+ `next_round`③ 消费点 (a)：**按解锁显示**
         string[] upgradable = { "tavern", "abbey", "stagecoach" };
         string[] buildingNames = { "酒馆 Tavern", "修道院 Abbey", "驿站 Stage Coach" };
-
-        // 🔴 `next_round` ③ 消费点 (a)：**三栋按【解锁】显示**
-        //    · 已解锁（或起手就有：Stage Coach）⇒ 正常按钮（可点、可悬停）✓
-        //    · 未解锁 ⇒ 显示 **「🔒 名称（第 N 趟后解锁）」** —— 🔴 **说明"何时解锁"**，
-        //      而不是留一个不可解释的禁用按钮（红线 21）✓
         UnlocksConfig unlockCfg = UnlocksConfig.Parse(FileAccess.GetFileAsString(UnlocksConfig.ResPath),
             HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
             CuriosConfig.Parse(FileAccess.GetFileAsString(CuriosConfig.ResPath)).RealCurios
@@ -177,6 +186,9 @@ public partial class HamletRoot : Node2D
             roster.Cap);
         IReadOnlySet<string> unlockedBuildings = ExpeditionContext.Progress.UnlockedBuildings(unlockCfg);
 
+        var buildingRow = new HBoxContainer { Name = "BuildingRow" };
+        buildingRow.AddThemeConstantOverride("separation", 6);
+        leftCol.AddChild(buildingRow);
         for (int i = 0; i < upgradable.Length; i++)
         {
             string bId = upgradable[i];
@@ -190,11 +202,11 @@ public partial class HamletRoot : Node2D
                 {
                     Name = $"Locked_{bId}",
                     Text = $"🔒 {label}（第 {need} 趟后解锁）",
-                    Position = new Vector2(24 + (i * 190), 306),
-                    Size = new Vector2(180, 30),
+                    CustomMinimumSize = new Vector2(180, 32),
+                    VerticalAlignment = VerticalAlignment.Center,
                 };
-                locked.AddThemeColorOverride("font_color", new Color(0.62f, 0.62f, 0.68f));
-                AddChild(locked);
+                locked.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.Disabled);
+                buildingRow.AddChild(locked);
                 continue;
             }
 
@@ -202,63 +214,95 @@ public partial class HamletRoot : Node2D
             {
                 Name = $"Upgrade_{bId}",
                 Text = $"🏛 {label}",
-                Position = new Vector2(24 + (i * 190), 300),
-                Size = new Vector2(180, 36),
+                CustomMinimumSize = new Vector2(180, 32),
             };
             ub.Pressed += () => UpgradeBuilding(bId);
-            // 🔴 片① ③：**悬停 ⇒ 显示名称/功能/等级/下一级所需**（真读 `HeirloomStock`）
             ub.MouseEntered += () => ShowBuildingInfo(bId);
-            AddChild(ub);
+            buildingRow.AddChild(ub);
             _upgradeButtons[bId] = ub;
         }
 
-        GD.Print($"[HamletRoot] 城池建筑：已解锁 {unlockedBuildings.Count + 1} ／ 3" +
-                 $"（起手只有 Stage Coach；已完成出征 {ExpeditionContext.Progress.RunsFinished} 趟）");
-
-        // ② 选人权：**减压按【人】选**（列出名册里士气 < 基准者）；选完再选建筑
-        _hint = new Label
+        _buildingInfo = new Label
         {
-            Name = "ReliefHint",
-            Position = new Vector2(24, 200),
-            Size = new Vector2(1200, 30),
+            Name = "HamletBuildingInfo",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(0, 22),
         };
-        AddChild(_hint);
+        leftCol.AddChild(_buildingInfo);
 
-        // 🔴 M8.1：升级状态区（传家宝库存 / 各级等级 / 生效值）
         _upgradeStatus = new Label
         {
             Name = "UpgradeStatus",
-            Position = new Vector2(24, 386),
-            Size = new Vector2(1200, 40),
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(0, 40),
         };
-        AddChild(_upgradeStatus);
+        leftCol.AddChild(_upgradeStatus);
 
-        // 🔴 M8.2：**Sanitarium 三项服务**（治病 ／ 除负面特质 ／ 锁正面特质）—— 消耗金钱 + 传家宝
-        string[] services = { "cure_disease", "remove_negative_trait", "lock_positive_trait" };
-        for (int i = 0; i < services.Length; i++)
+        // M8.2 Sanitarium 三项服务
+        var saniRow = new HBoxContainer { Name = "SaniRow" };
+        saniRow.AddThemeConstantOverride("separation", 6);
+        leftCol.AddChild(saniRow);
+        foreach (string sName in new[] { "cure_disease", "remove_negative_trait", "lock_positive_trait" })
         {
-            string sName = services[i];
+            string service = sName;
             var sb = new Button
             {
-                Name = $"Sani_{sName}",
-                Text = $"Sanitarium·{sName}",
-                Position = new Vector2(24 + (i * 260), 430),
-                Size = new Vector2(250, 36),
+                Name = $"Sani_{service}",
+                Text = $"Sanitarium·{service}",
+                CustomMinimumSize = new Vector2(230, 32),
             };
-            sb.Pressed += () => DoService(sName);
-            AddChild(sb);
-            _saniButtons[sName] = sb;
+            sb.Pressed += () => DoService(service);
+            saniRow.AddChild(sb);
+            _saniButtons[service] = sb;
         }
 
         _saniStatus = new Label
         {
             Name = "SaniStatus",
-            Position = new Vector2(24, 474),
-            Size = new Vector2(1200, 60),
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(0, 56),
         };
-        AddChild(_saniStatus);
+        leftCol.AddChild(_saniStatus);
+
+        // ---- 右栏：名册标题 + 竖列（行由 `Refresh` 动态填）----
+        _rosterTitle = new Label
+        {
+            Name = "HamletRosterTitle",
+            Text = "名册（点一行 ⇒ 选中 / 角色详情）",
+            CustomMinimumSize = new Vector2(0, 22),
+        };
+        rightCol.AddChild(_rosterTitle);
+        _rosterList = new VBoxContainer { Name = "RosterList", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        _rosterList.AddThemeConstantOverride("separation", 3);
+        rightCol.AddChild(_rosterList);
+
+        // ---- 底栏：资源条 + Embark（全屏唯一大红）----
+        var bottomPanel = new PanelContainer { Name = "BottomBar" };
+        rootCol.AddChild(bottomPanel);
+        var bottomRow = new HBoxContainer { Name = "BottomRow" };
+        bottomRow.AddThemeConstantOverride("separation", 12);
+        bottomPanel.AddChild(bottomRow);
+        _resourceBar = new Label
+        {
+            Name = "HamletResourceBar",
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        bottomRow.AddChild(_resourceBar);
+
+        var embark = new Button
+        {
+            Name = "Embark",
+            Text = "再出发（远征）· EMBARK",
+            CustomMinimumSize = new Vector2(280, 44),
+            Modulate = new Color(1.0f, 0.35f, 0.35f),
+        };
+        embark.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
+        bottomRow.AddChild(embark);
+        _embark = embark;
+
+        GD.Print($"[HamletRoot] 城池建筑：已解锁 {unlockedBuildings.Count + 1} ／ 3" +
+                 $"（起手只有 Stage Coach；已完成出征 {ExpeditionContext.Progress.RunsFinished} 趟）");
 
         Refresh();
         GD.Print($"[HamletRoot] 回城就绪：金钱 {economy.Gold}（跨趟持有；减压一次 {economy.StressReliefCost}）" +
@@ -787,15 +831,14 @@ public partial class HamletRoot : Node2D
                 {
                     Name = $"RosterRow_{id}",
                     Text = $"{abbrev} {h.Name} {dots} ⚔- 🛡-（未实现）{(canRelief ? " · 可减压" : string.Empty)}",
-                    Position = new Vector2(700, 56 + (row * 30)),
-                    Size = new Vector2(380, 28),
+                    CustomMinimumSize = new Vector2(400, 28),
                 };
                 b.Pressed += () =>
                 {
                     SelectHero(id);          // 保留既有"减压按人选"
                     OpenHeroDetail(id);      // 🔴 片②：**点行 ⇒ 打开角色详情**（唯一入口）
                 };
-                AddChild(b);
+                _rosterList.AddChild(b); // 🔴 §14：填进名册容器（容器自动堆叠 ⇒ 不可能重叠）✓
                 _heroButtons.Add(b);
                 row++;
             }

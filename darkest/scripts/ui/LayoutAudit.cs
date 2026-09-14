@@ -21,7 +21,7 @@ public static class LayoutAudit
     public static (bool Ok, string Report) Check(Node root)
     {
         var labels = new List<(string Path, Rect2 Rect)>();
-        var panels = new List<(string Path, Panel Panel)>();
+        var panels = new List<(string Path, Control Panel)>();
         Collect(root, root, labels, panels);
 
         var problems = new StringBuilder();
@@ -43,9 +43,11 @@ public static class LayoutAudit
             }
         }
 
-        // 判据 2：Panel 不透明
+        // 判据 2：Panel **与 `PanelContainer`** 都必须不透明
+        // ⚠️ 我第一版只收 `Panel` ⇒ **`PanelContainer` 完全没被检查** ⇒ §14 的容器化之后判据 2 **假通过** ⚠️
+        //    （`PanelContainer` 继承自 `Container` 而不是 `Panel`）—— 这是"判据口径漏了一类"的典型
         int transparent = 0;
-        foreach ((string path, Panel panel) in panels)
+        foreach ((string path, Control panel) in panels)
         {
             StyleBox? box = panel.GetThemeStylebox("panel");
             float alpha = box is StyleBoxFlat flat ? flat.BgColor.A : -1f;
@@ -66,7 +68,7 @@ public static class LayoutAudit
         return (ok, report);
     }
 
-    private static void Collect(Node node, Node root, List<(string, Rect2)> labels, List<(string, Panel)> panels)
+    private static void Collect(Node node, Node root, List<(string, Rect2)> labels, List<(string, Control)> panels)
     {
         foreach (Node child in node.GetChildren())
         {
@@ -76,9 +78,10 @@ public static class LayoutAudit
                 labels.Add((Path(root, label), new Rect2(label.GlobalPosition, label.Size)));
             }
 
-            if (child is Panel panel && panel.Visible)
+            // 🔴 `Panel` **与** `PanelContainer` 两类都要查（后者继承自 Container，不是 Panel）✓
+            if (child is Panel or PanelContainer && child is Control ctl && ctl.Visible)
             {
-                panels.Add((Path(root, panel), panel));
+                panels.Add((Path(root, ctl), ctl));
             }
 
             Collect(child, root, labels, panels);
