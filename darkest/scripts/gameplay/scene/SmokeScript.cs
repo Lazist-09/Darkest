@@ -7,35 +7,34 @@ namespace Darkest.Gameplay.Scene;
 
 /// <summary>
 /// 🔴 **跨场景步进的冒烟器**（`tasks/ui_three_screens.md` §3 / `#310`⑦）——
-/// 解决"多场景冒烟只能靠帧数猜"的问题：把冒烟写成**一串显式步骤**，
-/// 每进入一个场景（各 Root 的 `_Ready` 末尾）就**消费下一步**，用完即退出。
+/// 解决"多场景冒烟只能靠帧数猜"的问题：把冒烟写成**一串显式步骤**，由本类按场景分派执行。
 ///
-/// 用法：`--smoke=<步骤1>,<步骤2>,…`（逗号分隔；空步骤忽略）
-/// 支持的步骤（都走**真实 `Pressed`**，红线 26）：
-///   · `main:0/1/2`      主菜单三选一（单场战斗 / 出发远征 / 回城）
-///   · `map:N`           地图视图：真实点击第 N 个可选房间（0 = 第一个）
-///   · `camp`            真实点击"扎营"（阶段一→二；若触发夜袭 ⇒ 切战斗）
-///   · `skill:N`         真实点击第 N 个扎营技能
-///   · `finish`          真实点击"结束扎营"（阶段三：夜袭判定）
-///   · `auto`            战斗场景：用"自动玩家"打完本场 + 自动点【继续（回远征）】
-///   · `town`            真实点击"回城（完成本趟）" ⇒ 切 Hamlet
-///   · `hover:<building>` Hamlet：悬停某栋建筑（真读库存）
-///   · `row:N`           Hamlet：真实点击第 N 行名册 ⇒ 打开角色详情
-///   · `back`            Hamlet：关闭角色详情（回城池）
-///   · `embark`          Hamlet：真实点击 Embark（再出发）
-///   · `run-full`        Expedition：跑完整趟的一步（等价于既有 `--run-full`）
-///   · `quit`            立即退出（用于收口）
-/// 未知步骤 ⇒ **打印并停下**（不静默跳过 —— 否则冒烟会"看起来过了"）。
+/// 机制（两段）：
+/// ① **进场景消费一步**：各 Root 在 `_Ready` 末尾调用 <see cref="Step"/>；
+/// ② 🔴 **场景内也能推进**：本类会在当前场景挂一个 0.2s 的 `Timer` ⇒ 反复尝试下一步
+///    （否则"进房间 ⇒ 面板 ⇒ 下一步"会卡死 —— 我实测踩过一次）。
+/// 🔴 **只在"场景匹配"时消费**：不匹配就**等**（不 dequeue），避免把战斗场景的步骤在远征场景里误判/误配；
+///    等待有上限（100 次）⇒ 超时**报错退出**（`exit 3`），不静默卡死。
+///
+/// 用法：`--smoke=<步骤1>,<步骤2>,…`
+/// 步骤：`main:N` ／ `map:N` ／ `camp` ／ `skill:N` ／ `finish` ／ `run-full` ／ `town` ／ `auto` ／
+///       `curio:bare` ／ `curio:leave` ／ `curio:item:N` ／ `hover:<building>` ／ `row:N` ／ `back` ／
+///       `embark` ／ `quit`。
+/// 未知步骤 ⇒ **打印并 `exit 2`**（不静默跳过）。
 /// </summary>
 public static class SmokeScript
 {
     private static readonly Queue<string> Steps = new();
     private static int _applied;
     private static bool _enabled;
+    private static Node? _owner;
+    private static Node? _autoFinishedFor; // 战斗场景"自动放行"只对同一实例触发一次
+    private static Timer? _timer;
+    private static int _waits;
 
     public static bool Enabled => _enabled;
 
-    /// <summary>从命令行解析（在 MainMenuRoot 最先调用；只解析一次）。</summary>
+    /// <summary>从命令行解析（只解析一次）。</summary>
     public static void InitFromArgs()
     {
         if (_enabled)
@@ -58,13 +57,29 @@ public static class SmokeScript
         GD.Print($"[冒烟] 步骤驱动已启用：共 {Steps.Count} 步 —— {string.Join(" → ", Steps)}");
     }
 
-    /// <summary>
-    /// **消费下一步**（各 Root 在 `_Ready` 末尾调用；`node` 用来按类型分派到该场景的真实点击入口）。
-    /// </summary>
+    /// <summary>**尝试执行下一步**（进场景时调用一次；之后由场景内计时器反复调用）。</summary>
     public static void Step(Node node)
     {
         if (!_enabled)
         {
+            return;
+        }
+
+        EnsureTimer(node);
+
+        // 🔴 **战斗场景自动放行**：脚本没显式要 `auto` 时，落到战斗场景就自动打完并返回
+        //    （否则长链会在"走房间 ⇒ 撞上战斗房"处卡住 —— 脚本无法预知哪个房间是战斗房）。
+        //    ⚠️ **每个场景实例只触发一次**：自动打完 ⇒ 场景切换是**延迟**的（下一帧才生效），
+        //       若每 0.2s 重复触发，会在同一场战斗里反复"打完"⇒ 实测刷屏且切不出去（我踩过）。
+        if (node is BattleRoot battleRoot && (Steps.Count == 0 || Steps.Peek() != "auto"))
+        {
+            if (_autoFinishedFor != node)
+            {
+                _autoFinishedFor = node;
+                GD.Print("[冒烟] 落到战斗场景且下一步不是 auto ⇒ 自动打完并返回（脚本无需预知房间类型）");
+                battleRoot.PressAutoFinish();
+            }
+
             return;
         }
 
@@ -75,10 +90,64 @@ public static class SmokeScript
             return;
         }
 
-        string step = Steps.Dequeue();
-        _applied++;
-        GD.Print($"[冒烟] 第 {_applied} 步：{step}（场景 {node.Name} / {node.GetType().Name}）");
+        string step = Steps.Peek();
+        if (!Applies(step, node))
+        {
+            // 🔴 场景不匹配 ⇒ **等**（不消费）。这是"场景内推进"与"跨场景"共存的关键。
+            _waits++;
+            if (_waits > 600)
+            {
+                GD.Print($"[冒烟] 🔴 等待「{step}」超时（{_waits} 次）—— 当前场景 {node.Name}／{node.GetType().Name}" +
+                         $" ⇒ 报错退出（不静默卡死）");
+                node.GetTree().Quit(exitCode: 3);
+            }
 
+            return;
+        }
+
+        Steps.Dequeue();
+        _applied++;
+        _waits = 0;
+        GD.Print($"[冒烟] 第 {_applied} 步：{step}（场景 {node.Name} / {node.GetType().Name}）");
+        Apply(step, node);
+    }
+
+    /// <summary>该步骤**是否属于当前场景**（不匹配则等，不消费）。</summary>
+    private static bool Applies(string step, Node node) => step switch
+    {
+        "quit" => true,
+        "main:0" or "main:1" or "main:2" => node is Darkest.Ui.MainMenuRoot,
+        "map:0" or "map:1" or "map:2" or "camp" or "skill:0" or "skill:1" or "skill:2" or "finish"
+            or "run-full" or "town" or "curio:bare" or "curio:leave" or "curio:item:0" or "curio:item:1"
+            => node is Darkest.Ui.ExpeditionRoot,
+        "auto" => node is BattleRoot,
+        "hover:tavern" or "hover:abbey" or "hover:stagecoach" or "row:0" or "row:1" or "row:2"
+            or "back" or "embark" => node is Darkest.Ui.HamletRoot,
+        _ => true, // 未知步骤 ⇒ 交给 Apply 报错退出
+    };
+
+    private static void EnsureTimer(Node node)
+    {
+        if (_owner == node && _timer is not null && GodotObject.IsInstanceValid(_timer))
+        {
+            return;
+        }
+
+        _owner = node;
+        var t = new Timer
+        {
+            Name = "SmokeTick",
+            WaitTime = 0.2,
+            OneShot = false,
+            Autostart = true,
+        };
+        t.Timeout += () => Step(node);
+        node.AddChild(t);
+        _timer = t;
+    }
+
+    private static void Apply(string step, Node node)
+    {
         switch (step)
         {
             case "main:0":
@@ -183,7 +252,7 @@ public static class SmokeScript
 
     private static void PressBattle(Node node)
     {
-        if (node is Darkest.Gameplay.Scene.BattleRoot root)
+        if (node is BattleRoot root)
         {
             root.PressAutoFinish(); // 真实"自动打完 + 继续（回远征）"
             return;
