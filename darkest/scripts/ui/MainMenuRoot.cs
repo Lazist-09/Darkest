@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Events;
@@ -123,6 +123,7 @@ public partial class MainMenuRoot : Control
         //    ⇒ 之后所有场景的控件**自动继承**（Theme 沿 Control/Window 祖先链传播）✓ 不必逐屏设置 ✓
         GetTree().Root.Theme = Darkest.Ui.DdTheme.Shared;
         _title.Theme = null; // （保持可读性：显式声明"标题不另设 Theme"，样式来自中央 Theme + 语义色 override）
+        _title.ThemeTypeVariation = Darkest.Ui.DdTheme.TitleVariation; // 🔴 架构裁定②：标题用 Bold（字号 × 字重双轴）
 
         // 🔴 架构裁定（`DELIVERY-ARCH-UI-RULINGS2-20260915` ①）：**调色板两视图一致性检查挪到【必经路径】**
         //    —— `UiPalette.Default()`（C# 兜底）与 `resources/theme/ui_palette.tres`（数据源）**不得分叉**（`#325` D6）。

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -580,7 +580,7 @@ public partial class HamletRoot : Node2D
                 Text = "【角色详情】",
                 CustomMinimumSize = new Vector2(0, 28),
             };
-            dTitle.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontTitle);
+            dTitle.ThemeTypeVariation = Darkest.Ui.DdTheme.TitleVariation; // 🔴 架构裁定②：标题用 Bold
             dCol.AddChild(dTitle);
 
             var dBody = new HBoxContainer { Name = "DetailBody", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
@@ -779,7 +779,7 @@ public partial class HamletRoot : Node2D
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             VerticalAlignment = VerticalAlignment.Center,
         };
-        title.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontTitle);
+        title.ThemeTypeVariation = Darkest.Ui.DdTheme.TitleVariation; // 🔴 架构裁定②：标题用 Bold（不再逐处写字号）
         head.AddChild(title);
 
         // 🔴 关闭按钮（弹窗的"出口"必须显式可见 —— 红线 21：不留不可解释的状态）

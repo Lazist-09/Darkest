@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 
 namespace Darkest.Ui;
 
@@ -88,14 +88,37 @@ public static class DdTheme
         //    🔴 落点固定 = `res://resources/theme/fonts/`（**放进去即生效**，不必改代码）：
         //        `EBGaramond.ttf`（可选）· `NotoSerifSC-Subset.ttf`（必需，**建议子集**：全量可变字重 25MB）
         //    ⚠️ **缺文件 ⇒ 不崩、不静默**：用引擎默认字体 + **打印留痕**（红线 21：不留不可分辨的状态）✓
-        (Font? main, string fontNote) = ResolveFonts();
+        (Font? main, Font? cjkFont, string fontNote) = ResolveFonts();
         FontNote = fontNote;
         if (main is not null)
         {
             theme.DefaultFont = main;
         }
 
+        // 🔴 架构裁定（`DELIVERY-ARCH-UI-RULINGS2-20260915` ②）：**标题用 Bold** ——
+        //    `§14.4` 的"三档字号"只是**一个轴**；加上**字重**才有真正的层次（架构原话：字号 × 字重双轴）✓
+        //    · 标题字体 = **`Noto Serif SC Bold`**（含 CJK；缺文件 ⇒ 退回 Regular 并**留痕**）✓
+        //    · 用 **Theme type variation**（`TitleLabel` 继承 `Label`）⇒ 调用点只设 `ThemeTypeVariation`（一处定义）✓
+        //    · ⚠️ 可逆性（架构要求）：若不要 +11MB，**删掉 Bold 文件即自动退回 Regular**（独立小改动，不牵连别处）✓
+        Font? bold = FirstExisting($"{FontDir}NotoSerifSC-Bold.otf", $"{FontDir}NotoSerifSC-SemiBold.otf");
+        TitleFont = bold ?? main;
+        if (bold is not null && cjkFont is not null)
+        {
+            bold.Fallbacks = new Godot.Collections.Array<Font> { cjkFont };
+        }
+
+        theme.SetTypeVariation(TitleVariation, "Label");
+        if (TitleFont is not null)
+        {
+            theme.SetFont("font", TitleVariation, TitleFont);
+        }
+
+        theme.SetFontSize("font_size", TitleVariation, FontTitle);
+        theme.SetColor("font_outline_color", TitleVariation, Outline);
+
         GD.Print($"[Theme] 字体：{fontNote}");
+        GD.Print($"[Theme] 标题字重：{(bold is null ? "🔴 未找到 Bold ⇒ 标题退回 Regular（如实留痕）" : $"已接 {bold.ResourcePath.GetFile()}")}" +
+                 $"（type variation `{TitleVariation}`，字号 {FontTitle}）");
 
         // Label：三档字号（正文 / 标题 / 小字），颜色**不设默认**（各类文本语义不同，由语义色显式指定）
         theme.SetFontSize("font_size", "Label", FontBody);
@@ -172,7 +195,7 @@ public static class DdTheme
     ///    而不是我原先假定的 `NotoSerifSC-Subset.ttf` ⇒ 写死名字会"文件明明在却认不出"（且只报"未找到"，很误导）⚠️
     /// ⇒ 正解 = **候选名按优先级试 + 目录扫描兜底**，并在读数里**打印真正用的是哪个文件** ✓
     /// </summary>
-    private static (Font? Main, string Note) ResolveFonts()
+    private static (Font? Main, Font? Cjk, string Note) ResolveFonts()
     {
         Font? latin = FirstExisting(
             $"{FontDir}EBGaramond.ttf",
@@ -193,7 +216,7 @@ public static class DdTheme
         Font? main = latin ?? cjk;
         if (main is null)
         {
-            return (null, $"🔴 未找到字体文件（{FontDir} 下应有 EBGaramond*.ttf ／ NotoSerifSC*.otf|ttf）" +
+            return (null, null, $"🔴 未找到字体文件（{FontDir} 下应有 EBGaramond*.ttf ／ NotoSerifSC*.otf|ttf）" +
                           " ⇒ **用引擎默认字体（占位）**；把 OFL 字体放进该目录即自动生效");
         }
 
@@ -211,7 +234,7 @@ public static class DdTheme
             ? $"✅ 中文覆盖（`HasChar('{Probe}')` = true）"
             : "🔴 **中文未覆盖**（CJK 字体缺失或缺字形 ⇒ 中文会掉字）";
 
-        return (main, $"{Describe(main)}（fallback {(cjk is null ? "无" : Describe(cjk))}）⇒ 已接（`§13.4①`）　{cover}");
+        return (main, cjk, $"{Describe(main)}（fallback {(cjk is null ? "无" : Describe(cjk))}）⇒ 已接（`§13.4①`）　{cover}");
     }
 
     /// <summary>按顺序取第一个存在的字体。</summary>
@@ -371,6 +394,12 @@ public static class DdTheme
                $"按钮四态 + 条样式 ✅　§1.4① 文字描边：{OutlineSize}px {Outline.ToHtml()}（**引擎内置** font_outline_color/outline_size）　" +
                $"字体：{FontNote}";
     }
+
+    /// <summary>标题字体（Bold；§14.4 字号 × 字重双轴）—— 架构裁定 ②</summary>
+    public static Font? TitleFont { get; private set; }
+
+    /// <summary>标题的 Theme type variation 名（调用点只设 `ThemeTypeVariation` 即可）✓</summary>
+    public const string TitleVariation = "TitleLabel";
 
     /// <summary>字体接入状态（`§13.4①`；由 `Build()` 写入 —— 缺文件时是"占位"而不是崩溃/静默）✓</summary>
     public static string FontNote { get; private set; } = "（未构建）";

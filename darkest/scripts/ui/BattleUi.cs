@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -554,6 +554,7 @@ public partial class BattleUi : CanvasLayer
     private static Label TitleLabel(string text)
     {
         var label = new Label { Text = text };
+        label.ThemeTypeVariation = Darkest.Ui.DdTheme.TitleVariation; // 🔴 架构裁定②：分区标题用 Bold
         label.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextAccent);
         return label;
     }
