@@ -49,3 +49,4 @@ scripts/gameplay/sim/run/LightMeter.cs | > 25 => LightTier.Shadowy | 同上
 scripts/gameplay/sim/run/RunSession.cs | Curve.Count >= 3 | 曲线最少样本数（结构性下限：少于 3 点画不出趋势）
 scripts/gameplay/sim/turn/TurnSequencer.cs | , 3, MidpointRounding | 数值保留 3 位小数（精度常量，非平衡量）
 scripts/gameplay/sim/run/SimplePlayerAuto.cs | .ThenBy(u => director.Enemy.UnitAtPosition | 自动玩家的**确定性顺序**（tie-break 项，不参与平衡）
+scripts/gameplay/sim/run/RunSession.cs | Math.Max(1, battles) | 场数下限（≥1 场，结构性；不是"默认 3 场"那种可调值）

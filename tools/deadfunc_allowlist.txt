@@ -1,0 +1,9 @@
+# 死函数豁免清单（`tools/check_data_discipline.py --deadfuncs` 读取；**人工核过**才算数）
+#
+# 🔴 纪律：豁免只给"**按设计只被测试调用**"的方法，且必须写清理由；
+#    "生产路径其实在用、只是扫不出来"的**不许**进本清单（那要修扫描器/接线，不是豁免）⚠️
+#
+# 格式：<相对路径> | <方法名> | <理由>
+
+scripts/core/math/BattleMath.cs | PhysicalHit | §7.1 八个伤害样例的**逐字参考实现**（生产管线走 `DamageStep` + `PhysicalMitigation`，不需要它）⇒ 它存在是为了让用例能对照契约样例，属**契约可读性资产**
+scripts/core/math/BattleMath.cs | SpiritHit | 同上（精神伤害样例的参考实现）

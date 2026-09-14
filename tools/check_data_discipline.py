@@ -7,6 +7,10 @@
                  只放行【结构性常量】：0 / 1 / 2 / -1 / 100 与 0.0 / 1.0 / 2.0 / 100.0 / 0.01，
                  以及 `const` 声明行上的字面量 ✓（其余一律报可疑 —— 供人判读，不做自动改写）
   ② --deadfuncs `public` 方法在【生产代码】里没有任何调用点（**只被测试调用也算**）⇒ 必须接线或删
+                 ⚠️ **本扫为【候选清单】，不是判罪**：实测存在**假阳性** —— 例如
+                 `BalanceTable.FromTuning` ／ `DataPresence.RequireKeys` 明明在生产路径被调用，却仍被报出 ⚠️
+                 ⇒ 判罪前必须人工核（`grep` 该方法名，看生产文件里到底有没有调用点）✓
+                 已知**真**候选（人工核过）走 `tools/deadfunc_allowlist.txt` 登记 ✓
   ③ --deadkeys  `darkest/data/*.json` 里**没有任何代码读取**的键 ⇒ 死数据（必须接线或显式登记"未消费"）
 
 用法：
@@ -156,6 +160,8 @@ def scan_deadfuncs(verbose: bool) -> tuple[int, list[str]]:
     everything = cs_files([SCRIPTS]) + cs_files([REPO / "darkest" / "tests"])
     corpus = {f: strip_code(f.read_text(encoding="utf-8", errors="replace")) for f in everything}
     raw = {f: f.read_text(encoding="utf-8", errors="replace") for f in everything}
+    allow = load_deadfunc_allowlist()
+    exempted = 0
 
     dead: list[str] = []
     for f in kernel:
@@ -168,6 +174,9 @@ def scan_deadfuncs(verbose: bool) -> tuple[int, list[str]]:
                 continue
             if name.startswith("get_") or name.startswith("set_") or name.startswith("op_"):
                 continue
+            if any(rel(f).replace("\\", "/").endswith(p) and k == name for p, k, _r in allow):
+                exempted += 1
+                continue
             # 生产调用点 = 除本文件与 tests 之外的任何地方出现该方法名
             callers = 0
             for g, gtext in corpus.items():
@@ -179,11 +188,9 @@ def scan_deadfuncs(verbose: bool) -> tuple[int, list[str]]:
             if callers == 0:
                 dead.append(f"{rel(f)}: public {name}(…) 无生产调用点（只被测试调用也算死函数）")
     if verbose:
-        print(f"[deadfuncs] 内核 public 方法扫描完成 ⇒ 疑似死函数 {len(dead)} 个")
-        for line in dead[:25]:
-            print("  [!] " + line)
-        if len(dead) > 25:
-            print(f"  …（其余 {len(dead) - 25} 个略）")
+        print(f"[deadfuncs] 内核 public 方法扫描完成 ⇒ 疑似死函数 {len(dead)} 个"
+              f"（已按豁免清单放行 {exempted} 个；⚠️ **候选清单，判罪前请人工核**）")
+        show(dead, "deadfuncs")
     return len(dead), dead
 
 
@@ -210,12 +217,31 @@ DOC_KEY_SUFFIXES = ("_note", "_rule")
 DEADKEY_ALLOWLIST_FILE = REPO / "tools" / "deadkey_allowlist.txt"
 
 
+# 死**函数**豁免清单（**人工核过**才算数）—— 见 `tools/deadfunc_allowlist.txt` ✓
+DEADFUNC_ALLOWLIST_FILE = REPO / "tools" / "deadfunc_allowlist.txt"
+
+
 def load_deadkey_allowlist() -> list[tuple[str, str, str]]:
     """读 `json文件 | 键 | 理由` ⇒ [(json, key, reason)] ✓"""
     rules: list[tuple[str, str, str]] = []
     if not DEADKEY_ALLOWLIST_FILE.exists():
         return rules
     for raw in DEADKEY_ALLOWLIST_FILE.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) >= 2:
+            rules.append((parts[0], parts[1], parts[2] if len(parts) > 2 else ""))
+    return rules
+
+
+def load_deadfunc_allowlist() -> list[tuple[str, str, str]]:
+    """读 `相对路径 | 方法名 | 理由` ⇒ [(path, name, reason)] ✓"""
+    rules: list[tuple[str, str, str]] = []
+    if not DEADFUNC_ALLOWLIST_FILE.exists():
+        return rules
+    for raw in DEADFUNC_ALLOWLIST_FILE.read_text(encoding="utf-8", errors="replace").splitlines():
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
