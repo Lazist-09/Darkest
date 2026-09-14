@@ -47,6 +47,9 @@ public partial class MainMenuRoot : Control
         //     ⇒ `--ui-audit` 一行都不输出（**取证失败 ≠ 通过**，红线 25）—— 已修 ✓
         UiAuditHook.InstallIfRequested(this);
 
+        // 🔴 架构清单 ⑨：**帧预算基线**（`Performance.GetMonitor`；此前全项目 0 处 ⇒ 表现层无性能观测）
+        FrameBudget.InstallIfRequested(this);
+
         // 🔴 `ui_spec §14.2/§14.3`（`#319` 第五屏补齐）：**主菜单也是"容器 + 不透明 Panel"** ——
         //    它是玩家**第一眼**看到的一屏（此前是手摆坐标、一个 `Panel` 都没有 ⇒ 四屏审计没覆盖到它）✓
         Darkest.Ui.DdTheme.Apply(this); // 本类现在是 `Control` ⇒ 主题沿祖先链继承
