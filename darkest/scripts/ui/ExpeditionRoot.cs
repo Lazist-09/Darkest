@@ -323,6 +323,12 @@ public partial class ExpeditionRoot : Node
         _campSkills = campSkills;   // 🔴 供扎营技能面板（只列已接线的 effect）
         _rosterCfg = RosterConfig.Parse(
             Godot.FileAccess.GetFileAsString(RosterConfig.ResPath));
+
+        // 🔴 Curio 数据（`#313`）：拓扑模式下**事件房 = Curio 房**（空手 ／ 用道具 ／ 走开）
+        _curiosCfg = Darkest.Data.CuriosConfig.Parse(
+            Godot.FileAccess.GetFileAsString(Darkest.Data.CuriosConfig.ResPath));
+        GD.Print($"[拓扑UI] Curio：{_curiosCfg.RealCurios.Count} 个（三按钮：空手 ／ 用道具 ／ 走开；" +
+                 "阶段二道具选项**不列出**，红线 21）");
         GD.Print($"[ExpeditionRoot] 扎营技能：已接线 {campSkills.ConsumedCount} ／ 阶段二（未落点）{campSkills.DeferredCount}" +
                  $"（共 {campSkills.Skills.Count}）—— 阶段二项在【跨战斗待生效效果层】落地前不上 UI（红线 21）");
 
@@ -729,13 +735,36 @@ public partial class ExpeditionRoot : Node
                     return;
                 }
 
-                // 🔴 事件房：**把该房间映射到事件节点 ⇒ 走既有事件面板**（玩家选 A/B ⇒ `ChooseEventOption`）
+                // 🔴 `#313`（Curio）：**事件房 ⇒ Curio（可交互物体）面板**（空手 ／ 用道具 ／ 走开）
+                //    · 线性模式仍走既有事件面板（两条路径分开，互不影响）
+                //    · 映射：`roomId % curios.Count`（确定性，不掷骰；与事件映射同法）
+                if (o.Moved && roomType == "event" && _curiosCfg is not null)
+                {
+                    GD.Print($"[拓扑UI] 进入【Curio 房】⇒ 房间 {target} 映射到物件（roomId % {_curiosCfg.RealCurios.Count}）");
+                    SetPendingCurio(target);
+
+                    // 🔴 冒烟（`#310`⑦ 的"场景内步骤"补丁）：`--curio-bare` / `--curio-leave`
+                    //    ⇒ 面板建好后**同一帧内真实点击**（步进器只在"进场景"时消费一步，覆盖不到场景内下一步）
+                    string[] curioArgs = OS.GetCmdlineArgs();
+                    if (System.Array.Exists(curioArgs, a => a == "--curio-bare"))
+                    {
+                        PressCurioBare();
+                    }
+                    else if (System.Array.Exists(curioArgs, a => a == "--curio-leave"))
+                    {
+                        PressCurioLeave();
+                    }
+
+                    return;
+                }
+
+                // 兜底：没有 Curio 数据时退回既有事件面板（如实报，不静默）
                 if (o.Moved && roomType == "event")
                 {
                     string? nodeId = _flow.EventNodeIdForRoom(target);
                     if (nodeId is not null)
                     {
-                        GD.Print($"[拓扑UI] 进入【事件房】⇒ 事件节点 {nodeId}（走既有事件面板：选项 A/B）");
+                        GD.Print($"[拓扑UI] 无 Curio 数据 ⇒ 退回事件节点 {nodeId}（选项 A/B）");
                         SetPendingEvent(nodeId);
                         RefreshPanel();
                         return;
@@ -783,6 +812,159 @@ public partial class ExpeditionRoot : Node
 
     /// <summary>可选扎营技能数（供冒烟断言）。</summary>
     public int CampSkillOptionCount => _campSkillButtons.Count;
+
+    // ------------------------------------------------------------------
+    // 🔴 Curio（可交互物体）面板 —— `doc/modules/curio.md` / `#313`
+    //    三按钮：**空手 ／ 用道具（只列已实现）／ 走开**；结果有**描述文本**（V6）；
+    //    阶段二分支**显式标注**且**不施加效果**（红线 21）。
+    // ------------------------------------------------------------------
+
+    private Darkest.Data.CuriosConfig? _curiosCfg;
+    private Darkest.Data.CurioConfig? _pendingCurio;
+    private Label? _curioText;
+    private readonly List<Button> _curioButtons = new();
+
+    /// <summary>当前 Curio 面板的可选项数（供冒烟断言）。</summary>
+    public int CurioOptionCount => _curioButtons.Count;
+
+    /// <summary>当前待交互的 Curio id（供冒烟断言）。</summary>
+    public string? PendingCurioId => _pendingCurio?.Id;
+
+    /// <summary>🔴 按房间确定性映射到 Curio（`roomId % N`，**不掷骰** —— 与事件映射同法）。</summary>
+    public void SetPendingCurio(int roomId)
+    {
+        if (_curiosCfg is null)
+        {
+            return;
+        }
+
+        IReadOnlyList<Darkest.Data.CurioConfig> list = _curiosCfg.RealCurios;
+        if (list.Count == 0)
+        {
+            return;
+        }
+
+        _pendingCurio = list[roomId % list.Count];
+        BuildCurioPanel();
+    }
+
+    /// <summary>建/刷新 Curio 面板（显示物件 + 三按钮）。</summary>
+    public void BuildCurioPanel()
+    {
+        if (_pendingCurio is null || _flow is null)
+        {
+            return;
+        }
+
+        if (_curioText is null)
+        {
+            _curioText = new Label
+            {
+                Name = "CurioText",
+                Position = new Vector2(24, 596),
+                Size = new Vector2(1200, 60),
+                AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            };
+            AddChild(_curioText);
+        }
+
+        foreach (Button b in _curioButtons)
+        {
+            b.QueueFree();
+        }
+
+        _curioButtons.Clear();
+
+        _curioText.Text = $"【{_pendingCurio.Name}】（{_pendingCurio.CurioType}）　" +
+                          "空手有风险；用对道具可得**确定**的好结果，用错道具也是**确定**的坏结果。";
+
+        AddCurioButton("空手", () => ResolveCurioRoute(null));
+
+        // 🔴 V7 / 红线 21：**只列【该 Curio 定义了】且【kind 已实现】的道具**（阶段二的不列出）
+        Darkest.Data.CurioItemResultConfig[] implemented = (_pendingCurio.ItemResults ?? Array.Empty<Darkest.Data.CurioItemResultConfig>())
+            .Where(r => !Darkest.Data.CuriosConfig.DeferredKinds.Contains(r.Kind))
+            .ToArray();
+        foreach (Darkest.Data.CurioItemResultConfig r in implemented)
+        {
+            string item = r.Item;
+            AddCurioButton($"用道具：{item}", () => ResolveCurioRoute(item));
+        }
+
+        AddCurioButton("走开（不碰）", () =>
+        {
+            _flow.LeaveCurio(_pendingCurio!);
+            ReportCurioOutcome();
+        });
+
+        int deferred = (_pendingCurio.ItemResults?.Count ?? 0) - implemented.Length;
+        GD.Print($"[Curio] {_pendingCurio.Id}（{_pendingCurio.Name}）：可选项 {_curioButtons.Count} 个" +
+                 (deferred > 0 ? $"；另有 {deferred} 个【阶段二·未接线】道具选项未列出（红线 21）" : string.Empty));
+    }
+
+    private void AddCurioButton(string text, Action onPressed)
+    {
+        var b = new Button
+        {
+            Name = $"Curio_{_curioButtons.Count}",
+            Text = text,
+            Position = new Vector2(24 + (_curioButtons.Count * 200), 560),
+            Size = new Vector2(190, 28),
+        };
+        b.Pressed += onPressed;
+        AddChild(b);
+        _curioButtons.Add(b);
+    }
+
+    private void ResolveCurioRoute(string? itemUsed)
+    {
+        Darkest.Gameplay.Sim.Run.CurioOutcome? outcome = _flow!.ResolveCurio(_pendingCurio!, itemUsed);
+        if (outcome is null)
+        {
+            GD.Print($"[Curio] 道具 {itemUsed} 对该物件没有定义 ⇒ 拒绝（V7：UI 本不该列它）");
+            return;
+        }
+
+        ReportCurioOutcome();
+    }
+
+    private void ReportCurioOutcome()
+    {
+        bool deferred = _flow!.LastCurioDeferred;
+        string text = _flow.LastCurioText ?? "（无描述）";
+        _curioText!.Text = (deferred ? "🔴【阶段二·未接线 ⇒ 不生效】" : "⇒ ") + text;
+        GD.Print($"[Curio] 结果：{(deferred ? "（未接线）" : string.Empty)}{text}" +
+                 $"　光照 {Meter?.Value}");
+
+        // 交互完 ⇒ 收起按钮（房间已处理），刷新地图让玩家继续走
+        foreach (Button b in _curioButtons)
+        {
+            b.QueueFree();
+        }
+
+        _curioButtons.Clear();
+        _pendingCurio = null;
+        RefreshMapView();
+    }
+
+    /// <summary>🔴 供冒烟：**真实点击【空手】**。</summary>
+    public bool PressCurioBare() => PressCurioButton(0);
+
+    /// <summary>🔴 供冒烟：**真实点击第 i 个选项**（0 = 空手，其后为"用道具"，最后为"走开"）。</summary>
+    public bool PressCurioButton(int index)
+    {
+        if (index < 0 || index >= _curioButtons.Count)
+        {
+            GD.Print($"[Curio] PressCurioButton({index})：没有这个选项（当前 {_curioButtons.Count} 个）");
+            return false;
+        }
+
+        GD.Print($"[Curio] PressCurioButton({index})：发出真实 Pressed（「{_curioButtons[index].Text}」）");
+        _curioButtons[index].EmitSignal(BaseButton.SignalName.Pressed);
+        return true;
+    }
+
+    /// <summary>🔴 供冒烟：**真实点击最后一个选项（走开）**。</summary>
+    public bool PressCurioLeave() => PressCurioButton(_curioButtons.Count - 1);
 
     /// <summary>
     /// **建扎营技能面板**：只列【已接线】的 effect（`CampSkillsConfig.ConsumedEffectNames`）——

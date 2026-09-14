@@ -102,6 +102,16 @@ public static class SmokeScript
             case "finish":
                 PressExpedition(node, c => c.PressFinishCamp());
                 break;
+            case "curio:bare":
+                PressExpedition(node, c => c.PressCurioBare());
+                break;
+            case "curio:leave":
+                PressExpedition(node, c => c.PressCurioLeave());
+                break;
+            case "curio:item:0":
+            case "curio:item:1":
+                PressExpedition(node, c => c.PressCurioButton(1 + (step[^1] - '0')));
+                break;
             case "run-full":
                 PressExpedition(node, c => c.RunFullSmokeStep());
                 break;
