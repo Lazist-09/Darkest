@@ -96,3 +96,54 @@ DELIVERY-UI-FONT-LANDED-20260914
 
 - **阻塞 / 待裁定**：④ 的"是否给标题上 Bold"（不阻塞）；③ 的"钩子跑 ／ 每次启动都跑"（上封）
 - **权威在哪**：`scripts/ui/DdTheme.cs`（`ResolveFonts`/`ScanFontDir`/`HasChar` 断言）｜`resources/theme/fonts/`｜`ui_spec §13.3/§13.4`｜`#321`④
+
+---
+
+### 信封：2026-09-14 · 【来自主程序】📋 `P29` 新数据键登记清单 + 一条口径发现建议**纳契约**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-P29-KEYS-20260914' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-LEAD-P29-KEYS-20260914
+```
+
+#### ① 请登记的新键（全走 **P29**；**值 = 修复前代码里的硬编码值 ⇒ 零数值改动**）
+| 数据键 | 值 | 原先硬编码在哪 | 校验 |
+|---|---|---|---|
+| `physical_mitigation.divisor` | 30 | `BattleMath.PhysicalMitigation` 函数体 | `> 0` |
+| `stun.buildup_on_apply` | 50 | `EffectsStep`（`+ 50`） | `0..100` |
+| `morale.witness_crit_shock_chance_percent` | 50 | `DamagePipeline`（`< 50.0`） | `0..100` |
+| `consecutive_miss.hit_bonus_per_miss` | 4 | `HitStep`（`* 4`） | `0..100` |
+| `heal_crit.single_target_percent` / `multi_target_percent` | 12 / 5 | `SkillExecutor`（`? 5.0 : 12.0`） | `0..100` |
+| `camp.food_effects.{starve,half,full,feast}.{hp_percent,morale}` | −0.20/−15 · 0/0 · +0.10/0 · +0.25/+10 | `ExpeditionCampMath.FoodEffect` | 随 `camp` |
+| `camp.wave_interval_rounds` | 3 | **原先连键都没有**（靠记录默认值 `= 3`） | `> 0` |
+| `taunt_weight` ／ `roster_base_cap` ／ `battle_goal` ／ `virtue_inspired_morale_per_turn` | 出厂既有值 | 各自**记录默认值已删** | 见各配置 |
+```
+🔴 共同纪律：删掉记录默认值 + `Parse` 首行 **`DataPresence.RequireKeys`**（缺键 ⇒ 启动报错；新文件
+   `scripts/data/DataPresence.cs`，递归找叶键并**点名缺哪个键**）✓ 每个键都有"改它就变"用例 ✓
+⚠️ 一处我**判错又改回**的：`RosterConfig.Morale = 50` 实为 **P22⑦ 契约**（新兵入场士气必须 = 50）
+   ⇒ 改为**有名字的契约常量** `RookieMorale`；该键**不**要求必填 ✓（教训已进我的 skill 第 7 条）
+```
+
+#### 🔴 ② 一条口径发现，建议纳进契约（`O-83` 重跑时撞到）
+```
+现象：`O-83`（HP 跨战斗结转）修好后重跑，**V10/A1/A2 读数逐字不变**。
+根因（有证据）：结转按【阵型槽位】映射（`_heroSlots`），而 `BindSortie` 全仓只有 **4 处**调用
+  （场景 `ExpeditionRoot` + 3 个专项测试）⇒ **探针从未绑定阵型** ⇒ 凡"按槽位映射"的每场效果
+  （扎营加成 ／ 跨场 buff ／ HP 结转）在那些读数里**全部不生效** ⚠️
+⇒ 建议契约加一条（与 `O-82` / 红线 17 ⑩ 同族）：
+  🔴 **"探针口径清单"**：每类探针必须写明【消费了哪些系统 / 没消费哪些】，**新增系统接线时同步更新** ——
+     否则"读数不变"会被误读成"改动无效"（我这次差点这么判）
+⇒ 我已请策划裁"探针要不要补 `BindSortie`"（(a) 补 ／ (b) 维持裸口径但写明 ／ (c) 两组都跑）；
+  "口径清单"那一节属你们的域（`tasks/*_verification.md`），**我不代笔** ✓
+```
+
+#### ③ 状态（供核对）
+```
+· P29 执行：可疑数 **50 → 9**；真平衡 **17 项**入 data/去默认；结构性 **32 条**白名单（逐条理由）；**死数据 0**
+· 工具自检三扫**负向探针全 PASS**；`--deadfuncs` **如实降级**为"候选清单"（实测假阳性：
+  `BalanceTable.FromTuning`/`DataPresence.RequireKeys` 在生产被调用却被报）⚠️ + 建人工豁免清单 ✓
+· 剩余 9 条：扎营技能数字（需与 UI 协调签名）· 空台账默认士气 50（需会话持 tuning）· 其余小项
+```
+- **阻塞 / 待裁定**：无（① 登记即可；② 是建议）
+- **工程状态**：构建 0 错误 ／ **500/500** ／ 内核纯净 ／ 门禁 2/2 ／ **零数值改动**
