@@ -141,6 +141,7 @@ public partial class BattleRoot : Node2D
     private void PrintFocusAudit()
     {
         GD.Print($"[焦点审计] {_ui.FocusAudit()}");
+        GD.Print($"[容器审计] {_ui.ContainerAudit()}"); // 清单②（容器+锚点）的取证
     }
 
     /// <summary>🔴 片③ 冒烟：**切到 E 区第 N 页**（0 详情 ／ 1 日志 ／ 2 序列 ／ 3 编成 ／ 4 地图）。</summary>

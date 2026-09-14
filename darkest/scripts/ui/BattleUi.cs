@@ -79,9 +79,26 @@ public partial class BattleUi : CanvasLayer
     /// <summary>建 E 区多功能框（三页起步；旧 F1 浮层保留为开发工具，本框的【日志】页显示事件流尾部）。</summary>
     private void BuildMultiFunctionBox()
     {
-        _mfPanel = new Panel { Position = new Vector2(640, 556), Size = new Vector2(628, 156) };
+        // 🔴 Godot 内置清单 ②（第二批：**容器 + 锚点**）：
+        //    · 面板**贴右下角**（锚点 BottomRight + 负偏移）⇒ 与分辨率无关（不再写死 640,556）✓
+        //    · 内部用 **VBox/HBox 容器**排布（页签一行 + 内容区）⇒ 子控件**不再各写 Position** ✓
+        _mfPanel = new Panel { Name = "MultiFunctionBox" };
         _mfPanel.Modulate = new Color(0.09f, 0.1f, 0.14f, 0.98f);
+        _mfPanel.SetAnchorsPreset(Control.LayoutPreset.BottomRight);
+        _mfPanel.OffsetLeft = -628;
+        _mfPanel.OffsetTop = -156;
+        _mfPanel.OffsetRight = -8;
+        _mfPanel.OffsetBottom = -8;
         AddChild(_mfPanel);
+
+        var column = new VBoxContainer { Name = "MfColumn" };
+        column.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        column.AddThemeConstantOverride("separation", 4);
+        _mfPanel.AddChild(column);
+
+        var tabsRow = new HBoxContainer { Name = "MfTabs" };
+        tabsRow.AddThemeConstantOverride("separation", 4);
+        column.AddChild(tabsRow);
 
         // 🔴 `ui_spec.md` §1.2：**E 区多功能框 = 可切换分页**（DD 式）——
         //    规格列的是 详情 ／ 日志 ／ 序列 ／ 编成；我再加【地图】（片③ 用户点名要的）
@@ -89,26 +106,44 @@ public partial class BattleUi : CanvasLayer
         for (int i = 0; i < tabs.Length; i++)
         {
             int idx = i;
-            var b = new Button { Position = new Vector2(8 + (i * 84), 6), Size = new Vector2(80, 26), Text = tabs[i] };
+            // 容器自动排布 ⇒ 只给"最小尺寸"，不写 Position ✓
+            var b = new Button { Text = tabs[i], CustomMinimumSize = new Vector2(80, 26) };
             b.Pressed += () => SetMultiFunctionPage(idx);
-            _mfPanel.AddChild(b);
+            tabsRow.AddChild(b);
             _mfTabs.Add(b);
         }
 
         _mfContent = new Label
         {
-            Position = new Vector2(10, 38),
-            CustomMinimumSize = new Vector2(606, 110),
+            Name = "MfContent",
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill, // 容器里"占满剩余高度"（不再写死 110）✓
         };
-        _mfContent.AddThemeFontSizeOverride("font_size", 12);
-        _mfPanel.AddChild(_mfContent);
+        _mfContent.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        column.AddChild(_mfContent);
 
-        _mfMap = new Darkest.Ui.BattleMiniMap { Position = new Vector2(10, 34), Size = new Vector2(606, 116) };
+        // 地图页与文本页**共占同一内容区**（同一容器位置 ⇒ 切换时不需要各自算坐标）✓
+        _mfMap = new Darkest.Ui.BattleMiniMap
+        {
+            Name = "MfMap",
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+        };
         _mfMap.Visible = false;
-        _mfPanel.AddChild(_mfMap);
+        column.AddChild(_mfMap);
 
         SetMultiFunctionPage(0);
+    }
+
+    /// <summary>🔴 取证（容器/锚点）：E 区面板的锚点 + 页签是否由**容器**排布（页签同 y、x 递增）。</summary>
+    public string ContainerAudit()
+    {
+        string tabPos = string.Join(" ", _mfTabs.Select(b => $"({(int)b.Position.X},{(int)b.Position.Y})"));
+        bool rowLike = _mfTabs.Count >= 2
+                       && _mfTabs.All(b => Math.Abs(b.Position.Y - _mfTabs[0].Position.Y) < 0.5)
+                       && _mfTabs.Zip(_mfTabs.Skip(1)).All(p => p.Second.Position.X > p.First.Position.X);
+        return $"E 区：锚点 L={_mfPanel.AnchorLeft}/T={_mfPanel.AnchorTop}/R={_mfPanel.AnchorRight}/B={_mfPanel.AnchorBottom}" +
+               $"（右下=1/1）　页签坐标 {tabPos}　容器排布={(rowLike ? "✅ 同行且递增（HBox 生效）" : "🔴 非容器排布")}";
     }
 
     /// <summary>🔴 切换 E 区分页（**真实按钮走这里**；冒烟也走同一入口）。</summary>
