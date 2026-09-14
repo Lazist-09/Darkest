@@ -293,7 +293,7 @@ public partial class BattleUi : CanvasLayer
             ? "技能键：尚未建（未到玩家行动）"
             : $"可聚焦技能键 {focusableButtons}/{_skillButtons.Count}";
         return $"焦点所有者 = {owner?.Name ?? "（无）"}　可聚焦卡片 {focusableCards}/{_cards.Count}　{buttons}　" +
-               $"引擎内置动作 ui_accept={uiAccept}／ui_cancel={uiCancel}";
+               $"引擎内置动作 ui_accept={uiAccept}／ui_cancel={uiCancel}　{RootAudit()}";
     }
 
     private static SkillsConfig SkillsCfg => _skillsCfg ??= SkillsConfig.Parse(ReadData("skills.json"));
@@ -382,6 +382,49 @@ public partial class BattleUi : CanvasLayer
         _devLogLabel = new Label { Position = new Vector2(12, 8), CustomMinimumSize = new Vector2(1224, 310) };
         _devLogLabel.AddThemeFontSizeOverride("font_size", 12);
         _devLogPanel.AddChild(_devLogLabel);
+
+        // 🔴 Godot 内置清单 ②（本轮轴：**容器 + 锚点** 的第一步）：**给本屏一个满屏 `Control` 根**
+        //    为什么必须有它：① **Theme 只沿 Control/Window 祖先链继承** —— 本类是 `CanvasLayer`、
+        //    不是 Control ⇒ 上一轮实测"中央 Theme 未生效（落在引擎默认 16）" **根因就在这**；
+        //    ② 有了 `Control` 根才能谈**锚点/容器**（分辨率与多语言文本长度无关的布局）✓
+        //    做法（最小改动）：建满屏根 ⇒ 把**直接挂在 CanvasLayer 下**的顶层控件**收编**进去
+        //    （子控件随父一起移动；各处持有的引用是对象引用 ⇒ 不受影响）✓
+        _uiRoot = new Control { Name = "UiRoot" };
+        // ⚠️ 只 `SetAnchorsPreset`（或 `SetAnchorsAndOffsetsPreset`）在**入树前**算不出正确尺寸
+        //    ⇒ 实测解成 1280×1280（应 1280×720）⇒ 显式取**视口可见矩形**，与项目基准分辨率一致 ✓
+        _uiRoot.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        _uiRoot.Size = GetViewport().GetVisibleRect().Size;
+        Darkest.Ui.DdTheme.Apply(_uiRoot);
+        AddChild(_uiRoot);
+        foreach (Node child in GetChildren().ToArray())
+        {
+            if (!ReferenceEquals(child, _uiRoot) && child is Control ctl)
+            {
+                RemoveChild(ctl);
+                _uiRoot.AddChild(ctl);
+            }
+        }
+
+        GD.Print($"[BattleUi] 满屏 Control 根就绪（size={_uiRoot.Size}）⇒ ① Theme 可继承 ② 后续锚点/容器的落点 ✓");
+    }
+
+    private Control _uiRoot = null!;
+
+    /// <summary>🔴 取证：满屏 Control 根（Theme 继承与锚点的落点）+ **Theme 是否真的生效**。</summary>
+    public string RootAudit()
+    {
+        if (_uiRoot is null)
+        {
+            return "Control 根：未建";
+        }
+
+        // 🔴 从**真实控件**读出生效字号 ⇒ 这才是"Theme 继承成功"的证据（不是"我挂了 Theme"）
+        int effective = _statusLabel.GetThemeFontSize("font_size");
+        string inherited = effective == Darkest.Ui.DdTheme.FontBody
+            ? $"✅ Theme 继承生效（生效字号 {effective} = 中央 Theme）"
+            : $"🔴 Theme 未生效（生效字号 {effective} ≠ 中央 {Darkest.Ui.DdTheme.FontBody}）";
+        return $"Control 根：size={_uiRoot.Size}　Theme={(_uiRoot.Theme is null ? "（无）" : "已挂中央 Theme")}　" +
+               $"锚点={(int)_uiRoot.AnchorRight}/{(int)_uiRoot.AnchorBottom}　{inherited}";
     }
 
     /// <summary>供 BattleRoot 的提示文案使用（单位原型中文名）。</summary>
