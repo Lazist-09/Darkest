@@ -174,7 +174,7 @@ public sealed class DamagePipeline
 
                     double shockRoll = rng.NextPercent();
                     _log.Append(new RngDraw(rng.DrawCount, shockRoll));
-                    if (shockRoll < 50.0)
+                    if (shockRoll < _balance.WitnessCritShockChancePercent) // 🔴 数字外置：概率来自 tuning.morale（原硬编码 50.0）
                     {
                         _ledger.Apply(mate, _moraleEvents.Get("physical_crit_hit_ally").Delta, "physical_crit_hit_ally", _log);
                     }

@@ -68,4 +68,34 @@ public sealed class StunAndBranchLightDataTests
         Assert.ThrowsException<InvalidDataException>(() => ExpeditionMapConfig.Parse(missing),
             "🔴 缺 branch_special_light_gain ⇒ 启动即报错（修复前静默取 20）");
     }
+
+    [TestMethod]
+    public void WitnessCritShockChance_ComesFromData_AndChangingItChangesTheValue()
+    {
+        TuningConfig shipped = TuningConfig.Parse(ReadData("tuning.json"));
+        Assert.AreEqual(50, shipped.Morale.WitnessCritShockChancePercent,
+            "出厂值 = 50（与修复前硬编码 50.0 一致 ⇒ 零数值改动）");
+        Assert.AreEqual(50, BalanceTable.FromTuning(shipped).WitnessCritShockChancePercent,
+            "BalanceTable 必须暴露它（否则 `DamagePipeline` 读不到 ⇒ 又成死数据）✓");
+
+        // 🔴「改它就变」：只改 JSON 一个数 ⇒ 读出的值随之变化 ✓
+        string patched = ReadData("tuning.json")
+            .Replace("\"witness_crit_shock_chance_percent\": 50", "\"witness_crit_shock_chance_percent\": 20");
+        Assert.AreEqual(20, TuningConfig.Parse(patched).Morale.WitnessCritShockChancePercent);
+    }
+
+    [TestMethod]
+    public void WitnessCritShockChance_OutOfRangeOrMissing_Throws()
+    {
+        string shipped = ReadData("tuning.json");
+
+        string ranged = shipped.Replace("\"witness_crit_shock_chance_percent\": 50",
+            "\"witness_crit_shock_chance_percent\": 150");
+        Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(ranged), "越界（>100）⇒ 报错 ✓");
+
+        string missing = shipped.Replace("\"witness_crit_shock_chance_percent\": 50",
+            "\"witness_crit_shock_chance_percent_moved\": 50");
+        Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(missing),
+            "🔴 缺键 ⇒ 报错（0 合法 ⇒ 必须靠存在性列表 `RequireKeys` 兜住，否则就是静默取 0）✓");
+    }
 }

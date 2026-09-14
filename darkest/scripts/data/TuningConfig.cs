@@ -11,7 +11,9 @@ namespace Darkest.Data;
 public sealed record TuningMorale(
     [property: JsonPropertyName("min")] int Min,
     [property: JsonPropertyName("max")] int Max,
-    [property: JsonPropertyName("start")] int Start);
+    [property: JsonPropertyName("start")] int Start,
+    // 🔴 数字外置（P29）：**目睹同伴被暴击 ⇒ 连带士气伤害的概率**（原先硬写在 `DamagePipeline` 里是 `50.0`）✓
+    [property: JsonPropertyName("witness_crit_shock_chance_percent")] int WitnessCritShockChancePercent);
 
 /// <summary>美德率 = 10% + 韧性 ÷ 2（#56/#116/#158）。</summary>
 public sealed record TuningVirtueRate(
@@ -290,7 +292,7 @@ public sealed record TuningConfig(
             "mental_reduction", "physical_mitigation", "deaths_door", "retreat_formula",
             "battle_goal", "virtue_inspired_morale_per_turn",
             "safety_factor", "wave_interval_rounds", "measured_d", "enemy_full_hp",
-            "stun", "buildup_on_apply");
+            "stun", "buildup_on_apply", "witness_crit_shock_chance_percent");
 
         if (string.IsNullOrWhiteSpace(json))
         {
@@ -660,6 +662,13 @@ public sealed record TuningConfig(
             throw new InvalidDataException(
                 $"{ResPath}: stun.buildup_on_apply = {t.Stun.BuildupOnApply} 越界（须 0..100）" +
                 " —— 它**必须**来自数据（原先硬写在 `EffectsStep` 里是 +50）✓");
+        }
+
+        // 🔴 目睹暴击牵连概率（数字外置，P29）：0..100（原先硬写在 `DamagePipeline` 里是 50.0）✓
+        if (t.Morale.WitnessCritShockChancePercent is < 0 or > 100)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: morale.witness_crit_shock_chance_percent = {t.Morale.WitnessCritShockChancePercent} 越界（须 0..100）。");
         }
 
         if (t.DamageFloor < 1)
