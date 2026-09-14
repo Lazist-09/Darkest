@@ -383,6 +383,14 @@ public partial class BattleUi : CanvasLayer
         {
             CallDeferred(nameof(EnterMapMode));
         }
+
+        // 🔴 **往返冒烟**：`--battle-map-mode-exit` ⇒ 进地图模式**再回战斗模式**（两个方向都要验证不重建；
+        //    这同时给 `ExitMapMode()` 一个**真实调用者** —— 否则它就是我自己的"死声明"（红线 21）⚠️）✓
+        if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-map-mode-exit"))
+        {
+            CallDeferred(nameof(EnterMapMode));
+            CallDeferred(nameof(ExitMapMode)); // 顺序执行 ⇒ 得到"进→出"完整往返 ✓
+        }
     }
 
     /// <summary>🔴 审计清单③的**取证**：当前焦点所有者 + 可聚焦控件数（headless 可断言）。</summary>
