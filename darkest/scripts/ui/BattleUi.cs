@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -72,6 +72,45 @@ public partial class BattleUi : CanvasLayer
     private readonly List<Button> _mfTabs = new();
 
     /// <summary>E 区当前分页（0 详情 ／ 1 日志 ／ 2 地图）—— 供冒烟断言。</summary>
+    /// <summary>🔴 `#327` **片 1 第一步：模式状态机**（`Battle ⇄ Map`）——
+    /// 铁律（架构 `S1`）：**切模式不得重建骨架** ⇒ 本实现**只切可见性/页签，不 `QueueFree` 任何节点** ✓
+    /// 地图模式 = **复用 E 区地图页 + 右下角小地图**（不新造控制树 ⇒ 与"无缝"同向）✓
+    /// 📌 读数：`ModeAudit()`（模式 + E 区页 + 骨架 id）⇒ 可断言"切模式后骨架 id 不变"</summary>
+    public enum SceneMode
+    {
+        Battle,
+        Map,
+    }
+
+    /// <summary>🔴 **地图页签索引的单一出处**（UI 侧）——
+    /// 此前这里写死 `4`，而 `BattleRoot` 另写 `const MapPageIndex = 4` 并注明"改页签表必须同步" ⚠️
+    /// ⇒ 两份真值（`#325` D6 同族）⇒ 现在 UI 侧只此一处；`BattleRoot` 应改引它（我已投窗口请他指过来）✓</summary>
+    public const int MapPageIndex = 4;
+
+    private SceneMode _mode = SceneMode.Battle;
+
+    /// <summary>当前模式（供冒烟/读数）。</summary>
+    public SceneMode Mode => _mode;
+
+    /// <summary>🔴 切到**地图模式**：只切页签与可见性 —— **不重建任何节点**（`S1`）✓</summary>
+    public void EnterMapMode()
+    {
+        _mode = SceneMode.Map;
+        SetMultiFunctionPage(MapPageIndex);
+        GD.Print($"[UI 模式] 进入【地图模式】　{ModeAudit()}");
+    }
+
+    /// <summary>🔴 回到**战斗模式**（同样不重建）：把 E 区切回第 0 页（详情）✓</summary>
+    public void ExitMapMode()
+    {
+        _mode = SceneMode.Battle;
+        SetMultiFunctionPage(0);
+        GD.Print($"[UI 模式] 回到【战斗模式】　{ModeAudit()}");
+    }
+
+    /// <summary>模式读数（**可断言**）：模式 ＋ E 区页 ＋ 骨架 id（切模式前后骨架 id 应不变 ⇒ 无缝）✓</summary>
+    public string ModeAudit() => $"模式={_mode}　E区页={_mfPage}（地图页={MapPageIndex}）　{SkeletonAudit()}";
+
     public int MultiFunctionPage => _mfPage;
 
     /// <summary>🔴 地图页的**可断言摘要**（headless 冒烟：地图与远征侧读数同源）。</summary>
@@ -155,8 +194,8 @@ public partial class BattleUi : CanvasLayer
 
         if (_mfMap is not null)
         {
-            _mfMap.Visible = page == 4;
-            if (page == 4)
+            _mfMap.Visible = page == MapPageIndex;
+            if (page == MapPageIndex)
             {
                 _mfMap.QueueRedraw(); // 进战斗时地图已定，重绘一次即可（只读）
             }
@@ -315,6 +354,12 @@ public partial class BattleUi : CanvasLayer
         if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-support"))
         {
             CallDeferred(nameof(PressSupportPackButton));
+        }
+
+        // 🔴 `#327` 片 1 冒烟：`--battle-map-mode` ⇒ 走**真实模式切换**（不重建骨架）⇒ 打印模式 + 骨架 id 读数 ✓
+        if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-map-mode"))
+        {
+            CallDeferred(nameof(EnterMapMode));
         }
     }
 
@@ -677,7 +722,7 @@ public partial class BattleUi : CanvasLayer
 
     /// <summary>当前 E 区页面的**可断言摘要**（headless 冒烟用）。</summary>
     public string DescribeCurrentPage()
-        => _mfPage == 4 ? DescribeMiniMap() : (_mfContent?.Text?.Replace("\n", " ｜ ") ?? "（无内容）");
+        => _mfPage == MapPageIndex ? DescribeMiniMap() : (_mfContent?.Text?.Replace("\n", " ｜ ") ?? "（无内容）");
 
     /// <summary>把某单位锁进 E 区【详情】页（真实点击卡时由 `BattleRoot.OnCardClicked` 调）。</summary>
     public void ShowUnitDetail(int slot, bool isPlayer)
