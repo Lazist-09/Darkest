@@ -362,7 +362,11 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
    🔴 **D1 负向验证**：只改 `.tres` 的 `Gold`（代码零改动）⇒ 审计读数 `d9b25cff → ff00ffff` ✓
    ⚠️ 两条交界待架构裁：① `[Export]` 写初值 ⇒ Godot 省略"等于默认值"的项 ⇒ 生成文件是空的（正解：属性不写初值）
       ② `Default()` 里仍有 C# 数字兜底 ⇒ 与主程序新工具 `check_data_discipline.py`（数字外置纪律）可能冲突
-⑧ ⑩ i18n：只做"布局先对"（随容器化已达成）
+⑧ ✅ **⑩ i18n"布局先对"已可断言**（`a09fd91`）：`scripts/ui/LongTextProbe.cs` + `--ui-longtext`（文本膨胀 ~40% 后照跑判据）
+   · 实测：长文本压力下 战斗 0 ／ 城池 0 ／ 地图 0 重叠（**修前战斗 10**）；无压力读数不变（58/37/0/0）
+   · 🔴 它抓到一处真缺陷：**`Panel`（不是容器）+ Label ⇒ 文本变宽就溢出压邻居**（行动顺序头像 / 卡片立绘框）
+     ⇒ 修法 = `Panel → PanelContainer` + `Label.ClipText = true`（`§14.6`）
+   · 建议：把 `--ui-longtext` 作为 `§12.4` 的**例行验收**（与 `--ui-audit` 同批跑）
 ⑥ ⑩ i18n：只做"布局先对"（随容器化已达成）
 🔴 每改完一屏/一轴：跑 `--ui-audit` ⇒ 把读数（界面名／Label／重叠／透明／提交号）**追加到 `架构窗口.txt`**
 🔴 待架构答复：建议加一条**静态门禁**（扫 `.tscn` 的 `type=` 与脚本基类是否一致 —— 坑 ⑪ 判据查不出）
@@ -647,6 +651,7 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-SHADER-20260914` | `§12.3` 描边（内置主题项）/暗角/闪白（材质）落地 + 建议微调 §4.1 口径 | ✅ 已投（回读命中） |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-FRAMEBUDGET-20260914` | ⑨ 帧预算基线落地 + 读数口径警告（TimeProcess 与 FPS 矛盾）请架构定标 + 确定性基线表 | ✅ 已投（回读命中） |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-PALETTE-20260914` | 表现层数据驱动：调色板 = .tres 源（33 项）+ D1 负向验证 + 两条交界待裁 | ✅ 已投 |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-I18N-20260914` | §12.4 i18n 布局验收可自动化（--ui-longtext）+ 修掉 Panel 溢出缺陷 | ✅ 已投 |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
