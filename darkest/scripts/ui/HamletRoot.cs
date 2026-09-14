@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -21,6 +22,13 @@ public partial class HamletRoot : Node2D
     private Label _hint = null!;
     private Label _upgradeStatus = null!;
     private Label _saniStatus = null!;
+    // 🔴 片①（三界面卡 §1）：DD 式排布的新增元素
+    private Label _banner = null!;
+    private Label _rosterCount = null!;
+    private Label _resourceBar = null!;
+    private Label _buildingInfo = null!;
+    private Label _rosterTitle = null!;
+    private Button _embark = null!;
     private SanitariumConfig? _saniCfg;
     private readonly Dictionary<string, Button> _saniButtons = new(); // M8.2：三项服务按钮（用于置灰）
     private EconomyConfig _cfg = null!;
@@ -39,24 +47,82 @@ public partial class HamletRoot : Node2D
         RosterConfig rosterCfg = RosterConfig.Parse(FileAccess.GetFileAsString(RosterConfig.ResPath));
         Roster roster = ExpeditionContext.EnsureRoster(rosterCfg);
 
+        // 🔴 片① 实测抓到的缺口（红线 21 家族）：**传家宝库存此前在 Hamlet 侧从未 ensure** ——
+        //    只有远征侧（`ExpeditionRoot`/`--e2e`）会 ensure ⇒ **"从启动直接回城"时建筑区/升级区是空的** ⚠️
+        //    （实测：`--hamlet --hamlet-hover=tavern` ⇒ 悬停读数【无输出】，因为 `Heirlooms == null`）
+        HeirloomConfig heirloomCfg = HeirloomConfig.Parse(FileAccess.GetFileAsString(HeirloomConfig.ResPath));
+        _ = ExpeditionContext.EnsureHeirlooms(heirloomCfg);
+
+        // 🔴 片①（`tasks/ui_three_screens.md` §1）：**地名横幅（左上）**
+        _banner = new Label
+        {
+            Name = "HamletBanner",
+            Text = "未命名庄园 · 回城",
+            Position = new Vector2(24, 2),
+            Size = new Vector2(600, 24),
+        };
+        AddChild(_banner);
+
+        // 🔴 片① ②：**名册计数（右上）** —— `N / 12`（`#283` 7.4 cap = 12）
+        _rosterCount = new Label
+        {
+            Name = "HamletRosterCount",
+            Position = new Vector2(940, 2),
+            Size = new Vector2(300, 24),
+            HorizontalAlignment = HorizontalAlignment.Right,
+        };
+        AddChild(_rosterCount);
+
         _status = new Label
         {
             Name = "HamletStatus",
-            Position = new Vector2(24, 24),
-            Size = new Vector2(1200, 120),
+            Position = new Vector2(24, 30),
+            Size = new Vector2(1200, 84),
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
         };
         AddChild(_status);
 
+        // 🔴 片① ⑥：**Embark 大红按钮（底部中央）** —— 既有【再出发】只换位置/呈现（**全屏唯一大红**）
         var backToDungeon = new Button
         {
-            Name = "BackToDungeon",
-            Text = "再出发（远征）",
-            Position = new Vector2(24, 160),
-            Size = new Vector2(240, 40),
+            Name = "Embark",
+            Text = "再出发（远征）· EMBARK",
+            Position = new Vector2(470, 640),
+            Size = new Vector2(280, 48),
+            Modulate = new Color(1.0f, 0.35f, 0.35f),
         };
         backToDungeon.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
         AddChild(backToDungeon);
+        _embark = backToDungeon;
+
+        // 🔴 片① ⑤：**底部资源条**（金钱大号 + 传家宝 4 种）
+        _resourceBar = new Label
+        {
+            Name = "HamletResourceBar",
+            Position = new Vector2(24, 606),
+            Size = new Vector2(900, 30),
+        };
+        AddChild(_resourceBar);
+
+        // 🔴 片① ③：**建筑区信息行**（悬停/点击某栋 ⇒ 名称 + 功能 + 当前等级 + 下一级所需传家宝）
+        _buildingInfo = new Label
+        {
+            Name = "HamletBuildingInfo",
+            Position = new Vector2(24, 336),
+            Size = new Vector2(900, 24),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        };
+        AddChild(_buildingInfo);
+
+        // 🔴 片① ④：**右侧名册竖列**（标题）
+        _rosterTitle = new Label
+        {
+            Name = "HamletRosterTitle",
+            Text = "名册（点一行 ⇒ 选中 / 角色详情）",
+            Position = new Vector2(700, 30),
+            Size = new Vector2(400, 22),
+        };
+        AddChild(_rosterTitle);
 
         // ④ 减压：**两栋同价同效、风险不同**（Tavern 更不稳 / Abbey 更稳）—— 真可用，选的是"风格"
         var tavern = new Button { Name = "ReliefTavern", Text = "减压·酒馆（快而不稳）", Position = new Vector2(280, 160), Size = new Vector2(240, 40) };
@@ -84,18 +150,24 @@ public partial class HamletRoot : Node2D
         }
 
         // 🔴 M8.1：**建筑升级入口**（三栋首批建筑；两轴：降费 / 增强·解锁）—— 消耗传家宝
+        // 🔴 片① ③：**这就是"中央建筑区"**（照 DD）—— 悬停/点击 ⇒ 真读 `HeirloomStock` 显示
+        //    名称 + 功能 + 当前等级 + 下一级所需传家宝（**不是写死文本**）
         string[] upgradable = { "tavern", "abbey", "stagecoach" };
+        string[] buildingNames = { "酒馆 Tavern", "修道院 Abbey", "驿站 Stage Coach" };
         for (int i = 0; i < upgradable.Length; i++)
         {
             string bId = upgradable[i];
+            string label = buildingNames[i];
             var ub = new Button
             {
                 Name = $"Upgrade_{bId}",
-                Text = $"升级·{bId}",
-                Position = new Vector2(24 + (i * 190), 340),
+                Text = $"🏛 {label}",
+                Position = new Vector2(24 + (i * 190), 300),
                 Size = new Vector2(180, 36),
             };
             ub.Pressed += () => UpgradeBuilding(bId);
+            // 🔴 片① ③：**悬停 ⇒ 显示名称/功能/等级/下一级所需**（真读 `HeirloomStock`）
+            ub.MouseEntered += () => ShowBuildingInfo(bId);
             AddChild(ub);
             _upgradeButtons[bId] = ub;
         }
@@ -150,6 +222,27 @@ public partial class HamletRoot : Node2D
                  $"　名册 {roster.Heroes.Count} 人（士气跨趟；最低 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}）");
 
         // 🔴 M8.0 ⑥ 端到端：回城阶段 ⇒ **花钱（减压）** 然后 **再出发**
+        // 🔴 片①（三界面卡 §1.3）冒烟钩子：**全部走真实 `Pressed`**（红线 26：功能级验收走玩家路径）
+        string[] hamletArgs = OS.GetCmdlineArgs();
+        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-embark"))
+        {
+            PressEmbark();
+            return; // 已切场景
+        }
+
+        string? hover = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-hover=", StringComparison.Ordinal));
+        if (hover is not null)
+        {
+            ShowBuildingInfo(hover["--hamlet-hover=".Length..]);
+        }
+
+        string? rowArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-row=", StringComparison.Ordinal));
+        if (rowArg is not null && int.TryParse(rowArg["--hamlet-row=".Length..], out int rowIdx))
+        {
+            GD.Print($"[HamletRoot] 名册竖列行数 = {RosterRowCount}（名册 {roster.Heroes.Count} 人）");
+            PressRosterRow(rowIdx);
+        }
+
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--e2e") && ExpeditionContext.E2EStage == 1)
         {
             int goldBefore = economy.Gold;
@@ -287,6 +380,59 @@ public partial class HamletRoot : Node2D
     }
 
     /// <summary>
+    /// 🔴 片① ③：**悬停/点击某栋建筑 ⇒ 显示名称 + 功能 + 当前等级 + 下一级所需传家宝** ——
+    /// **真读 `HeirloomStock`（`LevelOf` / `NextLevel().Cost`）**，不是写死文本（卡 §1.3 的验收要求）。
+    /// </summary>
+    public void ShowBuildingInfo(string building)
+    {
+        HeirloomStock? h = ExpeditionContext.Heirlooms;
+        if (h is null)
+        {
+            _buildingInfo.Text = "建筑：传家宝库存未加载";
+            return;
+        }
+
+        string func = building switch
+        {
+            "tavern" => "减压·酒馆（快而不稳）",
+            "abbey" => "减压·修道院（慢而稳）",
+            "stagecoach" => "招募新兵（免费 / Lv1 / 士气 50）",
+            _ => "—",
+        };
+        UpgradeLevel? next = h.NextLevel(building);
+        string nextText = next is null
+            ? "已满级"
+            : string.Join(" ＋ ", next.Cost.Select(k => $"{k.Key}×{k.Value}")) +
+              $"　⇒ Lv{h.LevelOf(building) + 1}";
+        _buildingInfo.Text = $"🏛 {building}　功能：{func}　当前等级：Lv{h.LevelOf(building)}　下一级所需：{nextText}";
+        GD.Print($"[HamletRoot] 悬停建筑 {building}：{_buildingInfo.Text}");
+    }
+
+    /// <summary>🔴 片① ⑥（冒烟）：**真实点击 Embark（再出发）** ⇒ 切 `Expedition.tscn`（红线 18）。</summary>
+    public void PressEmbark()
+    {
+        GD.Print("[HamletRoot] PressEmbark：发出真实 Pressed（再出发 · EMBARK）");
+        _embark.EmitSignal(BaseButton.SignalName.Pressed);
+    }
+
+    /// <summary>🔴 片① ④（冒烟）：**真实点击右列第 i 行名册**。</summary>
+    public bool PressRosterRow(int index)
+    {
+        if (index < 0 || index >= _heroButtons.Count)
+        {
+            GD.Print($"[HamletRoot] PressRosterRow({index})：没有这一行（当前 {_heroButtons.Count} 行）");
+            return false;
+        }
+
+        GD.Print($"[HamletRoot] PressRosterRow({index})：发出真实 Pressed（「{_heroButtons[index].Text}」）");
+        _heroButtons[index].EmitSignal(BaseButton.SignalName.Pressed);
+        return true;
+    }
+
+    /// <summary>供冒烟：名册竖列的行数（应等于名册人数）。</summary>
+    public int RosterRowCount => _heroButtons.Count;
+
+    /// <summary>
     /// 🔴 M8.2 / V16：**Sanitarium 服务的真实点击路径**（发真实 `Pressed` 信号，不直接调业务方法）。
     /// </summary>
     public void PressService(string serviceName)
@@ -376,33 +522,55 @@ public partial class HamletRoot : Node2D
         _heroButtons.Clear();
         if (roster is not null)
         {
-            int i = 0;
-            foreach (HeroConfig h in roster.Heroes.Where(x => roster.MoraleOf(x.Id) < RosterConfig.RookieMorale))
+            // 🔴 片① ④：**右侧名册竖列**（照 DD）—— 每行 = 缩写头像 + 名字 + **士气点阵** + 装备位占位
+            //    ⚠️ 红线 21：装备位显式标「未实现」；「可减压」标记保留（士气 < 基准者才可减压）
+            int row = 0;
+            foreach (HeroConfig h in roster.Heroes)
             {
                 string id = h.Id;
+                int morale = roster.MoraleOf(id);
+                string dots = new string('●', Math.Clamp(morale / 10, 0, 10)).PadRight(10, '○');
+                string abbrev = h.Name.Length > 0 ? h.Name[..1] : "?";
+                bool canRelief = morale < RosterConfig.RookieMorale;
                 var b = new Button
                 {
-                    Name = $"Hero_{id}",
-                    Text = $"{h.Name}（士气 {roster.MoraleOf(id)}）",
-                    Position = new Vector2(24 + (i * 190), 300),
-                    Size = new Vector2(180, 34),
+                    Name = $"RosterRow_{id}",
+                    Text = $"{abbrev} {h.Name} {dots} ⚔- 🛡-（未实现）{(canRelief ? " · 可减压" : string.Empty)}",
+                    Position = new Vector2(700, 56 + (row * 30)),
+                    Size = new Vector2(380, 28),
                 };
-                b.Pressed += () => SelectHero(id);
+                b.Pressed += () =>
+                {
+                    SelectHero(id);
+                    GD.Print($"[HamletRoot] 点名册行 {id}（士气 {roster.MoraleOf(id)}）⇒ 已选中；" +
+                             "角色详情：**片② 待做**（红线 21：显式标注未实现）");
+                };
                 AddChild(b);
                 _heroButtons.Add(b);
-                i++;
-                if (i >= 6)
-                {
-                    break; // 一行放 6 个
-                }
+                row++;
             }
         }
 
         _hint.Text = roster is null
             ? "减压：名册未加载"
             : _selectedHero is null
-                ? "减压：请先点一位【士气低于 50】的人，再点酒馆/修道院（同价同效、风险不同）"
+                ? "减压：请先在右侧名册点一位【可减压】的人，再点酒馆/修道院（同价同效、风险不同）"
                 : $"减压对象：{_selectedHero}（士气 {roster.MoraleOf(_selectedHero)}）⇒ 请点酒馆或修道院";
+
+        // 🔴 片①：**名册计数 / 资源条 / 建筑信息默认行**（都真读跨趟持有者，不写死）
+        _rosterCount.Text = roster is null
+            ? "名册 -/-"
+            : $"名册 {roster.Heroes.Count} / {roster.Cap}";
+        HeirloomStock? resHeirlooms = ExpeditionContext.Heirlooms;
+        Economy? resGold = ExpeditionContext.Gold;
+        _resourceBar.Text = resGold is null || resHeirlooms is null
+            ? "资源：未加载"
+            : $"💰 金钱 {resGold.Gold}　｜　传家宝：" +
+              string.Join("　", resHeirlooms.Kinds.Select(k => $"{k} {resHeirlooms.Count(k)}"));
+        if (string.IsNullOrEmpty(_buildingInfo.Text))
+        {
+            _buildingInfo.Text = "建筑：悬停/点击某一栋 ⇒ 显示名称 + 功能 + 当前等级 + 下一级所需传家宝";
+        }
 
         // 🔴 M8.2 / V15：Sanitarium 三服务的**成本显示 + 可用性置灰**（红线 21 (b)：由内核回答）
         HeirloomStock? saniHeirlooms = ExpeditionContext.Heirlooms;
