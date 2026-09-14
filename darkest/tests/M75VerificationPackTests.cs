@@ -444,15 +444,21 @@ public sealed class M75VerificationPackTests
                       $"　撤退/团灭 {retreats}");
         }
 
+        // 🔴 `#317`① 修复（真 bug）：判读**只看三档**（保守/均衡/激进）——
+        //    此前把第 4 档（**提亮优先**）也纳入 `argmax`，而 `switch` 的 default 又把它当成"激进"
+        //    ⇒ 判读行出现「最优档 = 激进」但数字明明是「保守 95% 最高」的**自相矛盾** ⚠️
+        //    （而人是会照抄结论的 ⇒ 每轮读数都会带一句错的结论）
+        (string bestName, string verdict) = JudgeTiers(completionRates[0], completionRates[1], completionRates[2]);
         double spread = completionRates.Max() - completionRates.Min();
-        int bestIndex = completionRates.IndexOf(completionRates.Max());
-        string verdict = bestIndex == 1
-            ? "✅ **均衡最高 = 倒 U 成立 → 设计成功**（中等冒险收益刚好补偿风险）"
-            : bestIndex == 0
-                ? "🔴 **保守最高 → 收益不足**（应加收益 / 再减起手资源）"
-                : "🔴 **激进最高 → 风险不足**（应加难度）";
-        lines.Add($"[M7.5] V10 判读（#274 倒 U）：保守 {completionRates[0]:P0} ／ 均衡 {completionRates[1]:P0} ／ 激进 {completionRates[2]:P0}" +
-                  $"　极差 {spread:P0}　最优档 = {bestIndex switch { 0 => "保守", 1 => "均衡", _ => "激进" }}　⇒ {verdict}");
+        lines.Add($"[M7.5] V10 判读（#274 倒 U，**只看三档**；第 4 档提亮优先 {completionRates[3]:P0} 仅供参考）：" +
+                  $"保守 {completionRates[0]:P0} ／ 均衡 {completionRates[1]:P0} ／ 激进 {completionRates[2]:P0}" +
+                  $"　极差（四档） {spread:P0}　最优档 = {bestName}　⇒ {verdict}");
+
+        // 🔴 自检（架构把"建议"升格为【判据】）：判读行里的"某档最高"必须与三档数字的极值**一致** ⇒ 否则判红
+        //    取证：负向探针见 `V10_Judge_SelfCheck_CatchesSwappedClaim`（故意写反 ⇒ 必须被抓到）✓
+        Assert.IsTrue(ConsistentWithClaim(completionRates[0], completionRates[1], completionRates[2], bestName),
+            $"🔴 判读自检失败：判读行称「最优档 = {bestName}」，但与三档数字的极值不一致" +
+            $"（保守 {completionRates[0]:P0} ／ 均衡 {completionRates[1]:P0} ／ 激进 {completionRates[2]:P0}）");
 
         string report = string.Join("\n", lines);
         Console.WriteLine(report);
@@ -552,4 +558,47 @@ public sealed class M75VerificationPackTests
     }
 
     public TestContext TestContext { get; set; } = null!;
+
+    // ------------------------------------------------------------------
+    // 🔴 `#317`① 判读逻辑（只看三档）+ **一致性判据** + **负向探针**
+    //    根因（实测抓到的真 bug）：`completionRates` 有**四档**（含"提亮优先"），
+    //    而判读只打印三档、`switch` 的 **default 又把第 4 档当成"激进"**
+    //    ⇒ 出现「最优档 = 激进」但数字是「保守 95% 最高」的自相矛盾 ⚠️（每轮读数都会带一句错结论）
+    // ------------------------------------------------------------------
+
+    /// <summary>由三档完成率给出【最优档 + 判词】（**纯函数**：无随机 ⇒ 可直接喂负向探针）。</summary>
+    internal static (string Best, string Verdict) JudgeTiers(double conservative, double balanced, double aggressive)
+    {
+        double[] trio = { conservative, balanced, aggressive };
+        int best = Array.IndexOf(trio, trio.Max());
+        return best switch
+        {
+            1 => ("均衡", "✅ **均衡最高 = 倒 U 成立 → 设计成功**（中等冒险收益刚好补偿风险）"),
+            0 => ("保守", "🔴 **保守最高 → 收益不足**（应加收益 / 再减起手资源）"),
+            _ => ("激进", "🔴 **激进最高 → 风险不足**（应加难度）"),
+        };
+    }
+
+    /// <summary>🔴 **一致性判据**（`m7_6_verification` §1.7 D）：声明的"最高档"必须等于三档的 `argmax` 档名。</summary>
+    internal static bool ConsistentWithClaim(double conservative, double balanced, double aggressive, string claimedBest)
+        => JudgeTiers(conservative, balanced, aggressive).Best == claimedBest;
+
+    /// <summary>
+    /// 🔴 **负向探针**（架构要求的取证："故意把判读行写反一次 ⇒ 用例必须变红"）：
+    /// 数字是【保守最高】，若判读行声称"激进/均衡最高" ⇒ 自检必须**判不一致**；声称"保守最高" ⇒ 通过 ✓
+    /// </summary>
+    [TestMethod]
+    public void V10_Judge_SelfCheck_CatchesSwappedClaim()
+    {
+        // 本轮真实读数形状（保守 95 ／ 均衡 90 ／ 激进 73）
+        Assert.AreEqual("保守", JudgeTiers(0.95, 0.90, 0.73).Best, "三档极值是保守 ⇒ 最优档必须是保守");
+        Assert.IsTrue(ConsistentWithClaim(0.95, 0.90, 0.73, "保守"), "声称保守 ⇒ 一致 ✓");
+        Assert.IsFalse(ConsistentWithClaim(0.95, 0.90, 0.73, "激进"),
+            "🔴 负向探针：数字是保守最高却声称激进最高 ⇒ 必须判**不一致**（这正是上一轮判读行犯的错）");
+        Assert.IsFalse(ConsistentWithClaim(0.95, 0.90, 0.73, "均衡"), "🔴 同理：声称均衡最高也不一致");
+
+        // 另两种极值也要对（覆盖三条判词）
+        Assert.AreEqual("均衡", JudgeTiers(0.70, 0.80, 0.60).Best);
+        Assert.AreEqual("激进", JudgeTiers(0.50, 0.55, 0.60).Best);
+    }
 }
