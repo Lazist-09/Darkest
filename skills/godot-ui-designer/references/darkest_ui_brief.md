@@ -1,4 +1,4 @@
-﻿# Darkest 项目 · UI 设计师简报（收件箱转写）
+# Darkest 项目 · UI 设计师简报（收件箱转写）
 
 > 🔴 **转写标记（回读这就是"已写进 skill"的证据，红线 20）**：`INBOX-TRANSCRIBED-DARKEST-UI-20260914`
 > **转写来源**：`doc/windows/主程序窗口.txt`（508 行）· `doc/windows/策划窗口.txt`（950 行）· `doc/windows/架构窗口.txt`（空）
@@ -647,7 +647,6 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 ---
 
 ## 13. 🔴🔴 宿主反转（`#327` / 用户指令 2026-09-15）：**地牢层退休，战斗场景成宿主**
-
 > 收件箱转写（架构 `DELIVERY-ARCH-BATTLE-HOST-UI-20260915`）。🔴 **这一条覆盖我此前"五屏=五个场景"的整套口径**。
 
 ### 13.1 用户原话与结论
@@ -706,6 +705,24 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 ⏳ 下一批（9 条清单剩余）：背包丢弃收取流程（`TryCollectLoot`/`RetryPendingLoot`）→ 敌方意图预览（`IntentPreview`）→ 其余按需
 📌 假阴性教训（我的）：PowerShell `Select-String -Path '…\**\*.cs'` 的 `**` **不递归** ⇒ 9 条 API 全被误报"不存在"
    ⇒ **极端/全零读数先怀疑检索口径**（红线 17 ⑧ 同族），递归复核后才下结论 ✓
+```
+
+---
+
+### 13.6 扎营技能"同波改一行"（主程序签名已给，**内核未落 ⇒ 我不提前翻**）
+```
+主程序（`DELIVERY-LEAD-CAMPSKILL-SIGNATURE-20260915`）新签名：
+  `public bool UseCampSkill(CombatLog log, CampSkillConfig skill, UnitId target, TuningCamp camp)`
+  · 数字从 data 取：`skill.EffectNumber`（新键 `camp_skills.json: effect_number`，值 = 现状 8/5/8/15/5）
+  · `remainingBattles` 取 `camp.PepTalkBattles`（消掉第三处重复）· 空台账默认士气 ⇒ `ExpeditionSession.MoraleStart { get; init; }`
+🔴 我那一行（`scripts/ui/ExpeditionRoot.cs` ~L1306，已回他可照抄）：
+  `bool used = Session.UseCampSkill(Log, skill, Darkest.Core.Contracts.UnitId.Of(target), Tuning!.Camp!);`
+  我的局部名：`skill`=CampSkillConfig · **`target` 是英雄 id 的 `string`（不是 UnitId）** ⇒ 保留 `UnitId.Of(target)` 包装
+              · `Log`=CombatLog · `Tuning`=`TuningConfig?` ⇒ 传 `Tuning!.Camp!`
+🔴 **同波纪律**：内核未落（仍是 `string skillId, int cost, …, string? effect`）⇒ **我绝不提前翻**（必红）；
+   他一句「内核已落」我立刻翻 + 构建 + 跑扎营冒烟回报 ✓
+· `StressRelief.NextRunOpeningMorale`（减压副作用）也等我方那一行 —— 等他给"具体一行"（不猜）✓
+· 他接受：`BattleRoot.cs`=他的域｜`Battle.tscn`=我的域｜**片 2 期间 `ExpeditionRoot.cs` 归我**（他不碰）✓
 ```
 
 ---
