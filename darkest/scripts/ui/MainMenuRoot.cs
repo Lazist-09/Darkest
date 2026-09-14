@@ -65,6 +65,10 @@ public partial class MainMenuRoot : Node2D
         GD.Print($"[MainMenuRoot] 主菜单就绪：三选一（单场战斗 ／ 出发远征 ／ 回城）　" +
                  $"金钱 {economy.Gold}　名册 {roster.Heroes.Count}");
 
+        // 🔴 跨场景步进冒烟：**先解析步骤**（只解析一次）—— 解析后本场景也要消费一步
+        Darkest.Gameplay.Scene.SmokeScript.InitFromArgs();
+        Darkest.Gameplay.Scene.SmokeScript.Step(this);
+
         // 🔴 CLI 全保留：启动即按参数直达（冒烟依赖；这些参数此前挂在 BattleRoot 上）
         string[] args = OS.GetCmdlineArgs();
         if (Array.Exists(args, a => a == "--hamlet"))

@@ -80,7 +80,8 @@ public partial class ExpeditionRoot : Node
         // 🔴 M7.6 片 (iii)：**UI 地图视图** —— `--topology` ⇒ 生成地图并**把选路交给玩家点**（红线 18：玩家要碰得到）
         //    `--topology-auto` ⇒ 仍自动走一遍（供冒烟/读数，不改变玩家路径）
         string[] args = OS.GetCmdlineArgs();
-        if (System.Array.Exists(args, a => a == "--topology" || a == "--topology-auto"))
+        bool smokeDriven = Darkest.Gameplay.Scene.SmokeScript.Enabled;
+        if (smokeDriven || System.Array.Exists(args, a => a == "--topology" || a == "--topology-auto"))
         {
             ExpeditionMapConfig mapCfg = ExpeditionMapConfig.Parse(
                 Godot.FileAccess.GetFileAsString(ExpeditionMapConfig.ResPath));
@@ -184,6 +185,9 @@ public partial class ExpeditionRoot : Node
                 RunFullSmokeStep();
                 return;
             }
+
+            // 🔴 跨场景步进冒烟：消费本场景的一步（`ui_three_screens.md` §3 / `#310`⑦）
+            Darkest.Gameplay.Scene.SmokeScript.Step(this);
 
             return; // 拓扑模式的推进由玩家点选驱动（不再走旧线性 `ShowPathChoice`）
         }

@@ -270,6 +270,9 @@ public partial class HamletRoot : Node2D
             GD.Print($"[片②] 返回后：DetailOpen={DetailOpen}（应回到城池，红线 18：不是孤岛）");
         }
 
+        // 🔴 跨场景步进冒烟：消费本场景的一步（`ui_three_screens.md` §3 / `#310`⑦）
+        Darkest.Gameplay.Scene.SmokeScript.Step(this);
+
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--e2e") && ExpeditionContext.E2EStage == 1)
         {
             int goldBefore = economy.Gold;

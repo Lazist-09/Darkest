@@ -92,7 +92,13 @@ public partial class BattleRoot : Node2D
             GD.Print("[BattleRoot] --battle-auto-finish ⇒ 自动结束本场（判定胜利）并自动返回远征");
             CallDeferred(nameof(AutoFinishBattle));
         }
+
+        // 🔴 跨场景步进冒烟（`ui_three_screens.md` §3 / `#310`⑦）：每进一个场景消费一步
+        SmokeScript.Step(this);
     }
+
+    /// <summary>🔴 供**跨场景步进冒烟**：自动打完本场 + 自动点【继续（回远征）】（真实路径）。</summary>
+    public void PressAutoFinish() => AutoFinishBattle();
 
     /// <summary>冒烟用：用**小型自动玩家**把本场**真的打完**（走真实战斗规则）⇒ 再走既有 `EndGame` 路径。</summary>
     private void AutoFinishBattle()
