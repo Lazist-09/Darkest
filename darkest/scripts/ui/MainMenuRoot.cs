@@ -132,7 +132,14 @@ public partial class MainMenuRoot : Control
             GD.Print($"[Theme审计] {Darkest.Ui.DdTheme.Audit()}");
             GD.Print($"[Theme审计] 落点：res://resources/theme/dd_theme.tres ⇒ {err}");
 
-            // 🔴 `#325` D5 的**一次性引导**：把**调色板**导出成可编辑资源（之后它就是"源" ⇒ 改它不用改代码）
+            // 🔴 `#325` D6 + 架构裁定（第 5 条）：**兜底值不得与 `.tres` 分叉** ⇒ `--palette-audit` 逐字段比对
+            if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--palette-audit"))
+            {
+                (bool pOk, string pRep) = Darkest.Ui.UiPalette.AuditFile();
+                GD.Print($"[调色板审计] {pRep}");
+                GD.Print($"[调色板审计] 结论：{(pOk ? "✅ 通过" : "🔴 未通过（两视图分叉）")}");
+            }
+
             string[] dumpArgs = OS.GetCmdlineArgs();
             if (Array.Exists(dumpArgs, a => a == "--dump-palette"))
             {

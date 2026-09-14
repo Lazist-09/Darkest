@@ -66,6 +66,60 @@ public partial class UiPalette : Resource
     /// <summary>资源落点（**放/改文件即生效**，不必改代码）。</summary>
     public const string ResPath = "res://resources/theme/ui_palette.tres";
 
+    /// <summary>把调色板摊平成"字段名 → 值"（**用于逐字段比对** —— `#325` D6：两视图不得分叉）。</summary>
+    public System.Collections.Generic.List<(string Name, string Value)> Fields() => new()
+    {
+        ("TextPrimary", TextPrimary.ToHtml()), ("Gold", Gold.ToHtml()), ("Danger", Danger.ToHtml()),
+        ("Disabled", Disabled.ToHtml()), ("TextInfo", TextInfo.ToHtml()), ("PanelBg", PanelBg.ToHtml()),
+        ("PanelBgRaised", PanelBgRaised.ToHtml()), ("PanelBorder", PanelBorder.ToHtml()), ("BgDeep", BgDeep.ToHtml()),
+        ("Outline", Outline.ToHtml()), ("OutlineSize", OutlineSize.ToString()),
+        ("FontTitle", FontTitle.ToString()), ("FontBody", FontBody.ToString()), ("FontSmall", FontSmall.ToString()),
+        ("SkillBarColumns", SkillBarColumns.ToString()),
+        ("Hp", Hp.ToHtml()), ("HpWeak", HpWeak.ToHtml()), ("Morale", Morale.ToHtml()),
+        ("MoraleEnemy", MoraleEnemy.ToHtml()), ("Positive", Positive.ToHtml()), ("Highlight", Highlight.ToHtml()),
+        ("Ally", Ally.ToHtml()), ("Muted", Muted.ToHtml()), ("Mental", Mental.ToHtml()), ("Shock", Shock.ToHtml()),
+        ("MapEdge", MapEdge.ToHtml()), ("MapCurrent", MapCurrent.ToHtml()), ("MapReachable", MapReachable.ToHtml()),
+        ("MapVisited", MapVisited.ToHtml()), ("MapUnknown", MapUnknown.ToHtml()), ("MapFrame", MapFrame.ToHtml()),
+        ("TeamDot", TeamDot.ToHtml()),
+    };
+
+    /// <summary>
+    /// 🔴 **架构裁定（`next_round §4.1`，第 5 条）**：兜底值（`Default()`）**不得与 `.tres` 分叉** ——
+    /// 否则就是 `#325` D6 的"两视图手抄"（本项目最贵的一类 bug）。
+    /// ⇒ 本方法**逐字段比对**二者；**"改 `.tres` 忘了改 `Default()`" ⇒ 直接报红** ✓
+    /// ⚠️ 它在**运行时**做（不是 xUnit）：内核测试工程是**零 Godot**（读不了 `res://`）⇒ 只能落在表现层的审计钩子 ✓
+    /// </summary>
+    public static (bool Ok, string Report) AuditFile()
+    {
+        if (!ResourceLoader.Exists(ResPath))
+        {
+            return (true, $"无 {ResPath} ⇒ 使用**代码默认**（不可比；缺文件已被 `Theme` 打印留痕）");
+        }
+
+        var loaded = ResourceLoader.Load<UiPalette>(ResPath);
+        if (loaded is null)
+        {
+            return (false, $"🔴 {ResPath} 加载失败 ⇒ **两视图无法核对**");
+        }
+
+        System.Collections.Generic.List<(string Name, string Value)> def = Default().Fields();
+        System.Collections.Generic.List<(string Name, string Value)> got = loaded.Fields();
+        var diffs = new System.Collections.Generic.List<string>();
+        foreach ((string name, string value) in def)
+        {
+            string actual = got.Find(f => f.Name == name).Value;
+            if (actual != value)
+            {
+                diffs.Add($"{name}: 资源 {actual} ≠ Default {value}");
+            }
+        }
+
+        return diffs.Count == 0
+            ? (true, $"✅ `UiPalette.Default()` 与 `{ResPath}` **逐字段一致**（{def.Count} 项）⇒ 两视图未分叉（`#325` D6）")
+            : (false, $"🔴 **两视图已分叉**（{diffs.Count}/{def.Count} 项）：{string.Join(" ／ ", diffs)}" +
+                      $"　⇒ 改了 `.tres` 却忘了改 `Default()`（`#325` D6 禁止手抄）");
+    }
+
     /// <summary>
     /// 出厂调色板 = **全部可调项的初值**（与 `ui_palette.tres` 同值 ⇒ 缺文件时视觉不变，只是少一层可编辑性）✓
     /// 🔴 值本身来自 `ui_spec §14.4/§1.4` 与策划 `#321`；**改视觉请改 `.tres`，不要改这里**。

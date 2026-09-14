@@ -37,7 +37,9 @@ public static class LayoutAudit
 
         var labels = new List<(string Path, Rect2 Rect)>();
         var panels = new List<(string Path, Control Panel)>();
-        Collect(scope, scope, labels, panels);
+        // 🔴 架构裁定（`next_round §4.1.1`）：判据第 7 条**批准**，但**例外必须可审计**
+        //    ⇒ 报告里必须打印"**跳过 N 个瞬态元素**"（红线 17 口径写清 + 红线 21 不留黑箱）✓
+        int skippedTransient = Collect(scope, scope, labels, panels);
 
         var problems = new StringBuilder();
 
@@ -98,7 +100,9 @@ public static class LayoutAudit
         string caliber = $"\n  ｜口径：{overlayInfo}　全场景：可见 Label {allLabels.Count} ／ Panel+PC {allPanels.Count}" +
                          (outsideLabels > 0 || outsidePanels > 0
                              ? $"　⚠️ 在审范围外还有 {outsideLabels} 个 Label ／ {outsidePanels} 个 Panel（须判定：真被遮住 还是 漏审）"
-                             : "　（范围外无控件）");
+                             : "　（范围外无控件）") +
+                         // 🔴 架构裁定（`§4.1.1`）：第 7 条例外**必须可审计** ⇒ 打印"跳过的瞬态元素数"（含覆盖层子树内的）✓
+                         $"　跳过瞬态元素 {skippedTransient + Collect(root, root, new List<(string, Rect2)>(), new List<(string, Control)>())} 个（`{MotionLayerName}` 口径例外，按设计会短暂叠放）";
 
         string report = $"布局判据（{root.Name}）{scopeNote}：可见 Label {labels.Count} 个 ／ Panel+PC {panels.Count} 个　" +
                         $"重叠对 {overlaps} ／ 透明框 {transparent}　=> {(ok ? "✅ 通过" : "🔴 未通过")}" +
@@ -107,7 +111,19 @@ public static class LayoutAudit
         return (ok, report);
     }
 
-    /// <summary>取某控件的 `panel` 样式不透明度（诊断用；无样式 ⇒ -1）。</summary>
+    /// <summary>数某子树里的节点数（用于"跳过了几个瞬态元素"的留痕）✓</summary>
+    private static int CountDescendants(Node node)
+    {
+        int n = 0;
+        foreach (Node child in node.GetChildren())
+        {
+            n += 1 + CountDescendants(child);
+        }
+
+        return n;
+    }
+
+    /// <summary>数某控件的 `panel` 样式不透明度（诊断用；无样式 ⇒ -1）。</summary>
     private static float AlphaOf(Control ctl)
     {
         StyleBox? box = ctl.GetThemeStylebox("panel");
@@ -170,13 +186,16 @@ public static class LayoutAudit
         }
     }
 
-    private static void Collect(Node node, Node root, List<(string, Rect2)> labels, List<(string, Control)> panels)
+    /// <summary>递归收集；返回**被跳过的瞬态元素个数**（`MotionLayer` 口径例外 ⇒ 必须留痕）✓</summary>
+    private static int Collect(Node node, Node root, List<(string, Rect2)> labels, List<(string, Control)> panels)
     {
+        int skipped = 0;
         foreach (Node child in node.GetChildren())
         {
             if (child.Name == MotionLayerName)
             {
-                continue; // 🔴 瞬态特效层 ⇒ 跳过（口径见常量注释）
+                skipped += 1 + CountDescendants(child); // 🔴 跳过（口径见常量注释）—— **计数并上报**，不做黑箱 ✓
+                continue;
             }
 
             if (child is Label label && label.IsVisibleInTree() && !string.IsNullOrWhiteSpace(label.Text))
@@ -193,8 +212,10 @@ public static class LayoutAudit
                 panels.Add((Path(root, ctl), ctl));
             }
 
-            Collect(child, root, labels, panels);
+            skipped += Collect(child, root, labels, panels); // 递归（并累加子树的跳过数）
         }
+
+        return skipped;
     }
 
     private static string Path(Node root, Node node)

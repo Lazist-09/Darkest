@@ -55,6 +55,16 @@ public partial class FrameBudgetProbe : Node
     /// <summary>60fps 的每帧预算（ms）。</summary>
     private const double BudgetMs = 1000.0 / 60.0;
 
+    /// <summary>
+    /// 🔴 **架构裁定的可断言基线**（`next_round §4.1` / `godot_builtins_audit` ⑨）：
+    /// **战斗屏 UI 节点（Control）基线 195，允许 ±10%**（&gt; 上限需解释：泄漏 / 未回收 / 重建）。
+    /// ⚠️ 只对**战斗屏**成立（它是 UI 最重的屏；其余屏 12/47/54，天然在带内）。
+    /// </summary>
+    public const int ControlBaseline = 195;
+
+    /// <summary>基线容差（±10%）。</summary>
+    public const double ControlTolerance = 0.10;
+
     private readonly List<double> _ms = new();
     private int _frames;
     private bool _done;
@@ -114,12 +124,16 @@ public partial class FrameBudgetProbe : Node
         int objects = (int)Performance.GetMonitor(Performance.Monitor.ObjectCount);
         double memMb = Performance.GetMonitor(Performance.Monitor.MemoryStatic) / (1024.0 * 1024.0);
         int controls = CountControls(GetTree()?.CurrentScene);
+        int upper = (int)(ControlBaseline * (1 + ControlTolerance));
+        string budgetVerdict = controls <= upper
+            ? $"✅ 在带内（基线 {ControlBaseline}，上限 {upper}）"
+            : $"🔴 超基线（{controls} > {upper}）⇒ **需解释**：泄漏 / 未回收 / 重建";
 
         return $"基线（场景 {_sceneName} ／ {_ms.Count} 帧，进场景后丢弃前 {WarmupFrames} 帧）：" +
                $"进程耗时 均 {avg:0.00}ms ／ 最小 {min:0.00}ms ／ P95 {p95:0.00}ms ／ 峰 {max:0.00}ms" +
                $"　（60fps 预算 {BudgetMs:0.00}ms ⇒ 余量 {(1 - (avg / BudgetMs)) * 100:0}%）" +
                $"　FPS 引擎 {engineFps} ／ 监视器 {monitorFps:0}　绘制调用 {drawCalls}　对象 {objects}　静态内存 {memMb:0.0}MB" +
-               $"　**UI 节点（Control）{controls} 个**" +
+               $"　**UI 节点（Control）{controls} 个** ⇒ {budgetVerdict}" +
                $"　⚠️ 口径：headless 沙箱的 wall-clock **仅【同环境同口径】可比**（实测与 FPS 自相矛盾 ⇒ 不作性能结论）；" +
                $"节点数/对象/内存为**确定性指标**";
     }
