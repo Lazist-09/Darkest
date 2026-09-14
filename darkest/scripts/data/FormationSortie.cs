@@ -43,6 +43,27 @@ public static class FormationSortie
         return picked;
     }
 
+    /// <summary>
+    /// 🔴 **英雄 id → 阵型槽位**（`O-83` 探针口径裁定的产物，`#327`①）：`ExpeditionSession` 的
+    /// "按槽位映射"（扎营加成 / 跨场 buff / HP 结转）**只有绑定了阵型才会生效** ——
+    /// 而此前**探针从未绑定** ⇒ 那些效果在 V10/A1/A2 读数里全部不生效（架构已把这条落成
+    /// `m7_6_verification §1.8` 探针口径清单 + README 红线 17 ⑪）⚠️
+    ///
+    /// **单一来源**：与 `SelectForTemplate` 同一套选人/槽位顺序 ⇒ 场景与探针**用同一个映射** ✓
+    /// </summary>
+    public static Dictionary<string, int> HeroSlotMap(FormationConfig template, RosterConfig roster)
+    {
+        IReadOnlyList<HeroConfig> picked = SelectForTemplate(template, roster);
+        IReadOnlyList<RosterEntryConfig> slots = template.InitialRoster.Player;
+        var map = new Dictionary<string, int>(StringComparer.Ordinal);
+        for (int i = 0; i < picked.Count && i < slots.Count; i++)
+        {
+            map[picked[i].Id] = slots[i].Slot;
+        }
+
+        return map;
+    }
+
     /// <summary>把阵型模板的我方 6 槽换成给定原型序列（**按槽位序号 1..N 对应列表下标**）。</summary>
     public static FormationConfig WithPlayerSortie(FormationConfig template, IReadOnlyList<string> archetypesBySlot)
     {
