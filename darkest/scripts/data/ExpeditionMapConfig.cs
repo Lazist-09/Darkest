@@ -14,10 +14,12 @@ public sealed record MapGenConfig(
     [property: JsonPropertyName("branch_chance")] double BranchChance,
     [property: JsonPropertyName("battle_weight")] double BattleWeight,
     [property: JsonPropertyName("event_weight")] double EventWeight,
+    // 🔴 数字外置（P29）：去默认值（`expedition_map.json` 已有该键；`Parse` 里另有存在性断言）✓
+    //    ⚠️ **必需参数必须排在可选参数之前**（C# CS1737）—— 这是我第 3 次踩，见提交信息里的教训 ✓
+    [property: JsonPropertyName("branch_special_light_gain")] int BranchSpecialLightGain,
     [property: JsonPropertyName("branch_battle_weight")] double BranchBattleWeight = 0,
     [property: JsonPropertyName("branch_special_weight")] double BranchSpecialWeight = 0,
     [property: JsonPropertyName("branch_special_kind")] string BranchSpecialKind = "free_light",
-    [property: JsonPropertyName("branch_special_light_gain")] int BranchSpecialLightGain = 20,
     [property: JsonPropertyName("max_branches")] int MaxBranches = 2);
 
 /// <summary>按段移动（M7.6 §4.3②）：新区域 −30（沿用已调平值）／ 重走已探索 −10。</summary>
@@ -65,6 +67,9 @@ public sealed record ExpeditionMapConfig(
         {
             throw new InvalidDataException($"{ResPath}: 内容为空。");
         }
+
+        // 🔴 数字外置（P29）：必需键必须在数据里显式给出（原先 `BranchSpecialLightGain = 20` 会静默兜底）✓
+        DataPresence.RequireKeys(ResPath, json, "branch_special_light_gain");
 
         ExpeditionMapConfig cfg;
         try

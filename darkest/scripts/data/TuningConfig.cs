@@ -107,7 +107,9 @@ public sealed record TuningStatDebuffDefault(
 
 /// <summary>眩晕（GDD §2.5）：跳过 1 次行动即结束。</summary>
 public sealed record TuningStun(
-    [property: JsonPropertyName("effect")] string Effect);
+    [property: JsonPropertyName("effect")] string Effect,
+    // 🔴 数字外置（P29）：成功施加眩晕后的**抗性累积 +N**（原先硬写在 `EffectsStep` 里是 `+ 50`）✓
+    [property: JsonPropertyName("buildup_on_apply")] int BuildupOnApply);
 
 /// <summary>
 /// 撤退公式（O-11/#169 已拍板；M5 撤退按钮用）：
@@ -287,7 +289,8 @@ public sealed record TuningConfig(
             "morale", "hit_clamp", "damage_floor", "crit_multiplier", "damage_float", "speed_float",
             "mental_reduction", "physical_mitigation", "deaths_door", "retreat_formula",
             "battle_goal", "virtue_inspired_morale_per_turn",
-            "safety_factor", "wave_interval_rounds", "measured_d", "enemy_full_hp");
+            "safety_factor", "wave_interval_rounds", "measured_d", "enemy_full_hp",
+            "stun", "buildup_on_apply");
 
         if (string.IsNullOrWhiteSpace(json))
         {
@@ -649,6 +652,14 @@ public sealed record TuningConfig(
         {
             throw new InvalidDataException(
                 $"{ResPath}: physical_mitigation.divisor 缺失或 ≤ 0 —— 物理减免除数**必须**来自数据（数字外置纪律）。");
+        }
+
+        // 🔴 眩晕累积（数字外置，P29）：成功施加后累积 +N，抗性上限 100 ⇒ 要求 0..100 ✓
+        if (t.Stun.BuildupOnApply is < 0 or > 100)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: stun.buildup_on_apply = {t.Stun.BuildupOnApply} 越界（须 0..100）" +
+                " —— 它**必须**来自数据（原先硬写在 `EffectsStep` 里是 +50）✓");
         }
 
         if (t.DamageFloor < 1)

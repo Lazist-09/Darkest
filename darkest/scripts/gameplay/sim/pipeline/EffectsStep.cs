@@ -55,7 +55,8 @@ public static class EffectsStep
             {
                 case "stun":
                     target.Stunned = true; // 跳过 1 次行动随即结束（GDD §2.5）
-                    target.StunResistBuildup = Math.Clamp(target.StunResistBuildup + 50, 0, 100); // D0（#202）：成功施加 → +50%
+                    // 🔴 数字外置（P29）：累积值来自 `tuning.stun.buildup_on_apply`（原硬编码 +50）✓
+                    target.StunResistBuildup = Math.Clamp(target.StunResistBuildup + balance.StunBuildupOnApply, 0, 100);
                     break;
                 case "bleed":
                     // D3（#205）：暴击施加 → 时长 ×2（2 → 4）；在目标回合开始结算、不吃物防、不暴击
