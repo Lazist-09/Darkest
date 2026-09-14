@@ -90,7 +90,11 @@ public sealed class CurioConfigTests
     {
         // 🔴 阶段二（数据里有、内核未接线）：必须**登记**而不是静默（红线 21）
         Assert.IsTrue(CuriosConfig.DeferredKinds.Contains("trait_positive"));
-        Assert.IsTrue(CuriosConfig.DeferredKinds.Contains("damage_buff"));
+        Assert.IsTrue(CuriosConfig.DeferredKinds.Contains("disease_one"));
+
+        // ✅ `damage_buff` 已从阶段二**转正**（圣坛；跨场 buff + 扎营清都已具备）
+        Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains("damage_buff"),
+            "damage_buff 已接线 ⇒ 必须在【已实现】清单里（阶段二清单里也不能再有它）");
 
         // 且已实现清单与阶段二清单**互斥**
         Assert.IsFalse(CuriosConfig.ConsumedKinds.Overlaps(CuriosConfig.DeferredKinds),

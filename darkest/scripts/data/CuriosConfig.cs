@@ -58,6 +58,7 @@ public sealed record CuriosConfig(
         "morale_team",     // 全队士气 +N（可负）
         "light",           // 光照 +N（可负）—— 由 `ExpeditionFlow` 施加（它持有 LightMeter）
         "scout",           // 侦察（揭示相邻）—— 由 `ExpeditionFlow` 施加
+        "damage_buff",     // 本趟 +N% 伤害（到扎营）—— 跨场 buff（`until_next_recovery`）＋扎营清 ✓ 已接线
     };
 
     /// <summary>
@@ -67,7 +68,6 @@ public sealed record CuriosConfig(
     public static readonly IReadOnlySet<string> DeferredKinds = new HashSet<string>(StringComparer.Ordinal)
     {
         "trait_positive",  // 随机正面特质 —— 待接 `TraitMutation`
-        "damage_buff",     // 本趟 +N% 伤害（到扎营）—— 待接跨场 buff + 「扎营清」
         "disease_one",     // 一人患病 —— 待接"跑图中患病"（现在只有【回城结算】会患病）
     };
 

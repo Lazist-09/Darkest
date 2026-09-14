@@ -115,9 +115,11 @@ public sealed class CurioResolverTests
         Assert.IsTrue(CuriosConfig.DeferredKinds.Contains(disease.Kind),
             "阶段二 kind 必须登记在 DeferredKinds（内核据此拒绝，不静默）");
 
-        // 圣坛的 `damage_buff` 同理
+        // ✅ 圣坛的 `damage_buff` 已**转正**（跨场 buff + 扎营清都已具备）⇒ 不该再是阶段二
         CurioConfig altar = cfg.Get("cur_altar")!;
-        Assert.IsTrue(CuriosConfig.DeferredKinds.Contains(altar.BareHands.Single().Kind));
+        Assert.IsTrue(CuriosConfig.ConsumedKinds.Contains(altar.BareHands.Single().Kind),
+            "damage_buff 已接线 ⇒ 圣坛的空手路径应可正常生效");
+        Assert.IsFalse(CuriosConfig.DeferredKinds.Contains("damage_buff"));
     }
 
     [TestMethod]

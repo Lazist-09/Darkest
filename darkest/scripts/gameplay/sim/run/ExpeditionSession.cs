@@ -321,6 +321,18 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         //    （注入后由 `ExpeditionFlow.OnBattleFinished` → `ConsumeRunBuffsAfterBattle` 消耗 ⇒ 只生效一场）
         InjectRunBuffs(director, log);
 
+        // 🔴 Curio 圣坛祝福（到扎营）：**每场开场挂到全队**（`damage_buff` 的消费点在 `DamageStep` 的 raw）
+        if (_curioDamageBlessingPct > 0)
+        {
+            string buffId = $"curio_altar_blessing_{_curioDamageBlessingPct}";
+            foreach (UnitRuntime u in director.Player.UnitsInSlotOrder())
+            {
+                director.Buffs.Add(u.Id, buffId, source: null);
+            }
+
+            log.Append(new EffectEvent(default, $"curio_blessing_injected:{_curioDamageBlessingPct}", 100.0, true));
+        }
+
         return director;
     }
 
@@ -533,6 +545,27 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     /// <summary>未能注入的跨场 buff 次数（**供测试/日志断言**：`> 0` 说明 hero→战斗单位映射仍缺）。</summary>
     public int UnmappedRunBuffs { get; private set; }
 
+    // ------------------------------------------------------------------
+    // 🔴 Curio 圣坛（`curio.md` §3 #5）：**本趟 +N% 伤害，到扎营**
+    //    · 跨场：每场开场挂 `curio_altar_blessing_{pct}` 到**全队**
+    //    · 到期：**扎营清**（= `until_next_recovery` 的语义 ✓ 与死门后遗症同一个"下次恢复"）
+    //    · 叠加：**取大（refresh）** —— 契约设计检查③："不同道具给不同等级的好结果"（空手 +20 ／ 支援包 +30）
+    // ------------------------------------------------------------------
+
+    private int _curioDamageBlessingPct;
+
+    /// <summary>本趟的 Curio 伤害祝福（0 = 无）。</summary>
+    public int CurioDamageBlessingPct => _curioDamageBlessingPct;
+
+    /// <summary>授予 Curio 伤害祝福（**取大**；不叠加成 +50）。</summary>
+    public void GrantCurioDamageBlessing(int percent)
+    {
+        if (percent > _curioDamageBlessingPct)
+        {
+            _curioDamageBlessingPct = percent;
+        }
+    }
+
     /// <summary>一场结束后：跨场 buff 的剩余场数 −1（到 0 清除）。`next_battle` ⇒ 1 ⇒ 紧接着就被清 ✓</summary>
     public void ConsumeRunBuffsAfterBattle()
     {
@@ -559,6 +592,14 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         //    清的是跨场保留集合（`RetainedRecovery`）⇒ 下一场开场就不会再把该 buff 挂上去 ✓（单源）
         int cleared = RetainedRecovery.Count;
         RetainedRecovery.Clear();
+
+        // 🔴 同属"到下次恢复"：**Curio 圣坛祝福也扎营清**（契约"本趟 +N% 伤害（到扎营）"✓）
+        if (_curioDamageBlessingPct > 0)
+        {
+            log.Append(new EffectEvent(default, $"camp_cleared_curio_blessing:{_curioDamageBlessingPct}", 100.0, true));
+            _curioDamageBlessingPct = 0;
+        }
+
         log.Append(new CampEndedEvent(0));
         if (cleared > 0)
         {

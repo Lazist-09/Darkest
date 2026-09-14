@@ -396,6 +396,12 @@ public sealed class ExpeditionFlow
             case "scout":
                 LastScout = _scout.Roll(_log, _rng, _meter.Value, "curio");
                 break;
+            case "damage_buff":
+                // 🔴 圣坛（`curio.md` §3 #5）：**本趟 +N% 伤害，到扎营** —— 跨场祝福（取大）+ 扎营清 ✓
+                _session.GrantCurioDamageBlessing(amount);
+                _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                    $"curio_damage_blessing:{amount}", 100.0, true));
+                break;
             default:
                 // 已登记的阶段二 kind 不会走到这里（上面已提前返回）；走到这里说明数据用了**未登记**kind
                 // ⇒ 加载期就该炸（`CuriosConfig.Parse`）⇒ 这里也不静默：
