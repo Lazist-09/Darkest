@@ -552,7 +552,19 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
 
     /// <summary>结束扎营（夜袭判定由调用方接 `RollAmbush`；E5）。</summary>
     public void EndCamp(CombatLog log)
-        => log.Append(new CampEndedEvent(0));
+    {
+        // 🔴 补欠账（契约 `m7_expedition.md:160` ① / `O-67`）：
+        //    **`until_next_recovery` = 到下次恢复（**扎营**/回城）** ⇒ **扎营必须清【死门后遗症】**。
+        //    实测此前：只有**回城**清（`ReturnToTown`）⇒ 扎营后下一场**仍带着后遗症** ⚠️（红线 21 家族）。
+        //    清的是跨场保留集合（`RetainedRecovery`）⇒ 下一场开场就不会再把该 buff 挂上去 ✓（单源）
+        int cleared = RetainedRecovery.Count;
+        RetainedRecovery.Clear();
+        log.Append(new CampEndedEvent(0));
+        if (cleared > 0)
+        {
+            log.Append(new EffectEvent(default, $"camp_cleared_until_next_recovery:{cleared}", 100.0, true));
+        }
+    }
 
     /// <summary>把 HP%（按整编 MaxHp）与士气增量施加到**存活者**（阵亡者不参与）。</summary>
     private void ApplyToSurvivors(double hpPercent, int moraleDelta)
