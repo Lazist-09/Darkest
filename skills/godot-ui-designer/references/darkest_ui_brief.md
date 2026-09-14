@@ -312,6 +312,15 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 ① 🔴 字体（`§13.4①`，收益最大成本最低）：`Noto Serif SC`（**含 CJK**，OFL）+ fallback 链
    `EB Garamond`（拉丁/数字）→ `Noto Serif SC` ⇒ 落 `resources/theme/`，在 `DdTheme` 里挂 `default_font`
    ⚠️ 许可纪律（`§13.3`）：记【来源 + 授权 + 是否需署名】；来源清单落 `doc/assets_credits.md`
+   ```
+   ✅ 接入已就绪（`3f71e32`）：`DdTheme.ResolveFonts()` 从**固定落点** `res://resources/theme/fonts/` 读
+      · `EBGaramond.ttf`（可选，拉丁/数字，fallback 链首位）
+      · `NotoSerifSC-Subset.ttf`（必需，CJK；**建议子集** —— 本机全量可变字重是 25MB）
+      🔴 缺文件 ⇒ 不崩 + **打印留痕**（实测日志：`[Theme] 字体：🔴 未找到字体文件…⇒ 用引擎默认字体（占位）`）
+      ⇒ **文件放进去即生效，不必改代码**（用户已确认：由用户下载子集/EB Garamond 放进该目录）
+      ⚠️ 沙箱内 PowerShell **取不到外网**（curl / Invoke-WebRequest 均失败）⇒ 字体文件只能由用户侧提供
+      📌 文件到位后我要做三件：① 跑一次让 Godot 导入（`.import`）② 核日志变成"已接" ③ 记 `doc/assets_credits.md`
+   ```
 ② 配色（`§14.4`）：Deep 底 + 强对比 + 金/红点缀 ⇒ 全部走 `Theme`（命名统一 `dd_theme.tres`）
 ③ 动效（`§12.1` 四个 + `#321`⑤ 常量：上浮 8px／抖动 ±4px·2 往返／闪白 #FFFFFF@60%／暗角 40% + 单位框 #C0202A）
    🔴 两条可测约束：**动效期间输入不得被吞** · 不得延迟【可操作时刻】
