@@ -472,10 +472,22 @@ public partial class ExpeditionRoot : Node
             return;
         }
 
+        // 🔴 主程序清单第 4 组之一：**两视图一致性断言**（`ExpeditionProjector.Reconciles`）——
+        //    "**内核状态** 与 **投影给玩家看的视图**" 不得分叉（`#325` D6 同族：两处真值 = 最贵的一类 bug）。
+        //    ⚠️ 我**不在 UI 里重算**任何数字：只把内核对两视图的判定**打印出来**（红线 25：能断言才算）✓
+        ExpeditionViewState view = ExpeditionProjector.Project(
+            Log, Bag!.CountOf(ItemKind.Firewood), Bag.CountOf(ItemKind.Food),
+            Session, Tuning.Camp!, Tuning.Expedition.NBattles, Tuning.Expedition.DifficultyTiers);
         LastLines = ExpeditionProjector.RenderList(
-            ExpeditionProjector.Project(Log, Bag!.CountOf(ItemKind.Firewood), Bag.CountOf(ItemKind.Food),
-                Session, Tuning.Camp!, Tuning.Expedition.NBattles, Tuning.Expedition.DifficultyTiers),
-            Session, Tuning.Expedition.NBattles, ambushTriggered: false, Tuning.Camp!);
+            view, Session, Tuning.Expedition.NBattles, ambushTriggered: false, Tuning.Camp!);
+
+        bool reconciles = ExpeditionProjector.Reconciles(view, Session);
+        if (!reconciles || !_reconcilePrinted)
+        {
+            _reconcilePrinted = true;
+            GD.Print($"{(reconciles ? "✅" : "🔴")} [UI 一致性] 投影视图 vs 内核会话：Reconciles = {reconciles}" +
+                     "（两视图分叉 ⇒ 🔴 必须查：谁在本地重算了）");
+        }
 
         _panel.Refresh(LastLines);
         _campButton.Disabled = !Session.CanCamp; // 灰显依据来自内核（不是 UI 自算）
@@ -554,6 +566,8 @@ public partial class ExpeditionRoot : Node
 
     private string? _pendingEventNodeId;
 
+    /// <summary>🔴 两视图一致性读数只打一次（刷新很频繁；`Reconciles` 为假时**每次刷新都打**，便于抓分叉）✓</summary>
+    private bool _reconcilePrinted;
     /// <summary>设置当前待决策的事件节点（由流程层设置；本类不选择节点）。</summary>
     /// 🔴 修一处**真崩溃**（本轮冒烟实测 5 次 `NullReferenceException`，栈指到这里）：
     ///    原来直接 `Nodes!.Get(nodeId)` + `.Options[0]` ⇒ 当**事件节点表未装载**（拓扑模式）或**该房间映射不到节点**时必崩 ⚠️
