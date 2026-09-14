@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 
 namespace Darkest.Ui;
 
@@ -74,6 +74,14 @@ public static class DdTheme
         theme.SetStylebox("panel", "PanelContainer", MakePanelStyle());
         theme.SetStylebox("panel", "Panel", MakePanelStyle());
         theme.SetStylebox("panel", "PopupPanel", MakePanelStyle());
+
+        // 🔴 `ui_spec §1.4`① + `§12.3`：**深色粗描边** —— DD 最关键的一条（"暗背景下所有文字都有描边"）。
+        //    🔴 用【引擎内置】的字体描边项（`font_outline_color` + `outline_size`），**不自研 shader**：
+        //       红线 26「引擎内置已能做不得自研」；一处定义 ⇒ 全 UI 继承，取代逐节点样式 ✓
+        theme.SetColor("font_outline_color", "Label", Outline);
+        theme.SetConstant("outline_size", "Label", OutlineSize);
+        theme.SetColor("font_outline_color", "Button", Outline);
+        theme.SetConstant("outline_size", "Button", OutlineSize);
 
         // 🔴 `§1.4`④⑤（选中态 / 对比度）：**按钮四态一处定义**（引擎默认是灰蓝渐变，与"深底 + 强对比 + 金/红点缀"不符）
         theme.SetStylebox("normal", "Button", MakeButtonStyle(PanelBgRaised, PanelBorder));
@@ -193,6 +201,13 @@ public static class DdTheme
     /// <summary>场景底（最深；`BattleUi` 背景等）。</summary>
     public static readonly Color BgDeep = new(0.07f, 0.07f, 0.08f, 1.0f);
 
+    // ---- 🔴 `§1.4`① + `§12.3` 文字描边（**引擎内置**：`font_outline_color` + `outline_size`）----
+    /// <summary>描边色：近黑暖（把文字从暗底"抠"出来；`§13.2`③）</summary>
+    public static readonly Color Outline = new(0.03f, 0.02f, 0.02f, 1.0f);
+
+    /// <summary>描边宽度（`§1.4`① "**深色粗描边**"；2px 在 15px 正文上可读且不糊）</summary>
+    public const int OutlineSize = 2;
+
     // ---- 交互 / 状态（`§1.4`④⑤：选中 = 提亮；灰显 = 降饱和）----
     public static readonly Color Highlight = new(1.00f, 0.95f, 0.70f);    // 当前行动者 / 选中项（提亮）
     public static readonly Color Ally = new(0.62f, 0.72f, 0.90f);         // 我方阵营底色（冷钢蓝，与红=敌方成对）
@@ -247,7 +262,8 @@ public static class DdTheme
                $"Button {t.GetFontSize("font_size", "Button")}（色 {t.GetColor("font_color", "Button").ToHtml()}）　" +
                $"§14.4 四色：正文 {TextPrimary.ToHtml()} ／ 金 {Gold.ToHtml()} ／ 红 {Danger.ToHtml()} ／ 灰 {Disabled.ToHtml()}　" +
                $"Panel 底 {PanelBg.ToHtml()}（a={PanelBg.A:0.##}）＋ 1px 边框 {PanelBorder.ToHtml()}　" +
-               $"按钮四态 + 条样式 ✅　字体：{FontNote}";
+               $"按钮四态 + 条样式 ✅　§1.4① 文字描边：{OutlineSize}px {Outline.ToHtml()}（**引擎内置** font_outline_color/outline_size）　" +
+               $"字体：{FontNote}";
     }
 
     /// <summary>字体接入状态（`§13.4①`；由 `Build()` 写入 —— 缺文件时是"占位"而不是崩溃/静默）✓</summary>

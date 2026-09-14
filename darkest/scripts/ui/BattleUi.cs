@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -399,15 +399,8 @@ public partial class BattleUi : CanvasLayer
         _uiRoot.AddChild(_motionLayer);
         _motionLayer.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
 
-        _vignette = new TextureRect
-        {
-            Name = "Vignette",
-            Texture = UiMotion.MakeVignetteTexture(),
-            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            StretchMode = TextureRect.StretchModeEnum.Scale,
-            MouseFilter = Control.MouseFilterEnum.Ignore, // 🔴 输入不被吞（`#321`⑤）
-            Visible = false,
-        };
+        // 🔴 `§12.3`：暗角/闪白 = **满屏 `ColorRect` + `ShaderMaterial`**（放文件即生效；缺则退回纯色罩 + 留痕）
+        _vignette = UiMotion.MakeOverlay("VignetteOverlay");
         _motionLayer.AddChild(_vignette);
         _vignette.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
 
@@ -601,7 +594,7 @@ public partial class BattleUi : CanvasLayer
 
     // 🔴 `ui_spec §12.1`：动效层（伤害数字 / 暗角）与它的状态
     private Control _motionLayer = null!;
-    private TextureRect _vignette = null!;
+    private ColorRect _vignette = null!;   // `§12.3` 满屏 shader 覆盖层（暗角 + 闪白）
     private int _seenEvents;      // 已消费的事件条数（**只对"新事件"播动效**，不重播）
     private bool _resultShown;    // 结算淡入只播一次（不可见 → 可见那一次）
     private bool _motionAuditPrinted;
@@ -1109,6 +1102,7 @@ public partial class BattleUi : CanvasLayer
                     break;
                 case DeathEvent { Unit: { } dead }:
                     Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.Death);     // ② 阵亡
+                    UiMotion.ScreenFlash(_vignette, Darkest.Ui.UiMotion.DeathFlash, Darkest.Ui.UiMotion.MoraleSeconds); // 🔴 §12.3 闪白（整屏）
                     PlayMoraleCrashMotion(dead, p);
                     break;
             }

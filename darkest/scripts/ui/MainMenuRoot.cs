@@ -137,6 +137,13 @@ public partial class MainMenuRoot : Control
             GD.Print($"[Theme审计] 生效值（从 _title 读出）：font_size = {effective}　" +
                      $"中央 Theme 期望 = {Darkest.Ui.DdTheme.FontBody}　" +
                      $"=> {(effective == Darkest.Ui.DdTheme.FontBody ? "✅ 继承生效" : "🔴 未生效（根不是 Control ⇒ 主题链断）")}");
+
+            // 🔴 `§1.4`① / `§12.3` 取证：**文字描边**也必须是**引擎内置项**的生效值（不是自研 shader、不是逐节点 override）
+            int outline = _title.GetThemeConstant("outline_size");
+            Color outlineColor = _title.GetThemeColor("font_outline_color");
+            GD.Print($"[Theme审计] 生效值（从 _title 读出）：outline_size = {outline}（期望 {Darkest.Ui.DdTheme.OutlineSize}）　" +
+                     $"描边色 = {outlineColor.ToHtml()}（期望 {Darkest.Ui.DdTheme.Outline.ToHtml()}）　" +
+                     $"=> {(outline == Darkest.Ui.DdTheme.OutlineSize ? "✅ 文字描边（深色粗描边）继承生效" : "🔴 描边未生效")}");
         }
 
         // 🔴 跨场景步进冒烟：**先解析步骤**（只解析一次）—— 解析后本场景也要消费一步

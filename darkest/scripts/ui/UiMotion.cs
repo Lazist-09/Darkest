@@ -27,6 +27,7 @@ public static class UiMotion
     public static readonly Color HitFlash = new(1f, 1f, 1f, 0.60f);      // #FFFFFF @ 60%
     public const float MoraleSeconds = 0.50f;
     public const float VignetteAlpha = 0.40f;                            // 暗角 40%
+    public const float DeathFlash = 0.35f;                               // 阵亡整屏闪白强度（`§12.3`）
     public static readonly Color MoraleFrame = new(0.75f, 0.13f, 0.16f); // #C0202A
     public const float SettleSeconds = 0.20f;
 
@@ -109,20 +110,20 @@ public static class UiMotion
         Flash(card, HitFlash, HitSeconds);
     }
 
-    /// <summary>③ 士气崩溃：**暗角 40%** + **单位框红 #C0202A**，0.50s。</summary>
-    public static void MoraleCrash(TextureRect? vignette, Control? card)
+    /// <summary>③ 士气崩溃：**暗角 40%** + **单位框红 #C0202A**，0.50s（暗角走 shader 的 `vignette_strength`）✓</summary>
+    public static void MoraleCrash(ColorRect? overlay, Control? card)
     {
-        if (vignette is not null)
+        if (overlay is not null && overlay.Material is ShaderMaterial mat)
         {
             _played++;
             _active++;
-            vignette.Show();
-            Tween v = vignette.CreateTween();
-            v.TweenProperty(vignette, "modulate:a", VignetteAlpha, MoraleSeconds * 0.3f);
-            v.TweenProperty(vignette, "modulate:a", 0.0f, MoraleSeconds * 0.7f);
+            overlay.Show();
+            Tween v = overlay.CreateTween();
+            v.TweenProperty(mat, "shader_parameter/vignette_strength", VignetteAlpha, MoraleSeconds * 0.3f);
+            v.TweenProperty(mat, "shader_parameter/vignette_strength", 0.0f, MoraleSeconds * 0.7f);
             v.TweenCallback(Callable.From(() =>
             {
-                vignette.Hide();
+                overlay.Hide();
                 _active--;
             }));
         }
@@ -133,6 +134,35 @@ public static class UiMotion
             c.TweenProperty(card, "modulate", MoraleFrame, MoraleSeconds * 0.3f);
             c.TweenProperty(card, "modulate", Colors.White, MoraleSeconds * 0.7f);
         }
+    }
+
+    /// <summary>
+    /// 🔴 闪白（`§12.3` 的第三项）：满屏短促高对比 —— **阵亡**用它（`§12.1` 的"受击闪白"仍是卡内 ColorRect，
+    /// 两者不是一回事：这里是**整屏**反馈）✓
+    /// </summary>
+    public static void ScreenFlash(ColorRect? overlay, float strength, float seconds)
+    {
+        if (overlay is null || overlay.Material is not ShaderMaterial mat)
+        {
+            return;
+        }
+
+        _played++;
+        _active++;
+        overlay.Show();
+        Tween t = overlay.CreateTween();
+        t.TweenProperty(mat, "shader_parameter/flash", strength, seconds * 0.25f);
+        t.TweenProperty(mat, "shader_parameter/flash", 0.0f, seconds * 0.75f);
+        t.TweenCallback(Callable.From(() =>
+        {
+            // ⚠️ 只有暗角也归零时才隐藏（两个效果可能同时在跑）
+            if ((float)mat.GetShaderParameter("vignette_strength") <= 0.001f)
+            {
+                overlay.Hide();
+            }
+
+            _active--;
+        }));
     }
 
     /// <summary>④ 结算：面板**淡入 0.20s**（只改透明度 —— 面板的可见性与可操作性**不受动效门控**）✓</summary>
@@ -149,22 +179,36 @@ public static class UiMotion
         t.TweenProperty(panel, "modulate:a", 1.0f, SettleSeconds);
     }
 
-    /// <summary>暗角贴图：**径向渐变**（中心透明 → 边缘黑）；`§12.3` 之后可换成 `ShaderMaterial`。</summary>
-    public static GradientTexture2D MakeVignetteTexture()
+    /// <summary>
+    /// 🔴 `§12.3`：**满屏覆盖层用 `ShaderMaterial` 统一实现**（暗角 + 闪白；取代逐节点样式）。
+    /// 素材落点 = `resources/shaders/vignette.gdshader`（架构契约 `§9.16.5` 的 shaders 目录）✓
+    /// ⚠️ 缺 shader 文件 ⇒ **不崩**：退回"纯色黑罩"（暗角仍能显示）+ 打印留痕（红线 21）。
+    /// </summary>
+    public static ColorRect MakeOverlay(string name)
     {
-        var grad = new Gradient();
-        grad.SetColor(0, new Color(0, 0, 0, 0));
-        grad.SetColor(1, new Color(0, 0, 0, 1));
-        return new GradientTexture2D
+        var rect = new ColorRect
         {
-            Gradient = grad,
-            Fill = GradientTexture2D.FillEnum.Radial,
-            FillFrom = new Vector2(0.5f, 0.5f),
-            FillTo = new Vector2(1.0f, 0.5f),
-            Width = 256,
-            Height = 256,
+            Name = name,
+            Color = new Color(1, 1, 1, 1), // 颜色由 shader 决定；这里只作 shader 的输入画布
+            MouseFilter = Control.MouseFilterEnum.Ignore, // 🔴 输入不被吞（`#321`⑤）
+            Visible = false,
         };
+
+        if (ResourceLoader.Exists(ShaderPath))
+        {
+            var mat = new ShaderMaterial { Shader = ResourceLoader.Load<Shader>(ShaderPath) };
+            mat.SetShaderParameter("vignette_strength", 0.0f);
+            mat.SetShaderParameter("flash", 0.0f);
+            rect.Material = mat;
+            return rect;
+        }
+
+        GD.Print($"[UI 材质] 🔴 缺 {ShaderPath} ⇒ 退回纯色黑罩（暗角可显示、闪白不可用；**如实留痕**，红线 21）");
+        return rect;
     }
+
+    /// <summary>暗角 / 闪白的 shader 落点。</summary>
+    public const string ShaderPath = "res://resources/shaders/vignette.gdshader";
 
     /// <summary>卡内叠一层纯色（闪白）。**不是 `Label`** ⇒ 不参与"文字重叠"判据，也不拦鼠标 ✓</summary>
     private static void Flash(Control card, Color color, float seconds)
