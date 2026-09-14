@@ -204,7 +204,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `range_axis` | string(RangeAxis) | 见 §2.1 | ✅ | 13 字段之 12 | **距离轴**；**`scope=self`/`team` 类恒 `"none"`（无距离轴，O-53——不填 `melee`，避免 UI/AI 误按近战筛选）** |
 | `damage_axis` | string(DamageAxis) | 见 §2.1 | ✅ | 13 字段之 13 | **伤害轴**（决定减免轴、掉不掉士气、护盾/护卫挡不挡，#157） |
 | `heal_fixed` | int? | ≥0，固定值 | ⬜ | combat_math §8 | **治疗固定值**：不吃攻击力。急救 12 / 群体绷带 5（每人）/ 喘息 8、10（自身）。对象随 `target` |
-| `self_damage_fixed` | int? | ≥0，固定值 | ⬜ | combat_math §8 / glossary §3 | **自我伤害固定值**：殊死一搏 6 / 舍身 8。不被护盾吸收、可致死（走死门） |
+| `self_damage_fixed` | int? | ≥0，固定值 | ⬜ | combat_math §8 / glossary §3 | **自我伤害固定值**：殊死一搏 6 / 舍身 8。不被护盾吸收、可致死（走死门）。🔴 **实现纪律（v1.31/`#309`，架构确认：**"用对通道"而不是"加特例"**）**：**直接 `CurrentHp -= dmg`（不经 `DamageStep`）** ⇒ **天然满足"不被护盾吸收"**；⚠️ **不得**为了"不被护盾吸收"而在 `DamageStep` 里加特例分支。**佐证**：**A1 复测 死门 0.33（+0.01）⇒ 方向正确**（自伤真的会走死门）✅ |
 | `requires` | object? | 见下 | ⬜ | **dd_reference §1.6（#207）** | **条件解锁**：不满足 → **灰显 + tooltip 原因**（`AvailabilityReason.RequirementNotMet`）。白名单字段：`self_hp_below_percent` / `target_hp_below_percent` / `self_weak` / `self_deaths_door`（布尔）；起手落地 2 处：殊死一搏 `self_hp_below_percent:50`；致命注射 / 处决令 `target_hp_below_percent:50` |
 | `bonus_vs_marked_percent` | int? | 0~100 | ⬜ | **dd_reference §1.3（#204）** | 对**带 `mark` 的目标**加伤（**乘法阶段**，起手 **+25**）；**受益技能起手 2 条：军医【致命注射】、政委【处决令】**（⚠️ 曾误写为"战士【失血收割】"——该技能**不存在**，"失血收割"只是两条 `missing_hp` 技能的通称）；与「嘲讽」职责划清（防守 vs 进攻） |
 
@@ -256,7 +256,7 @@ combat_math 文档头通用约定："骰子一律 `rand(0, 100)`，比较用 `<`
 | `delta` | int? | — | `stat_mod` 必填 | 固定值增减：战意 攻击+4、盾墙自身物防+6、坚守 物防+8、动员令 全队攻+3（2 回合）；韧性 −15（投掷药瓶）/ −10（督战、恐惧低语） |
 | `duration_rounds` | int? | 回合 | 有时限必填 | 上表增减益持续 **2 回合**（skill_data 各行动括号值） |
 | `charges` | int? | 次数 | `shield` 必填 | **护盾按次数不按点数**（#156）：铁壁 = 2 次，只挡物理；流血/位移/自我伤害不耗次数，AOE 耗 1 次 |
-| `apply_to` | string | — | ⬜ | 缺省=`targets`；可选 `self`（盾墙的自身物防+6）、`ally_targets`（盾墙的守护挂在相邻友方上） |
+| `apply_to` | string | — | ⬜ | 缺省=`targets`；可选 `self`（盾墙的自身物防+6）、`ally_targets`（盾墙的守护挂在相邻友方上）、🔴 **`team`（v1.31/`#309` 补入契约：整队；**数据里已在使用**，此前契约只列 `self`/`ally_targets` ⇒ **属契约漏项**，非数据错）** |
 | `buff_id` | string? | buff_defs id | 有对应状态定义时填 | 指向 buff_defs.json 中带生命周期的状态（眩晕/嘲讽/护盾/守护等），概率与持续回合由技能行覆盖/确认 |
 
 > 眩晕持续 = "跳过本次行动，状态随即结束"（1 次行动，GDD §2.5 / combat_math §4）——不在技能行写回合数，由状态定义（buff_defs）承载。
