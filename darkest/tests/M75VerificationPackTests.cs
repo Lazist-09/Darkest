@@ -21,6 +21,11 @@ namespace Darkest.Tests;
 [TestClass]
 public sealed class M75VerificationPackTests
 {
+    /// <summary>🔴 判据仪表：V10/A2 探针里**开局带旧血**的人次与场次（`0` ⇒ "承上"没走到这条路上）✓</summary>
+    private static int CarryProbeStartedDamaged;
+
+    private static int CarryProbeBattles;
+
     private sealed record RunResult(
         bool Completed, int FinalLight, int LightSampleCount, List<int> LightCurve,
         Dictionary<string, int> TierNights, int FirewoodSpent, int LootDrops,
@@ -115,6 +120,16 @@ public sealed class M75VerificationPackTests
                 var battleLog = new CombatLog();
                 int idx = session.BattlesPlayed + 1;
                 BattleDirector d = session.BeginExpeditionBattle(idx, battleLog, tuning.Expedition.DifficultyTiers);
+
+                // 🔴 **判据仪表**（"取不到数就不算通过"）：本场开局**有几名我方单位不是满血** ⇒
+                //    若恒为 0 ⇒ 说明"承上"没走到这条路上（口径/接线问题），而不是"指标不敏感" ⚠️
+                int carriedIn = d.Player.UnitsInSlotOrder().Count(u => u.CurrentHp < u.MaxHp);
+                CarryProbeStartedDamaged += carriedIn;
+                CarryProbeBattles++;
+                if (carriedIn > 0)
+                {
+                    Console.WriteLine($"[M7.5][仪表] 第 {idx} 场开局带旧血：{carriedIn} 人（HP 结转生效 ✓）");
+                }
                 string result = "RoundLimit";
                 int round = 1;
                 for (; round <= 100; round++)
