@@ -25,3 +25,5 @@ Example/**
 *.csm
 *.depotcache_*
 
+
+tools/__pycache__/
