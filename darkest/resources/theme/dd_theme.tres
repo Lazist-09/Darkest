@@ -1,10 +1,126 @@
 [gd_resource type="Theme" format=3]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d7agl"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1, 0.09, 0.08, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.192, 0.16200002, 0.120000005, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tsfjs"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.85, 0.7, 0.36, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xi2rt"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.323, 0.266, 0.1368, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.85, 0.7, 0.36, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1pubw"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.15, 0.14, 0.12, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.27, 0.2, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vxrqq"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.46750003, 0.385, 0.19800001, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.85, 0.7, 0.36, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxsix"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1, 0.09, 0.08, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.27, 0.2, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nu4q5"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1, 0.09, 0.08, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.27, 0.2, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o85fu"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1, 0.09, 0.08, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.27, 0.2, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t02id"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.1, 0.09, 0.08, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hdgoo"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.85, 0.7, 0.36, 1)
+
 [resource]
 default_font_size = 15
-Button/colors/font_color = Color(1, 1, 0.85, 1)
-Button/colors/font_disabled_color = Color(0.55, 0.55, 0.6, 1)
+Button/colors/font_color = Color(0.93, 0.91, 0.86, 1)
+Button/colors/font_disabled_color = Color(0.52, 0.5, 0.47, 1)
 Button/font_sizes/font_size = 15
+Button/styles/disabled = SubResource("StyleBoxFlat_d7agl")
+Button/styles/focus = SubResource("StyleBoxFlat_tsfjs")
+Button/styles/hover = SubResource("StyleBoxFlat_xi2rt")
+Button/styles/normal = SubResource("StyleBoxFlat_1pubw")
+Button/styles/pressed = SubResource("StyleBoxFlat_vxrqq")
 Label/font_sizes/font_size = 15
+Panel/styles/panel = SubResource("StyleBoxFlat_lxsix")
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_nu4q5")
+PopupPanel/styles/panel = SubResource("StyleBoxFlat_o85fu")
 ProgressBar/font_sizes/font_size = 12
+ProgressBar/styles/background = SubResource("StyleBoxFlat_t02id")
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_hdgoo")
 TooltipLabel/font_sizes/font_size = 12
