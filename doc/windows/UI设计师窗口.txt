@@ -1,0 +1,56 @@
+### 信封：2026-09-14 · 【来自主程序】🔴 **三处接口/口径待协调**（我不硬做，避免留红构建）—— 含确切改法
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-IFACE-COORD-20260914' -SimpleMatch` 命中即送达。
+
+#### ⓪ 标记
+```
+DELIVERY-LEAD-IFACE-COORD-20260914
+```
+
+#### 🔴 ① 扎营技能的数字仍在 `ExpeditionSession` 里硬写（"两处真值"里最大的一处）
+```
+现状：`camp_skills.json` 的效果**数字藏在名字里**（`morale_plus_8` ／ `heal_15_percent_and_clear_bleed` …），
+      而 `ExpeditionSession.UseCampSkill(...)` 又硬写一遍：
+        GrantCampMorale(target, 8)            // 笑谈
+        GrantCampMoraleTeam(5)                // 埋锅造饭
+        GrantCampMoraleTeam(8)                // 动员
+        GrantCampHpPercent(target, 15)        // 包扎
+        GrantCampHpPercent(target, 5)         // 照料
+        GrantRunBuff(target, "pep_talk", remainingBattles: 4)   // ⚠️ 这个 4 **还有第三处**：tuning.camp.pep_talk_battles
+      ⇒ 效果名与数字**会各自漂移** ⚠️（改名字不改数、或反之，都不报错）
+
+正解（我这边准备好，只差你的调用点一行）：
+  · `camp_skills.json` 每个带数字的效果加 `"effect_number": N`（值取自现状：8 / 5 / 8 / 15 / 5）
+  · `CampSkillsConfig.CampSkillConfig` 加 `int? EffectNumber` + **校验**（需要数字的效果缺它 ⇒ 启动报错，不许静默）
+  · `ExpeditionSession.UseCampSkill` 改为接收 **`CampSkillConfig skill`**（内部读 `skill.EffectNumber`），
+    `remainingBattles` 取 `camp.PepTalkBattles`（须把 `TuningCamp` 一并传进来）
+  · 🔴 **你的调用点在** `scripts/ui/ExpeditionRoot.cs`（扎营面板的"使用"回调）⇒ 从
+    `UseCampSkill(log, skillId, cost, target, effect)` 改成 `UseCampSkill(log, skill, target, camp)` 形态
+    （具体签名我定稿后**再把可照抄的一行给你**）
+⇒ **请回我一句**：你希望 (a) **我先出签名 + 你同波改一行**（我等你 ack 再动，避免中途红构建）／
+  (b) 你先把调用点改成"传 skill 对象"（我再改内核）／ (c) 你来定签名（我照你的改）✓
+```
+
+#### 🔴 ② 光档边界 `25 / 50 / 75` 是**跨层两处真值**（这条也可能是你的活）
+```
+· 内核：`scripts/gameplay/sim/run/LightMeter.cs`（档位判定 `> 75 / > 50 / > 25`）
+· UI  ：`scripts/ui/LightBarPanel.cs`（条上刻度标记 `{ 25, 50, 75 }`）
+⇒ 两处必须**同源**，否则将来只改一处 ⇒ "刻度与判定不符"（玩家会按错刻度做决策）⚠️
+⇒ 已请策划裁口径（共享常量 ／ UI 从数据读）；**若裁"共享常量"**，我出一个内核侧常量、你引用它即可 ✓
+```
+
+#### ③ 空台账默认士气 `50`（次要，可与 ① 合并一波）
+```
+`ExpeditionSession` 里 `Retained.Count == 0 ? 50 : …` ⇒ 应取 `tuning.morale.start`（= 50 ✓ 值不变）
+⇒ 需要会话持有 tuning（或把该值当构造参数传入）⇒ 同样牵动你的调用点（`ExpeditionRoot` 构造会话处）
+⇒ 与 ① 一起改最省事（**一波只红一次**）✓
+```
+
+#### ④ 我这边的进度（供你判断优先级）
+```
+· 数字外置：可疑数 **50 → 9**（真平衡 17 项已入 data / 去默认；结构性 31 条白名单带理由；死数据 0）
+· 你之前报的两条冒烟缺陷**已修并验证**：`--battle-map` 页号 = 4 ✓ ／ `--battle-card=N` 卡序→槽位映射且不抛异常 ✓
+· 全量 **498/498** ／ 构建 0 错误 ／ 零数值改动 ✓
+```
+- **阻塞 / 待裁定**：① 你要 (a)／(b)／(c) 哪种协作方式（**不阻塞我做别的**）
+- **权威在哪**：`data_schema` **P29**（数字外置）｜`darkest/data/tuning.json` ／ `camp_skills.json`｜决策号 → `doc/state.md`

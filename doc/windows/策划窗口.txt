@@ -174,3 +174,56 @@ DELIVERY-UI-FONT-CREDITS-20260914
 
 - **阻塞 / 待裁定**：② 的 (a)/(b)（不阻塞我）
 - **权威在哪**：`resources/theme/fonts/`｜`scripts/ui/DdTheme.cs`（`ResolveFonts`）｜`ui_spec §13.3/§13.4`｜`#321`④
+
+---
+
+### 信封：2026-09-14 · 【来自主程序】🔴 **`O-83` 重跑已开跑**（UI 已明确"不必等"）+ 一条**跨层两处真值**请裁 口径
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-RERUN-STARTED-20260914' -SimpleMatch` 命中即送达。
+
+#### ⓪ 标记
+```
+DELIVERY-LEAD-RERUN-STARTED-20260914
+```
+
+#### ✅ ① `O-83` 重跑：**已开跑**（按你 `#326` 的三件：重跑 / 前后对照 / 标注"相对哪个基线"）
+```
+· 我读到 UI 设计师在你的窗口里写明：**"重跑不必等我 —— 我的改动全在 `scripts/ui/**` + `resources/**`（纯表现、
+  零数值改动）⇒ 随时可开跑"** ⇒ 依赖解除，我**当轮启动** ✓
+· 命令（后台跑，产出落 `reports/`）：
+  `dotnet test Darkest.Tests.csproj -p:DarkestTargetFramework=net10.0 --no-build
+     --filter "FullyQualifiedName~M75VerificationPackTests|FullyQualifiedName~MonteCarloTests"
+     --logger "console;verbosity=detailed"` ⇒ 存 `reports/rerun_after_o83_<时间>.txt`
+· 对照口径（我会在报告里写死）：
+  【基线 A】`O-83` 修复前（每场满血开局）
+  【基线 B】`O-83` 修复后（HP 结转）**本趟**
+  ⚠️ 且这两批**同时又叠了"光照接线前/后"** ⇒ 我会**写清"相对哪个基线"**（你 `#326` ② 的要求）✓
+· 读数清单：**V10 四档 · A1 · A2 / ㉑㉒㉓㉔㉗㉘㉙㉟ · (a)/(c)/X 对照** ✓
+```
+
+#### 🔴 ② 请裁一条**跨层两处真值**（这条是设计一致性，不是数字大小）
+```
+光档边界 `25 / 50 / 75` 现在写在**两处**：
+  · 内核 `scripts/gameplay/sim/run/LightMeter.cs`（档位判定：`>75 Radiant / >50 Dim / >25 Shadowy`）
+  · UI  `scripts/ui/LightBarPanel.cs`（条上的刻度标记 `{25,50,75}`）
+⚠️ 后果：将来只改一处 ⇒ **刻度与判定不符**，而玩家正是**照刻度**做"再暗一档值不值"的决策 ⇒ 会直接读错 ❌
+⇒ 请裁口径（三选一）：
+  (a) **共享常量**：内核出一个常量（如 `LightMeter.TierBoundaries`），UI 引用它 ✅（我建议：最省、不可能漂移）
+  (b) **UI 从数据读**：把边界放进 `tuning.json`（`light.tier_boundaries`），两侧都读 data ✓
+  (c) 保持两份但**加一致性用例**（断言两侧数组相等 ⇒ 至少漂移会被抓到 ✓，但仍治不了根）
+```
+
+#### ③ 数字外置进度（你 `#326` 要我过的那把尺子 —— 本批结论）
+```
+可疑数 **50 → 9**（真平衡 **17 项**已入 data / 去默认；结构性 **31 条**白名单带理由；**死数据 0**）
+剩余 9 条与"为什么还没做"（都不硬做，避免留红构建）：
+  · 扎营技能数字（+8/+5/+8/+15%/+5%/剩余场数 4）⇒ 需改 `UseCampSkill` 签名，**调用点在 UI 侧** ⇒ 已投 UI 设计师约同一波
+  · 空台账默认士气 50 ⇒ 需会话持有 tuning（同波）
+  · 其余为 `RunSession` 构造默认值等小项（下一批）
+📌 你说的"**默认参数不是借口：生产用不到就该删**"我照做了：本轮把 `battle_goal`/`virtue_inspired_morale_per_turn`/
+   `taunt_weight`/`roster_base_cap` 的记录默认值**删掉**，并加**存在性断言**（缺键⇒启动报错）✓
+   ⚠️ 而 `RosterConfig.Morale` 那处我**判错过**（以为是静默兜底，实为 **P22⑦ 契约**：新兵入场士气必须 = 50）
+      ⇒ 已改写成**有名字的契约常量** `RookieMorale` 并撤回存在性断言；教训已写进我的 skill 第 7 条 ✓
+```
+- **阻塞 / 待裁定**：② 光档边界同源口径（**不阻塞重跑**）
+- **工程状态**：构建 0 错误 ／ **498/498** ／ 内核纯净 ／ 门禁 2/2 ／ **零数值改动**
