@@ -1,4 +1,4 @@
-# Darkest 项目 · UI 设计师简报（收件箱转写）
+﻿# Darkest 项目 · UI 设计师简报（收件箱转写）
 
 > 🔴 **转写标记（回读这就是"已写进 skill"的证据，红线 20）**：`INBOX-TRANSCRIBED-DARKEST-UI-20260914`
 > **转写来源**：`doc/windows/主程序窗口.txt`（508 行）· `doc/windows/策划窗口.txt`（950 行）· `doc/windows/架构窗口.txt`（空）
@@ -108,9 +108,10 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 🔴 价值：把"没有重叠"从"看起来还行"变成【可测】（与红线 25「动作 ≠ 意义」同路数）
 ```
 
-### 1.6 逐屏进度（🔴 **实测真读数**；**四屏全绿** = 提交 `0ce286a`）
+### 1.6 逐屏进度（🔴 **实测真读数**；**五屏全绿** = 提交 `8582555`）
 | 界面 / 状态 | 入口 | 可见 Label | Panel+PC | 重叠对 | 透明框 | 状态 |
 |---|---|---|---|---|---|---|
+| **主菜单**（🆕 第五屏，`8582555` 纳入审计） | （无参数） | 2 | **3** | **0** | **0** | ✅ |
 | **城池 Hamlet**（`HamletRoot`） | `--hamlet` | 11 | 5 | **0** | **0** | ✅ |
 | **角色详情**（`HeroDetailPanel` 模态） | `--hamlet --hamlet-row=0` | 4（只审模态） | 0 | **0** | **0** | ✅（范围外 11 Label 确被不透明模态遮住） |
 | **地图 Expedition** | `--topology` | 9 | 5 | **0** | **0** | ✅ |
@@ -132,7 +133,7 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 ⚠️ **不要走"事后搬运"**（`Reparent`/`RemoveChild+AddChild` 边遍历边搬）⇒ 主程序实测触发引擎断言
 `Condition "p_child->data.parent != this" is true` ⇒ 树状态不一致 ⇒ 判据乱认浮层。
 
-### 1.7 已知坑（17 条，全部实机踩过）
+### 1.7 已知坑（19 条，全部实机踩过）
 ```
 ① CanvasLayer / Node2D 不是 Control ⇒ 🔴 Godot 的 Container【不排它】（Container 只管理 Control 子节点）
    ⇒ 既没有"框"（不在 Control 链上 ⇒ 不受 Theme 管）又根本进不了容器树 ⇒ **只挪坐标会掩盖结构问题**
@@ -174,6 +175,14 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 ⑰ 🔴 **改了控件类就要同步改 C# 里的强制转换与元组类型**：把卡片 `Panel → PanelContainer` 后，
    `foreach ((Panel card, …) c in _cards)` 抛 **399 次 `InvalidCastException`**（每帧一次，日志涨到 1MB）
    ⇒ 教训：**类改动的"连带面"要 grep 一遍**（`as Panel` / `(Panel)` / 元组字段类型）
+⑱ 🔴 **屏根是 `Node2D` ⇒ 什么都立不起来**（`MainMenuRoot` 实测，第五屏）：`Node2D` 没有 `get_anchorable_rect()`
+   ⇒ ① `FullRect` 锚点算不出尺寸；② Theme 链不经过它（`--theme-audit` 报"未生效"，落到引擎默认 16）
+   ⇒ 修法 = **类改 `Control`**（场景节点类型同步改）+ 容器树；改后 `--theme-audit` 才报"✅ 继承生效"
+⑲ 🔴 **控件进容器后，`GetNodeOrNull("子名")` 这类"直接子节点路径"会失效**（实测：`PressMenu` 取 `Menu{i}`）
+   ⇒ 容器化时**同时检查所有按节点路径取子节点的代码**，改成**持有引用/列表**（比路径稳）
+⚠️ 事故记录（我自己的）：用 PowerShell 批量替换颜色时把**参数写成了"字符对"** ⇒ `Replace('M','o')` 把
+   `HamletRoot.cs` / `LightBarPanel.cs` 里的字母全换掉 ⇒ **必须 `git checkout --` 回滚再用 `edit` 工具重做**
+   ⇒ 教训：**批量文本替换只用 `edit` 工具**（它校验唯一匹配）；`Set-Content` 生成代码要避免"逐字符替换"
 📌 总纪律："通过了"之前先问【它到底检查了什么】—— 判据自身的口径也要自检
 ```
 
@@ -605,6 +614,7 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-BUILD-GREEN-20260914` | 构建已恢复绿（解除他的 `O-83` 卡点）+ `perRow=8` 我来改 + 地图屏"死面板"更正 | ✅ 已投（回读命中 L86） |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-READINGS-3-20260914` | 🔴 **四屏全绿读数留档**（`0ce286a`）+ 判据口径 6 条 + `.tscn` 类型一致性静态门禁建议 | ✅ 已投（回读命中 L109） |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-BATTLE-GREEN-20260914` | 战斗屏全绿 + 他域两条冒烟缺陷（`--battle-map` 页号 2≠4；`--battle-card=N` 当槽位用致 0 越界） | ✅ 已投（回读命中 L86） |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-READINGS-4-20260914` | 第五屏（主菜单）纳入审计 + 配色轴读数（四色/按钮四态/继承生效）+ 建议把判据口径改为**五屏** | ✅ 已投（回读命中 L168） |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
