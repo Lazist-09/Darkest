@@ -1,6 +1,7 @@
 {
   "morale": { "min": 0, "max": 100, "start": 50, "witness_crit_shock_chance_percent": 50 },
   "consecutive_miss": { "hit_bonus_per_miss": 4 },
+  "heal_crit": { "single_target_percent": 12, "multi_target_percent": 5 },
   "virtue_rate": { "base_percent": 10, "resilience_divisor": 2 },
   "mental_reduction": { "resilience_divisor": 250, "cap_percent": 40 },
   "physical_mitigation": { "divisor": 30 },

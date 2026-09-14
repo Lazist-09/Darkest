@@ -247,6 +247,15 @@ public sealed record TuningFoodEffects(
 public sealed record TuningConsecutiveMiss(
     [property: JsonPropertyName("hit_bonus_per_miss")] int HitBonusPerMiss);
 
+/// <summary>
+/// 🔴 暴击治疗概率（数字外置，P29；D7 / `#209`）：单体 12% ／ 多目标 5%（不受任何修正影响）。
+/// 原先这两个数**硬写在 `SkillExecutor` 里**（`targets.Length > 1 ? 5.0 : 12.0`）⇒ 策划改不了 ⚠️
+/// （暴击治疗后的士气加成**本来就在** `morale_events["critical_heal"].Delta` ✓，无需重复外置）
+/// </summary>
+public sealed record TuningHealCrit(
+    [property: JsonPropertyName("single_target_percent")] int SingleTargetPercent,
+    [property: JsonPropertyName("multi_target_percent")] int MultiTargetPercent);
+
 /// <summary>命中率钳制 [55,100]（combat_math §1）。</summary>
 public sealed record TuningHitClamp(
     [property: JsonPropertyName("min")] int Min,
@@ -281,6 +290,8 @@ public sealed record TuningConfig(
     [property: JsonPropertyName("physical_mitigation")] TuningPhysicalMitigation PhysicalMitigation,
     // 🔴 数字外置（P29）：连续未命中补偿（原先硬写在 `HitStep` 里是 `* 4`）✓
     [property: JsonPropertyName("consecutive_miss")] TuningConsecutiveMiss ConsecutiveMiss,
+    // 🔴 数字外置（P29）：暴击治疗概率（原先硬写在 `SkillExecutor` 里是 12% / 5%）✓
+    [property: JsonPropertyName("heal_crit")] TuningHealCrit HealCrit,
     [property: JsonPropertyName("weak")] TuningWeak Weak,
     [property: JsonPropertyName("weak_recovery")] TuningWeakRecovery WeakRecovery,
     [property: JsonPropertyName("weak_exit_hp_ratio")] double WeakExitHpRatio,
@@ -320,7 +331,7 @@ public sealed record TuningConfig(
             "battle_goal", "virtue_inspired_morale_per_turn",
             "safety_factor", "wave_interval_rounds", "measured_d", "enemy_full_hp",
             "stun", "buildup_on_apply", "witness_crit_shock_chance_percent", "food_effects",
-            "consecutive_miss", "hit_bonus_per_miss");
+            "consecutive_miss", "hit_bonus_per_miss", "heal_crit", "single_target_percent", "multi_target_percent");
 
         if (string.IsNullOrWhiteSpace(json))
         {
@@ -705,6 +716,15 @@ public sealed record TuningConfig(
             throw new InvalidDataException(
                 $"{ResPath}: consecutive_miss.hit_bonus_per_miss 缺失或越界（须 0..100）" +
                 " —— 它**必须**来自数据（原先硬写在 `HitStep` 里是 4）✓");
+        }
+
+        // 🔴 暴击治疗概率（数字外置，P29）：两个都必须在 0..100（原先硬写在 `SkillExecutor` 里是 12 / 5）✓
+        if (t.HealCrit is null
+            || t.HealCrit.SingleTargetPercent is < 0 or > 100
+            || t.HealCrit.MultiTargetPercent is < 0 or > 100)
+        {
+            throw new InvalidDataException(
+                $"{ResPath}: heal_crit 缺失或越界（single/multi 须 0..100）—— 它们**必须**来自数据。");
         }
 
         if (t.DamageFloor < 1)

@@ -222,10 +222,11 @@ public sealed class SkillExecutor
                         continue;
                     }
 
-                    // D7（#209）暴击治疗：概率固定（单体 12% / 多目标 5%，不受任何修正影响）→ 治疗量 ×2 + 目标 +4 士气
+                    // D7（#209）暴击治疗：概率来自 `tuning.heal_crit`（原硬编码：单体 12% / 多目标 5%）→ 治疗量 ×2 + 目标士气（`morale_events`）
                     double critRoll = rng.NextPercent();
                     _log.Append(new RngDraw(rng.DrawCount, critRoll));
-                    bool critHeal = critRoll < (targets.Length > 1 ? 5.0 : 12.0);
+                    double critChance = targets.Length > 1 ? _balance.HealCritMultiPercent : _balance.HealCritSinglePercent;
+                    bool critHeal = critRoll < critChance;
 
                     int healed = Math.Min(target.MaxHp - target.CurrentHp, critHeal ? heal * 2 : heal);
                     target.CurrentHp += healed;

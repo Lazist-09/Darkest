@@ -22,6 +22,8 @@ public sealed record BalanceTable(TuningConfig Tuning)
     public int StunBuildupOnApply => Tuning.Stun.BuildupOnApply;               // 🔴 数字外置：眩晕抗性累积来自 data ✓
     public int WitnessCritShockChancePercent => Tuning.Morale.WitnessCritShockChancePercent; // 🔴 目睹暴击牵连概率来自 data ✓
     public int ConsecutiveMissHitBonusPerMiss => Tuning.ConsecutiveMiss.HitBonusPerMiss;    // 🔴 连击补偿来自 data ✓
+    public int HealCritSinglePercent => Tuning.HealCrit.SingleTargetPercent;                // 🔴 暴击治疗（单体）来自 data ✓
+    public int HealCritMultiPercent => Tuning.HealCrit.MultiTargetPercent;                  // 🔴 暴击治疗（多目标）来自 data ✓
     public int MentalReductionCapPercent => Tuning.MentalReduction.CapPercent;
     public int SpeedFloatPercent => Tuning.SpeedFloat.Percent;
     public bool SpeedFloatEnabled => Tuning.SpeedFloat.Enabled;
