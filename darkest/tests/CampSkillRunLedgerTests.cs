@@ -120,8 +120,39 @@ public sealed class CampSkillRunLedgerTests
             "🔴 加成**真的施加**了（HP 路径同样按槽位映射）");
     }
 
-    // 🔴 **待补用例（如实记）**：「营地士气加成**战后扣回**，不写回名册」这条**行为已在实现里**
-    //    （`ExpeditionSession.StripCampBonusesFromRetained`，由 `ExpeditionFlow.OnBattleFinished` 调用），
-    //    但我这一轮的用例**没能稳定断言它**（`Retained` 的键是战斗单位 id、跨场重建时机不易在用例里对齐
-    //    ⇒ 反复取不到键）。**不硬凑**：先把实现与"真的施加了"的证据留下，扣回这条用例记入待补。
+    /// <summary>
+    /// 🔴 **营地士气加成【战后扣回】，不写回名册**（`#310` ②：否则"营地加士气"= 免费减压）。
+    /// ⚠️ 根因备注（我踩过）：**`OnBattleFinished` 不会调 `session.EndBattle`** ⇒ 不显式结算的话
+    ///    `Retained` 一直是空的 ⇒ `session.Roster()` 取不到键（我上一版就是这么失败的）。
+    /// </summary>
+    [TestMethod]
+    public void CampMoraleBonus_IsStrippedAfterBattle_SoItNeverReachesTheRoster()
+    {
+        (ExpeditionSession session, ExpeditionFlow flow, TuningConfig tuning, CombatLog log, RosterConfig _, UnitId hero, int slot) = NewRun();
+
+        // 第 1 场：**显式结算**（让 Retained 有值）
+        var d1 = session.BeginExpeditionBattle(1, log, tuning.Expedition.DifficultyTiers);
+        session.EndBattle(d1, 1, "PlayerVictory", rounds: 5);
+        flow.OnBattleFinished("PlayerVictory", rounds: 5, isAmbush: true);
+        string battleId = d1.Player.UnitRuntimeAt(slot)!.Id.Value; // 🔴 Retained 的键 = 战斗单位 id
+        int before = session.Roster().First(r => r.Id == battleId).Morale;
+
+        // 扎营 + 笑谈（+8，本趟）
+        Assert.IsTrue(flow.Camp(), "扎营成功");
+        Assert.IsTrue(session.UseCampSkill(log, "camp_warrior_joke", 1, hero, "morale_plus_8"), "笑谈应可施加");
+
+        // 第 2 场：**开场确实带 +8**；结算后应被【扣回】
+        var d2 = session.BeginExpeditionBattle(2, log, tuning.Expedition.DifficultyTiers);
+        Assert.AreEqual(Math.Min(100, before + 8), d2.Player.UnitRuntimeAt(slot)!.Morale,
+            "开场带本趟 +8");
+
+        session.EndBattle(d2, 2, "PlayerVictory", rounds: 5);
+        int captured = session.Roster().First(r => r.Id == battleId).Morale; // 含 +8 的捕获值
+        flow.OnBattleFinished("PlayerVictory", rounds: 5, isAmbush: true);   // ← 这里扣回
+        int stored = session.Roster().First(r => r.Id == battleId).Morale;
+
+        Assert.AreEqual(Math.Clamp(captured - 8, 0, 100), stored,
+            $"🔴 契约 `#310` ②：战后从 Retained 扣回那 +8（captured={captured} ⇒ stored={stored}）；" +
+            "否则回城会把它写进名册 = 免费减压");
+    }
 }
