@@ -16,8 +16,9 @@ public sealed record UnlockEntry(
     [property: JsonPropertyName("source")] string? Source = null);
 
 public sealed record UnlocksHeader(
+    // 🔴 数字外置（P29）：`roster_base_cap` 去默认值（数据里已有）⇒ **必需参数在前**（C# 规则：可选参数必须都在最后）
+    [property: JsonPropertyName("roster_base_cap")] int RosterBaseCap,
     [property: JsonPropertyName("version")] int Version = 1,
-    [property: JsonPropertyName("roster_base_cap")] int RosterBaseCap = 8,
     [property: JsonPropertyName("base_curios")] IReadOnlyList<string>? BaseCurios = null);
 
 /// <summary>
@@ -39,7 +40,8 @@ public sealed record UnlocksConfig(
     public const string ResPath = "res://data/unlocks.json";
 
     /// <summary>起手【名册可用上限】（`config.roster_base_cap`；**硬上限**是 `roster.cap = 12`，见 C1）。</summary>
-    public int RosterBaseCap => Config?.RosterBaseCap ?? 8;
+    /// 🔴 数字外置（P29）：**不再有 `?? 8` 兜底** —— 缺键由 `DataPresence.RequireKeys` 在 Parse 里拦下 ✓
+    public int RosterBaseCap => Config?.RosterBaseCap ?? 0;
 
     public static UnlocksConfig Parse(string json, IReadOnlySet<string>? buildingIds = null,
         IReadOnlySet<string>? curioIds = null, int rosterHardCap = 12)
@@ -48,6 +50,9 @@ public sealed record UnlocksConfig(
         {
             throw new InvalidDataException($"{ResPath}: 内容为空。");
         }
+
+        // 🔴 数字外置（P29）：`roster_base_cap` 必须显式存在（原记录默认值 8 + 属性里的 `?? 8` 双重兜底都已去掉）✓
+        DataPresence.RequireKeys(ResPath, json, "roster_base_cap");
 
         UnlocksConfig cfg;
         try

@@ -38,7 +38,8 @@ public sealed record AiRandomSpec(
 /// <summary>enemy_ai.json 根模型 + 校验（含 P13：target_preference 白名单与原型映射、taunt_weight ≥ 1）。</summary>
 public sealed record EnemyAiConfig(
     [property: JsonPropertyName("archetypes")] IReadOnlyList<ArchetypeAiConfig> Archetypes,
-    [property: JsonPropertyName("taunt_weight")] int TauntWeight = 3)
+    // 🔴 数字外置（P29）：去默认值 + 由 `DataPresence.RequireKeys` 断言该键存在于数据 ✓
+    [property: JsonPropertyName("taunt_weight")] int TauntWeight)
 {
     public const string ResPath = "res://data/enemy_ai.json";
 
@@ -59,6 +60,9 @@ public sealed record EnemyAiConfig(
         {
             throw new InvalidDataException($"{ResPath}: 内容为空。");
         }
+
+        // 🔴 数字外置（P29）：必需键必须存在于数据（原先 `TauntWeight = 3` 会让缺键静默取 3）✓
+        DataPresence.RequireKeys(ResPath, json, "taunt_weight");
 
         EnemyAiConfig cfg;
         try

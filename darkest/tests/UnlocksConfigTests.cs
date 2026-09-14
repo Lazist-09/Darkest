@@ -102,8 +102,9 @@ public sealed class UnlocksConfigTests
     [TestMethod]
     public void EmptyTable_IsAllowed_ForFormOnlyStage()
     {
-        // 形态阶段允许"空表"（内容还没定），但数组本身必须存在
-        UnlocksConfig cfg = UnlocksConfig.Parse("""{ "config": { "version": 1 }, "unlocks": [] }""");
+        // 形态阶段允许"空表"（内容还没定），但数组本身必须存在；`roster_base_cap` 是必需键（数字外置 P29）✓
+        UnlocksConfig cfg = UnlocksConfig.Parse(
+            """{ "config": { "version": 1, "roster_base_cap": 8 }, "unlocks": [] }""");
         Assert.AreEqual(0, cfg.Unlocks.Count);
     }
 }

@@ -25,7 +25,11 @@ public sealed record HeroConfig(
     [property: JsonPropertyName("archetype")] string Archetype,
     [property: JsonPropertyName("level")] int Level,
     [property: JsonPropertyName("traits")] IReadOnlyList<HeroTraitConfig> Traits,
-    [property: JsonPropertyName("morale")] int Morale = 50);
+    // 🔴 数字外置（P29）：这里的默认值**不是魔法数**，而是**契约常量** `RosterConfig.RookieMorale`：
+    //    P22⑦ 规定"**新兵（level=1）入场士气必须 = 50**"（校验器强制）⇒ 数据里新兵可以不写 morale，
+    //    此时取契约值 ✓（我一度直接去掉默认值 + 要求 morale 必填 ⇒ 实测**打红了 3 条既有用例** ⚠️
+    //    —— 教训：**先看契约怎么规定，再决定"该不该有默认值"**，别把"契约默认"误当"静默兜底"）
+    [property: JsonPropertyName("morale")] int Morale = RosterConfig.RookieMorale);
 
 /// <summary>等级成长（7.6：**只给属性小幅度**，HP+2 / 攻击+1；**不升技能**）。</summary>
 public sealed record RosterLevelGrowth(
@@ -65,6 +69,9 @@ public sealed record RosterConfig(
         {
             throw new InvalidDataException($"{ResPath}: 内容为空。");
         }
+
+        // ⚠️ 这里**不做** `morale` 的存在性断言：新兵（level=1）的士气由 **P22⑦ 契约** 规定为
+        //    `RookieMorale`，数据里可以不写 ⇒ 那是**契约默认**、不是"静默兜底"（我先前判错，已纠正）✓
 
         RosterConfig cfg;
         try
