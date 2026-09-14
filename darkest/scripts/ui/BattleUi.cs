@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -354,6 +354,7 @@ public partial class BattleUi : CanvasLayer
         // 背景：**刻意不让它成为"满屏不透明 Panel"**（锚点不是 0/0/1/1）——
         //   否则判据会把它当成**模态覆盖层**，只审它自己的子树（= 空）⇒ 报 ✅ 却是**假通过** ⚠️（实测踩过两次）
         var bg = new Panel { Name = "BattleBg", Size = GetViewport().GetVisibleRect().Size };
+        _bg = bg; // 🔴 `#327` S1：背景属于【必须存活的骨架】（其 id 在进战斗前后应不变）
         bg.Modulate = Darkest.Ui.DdTheme.BgDeep;
         _uiRoot.AddChild(bg);
 
@@ -604,6 +605,11 @@ public partial class BattleUi : CanvasLayer
     }
 
     private Control _uiRoot = null!;
+
+    // 🔴 `#327` S1（**无缝的可测定义**）：**必须存活的骨架** —— 背景 + 队伍区宿主 + E 区宿主 + 右下角地图宿主。
+    //    "进战斗前后这些节点的 `GetInstanceId()` 不变" ⇒ 无缝；反例：走了场景切换/整体重建 ⇒ id 必变 ✓
+    //    ⚠️ 现状**如实**：`Build()` 是一次性全建 ⇒ 每次 `Bind()` 这些 id **都会变** ⇒ 这正是迁移（片 1/2）要改的点
+    private Control _bg = null!;
 
     // 🔴 `ui_spec §12.1`：动效层（伤害数字 / 暗角）与它的状态
     private Control _motionLayer = null!;
@@ -868,6 +874,7 @@ public partial class BattleUi : CanvasLayer
             Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.Settle); // ③ 结算（胜/败）
             GD.Print($"[UI 动效] {MotionAudit()}");
             GD.Print($"[UI 音效] {Darkest.Ui.UiSfx.Audit()}");
+            GD.Print($"[UI S1] {SkeletonAudit()}"); // 🔴 `#327` S1：骨架 id 读数（无缝的可测定义）
         }
 
         int[] pending = _host.PendingCandidates;
@@ -1235,6 +1242,19 @@ public partial class BattleUi : CanvasLayer
         GD.Print("[UI 支援包] 发出真实 Pressed（用支援包）");
         _supportButton.EmitSignal(BaseButton.SignalName.Pressed);
     }
+
+    /// <summary>
+    /// 🔴 `#327` **S1 的可断言读数**（"无缝"的可测定义）：骨架节点（背景 / 队伍区 / E 区 / 右下角地图宿主）的实例 id。
+    /// 判据形态：**进战斗前后这些 id 不变 ⇒ 无缝**；变了 ⇒ 说明发生了场景切换或整体重建 ✗
+    /// ⚠️ **现状如实报**：`Build()` 目前一次性全建 ⇒ 每次 `Bind()` 这些 id 都会变 —— 这正是迁移（片 1/2）的目标 ✓
+    /// </summary>
+    public string SkeletonAudit()
+        => $"S1 骨架存活读数：根={IdOf(_uiRoot)} 背景={IdOf(_bg)} 顶栏={IdOf(_topRow)} 主体={IdOf(_midRow)} 底栏={IdOf(_bottomRow)} 地图({IdOf(_mfMap)})" +
+           "（**进战斗前后应相同**；当前每次 Bind 会重建 ⇒ 迁移目标）";
+
+    private static string IdOf(Node? n) => n is null || !GodotObject.IsInstanceValid(n)
+        ? "—"
+        : $"{n.Name}#{n.GetInstanceId()}";
 
     /// <summary>🔴 `§12.1` 的**取证**（冒烟打印）：动效播了几次 ／ 运行中几次 ／ **输入为什么不会被吞** ——
     /// 除了常量读数，还实测两件结构事实：动效层 `MouseFilter == Ignore`、且全屏**没有任何控件**被改成非继承 `ProcessMode`。
