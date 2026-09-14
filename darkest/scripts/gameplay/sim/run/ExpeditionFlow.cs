@@ -648,6 +648,13 @@ public sealed class ExpeditionFlow
         return events.Length == 0 ? null : events[roomId % events.Length].Id;
     }
 
+    /// <summary>
+    /// 🔴 **`O-83` 的生产接线**：战后把本场结束血量落进跨趟台账（由 `BattleRoot.EndGame` 在**回灌结果/切场景之前**调用）。
+    /// 用流程自己的 `_log` 留痕 ⇒ 调用方不必再传日志 ✓
+    /// </summary>
+    public void CaptureBattleEndHp(Darkest.Gameplay.Sim.Director.BattleDirector director)
+        => _session.CaptureBattleEndHp(director, _log);
+
     /// <summary>回城结算（士气完全不恢复由内核 #245 保证）。</summary>
     public int ReturnToTown(string outcome)
     {

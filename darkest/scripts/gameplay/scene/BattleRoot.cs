@@ -498,6 +498,10 @@ public partial class BattleRoot : Node2D
         // 🔴 M7.5：远征模式 ⇒ 回灌结果 + 显示【继续（回远征）】按钮（**结算面板照常显示**，不再直接切场景）
         if (ExpeditionContext.IsActive)
         {
+            // 🔴 `O-83`：**战后落账**（本场结束血量 → 跨趟台账）—— 必须在回灌/切场景**之前**：
+            //    下一场开局要读它；切场景后本场景（及 `Director`）就可能被释放 ✓
+            ExpeditionContext.Flow!.CaptureBattleEndHp(Director);
+
             string result = what.Contains("撤退", System.StringComparison.Ordinal)
                 ? "DrawRetreat"
                 : Director.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";

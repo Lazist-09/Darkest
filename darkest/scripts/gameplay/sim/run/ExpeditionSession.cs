@@ -317,6 +317,12 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             }
         }
 
+        // 🔴 `O-83`（**承上**）：把【上一场结束时保留的 HP】应用到本场开局 —— 契约 `blueprint §9`
+        //    「战后【不自动恢复】：**HP 与士气跨战斗完全保留**；场间无恢复」；
+        //    而我此前只把 HP 记进 `Retained`、**从未用于下一场** ⇒ 每场都满血开局 = 红线 21 家族缺口 ⚠️
+        //    ⇒ 顺序：**先承上（结转血量）再加成（营地 +HP% 在结转值之上加）** ✓
+        ApplyRetainedHpToBattle(director, log);
+
         // 🔴 跨场 buff（`next_battle` 类）：**每场开场注入** —— 磨刀/加固甲胄 挂在上一趟扎营的目标身上 ⇒ 本场生效 ✓
         //    （注入后由 `ExpeditionFlow.OnBattleFinished` → `ConsumeRunBuffsAfterBattle` 消耗 ⇒ 只生效一场）
         InjectRunBuffs(director, log);
@@ -673,6 +679,85 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
                 u.CurrentHp = Math.Min(u.MaxHp, u.CurrentHp + bonus);
                 log_note($"[camp] 本趟开局 HP +{pct}% ⇒ 英雄 {heroId}（+{bonus}）");
             }
+        }
+    }
+
+    /// <summary>
+    /// 🔴 **`O-83`：把上一场保留的 HP 应用到本场开局**（"承上"）。
+    ///
+    /// 契约（`blueprint` 明文）：「战后【不自动恢复】：**HP 与士气跨战斗完全保留**；场间无恢复（切片无扎营/回城/战后回血）」。
+    /// ⚠️ 我此前只把 HP 记进 `Retained`、**从未用于下一场** ⇒ **每场都满血开局** = 红线 21 家族缺口（架构在 `blueprint` 里也标了这个问号）。
+    ///
+    /// 🔴 **必须按【槽位】映射**（两套 id 体系的唯一正确接法，照 `ApplyCampBonusesToBattle`）：
+    /// `Retained` 的键是**上一场的战斗单位 id**（原型 id 体系），英雄用英雄 id 记账 ⇒
+    /// 先经 `_heroSlots` 找到本场单位，再用 `_heroBattleIds`（此刻还是**上一场的** id）查 `Retained`。
+    /// 因此本方法**必须在 `ApplyCampBonusesToBattle` 之前调用**（后者会覆写 `_heroBattleIds`）。
+    ///
+    /// ⚠️ 结转值为 0（阵亡却仍被编入）⇒ **不静默补满**：照实写 0 并留痕 `retained_hp_zero_but_deployed`（那是流程 bug 的信号）✓
+    /// </summary>
+    public void ApplyRetainedHpToBattle(BattleDirector director, CombatLog log)
+    {
+        foreach ((string heroId, int slot) in _heroSlots)
+        {
+            UnitRuntime? u = UnitAtHeroSlot(director, heroId);
+            if (u is null)
+            {
+                continue;
+            }
+
+            // 上一场的战斗单位 id（本方法在 `ApplyCampBonusesToBattle` 之前 ⇒ 此刻仍是上一场的）✓
+            if (_heroBattleIds.TryGetValue(heroId, out string? prevBattleId)
+                && Retained.TryGetValue(prevBattleId, out (int Hp, int Morale, bool Weak) prev))
+            {
+                // 🔴 **开局 HP = 结转值**（无条件设置 + **必留痕**）——
+                //    我第一版写成"只在 carried < u.CurrentHp 时才压低"，那是**静默分支**：
+                //    实测（驱动复用棋盘 ⇒ 新单位起始值恰好等于结转值）⇒ 条件不成立 ⇒ **既没设值也没留痕**
+                //    ⇒ 读数和用例都抓不到（红线 21：不许有"看起来接了、其实什么都没发生"的分支）⚠️
+                int carried = Math.Min(prev.Hp, u.MaxHp); // `int.MaxValue` = 全满（开局/恢复后的哨兵值）✓
+                u.CurrentHp = Math.Clamp(carried, 0, u.MaxHp);
+                log.Append(new EffectEvent(u.Id, $"retained_hp_carried:{u.CurrentHp}/{u.MaxHp}", u.CurrentHp, true));
+                if (u.CurrentHp == 0)
+                {
+                    log.Append(new EffectEvent(u.Id, "retained_hp_zero_but_deployed", 0.0, true));
+                }
+            }
+
+            _heroBattleIds[heroId] = u.Id.Value; // 记下【本场】id，供战后扣回/下一场查找 ✓
+        }
+    }
+
+    /// <summary>
+    /// 🔴 **`O-83` 的前一半：把【本场结束时的血量】落进跨场台账**（战后、切场景之前调用）。
+    ///
+    /// ⚠️ 我自查发现的**惰性风险**：`Retained` 原先只被"士气/恢复/回城/扎营"写过，**没有任何一处写战后血量**
+    /// ⇒ 若只加"承上"（`ApplyRetainedHpToBattle`）而不加本方法，它读到的**永远是满血哨兵值** ⇒ **改动是惰性的**
+    /// （红线 25「动作 ≠ 意义」：看起来接了、其实什么都没发生）⚠️
+    ///
+    /// 🔴 键 = **本场战斗单位 id**（`u.Id.Value`，与 `_heroBattleIds` 同口径）⇒ 下一场开局才查得到 ✓
+    /// ⚠️ 只动 **HP**；士气/虚弱沿用台账现值（本方法**不越权**改它们）✓
+    /// </summary>
+    public void CaptureBattleEndHp(BattleDirector director, CombatLog log)
+    {
+        int captured = 0;
+        foreach (UnitRuntime u in director.Player.UnitsInSlotOrder())
+        {
+            string id = u.Id.Value;
+            int morale = Retained.TryGetValue(id, out (int Hp, int Morale, bool Weak) cur) ? cur.Morale : 50;
+            bool weak = Retained.TryGetValue(id, out (int Hp, int Morale, bool Weak) cur2) && cur2.Weak;
+            int hp = Math.Clamp(u.CurrentHp, 0, u.MaxHp);
+            if (Retained.TryGetValue(id, out (int Hp, int Morale, bool Weak) before) && before.Hp == hp)
+            {
+                continue; // 无变化 ⇒ 不留痕（避免事件流噪声）
+            }
+
+            Retained[id] = (hp, morale, weak);
+            captured++;
+            log.Append(new EffectEvent(u.Id, $"battle_end_hp_captured:{hp}/{u.MaxHp}", hp, true));
+        }
+
+        if (captured > 0)
+        {
+            log.Append(new EffectEvent(default, $"battle_end_hp_captured_count:{captured}", captured, true));
         }
     }
 
