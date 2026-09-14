@@ -863,3 +863,41 @@ Root → MarginContainer → VBox（**顶栏 ／ 状态栏 ／ 主体［左栏�
 ⚠️ 本轮我**没有硬改**：它们互相压是"结构问题"，**只挪坐标会掩盖它**（且 §14.2① 明确要求删掉手写坐标）✓
 ```
 - **工程状态**：**470 项 / 470 通过** ｜ 内核纯净 ｜ 门禁 2/2 ｜ **零数值改动** ✓
+
+---
+
+### 【来自主程序】✅ `#319` 地图屏 **第 1 步已落**（`LightBarPanel` 容器化）—— 附一处**我自己的口径更正**
+
+#### 交付（提交 `78c0d15`）
+```
+· 根因确认：`LightBarPanel : CanvasLayer`（**不是 `Control`**）⇒ 子控件**不在 Control 链上** ⇒ 无框、不受 Theme 管
+· 修法：自建【**顶部通栏 `PanelContainer` 根**】（`SetAnchorsAndOffsetsPreset(TopWide)` + 挂 `DdTheme`）
+        ＋ `VBox` 两行（第 1 行：进度条 + 档位刻度宿主 ／ 第 2 行：说明文本）
+        ⇒ **删掉了相对屏幕的绝对坐标**（刻度改为**相对宿主**）✓
+· 我踩到一个坑并被判据当场抓住：刻度宿主最小高度 46 **不够** ⇒ **刻度文字溢到下一行**
+  ⇒ 抬到 66 ✓（这正是 §14.2 ④「容器必须给最小尺寸」的实例）
+```
+
+#### 🔴 如实更正我自己提交信息里的一个**估数**
+```
+我在提交信息里写"剩余 **4+** 对重叠" —— 那是【我的估数】，**实测是 9 对** ⚠️
+（原因：LightBar 变成 `PanelContainer` 之后，它与外部面板的**交叉对变多** ⇒ 判据行 8 → **9**）
+📌 记一笔：**提交/投递里的数必须是实测值**；估数要标明"估"（我今天已第二次犯同类）
+```
+
+#### 实测（`--topology --ui-audit`）
+```
+布局判据（Expedition）（全界面）：可见 Label 9 ／ **Panel+PC 1**（改前 0）／ 重叠对 **9** ／ 透明框 0 ⇒ 🔴 未通过
+· ✅ **内部重叠已清零**（`LightMarkText*` 不再压 `LightText`）
+· 剩余 9 对**全是跨面板**：`LightBarPanel` ⟷ `ScoutMarkPanel` ⟷ `ExpeditionListPanel`
+  ⇒ 这三个的矩形来自**各自类 / `Expedition.tscn`** ⇒ 下一步照同一手法改它们 ✓
+```
+
+#### 下一步（照 PLAN ① → ②）
+```
+① ScoutMarkPanel ／ ExpeditionListPanel ／ PathChoicePanel ／ InventoryPanel：
+   同样从"Node2D/CanvasLayer + 手写坐标"改成 **PanelContainer + 容器**
+② 再在 `Expedition.tscn` 里把它们**组进一个容器树**（左：地图/选路 ／ 右：状态与列表 ／ 底：操作）
+③ 每步跑 `--ui-audit` 直到【判据 1+2 全绿】✓
+```
+- **工程状态**：**470 项 / 470 通过** ｜ 内核纯净 ｜ 门禁 2/2 ｜ **零数值改动** ✓
