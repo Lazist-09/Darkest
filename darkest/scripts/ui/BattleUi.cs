@@ -93,6 +93,26 @@ public partial class BattleUi : CanvasLayer
     public SceneMode Mode => _mode;
 
     /// <summary>🔴 切到**地图模式**：只切页签与可见性 —— **不重建任何节点**（`S1`）✓</summary>
+    /// <summary>🔴 `#327` **S1 断言**（比"只打印 id"更进一步）：**切模式前后骨架 id 必须完全相同**。
+    /// 这是"无缝"的**可测定义**：变了 ⇒ 说明发生了场景切换或整体重建 ✗（`--battle-map-mode` 冒烟可复现）✓</summary>
+    private string _skeletonAtBind = string.Empty;
+
+    /// <summary>记录绑定时刻的骨架指纹（`Bind()` 末尾调用）。</summary>
+    private void CaptureSkeleton() => _skeletonAtBind = SkeletonFingerprint();
+
+    /// <summary>骨架指纹（只含**必须存活**的骨架节点 id，不含可重建内层）。</summary>
+    private string SkeletonFingerprint()
+        => $"{IdOf(_uiRoot)}|{IdOf(_bg)}|{IdOf(_topRow)}|{IdOf(_midRow)}|{IdOf(_bottomRow)}|{IdOf(_mfMap)}";
+
+    /// <summary>🔴 切模式后的 **S1 判定**（可断言）：指纹与绑定时刻一致 ⇒ ✅ 未重建；否则 🔴。</summary>
+    public string SkeletonVerdict()
+    {
+        bool same = _skeletonAtBind.Length > 0 && _skeletonAtBind == SkeletonFingerprint();
+        return same
+            ? "✅ S1 通过：切模式后骨架**未重建**（id 与绑定时完全一致）"
+            : $"🔴 S1 未通过：骨架 id 变了（绑定 {_skeletonAtBind} ⇒ 现在 {SkeletonFingerprint()}）⇒ 查重建/场景切换";
+    }
+
     public void EnterMapMode()
     {
         _mode = SceneMode.Map;
@@ -350,6 +370,7 @@ public partial class BattleUi : CanvasLayer
             first.GrabFocus();
         }
 
+        CaptureSkeleton(); // 🔴 `#327` S1：绑定时刻的骨架指纹（供切模式后比对）
         // 🔴 冒烟：`--battle-support` ⇒ **真实点击【用支援包】**（与玩家同一条 `Pressed` 路径；红线 26）
         if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-support"))
         {
