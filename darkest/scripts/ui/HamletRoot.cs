@@ -41,6 +41,11 @@ public partial class HamletRoot : Node2D
     private string? _selectedHero;                       // ② 选人权：玩家选中的被减压者
     private readonly List<Button> _heroButtons = new();  // 动态重建（士气 < 50 的人）
     private readonly Dictionary<string, Button> _upgradeButtons = new(); // M8.1：三栋升级按钮（用于置灰）
+    // 🔴 **二级窗口（弹窗）**：建筑详情 —— 用户 2026-09-14 要求「弹窗要能打开也能关闭」「建筑详细使用走二级窗口」
+    private PanelContainer? _buildingPopup;
+    private Label? _buildingPopupTitle;
+    private VBoxContainer? _buildingPopupBody;
+    private string? _buildingPopupId;
     private readonly Darkest.Core.Events.CombatLog _log = new();
     private readonly Darkest.Core.Rng.RngProvider _rng = new(20260909);
 
@@ -213,11 +218,14 @@ public partial class HamletRoot : Node2D
             var ub = new Button
             {
                 Name = $"Upgrade_{bId}",
-                Text = $"🏛 {label}",
+                // 🔴 按钮上只留"名称 + 当前等级"（详细使用走二级窗口 —— 用户 2026-09-14 要求）✓
+                Text = $"🏛 {label}　Lv{ExpeditionContext.Heirlooms?.LevelOf(bId) ?? 0}",
                 CustomMinimumSize = new Vector2(180, 32),
             };
-            ub.Pressed += () => UpgradeBuilding(bId);
-            ub.MouseEntered += () => ShowBuildingInfo(bId);
+
+            // 🔴 **点击 = 打开建筑详情弹窗**（可关）；**升级**变成弹窗里的显式动作（不再是"点一下就升级"）✓
+            ub.Pressed += () => OpenBuildingPopup(bId);
+            ub.MouseEntered += () => ShowBuildingInfo(bId); // 悬停仍给一行摘要（低成本、不占版面）
             buildingRow.AddChild(ub);
             _upgradeButtons[bId] = ub;
         }
@@ -321,6 +329,22 @@ public partial class HamletRoot : Node2D
         if (hover is not null)
         {
             ShowBuildingInfo(hover["--hamlet-hover=".Length..]);
+        }
+
+        // 🔴 二级窗口冒烟（用户 2026-09-14 要求"弹窗要能开也能关"）：
+        //    ① `--hamlet-building=<id>` ⇒ 打开建筑弹窗（真实走 `PressUpgrade` 那条入口下方同一条路径）
+        //    ② `--hamlet-popup-close`  ⇒ 关掉最上层弹窗（等价于 `✕ 关闭` / `Esc`）
+        string? bArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-building=", StringComparison.Ordinal));
+        if (bArg is not null)
+        {
+            OpenBuildingPopup(bArg["--hamlet-building=".Length..]);
+        }
+
+        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-popup-close"))
+        {
+            GD.Print($"[HamletRoot] --hamlet-popup-close：关闭前 BuildingPopupOpen={BuildingPopupOpen}");
+            CloseTopPopup();
+            GD.Print($"[HamletRoot] --hamlet-popup-close：关闭后 BuildingPopupOpen={BuildingPopupOpen}（应 False）");
         }
 
         string? rowArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-row=", StringComparison.Ordinal));
@@ -499,6 +523,9 @@ public partial class HamletRoot : Node2D
 
     /// <summary>详情面板是否已打开（供冒烟断言）。</summary>
     public bool DetailOpen => _detailPanel is not null && _detailPanel.Visible;
+
+    /// <summary>🔴 供冒烟/自检：**建筑详情弹窗（二级窗口）是否打开** —— 判据"能开也能关"的可断言读数 ✓</summary>
+    public bool BuildingPopupOpen => _buildingPopup is not null && _buildingPopup.Visible;
 
     /// <summary>当前详情显示的是谁（供冒烟断言"显示的是被点的那个人"）。</summary>
     public string? DetailHeroId => _detailHeroId;
@@ -717,6 +744,198 @@ public partial class HamletRoot : Node2D
         return 0;
     }
 
+    /// <summary>
+    /// 🔴 **二级窗口（弹窗）工厂**（用户 2026-09-14：「弹窗要能打开、也要能关闭」）：
+    /// 满屏不透明 `PanelContainer`（判据据此把它认成**模态** ⇒ 只审它内部）+ 标题行（**含 `✕ 关闭` 按钮**）+ 内容 `VBox`。
+    /// ⚠️ 两条纪律：① **必须显式挂 Theme**（本屏根是 `Node2D`，主题链不经过它 ⇒ 否则框是引擎默认 `a=0.6`）
+    ///            ② **`Esc`（`ui_cancel`）也必须能关**（"能开不能关"是弹窗最常见的坑）✓
+    /// </summary>
+    private (PanelContainer Panel, Label Title, VBoxContainer Body) MakePopup(string name, string titleText)
+    {
+        var panel = new PanelContainer { Name = name, Visible = false };
+        panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        Darkest.Ui.DdTheme.Apply(panel);
+        AddChild(panel);
+
+        var margin = new MarginContainer();
+        foreach (string side in new[] { "margin_left", "margin_top", "margin_right", "margin_bottom" })
+        {
+            margin.AddThemeConstantOverride(side, 16);
+        }
+
+        panel.AddChild(margin);
+
+        var col = new VBoxContainer { Name = $"{name}Col" };
+        col.AddThemeConstantOverride("separation", 8);
+        margin.AddChild(col);
+
+        var head = new HBoxContainer { Name = $"{name}Head" };
+        head.AddThemeConstantOverride("separation", 10);
+        col.AddChild(head);
+
+        var title = new Label
+        {
+            Text = titleText,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        title.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontTitle);
+        head.AddChild(title);
+
+        // 🔴 关闭按钮（弹窗的"出口"必须显式可见 —— 红线 21：不留不可解释的状态）
+        var close = new Button { Name = $"{name}Close", Text = "✕ 关闭", CustomMinimumSize = new Vector2(110, 34) };
+        close.Pressed += () =>
+        {
+            panel.Visible = false;
+            _buildingPopupId = null;
+            GD.Print($"[HamletRoot] {name} 关闭（✕ 按钮）⇒ 回到城池");
+        };
+        head.AddChild(close);
+
+        col.AddChild(new HSeparator());
+
+        var body = new VBoxContainer { Name = $"{name}Body", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        body.AddThemeConstantOverride("separation", 6);
+        col.AddChild(body);
+        return (panel, title, body);
+    }
+
+    /// <summary>🔴 `Esc`（`ui_cancel`，引擎内置动作）关最上层弹窗 —— 与 `✕ 关闭` 等价的第二条出口 ✓</summary>
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed("ui_cancel") && CloseTopPopup())
+        {
+            GetViewport().SetInputAsHandled(); // 只吃这一下（不阻塞其它输入路径）
+        }
+    }
+
+    /// <summary>关掉最上层的弹窗（建筑弹窗 → 角色详情）；返回是否真的关了一个。</summary>
+    public bool CloseTopPopup()
+    {
+        if (_buildingPopup is { Visible: true })
+        {
+            _buildingPopup.Visible = false;
+            _buildingPopupId = null;
+            GD.Print("[HamletRoot] 建筑弹窗关闭（Esc）⇒ 回到城池");
+            return true;
+        }
+
+        if (_detailPanel is { Visible: true })
+        {
+            CloseHeroDetail();
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>🔴 打开**建筑详情弹窗**（二级窗口）：功能 ／ 当前等级 ／ 下一级所需 ／ **升级按钮** ／ 关闭 ✓
+    /// ⚠️ 以前"点一下就升级"（无确认）；现在点建筑 = **打开详情**，升级是弹窗里的**显式动作** ✓</summary>
+    public void OpenBuildingPopup(string building)
+    {
+        HeirloomStock? h = ExpeditionContext.Heirlooms;
+        if (h is null)
+        {
+            GD.Print("[HamletRoot] 建筑弹窗：传家宝库存未加载 ⇒ 不开（如实拒绝，不静默）");
+            return;
+        }
+
+        if (_buildingPopup is null)
+        {
+            (PanelContainer panel, Label title, VBoxContainer body) = MakePopup("BuildingPopup", "🏛 【建筑】");
+            _buildingPopup = panel;
+            _buildingPopupTitle = title;
+            _buildingPopupBody = body;
+        }
+
+        _buildingPopupId = building;
+        RefreshBuildingPopup();
+        _buildingPopup.Visible = true;
+        GD.Print($"[HamletRoot] 建筑弹窗打开：{building}（可关：✕ 按钮 ／ Esc）");
+    }
+
+    /// <summary>填充建筑弹窗内容（**真读 `HeirloomStock`**，不写死）；升级按钮的可用性由内核持有者回答 ✓</summary>
+    private void RefreshBuildingPopup()
+    {
+        if (_buildingPopupBody is null || _buildingPopupTitle is null || _buildingPopupId is null)
+        {
+            return;
+        }
+
+        HeirloomStock? h = ExpeditionContext.Heirlooms;
+        if (h is null)
+        {
+            return;
+        }
+
+        string building = _buildingPopupId;
+        string label = building switch
+        {
+            "tavern" => "酒馆 Tavern",
+            "abbey" => "修道院 Abbey",
+            "stagecoach" => "驿站 Stage Coach",
+            _ => building,
+        };
+
+        // 先**摘除**旧内容（`RemoveChild` 立即生效 ⇒ 不会与新建内容同帧并存、判据也不会误报重叠）✓
+        foreach (Node child in _buildingPopupBody.GetChildren().ToArray())
+        {
+            _buildingPopupBody.RemoveChild(child);
+            child.QueueFree();
+        }
+
+        _buildingPopupTitle.Text = $"🏛 【{label}】";
+
+        string func = building switch
+        {
+            "tavern" => "减压 · 酒馆（快而不稳）",
+            "abbey" => "减压 · 修道院（慢而稳）",
+            "stagecoach" => "招募新兵（免费 / Lv1 / 士气 50）",
+            _ => "—",
+        };
+        UpgradeLevel? next = h.NextLevel(building);
+        int level = h.LevelOf(building);
+        string nextText = next is null
+            ? "（已满级）"
+            : string.Join(" ＋ ", next.Cost.Select(k => $"{k.Key}×{k.Value}")) + $"　⇒ Lv{level + 1}";
+
+        _buildingPopupBody.AddChild(PopupLine($"功能：{func}"));
+        _buildingPopupBody.AddChild(PopupLine($"当前等级：Lv{level}"));
+        _buildingPopupBody.AddChild(PopupLine($"下一级所需：{nextText}"));
+
+        // 🔴 升级 = 弹窗里的**显式动作**（不再是"点建筑就升级"）
+        // 🔴 升级 = 弹窗里的**显式动作**（不再是"点建筑就升级"）；
+        //    可用性**复用内核的同一入口** `HeirloomStock.CanUpgrade`（红线 21 (b)：由内核回答，UI 不在本地重算）✓
+        bool affordable = next is not null && h.CanUpgrade(building);
+        var upgrade = new Button
+        {
+            Name = "PopupUpgrade",
+            Text = next is null ? "已满级" : $"升级到 Lv{level + 1}",
+            CustomMinimumSize = new Vector2(220, 40),
+            Disabled = !affordable,
+            TooltipText = next is null
+                ? "已满级"
+                : affordable ? "消耗上列传家宝升级" : "传家宝不足（灰色 = 不可用，悬停看原因 —— 红线 21）",
+        };
+        upgrade.Pressed += () =>
+        {
+            UpgradeBuilding(building);
+            RefreshBuildingPopup(); // 等级/花费随之刷新（弹窗不关，玩家能连续看）
+            Refresh();
+        };
+        _buildingPopupBody.AddChild(upgrade);
+
+        _buildingPopupBody.AddChild(PopupLine("提示：点【✕ 关闭】或按 Esc 返回城池。"));
+        GD.Print($"[HamletRoot] 建筑弹窗内容：{label} Lv{level}　下一级 {nextText}　可升级={affordable}");
+    }
+
+    private static Label PopupLine(string text) => new()
+    {
+        Text = text,
+        AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        CustomMinimumSize = new Vector2(0, 20),
+    };
+
     public void ShowBuildingInfo(string building)
     {
         HeirloomStock? h = ExpeditionContext.Heirlooms;
@@ -869,8 +1088,11 @@ public partial class HamletRoot : Node2D
                 var b = new Button
                 {
                     Name = $"RosterRow_{id}",
-                    Text = $"{abbrev} {h.Name} {dots} ⚔- 🛡-（未实现）{(canRelief ? " · 可减压" : string.Empty)}",
-                    CustomMinimumSize = new Vector2(400, 28),
+                    // 🔴 **名册瘦身**（用户 2026-09-14：「名册那部分不需要这么详细，放在详情页就好了」）：
+                    //    行上只留 **缩写 + 名字 + 士气点阵 + 可减压标记**（这三样是"选谁减压"的决策输入）；
+                    //    **装备位 / 特质 / 疾病 / 技能**等细节一律搬进【角色详情】（点这一行就打开）✓
+                    Text = $"{abbrev} {h.Name}　{dots}{(canRelief ? "　·可减压" : string.Empty)}",
+                    CustomMinimumSize = new Vector2(300, 28),
                 };
                 b.Pressed += () =>
                 {
@@ -943,13 +1165,21 @@ public partial class HamletRoot : Node2D
                 bool can = heirlooms.CanUpgrade(b);
                 btn.Disabled = !can;
                 UpgradeLevel? next = heirlooms.NextLevel(b);
-                btn.Text = next is null ? $"升级·{b}（已满级）" : $"升级·{b}（需 {string.Join("/", next.Cost.Select(k => $"{k.Key}×{k.Value}"))}）";
+                // 🔴 按钮文案带上【当前等级】（玩家一眼看得到），详细使用仍走点击后的二级窗口 ✓
+                btn.Text = next is null
+                    ? $"🏛 {b}　Lv{heirlooms.LevelOf(b)}（已满级）"
+                    : $"🏛 {b}　Lv{heirlooms.LevelOf(b)} ⇒ Lv{heirlooms.LevelOf(b) + 1}（需 {string.Join("/", next.Cost.Select(k => $"{k.Key}×{k.Value}"))}）";
             }
         }
     }
 
     /// <summary>
     /// 🔴 M8.1 / 红线 21 (b)：**升级按钮的真实点击路径**（发真实 `Pressed` 信号，不直接调业务方法）。
+    /// </summary>
+    /// 🔴 M8.1 / 红线 21 (b)：**升级的真实点击路径**（发真实 `Pressed` 信号，不直接调业务方法）。
+    /// 🔴 用户 2026-09-14 改版后（建筑详细使用走**二级窗口**），本方法 = **完整玩家两步路径**：
+    ///    ① 真实按下【建筑按钮】⇒ 打开建筑详情弹窗　② 再真实按下【弹窗里的升级按钮】⇒ 真正升级 ✓
+    ///    ⚠️ 不能只按第一步（那只开弹窗、不升级）——否则 e2e 那句"升级后减压价变了"的证据会**静默失真**（红线 25）✓
     /// </summary>
     public void PressUpgrade(string building)
     {
@@ -959,7 +1189,23 @@ public partial class HamletRoot : Node2D
             return;
         }
 
-        GD.Print($"[HamletRoot] PressUpgrade({building})：发出真实 Pressed 信号（按钮「{btn.Text}」，置灰={btn.Disabled}）");
+        GD.Print($"[HamletRoot] PressUpgrade({building})：① 发出真实 Pressed（按钮「{btn.Text}」，置灰={btn.Disabled}）⇒ 开二级窗口");
         btn.EmitSignal(BaseButton.SignalName.Pressed);
+
+        Button? up = _buildingPopupBody?.GetNodeOrNull<Button>("PopupUpgrade");
+        if (up is null)
+        {
+            GD.Print($"[HamletRoot] PressUpgrade({building})：弹窗里没有升级按钮（没打开？）⇒ 未升级");
+            return;
+        }
+
+        if (up.Disabled)
+        {
+            GD.Print($"[HamletRoot] PressUpgrade({building})：② 升级按钮**置灰**（传家宝不足/已满级）⇒ 不改等级（红线 21）");
+            return;
+        }
+
+        GD.Print($"[HamletRoot] PressUpgrade({building})：② 发出真实 Pressed（弹窗按钮「{up.Text}」）⇒ 升级");
+        up.EmitSignal(BaseButton.SignalName.Pressed);
     }
 }
