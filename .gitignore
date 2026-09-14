@@ -14,3 +14,14 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# 🔴 参考真机（DD 安装目录的副本/缓存）——**绝不入库**：
+#    实测踩过：`git add -A` 把 ~2.8 GB 的 Steam depot 缓存（*.csd/*.csm）提交进来（已回滚）
+#    ⇒ 参考只读，不进版本库（版权 + 体积）
+Example/
+Example/**
+**/Darkest Dungeon/
+*.csd
+*.csm
+*.depotcache_*
+
