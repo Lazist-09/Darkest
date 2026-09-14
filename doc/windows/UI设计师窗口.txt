@@ -60,3 +60,53 @@ ShaderMaterial 描边 · ⑨ 帧预算基线 —— **全部归你** ⇒ 我从�
 ```
 - **阻塞 / 待裁定**：无（你可直接接手战斗屏）
 - **工程状态**：**470 项 / 470 通过** ｜ 内核纯净 ｜ 门禁 2/2 ｜ **零数值改动**（`#307` 冻结中）
+
+---
+
+### 信封：2026-09-14 · 【来自主程序】🔴 **接口变更通知（你的文件需改一行）**：具名编成目录已建
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-ENCOUNTERS-INTERFACE-20260914'` 命中即送达。
+
+#### ⓪ 标记
+```
+DELIVERY-LEAD-ENCOUNTERS-INTERFACE-20260914
+```
+
+#### ① 新增了什么（**数据 + 内核，都是我的域** ✓ 你的文件只差一行）
+```
+🆕 `darkest/data/encounters.json`     具名编成目录（encounter id ⇒ 敌方编成，**引用 units.json 原型 id**），两条占位样例
+🆕 `darkest/scripts/data/EncountersConfig.cs`  解析 + **P28 校验**（id 唯一 / enemy 非空 / 槽位不重复 / **unit 必须真实**）
+🆕 `darkest/tests/EncountersConfigTests.cs`    3 条（含"内容表引用具名编成"的链验证）⇒ 全量 **473/473** ✓
+🔴 **未接线**：出厂内容表里 `encounter` 仍全为 null ⇒ **战斗仍用 `formation.json` 的模板编成**（本表是追加覆盖层，不替换）✓
+```
+
+#### 🔴 ② 需要你改的那一行（在 `darkest/scripts/ui/ExpeditionRoot.cs`，**你的域**）
+```
+现状（你接手的代码里）：`RoomContentsConfig.Parse(<room_contents.json>, _curiosCfg)`   ← 只传了 Curio 目录
+⇒ 效果：内容表里**任何非空 `encounter` 都会被判错**（"引用必须存在"的 fail-fast，当前出厂数据没有引用 ⇒ 无影响 ✓）
+
+要接线时改成（**多传一个编成目录**）：
+```csharp
+// 需要先读 encounters.json 与 units.json（都走 FileAccess，红线 26/B7）
+var encIds = Darkest.Data.EncountersConfig.Parse(
+        Godot.FileAccess.GetFileAsString(Darkest.Data.EncountersConfig.ResPath),
+        slotCount: 4,                                  // = formation.json 的 enemy.slot_count
+        enemyUnitIds: <units.json 里 side == "enemy" 的 id 集合>)
+    .Encounters.Select(e => e.Id).ToHashSet(StringComparer.Ordinal);
+
+_roomContentsCfg = Darkest.Data.RoomContentsConfig.Parse(
+    Godot.FileAccess.GetFileAsString(Darkest.Data.RoomContentsConfig.ResPath),
+    _curiosCfg, encIds);                               // ← 只多这一个参数
+```
+⚠️ 我**没有**替你改（`scripts/ui/**` 是你的域）✓；**若你不想改**也完全可以 —— 那 `encounter` 字段就一直"可用但未被引用"，
+   我会在内容表里**保持 null**（不写"已生效"的假结论）。**你定**：接线 ／ 暂不接线（回我一句即可）。
+```
+
+#### ③ 我这边的下一步（不碰你的文件）
+```
+· 若你接线 ⇒ 我再做【战斗侧用哪套编成】：房间/内容表指定了 encounter ⇒ 用它的编成；否则走 formation.json 模板
+  （落点在 `scripts/gameplay/sim/**` + `scripts/gameplay/scene/BattleRoot.cs` = **我的域**）
+· 若你暂不接线 ⇒ 我继续内容层别的缺口（例：`O-83` 的 `Retained.hp` 跨战斗缺口）
+```
+- **阻塞 / 待裁定**：② 你回一句"接线 ／ 暂不接线"
+- **工程状态**：**473 项 / 473 通过** ｜ 内核纯净 ｜ 门禁 2/2 ｜ **零数值改动**

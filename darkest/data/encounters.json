@@ -1,0 +1,20 @@
+{
+  "config": { "version": 1 },
+  "_note": "具名编成目录（内容层补缺）：encounter id -> 敌方编成（**引用 units.json 的敌方原型 id**）。room_contents.json 的 encounter 字段引用本表 id。⚠️ 本表是【追加覆盖层】不替换 formation.json：未指定时仍走 formation.json 的敌方编成。当前两条为**占位样例**（内容待策划）：enc_basic_line = 与现模板同形，enc_backline_shift = 换一种形态用于验证引用可用。",
+  "encounters": [
+    { "id": "enc_basic_line", "note": "占位样例：与 formation.json 现编成同形（1/2 近战 · 3 远程 · 4 法系）",
+      "enemy": [
+        { "slot": 1, "unit": "melee_soldier" },
+        { "slot": 2, "unit": "melee_soldier" },
+        { "slot": 3, "unit": "ranged_archer" },
+        { "slot": 4, "unit": "caster" }
+      ] },
+    { "id": "enc_backline_shift", "note": "占位样例：后排前压（1 近战 · 2/3 远程 · 4 法系）——用于验证「内容表引用具名编成」这条链",
+      "enemy": [
+        { "slot": 1, "unit": "melee_soldier" },
+        { "slot": 2, "unit": "ranged_archer" },
+        { "slot": 3, "unit": "ranged_archer" },
+        { "slot": 4, "unit": "caster" }
+      ] }
+  ]
+}
