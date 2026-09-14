@@ -102,7 +102,14 @@ public partial class BattleRoot : Node2D
     /// ⚠️ **必须延迟调用**（与 `--battle-auto-finish` 同路径）：直接调用会在"信号/`_Ready` 内改场景"时踩坑
     /// （实测：直接调用 ⇒ 战斗打不完、也切不出去）。
     /// </summary>
-    public void PressAutoFinish() => CallDeferred(nameof(AutoFinishBattle));
+    public void PressAutoFinish()
+    {
+        _autoContinue = true; // 🔴 让 `EndGame` 里的"点继续"也生效（不再依赖命令行旗标）
+        CallDeferred(nameof(AutoFinishBattle));
+    }
+
+    /// <summary>本实例是否要"自动点继续"（由 `PressAutoFinish` 置位；命令行旗标仍并行生效）。</summary>
+    private bool _autoContinue;
 
     /// <summary>冒烟用：用**小型自动玩家**把本场**真的打完**（走真实战斗规则）⇒ 再走既有 `EndGame` 路径。</summary>
     private void AutoFinishBattle()
@@ -448,9 +455,11 @@ public partial class BattleRoot : Node2D
             GD.Print($"[BattleRoot] 远征模式：本场结果 {result}，点【继续（回远征）】返回远征界面");
 
             // 🔴 冒烟：自动点【继续（回远征）】（**真实 `Pressed`** ⇒ 走玩家路径）
-            if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-auto-finish"))
+            //    ⚠️ 两条入口都要认：① 命令行旗标（旧路径）② `PressAutoFinish()`（步进冒烟的新路径）
+            //    —— 此前只认旗标 ⇒ 步进冒烟不带旗标时，"战斗 ⇒ 返回"这一段**走不完**（我实测踩过）。
+            if (_autoContinue || System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-auto-finish"))
             {
-                GD.Print("[BattleRoot] --battle-auto-finish ⇒ 自动点【继续（回远征）】（真实 Pressed）");
+                GD.Print("[BattleRoot] 自动点【继续（回远征）】（真实 Pressed）");
                 toExpedition.EmitSignal(BaseButton.SignalName.Pressed);
             }
         }
