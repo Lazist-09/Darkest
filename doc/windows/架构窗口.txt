@@ -54,3 +54,45 @@ wall-clock 仍只作"同环境同口径"对比（口径警告保留在输出行�
 
 - **阻塞 / 待裁定**：③ 的"钩子跑 ／ 每次启动都跑"（不阻塞我）；**原 5 条待裁项已全部结清**
 - **权威在哪**：`scripts/ui/LayoutAudit.cs`（`skippedTransient`）｜`scripts/ui/FrameBudget.cs`（`ControlBaseline`）｜`scripts/ui/UiPalette.cs`（`AuditFile`）｜`next_round §4.1 / §4.1.1 / §4.1.2 / §4.1.3`
+
+---
+### 信封：2026-09-14 · 【来自 UI 设计师】✅ **字体资产已落地**（`§12/§13` 最后一项）+ 换字体后**全量验收重跑**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-FONT-LANDED-20260914' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-FONT-LANDED-20260914
+```
+
+#### ① 交付（提交 `99ae5bb`）—— `§13.4①` 收口
+```
+用户放好了字体 ⇒ 现在**真的接上**：
+  `[Theme] 字体：EBGaramond.ttf（fallback NotoSerifSC-Regular.otf）⇒ 已接（§13.4①）　✅ 中文覆盖（HasChar('黑') = true）`
+   · 提交范围（**只提需要的两个**）：`EBGaramond.ttf`(851KB) + `NotoSerifSC-Regular.otf`(11.2MB) + 二者 `.import`
+   · 🔴 **新增一条"不是看起来像"的断言**：`Font.HasChar('黑')`（引擎内置）⇒ 读数直接给**中文覆盖 true/false**
+```
+
+#### 🔴 ② 一条实测教训（建议进契约：**别按文件名猜资产**）
+```
+用户实际放的是 **`NotoSerifSC-Regular.otf`**（Noto 官方**静态字重**命名），而我原先**写死**找 `NotoSerifSC-Subset.ttf`
+⇒ **文件明明在却报"未找到字体文件"**（而且看起来像"用户没放"—— 极具误导性）⚠️
+⇒ 修法：候选名**按优先级试 + 目录扫描兜底**（`ScanFontDir`，按名字排序取第一个 ⇒ 结果确定），**并打印真正用了哪个文件** ✓
+📌 与你们"绿可能只是空"（`.tscn` type 不一致）是同一族：**"没接上"与"不存在"必须能区分**（红线 21）
+```
+
+#### ③ 字体一换 = 文字度量变了 ⇒ **立刻重跑全量验收**（7 状态 × 2 条件 = 14 次）
+```
+主菜单 / 城池 / 角色详情 / 地图 / 地图·Curio / 战斗 / 战斗·地图页
+  正常态 + `--ui-longtext` 长文本压力态 ⇒ **全部 0 重叠 / 0 透明 ✅**（容器化布局吸收了字体变化）✓
+```
+
+#### ④ 一件请你/策划定的小事
+```
+用户还放了另外 6 个 Noto 静态字重（Black/Bold/ExtraLight/Light/Medium/SemiBold，共 ~66MB）—— **当前未被使用**，
+我**没有提交**（避免 78MB 进仓库）。
+⇒ 选项：**(a) 只留 Regular**（现状，推荐）／**(b) 保留 Bold 并让【标题】用粗体**（+11MB，`§14.4` 的三档字号会更有层次）
+   若选 (b)，我用 Theme 的 type variation 挂 Bold（一行改动 + 重跑判据）。**你或策划一句话即可**（不阻塞我）
+```
+
+- **阻塞 / 待裁定**：④ 的"是否给标题上 Bold"（不阻塞）；③ 的"钩子跑 ／ 每次启动都跑"（上封）
+- **权威在哪**：`scripts/ui/DdTheme.cs`（`ResolveFonts`/`ScanFontDir`/`HasChar` 断言）｜`resources/theme/fonts/`｜`ui_spec §13.3/§13.4`｜`#321`④

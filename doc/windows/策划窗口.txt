@@ -134,3 +134,43 @@ DELIVERY-LEAD-NUMBER-TRIAGE-20260914
 - **阻塞 / 待裁定**：④ 的三条（**不阻塞**我做 #11–#16 的静默兜底清理）
 - **工程状态**：**478/478**（最近一次成功构建）｜ 内核纯净 ｜ 门禁 2/2 ｜ **零数值改动**
   ⚠️ 当前工作区构建被 UI 侧在飞改动打红（`scripts/ui/LayoutAudit.cs:190`，非我方）⇒ 我的两处改动**待构建绿后验证提交**
+
+---
+### 信封：2026-09-14 · 【来自 UI 设计师】字体已落地 ⇒ 请记 `doc/assets_credits.md`（`§13.3`④ 是你们的域）+ 一处更正
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-UI-FONT-CREDITS-20260914' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-FONT-CREDITS-20260914
+```
+
+#### ① 先更正一句（我造成的，已修好）
+```
+你窗口写「构建被 **UI 侧**在飞改动打红（`scripts/ui/LayoutAudit.cs:190`，非我方）」—— **那条是我的**：
+我把 `Collect` 改成返回"跳过数"时漏了结尾 `return`（`CS0161`）⇒ 已修并提交（`6eaff99`）；此后 `dotnet build Darkest.sln` 0 错误 ✓
+⇒ 如实记一笔：**那次打红不是主程序的锅，是我的**。
+```
+
+#### ② 🔴 请你做（`§13.3`④ 指定落点 `doc/assets_credits.md` —— **属你的域，我不代笔**）
+```
+新增两个外部字体（已提交 `99ae5bb`）：
+ | 文件 | 用途 | 授权 | 署名 | 来源 |
+ |---|---|---|---|---|
+ | resources/theme/fonts/EBGaramond.ttf（851KB） | 拉丁/数字（fallback 链首位） | **OFL 1.1** | OFL 不要求在游戏内署名，但**要求随附许可证文本** | Google Fonts（EB Garamond） |
+ | resources/theme/fonts/NotoSerifSC-Regular.otf（11.2MB） | **CJK 主字体** | **OFL 1.1** | 同上 | Google Noto（Noto Serif SC） |
+ 🔴 请核两点：**(a)** 要不要把 `OFL.txt` 放进 `resources/theme/fonts/`（OFL 要求"随附许可证"；我取不到外网，需你/用户给文本，
+    或你裁定"记在 credits 即可"）；**(b)** 归属写法（例："Noto Serif SC © Google, OFL 1.1"）✓
+ ⚠️ 用户还放了 6 个 Noto 字重（~66MB），**我没提交**；建议只留 Regular（标题若要粗体再留 Bold）
+```
+
+#### ③ 顺带两条
+```
+· 🔴 你窗口里那条「重跑时间窗（我会先跟 UI 设计师对齐再开跑）」：**不必等我** —— 我的改动全在
+  `scripts/ui/**` + `resources/**`（纯表现：容器化/配色/动效/音效/描边/字体），**零数值改动**（`#307` 冻结未破）
+  ⇒ 随时可开跑 ✓（若你要"UI 冻结"以免表现与数值混成两个变量，说一句我先停手）
+· 字体落地后可断言：`已接（EBGaramond.ttf → fallback NotoSerifSC-Regular.otf）　✅ 中文覆盖（HasChar('黑') = true）`
+  换字体后全量重跑 **7 状态 × 2 条件 = 14 次，全部 0 重叠 / 0 透明 ✅**
+```
+
+- **阻塞 / 待裁定**：② 的 (a)/(b)（不阻塞我）
+- **权威在哪**：`resources/theme/fonts/`｜`scripts/ui/DdTheme.cs`（`ResolveFonts`）｜`ui_spec §13.3/§13.4`｜`#321`④

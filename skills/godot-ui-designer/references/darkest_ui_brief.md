@@ -1,4 +1,4 @@
-﻿# Darkest 项目 · UI 设计师简报（收件箱转写）
+# Darkest 项目 · UI 设计师简报（收件箱转写）
 
 > 🔴 **转写标记（回读这就是"已写进 skill"的证据，红线 20）**：`INBOX-TRANSCRIBED-DARKEST-UI-20260914`
 > **转写来源**：`doc/windows/主程序窗口.txt`（508 行）· `doc/windows/策划窗口.txt`（950 行）· `doc/windows/架构窗口.txt`（空）
@@ -133,7 +133,7 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 ⚠️ **不要走"事后搬运"**（`Reparent`/`RemoveChild+AddChild` 边遍历边搬）⇒ 主程序实测触发引擎断言
 `Condition "p_child->data.parent != this" is true` ⇒ 树状态不一致 ⇒ 判据乱认浮层。
 
-### 1.7 已知坑（21 条，全部实机踩过）
+### 1.7 已知坑（22 条，全部实机踩过）
 ```
 ① CanvasLayer / Node2D 不是 Control ⇒ 🔴 Godot 的 Container【不排它】（Container 只管理 Control 子节点）
    ⇒ 既没有"框"（不在 Control 链上 ⇒ 不受 Theme 管）又根本进不了容器树 ⇒ **只挪坐标会掩盖结构问题**
@@ -183,6 +183,10 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 ⚠️ 事故记录（我自己的）：用 PowerShell 批量替换颜色时把**参数写成了"字符对"** ⇒ `Replace('M','o')` 把
    `HamletRoot.cs` / `LightBarPanel.cs` 里的字母全换掉 ⇒ **必须 `git checkout --` 回滚再用 `edit` 工具重做**
    ⇒ 教训：**批量文本替换只用 `edit` 工具**（它校验唯一匹配）；`Set-Content` 生成代码要避免"逐字符替换"
+㉒ 🔴 **别按文件名猜资产**（`99ae5bb` 实测）：用户实际放的是 `NotoSerifSC-Regular.otf`（Noto 官方**静态字重**命名），
+   而我写死找 `NotoSerifSC-Subset.ttf` ⇒ **文件明明在却报"未找到"**（看起来像"用户没放"，极具误导）⚠️
+   ⇒ 正解：**候选名按优先级试 + 目录扫描兜底 + 打印真正用了哪个文件**；且"接上了吗"要**能断言**
+     （`Font.HasChar('黑')` 直接给中文覆盖 true/false，而不是"看起来像换了字体"）
 ㉑ 🔴 **改文本一律用 `edit` 工具，禁用 shell 整文件重写**（我两次踩同一类）：
    ① PowerShell `Replace('M','o')` 因"参数写成了字符对"把两个文件的字母换掉；
    ② PowerShell `Set-Content` 整文件重写 `.tres` ⇒ 引入 **BOM** ⇒ Godot 报 `加载失败`（看着像检测坏了，其实是文件坏了）
@@ -335,7 +339,11 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
       🔴 缺文件 ⇒ 不崩 + **打印留痕**（实测日志：`[Theme] 字体：🔴 未找到字体文件…⇒ 用引擎默认字体（占位）`）
       ⇒ **文件放进去即生效，不必改代码**（用户已确认：由用户下载子集/EB Garamond 放进该目录）
       ⚠️ 沙箱内 PowerShell **取不到外网**（curl / Invoke-WebRequest 均失败）⇒ 字体文件只能由用户侧提供
-      📌 文件到位后我要做三件：① 跑一次让 Godot 导入（`.import`）② 核日志变成"已接" ③ 记 `doc/assets_credits.md`
+      ✅ **已落地**（`99ae5bb`，用户已放字体）：`EBGaramond.ttf`(851KB) + `NotoSerifSC-Regular.otf`(11.2MB) **已提交**
+         （另 6 个 Noto 静态字重 ~66MB **未提交** —— 建议只留 Regular；标题若要粗体再留 Bold）
+         实测：`[Theme] 字体：EBGaramond.ttf（fallback NotoSerifSC-Regular.otf）⇒ 已接　✅ 中文覆盖（HasChar('黑') = true）`
+         换字体 ⇒ 文字度量变了 ⇒ 全量重跑 **7 状态 × 2 条件 = 14 次，全部 0 重叠 / 0 透明 ✅**
+         `doc/assets_credits.md`（`§13.3`④ 的台账）**属策划域** ⇒ 已投策划窗口请其登记（含 OFL 是否要附 `OFL.txt`）
    ```
 ② 配色（`§14.4`）：✅ **已完成**（`8582555`）—— 四色（正文近白 `#ede8db`／金 `#d9b25c`／红 `#cc4742`／灰 `#858078`）
    ＋ 不透明暖黑底 `#1a1714` ＋ 1px 边框 ＋ **按钮四态** ＋ 焦点态（2px 金边）＋ 条样式；硬写颜色收敛到 `DdTheme` 单一出处
@@ -658,6 +666,8 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-I18N-20260914` | §12.4 i18n 布局验收可自动化（--ui-longtext）+ 修掉 Panel 溢出缺陷 | ✅ 已投 |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-ACCEPTANCE-20260914` | 🔴 **UI 侧总验收**：7 状态 × 2 条件全绿 + 475/475 + 四类读数收齐（唯一未落=字体资产） | ✅ 已投 |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-RULINGS-DONE-20260914` | 架构 5 条裁定全部落地（例外汇总留痕 / 节点预算可断言 / 调色板两视图一致性 + 负向自检） | ✅ 已投 |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-FONT-LANDED-20260914` | 字体落地（EB Garamond + Noto Serif SC）+ 中文覆盖可断言 + 换字体后 14 次重跑全绿 + 别按文件名猜资产 | ✅ 已投（L61） |
+| 2026-09-14 | `doc/windows/策划窗口.txt` | `DELIVERY-UI-FONT-CREDITS-20260914` | 请策划记 `doc/assets_credits.md`（两个 OFL 字体）+ 更正「那次构建打红是我的锅」 | ✅ 已投（L141） |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
