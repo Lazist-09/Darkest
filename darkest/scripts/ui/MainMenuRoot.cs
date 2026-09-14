@@ -51,6 +51,12 @@ public partial class MainMenuRoot : Node2D
         Roster roster = ExpeditionContext.EnsureRoster(
             RosterConfig.Parse(FileAccess.GetFileAsString(RosterConfig.ResPath)));
 
+        // 🔴 合并包片 D：**解锁阈值表的启动级门禁**（P27）—— 形态先落，内容待策划（`O-86`）
+        //    放在**最早的启动点**：数据写错在进游戏前就炸，而不是等到第一次解锁判定才炸 ✓
+        UnlocksConfig unlocks = UnlocksConfig.Parse(FileAccess.GetFileAsString(UnlocksConfig.ResPath));
+        GD.Print($"[MainMenuRoot] 解锁阈值表：{unlocks.Unlocks.Count} 条（形态已落；**内容清单待策划 `O-86`**，" +
+                 "当前**无消费点** —— 登记过的形态，不是死声明）");
+
         _status = new Label
         {
             Name = "MenuStatus",

@@ -1,0 +1,9 @@
+{
+  "config": { "version": 1 },
+  "_note": "解锁阈值表（O-86 / 合并包片 D）：【形态先落】，内容清单待策划。阈值 = 已完成出征数 / 已打赢场数。当前【无消费点】（内容未定）—— 这是登记过的形态，不是死声明。",
+  "unlocks": [
+    { "id": "placeholder_first_unlock", "required_runs_finished": 1, "required_battles_won": 0,
+      "unlocks": ["__placeholder__"],
+      "source": "形态占位示例（真机形态：generated_dungeons[{id, required_number_of_quests_finished}]）；内容待策划（O-86）" }
+  ]
+}
