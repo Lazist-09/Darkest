@@ -411,6 +411,9 @@ public partial class BattleUi : CanvasLayer
         _motionLayer.AddChild(_vignette);
         _vignette.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
 
+        // 🔴 `ui_spec §12.2` **音效**：注入播放宿主（占位音为程序生成 ⇒ **音源缺失也能跑**）✓
+        Darkest.Ui.UiSfx.Attach(_uiRoot);
+
         GD.Print("[BattleUi] 容器树就绪：顶栏／主体（我方 4+2 ←→ 敌方 4）／底栏（C 区含技能栏 ＋ E 区多功能框）" +
                  " ⇒ 控件**创建时进容器** ✓");
     }
@@ -842,7 +845,9 @@ public partial class BattleUi : CanvasLayer
         if (_host.GameOver && !_motionAuditPrinted)
         {
             _motionAuditPrinted = true;
+            Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.Settle); // ③ 结算（胜/败）
             GD.Print($"[UI 动效] {MotionAudit()}");
+            GD.Print($"[UI 音效] {Darkest.Ui.UiSfx.Audit()}");
         }
 
         int[] pending = _host.PendingCandidates;
@@ -1077,14 +1082,34 @@ public partial class BattleUi : CanvasLayer
             switch (events[i])
             {
                 case DamageEvent { Target: { } dt, Amount: > 0 } dmg:
+                    bool targetIsPlayer = IsPlayerUnit(dt, p);
                     PlayHitMotion(dt, $"-{dmg.Amount}",
                         dmg.Axis == "mental" ? Darkest.Ui.DdTheme.Mental : Darkest.Ui.DdTheme.Danger, p);
+                    // 🔴 `§12.2` ① 命中（**区分我/敌**）+ ② 受击：
+                    //    打敌人 ⇒ 我方命中音（高音方波）；**敌方打出** ⇒ 敌方命中音（低音方波）**＋** 我方受击音（噪声）
+                    //    ⚠️ 这让 `HitEnemy` 有真实触发点（红线 21：**枚举项没有触发点 = 死声明**）；
+                    //       若策划认为"敌方打出"只该有一种音，删掉其中一条即可（口径待确认，已投窗口）
+                    if (targetIsPlayer)
+                    {
+                        Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.HitEnemy);
+                        Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.Hurt);
+                    }
+                    else
+                    {
+                        Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.HitAlly);
+                    }
+
                     break;
                 case HealEvent { Target: { } ht, Amount: > 0 } heal:
                     PlayHitMotion(ht, $"+{heal.Amount}", Darkest.Ui.DdTheme.Hp, p);
                     break;
                 case DeathDoorEvent { Unit: { } dd }:
                     PlayMoraleCrashMotion(dd, p);
+                    Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.DeathDoor); // ② 死门
+                    break;
+                case DeathEvent { Unit: { } dead }:
+                    Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.Death);     // ② 阵亡
+                    PlayMoraleCrashMotion(dead, p);
                     break;
             }
         }
@@ -1134,6 +1159,10 @@ public partial class BattleUi : CanvasLayer
 
         return null;
     }
+
+    /// <summary>某单位是否属于我方（音效/动效按阵营分岔用）。</summary>
+    private static bool IsPlayerUnit(UnitId unitId, BattleProjector p)
+        => p.Units(player: true).Any(u => u.UnitId == unitId.Value);
 
     /// <summary>
     /// 🔴 `§12.1` 的**取证**（冒烟打印）：动效播了几次 ／ 运行中几次 ／ **输入为什么不会被吞** ——
