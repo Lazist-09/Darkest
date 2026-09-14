@@ -57,17 +57,34 @@ public partial class ExpeditionRoot : Node
 
     public override void _Ready()
     {
+        // 🔴 `ui_spec §14.3`（`#319`）：**一切 UI 都进容器树** —— 场景里的 `UiMargin/UiCol` 是唯一的落点，
+        //    代码里新建的控件（列表、选项按钮…）也**加到这里**（否则它们仍是"绝对坐标的孤儿"，必然互压）✓
+        var uiCol = GetNodeOrNull<VBoxContainer>("UiMargin/UiCol");
+        Node uiHost = uiCol ?? (Node)this;
+
+        // 🔴 中央 Theme 必须挂在**容器树的根**（`UiMargin`）上 —— 否则场景里的 4 个 `PanelContainer`
+        //    拿不到 §14.4 的**不透明面板样式**（实测：不挂 ⇒ 判据 2 报"透明框 3"）✓
+        if (uiCol?.GetParent() is Control uiRoot)
+        {
+            Darkest.Ui.DdTheme.Apply(uiRoot);
+        }
+
         _panel = new ExpeditionListPanel { Name = "ExpeditionListPanel" };
-        AddChild(_panel);
+        uiHost.AddChild(_panel);
 
         // 场景里已挂好的三个面板（节点树见 scenes/expedition/Expedition.tscn）
-        _lightBar = GetNodeOrNull<LightBarPanel>("LightBarPanel");
-        _scoutMark = GetNodeOrNull<ScoutMarkPanel>("ScoutMarkPanel");
-        _pathPanel = GetNodeOrNull<PathChoicePanel>("PathChoicePanel");
+        _lightBar = GetNodeOrNull<LightBarPanel>("UiMargin/UiCol/LightBarPanel");
+        _scoutMark = GetNodeOrNull<ScoutMarkPanel>("UiMargin/UiCol/ScoutMarkPanel");
+        _pathPanel = GetNodeOrNull<PathChoicePanel>("UiMargin/UiCol/PathChoicePanel");
 
-        // 事件二选一（**不允许跳过** ⇒ 只有两个选项按钮）
-        _choiceA = MakeButton("选项 A", new Vector2(24, 660), () => ChooseEventOption(0));
-        _choiceB = MakeButton("选项 B", new Vector2(280, 660), () => ChooseEventOption(1));
+        // 事件二选一（**不允许跳过** ⇒ 只有两个选项按钮）—— 🔴 放进一行容器（容器排布 ⇒ 不会重叠）✓
+        var choiceRow = new HBoxContainer { Name = "ChoiceRow" };
+        choiceRow.AddThemeConstantOverride("separation", 8);
+        uiHost.AddChild(choiceRow);
+        _choiceA = MakeButton("选项 A", new Vector2(0, 0), () => ChooseEventOption(0));
+        choiceRow.AddChild(_choiceA);
+        _choiceB = MakeButton("选项 B", new Vector2(0, 0), () => ChooseEventOption(1));
+        choiceRow.AddChild(_choiceB);
 
         // 扎营入口（柴火不足 ⇒ 禁用 = 灰显）
         _campButton = MakeButton("扎营（1 柴火）", new Vector2(536, 660), Camp);

@@ -11,20 +11,30 @@ namespace Darkest.Ui;
 ///
 /// 🔴 分工：结果取自内核 `ScoutResultEvent` / `ScoutOutcome`（**失败必为 null**）；
 /// 本类只做两态渲染：**已揭示（带类型）** / **未知（未揭示）**。
+///
+/// 🔴 `ui_spec §14`（`#319`）：本类**从 `CanvasLayer` 改为 `PanelContainer`** ——
+///    `CanvasLayer` **不是 `Control`** ⇒ ① 没有"框"（子控件不在 Control 链上 ⇒ 不受 Theme 管）
+///    ② **容器不会排它**（`Container` 只管理 Control 子节点）⇒ 无法参与 §14.3 的容器树 ⚠️
+///    ⇒ 现在它自己就是一个**不透明面板**（挂 Theme），内部用 `VBox`/`Label` 自动堆叠 ✓
 /// </summary>
-public partial class ScoutMarkPanel : CanvasLayer
+public partial class ScoutMarkPanel : PanelContainer
 {
     private Label _label = null!;
 
     public override void _Ready()
     {
+        Darkest.Ui.DdTheme.Apply(this); // 自己就是面板 ⇒ 挂 Theme（不透明样式来自 §14.4）
+        var col = new VBoxContainer { Name = "ScoutMarkCol" };
+        col.AddThemeConstantOverride("separation", 4);
+        AddChild(col);
+
         _label = new Label
         {
             Name = "ScoutMark",
-            Position = new Vector2(24, 120),
-            Size = new Vector2(900, 30),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(0, 24), // §14.2 ④：给最小高度
         };
-        AddChild(_label);
+        col.AddChild(_label);
     }
 
     /// <summary>刷新（`outcome` 为空 = 本次未侦察；成功才带类型）。</summary>
