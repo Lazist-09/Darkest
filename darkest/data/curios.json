@@ -1,0 +1,54 @@
+{
+  "curios": [
+    { "id": "cur_supply_crate", "name": "补给箱", "type": "curio", "curio_type": "Treasure",
+      "bare_hands": [
+        { "chance": 60, "kind": "food", "amount": 2, "text": "箱底压着几包腌肉，还能吃。" },
+        { "chance": 40, "kind": "none", "amount": 0, "text": "箱盖一掀就散了，里面只有潮气。" }
+      ],
+      "item_results": [
+        { "item": "firewood", "kind": "firewood", "amount": 2, "extra_kind": "food", "extra_amount": 1,
+          "text": "你点燃一把柴火照亮箱底 —— 除了柴，还翻出一包口粮。" }
+      ] },
+    { "id": "cur_discarded_camp", "name": "废弃营地", "type": "curio", "curio_type": "Scrounging",
+      "bare_hands": [
+        { "chance": 50, "kind": "firewood", "amount": 2, "text": "营火灰还是温的，旁边堆着没烧完的柴。" },
+        { "chance": 30, "kind": "scout", "amount": 1, "text": "帐篷里留着前人的路线图 —— 前方的路清楚了一些。" },
+        { "chance": 20, "kind": "morale_team", "amount": -5, "text": "营地像是被匆忙丢弃的，没人愿意多待。" }
+      ],
+      "item_results": [] },
+    { "id": "cur_sconce", "name": "壁灯", "type": "curio", "curio_type": "Light",
+      "bare_hands": [
+        { "chance": 100, "kind": "light", "amount": 30, "text": "你取下壁灯，火光把走廊推开了一截。" }
+      ],
+      "item_results": [] },
+    { "id": "cur_book_stack", "name": "书堆", "type": "curio", "curio_type": "Knowledge",
+      "bare_hands": [
+        { "chance": 30, "kind": "morale_team", "amount": 8, "text": "有人念出一段旧诗，队伍笑了一阵。" },
+        { "chance": 25, "kind": "trait_positive", "amount": 1, "text": "一页边注让人忽然想通了什么 —— 有人变了。" },
+        { "chance": 20, "kind": "light", "amount": -25, "text": "你读得太久，火把矮了下去。" },
+        { "chance": 25, "kind": "none", "amount": 0, "text": "全是看不懂的账本。" }
+      ],
+      "item_results": [
+        { "item": "food", "kind": "morale_team", "amount": 15, "text": "边吃边读，队伍难得放松了一回。" }
+      ] },
+    { "id": "cur_altar", "name": "圣坛", "type": "curio", "curio_type": "Worship",
+      "bare_hands": [
+        { "chance": 100, "kind": "damage_buff", "amount": 20, "text": "你把手按上冰冷的石面 —— 队伍的手稳了。" }
+      ],
+      "item_results": [
+        { "item": "supply_pack", "kind": "damage_buff", "amount": 30, "text": "献上整包补给，石面亮了一瞬 —— 队伍的手更稳了。" }
+      ] },
+    { "id": "cur_bone_pile", "name": "骸骨堆", "type": "curio", "curio_type": "Haunted",
+      "bare_hands": [
+        { "chance": 40, "kind": "gold", "amount": 3, "text": "骨缝里卡着几枚硬币。" },
+        { "chance": 25, "kind": "morale_team", "amount": -5, "text": "有人认出了其中一具的徽记，没人再说话。" },
+        { "chance": 20, "kind": "disease_one", "amount": 1, "text": "翻动时扬起的灰呛进了谁的肺里。" },
+        { "chance": 15, "kind": "none", "amount": 0, "text": "只是骨头，什么都没有。" }
+      ],
+      "item_results": [
+        { "item": "food", "kind": "morale_team", "amount": -10,
+          "text": "你在死者旁边吃东西 —— 队伍别过了脸。（亵渎死者）" }
+      ] },
+    { "id": "__source__", "name": "curio.md §3（#313）：6 个 Curio；数值为**占位**（#307 冻结中，解冻后校准）", "type": "note" }
+  ]
+}
