@@ -93,6 +93,12 @@ public partial class BattleRoot : Node2D
             CallDeferred(nameof(AutoFinishBattle));
         }
 
+        // 🔴 片③ 冒烟：`--battle-map` ⇒ **切到 E 区的【地图】页**（验"战斗里能看到同一趟的地图"）
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-map"))
+        {
+            CallDeferred(nameof(ShowMapPage));
+        }
+
         // 🔴 跨场景步进冒烟（`ui_three_screens.md` §3 / `#310`⑦）：每进一个场景消费一步
         SmokeScript.Step(this);
     }
@@ -110,6 +116,14 @@ public partial class BattleRoot : Node2D
 
     /// <summary>本实例是否要"自动点继续"（由 `PressAutoFinish` 置位；命令行旗标仍并行生效）。</summary>
     private bool _autoContinue;
+
+    /// <summary>🔴 片③ 冒烟：**切到 E 区多功能框的【地图】页**（真实走 `SetMultiFunctionPage` 同一入口）。</summary>
+    private void ShowMapPage()
+    {
+        _ui.SetMultiFunctionPage(2);
+        GD.Print($"[片③] 战斗界面：E 区当前页 = {_ui.MultiFunctionPage}（2 = 地图）");
+        GD.Print($"[片③] {_ui.DescribeMiniMap()}");
+    }
 
     /// <summary>冒烟用：用**小型自动玩家**把本场**真的打完**（走真实战斗规则）⇒ 再走既有 `EndGame` 路径。</summary>
     private void AutoFinishBattle()

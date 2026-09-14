@@ -56,7 +56,135 @@ public partial class BattleUi : CanvasLayer
     private Panel _resultPanel = null!;
     private Label _resultLabel = null!;
     private Panel _devLogPanel = null!;   // G2：开发者日志面板（F1 开关）
-    private Label _devLogLabel = null!;
+
+    // ------------------------------------------------------------------
+    // 🔴 片③：**E 区 · 多功能框**（`ui_spec.md` §1.2：右 · 可切换分页：详情 ／ 日志 ／ 地图）
+    //    · 地图**只读、不可点**（避免在战斗里改路线）
+    //    · 数据跨场景走 `ExpeditionContext.Flow`（与 `PendingAmbush` 同法）
+    // ------------------------------------------------------------------
+
+    private Label _progressLabel = null!;
+    private Panel _mfPanel = null!;
+    private Label _mfContent = null!;
+    private Darkest.Ui.BattleMiniMap? _mfMap;
+    private int _mfPage;
+    private readonly List<Button> _mfTabs = new();
+
+    /// <summary>E 区当前分页（0 详情 ／ 1 日志 ／ 2 地图）—— 供冒烟断言。</summary>
+    public int MultiFunctionPage => _mfPage;
+
+    /// <summary>🔴 地图页的**可断言摘要**（headless 冒烟：地图与远征侧读数同源）。</summary>
+    public string DescribeMiniMap() => _mfMap?.Describe() ?? "mini-map: 未建";
+
+    /// <summary>建 E 区多功能框（三页起步；旧 F1 浮层保留为开发工具，本框的【日志】页显示事件流尾部）。</summary>
+    private void BuildMultiFunctionBox()
+    {
+        _mfPanel = new Panel { Position = new Vector2(640, 556), Size = new Vector2(628, 156) };
+        _mfPanel.Modulate = new Color(0.09f, 0.1f, 0.14f, 0.98f);
+        AddChild(_mfPanel);
+
+        string[] tabs = { "详情", "日志", "地图" };
+        for (int i = 0; i < tabs.Length; i++)
+        {
+            int idx = i;
+            var b = new Button { Position = new Vector2(8 + (i * 84), 6), Size = new Vector2(80, 26), Text = tabs[i] };
+            b.Pressed += () => SetMultiFunctionPage(idx);
+            _mfPanel.AddChild(b);
+            _mfTabs.Add(b);
+        }
+
+        _mfContent = new Label
+        {
+            Position = new Vector2(10, 38),
+            CustomMinimumSize = new Vector2(606, 110),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        };
+        _mfContent.AddThemeFontSizeOverride("font_size", 12);
+        _mfPanel.AddChild(_mfContent);
+
+        _mfMap = new Darkest.Ui.BattleMiniMap { Position = new Vector2(10, 34), Size = new Vector2(606, 116) };
+        _mfMap.Visible = false;
+        _mfPanel.AddChild(_mfMap);
+
+        SetMultiFunctionPage(0);
+    }
+
+    /// <summary>🔴 切换 E 区分页（**真实按钮走这里**；冒烟也走同一入口）。</summary>
+    public void SetMultiFunctionPage(int page)
+    {
+        _mfPage = page;
+        if (_mfContent is not null)
+        {
+            _mfContent.Visible = page is 0 or 1;
+        }
+
+        if (_mfMap is not null)
+        {
+            _mfMap.Visible = page == 2;
+            if (page == 2)
+            {
+                _mfMap.QueueRedraw(); // 进战斗时地图已定，重绘一次即可（只读）
+            }
+        }
+
+        RefreshMultiFunctionContent();
+        RefreshProgressLabel();
+
+        // 页签高亮（当前页亮、其余暗）
+        for (int i = 0; i < _mfTabs.Count; i++)
+        {
+            _mfTabs[i].Modulate = i == page ? new Color(1f, 0.95f, 0.7f) : new Color(0.75f, 0.75f, 0.8f);
+        }
+
+        GD.Print($"[片③] E 区多功能框 ⇒ 切到【{(page == 0 ? "详情" : page == 1 ? "日志" : "地图")}】页");
+    }
+
+    /// <summary>详情页 / 日志页的文本（都读**同一份事件流**，不另造数据）。</summary>
+    private void RefreshMultiFunctionContent()
+    {
+        if (_mfContent is null || _host is null)
+        {
+            return;
+        }
+
+        if (_mfPage == 1)
+        {
+            IReadOnlyList<Darkest.Core.Events.BattleEvent> ev = _host.Director.Log.Events;
+            int take = System.Math.Min(7, ev.Count);
+            var lines = new List<string> { $"【日志】尾部 {take} 条（共 {ev.Count} 条；F1 仍可开全屏日志）" };
+            for (int i = ev.Count - take; i < ev.Count; i++)
+            {
+                lines.Add($"　{CombatLogText.Line(ev[i])}");
+            }
+
+            _mfContent.Text = string.Join("\n", lines);
+            return;
+        }
+
+        _mfContent.Text =
+            "【详情】点战场上的单位 ⇒ 这里显示其详情（DD 式：详情 ／ 日志 ／ 地图 三页）。\n" +
+            "　· 本页与【地图】页共用 E 区 —— 地图**只读**（不能在这里改路线）。";
+    }
+
+    /// <summary>🔴 顶部**队伍进度条：段数**（**不是 HP 条**）—— 线性模式没有"段"，则如实标成战斗目标。</summary>
+    public void RefreshProgressLabel()
+    {
+        if (_progressLabel is null)
+        {
+            return;
+        }
+
+        Darkest.Gameplay.Sim.Run.ExpeditionFlow? flow = Darkest.Gameplay.Scene.ExpeditionContext.Flow;
+        if (flow is null || !flow.IsTopologyMode)
+        {
+            _progressLabel.Text = $"[进度] 本场（线性 ／ 单场：无段数口径）　回合 {_host?.Director.Round ?? 0}";
+            return;
+        }
+
+        int visited = flow.Map.Rooms.Count(r => flow.HasVisited(r.Id));
+        _progressLabel.Text = $"[进度] 段 {flow.StepsDone}　房间 {visited}/{flow.Map.Rooms.Count}　" +
+                              $"已胜 {flow.Wins}　终点 {flow.ReachedGoal}";
+    }    private Label _devLogLabel = null!;
     private Button _devLogButton = null!;
     private int _devLogRendered = -1;
     private Label _skillTitle = null!;
@@ -109,6 +237,16 @@ public partial class BattleUi : CanvasLayer
         _retreatButton = new Button { Position = new Vector2(1076, 6), Size = new Vector2(184, 32), Text = "撤退 0%" };
         _retreatButton.Pressed += () => _retreat?.Invoke();
         AddChild(_retreatButton);
+
+        // 🔴 片③（`ui_three_screens.md` §3）：**顶部队伍进度条：段数**（**不是 HP 条**）——
+        //    线性模式没有"段"，此时显示战斗目标胜场（如实标注口径，不假装有总段数）。
+        _progressLabel = new Label { Position = new Vector2(560, 8), CustomMinimumSize = new Vector2(320, 24) };
+        _progressLabel.AddThemeFontSizeOverride("font_size", 13);
+        _progressLabel.AddThemeColorOverride("font_color", new Color(0.85f, 0.9f, 1f));
+        AddChild(_progressLabel);
+
+        // 🔴 片③：**E 区 · 多功能框**（`ui_spec.md` §1.2：右 · **可切换分页**：详情 ／ 日志 ／ 地图）
+        BuildMultiFunctionBox();
         _actionOrderLabel = new Label { Position = new Vector2(16, 40), CustomMinimumSize = new Vector2(80, 24), Text = "本回合顺序" };
         _actionOrderLabel.AddThemeFontSizeOverride("font_size", 12);
         AddChild(_actionOrderLabel);
