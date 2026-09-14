@@ -178,8 +178,11 @@ def scan_deadfuncs(verbose: bool) -> tuple[int, list[str]]:
                 exempted += 1
                 continue
             # 生产调用点 = 除本文件与 tests 之外的任何地方出现该方法名
+            # 🔴 **必须在【原始文本】里搜**：`strip_code` 会误吞代码（实测：`DirectorBridge.cs` 里的
+            #    `BalanceTable.FromTuning(...)` 在剥离后消失 ⇒ 该扫一度把**明明在用的**方法报成死函数 ⚠️，
+            #    同类问题在 deadkeys 也犯过一次：**剥离字符串/注释的正则不能用来做"找引用"**）✓
             callers = 0
-            for g, gtext in corpus.items():
+            for g, gtext in raw.items():
                 if g == f or "tests" in g.parts:
                     continue
                 if re.search(rf"\b{re.escape(name)}\s*\(", gtext):
