@@ -99,6 +99,13 @@ public partial class BattleRoot : Node2D
             CallDeferred(nameof(ShowMapPage));
         }
 
+        // 🔴 片③ 冒烟：`--battle-card=N` ⇒ **真实点击第 N 张我方卡**（验"点单位 ⇒ 锁进详情页"）
+        string? cardArg = System.Array.Find(OS.GetCmdlineArgs(), a => a.StartsWith("--battle-card=", StringComparison.Ordinal));
+        if (cardArg is not null && int.TryParse(cardArg["--battle-card=".Length..], out int cardSlot))
+        {
+            CallDeferred(nameof(ShowCardDetail), cardSlot);
+        }
+
         // 🔴 跨场景步进冒烟（`ui_three_screens.md` §3 / `#310`⑦）：每进一个场景消费一步
         SmokeScript.Step(this);
     }
@@ -116,6 +123,13 @@ public partial class BattleRoot : Node2D
 
     /// <summary>本实例是否要"自动点继续"（由 `PressAutoFinish` 置位；命令行旗标仍并行生效）。</summary>
     private bool _autoContinue;
+
+    /// <summary>🔴 片③ 冒烟：**真实点击第 N 张我方卡** ⇒ 应锁进 E 区详情页。</summary>
+    private void ShowCardDetail(int slot)
+    {
+        _ui.PressCard(slot, isPlayer: true);
+        GD.Print($"[片③] 点单位卡 ⇒ E 区详情页锁定槽位 = {_ui.LockedSlot}（应为 {slot}）");
+    }
 
     /// <summary>🔴 片③ 冒烟：**切到 E 区多功能框的【地图】页**（真实走 `SetMultiFunctionPage` 同一入口）。</summary>
     private void ShowMapPage()
@@ -335,6 +349,10 @@ public partial class BattleRoot : Node2D
     /// <summary>卡片点击（UI 回调）：增援两步（#181）优先；否则单体/移动选一（#178/#180）。</summary>
     public void OnCardClicked(int slot, bool isPlayer)
     {
+        // 🔴 `ui_spec` §1.1：**点击单位 ⇒ 锁定到 E 区多功能框（详情页）** —— 任何时刻都能看（只读）
+        //    ⚠️ 必须在 `_awaitingPlayer` 早退**之前**做，否则"非我方回合时点单位看详情"会被吞掉
+        _ui.ShowUnitDetail(slot, isPlayer);
+
         if (!_awaitingPlayer)
         {
             return;

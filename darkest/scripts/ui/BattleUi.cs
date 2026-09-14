@@ -314,6 +314,46 @@ public partial class BattleUi : CanvasLayer
     /// <summary>供 BattleRoot 的提示文案使用（单位原型中文名）。</summary>
     public string ArchetypeNameOf(UnitId actor) => NameOf(_host?.ArchetypeOf(actor) ?? actor.Value);
 
+    // ------------------------------------------------------------------
+    // 🔴 片③：**点击单位 ⇒ 锁定到 E 区【详情】页**（`ui_spec.md` §1.1）
+    //    · **任何时刻**都能看（不要求轮到你行动）；**纯只读**，不改战斗状态 ✓
+    // ------------------------------------------------------------------
+
+    private int _lockedSlot;
+
+    /// <summary>被锁进详情页的槽位（0 = 未锁；供冒烟断言）。</summary>
+    public int LockedSlot => _lockedSlot;
+
+    /// <summary>把某单位锁进 E 区【详情】页（真实点击卡时由 `BattleRoot.OnCardClicked` 调）。</summary>
+    public void ShowUnitDetail(int slot, bool isPlayer)
+    {
+        _lockedSlot = slot;
+        SetMultiFunctionPage(0);
+
+        if (_host is null)
+        {
+            return;
+        }
+
+        UnitRuntime? u = isPlayer ? _host.Director.Player.UnitRuntimeAt(slot)
+            : _host.Director.Enemy.UnitRuntimeAt(slot);
+        if (u is null)
+        {
+            _mfContent!.Text = $"【详情】{(isPlayer ? "我方" : "敌方")}槽位 {slot}：空位。";
+            return;
+        }
+
+        _mfContent!.Text =
+            $"【详情·{NameOf(u.Id.Value)}】{(isPlayer ? "我方" : "敌方")}槽位 {slot}\n" +
+            $"　HP {u.CurrentHp}/{u.MaxHp}　士气 {u.Morale}　速度 {u.EffectiveSpeed(1.0)}\n" +
+            $"　状态：{(u.Weak ? "死门 " : string.Empty)}{(u.CurrentHp <= 0 ? "已阵亡 " : string.Empty)}\n" +
+            "　（点其它单位可切换；本页只读 —— 不改战斗状态）";
+        GD.Print($"[片③] 单位锁进 E 区详情页：{(isPlayer ? "我方" : "敌方")}槽位 {slot}（{NameOf(u.Id.Value)}）");
+    }
+
+    /// <summary>🔴 供冒烟：**真实点击某单位的卡**（走 `BattleRoot.OnCardClicked` 同一入口）。</summary>
+    public void PressCard(int slot, bool isPlayer) => _host?.OnCardClicked(slot, isPlayer);
+
     /// <summary>G2：开发者日志开/关（每次打开重绘整个事件流尾部）。</summary>
     public void ToggleDevLog()
     {
