@@ -28,16 +28,33 @@ public partial class LightBarPanel : CanvasLayer
 
     public override void _Ready()
     {
+        // 🔴 `ui_spec §14`（`#319`）：本类是 `CanvasLayer`（**不是 `Control`**）⇒ 子控件**不在 Control 链上**
+        //    ⇒ 既没有"框"，也不受 Theme 管（实测：这一屏 `Panel+PC = 0`、8 对重叠）⚠️
+        //    修法：**自建一个【顶部通栏】`PanelContainer` 根**（不透明、挂 Theme），内部用 `VBox` 堆叠 ✓
+        //    并把原来"相对屏幕的绝对坐标"改成**相对本容器**的坐标（容器给最小尺寸 ⇒ 不会再压到下面的列表）✓
+        var root = new PanelContainer { Name = "LightBarRoot" };
+        root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopWide);
+        Darkest.Ui.DdTheme.Apply(root);
+        AddChild(root);
+
+        var col = new VBoxContainer { Name = "LightBarCol" };
+        col.AddThemeConstantOverride("separation", 4);
+        root.AddChild(col);
+
+        // 第 1 行：光照条 + 档位边界刻度（刻度是"相对条"的仪表 ⇒ 放在一个固定尺寸的宿主里，避免用屏幕坐标）
+        var barHost = new Control { Name = "LightBarHost", CustomMinimumSize = new Vector2(360, 66) };
+        col.AddChild(barHost);
+
         _bar = new ProgressBar
         {
             Name = "LightBar",
             MinValue = 0,
             MaxValue = 100,
             Value = 100,
-            Position = new Vector2(24, 16),
+            Position = new Vector2(0, 4),
             Size = new Vector2(360, 24),
         };
-        AddChild(_bar);
+        barHost.AddChild(_bar);
 
         // 边界竖线（按条宽等比放在对应百分比处）+ 刻度文字
         foreach (int boundary in TierBoundaries)
@@ -46,28 +63,28 @@ public partial class LightBarPanel : CanvasLayer
             {
                 Name = $"LightMark{boundary}",
                 Color = new Color(0.9f, 0.9f, 0.4f, 0.9f),
-                Position = new Vector2(24 + (int)(360 * boundary / 100.0) - 1, 12),
+                Position = new Vector2((int)(360 * boundary / 100.0) - 1, 0),
                 Size = new Vector2(2, 32),
             };
-            AddChild(mark);
+            barHost.AddChild(mark);
 
             var caption = new Label
             {
                 Name = $"LightMarkText{boundary}",
                 Text = boundary.ToString(),
-                Position = new Vector2(24 + (int)(360 * boundary / 100.0) - 6, 44),
+                Position = new Vector2((int)(360 * boundary / 100.0) - 6, 32),
             };
-            AddChild(caption);
+            barHost.AddChild(caption);
         }
 
+        // 第 2 行：说明文本（当前值 + 档位 + 该档给敌人什么）
         _text = new Label
         {
             Name = "LightText",
-            Position = new Vector2(396, 14),
-            Size = new Vector2(860, 60),
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(0, 52), // §14.2 ④：给最小高度（防塌陷）
         };
-        AddChild(_text);
+        col.AddChild(_text);
     }
 
     /// <summary>按内核读数刷新（**只渲染，不计算**）。</summary>
