@@ -212,6 +212,8 @@ public sealed record TuningResources(
 /// <summary>扎营参数（E3）：四档食物 / Respite 基准 / 打气持续场数 / 夜袭概率。</summary>
 public sealed record TuningCamp(
     [property: JsonPropertyName("food_tiers")] TuningFoodTiers FoodTiers,
+    // 🔴 数字外置（P29）：四档食物的**效果**（原先硬写在 `ExpeditionCampMath.FoodEffect`）✓
+    [property: JsonPropertyName("food_effects")] TuningFoodEffects FoodEffects,
     [property: JsonPropertyName("respite_base")] int RespiteBase,
     [property: JsonPropertyName("pep_talk_battles")] int PepTalkBattles,
     [property: JsonPropertyName("ambush_chance")] double AmbushChance);
@@ -221,6 +223,22 @@ public sealed record TuningFoodTiers(
     [property: JsonPropertyName("half")] int Half,
     [property: JsonPropertyName("full")] int Full,
     [property: JsonPropertyName("feast")] int Feast);
+
+/// <summary>
+/// 🔴 单个食物档位的**效果**（数字外置，P29）：HP 百分比增量（可负）与士气增量。
+/// 原先这四档效果**硬写在 `ExpeditionCampMath.FoodEffect` 的 switch 里** ⇒ 策划改不了 ⚠️
+/// ⇒ 现搬到 `tuning.camp.food_effects`（**值不变 = 零数值改动**）✓
+/// </summary>
+public sealed record TuningFoodEffect(
+    [property: JsonPropertyName("hp_percent")] double HpPercent,
+    [property: JsonPropertyName("morale")] int Morale);
+
+/// <summary>四档食物效果（starve / half / full / feast）—— 与 `food_tiers`（成本）配套 ✓</summary>
+public sealed record TuningFoodEffects(
+    [property: JsonPropertyName("starve")] TuningFoodEffect Starve,
+    [property: JsonPropertyName("half")] TuningFoodEffect Half,
+    [property: JsonPropertyName("full")] TuningFoodEffect Full,
+    [property: JsonPropertyName("feast")] TuningFoodEffect Feast);
 
 /// <summary>命中率钳制 [55,100]（combat_math §1）。</summary>
 public sealed record TuningHitClamp(
@@ -292,7 +310,7 @@ public sealed record TuningConfig(
             "mental_reduction", "physical_mitigation", "deaths_door", "retreat_formula",
             "battle_goal", "virtue_inspired_morale_per_turn",
             "safety_factor", "wave_interval_rounds", "measured_d", "enemy_full_hp",
-            "stun", "buildup_on_apply", "witness_crit_shock_chance_percent");
+            "stun", "buildup_on_apply", "witness_crit_shock_chance_percent", "food_effects");
 
         if (string.IsNullOrWhiteSpace(json))
         {

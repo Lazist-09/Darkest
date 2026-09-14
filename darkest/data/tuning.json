@@ -63,7 +63,7 @@
     "pass_morale_delta": 0
   },
   "resources": { "firewood": 1, "food": 12 },
-  "camp": { "food_tiers": { "starve": 0, "half": 3, "full": 6, "feast": 12 }, "respite_base": 6, "pep_talk_battles": 4, "ambush_chance": 0.33 },
+  "camp": { "food_tiers": { "starve": 0, "half": 3, "full": 6, "feast": 12 }, "food_effects": { "starve": { "hp_percent": -0.20, "morale": -15 }, "half": { "hp_percent": 0.0, "morale": 0 }, "full": { "hp_percent": 0.10, "morale": 0 }, "feast": { "hp_percent": 0.25, "morale": 10 } }, "respite_base": 6, "pep_talk_battles": 4, "ambush_chance": 0.33 },
   "retreat_formula": {
     "base_percent": 50,
     "per_speed_diff_percent": 4,

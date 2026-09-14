@@ -32,15 +32,22 @@ public static class ExpeditionCampMath
         _ => throw new ArgumentOutOfRangeException(nameof(tier), $"未知食物档位 \"{tier}\"（E3）。"),
     };
 
-    /// <summary>档位效果：HP 百分比增量（正负）与士气增量。</summary>
-    public static (double HpPercent, int Morale) FoodEffect(string tier) => tier switch
+    /// <summary>
+    /// 档位效果：HP 百分比增量（正负）与士气增量。
+    /// 🔴 数字外置（P29）：四档效果**来自 `tuning.camp.food_effects`**（原先硬写在本方法的 switch 里）✓
+    /// </summary>
+    public static (double HpPercent, int Morale) FoodEffect(Darkest.Data.TuningFoodEffects effects, string tier)
     {
-        "starve" => (-0.20, -15),
-        "half" => (0.0, 0),
-        "full" => (0.10, 0),
-        "feast" => (0.25, 10),
-        _ => throw new ArgumentOutOfRangeException(nameof(tier), $"未知食物档位 \"{tier}\"（E3）。"),
-    };
+        Darkest.Data.TuningFoodEffect e = tier switch
+        {
+            "starve" => effects.Starve,
+            "half" => effects.Half,
+            "full" => effects.Full,
+            "feast" => effects.Feast,
+            _ => throw new ArgumentOutOfRangeException(nameof(tier), $"未知食物档位 \"{tier}\"（E3）。"),
+        };
+        return (e.HpPercent, e.Morale);
+    }
 
     /// <summary>Respite 点数池 = 基准 + 存活人数（满编 12；死 2 人 → 10）。</summary>
     public static int RespitePool(int respiteBase, int survivors) => respiteBase + Math.Max(0, survivors);

@@ -431,7 +431,7 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             TrySpend(log, "food", need, "camp_food");
         }
 
-        (double hpPct, int moraleDelta) = ExpeditionCampMath.FoodEffect(tier);
+        (double hpPct, int moraleDelta) = ExpeditionCampMath.FoodEffect(camp.FoodEffects, tier); // 🔴 效果来自 data ✓
         ApplyToSurvivors(hpPct, moraleDelta);
         log.Append(new CampFoodChosenEvent(tier, need, Survivors));
         return tier;

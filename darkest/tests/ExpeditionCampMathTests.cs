@@ -58,10 +58,12 @@ public sealed class ExpeditionCampMathTests
     [TestMethod]
     public void FoodEffects_MatchSpec()
     {
-        Assert.AreEqual((-0.20, -15), ExpeditionCampMath.FoodEffect("starve"), "Starve：全队 −20% HP、−15 士气");
-        Assert.AreEqual((0.0, 0), ExpeditionCampMath.FoodEffect("half"), "Half：无效果");
-        Assert.AreEqual((0.10, 0), ExpeditionCampMath.FoodEffect("full"), "Full：全队 +10% HP");
-        Assert.AreEqual((0.25, 10), ExpeditionCampMath.FoodEffect("feast"), "Feast：全队 +25% HP、+10 士气");
+        // 🔴 数字外置（P29）：效果来自 `tuning.camp.food_effects` ⇒ 用例传**出厂 data 的效果表**（不再硬编码期望源）
+        TuningCamp c = Camp();
+        Assert.AreEqual((-0.20, -15), ExpeditionCampMath.FoodEffect(c.FoodEffects, "starve"), "Starve：全队 −20% HP、−15 士气");
+        Assert.AreEqual((0.0, 0), ExpeditionCampMath.FoodEffect(c.FoodEffects, "half"), "Half：无效果");
+        Assert.AreEqual((0.10, 0), ExpeditionCampMath.FoodEffect(c.FoodEffects, "full"), "Full：全队 +10% HP");
+        Assert.AreEqual((0.25, 10), ExpeditionCampMath.FoodEffect(c.FoodEffects, "feast"), "Feast：全队 +25% HP、+10 士气");
     }
 
     [TestMethod]
@@ -78,6 +80,6 @@ public sealed class ExpeditionCampMathTests
     {
         TuningCamp c = Camp();
         Assert.ThrowsException<ArgumentOutOfRangeException>(() => ExpeditionCampMath.FoodRequired(c.FoodTiers, "brunch", 6));
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => ExpeditionCampMath.FoodEffect("brunch"));
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => ExpeditionCampMath.FoodEffect(c.FoodEffects, "brunch"));
     }
 }
