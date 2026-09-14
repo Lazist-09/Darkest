@@ -108,23 +108,25 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
 🔴 价值：把"没有重叠"从"看起来还行"变成【可测】（与红线 25「动作 ≠ 意义」同路数）
 ```
 
-### 1.6 逐屏进度（🔴 **实测真读数**，口径修正后；提交 `7067c77`）
-| 界面 | 入口 | 可见 Label | Panel+PC | 重叠对 | 透明框 | 状态 |
+### 1.6 逐屏进度（🔴 **实测真读数**；最新提交 `e01dca1`）
+| 界面 / 状态 | 入口 | 可见 Label | Panel+PC | 重叠对 | 透明框 | 状态 |
 |---|---|---|---|---|---|---|
 | **城池 Hamlet**（`HamletRoot`） | `--hamlet` | 11 | 5 | **0** | 0 | ✅ |
 | **角色详情**（`HeroDetailPanel` 模态） | `--hamlet --hamlet-row=0` | 4（只审模态） | 0 | **0** | 0 | ✅（范围外 11 Label 确被不透明模态遮住） |
-| **地图 Expedition**（`Expedition.tscn` + 5 面板类） | `--topology` | 4 | 4 | **2** | 0 | 🔴 未通过 |
+| **地图 Expedition** | `--topology` | **9** | 5 | **0** | **0** | ✅（`e01dca1`） |
+| 地图 · **Curio 面板打开** | `--topology --click-map=1` | 1（只审 `CurioPanel` 模态） | 0 | **0** | 0 | ✅ |
+| 地图 · **扎营技能面板打开** | `--topology --click-map=1 --camp` | 1（只审 `CampSkillPanel` 模态） | 0 | **0** | 0 | ✅ |
 | **战斗 Battle**（`BattleUi`） | `--click-menu=0` | **59** | 35 | **391** | **22** | 🔴 未通过（最后一个，最大） |
 
-> ⚠️ **此前报过的两个 ✅（地图屏 "9→0 / 3→0"、战斗屏 "✅"）是【假通过】** —— 判据把纯布局容器
-> `MarginContainer` 当成了"满屏不透明模态覆盖层"，把审计范围缩进了那个子树（详见坑 ⑨）。
-> 🔴 **教训**：任何"✅"都必须连同【审计范围 + 全场景计数 + 范围外控件数】一起看（现在报告里已强制打印）。
+> ⚠️ **历史上的"✅"有两类假绿**（都栽在判据口径上）：① 纯容器被当模态 ⇒ 审计范围被缩小（坑 ⑩）；
+> ② `LightBarPanel`/`PathChoicePanel`/`InventoryPanel` **脚本根本没挂上**（坑 ⑪）⇒ 面板没内容 ⇒ "无重叠"。
+> 🔴 **教训**：任何"✅"都要连【审计范围 + 全场景计数 + 范围外控件数 + 可见 Label 数是否合理】一起看。
 
 **战斗屏真读数为什么这么差**：`BattleUi` 的控件**仍在"创建时加到 CanvasLayer"**（49 个 Label 级的孤儿 + 22 个引擎默认
 `a=0.6` 的 Panel），新的 `_uiRoot + TopRow/MidRow/BottomRow` 只是**骨架** ⇒ 孤儿与容器树并存 ⇒ 391 对重叠。
 ⇒ 要做的是【把控件改成创建时进容器】（`#321`③ 的分区表），不是挪坐标。
 
-### 1.7 已知坑（9 条，全部实机踩过）
+### 1.7 已知坑（13 条，全部实机踩过）
 ```
 ① CanvasLayer / Node2D 不是 Control ⇒ 🔴 Godot 的 Container【不排它】（Container 只管理 Control 子节点）
    ⇒ 既没有"框"（不在 Control 链上 ⇒ 不受 Theme 管）又根本进不了容器树 ⇒ **只挪坐标会掩盖结构问题**
@@ -144,6 +146,21 @@ Root → MarginContainer（全屏留白）→ VBoxContainer（顶栏 / 主体 / 
    纯布局容器（`MarginContainer`/`VBox`…）**遮不住任何东西**；实测它竟能解析出 `panel` 样式 `a=1`
    ⇒ 若用它做覆盖层判定，审计范围会被**悄悄缩小** ⇒ 报 ✅ 却是假通过（地图屏/战斗屏各中一次）
    ⇒ 并**强制打印**：覆盖层是谁+什么类+样式来源 ／ 全场景计数 ／ 范围外控件数 ✓
+⑪ 🔴🔴 **`.tscn` 的 `type=` 必须与脚本基类一致**（`e01dca1`）：
+   `Expedition.tscn` 把 `LightBarPanel`/`PathChoicePanel`/`InventoryPanel` 声明为 `PanelContainer`，
+   而这三个类的 C# 仍是 `CanvasLayer` ⇒ 引擎报
+   `Script inherits from native type 'CanvasLayer', so it can't be assigned to an object of type: 'PanelContainer'`
+   ⇒ **脚本根本没挂上 ⇒ 光照条 / 选路 / 背包格子三块 UI 全死**（红线 18：玩家碰不到选路）⚠️
+   ⇒ 修类后该屏可见 Label **4 → 9**（内容回来了）且判据仍 0/0 ✅
+   📌 **判据查不出这类缺陷**（它只测重叠/透明）—— 必须靠【引擎错误清零】+【可见 Label 数是否合理】发现
+⑫ **可见性要用 `IsVisibleInTree()`（有效可见性）**：面板 `Hide()` 后其内部 Label 的 `Visible` 仍是 `true`
+   ⇒ 被算成"重叠"（**假红**，实测 8 对）—— 与假绿一样坏
+⑬ 🔴 **父节点是 `Node2D` 时，Control 的 `FullRect` 锚点算不出尺寸**（`get_parent_anchorable_rect()` 为空），
+   而"锚点不动、只设 `Size`"会被引擎覆盖（警告 *non-equal opposite anchors ⇒ size overridden after _ready()*）
+   ⇒ 满屏模态会退化成 min size（内容挤到左上角、压住别的控件）⇒ 正解：先造一个【锚点相等 + 显式 `Size`=视口】
+   的满屏 `Control` 宿主（`ModalHost`），模态再挂它下面 ✓（`CanvasLayer` 做根反而绕开了这坑：它不是 CanvasItem）
+⑭ **重叠必须带矩形坐标**（`pos=/size=`）才能定位：本轮正是靠它才看清"真凶是 `size=(1232,620)` 的巨型 Label"
+   与"模态其实没满屏（内容挤在 (22,22)）"⇒ 只报"谁压谁"分不清【放错位置】还是【容器被挤爆】
 📌 总纪律："通过了"之前先问【它到底检查了什么】—— 判据自身的口径也要自检
 ```
 
@@ -234,9 +251,11 @@ UiAuditHook.cs        🆕 `--ui-audit` 的**跨场景取证钩子**（`7067c77`
                       每屏跑满 5 次、以最后一次为准；回调不捕获会被释放的节点
 MainMenuRoot.cs       `_Ready` 第一句 `UiAuditHook.InstallIfRequested(this)`；另有 `--theme-audit` / `--input-audit`
 HamletRoot.cs         城池 + 角色详情（覆盖面板）
-ExpeditionRoot.cs     远征/地图侧；组合根（内容表、Curio 选择）
-BattleUi.cs           : CanvasLayer（⚠️ 不是 Control）⇒ 已建满屏 _uiRoot + TopRow/MidRow/BottomRow
-LightBarPanel / ScoutMarkPanel / PathChoicePanel / InventoryPanel / ExpeditionListPanel.cs（地图侧面板类）
+ExpeditionRoot.cs     远征/地图侧组合根：**MapRow**（地图视图进容器树）+ `MakeButton`（不再自己 AddChild）
+                      + `MakeModal`/`ModalHost`（满屏不透明模态：Curio 面板 / 扎营技能面板）+ `SwitchTo`（deferred 切场景）
+BattleUi.cs           : CanvasLayer（⚠️ 不是 Control）⇒ 已建满屏 _uiRoot + TopRow/MidRow/BottomRow（**骨架**，待填控件）
+地图侧面板类（**已全部改成 PanelContainer**，`e01dca1`）：LightBarPanel · ScoutMarkPanel · PathChoicePanel ·
+                      InventoryPanel · ExpeditionListPanel（⚠️ 前四个中三个原本是 CanvasLayer 且与 .tscn 的 type 不一致 ⇒ 曾全死）
 BattleMiniMap.cs      战斗右下角地图
 ```
 **资源 / 场景**：`darkest/resources/theme/dd_theme.tres`（323 B，⚠️ 与 §14.4 的 `darkest.tres` 命名不一致）·
@@ -274,21 +293,20 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 ## 6. 下一步（UI 侧执行顺序 · 参数已全部由 `#321` 定死）
 
 ```
-✅ 已完成（`7067c77`）：**取证恢复** —— `--ui-audit` 真因（`Root` busy ⇒ 定时器没进树）已修 + 判据口径修正
-   （纯容器被当模态 ⇒ 两张"假通过"已打回）；四屏真读数见 §1.6
-① 地图屏（小，先做）：**2 对重叠** = `ExpeditionListPanel/ExpeditionListBody` ⟷ `MapStatus` / `MapOptionsTitle`
-   + 一条引擎错误 `Can't add child '@Button@3' to 'ChoiceRow', already has a parent 'Expedition'`
-     ⇒ 根因：`ExpeditionRoot.MakeButton()` 里先 `AddChild(this)`，调用方又挂进容器 ⇒ **去掉前者**，由调用方决定父节点
-   ⇒ 再把地图视图（MapStatus / MapOptionsTitle / 房间方块 / Line2D / 扎营·回城按钮）**全部搬进容器树**
-     （现全挂在 `Expedition` 根上、按 `RoomScreenPos` 手摆坐标 ⇒ 与容器化的面板互压）
-② 战斗屏（大）：59 Label / 391 重叠 / 22 透明 ⇒ 按 `#321`③ 分区表把控件**改成【创建时进容器】**
-   （A 顶栏 / B 战场 / C 左下角色面板固定宽 / E 右下多功能框 ExpandFill / 底栏；单位卡均分不 Expand）
-③ 字体（§13.4①）：🔴 `Noto Serif SC`（含 CJK，OFL）+ fallback 链 `EB Garamond` → `Noto Serif SC`，落 `resources/theme/`
-④ 配色（§14.4）：深底 + 强对比 + 金/红点缀，全部走 Theme（命名统一 `dd_theme.tres`）
-⑤ 动效（§12.1 四个 + `#321`⑤ 常量，输入不得被吞） → 音效（§12.2 三类 + 占位音，触发点见 `#321`⑥）
-⑥ ShaderMaterial 描边/暗角/闪白（视觉规范仍属 `ui_spec §1.4`） → ⑨ 帧预算基线 → ⑩ i18n（只做"布局先对"）
+✅ 已完成：`7067c77` 取证恢复 + 判据口径修正 ｜ `e01dca1` **地图屏真绿**（含 3 个死面板复活 + Curio/扎营模态 + 口径 4~6 条）
+✅ 四屏状态：城池 ✅ ／ 角色详情 ✅ ／ 地图 ✅（含两个模态）／ **战斗 🔴 59 Label · 391 重叠 · 22 透明**
+① 🔴 战斗屏（最后一个，也最大）：按 `#321`③ 分区表把控件**改成【创建时进容器】**
+   （A 顶栏 / B 战场 / C 左下角色面板固定宽 / E 右下多功能框 ExpandFill / 底栏；单位卡均分不 Expand；
+    技能栏在 C 区内）—— 现有 `_uiRoot + TopRow/MidRow/BottomRow` 只是骨架，49 个 Label 级孤儿仍挂在 CanvasLayer 上
+   手法照地图屏：① 类改 Control 系（若是 CanvasLayer/Node2D）② 控件创建时进容器 ③ Theme 挂容器根
+            ④ 需要浮层就走 `MakeModal`（满屏模态）⑤ 每步跑 `--ui-audit` 到全绿
+② 字体（§13.4①）：🔴 `Noto Serif SC`（含 CJK，OFL）+ fallback 链 `EB Garamond` → `Noto Serif SC`，落 `resources/theme/`
+③ 配色（§14.4）：深底 + 强对比 + 金/红点缀，全部走 Theme（命名统一 `dd_theme.tres`）
+④ 动效（§12.1 四个 + `#321`⑤ 常量，输入不得被吞） → 音效（§12.2 三类 + 占位音，触发点见 `#321`⑥）
+⑤ ShaderMaterial 描边/暗角/闪白（视觉规范仍属 `ui_spec §1.4`） → ⑨ 帧预算基线 → ⑩ i18n（只做"布局先对"）
 🔴 每改完一屏：跑 `--ui-audit` ⇒ 按架构 §⑥ 把读数（界面名／Label／重叠／透明／提交号）**追加到 `架构窗口.txt`**
-🔴 纪律：每轮一个轴（`#244`）· 零数值改动（`#307`）· 不改内核/数据（`#321`）· 一步一提交
+🔴 另外建议（已投给架构）：**加一条静态检查** —— 扫 `.tscn` 的 `type=` 与脚本基类是否一致（坑 ⑪ 那类缺陷判据查不出来）
+🔴 纪律：每轮一个轴（`#244`）· 零数值改动（`#307`）· 不改内核/数据（`#321`）· 一步一提交 · 读日志用文件工具（UTF-8）
 ```
 
 ---
@@ -520,7 +538,9 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
 | 2026-09-14 | `doc/windows/策划窗口.txt` | `DELIVERY-UI-RECEIPT-20260914` | 回执：五件参数已收到并落进 skill；UI 侧执行顺序；仍待裁 1 条 | ✅ 已投（回读命中） |
-| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-READINGS-20260914` | 🔴 **长期义务第 1 次**：四屏判据读数留档 + 两条"假通过"已打回 + `--ui-audit` 真因 | ✅ 已投（回读命中） |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-READINGS-20260914` | 🔴 **长期义务第 1 次**：四屏判据读数留档 + 两条"假通过"已打回 + `--ui-audit` 真因 | ⚠️ **首次回读未命中**（窗口被其主人清空）⇒ 已按"当轮补投"规则补投 |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-READINGS-RETRY-20260914` | 同上（补投，`1365c9c`） | ✅ 已投（回读命中 L6；读数在 L18） |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-READINGS-2-20260914` | 第 2 次：地图屏真绿 + 三个死面板取证 + 判据口径 4~6 + Node2D 锚点坑（`ddbbf7a`） | ✅ 已投（回读命中 L55） |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
