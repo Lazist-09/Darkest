@@ -68,8 +68,28 @@ public partial class MainMenuRoot : Node2D
         _status.Text = $"跨趟状态：金钱 {economy.Gold}　名册 {roster.Heroes.Count}/{roster.Cap}　" +
                        $"最低士气 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}";
 
-        GD.Print($"[MainMenuRoot] 主菜单就绪：三选一（单场战斗 ／ 出发远征 ／ 回城）　" +
-                 $"金钱 {economy.Gold}　名册 {roster.Heroes.Count}");
+        // 🔴 Godot 内置清单 ②（本轮轴：**字体/颜色集中**）：**中央 Theme 挂到引擎根 Window**
+        //    ⇒ 之后所有场景的控件**自动继承**（Theme 沿 Control/Window 祖先链传播）✓ 不必逐屏设置 ✓
+        GetTree().Root.Theme = Darkest.Ui.DdTheme.Shared;
+        _title.Theme = null; // （保持可读性：显式声明"标题不另设 Theme"，样式来自中央 Theme + 语义色 override）
+
+        // 🔴 审计清单② 取证：`--theme-audit` ⇒ 打印中央 Theme 读数 + **从真实控件读出的生效值**（证明继承成功）
+        //    并把 Theme 存一份 `.tres` 到契约的落点目录 `resources/theme/`（编辑器里可见；后续可改成资源加载）
+        if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--theme-audit"))
+        {
+            Error err = Darkest.Ui.DdTheme.DumpTo();
+            GD.Print($"[Theme审计] {Darkest.Ui.DdTheme.Audit()}");
+            GD.Print($"[Theme审计] 落点：res://resources/theme/dd_theme.tres ⇒ {err}");
+
+            // 🔴 **如实报**：生效值**不等于**中央 Theme ⇒ **继承没生效**
+            //    根因：本屏根是 `Node2D`（`BattleUi` 是 `CanvasLayer`）—— **都不是 `Control`**
+            //    ⇒ Godot 的主题查找沿 **Control/Window 祖先链**走，链上没有我们的 Theme ⇒ 落到引擎默认 16
+            //    ⇒ 📌 **下一轮（架构清单② 的"容器+锚点"）就是修这个**：给每屏加一个满屏根 `Control` 并挂 Theme ✓
+            int effective = _title.GetThemeFontSize("font_size");
+            GD.Print($"[Theme审计] 生效值（从 _title 读出）：font_size = {effective}　" +
+                     $"中央 Theme 期望 = {Darkest.Ui.DdTheme.FontBody}　" +
+                     $"=> {(effective == Darkest.Ui.DdTheme.FontBody ? "✅ 继承生效" : "🔴 未生效（根不是 Control ⇒ 主题链断）")}");
+        }
 
         // 🔴 跨场景步进冒烟：**先解析步骤**（只解析一次）—— 解析后本场景也要消费一步
         Darkest.Gameplay.Scene.SmokeScript.InitFromArgs();
