@@ -1,4 +1,4 @@
-# Darkest 项目 · UI 设计师简报（收件箱转写）
+﻿# Darkest 项目 · UI 设计师简报（收件箱转写）
 
 > 🔴 **转写标记（回读这就是"已写进 skill"的证据，红线 20）**：`INBOX-TRANSCRIBED-DARKEST-UI-20260914`
 > **转写来源**：`doc/windows/主程序窗口.txt`（508 行）· `doc/windows/策划窗口.txt`（950 行）· `doc/windows/架构窗口.txt`（空）
@@ -345,7 +345,13 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
    取证：`命中(我) 19 ／ 命中(敌) 12 ／ 受击 12 ／ 死门 0（本轮无死门事件）／ 阵亡 4 ／ 结算 1`
    ⚠️ 一处**口径歧义**已投架构待裁：「敌方打我」该播一种音（受击）还是两种（受击+敌方命中音）—— 我按"两条都播"落地
       （理由：只播一种 ⇒ `Kind.HitEnemy` 无触发点 = 死声明，红线 21）
-⑤ ShaderMaterial 描边/暗角/闪白（`§12.3` 已接受材质统一实现；视觉规范仍属 `ui_spec §1.4`）→ ⑨ 帧预算基线
+⑤ ✅ **`§12.3` 已完成**（`27d96a6`）：
+   · **文字描边** = `Label`/`Button` 的**引擎内置主题项** `font_outline_color` + `outline_size`（2px / `#080505`）
+     —— 🔴 **没自研 shader**（红线 26 内置优先）；实测：`outline_size = 2（期望 2）／描边色 080505ff => ✅ 生效`
+   · **暗角 + 闪白** = `ShaderMaterial`（`resources/shaders/vignette.gdshader`）：`vignette_strength`（士气崩溃 0.40）+ `flash`（阵亡 0.35）
+     ⚠️ 缺 shader 文件时不崩：退回纯色黑罩 + **打印留痕**（红线 21）
+   · 已投架构：建议把 `godot_builtins_audit §4.1` 的"描边可用材质"改成"**描边 = 内置主题项（首选）**；材质只做暗角/闪白"
+⑥ ⑨ 帧预算基线（`Performance.GetMonitor`）→ ⑩ i18n（只做"布局先对"）
 ⑥ ⑩ i18n：只做"布局先对"（随容器化已达成）
 🔴 每改完一屏/一轴：跑 `--ui-audit` ⇒ 把读数（界面名／Label／重叠／透明／提交号）**追加到 `架构窗口.txt`**
 🔴 待架构答复：建议加一条**静态门禁**（扫 `.tscn` 的 `type=` 与脚本基类是否一致 —— 坑 ⑪ 判据查不出）
@@ -627,6 +633,7 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-READINGS-4-20260914` | 第五屏（主菜单）纳入审计 + 配色轴读数（四色/按钮四态/继承生效）+ 建议把判据口径改为**五屏** | ✅ 已投（回读命中 L168） |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-MOTION-20260914` | `§12.1` 动效四个落地（真实事件流驱动）+ 两条可测约束取证 + 判据口径第 7 条（MotionLayer 例外）待你点头 | ✅ 已投（回读命中 L220） |
 | 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-SFX-20260914` | `§12.2` 音效三类落地（占位音程序生成 + 掉落式替换）+ 敌方打击音的口径歧义待裁 | ✅ 已投（回读命中 L270） |
+| 2026-09-14 | `doc/windows/架构窗口.txt` | `DELIVERY-UI-SHADER-20260914` | `§12.3` 描边（内置主题项）/暗角/闪白（材质）落地 + 建议微调 §4.1 口径 | ✅ 已投（回读命中） |
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
