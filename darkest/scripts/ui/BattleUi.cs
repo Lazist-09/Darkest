@@ -466,41 +466,18 @@ public partial class BattleUi : CanvasLayer
         bottomRow.AddThemeConstantOverride("separation", 10);
         bottomPanel.AddChild(bottomRow);
 
-        // 背景**不进容器**（它要留在最底层铺满）；其余顶层控件按分组归位 ✓
-        // ⚠️ 遍历源必须是 **CanvasLayer 自己的子节点**（`GetChildren()`）而不是 `_uiRoot.GetChildren()` ——
-        //    我先前把"先把 CanvasLayer 的子控件收编进 `_uiRoot`"那一步漏掉了 ⇒ 循环遍历到一个空的 `_uiRoot`
-        //    ⇒ 实测判据报"可见 Label **0**"（假通过）⚠️
-        var keepOut = new System.Collections.Generic.HashSet<Node> { _uiRoot };
-        if (bg is not null)
-        {
-            keepOut.Add(bg);
-        }
+        _topRow = topRow;
+        _midRow = midRow;
+        _bottomRow = bottomRow;
 
-        foreach (Node child in GetChildren().ToArray())
-        {
-            if (keepOut.Contains(child))
-            {
-                continue;
-            }
-
-            if (child is Control ctl)
-            {
-                _uiRoot.RemoveChild(ctl);
-                bool isTop = ReferenceEquals(ctl, _statusLabel) || ReferenceEquals(ctl, _progressLabel)
-                             || ReferenceEquals(ctl, _actionOrderLabel) || ReferenceEquals(ctl, _retreatButton);
-                bool isBottom = ReferenceEquals(ctl, _mfPanel) || ReferenceEquals(ctl, _devLogPanel)
-                                || ReferenceEquals(ctl, _resultPanel);
-                bool isCard = _cards.Any(c => ReferenceEquals(c.card, ctl));
-                Container target = isTop
-                    ? topRow
-                    : isBottom
-                        ? (Container)bottomRow
-                        : isCard
-                            ? (Container)midRow
-                            : uiCol;
-                target.AddChild(ctl);
-            }
-        }
+        // 🔴 `#319` 战斗屏：**"事后搬运"这条路我不走了**（如实记录）——
+        //    实测两个拦路虎：① 直接 `AddChild` 报 `already has a parent`（Godot 不自动换父）
+        //    ② `Reparent()` / `RemoveChild+AddChild` 在"边遍历边搬"时触发引擎断言
+        //       `Condition "p_child->data.parent != this" is true` ⇒ 树状态不一致 ⇒ 判据随后乱认浮层（认成 `MfColumn`）
+        //    ⇒ 正解（下一步）：**控件在【创建时】就加进目标容器**（`topRow/midRow/bottomRow`），
+        //      而不是建完再搬 —— 这与我在**地图屏**总结的教训是同一条 ✓
+        //    ⇒ 在改完之前，本屏判据**仍是未通过**（我不认任何"通过"）✓
+        GD.Print("[BattleUi] 三行容器已建（顶部/中部/底部）；⚠️ 控件归属仍待改为【创建时进容器】—— 见代码注释");
 
         // 顶部四件的可读性：状态/进度占满剩余宽度，按钮保持固定宽 ✓
         _statusLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -512,6 +489,13 @@ public partial class BattleUi : CanvasLayer
     }
 
     private Control _uiRoot = null!;
+
+    // 🔴 `ui_spec §14`：三行容器（顶部 / 中部卡片 / 底部技能与 E 区）——
+    //    **重建路径**（行动顺序图标 / 技能键 / 卡片刻）也必须加进这些容器，
+    //    否则它们会加回 CanvasLayer（`this`）⇒ 逃出 `_uiRoot` 子树 ⇒ 判据看不到它们（实测"可见 Label 0"）⚠️
+    private Container _topRow = null!;
+    private Container _midRow = null!;
+    private Container _bottomRow = null!;
 
     /// <summary>🔴 取证：满屏 Control 根（Theme 继承与锚点的落点）+ **Theme 是否真的生效**。</summary>
     public string RootAudit()
@@ -609,7 +593,8 @@ public partial class BattleUi : CanvasLayer
 
     private Control BuildCard(float x, float y, float w, float h)
     {
-        var card = new Panel { Position = new Vector2(x, y), Size = new Vector2(w, h) };
+        // 🔴 §14.2 ④：卡片进容器 ⇒ 必须给【最小尺寸】（否则容器分配 0 宽 ⇒ 卡片互相重叠）✓
+        var card = new Panel { CustomMinimumSize = new Vector2(w, h) };
 
         // ② 立绘占位框（色块 + 首字）
         var portraitBox = new Panel { Position = new Vector2(8, 6), Size = new Vector2(44, 44) };
@@ -818,7 +803,8 @@ public partial class BattleUi : CanvasLayer
             var unitId = new UnitId(id);
             bool isPlayer = d.Player.UnitAtPosition(unitId) is not null;
             string archetype = _host.ArchetypeOf(unitId);
-            var panel = new Panel { Position = new Vector2(x, 34), Size = new Vector2(36, 30) };
+            // 🔴 §14.2 ④：容器里必须给【最小尺寸】—— 只给 `Position/Size` 的话 HBox 分配 0 宽 ⇒ 互相重叠（实测）
+            var panel = new Panel { CustomMinimumSize = new Vector2(36, 34) };
             var glyph = new Label { Position = new Vector2(0, 2), CustomMinimumSize = new Vector2(36, 26), Text = NameOf(archetype).Substring(0, 1), HorizontalAlignment = HorizontalAlignment.Center };
             glyph.AddThemeFontSizeOverride("font_size", 14);
             panel.AddChild(glyph);
@@ -826,7 +812,7 @@ public partial class BattleUi : CanvasLayer
             panel.Modulate = isActive
                 ? new Color(1.25f, 1.25f, 0.7f)
                 : isPlayer ? new Color(0.62f, 0.72f, 0.95f) : new Color(0.95f, 0.6f, 0.6f);
-            AddChild(panel);
+            _topRow.AddChild(panel); // 🔴 §14：行动顺序图标进【顶部容器】（不再加回 CanvasLayer）
             _orderIcons.Add((panel, glyph));
             x += 40f;
         }
@@ -908,6 +894,7 @@ public partial class BattleUi : CanvasLayer
             {
                 Position = new Vector2(24f + (i % perRow) * 94f, SkillBarY + (i / perRow) * 94f),
                 Size = new Vector2(88, 88),
+                CustomMinimumSize = new Vector2(88, 88), // §14.2 ④：容器排布要最小尺寸 ✓
                 Text = full.Length <= 2 ? full : full.Substring(0, 2),
                 Disabled = sp.Reason != AvailabilityReason.Ok,
                 TooltipText = sp.Reason == AvailabilityReason.Ok ? SkillTooltip(skillId, actor, d) : $"{full}（{sp.Tooltip}）",
@@ -915,7 +902,7 @@ public partial class BattleUi : CanvasLayer
             b.AddThemeFontSizeOverride("font_size", 20);
             string captured = skillId;
             b.Pressed += () => _useSkill?.Invoke(actor, captured);
-            AddChild(b);
+            _bottomRow.AddChild(b); // 🔴 §14：技能键进【底部容器】（不再加回 CanvasLayer）
             _skillButtons.Add(b);
         }
     }
