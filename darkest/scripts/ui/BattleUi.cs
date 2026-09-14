@@ -83,7 +83,9 @@ public partial class BattleUi : CanvasLayer
         _mfPanel.Modulate = new Color(0.09f, 0.1f, 0.14f, 0.98f);
         AddChild(_mfPanel);
 
-        string[] tabs = { "详情", "日志", "地图" };
+        // 🔴 `ui_spec.md` §1.2：**E 区多功能框 = 可切换分页**（DD 式）——
+        //    规格列的是 详情 ／ 日志 ／ 序列 ／ 编成；我再加【地图】（片③ 用户点名要的）
+        string[] tabs = { "详情", "日志", "序列", "编成", "地图" };
         for (int i = 0; i < tabs.Length; i++)
         {
             int idx = i;
@@ -115,13 +117,13 @@ public partial class BattleUi : CanvasLayer
         _mfPage = page;
         if (_mfContent is not null)
         {
-            _mfContent.Visible = page is 0 or 1;
+            _mfContent.Visible = page is >= 0 and <= 3; // 前四页共用文本区
         }
 
         if (_mfMap is not null)
         {
-            _mfMap.Visible = page == 2;
-            if (page == 2)
+            _mfMap.Visible = page == 4;
+            if (page == 4)
             {
                 _mfMap.QueueRedraw(); // 进战斗时地图已定，重绘一次即可（只读）
             }
@@ -136,10 +138,10 @@ public partial class BattleUi : CanvasLayer
             _mfTabs[i].Modulate = i == page ? new Color(1f, 0.95f, 0.7f) : new Color(0.75f, 0.75f, 0.8f);
         }
 
-        GD.Print($"[片③] E 区多功能框 ⇒ 切到【{(page == 0 ? "详情" : page == 1 ? "日志" : "地图")}】页");
+        GD.Print($"[片③] E 区多功能框 ⇒ 切到【{_mfTabs.ElementAtOrDefault(page)?.Text ?? "?"}】页");
     }
 
-    /// <summary>详情页 / 日志页的文本（都读**同一份事件流**，不另造数据）。</summary>
+    /// <summary>详情 / 日志 / **序列** / **编成** 四页的文本（都读**同一份事实来源**，不另造数据）。</summary>
     private void RefreshMultiFunctionContent()
     {
         if (_mfContent is null || _host is null)
@@ -161,9 +163,57 @@ public partial class BattleUi : CanvasLayer
             return;
         }
 
+        if (_mfPage == 2)
+        {
+            // 🔴 **序列**：本回合行动顺序（`Director.LastRoundOrder`；与"顶部回合条"同源）
+            var lines = new List<string> { $"【序列】回合 {_host.Director.Round}　行动顺序：" };
+            IReadOnlyList<UnitId> order = _host.Director.LastRoundOrder;
+            if (order.Count == 0)
+            {
+                lines.Add("　（本回合还没有人行动）");
+            }
+            else
+            {
+                for (int i = 0; i < order.Count; i++)
+                {
+                    UnitId id = order[i];
+                    bool mine = _host.Director.Player.UnitAtPosition(id) is not null;
+                    int pos = _host.Director.Player.UnitAtPosition(id) ?? _host.Director.Enemy.UnitAtPosition(id) ?? 0;
+                    lines.Add($"　{i + 1}. {NameOf(id.Value)}（{(mine ? "我" : "敌")}·{pos}）");
+                }
+            }
+
+            _mfContent.Text = string.Join("\n", lines);
+            return;
+        }
+
+        if (_mfPage == 3)
+        {
+            // 🔴 **编成**：双方站位占用（读 `FormationBoard`）
+            var lines = new List<string> { "【编成】站位占用（我方 4→1 ／ 支援 5·6 ／ 敌方 1→4）" };
+            lines.Add("　我方：" + DescribeSide(_host.Director.Player));
+            lines.Add("　敌方：" + DescribeSide(_host.Director.Enemy));
+            lines.Add("　（只读：编成改动在远征侧，不在战斗里）");
+            _mfContent.Text = string.Join("\n", lines);
+            return;
+        }
+
         _mfContent.Text =
-            "【详情】点战场上的单位 ⇒ 这里显示其详情（DD 式：详情 ／ 日志 ／ 地图 三页）。\n" +
-            "　· 本页与【地图】页共用 E 区 —— 地图**只读**（不能在这里改路线）。";
+            "【详情】点战场上的单位 ⇒ 这里显示其详情（DD 式：详情 ／ 日志 ／ 序列 ／ 编成 ／ 地图）。\n" +
+            "　· 地图**只读**（不能在这里改路线）· 其余页同样只读。";
+    }
+
+    /// <summary>一侧的站位摘要（只读）。</summary>
+    private string DescribeSide(FormationBoard board)
+    {
+        var parts = new List<string>();
+        for (int slot = 1; slot <= board.SlotCount; slot++)
+        {
+            UnitRuntime? u = board.UnitRuntimeAt(slot);
+            parts.Add(u is null ? $"{slot}·空" : $"{slot}·{NameOf(u.Id.Value)}");
+        }
+
+        return string.Join("　", parts);
     }
 
     /// <summary>🔴 顶部**队伍进度条：段数**（**不是 HP 条**）—— 线性模式没有"段"，则如实标成战斗目标。</summary>
@@ -323,6 +373,10 @@ public partial class BattleUi : CanvasLayer
 
     /// <summary>被锁进详情页的槽位（0 = 未锁；供冒烟断言）。</summary>
     public int LockedSlot => _lockedSlot;
+
+    /// <summary>当前 E 区页面的**可断言摘要**（headless 冒烟用）。</summary>
+    public string DescribeCurrentPage()
+        => _mfPage == 4 ? DescribeMiniMap() : (_mfContent?.Text?.Replace("\n", " ｜ ") ?? "（无内容）");
 
     /// <summary>把某单位锁进 E 区【详情】页（真实点击卡时由 `BattleRoot.OnCardClicked` 调）。</summary>
     public void ShowUnitDetail(int slot, bool isPlayer)

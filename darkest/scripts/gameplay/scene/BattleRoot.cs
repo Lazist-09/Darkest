@@ -99,6 +99,13 @@ public partial class BattleRoot : Node2D
             CallDeferred(nameof(ShowMapPage));
         }
 
+        // 🔴 片③ 冒烟：`--battle-tab=N` ⇒ 切到 E 区第 N 页（0 详情 ／ 1 日志 ／ 2 序列 ／ 3 编成 ／ 4 地图）
+        string? tabArg = System.Array.Find(OS.GetCmdlineArgs(), a => a.StartsWith("--battle-tab=", StringComparison.Ordinal));
+        if (tabArg is not null && int.TryParse(tabArg["--battle-tab=".Length..], out int tabIdx))
+        {
+            CallDeferred(nameof(ShowTab), tabIdx);
+        }
+
         // 🔴 片③ 冒烟：`--battle-card=N` ⇒ **真实点击第 N 张我方卡**（验"点单位 ⇒ 锁进详情页"）
         string? cardArg = System.Array.Find(OS.GetCmdlineArgs(), a => a.StartsWith("--battle-card=", StringComparison.Ordinal));
         if (cardArg is not null && int.TryParse(cardArg["--battle-card=".Length..], out int cardSlot))
@@ -123,6 +130,14 @@ public partial class BattleRoot : Node2D
 
     /// <summary>本实例是否要"自动点继续"（由 `PressAutoFinish` 置位；命令行旗标仍并行生效）。</summary>
     private bool _autoContinue;
+
+    /// <summary>🔴 片③ 冒烟：**切到 E 区第 N 页**（0 详情 ／ 1 日志 ／ 2 序列 ／ 3 编成 ／ 4 地图）。</summary>
+    public void ShowTab(int page)
+    {
+        _ui.SetMultiFunctionPage(page);
+        GD.Print($"[片③] 战斗界面：E 区当前页 = {_ui.MultiFunctionPage}（请求 {page}）");
+        GD.Print($"[片③·页内容] {_ui.DescribeCurrentPage()}");
+    }
 
     /// <summary>🔴 片③ 冒烟：**真实点击第 N 张我方卡** ⇒ 应锁进 E 区详情页。</summary>
     private void ShowCardDetail(int slot)
