@@ -263,6 +263,10 @@ public sealed class ExpeditionFlow
         //    `next_battle`（磨刀/加固甲胄）注入后剩余 1 ⇒ 本场结束即消耗掉 ⇒ **只生效一场** ✓
         //    `battles:N`（训话/打气）⇒ 每场 −1，**扎营不清**（此处不涉及扎营，天然满足"扎营不清"✓）
         _session.ConsumeRunBuffsAfterBattle();
+
+        // 🔴 营地士气加成**不得漏进名册**（否则"营地加士气"会变成免费减压 —— 契约 `#310` ② 禁止）
+        //    ⇒ 战后把本趟台账的加成从 `Retained` 扣回 ✓
+        _session.StripCampBonusesFromRetained();
     }
 
     private readonly Queue<InventoryItem> _pendingLoot = new();

@@ -321,6 +321,9 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         //    （注入后由 `ExpeditionFlow.OnBattleFinished` → `ConsumeRunBuffsAfterBattle` 消耗 ⇒ 只生效一场）
         InjectRunBuffs(director, log);
 
+        // 🔴 本趟营地加成（士气/HP）：**战斗开场施加**（`until_run_end` 台账；战后由流程扣回，防漏进名册）
+        ApplyCampBonusesToBattle(director);
+
         // 🔴 Curio 圣坛祝福（到扎营）：**每场开场挂到全队**（`damage_buff` 的消费点在 `DamageStep` 的 raw）
         if (_curioDamageBlessingPct > 0)
         {
@@ -469,6 +472,33 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
             GrantRunBuff(target, "pep_talk", remainingBattles: 4);
         }
 
+        // 🔴 `#310` ②/①（**本趟台账 `until_run_end`**）：士气类与 HP 类
+        if (effect == "morale_plus_8")
+        {
+            GrantCampMorale(target, 8);            // 笑谈（单体 +8）
+        }
+
+        if (effect == "morale_plus_5_team")
+        {
+            GrantCampMoraleTeam(5);                // 埋锅造饭（全队 +5）
+        }
+
+        if (effect == "morale_plus_8_team")
+        {
+            GrantCampMoraleTeam(8);                // 动员（全队 +8）
+        }
+
+        if (effect == "heal_15_percent_and_clear_bleed")
+        {
+            // ⚠️ 「清流血」部分：流血是**战斗内**状态 ⇒ 营地"清"没有落点（契约 `#310`：归【冗余·阶段二】）
+            GrantCampHpPercent(target, 15);        // 包扎：HP +15% 部分按裁定落地 ✓
+        }
+
+        if (effect == "heal_5_percent")
+        {
+            GrantCampHpPercent(target, 5);         // 照料
+        }
+
         return true;
     }
 
@@ -566,6 +596,129 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         }
     }
 
+    // ------------------------------------------------------------------
+    // 🔴 扎营技能的第二批（`#310` ②/① 裁定：**写【本趟台账】`until_run_end`，不写回名册**）：
+    //    · 士气类：笑谈 +8（单体）／埋锅造饭 全队 +5／动员 全队 +8  ⇒ **下一场起手士气 +N**
+    //    · HP 类：包扎 +15% ／照料 +5%                              ⇒ **本趟剩余场次的开局 HP +N%**
+    //    🔴 关键纪律：**这两个台账不得漏进名册** —— 战斗开场施加后，在 `EndBattle` 之后要**扣回**
+    //       （否则"营地加士气"会变成【免费减压】，与 M8.0 的减压冲突 —— 契约明文禁止）
+    // ------------------------------------------------------------------
+
+    private readonly Dictionary<string, int> _campMoraleBonus = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> _campHpBonusPct = new(StringComparer.Ordinal);
+
+    /// <summary>本趟的营地士气加成（英雄 → +N；供测试/日志）。</summary>
+    public IReadOnlyDictionary<string, int> CampMoraleBonus => _campMoraleBonus;
+
+    /// <summary>本趟的营地 HP 加成（英雄 → +N% MaxHp；供测试/日志）。</summary>
+    public IReadOnlyDictionary<string, int> CampHpBonusPct => _campHpBonusPct;
+
+    /// <summary>单体 +N 士气（**本趟台账**；如「笑谈」）。</summary>
+    public void GrantCampMorale(UnitId hero, int delta)
+    {
+        _campMoraleBonus[hero.Value] = _campMoraleBonus.GetValueOrDefault(hero.Value) + delta;
+    }
+
+    /// <summary>全队 +N 士气（**本趟台账**；如「埋锅造饭」「动员」）。</summary>
+    public void GrantCampMoraleTeam(int delta)
+    {
+        foreach (Darkest.Data.HeroConfig h in _allHeroesForCamp)
+        {
+            GrantCampMorale(new UnitId(h.Id), delta);
+        }
+    }
+
+    /// <summary>单体开局 HP +N%（**本趟台账**；如「包扎 +15%」「照料 +5%」）。</summary>
+    public void GrantCampHpPercent(UnitId hero, int percent)
+    {
+        _campHpBonusPct[hero.Value] = Math.Max(_campHpBonusPct.GetValueOrDefault(hero.Value), percent);
+    }
+
+    /// <summary>营地技能的作用对象全集（名册英雄；由组合根注入 —— 名字册与战斗 id 是两套体系）。</summary>
+    private IReadOnlyList<Darkest.Data.HeroConfig> _allHeroesForCamp = Array.Empty<Darkest.Data.HeroConfig>();
+
+    /// <summary>注入名册英雄（供"全队"类营地技能枚举目标）。</summary>
+    public void BindCampHeroes(IReadOnlyList<Darkest.Data.HeroConfig> heroes) => _allHeroesForCamp = heroes;
+
+    /// <summary>
+    /// 把本趟营地加成施加到本场（**战斗开场**调用；加成不进 `Retained` 的持久值）。
+    /// 🔴 **必须按【槽位】映射**：本台账按**英雄 id** 记账，而战斗单位的 `Id` 是**原型 id**（两套体系）
+    /// —— 我第一版直接比 `u.Id.Value` ⇒ **永不命中、加成静默失效** ⚠️（用例当场抓到）
+    /// </summary>
+    public void ApplyCampBonusesToBattle(BattleDirector director)
+    {
+        if (_campMoraleBonus.Count == 0 && _campHpBonusPct.Count == 0)
+        {
+            return;
+        }
+
+        foreach ((string heroId, int morale) in _campMoraleBonus)
+        {
+            UnitRuntime? u = UnitAtHeroSlot(director, heroId);
+            if (u is not null && morale != 0)
+            {
+                u.Morale = Math.Clamp(u.Morale + morale, 0, 100);
+                // 🔴 `Retained` 的键是**战斗单位 id**（不是英雄 id）⇒ 记下来供战后【扣回】用
+                _heroBattleIds[heroId] = u.Id.Value;
+                log_note($"[camp] 本趟士气加成 +{morale} ⇒ 英雄 {heroId}（槽位 {_heroSlots[heroId]}）");
+            }
+        }
+
+        foreach ((string heroId, int pct) in _campHpBonusPct)
+        {
+            UnitRuntime? u = UnitAtHeroSlot(director, heroId);
+            if (u is not null && pct > 0)
+            {
+                int bonus = Math.Max(1, (int)Math.Round(u.MaxHp * (pct / 100.0)));
+                u.CurrentHp = Math.Min(u.MaxHp, u.CurrentHp + bonus);
+                log_note($"[camp] 本趟开局 HP +{pct}% ⇒ 英雄 {heroId}（+{bonus}）");
+            }
+        }
+    }
+
+    /// <summary>英雄 id → 本场单位（**按槽位**；两套 id 体系的唯一正确接法）。</summary>
+    private UnitRuntime? UnitAtHeroSlot(BattleDirector director, string heroId)
+        => _heroSlots.TryGetValue(heroId, out int slot) && slot > 0
+            ? director.Player.UnitRuntimeAt(slot)
+            : null;
+
+    private void log_note(string message)
+    {
+        // 内核层不碰 Godot；这里只把说明写进事件流（可审计）
+        _campNotes.Add(message);
+    }
+
+    /// <summary>本趟营地加成的施加记录（供测试/审计：证明"真的施加了"，不是只记账）。</summary>
+    private readonly List<string> _campNotes = new();
+
+    /// <summary>本趟营地加成的施加记录（供测试/审计）。</summary>
+    public IReadOnlyList<string> CampNotes => _campNotes;
+
+    /// <summary>
+    /// 🔴 **把营地加成从跨场台账里扣回**（每场 `EndBattle` **之后**调用）——
+    /// 否则营地士气会经 `Retained` 漏进名册 ⇒ 变成【免费减压】（契约 `#310` ② 明文禁止）⚠️
+    /// </summary>
+    public void StripCampBonusesFromRetained()
+    {
+        foreach ((string heroId, int back) in _campMoraleBonus)
+        {
+            // 🔴 必须用【战斗单位 id】查 `Retained`（两套 id 体系；我第一版用英雄 id ⇒ 查不到 ⇒ 扣回静默失效）
+            if (!_heroBattleIds.TryGetValue(heroId, out string? battleId))
+            {
+                continue;
+            }
+
+            if (!Retained.TryGetValue(battleId, out (int Hp, int Morale, bool Weak) cur))
+            {
+                continue;
+            }
+
+            Retained[battleId] = (cur.Hp, Math.Clamp(cur.Morale - back, 0, 100), cur.Weak);
+        }
+    }
+
+    /// <summary>英雄 id → **本场战斗单位 id**（在 `ApplyCampBonusesToBattle` 时记录；供战后扣回）。</summary>
+    private readonly Dictionary<string, string> _heroBattleIds = new(StringComparer.Ordinal);
     /// <summary>一场结束后：跨场 buff 的剩余场数 −1（到 0 清除）。`next_battle` ⇒ 1 ⇒ 紧接着就被清 ✓</summary>
     public void ConsumeRunBuffsAfterBattle()
     {

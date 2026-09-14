@@ -42,10 +42,10 @@ public sealed class CampSkillsConfigTests
         Assert.AreEqual(12, cfg.Skills.Count, "12 个扎营技能");
         Assert.IsTrue(CampSkillsConfig.PartitionsAreDisjoint,
             "🔴 两个清单必须【互斥】（同一 effect 名不得既已接线又阶段二 —— 我踩过一次：导致计数虚高）");
-        Assert.AreEqual(6, cfg.ConsumedCount,
-            "🔴 已接线 = 6 个技能：守夜 ／ 站岗（ambush_immunity_once）＋ 磨刀 ／ 操练（next_battle_sharpen）" +
-            "＋ 加固甲胄（next_battle_armor）＋ 打气（battles:4）");
-        Assert.AreEqual(6, cfg.DeferredCount, "其余 6 个（笑谈 ／ 埋锅造饭 ／ 动员 ／ 包扎 ／ 配药 ／ 照料）");
+        Assert.AreEqual(11, cfg.ConsumedCount,
+            "🔴 已接线 = 11 个：守夜 ／ 站岗 ／ 磨刀 ／ 操练 ／ 加固甲胄 ／ 打气 ＋ 笑谈 ／ 埋锅造饭 ／ 动员 ＋ 包扎 ／ 照料");
+        Assert.AreEqual(1, cfg.DeferredCount,
+            "阶段二只剩 1 个：配药（清虚弱+死门后遗症 —— 与扎营既有清除**重叠**，待重定义）");
         Assert.AreEqual(cfg.Skills.Count, cfg.ConsumedCount + cfg.DeferredCount, "每个 effect 名都必须被登记（防线）");
     }
 

@@ -316,6 +316,7 @@ public partial class ExpeditionRoot : Node
         }
 
         session.BindSortie(heroSlots);
+        session.BindCampHeroes(roster.Heroes); // 全队类营地技能（埋锅造饭/动员）需要英雄全集
         _heroSlots.Clear();
         foreach ((string hero, int slot) in heroSlots)
         {

@@ -44,6 +44,12 @@ public sealed record CampSkillsConfig(
         "grant_buff:next_battle_sharpen",
         "grant_buff:next_battle_armor",
         "morale_damage_minus_15_for_4_battles", // 🔴 打气（battles:4 ⇒ 跨场层计数 + MoraleLedger 消费）
+        // 🔴 `#310` ②/①（**本趟台账 `until_run_end`**）：士气类 3 个 + HP 类 2 个
+        "morale_plus_8",                         // 笑谈（单体 +8 士气）
+        "morale_plus_5_team",                    // 埋锅造饭（全队 +5）
+        "morale_plus_8_team",                    // 动员（全队 +8）
+        "heal_15_percent_and_clear_bleed",       // 包扎（HP +15% 落地；「清流血」归冗余·阶段二）
+        "heal_5_percent",                        // 照料（+5%）
     };
 
     /// <summary>
@@ -52,12 +58,9 @@ public sealed record CampSkillsConfig(
     /// </summary>
     public static readonly IReadOnlySet<string> DeferredStageTwoEffectNames = new HashSet<string>(StringComparer.Ordinal)
     {
-        "morale_plus_8",
-        "morale_plus_5_team",
-        "morale_plus_8_team",
-        "heal_15_percent_and_clear_bleed",
+        // ⚠️ 只剩它：**配药【清虚弱+死门后遗症】** —— 扎营本身已全队清这两项
+        //    ⇒ 与既有清除**重叠**（契约 `#310` ④：暂标【阶段二·待重定义】，不做）
         "clear_weak_and_deaths_door_recovery",
-        "heal_5_percent",
     };
 
     /// <summary>🔴 不变式：两个清单**必须互斥**（同一个 effect 名不得既"已接线"又"阶段二"）。</summary>
