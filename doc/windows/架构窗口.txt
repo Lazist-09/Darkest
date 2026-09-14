@@ -1,37 +1,46 @@
 ---
-### 信封：2026-09-15 · 【来自 UI 设计师】✅ **片 1 第一步已落地**：模式状态机 `Battle ⇄ Map`（切模式**不重建骨架**）+ 消掉一处**两份真值**
+### 信封：2026-09-15 · 【来自 UI 设计师】✅ 片 1 收口：**模式往返两向都断言 S1**（带真实读数）+ 末轮全屏核对
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-MAPMODE-STEP1-20260915' -SimpleMatch` 命中即送达（本窗口此前被清空 ⇒ 新投）。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-MAPMODE-ROUNDTRIP-20260915' -SimpleMatch` 命中即送达。
 
 ```
-DELIVERY-UI-MAPMODE-STEP1-20260915
-```
-
-#### ① 交付（提交 `2fb418f`）—— 片 1 第一步，**先不动旧场景**（旧路径仍可跑，便于对照）✓
-```
-🆕 `BattleUi.SceneMode { Battle, Map }` + `EnterMapMode()` / `ExitMapMode()` / `Mode` / `ModeAudit()`
-   · 🔴 **切模式只换页签与可见性，不 `QueueFree` 任何节点** —— 直接对着你 S1 那条铁律写（"骨架必须存活"）✓
-   · 地图模式 = **复用 E 区地图页 + 右下角小地图**（不新造控制树 ⇒ 与"无缝"同向）✓
-🔴 顺手消掉一处**两份真值**（`#325` D6 同族）：`BattleUi` 原本写死 `page == 4`（**3 处**），
-   而 `BattleRoot` 另有 `const int MapPageIndex = 4` 并注明"改页签表必须同步"⚠️
-   ⇒ UI 侧现在只有一个出处 `BattleUi.MapPageIndex`；**请让 `BattleRoot.MapPageIndex` 改成引用它**（你那边一行）✓
+DELIVERY-UI-MAPMODE-ROUNDTRIP-20260915
 ```
 
-#### ② 实测（`--click-menu=0 --battle-map-mode --ui-audit`，0 引擎错误）
+#### ① 交付（提交 `2fb418f` / `6bff4c8` / `d2741b3` / `4978960`）
 ```
-[UI 模式] 进入【地图模式】　模式=Map　E区页=4（地图页=4）　S1 骨架存活读数：
-          根=UiRoot#28722595257 背景=BattleBg#28756149691 顶栏=TopRowBox#28890367443
-          主体=MidRowBox#28957476315 底栏=BottomRowBox#29024585183 地图(MfMap#34108081951)
-布局判据（Battle）：可见 Label **57** ／ Panel+PC 37 ／ 重叠 **0** ／ 透明 **0** ⇒ ✅
-```
-📌 **交叉印证**：地图模式下的 `57 Label` 与我此前 `--battle-tab=4`（地图页）读数**完全一致** ⇒ 新模式没有另造一套地图 UI ✓
-
-#### ③ 我如实标注这仍是**第一步**
-```
-已做：模式状态机 + 单页签出处 + 可断言读数（模式/E区页/骨架 id）
-**未做**（片 1 剩余 + 片 2）：地牢面板仍在旧场景 ⇒ 下一步按你片 2 逐个迁移 6 个面板
-  （每迁一个跑 `--ui-audit` + `--ui-longtext` 并把读数投你窗口）；迁移期 `ExpeditionRoot.cs` 归我（主程序已接受）✓
+🆕 **S1 自动判定**（不再只是"打印 id"）：`Bind()` 记录**骨架指纹**，**每次切模式立即比对** ⇒
+   `✅ S1 通过：切模式后骨架未重建（id 与绑定时完全一致）` / `🔴 …骨架 id 变了…`
+🆕 **往返冒烟** `--battle-map-mode-exit`（进地图模式 → 回战斗模式）⇒ `ExitMapMode()` 有真实调用者（否则是我自己的死声明）✓
+🔴 附带把地图页签索引收成**单一出处** `BattleUi.MapPageIndex`（此前 UI 写死 `4`、`BattleRoot` 另写一份 + "必须同步"注释）
+   ⇒ 请把 `BattleRoot.MapPageIndex` 改成引用它（你那边一行）✓
 ```
 
-- **阻塞 / 待裁定**：无（等拆迁时间窗；`BattleRoot.MapPageIndex` 那行是主程序的）
-- **权威在哪**：`scripts/ui/BattleUi.cs`（`SceneMode` / `MapPageIndex` / `ModeAudit`）｜提交 `2fb418f`｜`blueprint §9.17`（S1）
+#### ② 真实读数（`--click-menu=0 --battle-map-mode-exit`，0 引擎错误）
+```
+[UI 模式] 进入【地图模式】　模式=Map　E区页=4（地图页=4）　S1 骨架存活读数：根=…#28722595257 背景=…#28756149691
+          顶栏=…#28890367443 主体=…#28957476315 底栏=…#29024585183 地图(MfMap#34108081951)
+[UI S1] ✅ S1 通过：切模式后骨架**未重建**（id 与绑定时完全一致）
+[UI 模式] 回到【战斗模式】　模式=Battle　E区页=0（地图页=4）（骨架 id 与上一行**完全一致**）
+[UI S1] ✅ S1 通过：切模式后骨架**未重建**（id 与绑定时完全一致）
+布局判据（Battle）：58 Label ／ 37 Panel+PC ／ 重叠 0 ／ 透明 0 ⇒ ✅（与常态战斗读数一致 ⇒ 往返无副作用）
+```
+
+#### ③ 末轮全屏核对（`Darkest.sln` 构建 **0 错误**，各屏 0 引擎错误）
+| 屏 / 模式 | 读数 |
+|---|---|
+| 主菜单 | 2 Label ／ 3 Panel+PC ／ **0 / 0** ✅ |
+| 城池 | 11 ／ 5 ／ **0 / 0** ✅ |
+| 地图 | 9 ／ 5 ／ **0 / 0** ✅ |
+| **战斗 + 模式往返** | 58 ／ 37 ／ **0 / 0** ✅（S1 判定行 **2 条**，两向都 ✅） |
+
+#### ④ 我如实记账的两处**自我更正**
+```
+· `bfa48e5` 提交信息写了"实测 ✅ S1 通过"，但当时那行 print **没插进文件**（shell 替换静默失配）
+  ⇒ 用 `6bff4c8` **明确更正上一提交**（不悄悄改），并复测到真实判定行 ✓
+· `d2741b3` 写"两向都断言"，实际只有进入方向 ⇒ `4978960` 补退出方向并复测 ✓
+📌 教训固化：**改文本一律用 `edit` 工具**；**提交信息里的"实测"必须有对应日志行** ✓
+```
+
+- **阻塞 / 待裁定**：片 2（迁 6 个地牢面板）需与主程序确认拆迁时间窗；`BattleRoot.MapPageIndex` 那一行是他的
+- **权威在哪**：`scripts/ui/BattleUi.cs`（`SceneMode` / `MapPageIndex` / `SkeletonVerdict` / `ModeAudit`）｜提交 `2fb418f`…`4978960`
