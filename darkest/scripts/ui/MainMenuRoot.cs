@@ -30,50 +30,16 @@ public partial class MainMenuRoot : Node2D
     private Label _title = null!;
     private Label _status = null!;
 
-    /// <summary>🔴 `#319`⑤ 判据取证：**跨场景**定时审计当前界面（挂到场景树根 ⇒ 不随切场景丢失）。</summary>
-    public void PrintUiAudit()
-    {
-        // ⚠️ 两个坑（我都踩过）：
-        //    ① 必须"切到目标场景之后再审"：`--hamlet` 是 **CallDeferred 切场景** ⇒ 立即审会审到 MainMenu；
-        //    ② 回调**不得捕获 `this`**（MainMenuRoot 在切场景时被释放 ⇒ 回调打到已释放对象 ⇒ 什么都不打印）
-        //    ⇒ 挂到 `Root` 上按间隔审几次，回调只用 **Timer 自己**的 `GetTree()` ✓
-        var timer = new Timer { Name = "UiAuditTick", WaitTime = 0.4, OneShot = false, Autostart = true };
-        int fires = 0;
-        timer.Timeout += () =>
-        {
-            SceneTree? tree = timer.GetTree();
-            if (tree is null)
-            {
-                return;
-            }
-
-            fires++;
-            Node target = tree.CurrentScene ?? tree.Root;
-            (bool ok, string report) = Darkest.Ui.LayoutAudit.Check(target);
-            GD.Print($"[UI 判据] 第 {fires} 次：{report}");
-
-            // ⚠️ **不因"第一次通过"就停**：实测踩到 —— 界面刚建好时状态/进度 Label 还是**空文本**，
-            //    判据跳过空 Label ⇒ 报"可见 Label 0 / ✅ 通过"（**过早判定**）⚠️
-            //    ⇒ 一律跑满 5 次，**以最后一次为准** ✓
-            if (fires >= 5)
-            {
-                timer.QueueFree();
-            }
-        };
-        GetTree().Root.AddChild(timer);
-    }
-
-    /// <summary>🔴 `#319`⑤ 判据：供外部（冒烟/测试）调用。</summary>
-    public (bool Ok, string Report) RunUiAudit() => Darkest.Ui.LayoutAudit.Check(GetTree().CurrentScene ?? this);
-
     public override void _Ready()
     {
-        // 🔴 `#319`⑤ 判据必须在 `_Ready` 的【第一句】建起来：冒烟步骤（`SmokeScript.Step`）在后面，
-        //    它可能提前 `return`（`--hamlet-embark` 那条路径就是）⇒ 放在后面会**整段被跳过**（实测无输出）⚠️
-        if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--ui-audit"))
-        {
-            PrintUiAudit();
-        }
+        // 🔴 `#319`⑤ 判据取证必须在 `_Ready` 的【第一句】装起来：冒烟步骤（`SmokeScript.Step`）在后面，
+        //    某些路径会提前 `return`（`--hamlet-embark` 那条就是）⇒ 放在后面会**整段被跳过**（实测）✓
+        //  ⚠️ 安装逻辑移进 `UiAuditHook`（它按正确姿势 **deferred 入树到 `Root`**）——
+        //     旧实现在 `_Ready` 里直接 `GetTree().Root.AddChild(timer)` ⇒ 引擎报
+        //     `Parent node is busy setting up children, add_child() failed` ⇒ **定时器根本没进树**
+        //     ⇒ `--ui-audit` 一行都不输出（**取证失败 ≠ 通过**，红线 25）—— 已修 ✓
+        UiAuditHook.InstallIfRequested(this);
+
         _title = new Label
         {
             Name = "MenuTitle",
@@ -147,15 +113,9 @@ public partial class MainMenuRoot : Node2D
         Darkest.Gameplay.Scene.SmokeScript.InitFromArgs();
         Darkest.Gameplay.Scene.SmokeScript.Step(this);
 
-        // 🔴 `ui_spec §14.5` / `#319`⑤ 的**两条自动判据**：`--ui-audit` ⇒ 遍历当前界面
-        //    ① 可见 Label 两两不相交 ② 每个 Panel 的 BgColor.a == 1.0
-        //    （把"文字重叠 / 框透明"从"看起来还行"变成**可断言**）✓
-        if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--ui-audit"))
-        {
-            // ⚠️ **直接调用**（不要再 `CallDeferred`）：切场景现在也是 deferred ⇒ 本节点会**先被释放**
-            //    ⇒ 延后的调用就永远不会发生（实测：改了切场景之后判据一行都不输出）⚠️
-            PrintUiAudit();
-        }
+        // 🔴 `ui_spec §14.5` / `#319`⑤ 的两条自动判据（可见 Label 两两不相交 · Panel/PanelContainer 的 a == 1.0）
+        //    已由**本方法开头**的 `UiAuditHook.InstallIfRequested(this)` 统一装上 ⇒ 这里**不再重复安装**
+        //    （旧实现在此第二次调用，既重复又会踩同一个 `Root` busy 坑 —— 已删 ✓）
 
         // 🔴 输入审计（附 B ① 的例行项）：`--input-audit` ⇒ 打印自定义动作与绑定键
         //    （证据用途：任务动化是否真的生效 —— 不靠"我改了代码"自证）

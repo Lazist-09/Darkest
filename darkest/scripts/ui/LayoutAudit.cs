@@ -69,19 +69,60 @@ public static class LayoutAudit
 
         bool ok = overlaps == 0 && transparent == 0;
         string scopeNote = overlay is null ? "（全界面）" : $"（**只审覆盖层 {overlay.Name}**）";
+
+        // 🆕 🔴 **口径自证**（红线 17 / 红线 25：「通过了」之前先问「它到底检查了什么」）——
+        //   两个真实教训：
+        //   ① 曾经**误把普通容器当"模态覆盖层"** ⇒ 审计范围被缩到只剩一个小子树 ⇒ 报"✅ 通过"（**假通过**）
+        //   ② 曾经只审覆盖层 ⇒ **范围外的控件完全没被检查**，而报告里看不出来 ⚠️
+        //   ⇒ 所以每次都要把【覆盖层是谁/什么类/样式读数】+【全场景计数】一起打出来 ✓
+        var allLabels = new List<(string Path, Rect2 Rect)>();
+        var allPanels = new List<(string Path, Control Panel)>();
+        Collect(root, root, allLabels, allPanels);
+        int outsideLabels = allLabels.Count - labels.Count;
+        int outsidePanels = allPanels.Count - panels.Count;
+        string overlayInfo = overlay is null
+            ? "无覆盖层 ⇒ 审全场景"
+            : $"覆盖层 {overlay.Name}（类 {overlay.GetType().Name}，panel 样式 a={AlphaOf(overlay):0.##}" +
+              $"{((overlay.HasThemeStyleboxOverride("panel")) ? "，来源=节点 override" : "，来源=主题链")}）";
+        string caliber = $"\n  ｜口径：{overlayInfo}　全场景：可见 Label {allLabels.Count} ／ Panel+PC {allPanels.Count}" +
+                         (outsideLabels > 0 || outsidePanels > 0
+                             ? $"　⚠️ 在审范围外还有 {outsideLabels} 个 Label ／ {outsidePanels} 个 Panel（须判定：真被遮住 还是 漏审）"
+                             : "　（范围外无控件）");
+
         string report = $"布局判据（{root.Name}）{scopeNote}：可见 Label {labels.Count} 个 ／ Panel+PC {panels.Count} 个　" +
                         $"重叠对 {overlaps} ／ 透明框 {transparent}　=> {(ok ? "✅ 通过" : "🔴 未通过")}" +
-                        (ok ? string.Empty : problems.ToString());
+                        (ok ? string.Empty : problems.ToString()) +
+                        caliber;
         return (ok, report);
     }
 
+    /// <summary>取某控件的 `panel` 样式不透明度（诊断用；无样式 ⇒ -1）。</summary>
+    private static float AlphaOf(Control ctl)
+    {
+        StyleBox? box = ctl.GetThemeStylebox("panel");
+        return box is StyleBoxFlat flat ? flat.BgColor.A : -1f;
+    }
+
     /// <summary>找"满屏且不透明"的面板（= 模态覆盖层）；没有则返回 `null`。</summary>
+    /// <remarks>
+    /// 🔴 **必须是【能画底的 Panel 系】节点**（`Panel` / `PanelContainer` / `PopupPanel`）：
+    /// 实测教训 —— `MarginContainer` / `VBoxContainer` 这类**纯布局容器不画背景**，
+    /// 它们**遮不住任何东西**；若把它们当"模态覆盖层"，审计范围会被悄悄缩到一个小子树
+    /// ⇒ 报"✅ 通过"却是**假通过**（战斗屏实测：只审 10 个 Label，全场景 59 个，49 个在范围外）⚠️
+    /// </remarks>
     private static Control? FindOpaqueFullScreenOverlay(Node root)
     {
         Control? found = null;
         foreach (Node child in Walk(root))
         {
             if (child is not Control ctl || !ctl.Visible)
+            {
+                continue;
+            }
+
+            // 🔴 只有"能画不透明底"的类才可能是模态浮层（**纯布局容器一律排除**）
+            //    ⚠️ `PopupPanel` 是 `Window` 系、不是 `Control`（Walk 里根本走不到它）⇒ 这里只判 `Panel` / `PanelContainer`
+            if (ctl is not (Panel or PanelContainer))
             {
                 continue;
             }
