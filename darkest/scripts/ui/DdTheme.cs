@@ -29,6 +29,14 @@ public static class DdTheme
     public const int FontBody = 15;
     public const int FontSmall = 12;
 
+    // ---- 🔴 表现层常量（`#325` D5：「表现层常量不写死在 .cs」⇒ 集中到这里）----
+    /// <summary>
+    /// C 区技能栏的**列数**（原先是 `BattleUi.cs` 里的局部常量 `perRow = 8` ⇒ 那是 `#325` D5 点名的唯一现存反例）。
+    /// ⚠️ **为什么是 4**：`#321`③ 定「C 区固定宽 ≈ 30%（1280 的 ~380px）」且「**技能栏在 C 区内**」
+    /// ⇒ 8 列（8×94 = 752px）在 C 区里必然溢出 ⇒ 4 列（4×94 = 376px）刚好 ✓
+    /// </summary>
+    public const int SkillBarColumns = 4;
+
     private static Theme? _shared;
 
     /// <summary>共享实例（Theme 是 Resource ⇒ 全场景共用一份，不重复构建）✓</summary>

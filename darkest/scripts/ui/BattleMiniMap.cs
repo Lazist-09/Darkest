@@ -44,9 +44,11 @@ public partial class BattleMiniMap : Control
         ExpeditionFlow? flow = ExpeditionContext.Flow;
         if (flow is null || !flow.IsTopologyMode)
         {
-            DrawString(ThemeDB.FallbackFont, new Vector2(8, 20),
-                "（本次战斗不在拓扑远征里 ⇒ 无地图；线性模式暂无地图）",
-                HorizontalAlignment.Left, -1, 12);
+            // 🔴 策划 `#324` 裁定：线性模式的战斗地图 = **显示【短说明】**（不是隐藏）——
+            //    "隐藏" ⇒ 玩家看到"本该有东西却空着"的位置，无法解释（红线 21 不留不可解释的状态）✓
+            //    🔴 措辞按裁定用**首选短句**；颜色用**弱化灰**（`§14.4` 四色之一）—— 那是"提示"，不是"告警" ✓
+            DrawString(ThemeDB.FallbackFont, new Vector2(8, 20), "线性远征：无地图",
+                HorizontalAlignment.Left, -1, 12, Darkest.Ui.DdTheme.Disabled);
             return;
         }
 

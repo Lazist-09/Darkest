@@ -45,7 +45,7 @@ public partial class BattleUi : CanvasLayer
     private Label _actionOrderLabel = null!;
     private Button _retreatButton = null!;
     // 卡序：0..3=我方 4,3,2,1；4..7=敌方 1,2,3,4；8..9=支援位 5,6
-    private readonly List<(Panel card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer)> _cards = new();
+    private readonly List<(Control card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer)> _cards = new();
     private readonly List<Label> _portraits = new();          // 立绘占位框文字（与 _cards 同序）
     private readonly List<(Panel panel, Label glyph)> _orderIcons = new(); // 顶部回合条头像
     private string _orderFor = "";
@@ -53,9 +53,9 @@ public partial class BattleUi : CanvasLayer
     private Button _reinforceButton = null!;
     private Button _moveButton = null!;
     private Button _passButton = null!; // S5.2 待命
-    private Panel _resultPanel = null!;
+    private PanelContainer _resultPanel = null!;
     private Label _resultLabel = null!;
-    private Panel _devLogPanel = null!;   // G2：开发者日志面板（F1 开关）
+    private PanelContainer _devLogPanel = null!;   // G2：开发者日志面板（F1 开关）
 
     // ------------------------------------------------------------------
     // 🔴 片③：**E 区 · 多功能框**（`ui_spec.md` §1.2：右 · 可切换分页：详情 ／ 日志 ／ 地图）
@@ -82,14 +82,11 @@ public partial class BattleUi : CanvasLayer
         // 🔴 Godot 内置清单 ②（第二批：**容器 + 锚点**）：
         //    · 面板**贴右下角**（锚点 BottomRight + 负偏移）⇒ 与分辨率无关（不再写死 640,556）✓
         //    · 内部用 **VBox/HBox 容器**排布（页签一行 + 内容区）⇒ 子控件**不再各写 Position** ✓
+        // 🔴 `#321`③：E 区 = 底栏**唯一 ExpandFill** 的分区 ⇒ 多功能框**创建时进 `_eArea`**
+        //    （容器负责尺寸 ⇒ 不再写 `BottomRight` 锚点与负偏移）
         _mfPanel = new Panel { Name = "MultiFunctionBox" };
         _mfPanel.Modulate = new Color(0.09f, 0.1f, 0.14f, 0.98f);
-        _mfPanel.SetAnchorsPreset(Control.LayoutPreset.BottomRight);
-        _mfPanel.OffsetLeft = -628;
-        _mfPanel.OffsetTop = -156;
-        _mfPanel.OffsetRight = -8;
-        _mfPanel.OffsetBottom = -8;
-        AddChild(_mfPanel);
+        _eArea.AddChild(_mfPanel);
 
         var column = new VBoxContainer { Name = "MfColumn" };
         column.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -335,107 +332,24 @@ public partial class BattleUi : CanvasLayer
 
     private void Build()
     {
-        var bg = new Panel { OffsetLeft = 0, OffsetTop = 0, OffsetRight = 1280, OffsetBottom = 720 };
-        bg.Modulate = new Color(0.12f, 0.12f, 0.16f, 0.97f);
-        AddChild(bg);
-
-        _statusLabel = new Label { Position = new Vector2(16, 8), CustomMinimumSize = new Vector2(620, 26) };
-        _statusLabel.AddThemeColorOverride("font_color", new Color(1, 1, 0.85f));
-        AddChild(_statusLabel);
-        _retreatButton = new Button { Position = new Vector2(1076, 6), Size = new Vector2(184, 32), Text = "撤退 0%" };
-        _retreatButton.Pressed += () => _retreat?.Invoke();
-        AddChild(_retreatButton);
-
-        // 🔴 片③（`ui_three_screens.md` §3）：**顶部队伍进度条：段数**（**不是 HP 条**）——
-        //    线性模式没有"段"，此时显示战斗目标胜场（如实标注口径，不假装有总段数）。
-        _progressLabel = new Label { Position = new Vector2(560, 8), CustomMinimumSize = new Vector2(320, 24) };
-        _progressLabel.AddThemeFontSizeOverride("font_size", 13);
-        _progressLabel.AddThemeColorOverride("font_color", new Color(0.85f, 0.9f, 1f));
-        AddChild(_progressLabel);
-
-        // 🔴 片③：**E 区 · 多功能框**（`ui_spec.md` §1.2：右 · **可切换分页**：详情 ／ 日志 ／ 地图）
-        BuildMultiFunctionBox();
-        _actionOrderLabel = new Label { Position = new Vector2(16, 40), CustomMinimumSize = new Vector2(80, 24), Text = "本回合顺序" };
-        _actionOrderLabel.AddThemeFontSizeOverride("font_size", 12);
-        AddChild(_actionOrderLabel);
-
-        AddRowTitle("我方　4 · 3 · 2 · 1", HeroX0, StageY - 22);
-        for (int i = 0; i < 4; i++)
-        {
-            AddChild(BuildCard(HeroX0 + i * (CardW + GapX), StageY, CardW, CardH));
-        }
-
-        var vs = new Label { Position = new Vector2(636, StageY + 70), CustomMinimumSize = new Vector2(20, 24), Text = "VS" };
-        vs.AddThemeColorOverride("font_color", new Color(1, 0.6f, 0.6f));
-        AddChild(vs);
-
-        AddRowTitle("敌方　1 · 2 · 3 · 4", EnemyX0, StageY - 22);
-        for (int i = 0; i < 4; i++)
-        {
-            AddChild(BuildCard(EnemyX0 + i * (CardW + GapX), StageY, CardW, CardH));
-        }
-
-        AddRowTitle("支援位 5 · 6", HeroX0, SupportY - 22);
-        for (int i = 0; i < 2; i++)
-        {
-            AddChild(BuildCard(HeroX0 + i * (SupportW + GapX), SupportY, SupportW, SupportH));
-        }
-
-        _skillTitle = new Label { Position = new Vector2(16, SkillTitleY), CustomMinimumSize = new Vector2(760, 24), Text = "技能栏（轮到行动者时可用）" };
-        _skillTitle.AddThemeColorOverride("font_color", new Color(0.9f, 1, 0.9f));
-        AddChild(_skillTitle);
-        _hintLabel = new Label { Position = new Vector2(790, SkillTitleY), CustomMinimumSize = new Vector2(470, 24), Text = "" };
-        _hintLabel.AddThemeColorOverride("font_color", new Color(1, 0.85f, 0.5f));
-        AddChild(_hintLabel);
-
-        _reinforceButton = new Button { Position = new Vector2(1004, SkillBarY), Size = new Vector2(116, 88), Text = "增援" };
-        _reinforceButton.Pressed += () => _reinforce?.Invoke();
-        AddChild(_reinforceButton);
-        _moveButton = new Button { Position = new Vector2(1132, SkillBarY), Size = new Vector2(116, 88), Text = "移动" };
-        _moveButton.Pressed += () => _move?.Invoke();
-        AddChild(_moveButton);
-
-        // S5.2 待命（放弃本次行动；不消耗 SP）
-        _passButton = new Button { Position = new Vector2(1132, SkillBarY + 96), Size = new Vector2(116, 44), Text = "待命" };
-        _passButton.Pressed += () => _pass?.Invoke();
-        AddChild(_passButton);
-
-        _resultPanel = new Panel { Position = new Vector2(340, 210), Size = new Vector2(600, 260), Visible = false };        _resultPanel.Modulate = new Color(0.1f, 0.1f, 0.14f, 0.98f);
-        AddChild(_resultPanel);
-        _resultLabel = new Label { Position = new Vector2(24, 20), CustomMinimumSize = new Vector2(552, 220) };
-        _resultLabel.AddThemeFontSizeOverride("font_size", 18);
-        _resultPanel.AddChild(_resultLabel);
-
-        // G2（O-55）：开发者日志面板（默认隐藏，F1 开关）——直接读事件流（唯一事实来源）
-        _devLogButton = new Button { Position = new Vector2(890, 6), Size = new Vector2(180, 32), Text = "日志 F1" };
-        _devLogButton.Pressed += ToggleDevLog;
-        AddChild(_devLogButton);
-
-        _devLogPanel = new Panel { Position = new Vector2(16, 96), Size = new Vector2(1248, 326), Visible = false };
-        _devLogPanel.Modulate = new Color(0.06f, 0.07f, 0.1f, 0.97f);
-        AddChild(_devLogPanel);
-        _devLogLabel = new Label { Position = new Vector2(12, 8), CustomMinimumSize = new Vector2(1224, 310) };
-        _devLogLabel.AddThemeFontSizeOverride("font_size", 12);
-        _devLogPanel.AddChild(_devLogLabel);
-
-        // 🔴 Godot 内置清单 ②（本轮轴：**容器 + 锚点** 的第一步）：**给本屏一个满屏 `Control` 根**
-        //    为什么必须有它：① **Theme 只沿 Control/Window 祖先链继承** —— 本类是 `CanvasLayer`、
-        //    不是 Control ⇒ 上一轮实测"中央 Theme 未生效（落在引擎默认 16）" **根因就在这**；
-        //    ② 有了 `Control` 根才能谈**锚点/容器**（分辨率与多语言文本长度无关的布局）✓
-        //    做法（最小改动）：建满屏根 ⇒ 把**直接挂在 CanvasLayer 下**的顶层控件**收编**进去
-        //    （子控件随父一起移动；各处持有的引用是对象引用 ⇒ 不受影响）✓
+        // 🔴 `ui_spec §14.3` + `#321`③ 分区表 —— **先立容器树，再让控件"创建时进容器"**（`#319`）
+        //    A 顶栏：回合·支援点 │ 行动顺序头像 │ 进度 │ 日志 │ 撤退
+        //    主体  ：我方 战4·3·2·1（前排）＋ 辅5·6（支援位） ←→ 敌方 1·2·3·4（**均分、不 ExpandFill**）
+        //    底栏  ：**C 区**（当前轮次角色面板 + **技能栏在 C 区内**，固定宽 ~30%，不 ExpandFill）
+        //            ＋ **E 区**（多功能框，**唯一 ExpandFill**）
+        //    ⚠️ 为什么必须"创建时进容器"（而不是建完再搬）：主程序实测 —— 事后 `Reparent()`/`RemoveChild+AddChild`
+        //       在"边遍历边搬"时触发引擎断言 `Condition "p_child->data.parent != this" is true` ⇒ 树状态不一致。
         _uiRoot = new Control { Name = "UiRoot" };
-        // ⚠️ 只 `SetAnchorsPreset`（或 `SetAnchorsAndOffsetsPreset`）在**入树前**算不出正确尺寸
-        //    ⇒ 实测解成 1280×1280（应 1280×720）⇒ 显式取**视口可见矩形**，与项目基准分辨率一致 ✓
         _uiRoot.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        // ⚠️ **不要**再显式赋 `Size`：锚点（0→1）之下 Godot 每个布局帧都会用**父矩形**重算 ⇒ 赋值必被覆盖 = 死代码。
-        //    实测（headless）该环境的视口是 2560×2000；窗口模式下 = 基准 1280×720 × `stretch=canvas_items` 缩放
-        //    ⇒ 我们只需断言"**锚点 1/1 且 size 跟随视口**"（见 `RootAudit`），不必自己算尺寸 ✓
         Darkest.Ui.DdTheme.Apply(_uiRoot);
         AddChild(_uiRoot);
 
-        // 🔴 `ui_spec §14.3`（`#319`）：**三行容器树**（顶部状态 ／ 中部单位卡 ／ 底部技能与 E 区）——
-        //    各分区一个 `PanelContainer`（不透明）＋ 内部 `HBoxContainer` ⇒ 子项自动排布**不可能重叠** ✓
+        // 背景：**刻意不让它成为"满屏不透明 Panel"**（锚点不是 0/0/1/1）——
+        //   否则判据会把它当成**模态覆盖层**，只审它自己的子树（= 空）⇒ 报 ✅ 却是**假通过** ⚠️（实测踩过两次）
+        var bg = new Panel { Name = "BattleBg", Size = GetViewport().GetVisibleRect().Size };
+        bg.Modulate = new Color(0.12f, 0.12f, 0.16f, 0.97f);
+        _uiRoot.AddChild(bg);
+
         var uiMargin = new MarginContainer { Name = "BattleMargin" };
         uiMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         uiMargin.AddThemeConstantOverride("margin_left", 10);
@@ -453,39 +367,211 @@ public partial class BattleUi : CanvasLayer
         var topRow = new HBoxContainer { Name = "TopRowBox" };
         topRow.AddThemeConstantOverride("separation", 10);
         topPanel.AddChild(topRow);
+        _topRow = topRow;
 
         var midPanel = new PanelContainer { Name = "MidRow", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         uiCol.AddChild(midPanel);
         var midRow = new HBoxContainer { Name = "MidRowBox", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         midRow.AddThemeConstantOverride("separation", 8);
         midPanel.AddChild(midRow);
+        _midRow = midRow;
 
-        var bottomPanel = new PanelContainer { Name = "BottomRow" };
+        var bottomPanel = new PanelContainer { Name = "BottomRow", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         uiCol.AddChild(bottomPanel);
-        var bottomRow = new HBoxContainer { Name = "BottomRowBox" };
+        var bottomRow = new HBoxContainer { Name = "BottomRowBox", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         bottomRow.AddThemeConstantOverride("separation", 10);
         bottomPanel.AddChild(bottomRow);
-
-        _topRow = topRow;
-        _midRow = midRow;
         _bottomRow = bottomRow;
 
-        // 🔴 `#319` 战斗屏：**"事后搬运"这条路我不走了**（如实记录）——
-        //    实测两个拦路虎：① 直接 `AddChild` 报 `already has a parent`（Godot 不自动换父）
-        //    ② `Reparent()` / `RemoveChild+AddChild` 在"边遍历边搬"时触发引擎断言
-        //       `Condition "p_child->data.parent != this" is true` ⇒ 树状态不一致 ⇒ 判据随后乱认浮层（认成 `MfColumn`）
-        //    ⇒ 正解（下一步）：**控件在【创建时】就加进目标容器**（`topRow/midRow/bottomRow`），
-        //      而不是建完再搬 —— 这与我在**地图屏**总结的教训是同一条 ✓
-        //    ⇒ 在改完之前，本屏判据**仍是未通过**（我不认任何"通过"）✓
-        GD.Print("[BattleUi] 三行容器已建（顶部/中部/底部）；⚠️ 控件归属仍待改为【创建时进容器】—— 见代码注释");
+        BuildTopRow();
+        BuildBattlefield();
+        BuildBottomRow();
 
-        // 顶部四件的可读性：状态/进度占满剩余宽度，按钮保持固定宽 ✓
-        _statusLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        // 结算 / 开发者日志 = **满屏不透明模态**（挂 `_uiRoot`：它是真 `Control` ⇒ `FullRect` 锚点算得出满屏 ✓）
+        _resultLabel = MakeOpaqueModal("ResultPanel", out _resultPanel);
+        _devLogLabel = MakeOpaqueModal("DevLogPanel", out _devLogPanel);
+
+        GD.Print("[BattleUi] 容器树就绪：顶栏／主体（我方 4+2 ←→ 敌方 4）／底栏（C 区含技能栏 ＋ E 区多功能框）" +
+                 " ⇒ 控件**创建时进容器** ✓");
+    }
+
+    /// <summary>A 顶栏：状态（回合·支援点）／行动顺序头像／进度／日志／撤退。</summary>
+    private void BuildTopRow()
+    {
+        _statusLabel = new Label { Text = "" };
+        _statusLabel.AddThemeColorOverride("font_color", new Color(1, 1, 0.85f));
+        _statusLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; // 占满剩余宽度
+        _topRow.AddChild(_statusLabel);
+
+        var orderLabel = new Label { Text = "本回合顺序", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
+        orderLabel.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        _topRow.AddChild(orderLabel);
+
+        _orderBox = new HBoxContainer { Name = "OrderBox", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
+        _orderBox.AddThemeConstantOverride("separation", 4);
+        _topRow.AddChild(_orderBox);
+
+        _progressLabel = new Label { Text = "" };
+        _progressLabel.AddThemeFontSizeOverride("font_size", 13);
+        _progressLabel.AddThemeColorOverride("font_color", new Color(0.85f, 0.9f, 1f));
         _progressLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        _actionOrderLabel.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
-        _retreatButton.CustomMinimumSize = new Vector2(184, 32);
+        _topRow.AddChild(_progressLabel);
 
-        GD.Print($"[BattleUi] 满屏 Control 根就绪（size={_uiRoot.Size}）⇒ ① Theme 可继承 ② 锚点/容器的落点 ✓");
+        _devLogButton = new Button { Text = "日志 F1" };
+        _devLogButton.Pressed += ToggleDevLog;
+        _topRow.AddChild(_devLogButton);
+
+        _retreatButton = new Button { Text = "撤退 0%" };
+        _retreatButton.Pressed += () => _retreat?.Invoke();
+        _topRow.AddChild(_retreatButton);
+
+        // 兼容既有刷新路径：状态/顺序文案仍由 `Refresh()` 写
+        _actionOrderLabel = orderLabel;
+    }
+
+    /// <summary>主体：我方（前排 4 ＋ 支援位 2）←→ 敌方 4。卡片**均分宽**（`#321`③：位置编号要稳定映射横坐标）。</summary>
+    private void BuildBattlefield()
+    {
+        var playerArea = new VBoxContainer { Name = "PlayerArea", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        playerArea.AddThemeConstantOverride("separation", 4);
+        _midRow.AddChild(playerArea);
+
+        playerArea.AddChild(TitleLabel("我方　战 4 · 3 · 2 · 1　｜　辅 5 · 6"));
+
+        _playerCards = new HBoxContainer { Name = "PlayerCards", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _playerCards.AddThemeConstantOverride("separation", 6);
+        playerArea.AddChild(_playerCards);
+
+        _playerSupport = new HBoxContainer { Name = "PlayerSupport", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _playerSupport.AddThemeConstantOverride("separation", 6);
+        playerArea.AddChild(_playerSupport);
+
+        var vs = new Label { Text = "VS", CustomMinimumSize = new Vector2(24, 24), VerticalAlignment = VerticalAlignment.Center };
+        vs.AddThemeColorOverride("font_color", new Color(1, 0.6f, 0.6f));
+        _midRow.AddChild(vs);
+
+        var enemyArea = new VBoxContainer { Name = "EnemyArea", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        enemyArea.AddThemeConstantOverride("separation", 4);
+        _midRow.AddChild(enemyArea);
+        enemyArea.AddChild(TitleLabel("敌方　1 · 2 · 3 · 4"));
+
+        _enemyCards = new HBoxContainer { Name = "EnemyCards", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _enemyCards.AddThemeConstantOverride("separation", 6);
+        enemyArea.AddChild(_enemyCards);
+
+        // 卡片**创建时**就进各自的容器（顺序保持：我方 4 → 敌方 4 → 支援 2，`Refresh()` 的下标依赖它）
+        for (int i = 0; i < 4; i++)
+        {
+            _playerCards.AddChild(BuildCard(CardW, CardH));
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            _enemyCards.AddChild(BuildCard(CardW, CardH));
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            _playerSupport.AddChild(BuildCard(SupportW, SupportH));
+        }
+    }
+
+    /// <summary>底栏：C 区（固定宽，**技能栏在 C 区内**）＋ E 区（多功能框，**唯一 ExpandFill**）。</summary>
+    private void BuildBottomRow()
+    {
+        _cArea = new PanelContainer
+        {
+            Name = "CArea",
+            CustomMinimumSize = new Vector2(380, 0),                    // 固定宽 ≈ 30%（`#321`③）
+            SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,        // 不 ExpandFill
+        };
+        var cCol = new VBoxContainer { Name = "CCol" };
+        cCol.AddThemeConstantOverride("separation", 6);
+        _cArea.AddChild(cCol);
+        _bottomRow.AddChild(_cArea);
+
+        _skillTitle = new Label { Text = "技能栏（轮到行动者时可用）", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        _skillTitle.AddThemeColorOverride("font_color", new Color(0.9f, 1, 0.9f));
+        cCol.AddChild(_skillTitle);
+
+        _skillBar = new GridContainer
+        {
+            Name = "SkillBar",
+            Columns = Darkest.Ui.DdTheme.SkillBarColumns,               // 🔴 `#325` D5：常量集中在 DdTheme（不是局部 const）
+        };
+        _skillBar.AddThemeConstantOverride("h_separation", 6);
+        _skillBar.AddThemeConstantOverride("v_separation", 6);
+        cCol.AddChild(_skillBar);
+
+        _hintLabel = new Label { Text = "", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        _hintLabel.AddThemeColorOverride("font_color", new Color(1, 0.85f, 0.5f));
+        cCol.AddChild(_hintLabel);
+
+        _actionButtons = new HBoxContainer { Name = "ActionButtons" };
+        _actionButtons.AddThemeConstantOverride("separation", 6);
+        cCol.AddChild(_actionButtons);
+
+        _reinforceButton = new Button { Text = "增援", CustomMinimumSize = new Vector2(116, 44) };
+        _reinforceButton.Pressed += () => _reinforce?.Invoke();
+        _actionButtons.AddChild(_reinforceButton);
+
+        _moveButton = new Button { Text = "移动", CustomMinimumSize = new Vector2(116, 44) };
+        _moveButton.Pressed += () => _move?.Invoke();
+        _actionButtons.AddChild(_moveButton);
+
+        _passButton = new Button { Text = "待命", CustomMinimumSize = new Vector2(116, 44) };
+        _passButton.Pressed += () => _pass?.Invoke();
+        _actionButtons.AddChild(_passButton);
+
+        _eArea = new PanelContainer
+        {
+            Name = "EArea",
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,          // 🔴 **唯一 ExpandFill**（`#321`③）
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+        };
+        _bottomRow.AddChild(_eArea);
+
+        BuildMultiFunctionBox(); // E 区多功能框（内部自带容器；**创建时进 `_eArea`**）
+    }
+
+    /// <summary>分区小标题（进容器的 Label ⇒ 不再手摆坐标）。</summary>
+    private static Label TitleLabel(string text)
+    {
+        var label = new Label { Text = text };
+        label.AddThemeColorOverride("font_color", new Color(0.72f, 0.82f, 1f));
+        return label;
+    }
+
+    /// <summary>
+    /// 🔴 **满屏不透明模态**（结算 / 开发者日志）：`PanelContainer` + `Margin` + `VBox` + 一个 `Label`。
+    /// · 满屏 + 不透明 ⇒ 判据把它识别为**模态**（只审它内部）⇒ 不会把"被它盖住的 Label"算成重叠 ✓
+    /// · `ExpandFill` + `autowrap` ⇒ 长文本不溢出（`§14.2`④ / `§14.6`）✓
+    /// </summary>
+    private Label MakeOpaqueModal(string name, out PanelContainer panel)
+    {
+        panel = new PanelContainer { Name = name, Visible = false };
+        var margin = new MarginContainer();
+        margin.AddThemeConstantOverride("margin_left", 24);
+        margin.AddThemeConstantOverride("margin_top", 20);
+        margin.AddThemeConstantOverride("margin_right", 24);
+        margin.AddThemeConstantOverride("margin_bottom", 20);
+        var col = new VBoxContainer { Name = $"{name}Col" };
+        margin.AddChild(col);
+        panel.AddChild(margin);
+
+        var label = new Label
+        {
+            Name = $"{name}Text",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        col.AddChild(label);
+
+        _uiRoot.AddChild(panel);
+        panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect); // 父是真 Control ⇒ 锚点算得出满屏 ✓
+        return label;
     }
 
     private Control _uiRoot = null!;
@@ -496,6 +582,16 @@ public partial class BattleUi : CanvasLayer
     private Container _topRow = null!;
     private Container _midRow = null!;
     private Container _bottomRow = null!;
+
+    // 🆕 `#319`/`#321`③：**分区子容器** —— 控件一律【创建时】就加进这些容器（不再"事后搬运"，见下）
+    private HBoxContainer _orderBox = null!;       // 顶栏：行动顺序头像
+    private HBoxContainer _playerCards = null!;    // 主体：我方前排 4（战 4·3·2·1）
+    private HBoxContainer _playerSupport = null!;  // 主体：我方支援位 2（辅 5·6）
+    private HBoxContainer _enemyCards = null!;     // 主体：敌方 4
+    private GridContainer _skillBar = null!;       // 底栏 C 区：技能栏（**在 C 区内**，`#321`③）
+    private HBoxContainer _actionButtons = null!;  // 底栏 C 区：增援 / 移动 / 待命
+    private PanelContainer _cArea = null!;         // 底栏 C 区（**固定宽 ~30%，不 ExpandFill**）
+    private PanelContainer _eArea = null!;         // 底栏 E 区（**唯一 ExpandFill**）
 
     /// <summary>🔴 取证：满屏 Control 根（Theme 继承与锚点的落点）+ **Theme 是否真的生效**。</summary>
     public string RootAudit()
@@ -584,39 +680,58 @@ public partial class BattleUi : CanvasLayer
         }
     }
 
-    private void AddRowTitle(string title, float x, float y)
+    private Control BuildCard(float w, float h)
     {
-        var label = new Label { Position = new Vector2(x, y), CustomMinimumSize = new Vector2(400, 22), Text = title };
-        label.AddThemeColorOverride("font_color", new Color(0.72f, 0.82f, 1f));
-        AddChild(label);
-    }
+        // 🔴 `§14.2`：卡片**自己也是容器**（`PanelContainer` + 内部 `VBox`/`HBox`）——
+        //    原来卡片内部全是**手写坐标的 Label**（实测 `name`(y 8..32) 与 `stats`(y 30..50) 就压 2px ⇒ 4 张卡各 1 对重叠）⚠️
+        //    容器堆叠 ⇒ 卡片内部**物理上不可能重叠** ✓（并给最小尺寸：`#14.2`④）
+        var card = new PanelContainer
+        {
+            CustomMinimumSize = new Vector2(w, h),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, // 均分宽 ⇒ 位置编号稳定映射横坐标（`#321`③）
+        };
+        var col = new VBoxContainer { Name = "CardCol" };
+        col.AddThemeConstantOverride("separation", 2);
+        card.AddChild(col);
 
-    private Control BuildCard(float x, float y, float w, float h)
-    {
-        // 🔴 §14.2 ④：卡片进容器 ⇒ 必须给【最小尺寸】（否则容器分配 0 宽 ⇒ 卡片互相重叠）✓
-        var card = new Panel { CustomMinimumSize = new Vector2(w, h) };
+        var head = new HBoxContainer { Name = "CardHead" };
+        head.AddThemeConstantOverride("separation", 4);
+        col.AddChild(head);
 
         // ② 立绘占位框（色块 + 首字）
-        var portraitBox = new Panel { Position = new Vector2(8, 6), Size = new Vector2(44, 44) };
-        var glyph = new Label { Position = new Vector2(0, 8), CustomMinimumSize = new Vector2(44, 30), Text = "—", HorizontalAlignment = HorizontalAlignment.Center };
+        var portraitBox = new Panel { CustomMinimumSize = new Vector2(44, 44) };
+        head.AddChild(portraitBox);
+        var glyph = new Label
+        {
+            Text = "—",
+            CustomMinimumSize = new Vector2(44, 30),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
         glyph.AddThemeFontSizeOverride("font_size", 20);
         glyph.AddThemeColorOverride("font_color", new Color(1, 1, 1));
         portraitBox.AddChild(glyph);
-        card.AddChild(portraitBox);
 
-        var name = new Label { Position = new Vector2(58, 8), CustomMinimumSize = new Vector2(w - 66, 24), Text = "[-]" };
+        var nameCol = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        nameCol.AddThemeConstantOverride("separation", 2);
+        head.AddChild(nameCol);
+
+        var name = new Label { Text = "[-]", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         name.AddThemeFontSizeOverride("font_size", 15);
-        var stats = new Label { Position = new Vector2(58, 30), CustomMinimumSize = new Vector2(w - 66, 20), Text = "" };
+        nameCol.AddChild(name);
+
+        var stats = new Label { Text = "", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         stats.AddThemeFontSizeOverride("font_size", 12);
-        var hp = new ProgressBar { Position = new Vector2(8, 58), Size = new Vector2(w - 16, 14), MinValue = 0, MaxValue = 100, ShowPercentage = false };
-        var morale = new ProgressBar { Position = new Vector2(8, 78), Size = new Vector2(w - 16, 12), MinValue = 0, MaxValue = 100, ShowPercentage = false };
-        var tag = new Label { Position = new Vector2(8, h - 28), CustomMinimumSize = new Vector2(w - 16, 20), Text = "" };
+        nameCol.AddChild(stats);
+
+        var hp = new ProgressBar { MinValue = 0, MaxValue = 100, ShowPercentage = false, CustomMinimumSize = new Vector2(0, 14) };
+        col.AddChild(hp);
+        var morale = new ProgressBar { MinValue = 0, MaxValue = 100, ShowPercentage = false, CustomMinimumSize = new Vector2(0, 12) };
+        col.AddChild(morale);
+
+        var tag = new Label { Text = "", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         tag.AddThemeFontSizeOverride("font_size", 12);
-        card.AddChild(name);
-        card.AddChild(stats);
-        card.AddChild(hp);
-        card.AddChild(morale);
-        card.AddChild(tag);
+        col.AddChild(tag);
         _portraits.Add(glyph);
 
         int slot = _cards.Count < 4 ? 4 - _cards.Count
@@ -688,7 +803,7 @@ public partial class BattleUi : CanvasLayer
         bool targeting = _host.IsTargeting;
         bool targetsEnemy = _host.PendingTargetsEnemy;
         int phase = _host.ReinforcePhase;
-        foreach ((Panel card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c in _cards)
+        foreach ((Control card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c in _cards)
         {
             bool isActive = _host.IsAwaitingPlayer && c.isPlayer && c.slot == activeSlot;
             bool hl = false;
@@ -797,7 +912,7 @@ public partial class BattleUi : CanvasLayer
         }
 
         _orderIcons.Clear();
-        float x = 96f;
+        float x = 96f; // 只用于"是否成行"的旧口径；容器排布后不再需要写位置
         foreach (string id in order)
         {
             var unitId = new UnitId(id);
@@ -805,20 +920,20 @@ public partial class BattleUi : CanvasLayer
             string archetype = _host.ArchetypeOf(unitId);
             // 🔴 §14.2 ④：容器里必须给【最小尺寸】—— 只给 `Position/Size` 的话 HBox 分配 0 宽 ⇒ 互相重叠（实测）
             var panel = new Panel { CustomMinimumSize = new Vector2(36, 34) };
-            var glyph = new Label { Position = new Vector2(0, 2), CustomMinimumSize = new Vector2(36, 26), Text = NameOf(archetype).Substring(0, 1), HorizontalAlignment = HorizontalAlignment.Center };
+            var glyph = new Label { CustomMinimumSize = new Vector2(36, 26), Text = NameOf(archetype).Substring(0, 1), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
             glyph.AddThemeFontSizeOverride("font_size", 14);
             panel.AddChild(glyph);
             bool isActive = _host.IsAwaitingPlayer && id == _host.ActiveActor.Value;
             panel.Modulate = isActive
                 ? new Color(1.25f, 1.25f, 0.7f)
                 : isPlayer ? new Color(0.62f, 0.72f, 0.95f) : new Color(0.95f, 0.6f, 0.6f);
-            _topRow.AddChild(panel); // 🔴 §14：行动顺序图标进【顶部容器】（不再加回 CanvasLayer）
+            _orderBox.AddChild(panel); // 🔴 §14：行动顺序头像进【顶栏的顺序容器】（不再加回 CanvasLayer）
             _orderIcons.Add((panel, glyph));
             x += 40f;
         }
     }
 
-    private void FillCard((Panel card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c, UnitProjection u, Label portrait)
+    private void FillCard((Control card, Label name, Label stats, ProgressBar hp, ProgressBar morale, Label tag, int slot, bool isPlayer) c, UnitProjection u, Label portrait)
     {
         bool empty = u.UnitId == "-";
         string display = NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId);
@@ -884,7 +999,7 @@ public partial class BattleUi : CanvasLayer
         string archetype = _host.ActiveArchetype;
         var pool = new HashSet<string>(SkillPool(archetype));
         string[] poolIds = SkillPool(archetype);
-        const int perRow = 8; // ③ 技能栏图标格（首 2 字为图标，悬停看全名/原因）
+        // 🔴 `#325` D5：**列数不再写死在这里** ⇒ 常量集中在 `DdTheme.SkillBarColumns`（原 `perRow = 8` 是 D5 点名的反例）
         for (int i = 0; i < poolIds.Length; i++)
         {
             string skillId = poolIds[i];
@@ -892,8 +1007,6 @@ public partial class BattleUi : CanvasLayer
             string full = SkillName(skillId);
             var b = new Button
             {
-                Position = new Vector2(24f + (i % perRow) * 94f, SkillBarY + (i / perRow) * 94f),
-                Size = new Vector2(88, 88),
                 CustomMinimumSize = new Vector2(88, 88), // §14.2 ④：容器排布要最小尺寸 ✓
                 Text = full.Length <= 2 ? full : full.Substring(0, 2),
                 Disabled = sp.Reason != AvailabilityReason.Ok,
@@ -902,7 +1015,7 @@ public partial class BattleUi : CanvasLayer
             b.AddThemeFontSizeOverride("font_size", 20);
             string captured = skillId;
             b.Pressed += () => _useSkill?.Invoke(actor, captured);
-            _bottomRow.AddChild(b); // 🔴 §14：技能键进【底部容器】（不再加回 CanvasLayer）
+            _skillBar.AddChild(b); // 🔴 §14：技能键进【C 区的技能栏容器】（不再手摆坐标）
             _skillButtons.Add(b);
         }
     }
