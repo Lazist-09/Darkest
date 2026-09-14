@@ -555,10 +555,22 @@ public partial class ExpeditionRoot : Node
     private string? _pendingEventNodeId;
 
     /// <summary>设置当前待决策的事件节点（由流程层设置；本类不选择节点）。</summary>
+    /// 🔴 修一处**真崩溃**（本轮冒烟实测 5 次 `NullReferenceException`，栈指到这里）：
+    ///    原来直接 `Nodes!.Get(nodeId)` + `.Options[0]` ⇒ 当**事件节点表未装载**（拓扑模式）或**该房间映射不到节点**时必崩 ⚠️
+    ///    现在 ⇒ **如实打印并拒绝开面板**（不静默、不崩 —— 红线 21：不留不可解释的状态）✓
     public void SetPendingEvent(string nodeId)
     {
         _pendingEventNodeId = nodeId;
-        ExpeditionNodeConfig node = Nodes!.Get(nodeId);
+        ExpeditionNodeConfig? node = Nodes?.Get(nodeId);
+        if (node is null)
+        {
+            GD.Print($"[拓扑UI] 事件面板：找不到节点 {nodeId}" +
+                     $"（节点表 {(Nodes is null ? "**未装载**（拓扑模式/线性表未读）" : "已装载但无此 id")}）" +
+                     " ⇒ **不开面板**（如实拒绝；不静默、不崩）");
+            _pendingEventNodeId = null;
+            return;
+        }
+
         _choiceA.Text = node.Options[0].Label;
         _choiceB.Text = node.Options[1].Label;
         RefreshPanel();

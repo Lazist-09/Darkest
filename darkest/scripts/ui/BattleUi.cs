@@ -310,6 +310,12 @@ public partial class BattleUi : CanvasLayer
         {
             first.GrabFocus();
         }
+
+        // 🔴 冒烟：`--battle-support` ⇒ **真实点击【用支援包】**（与玩家同一条 `Pressed` 路径；红线 26）
+        if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-support"))
+        {
+            CallDeferred(nameof(PressSupportPackButton));
+        }
     }
 
     /// <summary>🔴 审计清单③的**取证**：当前焦点所有者 + 可聚焦控件数（headless 可断言）。</summary>
@@ -539,6 +545,12 @@ public partial class BattleUi : CanvasLayer
         _passButton.Pressed += () => _pass?.Invoke();
         _actionButtons.AddChild(_passButton);
 
+        // 🔴 主程序清单第 1 条（**使用支援包**）：扣 1 个支援包 ⇒ +SP（数量由**内核**决定，UI 不写死 2）
+        //    ⚠️ 它需要"本趟的背包"：单场战斗没有远征流程 ⇒ 无背包 ⇒ 按钮**置灰 + 说明原因**（红线 21：可解释）
+        _supportButton = new Button { Text = "用支援包", CustomMinimumSize = new Vector2(116, 44) };
+        _supportButton.Pressed += () => PressSupportPack();
+        _actionButtons.AddChild(_supportButton);
+
         _eArea = new PanelContainer
         {
             Name = "EArea",
@@ -599,6 +611,10 @@ public partial class BattleUi : CanvasLayer
     private int _seenEvents;      // 已消费的事件条数（**只对"新事件"播动效**，不重播）
     private bool _resultShown;    // 结算淡入只播一次（不可见 → 可见那一次）
     private bool _motionAuditPrinted;
+
+    // 🔴 主程序清单"等界面接线的内核 API"第 1 条：**使用支援包**（`Inventory.TryUseSupportPack` ⇒ `BattleDirector.TryUseSupportPackForSp`）
+    //    此前**玩家碰不到**（红线 18/21：内核备好了但没有入口）⇒ 本按钮就是那个入口 ✓
+    private Button _supportButton = null!;
 
     // 🔴 `ui_spec §14`：三行容器（顶部 / 中部卡片 / 底部技能与 E 区）——
     //    **重建路径**（行动顺序图标 / 技能键 / 卡片刻）也必须加进这些容器，
@@ -804,6 +820,15 @@ public partial class BattleUi : CanvasLayer
         _actionOrderLabel.Text = "本回合顺序";
         _retreatButton.Text = support.CanRetreat && !_host.GameOver ? $"撤退 {support.RetreatRatePercent}%" : "本回合不可撤退";
         _retreatButton.Disabled = !support.CanRetreat || _host.GameOver;
+
+        // 🔴 支援包按钮的可用性（**由内核持有者回答** → 置灰 + tooltip 说明；红线 21 不留不可解释的禁用）✓
+        Darkest.Gameplay.Sim.Run.Inventory? supportBag = Darkest.Gameplay.Scene.ExpeditionContext.Flow?.Bag;
+        bool hasPack = supportBag is not null &&
+                       supportBag.Slots.Any(s => s.Kind == Darkest.Gameplay.Sim.Run.ItemKind.SupportPack);
+        _supportButton.Disabled = _host.GameOver || !hasPack;
+        _supportButton.TooltipText = supportBag is null
+            ? "本场没有背包（单场战斗没有远征流程）⇒ 用不了支援包"
+            : hasPack ? "用 1 个支援包换支援点（数量由内核决定）" : "背包里没有支援包";
 
         int activeSlot = _host.IsAwaitingPlayer ? (d.Player.UnitAtPosition(_host.ActiveActor) ?? -1) : -1;
         UnitProjection[] player = p.Units(player: true).ToArray();
@@ -1170,7 +1195,48 @@ public partial class BattleUi : CanvasLayer
         => p.Units(player: true).Any(u => u.UnitId == unitId.Value);
 
     /// <summary>
-    /// 🔴 `§12.1` 的**取证**（冒烟打印）：动效播了几次 ／ 运行中几次 ／ **输入为什么不会被吞** ——
+    /// 🔴 **使用支援包**（主程序清单"等界面接线"第 1 条）：**扣 1 个支援包 ⇒ +SP**。
+    /// 口径：**扣格与加 SP 都由内核决定**（`Inventory.TryUseSupportPack` / `BattleDirector.TryUseSupportPackForSp`
+    /// 的参数由其默认值给 ⇒ **UI 不写死 2**）；UI 只做"入口 + 如实报告" ✓
+    /// ⚠️ 无背包（单场战斗没有远征流程）⇒ **置灰 + tooltip 说明原因**（红线 21：不留不可解释的禁用）✓
+    /// </summary>
+    public bool PressSupportPack()
+    {
+        if (_host?.Director is null)
+        {
+            GD.Print("[UI 支援包] 无战斗导演 ⇒ 拒绝（如实报）");
+            return false;
+        }
+
+        Darkest.Gameplay.Sim.Run.Inventory? bag = Darkest.Gameplay.Scene.ExpeditionContext.Flow?.Bag;
+        if (bag is null)
+        {
+            GD.Print("[UI 支援包] 本场没有背包（单场战斗无远征流程）⇒ 无支援包可用（按钮置灰，红线 21）");
+            return false;
+        }
+
+        if (!bag.TryUseSupportPack(out Darkest.Gameplay.Sim.Run.InventoryItem? used))
+        {
+            GD.Print("[UI 支援包] 背包里没有支援包 ⇒ 拒绝，不扣任何东西（红线 21：不部分扣）");
+            return false;
+        }
+
+        int before = _host.Director.SupportPoints;
+        bool ok = _host.Director.TryUseSupportPackForSp(); // 🔴 数量由内核默认值给（不在 UI 写死）
+        GD.Print($"[UI 支援包] 已用 {used?.Kind.ToString() ?? "支援包"} ⇒ SP {before} → {_host.Director.SupportPoints}" +
+                 $"（内核受理={ok}）　背包剩余 {bag.Slots.Count}/{bag.SlotCap}");
+        Refresh(); // 顶栏 SP 与背包读数都由投影刷新（UI 不自己算）
+        return true;
+    }
+
+    /// <summary>🔴 供冒烟：**真实点击【用支援包】**（走与玩家完全相同的 `Pressed` 路径）✓</summary>
+    public void PressSupportPackButton()
+    {
+        GD.Print("[UI 支援包] 发出真实 Pressed（用支援包）");
+        _supportButton.EmitSignal(BaseButton.SignalName.Pressed);
+    }
+
+    /// <summary>🔴 `§12.1` 的**取证**（冒烟打印）：动效播了几次 ／ 运行中几次 ／ **输入为什么不会被吞** ——
     /// 除了常量读数，还实测两件结构事实：动效层 `MouseFilter == Ignore`、且全屏**没有任何控件**被改成非继承 `ProcessMode`。
     /// </summary>
     public string MotionAudit()
