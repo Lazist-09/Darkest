@@ -44,7 +44,8 @@ public sealed record CurioConfig(
 /// ④ `kind` ∈ 已实现清单（否则加载即报错 —— 与 `BuffDefsConfig.ConsumedEffectNames` 同一做法）。
 /// </summary>
 public sealed record CuriosConfig(
-    [property: JsonPropertyName("curios")] IReadOnlyList<CurioConfig> Curios)
+    [property: JsonPropertyName("curios")] IReadOnlyList<CurioConfig> Curios,
+    [property: JsonPropertyName("pools")] IReadOnlyDictionary<string, IReadOnlyList<string>>? Pools = null)
 {
     public const string ResPath = "res://data/curios.json";
 
@@ -133,6 +134,32 @@ public sealed record CuriosConfig(
             }
         }
 
+        // 🔴 **具名池**（`#316`②：将来要具名池时【不新增文件】，池定义就放这里）——
+        //    池成员必须是**真实存在的 Curio id**（引用而非拷贝）✓
+        if (cfg.Pools is not null)
+        {
+            var ids = cfg.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal);
+            foreach ((string poolName, IReadOnlyList<string> members) in cfg.Pools)
+            {
+                if (members is null || members.Count == 0)
+                {
+                    throw new InvalidDataException($"{ResPath}: 具名池 \"{poolName}\" 为空。");
+                }
+
+                foreach (string member in members)
+                {
+                    if (!ids.Contains(member))
+                    {
+                        throw new InvalidDataException(
+                            $"{ResPath}: 具名池 \"{poolName}\" 引用了不存在的 Curio \"{member}\"（引用必须存在）✓");
+                    }
+                }
+            }
+        }
+
         return cfg;
     }
+
+    /// <summary>具名池是否存在（供 P26 校验 `$pool:&lt;name&gt;` 引用）。</summary>
+    public bool HasPool(string name) => Pools is not null && Pools.ContainsKey(name);
 }

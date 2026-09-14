@@ -343,6 +343,15 @@ public sealed class ExpeditionFlow
             {
                 foreach (string id in row.CurioPool ?? System.Array.Empty<string>())
                 {
+                    // 🔴 `$pool:<name>`：**校验期已允许，但解析【未实现】** ⇒ 这里**显式跳过并留痕**
+                    //    （不静默当成一个 curio id —— 那会在抽取时给出不存在的东西，红线 21）✓
+                    if (id.StartsWith("$pool:", StringComparison.Ordinal))
+                    {
+                        _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                            $"curio_pool_unresolved:{id}", 0.0, Triggered: false));
+                        continue;
+                    }
+
                     // 🔴 消费点 (b)：**只从【已解锁】的 Curio 里抽**（`O-86` 起手 4 种 → 解锁后 6 种）——
                     //    这是**内核级**拦截（C2：不能只在 UI 上"锁着"）✓ `allowedCurios == null` ⇒ 不限制（测试/旧路径）
                     if (allowedCurios is not null && !allowedCurios.Contains(id))

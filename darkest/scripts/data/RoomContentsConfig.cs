@@ -124,6 +124,22 @@ public sealed record RoomContentsConfig(
 
                 foreach (string curioId in e.CurioPool ?? Array.Empty<string>())
                 {
+                    // 🔴 `#316`② / P26：`curio_pool` 的两种写法 —— **id** 或 **`$pool:<name>`**。
+                    //    两者都必须是【引用】（不得把 Curio 定义拷进内容表）✓
+                    //    ⚠️ 本片**只让校验通过，不实现解析**（解析留给"具名池"那一轮）✓
+                    if (curioId.StartsWith("$pool:", StringComparison.Ordinal))
+                    {
+                        string poolName = curioId["$pool:".Length..];
+                        if (curios is null || !curios.HasPool(poolName))
+                        {
+                            throw new InvalidDataException(
+                                $"{ResPath}: \"{type}\" 引用了不存在的具名池 \"{poolName}\" —— " +
+                                "池定义放 `curios.json` 的 `pools` 段（**不新增文件**）（P26 ④）。");
+                        }
+
+                        continue;
+                    }
+
                     if (curioIds is null)
                     {
                         continue; // 未传目录 ⇒ 不校验（调用方应传；启动路径会传）
