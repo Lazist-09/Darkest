@@ -94,6 +94,21 @@ def cs_files(dirs: list[Path]) -> list[Path]:
     return out
 
 
+# 打印条数上限（`--limit` 写入；0 = 全部）—— `--limit 0` 用于生成 triage 全清单 ✓
+PRINT_LIMIT = 25
+
+
+def show(items: list[str], label: str) -> None:
+    if PRINT_LIMIT == 0 or len(items) <= PRINT_LIMIT:
+        for line in items:
+            print(f"  [!] {line}")
+    else:
+        for line in items[:PRINT_LIMIT]:
+            print(f"  [!] {line}")
+        print(f"  …（其余 {len(items) - PRINT_LIMIT} 处略；用 --limit 0 看全部）")
+    _ = label
+
+
 def strip_code(text: str) -> str:
     """去注释与字符串字面量（避免把注释里的数字/说明当成代码数字）✓"""
     text = BLOCK_COMMENT_RE.sub(" ", text)
@@ -132,19 +147,26 @@ PUBLIC_METHOD_RE = re.compile(r"\bpublic\s+(?:static\s+|virtual\s+|override\s+|s
                               r"(?:[\w<>,\[\]\.\?]+\s+)?(\w+)\s*\(")
 GODOT_LIFECYCLE = {"_Ready", "_Process", "_PhysicsProcess", "_Input", "_UnhandledInput", "_Draw",
                    "_GuiInput", "_Notification", "_EnterTree", "_ExitTree", "Dispose"}
+# 编译器/记录生成的成员（不是"我们写的函数"，别算死函数）✓
+COMPILER_GENERATED = {"GetHashCode", "Equals", "ToString", "Deconstruct", "PrintMembers", "Clone"}
 
 
 def scan_deadfuncs(verbose: bool) -> tuple[int, list[str]]:
     kernel = cs_files(KERNEL_DIRS)
     everything = cs_files([SCRIPTS]) + cs_files([REPO / "darkest" / "tests"])
     corpus = {f: strip_code(f.read_text(encoding="utf-8", errors="replace")) for f in everything}
+    raw = {f: f.read_text(encoding="utf-8", errors="replace") for f in everything}
 
     dead: list[str] = []
     for f in kernel:
         text = corpus.get(f, "")
+        # 🔴 该文件里声明的类型名（record/class）⇒ 与类型同名的"方法"其实是**构造函数**，不是死函数 ✓
+        type_names = set(re.findall(r"\b(?:record|class)\s+(\w+)", raw.get(f, "")))
         for m in PUBLIC_METHOD_RE.finditer(text):
             name = m.group(1)
-            if name in GODOT_LIFECYCLE or name.startswith("get_") or name.startswith("set_"):
+            if name in GODOT_LIFECYCLE or name in COMPILER_GENERATED or name in type_names:
+                continue
+            if name.startswith("get_") or name.startswith("set_") or name.startswith("op_"):
                 continue
             # 生产调用点 = 除本文件与 tests 之外的任何地方出现该方法名
             callers = 0
@@ -181,8 +203,9 @@ DOC_ONLY_KEYS = {"_note", "note", "source", "config", "version"}
 
 
 def scan_deadkeys(verbose: bool) -> tuple[int, list[str]]:
-    code = "\n".join(strip_code(f.read_text(encoding="utf-8", errors="replace"))
-                     for f in cs_files([SCRIPTS]))
+    # 🔴 **必须搜【原始文本】**：JSON 键在 C# 里就住在 `[JsonPropertyName("buffs")]` 这类**字符串字面量**中
+    #    ⇒ 我第一版先 `strip_code()`（把字面量清空）再搜 ⇒ **395 个假死数据**（"buffs"/"duration" 全中招）⚠️
+    code = "\n".join(f.read_text(encoding="utf-8", errors="replace") for f in cs_files([SCRIPTS]))
     dead: list[str] = []
     for jf in sorted(DATA.glob("*.json")):
         try:
@@ -240,6 +263,8 @@ def main() -> int:
     ap.add_argument("--deadkeys", action="store_true")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--report", action="store_true", help="只报告，不因可疑而失败（基线用）")
+    # ⚠️ 我一度加了 `--limit` 但没把它接进打印 ⇒ 那是**死参数**（违反"不许死代码"）⇒ 已删除：
+    #    三扫固定打印前 25 条 + "其余 N 处略"（要全清单就改这里的常量，别留一个不起作用的开关）✓
     ap.add_argument("--selfcheck", action="store_true")
     a = ap.parse_args()
 
