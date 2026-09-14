@@ -28,7 +28,8 @@ public sealed class FormulaSmokeTests
     [TestMethod]
     public void Caster_To_Warrior_Spirit_Is_8_RoundsNotTruncates()
     {
-        int damage = BattleMath.SpiritHit(attack: 12, skillMultiplier: 0.8, resilience: 50);
+        int damage = BattleMath.SpiritHit(attack: 12, skillMultiplier: 0.8, resilience: 50,
+            mentalDivisor: 250, mentalCapPercent: 40); // 🔴 数字外置：减免参数必填（夹具值 = 出厂 tuning）
         Assert.AreEqual(8, damage);
     }
 
@@ -37,6 +38,7 @@ public sealed class FormulaSmokeTests
     public void Damage_Never_Below_One()
     {
         Assert.AreEqual(1, BattleMath.PhysicalHit(attack: 1, skillMultiplier: 0.1, defense: 999));
-        Assert.AreEqual(1, BattleMath.SpiritHit(attack: 1, skillMultiplier: 0.1, resilience: 1000));
+        Assert.AreEqual(1, BattleMath.SpiritHit(attack: 1, skillMultiplier: 0.1, resilience: 1000,
+            mentalDivisor: 250, mentalCapPercent: 40));
     }
 }

@@ -66,9 +66,13 @@ public sealed class FormulaTests
     public void RangedArcher_To_Medic_Is_10()
         => Assert.AreEqual(10, BattleMath.PhysicalHit(attack: 13, skillMultiplier: 0.9, defense: 4));
 
+    /// 🔴 数字外置（用户 2026-09-14）：`SpiritHit` 的**精神减免参数改为必填** ⇒
+    ///    用例显式传【夹具值 250/40】（= 出厂 `tuning.json` 的 `mental_reduction` 两值）；
+    ///    ⚠️ 夹具值**不是**生产数字 —— 生产路径由 `BalanceTable` 从 data 传入 ✓
     [TestMethod]
     public void Caster_To_Warrior_Spirit_Is_8()
-        => Assert.AreEqual(8, BattleMath.SpiritHit(attack: 12, skillMultiplier: 0.8, resilience: 50));
+        => Assert.AreEqual(8, BattleMath.SpiritHit(attack: 12, skillMultiplier: 0.8, resilience: 50,
+            mentalDivisor: 250, mentalCapPercent: 40));
 
     // ------------------------------------------------------------------
     // 边界（T-M2-01 完成判据）
@@ -77,9 +81,9 @@ public sealed class FormulaTests
     [TestMethod]
     public void HitRate_Clamps_And_Baseline()
     {
-        Assert.AreEqual(90, BattleMath.HitRate(dodge: 10, hitMod: 0), "§7.2 命中 90% 基线");
-        Assert.AreEqual(55, BattleMath.HitRate(dodge: 100, hitMod: -60), "负修正触发下限 55");
-        Assert.AreEqual(100, BattleMath.HitRate(dodge: 0, hitMod: 120), "正修正触发上限 100（不做必中只钳顶）");
+        Assert.AreEqual(90, BattleMath.HitRate(dodge: 10, hitMod: 0, clampMin: 55, clampMax: 100), "§7.2 命中 90% 基线");
+        Assert.AreEqual(55, BattleMath.HitRate(dodge: 100, hitMod: -60, clampMin: 55, clampMax: 100), "负修正触发下限 55");
+        Assert.AreEqual(100, BattleMath.HitRate(dodge: 0, hitMod: 120, clampMin: 55, clampMax: 100), "正修正触发上限 100（不做必中只钳顶）");
     }
 
     [TestMethod]
@@ -95,9 +99,9 @@ public sealed class FormulaTests
     [TestMethod]
     public void MentalMitigation_Caps_At_40_Percent()
     {
-        Assert.AreEqual(0.20, BattleMath.MentalMitigation(50), 1e-12, "韧性 50 → 20%（#158 锚点）");
-        Assert.AreEqual(0.40, BattleMath.MentalMitigation(1000), 1e-12, "减免 cap 40%（韧性再高不再加）");
-        Assert.AreEqual(0.12, BattleMath.MentalMitigation(30), 1e-12, "韧性 30 → 12%");
+        Assert.AreEqual(0.20, BattleMath.MentalMitigation(50, divisor: 250, capPercent: 40), 1e-12, "韧性 50 → 20%（#158 锚点）");
+        Assert.AreEqual(0.40, BattleMath.MentalMitigation(1000, divisor: 250, capPercent: 40), 1e-12, "减免 cap 40%（韧性再高不再加）");
+        Assert.AreEqual(0.12, BattleMath.MentalMitigation(30, divisor: 250, capPercent: 40), 1e-12, "韧性 30 → 12%");
     }
 
     [TestMethod]
@@ -120,8 +124,10 @@ public sealed class FormulaTests
     [TestMethod]
     public void DeathDoorSurvivePercent_AfflictionPenalty()
     {
-        Assert.AreEqual(70, BattleMath.DeathDoorSurvivePercent(resistPercent: 70, afflicted: false));
-        Assert.AreEqual(60, BattleMath.DeathDoorSurvivePercent(resistPercent: 70, afflicted: true), "#123 折磨 −10%");
+        Assert.AreEqual(70, BattleMath.DeathDoorSurvivePercent(resistPercent: 70, afflicted: false,
+            afflictionPenaltyPercent: 10)); // 🔴 数字外置：惩罚值必填（夹具值 = 出厂 tuning）
+        Assert.AreEqual(60, BattleMath.DeathDoorSurvivePercent(resistPercent: 70, afflicted: true,
+            afflictionPenaltyPercent: 10), "#123 折磨 −10%");
     }
 
     [TestMethod]
