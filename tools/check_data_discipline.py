@@ -1,0 +1,238 @@
+#!/usr/bin/env python3
+"""数据纪律审计（用户指令 2026-09-14：数字外置 / 不许死代码·死函数·死数据）。
+
+三扫 + 负向自检（照 `tools/check_godot_refs.py` 的模式）：
+
+  ① --numbers   内核（core / data / gameplay/sim）里的**数字字面量** ⇒ 可调数字应住 `darkest/data/*.json`
+                 只放行【结构性常量】：0 / 1 / 2 / -1 / 100 与 0.0 / 1.0 / 2.0 / 100.0 / 0.01，
+                 以及 `const` 声明行上的字面量 ✓（其余一律报可疑 —— 供人判读，不做自动改写）
+  ② --deadfuncs `public` 方法在【生产代码】里没有任何调用点（**只被测试调用也算**）⇒ 必须接线或删
+  ③ --deadkeys  `darkest/data/*.json` 里**没有任何代码读取**的键 ⇒ 死数据（必须接线或显式登记"未消费"）
+
+用法：
+  python tools/check_data_discipline.py --numbers            # 扫数字（有可疑 ⇒ 退出码 1）
+  python tools/check_data_discipline.py --deadfuncs
+  python tools/check_data_discipline.py --deadkeys
+  python tools/check_data_discipline.py --all --report       # 只报告、不因可疑而失败（基线用）
+  python tools/check_data_discipline.py --selfcheck          # 注入探针 ⇒ 三扫都必须抓到（否则退出码 1）
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+import tempfile
+from pathlib import Path
+
+# ⚠️ Windows 控制台默认 GBK ⇒ 输出里的非 GBK 字符（如 emoji）会直接抛 UnicodeEncodeError
+#    （我第一版就被它打断：`print("🔴 …")` ⇒ 工具崩在打印上）⇒ 统一把 stdout 设成 UTF-8 + 容错 ✓
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - 老解释器/非常规 stdout
+    pass
+
+REPO = Path(__file__).resolve().parent.parent
+
+
+def rel(path: Path) -> str:
+    """相对仓库显示（探针在临时目录时会失败 ⇒ 退回绝对路径，不抛）✓"""
+    try:
+        return str(path.relative_to(REPO))
+    except ValueError:
+        return str(path)
+SCRIPTS = REPO / "darkest" / "scripts"
+DATA = REPO / "darkest" / "data"
+KERNEL_DIRS = [SCRIPTS / "core", SCRIPTS / "data", SCRIPTS / "gameplay" / "sim"]
+
+# 结构性常量白名单（非平衡量：下标 / 协议 / 单位换算 / 哨兵）——
+# ⚠️ 白名单只收录"结构性"的数；**绝不**为了让它变绿而把平衡数字塞进来（那正是本纪律禁止的）
+ALLOWED_NUMBERS = {
+    "0", "1", "2", "-1", "100", "255", "64", "32", "16", "8", "4", "6", "3", "5",  # 下标/槽位/位宽
+    "0.0", "1.0", "2.0", "100.0", "0.01", "1e-9", "18446744073709551616.0",        # 单位换算/归一/哨兵
+}
+
+NUM_RE = re.compile(r"(?<![\w.])(-?\d+(?:\.\d+)?(?:e-?\d+)?)(?![\w.])")
+LINE_COMMENT_RE = re.compile(r"//.*?$", re.MULTILINE)
+BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
+STRING_RE = re.compile(r'"(?:\\.|[^"\\])*"')
+
+
+def cs_files(dirs: list[Path]) -> list[Path]:
+    out: list[Path] = []
+    for d in dirs:
+        if d.exists():
+            out.extend(sorted(d.rglob("*.cs")))
+    return out
+
+
+def strip_code(text: str) -> str:
+    """去注释与字符串字面量（避免把注释里的数字/说明当成代码数字）✓"""
+    text = BLOCK_COMMENT_RE.sub(" ", text)
+    text = LINE_COMMENT_RE.sub(" ", text)
+    return STRING_RE.sub('""', text)
+
+
+def scan_numbers(files: list[Path], verbose: bool) -> tuple[int, list[str]]:
+    suspicious: list[str] = []
+    total_literals = 0
+    for f in files:
+        raw = f.read_text(encoding="utf-8", errors="replace")
+        code = strip_code(raw)
+        for lineno, line in enumerate(code.splitlines(), start=1):
+            if re.search(r"\bconst\b", line):  # const 声明行：命名常量 ⇒ 放行（但仍计入统计）
+                continue
+            for m in NUM_RE.finditer(line):
+                lit = m.group(1)
+                total_literals += 1
+                if lit not in ALLOWED_NUMBERS:
+                    suspicious.append(f"{rel(f)}:{lineno}: 数字 {lit} ⇒ {line.strip()[:88]}")
+    if verbose:
+        print(f"[numbers] 内核扫描：{len(files)} 文件 ／ 字面量 {total_literals} 处 ／ 可疑 {len(suspicious)} 处")
+        for line in suspicious[:25]:
+            print("  [!] " + line)
+        if len(suspicious) > 25:
+            print(f"  …（其余 {len(suspicious) - 25} 处略）")
+    return len(suspicious), suspicious
+
+
+PUBLIC_METHOD_RE = re.compile(r"\bpublic\s+(?:static\s+|virtual\s+|override\s+|sealed\s+|async\s+)*"
+                              r"(?:[\w<>,\[\]\.\?]+\s+)?(\w+)\s*\(")
+GODOT_LIFECYCLE = {"_Ready", "_Process", "_PhysicsProcess", "_Input", "_UnhandledInput", "_Draw",
+                   "_GuiInput", "_Notification", "_EnterTree", "_ExitTree", "Dispose"}
+
+
+def scan_deadfuncs(verbose: bool) -> tuple[int, list[str]]:
+    kernel = cs_files(KERNEL_DIRS)
+    everything = cs_files([SCRIPTS]) + cs_files([REPO / "darkest" / "tests"])
+    corpus = {f: strip_code(f.read_text(encoding="utf-8", errors="replace")) for f in everything}
+
+    dead: list[str] = []
+    for f in kernel:
+        text = corpus.get(f, "")
+        for m in PUBLIC_METHOD_RE.finditer(text):
+            name = m.group(1)
+            if name in GODOT_LIFECYCLE or name.startswith("get_") or name.startswith("set_"):
+                continue
+            # 生产调用点 = 除本文件与 tests 之外的任何地方出现该方法名
+            callers = 0
+            for g, gtext in corpus.items():
+                if g == f or "tests" in g.parts:
+                    continue
+                if re.search(rf"\b{re.escape(name)}\s*\(", gtext):
+                    callers += 1
+                    break
+            if callers == 0:
+                dead.append(f"{rel(f)}: public {name}(…) 无生产调用点（只被测试调用也算死函数）")
+    if verbose:
+        print(f"[deadfuncs] 内核 public 方法扫描完成 ⇒ 疑似死函数 {len(dead)} 个")
+        for line in dead[:25]:
+            print("  [!] " + line)
+        if len(dead) > 25:
+            print(f"  …（其余 {len(dead) - 25} 个略）")
+    return len(dead), dead
+
+
+def leaf_keys(obj, prefix: str = "") -> list[str]:
+    out: list[str] = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            out.append(k)
+            out.extend(leaf_keys(v, prefix + k + "."))
+    elif isinstance(obj, list):
+        for v in obj:
+            out.extend(leaf_keys(v, prefix))
+    return out
+
+
+DOC_ONLY_KEYS = {"_note", "note", "source", "config", "version"}
+
+
+def scan_deadkeys(verbose: bool) -> tuple[int, list[str]]:
+    code = "\n".join(strip_code(f.read_text(encoding="utf-8", errors="replace"))
+                     for f in cs_files([SCRIPTS]))
+    dead: list[str] = []
+    for jf in sorted(DATA.glob("*.json")):
+        try:
+            obj = json.loads(jf.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as ex:
+            dead.append(f"{jf.name}: JSON 解析失败（{ex}）")
+            continue
+        for key in sorted(set(leaf_keys(obj))):
+            if key in DOC_ONLY_KEYS:
+                continue
+            if not re.search(rf'"{re.escape(key)}"', code):
+                dead.append(f"{jf.name}: 键 \"{key}\" 在任何 .cs 里都不出现 ⇒ 疑似死数据")
+    if verbose:
+        print(f"[deadkeys] 数据键扫描完成 ⇒ 疑似死数据 {len(dead)} 个")
+        for line in dead[:25]:
+            print("  [!] " + line)
+        if len(dead) > 25:
+            print(f"  …（其余 {len(dead) - 25} 个略）")
+    return len(dead), dead
+
+
+def selfcheck() -> int:
+    """注入探针 ⇒ 三扫都必须抓到（否则退出码 1）。探针用完即删 ✓"""
+    with tempfile.TemporaryDirectory() as td:
+        tdp = Path(td)
+        (tdp / "Probe.cs").write_text(
+            "namespace Probe;\npublic sealed class P {\n"
+            "    public int Dmg() => 37;                    // 探针①：可调数字\n"
+            "    public int NeverCalled() => 1;             // 探针②：死函数\n"
+            "    public int Reads() => 1;                   // （这个也不被调用，但重复报同一类即可）\n"
+            "}\n", encoding="utf-8")
+        (tdp / "probe.json").write_text('{ "probe_key_xyz": 1 }', encoding="utf-8")
+
+        global SCRIPTS, DATA, KERNEL_DIRS
+        old_scripts, old_data, old_kernel = SCRIPTS, DATA, KERNEL_DIRS
+        try:
+            SCRIPTS, DATA = tdp, tdp
+            KERNEL_DIRS = [tdp]
+            n1, _ = scan_numbers([tdp / "Probe.cs"], verbose=False)
+            n2, _ = scan_deadfuncs(verbose=False)
+            n3, _ = scan_deadkeys(verbose=False)
+        finally:
+            SCRIPTS, DATA, KERNEL_DIRS = old_scripts, old_data, old_kernel
+
+        ok = n1 >= 1 and n2 >= 1 and n3 >= 1
+        print(f"[selfcheck] 探针①数字={n1}（须≥1） ②死函数={n2}（须≥1） ③死数据={n3}（须≥1） "
+              f"=> {'✅ PASS' if ok else '🔴 FAIL'}")
+        return 0 if ok else 1
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="数据纪律审计（数字外置 / 死函数 / 死数据）")
+    ap.add_argument("--numbers", action="store_true")
+    ap.add_argument("--deadfuncs", action="store_true")
+    ap.add_argument("--deadkeys", action="store_true")
+    ap.add_argument("--all", action="store_true")
+    ap.add_argument("--report", action="store_true", help="只报告，不因可疑而失败（基线用）")
+    ap.add_argument("--selfcheck", action="store_true")
+    a = ap.parse_args()
+
+    if a.selfcheck:
+        return selfcheck()
+
+    if not any([a.numbers, a.deadfuncs, a.deadkeys, a.all]):
+        a.all = True
+
+    total = 0
+    if a.numbers or a.all:
+        n, _ = scan_numbers(cs_files(KERNEL_DIRS), verbose=True)
+        total += n
+    if a.deadfuncs or a.all:
+        n, _ = scan_deadfuncs(verbose=True)
+        total += n
+    if a.deadkeys or a.all:
+        n, _ = scan_deadkeys(verbose=True)
+        total += n
+
+    print(f"[summary] 三扫合计可疑 {total} 处（⚠️ 这是【供人判读】的清单，不是自动判罪；"
+          f"结构性常量可加入白名单，平衡数字必须搬去 data/*.json）")
+    return 0 if (a.report or total == 0) else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
