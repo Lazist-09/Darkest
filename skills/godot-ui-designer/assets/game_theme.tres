@@ -1,0 +1,65 @@
+; game_theme.tres — Godot 4 起步用项目 Theme 资源
+; 用法：在 Project Settings > Gui > Theme > default_theme 指向本文件。
+; 之后在 Theme 编辑器里替换 default_font 为你的动态字体（含 CJK fallback）。
+; 颜色/圆角可按项目配色修改；StyleBoxFlat 为矢量，零贴图开销。
+
+[gd_resource type="Theme" format=3]
+
+[sub_resource type="StyleBoxFlat" id="ButtonNormal"]
+bg_color = Color(0.149, 0.176, 0.247, 1)
+border_color = Color(0.404, 0.506, 0.714, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="ButtonHover"]
+bg_color = Color(0.247, 0.298, 0.404, 1)
+border_color = Color(0.6, 0.72, 0.95, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="ButtonPressed"]
+bg_color = Color(0.098, 0.118, 0.176, 1)
+border_color = Color(0.404, 0.506, 0.714, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="PanelBg"]
+bg_color = Color(0.078, 0.078, 0.106, 0.96)
+border_color = Color(0.3, 0.3, 0.4, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[resource]
+default_base_scale = 1.0
+default_font_size = 16
+Button/colors/font_color = Color(0.95, 0.96, 0.98, 1)
+Button/styles/normal = SubResource("ButtonNormal")
+Button/styles/hover = SubResource("ButtonHover")
+Button/styles/pressed = SubResource("ButtonPressed")
+Button/styles/focus = SubResource("ButtonHover")
+Panel/styles/panel = SubResource("PanelBg")
+Label/colors/font_color = Color(0.95, 0.96, 0.98, 1)

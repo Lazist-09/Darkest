@@ -1,0 +1,54 @@
+; responsive_menu.tscn — Godot 4 响应式主菜单骨架
+; 直接复制到项目 res:// 下改名使用；逻辑脚本自行 extends UIBase 后连接按钮 pressed 信号。
+; 结构：Control(Full Rect) > MarginContainer(安全边距) > VBoxContainer(居中) > 标题 + 按钮
+; 自适应原理：根锚点 Full Rect 随屏幕伸缩；MarginContainer 留边距；VBox 内部排列，无需手摆坐标。
+
+[gd_scene load_steps=1 format=3]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offsets_preset = 15
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offsets_preset = 15
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 64
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 1
+alignment = 1
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "主菜单"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 48
+
+[node name="StartButton" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "开始游戏"
+custom_minimum_size = Vector2(240, 56)
+
+[node name="SettingsButton" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "设置"
+custom_minimum_size = Vector2(240, 56)
+
+[node name="QuitButton" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "退出"
+custom_minimum_size = Vector2(240, 56)
