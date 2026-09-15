@@ -1,46 +1,29 @@
 ---
-### 信封：2026-09-15 · 【来自 UI 设计师】片 2 **进度 4/6** + 剩余两个面板的**抽取方案已钉死**（并说明我为什么这轮不动手）
+### 信封：2026-09-15 · 【来自 UI 设计师】片 2 **#6 前置完成**：扎营技能内容已抽成独立类（行为不变，已核）
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-PANEL5-6-PLAN-20260915' -SimpleMatch` 命中即送达。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-CAMPEXTRACT-20260915' -SimpleMatch` 命中即送达。
 
 ```
-DELIVERY-UI-PANEL5-6-PLAN-20260915
-```
-
-#### ① 我本轮**没有硬做** #5/#6 的抽取 —— 理由如实说
-```
-`CurioPanel` / `CampSkillPanel` 现为 `ExpeditionRoot` 里的**内联模态**（`BuildCampSkillPanel()` 约 **110 行**：模态 + 状态 + 按钮组 + 结束扎营 + 逐技能按钮）。
-抽取是**跨多处的重构** ⇒ 一旦做到一半我的工作窗口就结束了，**会把红构建留给下一个接手的人**（本项目已被我坑过两次，见红线 20/21 家族）。
-⇒ 我的处置：**把抽取方案钉死到可机械执行的程度**（写进我的 brief §13.8），下一轮开头**一次做完并验证** ✓
-   —— 这符合你的分片纪律"拆迁前先说清怎么做/谁动哪些文件"，也避免"半截重构" ⚠️
+DELIVERY-UI-CAMPEXTRACT-20260915
 ```
 
-#### ② 已钉死的**抽取方案**（摘要；全文在我 brief §13.8）
+#### ① 交付（提交 `640a096`）：按我 brief `§13.8` 的既定方案机械执行
 ```
-🆕 `scripts/ui/CampSkillPanel.cs`（`PanelContainer`，构造即自建内容）
-   入口：`Refresh(skills, session, tuning, log, heroByArchetype, onFinished)`
-   · 逐技能按钮 → `session.UseCampSkill(log, skill, UnitId.Of(heroId), tuning.Camp!)`（**新签名**）
-   · 可用性/点数**由内核回答**（现状 `Disabled = !afford`）
-   · **模态由宿主提供**（`ExpeditionRoot.MakeModal` 仍归它）⇒ 本类只管**内容** ⇒ 两个宿主可复用同一份 ✓
-接线：`ExpeditionRoot.BuildCampSkillPanel()` 改为"取模态 → 调 `Refresh(...)`"（**行为不变**）
-验收：① `--topology --camp --camp-skill=0` 仍打印 `已使用　剩余 Respite N` ② `--ui-audit` + `--ui-longtext` 该屏 0/0
-      ③ 挂进 `BattleUi.DungeonHost()`（#6）后复跑同一组判据 ✓
+🆕 `scripts/ui/CampSkillPanel.cs`（`PanelContainer`）：**只承载内容**（状态行 + 逐技能按钮）
+   宿主无关入口：`Refresh(skills, heroOf, affordOf, useOf, statusText)`
+   ⇒ "该原型用谁 / 够不够点数 / 点了做什么"三个决策**全由宿主给**；本类**不碰内核、不重算数字** ✓
+🔴 **模态/外框仍归宿主**（`ExpeditionRoot.MakeModal` 不动）· **"结束扎营"仍属宿主行为**（留在宿主，不进内容面板）✓
+接线：`ExpeditionRoot.BuildCampSkillPanel()` = 取模态 → `_campSkillPanel.Refresh(...)`（`PressCampSkill` 用镜像列表 ⇒ 行为不变）
 ```
 
-#### ③ 片 2 台账（**4/6**，全部挂 `DungeonHost()` = 骨架之外 ⇒ `S1` 每次仍 ✅）
+#### ② 验收（我 `§13.8` 里写的三条，前两条已过）
 ```
-✅ #1 `LightBarPanel`（`ba72195`）· 刻度**数据驱动**（`BoundariesFrom(tiers)`，UI 零字面量）
-✅ #2 `ScoutMarkPanel`（`25b0282`）· `Flow.LastScout`
-✅ #3 `InventoryPanel`（`364590d`）· `Flow.Bag`（含"满则选择丢弃"；本轮另补"消耗口粮腾格"显式按钮 `17f5069`）
-✅ #4 `ExpeditionListPanel`（`5a1149c`）· 内核投影，实测 `行数=9`
-⏳ #5/#6 见上 ②；`PathChoicePanel` 等片 3
-```
-
-#### ④ 一条**我自己的纪律**（连续两轮踩到，已写成检查项）
-```
-"读数与事实不符"我连踩两次：`[UI 片2]` 那句在**有流程**分支（`6c63f17`）与**无流程**分支（`109df9c`）分别漏改 ⇒
-   **改文案必须按分支各跑一次**（与你新给的口径"**按路径列，不只按系统**"是同一条）✓
+① `--topology --camp --camp-skill=0` ⇒ **逐字不变**：`[拓扑UI] 扎营技能 磨刀：已使用　剩余 Respite 4` ✅
+   （+ `扎营技能面板：可用 11 个（英雄槽位映射 6 个；名册 8 人；技能数据 12 条）` 同前）
+② `--ui-audit`（扎营模态）⇒ 重叠 **0** ／ 透明 **0** ✅　引擎错误 **0** ✅
+③ ⏳ 把它挂进 `BattleUi.DungeonHost()`（= #6 完成）——需在战斗侧构造 `heroByArchetype`（`Session.Roster()` + roster 配置），
+   留下一步（下一轮做，随后复跑同一组判据）✓
 ```
 
-- **阻塞 / 待裁定**：无（下一轮一次做完 `CampSkillPanel` 抽取 + 迁 #6）
-- **权威在哪**：我的 brief **§13.7 台账 / §13.8 抽取方案**｜`scripts/ui/BattleUi.cs`（`HostDungeonPanels`）｜提交 `17f5069` / `109df9c`
+- **阻塞 / 待裁定**：无
+- **权威在哪**：`scripts/ui/CampSkillPanel.cs`（新）· `ExpeditionRoot.cs`（`BuildCampSkillPanel`）｜提交 `640a096`｜我的 brief `§13.8`
