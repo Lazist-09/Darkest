@@ -201,6 +201,12 @@ public partial class BattleUi : CanvasLayer
         GD.Print($"[UI 片2] 【扎营】面板：Phase={flow.Session.Phase} ⇒ **显示**（可用 {usable.Length} 个技能）✓");
     }
 
+    /// <summary>面板状态读数：**显示/隐藏 + 子控件数**（隐藏 = 门禁生效的**自证**，不是"没接上"）✓</summary>
+    private static string PanelState(string name, Control? panel)
+        => panel is not null && GodotObject.IsInstanceValid(panel)
+            ? $"{name}={(panel.Visible ? "显示" : "隐藏")}({panel.GetChildCount()}子)"
+            : $"{name}=未建";
+
     /// <summary>地牢面板 #1：**光照条**（`LightBarPanel`）。数据**不新造**：走 `ExpeditionContext.Flow.Meter`（与 `BattleMiniMap` 同法）✓</summary>
     private Darkest.Ui.LightBarPanel? _mapModeLightBar;
 
@@ -309,10 +315,11 @@ public partial class BattleUi : CanvasLayer
                 _mapModeInventory.Initialize(flow.Bag, HostDungeonPanels); // 背包变化 ⇒ 重挂（顺带刷新光照/侦察）✓
             }
 
-            GD.Print($"[UI 片2] 地图模式：已挂 **4 个**地牢面板（光照条 ← `Flow.Meter`；侦察标记 ← `Flow.LastScout`；" +
-                     $"背包 ← `Flow.Bag`，{flow.Bag.Slots.Count}/{flow.Bag.SlotCap}；投影列表 ← `ExpeditionProjector`，" +
-                     $"行数={(listLineCount < 0 ? "无 Log ⇒ 空态" : listLineCount.ToString())}；" +
-                     $"LastScout={(flow.LastScout is null ? "null（未侦察）" : "有")}）");
+            GD.Print($"[UI 片2] 地图模式面板状态：" +
+                     $"{PanelState("光照条", _mapModeLightBar)}　{PanelState("侦察标记", _mapModeScoutMark)}　" +
+                     $"{PanelState("背包", _mapModeInventory)}　{PanelState("投影列表", _mapModeList)}　" +
+                     $"{PanelState("扎营", _mapModeCamp)}" +
+                     "　（**显示/隐藏 + 子控件数** ⇒ 门禁与内容都能自证；隐藏是门禁生效，不是没接）");
 
             // 🔴 相位谓词读数（架构 `…PHASE-RULING…`）：**UI 只读谓词、绝不推断相位** ——
             //    先把谓词变成**可观测读数**，B 类面板（扎营/Curio/选路）挂载时直接消费它 ✓
