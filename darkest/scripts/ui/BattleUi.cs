@@ -139,7 +139,7 @@ public partial class BattleUi : CanvasLayer
             _dungeonHost = new VBoxContainer
             {
                 Name = "DungeonHost",
-                CustomMinimumSize = new Vector2(0, 104),
+                CustomMinimumSize = new Vector2(0, 72),    // 🔴 相机 720 口径：104→72
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             };
             _bottomRow.AddChild(_dungeonHost);
@@ -158,7 +158,7 @@ public partial class BattleUi : CanvasLayer
     {
         if (_mapModeCamp is null || !GodotObject.IsInstanceValid(_mapModeCamp))
         {
-            _mapModeCamp = new Darkest.Ui.CampSkillPanel { Name = "MapModeCamp", CustomMinimumSize = new Vector2(0, 96) };
+            _mapModeCamp = new Darkest.Ui.CampSkillPanel { Name = "MapModeCamp", CustomMinimumSize = new Vector2(0, 64) };  // 🔴 相机 720 口径：96→64
             DungeonHost().AddChild(_mapModeCamp);
         }
 
@@ -427,7 +427,7 @@ public partial class BattleUi : CanvasLayer
             {
                 Name = "MapModeInventory",
                 Visible = true,
-                CustomMinimumSize = new Vector2(0, 128),
+                CustomMinimumSize = new Vector2(0, 96),    // 🔴 相机 720 口径：128→96
             };
             host.AddChild(_mapModeInventory);
         }
@@ -438,7 +438,7 @@ public partial class BattleUi : CanvasLayer
             _mapModeList = new Darkest.Ui.ExpeditionListPanel
             {
                 Name = "MapModeList",
-                CustomMinimumSize = new Vector2(0, 140),
+                CustomMinimumSize = new Vector2(0, 96),    // 🔴 相机 720 口径：140→96
             };
             host.AddChild(_mapModeList);
         }
