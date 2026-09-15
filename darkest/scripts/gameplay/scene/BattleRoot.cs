@@ -289,6 +289,10 @@ public partial class BattleRoot : Node2D
     /// 🔴🔴 **`#327` 片 4：在【本场景内】进入地牢**（组装流程 + 切地图模式，**不切场景**）
     /// 组装交给 `ExpeditionComposition.BuildInScene`（从 `ExpeditionRoot` 搬过来的那一段）✓
     /// </summary>
+    /// <summary>🔴 片 4 过渡标记：本趟地牢是**宿主内进的**（true）还是**从远征场景进来的**（false）——
+    /// 战后"继续"按钮据此分流：宿主内 ⇒ 回地图模式（不切场景）；旧路径 ⇒ 仍回远征场景（**保住旧冒烟循环**）✓</summary>
+    private bool _dungeonHostedInScene;
+
     public bool EnterDungeonInScene()
     {
         Darkest.Core.Events.CombatLog log = ExpeditionContext.Log ?? new Darkest.Core.Events.CombatLog();
@@ -298,6 +302,7 @@ public partial class BattleRoot : Node2D
             _ui = GetNode<BattleUi>("BattleUi");
         }
 
+        _dungeonHostedInScene = true; // 🔴 片 4 过渡标记（战后据此回地图模式）✓
         _ui.EnterMapMode();
         GD.Print($"[片4] ✅ **场景内进入地牢**（地图模式）：Phase={built.Flow.Session.Phase}　" +
                  $"段数={built.Flow.StepsDone}　光照={built.Flow.Meter.Value}　" +
@@ -655,13 +660,29 @@ public partial class BattleRoot : Node2D
             var toExpedition = new Button
             {
                 Name = "ReturnToExpedition",
-                Text = "继续（回远征）",
+                Text = "继续（回地图）", // 🔴 片 4②：不再是"回远征**场景**"，而是**回地图模式**（同一场景）✓
                 Position = new Vector2(540, 660),
                 Size = new Vector2(200, 40),
             };
-            toExpedition.Pressed += () => EnterDungeonInScene(); // 🔴 片 4：场景内进地牢（不再切场景）✓
+            // 🔴 片 4②：战后**留在本场景、切回地图模式**（由宿主继续驱动流程；不再切场景、也不再重跑组装）✓
+            toExpedition.Pressed += () =>
+            {
+                if (_dungeonHostedInScene)
+                {
+                    // 🔴 片 4②：**宿主内进的**地牢 ⇒ 战后**留在本场景、切回地图模式**（不切场景、不重跑组装）✓
+                    _ui.EnterMapMode();
+                    GD.Print($"[片4] ✅ 战后回地图模式（同一场景）：Phase={ExpeditionContext.Flow!.Session.Phase}　" +
+                             $"CanShowPathChoice={ExpeditionContext.Flow.Session.CanShowPathChoice}（应为 True）✓");
+                }
+                else
+                {
+                    // 🔴 过渡期：**旧路径**（从远征场景进来的）仍回远征场景 —— 否则旧冒烟循环（`run-full`）会断 ⚠️
+                    //    片 4 收尾（退休旧场景）后本分支随之删除 ✓
+                    GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
+                }
+            };
             AddChild(toExpedition);
-            GD.Print($"[BattleRoot] 远征模式：本场结果 {result}，点【继续（回远征）】返回远征界面");
+            GD.Print($"[BattleRoot] 远征模式：本场结果 {result}，点【继续（回地图）】回地图模式继续走图");
 
             // 🔴 冒烟：自动点【继续（回远征）】（**真实 `Pressed`** ⇒ 走玩家路径）
             //    ⚠️ 两条入口都要认：① 命令行旗标（旧路径）② `PressAutoFinish()`（步进冒烟的新路径）
