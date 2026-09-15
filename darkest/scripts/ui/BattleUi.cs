@@ -474,7 +474,9 @@ public partial class BattleUi : CanvasLayer
             HostDungeonWalkHud(flow);
 
             // 🔴 层④：DD 式示意地图（大方块=房间 / 小方块=走廊）✓
-            HostDungeonWalkMap(flow);
+            // 🔴 主程序 (A) 落地：**格子地图已升级为【地图页主画面】** ⇒ 宿主里这份**重复**小图撤掉
+            //    （实测它占底栏 68px 高，是 topology 路径 782 > 720 的组成部分之一）✓
+            // HostDungeonWalkMap(flow);
 
             // 🔴 相机 720 口径（DD 图②）：地图模式**不内联背包**（经多功能框查看）⇒ 该初始化块已移除
             //    ⚠️ 教训：删创建块时必须同时删**使用点**，否则每帧 NRE（实测 topology 路径 E=4）✓
