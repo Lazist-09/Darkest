@@ -1557,6 +1557,12 @@ public partial class BattleUi : CanvasLayer
         //    实测地图模式（含本趟流程）下顶栏需求 **1396×105** ⇒ 整屏 1428×907 > 相机 720 ⚠️
         //    DD 的地图模式本就不显示"本回合顺序/意图/进度/日志" ⇒ 按模式切可见性 ✓
         bool battleMode = _mode == SceneMode.Battle;
+
+        // 🔴 相机 720 口径：**背包/投影列表也由"模式"统一裁决** ——
+        //    实测 `MapModeInventory 需 298×312 且可见`（我在 `HostDungeonPanels` 里的隐藏被 `Initialize` 的
+        //    `Visible = true` 覆盖了）⇒ 把模式可见性**集中到这里**（唯一权威处），否则"设了又被覆盖" ⚠️
+        if (_mapModeInventory is not null) { _mapModeInventory.Visible = false; }
+        if (_mapModeList is not null) { _mapModeList.Visible = false; }
         _orderBox.Visible = battleMode;
         if (_intentText is not null) { _intentText.Visible = battleMode; }
         if (_progressLabel is not null) { _progressLabel.Visible = battleMode; }
