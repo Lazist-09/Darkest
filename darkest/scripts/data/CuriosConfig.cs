@@ -12,7 +12,9 @@ public sealed record CurioBareResultConfig(
     [property: JsonPropertyName("chance")] int Chance,
     [property: JsonPropertyName("kind")] string Kind,
     [property: JsonPropertyName("amount")] int Amount,
-    [property: JsonPropertyName("text")] string Text);
+    [property: JsonPropertyName("text")] string Text,
+    // ⚠️ 权重属**数值**（`#307` 冻结中）⇒ 由策划裁定先落为占位；本字段**只作可追溯标记**，不参与逻辑 ✓
+    [property: JsonPropertyName("placeholder")] bool Placeholder = false);
 
 /// <summary>
 /// **道具 ⇒ 确定结果**（`curio.md` §1.2：Curio 的灵魂 = "正确道具 ⇒ 100% 确定的好结果"；
@@ -54,6 +56,7 @@ public sealed record CuriosConfig(
     {
         "none",            // 空手什么都没出（仍要写 RngDraw ⇒ 概率是真的）
         "food",            // 口粮 +N
+        "support_pack",    // 🔴 支援包 ×N（策划 #329/#332：补给箱空手给一只 ⇒ 让"用支援包"那条已接好的链路真正可达）✓
         "firewood",        // 柴火 +N
         "gold",            // 金钱 +N
         "morale_team",     // 全队士气 +N（可负）

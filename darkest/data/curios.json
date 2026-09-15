@@ -2,8 +2,9 @@
   "curios": [
     { "id": "cur_supply_crate", "name": "补给箱", "type": "curio", "curio_type": "Treasure",
       "bare_hands": [
-        { "chance": 60, "kind": "food", "amount": 2, "text": "箱底压着几包腌肉，还能吃。" },
-        { "chance": 40, "kind": "none", "amount": 0, "text": "箱盖一掀就散了，里面只有潮气。" }
+        { "chance": 50, "kind": "food", "amount": 2, "text": "箱底压着几包腌肉，还能吃。" },
+        { "chance": 15, "kind": "support_pack", "amount": 1, "placeholder": true, "text": "箱底还压着一只**支援包** —— 战斗中拆开能换一口气。" },
+        { "chance": 35, "kind": "none", "amount": 0, "text": "箱盖一掀就散了，里面只有潮气。" }
       ],
       "item_results": [
         { "item": "firewood", "kind": "firewood", "amount": 2, "extra_kind": "food", "extra_amount": 1,

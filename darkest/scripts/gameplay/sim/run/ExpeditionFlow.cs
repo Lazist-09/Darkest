@@ -474,6 +474,15 @@ public sealed class ExpeditionFlow
             case "gold":
                 _session.Gain(_log, kind, amount, "curio");
                 break;
+            case "support_pack":
+                // 🔴 策划 #329/#332：补给箱（空手）给**支援包** ⇒ 与战利品**同一条收取路径**
+                //    （包满 ⇒ 进"待处理"队列，**不静默丢弃**）✓ 让"用支援包"那条已接好的链路真正可达 ✓
+                for (int i = 0; i < Math.Max(1, amount); i++)
+                {
+                    Collect(new InventoryItem(ItemKind.SupportPack, $"curio_supply_{StepsDone}_{_lootSeq++}"));
+                }
+
+                break;
             case "morale_team":
                 _session.ApplyTeamMorale(_log, amount, "curio");
                 break;

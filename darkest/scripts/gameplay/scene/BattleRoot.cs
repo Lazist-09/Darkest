@@ -24,6 +24,19 @@ public partial class BattleRoot : Node2D
     public BattleProjector Projector { get; private set; } = null!;
 
     private RngProvider _rng = null!;
+
+    /// <summary>
+    /// 🆕 **敌方意图预览（显示用）** —— 给表现层的**唯一口子**：
+    /// 🔴 **不需要（也不该要）战斗 RNG**：`BattleProjector.IntentPreview` 的实现里写着
+    ///    `_ = battleRng; // 只读：战斗用 RNG 一律不参与预览` ⇒ 预览**绝不消耗抽数** ⇒ 确定性不变 ✓
+    ///    （若把 `_rng` 泄给表现层，迟早有人用它"顺手预览" ⇒ **抽数被吃 ⇒ 回放/复现全崩** ⚠️）
+    /// ⇒ 这里传一个**固定种子的预览专用 RNG**，与战斗抽数完全隔离 ✓
+    /// </summary>
+    public Darkest.Gameplay.Sim.Director.IntentProjection PreviewIntent(Darkest.Core.Contracts.UnitId actor)
+        => Projector.IntentPreview(actor, _previewRng, enabled: true);
+
+    /// <summary>预览专用 RNG（固定种子；**只喂预览**，永不参与战斗抽数）✓</summary>
+    private readonly RngProvider _previewRng = new(20260915);
     private BattleUi _ui = null!;
     private SkillsConfig _skills = null!;
     private bool _awaitingPlayer;
