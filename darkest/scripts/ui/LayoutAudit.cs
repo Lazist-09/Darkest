@@ -158,7 +158,7 @@ public static class LayoutAudit
                          // 🔴 架构裁定（`§4.1.1`）：第 7 条例外**必须可审计** ⇒ 打印"跳过的瞬态元素数"（含覆盖层子树内的）✓
                          $"　跳过瞬态元素 {skippedTransient + Collect(root, root, new List<(string, Rect2)>(), new List<(string, Control)>())} 个（`{MotionLayerName}` 口径例外，按设计会短暂叠放）" +
                          $"　相机 {cam.X:0}×{cam.Y:0}（**项目真实视口**）越界控件 {outsideList.Count} 个（实际矩形口径，含 headless 填满视口的噪声）" +
-                         $"　🔴 **内容需求超出相机 {tooBig.Count} 个**" + (tooBig.Count == 0 ? "（全部装得下 ✅）" : "：" + string.Join(" ／ ", tooBig)) +
+                         $"　帧={Engine.GetProcessFrames()}　🔴 **内容需求超出相机 {tooBig.Count} 个**" + (tooBig.Count == 0 ? "（全部装得下 ✅）" : "：" + string.Join(" ／ ", tooBig)) +
                          (outsideList.Count == 0 ? "（全部落在可视区内 ✅）" : "：" + string.Join(" ／ ", outsideList));
 
         string report = $"布局判据（{root.Name}）{scopeNote}：可见 Label {labels.Count} 个 ／ Panel+PC {panels.Count} 个　" +

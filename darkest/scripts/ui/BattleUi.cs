@@ -1556,6 +1556,12 @@ public partial class BattleUi : CanvasLayer
                 Control? col = _uiRoot.GetNodeOrNull<Control>("BattleMargin/BattleCol");
                 if (col is not null)
                 {
+                    GD.Print($"[UI 列自身] BattleCol 自身最小={col.CustomMinimumSize} 合计={col.GetCombinedMinimumSize()}" +
+                             $"　BattleMargin 自身最小={(_uiRoot.GetNodeOrNull<Control>("BattleMargin")?.CustomMinimumSize.ToString() ?? "-")}" +
+                             $"　帧={Engine.GetProcessFrames()}");
+                }
+                if (col is not null)
+                {
                     foreach (Node ch in col.GetChildren())
                     {
                         if (ch is Control cc)
