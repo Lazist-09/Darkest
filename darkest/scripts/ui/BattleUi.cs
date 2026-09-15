@@ -23,7 +23,7 @@ namespace Darkest.UI;
 /// </summary>
 public partial class BattleUi : CanvasLayer
 {
-    private const float CardW = 146f;
+    private const float CardW = 132f;   // 🔴 相机 1280 口径：146 → 132（4v4 横排收窄，§14.0 规则①）
     private const float CardH = 170f;
     private const float GapX = 10f;
     private const float HeroX0 = 13f;
@@ -588,7 +588,7 @@ public partial class BattleUi : CanvasLayer
         _slotRight = new PanelContainer
         {
             Name = "BackSlot6",
-            CustomMinimumSize = new Vector2(120, 132),
+            CustomMinimumSize = new Vector2(88, 120),   // 🔴 收窄（相机 1280 口径）
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd,
         };
         _bottomRow.AddChild(_slotRight);
@@ -1082,7 +1082,7 @@ public partial class BattleUi : CanvasLayer
         _cArea = new PanelContainer
         {
             Name = "CArea",
-            CustomMinimumSize = new Vector2(380, 0),                    // 固定宽 ≈ 30%（`#321`③）
+            CustomMinimumSize = new Vector2(320, 0),   // 🔴 收窄（相机 1280 口径）                    // 固定宽 ≈ 30%（`#321`③）
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,        // 不 ExpandFill
         };
         var cCol = new VBoxContainer { Name = "CCol" };
@@ -1093,7 +1093,7 @@ public partial class BattleUi : CanvasLayer
         _slotLeft = new PanelContainer
         {
             Name = "BackSlot5",
-            CustomMinimumSize = new Vector2(120, 132),
+            CustomMinimumSize = new Vector2(88, 120),   // 🔴 收窄（相机 1280 口径）
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,   // 左条：**向左靠齐**
         };
         _bottomRow.AddChild(_slotLeft);      // 先加左条 ⇒ 它在最左
