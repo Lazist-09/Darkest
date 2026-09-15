@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -140,6 +140,9 @@ public partial class BattleUi : CanvasLayer
 
     /// <summary>地牢面板 #1：**光照条**（`LightBarPanel`）。数据**不新造**：走 `ExpeditionContext.Flow.Meter`（与 `BattleMiniMap` 同法）✓</summary>
     private Darkest.Ui.LightBarPanel? _mapModeLightBar;
+
+    /// <summary>🔴 主程序清单第 3 条：**敌方意图预览**那一行（`_host.PreviewIntent` ⇒ 只渲染，不推断）✓</summary>
+    private Label _intentText = null!;
 
     /// <summary>地牢面板 #2：**侦察标记**（`ScoutMarkPanel`，两态可区分）。数据：`ExpeditionContext.Flow.LastScout` ✓</summary>
     private Darkest.Ui.ScoutMarkPanel? _mapModeScoutMark;
@@ -1040,12 +1043,45 @@ public partial class BattleUi : CanvasLayer
         return card;
     }
 
+    /// <summary>
+    /// 🔴 主程序清单第 3 条：**敌方意图预览** —— 逐敌方单位问内核"下一步想做什么"，**只渲染、不推断**：
+    /// `IntentProjection(SkillId, TargetSlots, Status)`；`Status` **照显**（`not_an_enemy` / `disabled` 等）
+    /// ⇒ 红线 21：不留不可解释的空态 ✓（预览用隔离 RNG ⇒ **不吃战斗抽数**）
+    /// </summary>
+    private void RefreshEnemyIntent()
+    {
+        if (_host?.Director is null || _intentText is null)
+        {
+            return;
+        }
+
+        var parts = new List<string>();
+        foreach (Darkest.Core.Contracts.UnitId id in _host.Director.LastRoundOrder)
+        {
+            if (_host.Director.Enemy.UnitAtPosition(id) is null)
+            {
+                continue; // 只问敌方（内核也会对非敌方回 `not_an_enemy`）
+            }
+
+            Darkest.Gameplay.Sim.Director.IntentProjection p = _host.PreviewIntent(id);
+            string what = p.SkillId is null ? "—" : SkillName(p.SkillId);
+            string slots = p.TargetSlots.Length == 0 ? "无目标" : "槽位 " + string.Join(",", p.TargetSlots);
+            parts.Add($"{id.Value}：{what} → {slots}（{p.Status}）");
+        }
+
+        _intentText.Text = parts.Count == 0
+            ? "敌方意图：（当前无敌方单位）"
+            : "敌方意图：" + string.Join("　｜　", parts);
+    }
+
     public void Refresh(string status = "")
     {
         if (_host is null || _host.Director is null || _host.Projector is null)
         {
             return;
         }
+
+        RefreshEnemyIntent(); // 🔴 敌方意图预览（只渲染）✓
 
         BattleDirector d = _host.Director;
         BattleProjector p = _host.Projector;
