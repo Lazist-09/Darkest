@@ -68,6 +68,8 @@ public partial class BattleUi : CanvasLayer
     private Panel _mfPanel = null!;
     private PanelContainer? _slotLeft;    // 🔴 P5：左长条框 = 5 号位（向左靠齐）✓
     private Darkest.Ui.LightBarPanel? _topTorch;  // 🔴 P5：正上方火把条（光照，居中）✓
+    private HBoxContainer? _topLeftGroup;         // 🔴 P5：左上"任务与撤退"组 ✓
+    private Label? _missionLabel;                 // 🔴 P5：任务文案（只读内核进度）✓
     private PanelContainer? _slotRight;   // 🔴 P5：右长条框 = 6 号位（向右靠齐）✓
     private Label _mfContent = null!;
     private Darkest.Ui.BattleMiniMap? _mfMap;
@@ -941,6 +943,14 @@ public partial class BattleUi : CanvasLayer
         _statusLabel = new Label { Text = "" };
         _statusLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
         _statusLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; // 占满剩余宽度
+        // 🔴 P5（用户参考图②）：**左上 = 任务与撤退** —— 独立成组放在顶栏最左；其余项在其右 ✓
+        _topLeftGroup = new HBoxContainer { Name = "TopLeftGroup", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
+        _topLeftGroup.AddThemeConstantOverride("separation", 8);
+        _topRow.AddChild(_topLeftGroup);
+
+        _missionLabel = new Label { Name = "MissionLabel", VerticalAlignment = VerticalAlignment.Center };
+        _topLeftGroup.AddChild(_missionLabel);
+
         _topRow.AddChild(_statusLabel);
 
         var orderLabel = new Label { Text = "本回合顺序", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
@@ -983,7 +993,7 @@ public partial class BattleUi : CanvasLayer
 
         _retreatButton = new Button { Text = "撤退 0%" };
         _retreatButton.Pressed += () => _retreat?.Invoke();
-        _topRow.AddChild(_retreatButton);
+        _topLeftGroup!.AddChild(_retreatButton); // 🔴 P5：撤退归入**左上"任务与撤退"组**（DD 图②）✓
 
         // 兼容既有刷新路径：状态/顺序文案仍由 `Refresh()` 写
         _actionOrderLabel = orderLabel;
@@ -1412,6 +1422,16 @@ public partial class BattleUi : CanvasLayer
         }
 
         RefreshEnemyIntent(); // 🔴 敌方意图预览（只渲染）✓
+        // 🔴 P5：左上"任务"文案 —— **只读内核进度**（无本趟 ⇒ 如实写"单场战斗"）✓
+        if (_missionLabel is not null)
+        {
+            Darkest.Gameplay.Sim.Run.ExpeditionFlow? mFlow = Darkest.Gameplay.Scene.ExpeditionContext.Flow;
+            _missionLabel.Text = mFlow is null
+                ? "任务：单场战斗（无本趟进度）"
+                : $"任务：本趟 第 {mFlow.StepsDone} 步　已胜 {mFlow.Wins}" +
+                  (mFlow.IsFinished ? "　（本趟已结束）" : string.Empty);
+        }
+
         RefreshBackSlots();    // 🔴 P5：左右长条框（5／6 号位）✓
 
         // 🔴 P5：正上方火把条（只读本趟 `Flow.Meter`；无本趟 ⇒ 隐藏 + 留痕，不编数字）✓
