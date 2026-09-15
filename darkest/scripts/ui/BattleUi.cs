@@ -79,6 +79,8 @@ public partial class BattleUi : CanvasLayer
     private PanelContainer? _slotRight;   // 🔴 P5：右长条框 = 6 号位（向右靠齐）✓
     private Label _mfContent = null!;
     private Darkest.Ui.BattleMiniMap? _mfMap;
+    private Darkest.Ui.WalkMapView? _mfMapWalk;      // 🔴 主程序 (A)：地图页的【格子主画面】（拓扑模式）✓
+    private string _lastMapPageSketch = string.Empty;
     private int _mfPage;
     private readonly List<Button> _mfTabs = new();
 
@@ -631,6 +633,11 @@ public partial class BattleUi : CanvasLayer
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill,
         };
+        // 🔴 主程序 `DUNGEON-IS-GRID` 的 (A)：**把"地图页"升级成【格子主画面】** ——
+        //    拓扑模式（行走地牢）用 `WalkMapView`（房=大方块／廊=小方块，DD 式），线性远征仍用原迷你图 ✓
+        _mfMapWalk = new Darkest.Ui.WalkMapView { Name = "MapPageWalkMap", Visible = false };
+        column.AddChild(_mfMapWalk);
+
         _mfMap.Visible = false;
         column.AddChild(_mfMap);
 
@@ -667,7 +674,24 @@ public partial class BattleUi : CanvasLayer
 
         if (_mfMap is not null)
         {
-            _mfMap.Visible = page == MapPageIndex;
+            Darkest.Gameplay.Sim.Run.ExpeditionFlow? mFlow = Darkest.Gameplay.Scene.ExpeditionContext.Flow;
+        bool topology = mFlow?.IsTopologyMode == true && mFlow.Map is not null;
+        if (_mfMapWalk is not null)
+        {
+            // 🔴 主程序 (A)：拓扑模式下**格子主画面**替代线性迷你图（同一页签内择优显示）✓
+            _mfMapWalk.Visible = page == MapPageIndex && topology;
+            if (_mfMapWalk.Visible && mFlow is not null)
+            {
+                _mfMapWalk.Refresh(mFlow.Map!, mFlow.CurrentRoomId, mFlow.RevealedRoomIds);
+                if (_mfMapWalk.LastSketch != _lastMapPageSketch)
+                {
+                    _lastMapPageSketch = _mfMapWalk.LastSketch;
+                    GD.Print("[UI 地图页·格子主画面] " + _mfMapWalk.LastSketch.Replace("\n", " ／ "));
+                }
+            }
+        }
+
+        _mfMap.Visible = page == MapPageIndex && !topology;
             if (page == MapPageIndex)
             {
                 _mfMap.QueueRedraw(); // 进战斗时地图已定，重绘一次即可（只读）
