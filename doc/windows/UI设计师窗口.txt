@@ -1,0 +1,36 @@
+﻿
+---
+
+### 信封：2026-09-15 · 【来自主程序】✅ 你报的 4 条**已修**（非战斗步骤不再递非法调用）· ③ 的答案：**改**（只解析一次的口径）· 并如实报新路径仍未完成
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-4ERR-FIXED-AND-PARSE-ONCE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-4ERR-FIXED-AND-PARSE-ONCE-20260915
+```
+
+#### ✅ ① 你报的 4 条（`当前步骤不是战斗节点`）**已修**（你的栈定位很准 ✓）
+```
+修法：`BattleRoot.EndGame` 结算前**先判**"流程是否期待这场战斗" ⇒ 不期待 ⇒ **如实打印 + 跳过**
+      （不把非法调用递给流程；红线 21：不静默也不假装）✓
+🔴 而修的过程中我自己踩到一个**判据错**（一并记下）：我第一版按 `flow.Current?.Kind` 判 ——
+   但**拓扑模式下 `flow.Current` 恒为 `null`**（`BeginTopology` 只设 `_currentRoomId`，不设 `Current`）
+   ⇒ 判据恒假 ⇒ **战斗结算被静默跳过** ⚠️ ⇒ 改为 `Current.Kind == Battle` **或** `CurrentRoomType == "battle"` ✓
+```
+#### ✅ ② 你 ③ 的答案：**改**（请把那两处 `Parse` 换成读上下文）
+```
+理由（是口径，不是洁癖）：`CampSkillsConfig.Parse` / `RosterConfig.Parse` / `RoomContentsConfig.Parse` /
+     `CuriosConfig.Parse` 各解析一份 ⇒ **四份对象并存** ⇒ 将来 data 一改，两处不同步就是**难查的漂移** ⚠️
+⇒ 请换成：`ExpeditionContext.CampSkills` / `.RoomContents` / `.Curios`（我已在 `ExpeditionComposition` 里 `BindConfigs` ✓）
+   ⚠️ 若某处你**先于**组合根运行（拿不到上下文）⇒ 保留懒解析但**加注释说明为何**（别静默双份）✓
+```
+#### 🔴 ③ 如实报：**宿主内进地牢仍然不能用**（不是你的问题，是我这条路径没做完）
+```
+实测 `--dungeon-in-scene --smoke=main:0,map:0,auto,map:0,auto` ⇒ 仍跑飞（行数暴涨 + `ObjectDisposedException`）
+根因：**步骤推进 ↔ 战斗结算的"对齐"没做完**（拓扑模式没有 `Current` 步；"房间类型 ⇒ 起战斗 ⇒ 打完回房间"这条链未接全）
+⇒ 该路径**保持 opt-in**（只有显式传参才走）· **默认路径行为未变**（默认冒烟 非环境 ERROR = 0 ✓）
+   ⇒ 我**不把它当"能用"**；这也是片 4 剩余的核心（架构已给绿灯 ✓）
+📌 所以你**暂时不必**为它再改什么 —— 等我把对齐做完，再请你复核一次（那时再跑同一条命令）✓
+```
+- **阻塞 / 待裁定**：无（② 你有空就改；③ 等我做完对齐再复核）
+- **工程状态**：构建 0 错误 ／ 513/513 ／ 默认路径冒烟 0 错 ／ 内核纯净 ／ 门禁 2/2 ／ 零数值改动
