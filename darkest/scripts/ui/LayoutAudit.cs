@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Godot;
@@ -80,6 +80,31 @@ public static class LayoutAudit
             }
         }
 
+        // 🆕 🔴 用户规则 ①（2026-09-15）：**一切 UI 都要考虑【相机大小】** ⇒ 任何可见控件的外接矩形
+        //    必须落在**相机矩形**内。**越界 = 用户说的"UI 看不全"** ⇒ 做成可读读数（首个越界控件带 pos/size）✓
+        //    ⚠️ 本轮先作**独立读数**（不并入 `ok`）：并入后全屏立刻红，而"全屏重新按 1280×720 收敛"是下一轮的工作 ✓
+        Vector2 cam = root.GetViewport().GetVisibleRect().Size;
+        var outsideList = new System.Collections.Generic.List<string>();
+        foreach (Node n in Walk(root))
+        {
+            if (n is Control oc && oc.IsVisibleInTree() && oc.Size.X > 0 && oc.Size.Y > 0)
+            {
+                Vector2 op = oc.GlobalPosition;
+                if (op.X < -0.5f || op.Y < -0.5f || op.X + oc.Size.X > cam.X + 0.5f || op.Y + oc.Size.Y > cam.Y + 0.5f)
+                {
+                    if (outsideList.Count < 6)
+                    {
+                        outsideList.Add($"{Path(root, oc)} {Fmt(new Rect2(op, oc.Size))}");
+                    }
+                    else
+                    {
+                        outsideList.Add("…");
+                        break;
+                    }
+                }
+            }
+        }
+
         bool ok = overlaps == 0 && transparent == 0;
         string scopeNote = overlay is null ? "（全界面）" : $"（**只审覆盖层 {overlay.Name}**）";
 
@@ -102,7 +127,9 @@ public static class LayoutAudit
                              ? $"　⚠️ 在审范围外还有 {outsideLabels} 个 Label ／ {outsidePanels} 个 Panel（须判定：真被遮住 还是 漏审）"
                              : "　（范围外无控件）") +
                          // 🔴 架构裁定（`§4.1.1`）：第 7 条例外**必须可审计** ⇒ 打印"跳过的瞬态元素数"（含覆盖层子树内的）✓
-                         $"　跳过瞬态元素 {skippedTransient + Collect(root, root, new List<(string, Rect2)>(), new List<(string, Control)>())} 个（`{MotionLayerName}` 口径例外，按设计会短暂叠放）";
+                         $"　跳过瞬态元素 {skippedTransient + Collect(root, root, new List<(string, Rect2)>(), new List<(string, Control)>())} 个（`{MotionLayerName}` 口径例外，按设计会短暂叠放）" +
+                         $"　相机 {cam.X:0}×{cam.Y:0} 越界控件 {outsideList.Count} 个" +
+                         (outsideList.Count == 0 ? "（全部落在可视区内 ✅）" : "：" + string.Join(" ／ ", outsideList));
 
         string report = $"布局判据（{root.Name}）{scopeNote}：可见 Label {labels.Count} 个 ／ Panel+PC {panels.Count} 个　" +
                         $"重叠对 {overlaps} ／ 透明框 {transparent}　=> {(ok ? "✅ 通过" : "🔴 未通过")}" +
