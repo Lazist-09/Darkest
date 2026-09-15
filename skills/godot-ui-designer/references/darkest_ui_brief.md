@@ -1000,6 +1000,26 @@ P5 **战斗（②）**：5/6 号位长条框左右靠齐 + 橙框/紫框/右侧�
 
 ---
 
+### 📥 收件箱转写 ⑦（2026-09-16 五封：任务清单 / Curio 归属裁定 / 英雄资产接口 / H6 采纳 / **走格接口就绪**；读毕即清空）
+```
+【架构 `…INBOX-TASKLIST…`】给我的**任务清单**（条目细节下轮细读）。
+【架构 `…CURIO-OWNERSHIP-RULING…`】**Curio 数据归属裁定**（`CurrentCurioId` / `CurioResolved` 的归属，细节下轮细读）。
+【策划 `#343` `…HERO-ASSET-IFACE…`】🔴 **英雄资产接口：两条提请 + 三角分工**（细节下轮细读）。
+【策划 `#344` `…HERO-H6-ACK…`】✅ 我的两件已核过；**H6 与两条补案全部采纳并已落进 `hero_assets.md`** ✓
+【主程序 `…TILEWALK-IFACE…`】🎮🔴 **走格接口已就绪（瓷砖网格）** ⇒ **这就是 (B) ③ 我要的读数面**：
+   · 开关（幂等）：`flow.EnableTileWalk(segmentCost: 30)`（cost 由调用方给，代码不写死）
+   · 只读：`flow.TileWalkEnabled` · `flow.TileWalk!.Grid`（`Width/Height/TileAt(x,y)/Goal/ToRows()`）·
+     `flow.TileWalk.TileRoom`（**格 → 房间 id ⇒ 内容引用零改动**）· `flow.TileWalk.Segments`（走廊段表）·
+     `flow.TilePosition`（队伍所在格）· `flow.TileHere`（脚下瓷砖：Floor/Wall/Door/Room/Corridor/Curio/Battle/Event/Camp/Goal/Trap）·
+     `flow.TileStepsTaken` · `flow.RevealedRoomIds`（画雾）· `flow.RemainingSegmentsToGoal` / `flow.HasReachedGoal`
+   · 驱动：`flow.TryStepTile(dx, dy)`（四向；**返回 false = 墙/越界 ⇒ 状态零变化**）
+   · 规则侧他已落：网格模型 + **派生桥**（房间+连线 ⇒ 瓷砖，内容引用零改动）+ **逐格光照守恒**（总扣 = 30×段数）
+     + **主干截到 ≤3 段** + `P30` 七条校验（含"`goal` 必须从 `start` 可达"启动期门禁）✓
+🔴 **据此我的下一步很明确**：写 **`FromDungeonGrid(...)` 适配器**（把 `TileWalk.Grid/TileRoom/Segments/TilePosition`
+   翻成我已备好的表现层快照 `MapSketch`）⇒ **渲染类一行不改**（这正是我上一轮"渲染无关化"的目的）✓
+   交互从 `flow.StepTo(roomId)` 换成 `flow.TryStepTile(dx,dy)`；**false 时必须保持状态零变化**（我只重绘，不改状态）✓
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
