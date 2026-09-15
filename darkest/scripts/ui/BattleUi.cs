@@ -1084,7 +1084,16 @@ public partial class BattleUi : CanvasLayer
         _intentText.Text = parts.Count == 0
             ? "敌方意图：（当前无敌方单位）"
             : "敌方意图：" + string.Join("　｜　", parts);
+
+        // 🔴 读数自证（红线 25：不是"看起来像"）：把意图行**原文**打一次（内容变化时才打，避免刷屏）✓
+        if (_intentText.Text != _lastIntentLogged)
+        {
+            _lastIntentLogged = _intentText.Text;
+            GD.Print($"[UI 意图] {_intentText.Text}");
+        }
     }
+
+    private string _lastIntentLogged = string.Empty;
 
     public void Refresh(string status = "")
     {
