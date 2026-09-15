@@ -116,7 +116,7 @@ public static class LayoutAudit
         var tooBig = new System.Collections.Generic.List<string>();
         foreach (Node n in Walk(root))
         {
-            if (n is Control tc && tc.IsVisibleInTree())
+            if (n is Control tc && tc.IsVisibleInTree() && !InsideScroll(tc))
             {
                 Vector2 need = tc.GetCombinedMinimumSize();
                 if (need.X > cam.X + 0.5f || need.Y > cam.Y + 0.5f)
@@ -166,6 +166,20 @@ public static class LayoutAudit
                         (ok ? string.Empty : problems.ToString()) +
                         caliber;
         return (ok, report);
+    }
+
+    /// <summary>🔴 口径：**滚动容器内部的内容不算越界**（它本就是"超出即可滚动"的设计）✓</summary>
+    private static bool InsideScroll(Node node)
+    {
+        for (Node? p = node.GetParent(); p is not null; p = p.GetParent())
+        {
+            if (p is ScrollContainer)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>数某子树里的节点数（用于"跳过了几个瞬态元素"的留痕）✓</summary>
