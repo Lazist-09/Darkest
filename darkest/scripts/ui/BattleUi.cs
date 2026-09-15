@@ -1565,6 +1565,12 @@ public partial class BattleUi : CanvasLayer
         FillCard(_cards[8], player[4], _portraits[8]);
         FillCard(_cards[9], player[5], _portraits[9]);
 
+        // 🔴 用户要求（2026-09-15）：**主体先做 4v4** —— 我方后备 2 位（5／6 号位）**不出现在主体相机里**，
+        //    它们**只出现在左右长条框**（DD 图②的做法）⇒ 主体保持干净的我方 4 ↔ 敌方 4 ✓
+        //    ⚠️ 只**隐藏**不删：`_cards` 下标映射（Refresh 依赖）保持不变 ⇒ 不牵动任何既有逻辑 ✓
+        _cards[8].card.Visible = false;
+        _cards[9].card.Visible = false;
+
         RefreshOrderStrip(support.ActionOrderThisRound, d);
         PlayMotionFromNewEvents(d, p);
 
