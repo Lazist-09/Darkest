@@ -100,6 +100,13 @@ public partial class BattleRoot : Node2D
             EnterDungeonInScene();
         }
 
+        // 🔴 片 4：远征驱动类 CLI（`--topology-auto` / `--hamlet-next` / `--e2e`）**已搬进宿主侧**
+        //    （原在 `ExpeditionRoot`；搬走它，退休旧场景才不留悬空依赖 ✓）
+        if (ExpeditionContext.IsActive && ExpeditionContext.Flow is { } drvFlow)
+        {
+            DungeonRunDriver.TryHandle(this, drvFlow, ExpeditionContext.Log ?? new Darkest.Core.Events.CombatLog());
+        }
+
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--dungeon-in-scene"))
         {
             EnterDungeonInScene();
