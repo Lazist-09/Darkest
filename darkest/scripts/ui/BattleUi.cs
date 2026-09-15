@@ -250,6 +250,15 @@ public partial class BattleUi : CanvasLayer
             GD.Print($"[UI 相位] Phase={flow.Session.Phase}　CanShowCampUi={flow.Session.CanShowCampUi}" +
                      $"　CanShowPathChoice={flow.Session.CanShowPathChoice}　CanShowCurioUi={flow.Session.CanShowCurioUi}" +
                      "　（B 类面板：扎营／选路／Curio 按此三者显示；战斗相位下应全假）");
+
+            // 🔴 **常驻告警**（把我在 `DELIVERY-UI-PHASE-STALE-IN-BATTLE` 里报的发现固化下来）：
+            //    本行是在**战斗场景**里打的 ⇒ 若谓词为真，说明**相位陈旧**（远征会话冻结在 Walking）
+            //    ⇒ 此时此刻**不得**据此挂 B 类面板（否则玩家能战斗中扎营 —— 红线 25 最典型形态）⚠️
+            bool phaseStaleHere = flow.Session.CanShowCampUi || flow.Session.CanShowPathChoice || flow.Session.CanShowCurioUi;
+            GD.Print(phaseStaleHere
+                ? "🔴 [UI 相位·告警] **战斗场景里谓词为真 ⇒ 相位陈旧**（远征会话冻结在 Walking；战斗是另一个场景/会话）" +
+                  "　⇒ 片 3 把战斗纳入相位机【之前】，**不得**据此挂 B 类面板（否则=战斗中能扎营）"
+                : "✅ [UI 相位·告警] 相位与宿主一致（战斗中三谓词全假）⇒ 可据此挂 B 类面板");
         }
         else
         {
