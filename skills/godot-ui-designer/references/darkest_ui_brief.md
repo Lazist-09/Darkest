@@ -703,6 +703,39 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
    **如实打印 + 拒绝开面板**（0 错误）· 并暴露根因：**拓扑模式下没装载线性 `expedition_nodes.json`**
    ⇒ "事件房兜底到线性事件面板"是**地图模式里的死路径** ⇒ 迁移时应走 Curio/房间内容（建议随片 3/4 退役）
 ⏳ 下一批（9 条清单剩余）：背包丢弃收取流程（`TryCollectLoot`/`RetryPendingLoot`）→ 敌方意图预览（`IntentPreview`）→ 其余按需
+
+### 13.7 🔴 片 2 迁移台账（**按面板**，每迁一个跑 `--ui-audit` + `--ui-longtext` 并投架构窗口）
+```
+✅ #1 `LightBarPanel`（`ba72195`）· 数据 `Flow.Meter` · 刻度已改**数据驱动**（`BoundariesFrom(tiers)`，UI 零字面量）
+✅ #2 `ScoutMarkPanel`（`25b0282`）· 数据 `Flow.LastScout`
+✅ #3 `InventoryPanel`（`364590d`）· 数据 `Flow.Bag` · 入口 `Initialize(bag, onChanged)`（只在背包实例变化时重注入）
+✅ #4 `ExpeditionListPanel`（`5a1149c`/`6c63f17`）· 行文来自内核投影 `ExpeditionProjector.(Project|RenderList)`
+     · 实测 `行数=9` 证明真喂到行
+🆕 全部挂在 `BattleUi.DungeonHost()`（**骨架之外** ⇒ 切模式只切可见性 ⇒ `S1` 仍通过）
+🆕 冒烟：`--battle-map-mode`（进）/ `--battle-map-mode-exit`（往返）· 读数行 `[UI 片2]` 会列出**已挂面板 + 数据来源**
+⏳ #5 `CurioPanel` / #6 `CampSkillPanel` —— **需先从 `ExpeditionRoot` 抽成独立类**（见下 §13.8 抽取方案）
+⏳ `PathChoicePanel` —— 需"行走中的 `PathStep`" ⇒ **等片 3**（流程驱动进宿主），否则挂上去就是空面板（红线 21）
+```
+
+### 13.8 🔴 `CampSkillPanel` 抽取方案（下一轮机械执行；**只搬不重写**）
+```
+源：`scripts/ui/ExpeditionRoot.cs` 的 `BuildCampSkillPanel()`（约 L1226~1338）+ 字段 `_campPanel` / `_campSkillStatus` /
+    `_campButtonBox` / `_campSkillButtons` / `_finishCamp`
+目标：🆕 `scripts/ui/CampSkillPanel.cs`（`PanelContainer`），**构造即自建**（`_Ready` 建 VBox：状态 Label + 按钮 VBox），
+    并提供**宿主无关入口**：
+      `public void Refresh(IReadOnlyList<CampSkillConfig> skills, ExpeditionSession session, TuningConfig tuning,
+                           CombatLog log, IReadOnlyDictionary<string,string> heroByArchetype, Action onFinished)`
+      · 逐技能按钮的 `Pressed` 调 **`session.UseCampSkill(log, skill, UnitId.Of(heroId), tuning.Camp!)`**（新签名，已翻）
+      · 可用性/点数由内核回答（现状：`Disabled = !afford`）
+      · "结束扎营"按钮 ⇒ 回调 `onFinished`（**宿主决定**：远征里是 `FinishCamp + 夜袭判定 + 切场景`；地图模式里由宿主另定）
+    ⚠️ 与 `MakeModal` 的关系：**模态由宿主提供**（`ExpeditionRoot.MakeModal` 仍是它的实现）⇒ 本类只管**内容**，
+       这样两个宿主（Expédition / 地图模式）都能复用同一份内容 ✓
+接线：`ExpeditionRoot.BuildCampSkillPanel()` 改成"取模态 → 调用本类的 `Refresh(...)`"（**行为不变**，用 `--topology --camp` 冒烟核）
+验收：① `--topology --camp --camp-skill=0` 仍打印 `扎营技能 …：已使用　剩余 Respite N`
+      ② `--ui-audit` + `--ui-longtext` 在该屏 **0/0**
+      ③ 再把它挂进 `BattleUi.DungeonHost()`（#6 完成）并复跑同一组判据
+📌 纪律：**改文案后要按分支各跑一次**（我连续两轮踩"读数写 3 个、代码是 4 个"，两处分别在有/无流程分支 —— 同一条"按路径列"口径）
+```
 📌 假阴性教训（我的）：PowerShell `Select-String -Path '…\**\*.cs'` 的 `**` **不递归** ⇒ 9 条 API 全被误报"不存在"
    ⇒ **极端/全零读数先怀疑检索口径**（红线 17 ⑧ 同族），递归复核后才下结论 ✓
 ```

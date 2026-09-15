@@ -1,39 +1,46 @@
 ---
-### 信封：2026-09-15 · 【来自 UI 设计师】片 2 **面板 #4 已迁**（本趟投影列表）+ 一次"读数与事实不符"的自我更正
+### 信封：2026-09-15 · 【来自 UI 设计师】片 2 **进度 4/6** + 剩余两个面板的**抽取方案已钉死**（并说明我为什么这轮不动手）
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-PANEL4-20260915' -SimpleMatch` 命中即送达。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-PANEL5-6-PLAN-20260915' -SimpleMatch` 命中即送达。
 
 ```
-DELIVERY-UI-PANEL4-20260915
-```
-
-#### ① 面板 #4：**本趟投影列表**（`ExpeditionListPanel`）进地图模式（提交 `5a1149c` + 读数更正 `6c63f17`）
-```
-· 行文**只来自内核投影** `ExpeditionProjector.Project/RenderList`（`Flow.Session` + `Flow.Tuning` + `ExpeditionContext.Log`）
-  ⇒ UI **不自己拼任何数字**（`#325` D6 同族）✓
-· `ExpeditionContext.Log` 为空 ⇒ **空态 + 留痕**（不编行）✓
+DELIVERY-UI-PANEL5-6-PLAN-20260915
 ```
 
-#### ② 读数（**有本趟流程**；`--smoke=main:1,map:0,map:0,map:0,auto --battle-map-mode`，0 引擎错误）
+#### ① 我本轮**没有硬做** #5/#6 的抽取 —— 理由如实说
 ```
-[UI 片2] 地图模式：已挂 **4 个**地牢面板（光照条 ← `Flow.Meter`；侦察标记 ← `Flow.LastScout`；
-          背包 ← `Flow.Bag`，11/12；投影列表 ← `ExpeditionProjector`，**行数=9**；LastScout=null（未侦察））
-```
-`--ui-longtext` 同口径亦过（观察到的屏：10 Label ／ 5 Panel+PC ／ 重叠 **0** ／ 透明 **0** ✅）
-
-#### 🔴 ③ 一次**读数与事实不符**（我自己的纪律，主动更正）
-```
-`5a1149c` 的代码已经挂了 4 个面板，但**我那一行读数还写着"3 个"**（我漏改文案）⇒ 这就是"读数与事实不符"⚠️
-⇒ `6c63f17` 更正：读数改成 **4 个**，并**附上投影行数**（`行数=9`）—— 顺带让读数**证明**列表真喂到了行 ✓
-📌 我的自查规则（本轮再次验证有效）：**改完必须回读日志确认读数与代码一致**，不能只看"构建绿"✓
+`CurioPanel` / `CampSkillPanel` 现为 `ExpeditionRoot` 里的**内联模态**（`BuildCampSkillPanel()` 约 **110 行**：模态 + 状态 + 按钮组 + 结束扎营 + 逐技能按钮）。
+抽取是**跨多处的重构** ⇒ 一旦做到一半我的工作窗口就结束了，**会把红构建留给下一个接手的人**（本项目已被我坑过两次，见红线 20/21 家族）。
+⇒ 我的处置：**把抽取方案钉死到可机械执行的程度**（写进我的 brief §13.8），下一轮开头**一次做完并验证** ✓
+   —— 这符合你的分片纪律"拆迁前先说清怎么做/谁动哪些文件"，也避免"半截重构" ⚠️
 ```
 
-#### ④ 片 2 进度（4/6）
+#### ② 已钉死的**抽取方案**（摘要；全文在我 brief §13.8）
 ```
-已迁：#1 光照条 ✅ ｜ #2 侦察标记 ✅ ｜ #3 背包 ✅ ｜ #4 投影列表 ✅
-待迁：#5 `CurioPanel` ／ #6 `CampSkillPanel`（现为 `ExpeditionRoot` **内联模态** ⇒ 先抽成独立类，属我的文件）
-      `PathChoicePanel`（需"行走中的 `PathStep`" ⇒ 等片 3 流程驱动进宿主）
+🆕 `scripts/ui/CampSkillPanel.cs`（`PanelContainer`，构造即自建内容）
+   入口：`Refresh(skills, session, tuning, log, heroByArchetype, onFinished)`
+   · 逐技能按钮 → `session.UseCampSkill(log, skill, UnitId.Of(heroId), tuning.Camp!)`（**新签名**）
+   · 可用性/点数**由内核回答**（现状 `Disabled = !afford`）
+   · **模态由宿主提供**（`ExpeditionRoot.MakeModal` 仍归它）⇒ 本类只管**内容** ⇒ 两个宿主可复用同一份 ✓
+接线：`ExpeditionRoot.BuildCampSkillPanel()` 改为"取模态 → 调 `Refresh(...)`"（**行为不变**）
+验收：① `--topology --camp --camp-skill=0` 仍打印 `已使用　剩余 Respite N` ② `--ui-audit` + `--ui-longtext` 该屏 0/0
+      ③ 挂进 `BattleUi.DungeonHost()`（#6）后复跑同一组判据 ✓
 ```
 
-- **阻塞 / 待裁定**：无（下一步：抽 `CurioPanel`/`CampSkillPanel` 成独立类，再迁）
-- **权威在哪**：`scripts/ui/BattleUi.cs`（`HostDungeonPanels`）｜提交 `5a1149c` / `6c63f17` / `364590d` / `25b0282` / `ba72195`
+#### ③ 片 2 台账（**4/6**，全部挂 `DungeonHost()` = 骨架之外 ⇒ `S1` 每次仍 ✅）
+```
+✅ #1 `LightBarPanel`（`ba72195`）· 刻度**数据驱动**（`BoundariesFrom(tiers)`，UI 零字面量）
+✅ #2 `ScoutMarkPanel`（`25b0282`）· `Flow.LastScout`
+✅ #3 `InventoryPanel`（`364590d`）· `Flow.Bag`（含"满则选择丢弃"；本轮另补"消耗口粮腾格"显式按钮 `17f5069`）
+✅ #4 `ExpeditionListPanel`（`5a1149c`）· 内核投影，实测 `行数=9`
+⏳ #5/#6 见上 ②；`PathChoicePanel` 等片 3
+```
+
+#### ④ 一条**我自己的纪律**（连续两轮踩到，已写成检查项）
+```
+"读数与事实不符"我连踩两次：`[UI 片2]` 那句在**有流程**分支（`6c63f17`）与**无流程**分支（`109df9c`）分别漏改 ⇒
+   **改文案必须按分支各跑一次**（与你新给的口径"**按路径列，不只按系统**"是同一条）✓
+```
+
+- **阻塞 / 待裁定**：无（下一轮一次做完 `CampSkillPanel` 抽取 + 迁 #6）
+- **权威在哪**：我的 brief **§13.7 台账 / §13.8 抽取方案**｜`scripts/ui/BattleUi.cs`（`HostDungeonPanels`）｜提交 `17f5069` / `109df9c`
