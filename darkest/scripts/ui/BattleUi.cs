@@ -1530,6 +1530,18 @@ public partial class BattleUi : CanvasLayer
                      (_dungeonHost is not null && GodotObject.IsInstanceValid(_dungeonHost)
                          ? $"　地牢宿主 需 {_dungeonHost.GetCombinedMinimumSize()}" : string.Empty) +
                      $"　C区 需 {_cArea.GetCombinedMinimumSize()}　E区 需 {(_eArea as Control)?.GetCombinedMinimumSize()}");
+
+            // 🔴 逐面板点名（诊断）：地牢宿主里每个子面板各需多少高 ⇒ 超相机时**直接指出是谁**✓
+            if (_dungeonHost is not null && GodotObject.IsInstanceValid(_dungeonHost))
+            {
+                foreach (Node ch in _dungeonHost.GetChildren())
+                {
+                    if (ch is Control cc)
+                    {
+                        GD.Print($"[UI 面板读数] {cc.Name} 需 {cc.GetCombinedMinimumSize()}　可见={cc.Visible}");
+                    }
+                }
+            }
         }
 
         RefreshBackSlots();    // 🔴 P5：左右长条框（5／6 号位）✓
