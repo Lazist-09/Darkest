@@ -421,17 +421,9 @@ public partial class BattleUi : CanvasLayer
             host.AddChild(_mapModeScoutMark);
         }
 
-        // ③ 背包（面板 #3）：`Initialize(bag, onChanged)` 是它的正式入口（含"满则选择丢弃"流程）✓
-        if (_mapModeInventory is null || !GodotObject.IsInstanceValid(_mapModeInventory))
-        {
-            _mapModeInventory = new Darkest.Ui.InventoryPanel
-            {
-                Name = "MapModeInventory",
-                Visible = true,
-                CustomMinimumSize = new Vector2(0, 96),    // 🔴 相机 720 口径：128→96
-            };
-            host.AddChild(_mapModeInventory);
-        }
+        // 🔴 相机 720 口径（DD 图②）：**地图模式不内联背包/投影列表** ——
+        //    实测 `MapModeInventory 需 298×312` 且可见 ⇒ 底栏 574 高 ⇒ 整屏 918 > 720 ⚠️
+        //    它们在 DD 里经【多功能框】查看，不占地图模式底栏 ⇒ 本模式不再创建 ✓
 
         // ④ 本趟投影列表（面板 #4）：建一次即可（内容由 `Refresh(lines)` 更新）✓
         if (_mapModeList is null || !GodotObject.IsInstanceValid(_mapModeList))
