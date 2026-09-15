@@ -141,9 +141,10 @@ public partial class BattleUi : CanvasLayer
         {
             _dungeonHost = new VBoxContainer
             {
-                Name = "DungeonHost",
-                CustomMinimumSize = new Vector2(0, 72),    // 🔴 相机 720 口径：104→72
-                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                // 🔴 消重叠（宽度预算）：宿主不再与 E 区都 ExpandFill 争宽 ⇒ 固定 240 宽 + 靠右，E 区吃剩余宽
+                    Name = "DungeonHost",
+                CustomMinimumSize = new Vector2(240, 72),    // 🔴 相机 720 口径：104→72
+                SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd,
             };
             _bottomRow.AddChild(_dungeonHost);
         }
