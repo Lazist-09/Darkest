@@ -91,7 +91,7 @@ public sealed class CampSkillRunLedgerTests
 
         FightOneBattle(session, flow, tuning, log);
         Assert.IsTrue(flow.Camp(), "扎营成功（柴火 ≥1，且已打过一场 ⇒ Respite 池 > 0）");
-        Assert.IsTrue(session.UseCampSkill(log, "camp_warrior_joke", 1, hero, "morale_plus_8"), "笑谈应可施加");
+        Assert.IsTrue(session.UseCampSkill(log, CampSkillTestKit.Skill("camp_warrior_joke"), hero, CampSkillTestKit.Camp), "笑谈应可施加");
         Assert.AreEqual(8, session.CampMoraleBonus[hero.Value], "记入本趟台账 +8");
 
         var d = session.BeginExpeditionBattle(2, log, tuning.Expedition.DifficultyTiers);
@@ -108,7 +108,7 @@ public sealed class CampSkillRunLedgerTests
 
         FightOneBattle(session, flow, tuning, log);
         Assert.IsTrue(flow.Camp(), "扎营成功");
-        Assert.IsTrue(session.UseCampSkill(log, "camp_medic_bandage", 2, hero, "heal_15_percent_and_clear_bleed"),
+        Assert.IsTrue(session.UseCampSkill(log, CampSkillTestKit.Skill("camp_medic_bandage"), hero, CampSkillTestKit.Camp),
             "包扎应可施加（HP +15% 落地；清流血归冗余·阶段二）");
         Assert.AreEqual(15, session.CampHpBonusPct[hero.Value], "记入本趟台账 +15%");
 
@@ -139,7 +139,7 @@ public sealed class CampSkillRunLedgerTests
 
         // 扎营 + 笑谈（+8，本趟）
         Assert.IsTrue(flow.Camp(), "扎营成功");
-        Assert.IsTrue(session.UseCampSkill(log, "camp_warrior_joke", 1, hero, "morale_plus_8"), "笑谈应可施加");
+        Assert.IsTrue(session.UseCampSkill(log, CampSkillTestKit.Skill("camp_warrior_joke"), hero, CampSkillTestKit.Camp), "笑谈应可施加");
 
         // 第 2 场：**开场确实带 +8**；结算后应被【扣回】
         var d2 = session.BeginExpeditionBattle(2, log, tuning.Expedition.DifficultyTiers);

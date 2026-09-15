@@ -129,7 +129,7 @@ public sealed class DifficultyTierMeasurementTests
                     session.ChooseFood(log, tuning.Camp, tier);
                     while (session.RespiteLeft >= 2)
                     {
-                        session.UseCampSkill(log, "camp_warrior_sharpen", 2, UnitId.Of("warrior"));
+                        session.UseCampSkill(log, CampSkillTestKit.Skill("camp_warrior_sharpen"), UnitId.Of("warrior"), CampSkillTestKit.Camp);
                     }
 
                     session.EndCamp(log);

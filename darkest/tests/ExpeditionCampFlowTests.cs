@@ -151,17 +151,17 @@ public sealed class ExpeditionCampFlowTests
 
         UnitId target = UnitId.Of("tank");
         int before = s.RespiteLeft;
-        Assert.IsTrue(s.UseCampSkill(log, "camp_warrior_sharpen", 2, target), "点数足够 → 可用");
+        Assert.IsTrue(s.UseCampSkill(log, CampSkillTestKit.Skill("camp_warrior_sharpen"), target, CampSkillTestKit.Camp), "点数足够 → 可用");
         Assert.AreEqual(before - 2, s.RespiteLeft, "扣 2 点");
 
         int used = 1;
         while (s.RespiteLeft >= 1)
         {
-            s.UseCampSkill(log, "camp_medic_care", 1, target);
+            s.UseCampSkill(log, CampSkillTestKit.Skill("camp_medic_care"), target, CampSkillTestKit.Camp);
             used++;
         }
 
-        Assert.IsFalse(s.UseCampSkill(log, "camp_warrior_sharpen", 2, target), "**点数不足 → 不可选（返回 false）**");
+        Assert.IsFalse(s.UseCampSkill(log, CampSkillTestKit.Skill("camp_warrior_sharpen"), target, CampSkillTestKit.Camp), "**点数不足 → 不可选（返回 false）**");
         Assert.AreEqual(used, log.Events.OfType<CampSkillUsedEvent>().Count(), "只有成功使用才写事件");
         Assert.IsTrue(log.Events.OfType<CampSkillUsedEvent>().All(e => e.RespiteLeft >= 0), "Respite 不越界");
 

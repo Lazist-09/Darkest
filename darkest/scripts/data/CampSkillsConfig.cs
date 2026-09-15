@@ -14,7 +14,9 @@ public sealed record CampSkillConfig(
     [property: JsonPropertyName("owner_unit")] string OwnerUnit,
     [property: JsonPropertyName("cost")] int Cost,
     [property: JsonPropertyName("target")] string Target,
-    [property: JsonPropertyName("effect")] string Effect);
+    [property: JsonPropertyName("effect")] string Effect,
+    // 🔴 数字外置（P29）：效果数值（如 morale_plus_8 的 8）—— 此前只藏在效果名里、代码里又硬写一遍 ⇒ 两处真值 ⚠️
+    [property: JsonPropertyName("effect_number")] int? EffectNumber = null);
 
 /// <summary>
 /// `camp_skills.json` 根模型 + **加载级防线（红线 21 的既有做法，照 `BuffDefsConfig.ConsumedEffectNames`）**。

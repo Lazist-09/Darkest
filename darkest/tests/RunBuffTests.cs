@@ -77,8 +77,7 @@ public sealed class RunBuffTests
         (ExpeditionSession session, ExpeditionFlow flow, TuningConfig tuning, CombatLog log, UnitId hero, int slot) = NewRun();
 
         Assert.IsTrue(flow.Camp(), "扎营成功（柴火 ≥1）");
-        Assert.IsTrue(session.UseCampSkill(log, "camp_warrior_sharpen", 2, hero,
-            "grant_buff:next_battle_sharpen"), "磨刀应可施加");
+        Assert.IsTrue(session.UseCampSkill(log, CampSkillTestKit.Skill("camp_warrior_sharpen"), hero, CampSkillTestKit.Camp), "磨刀应可施加");
         Assert.AreEqual(1, session.RunBuffs.Count, "挂上 1 个跨场 buff");
         Assert.AreEqual(slot, session.RunBuffs[0].Slot, "🔴 按【槽位】记账（hero→战斗单位映射）");
 
@@ -110,8 +109,7 @@ public sealed class RunBuffTests
         (ExpeditionSession session, ExpeditionFlow flow, TuningConfig tuning, CombatLog log, UnitId hero, int slot) = NewRun();
 
         Assert.IsTrue(flow.Camp(), "扎营成功");
-        Assert.IsTrue(session.UseCampSkill(log, "camp_tank_armor", 2, hero,
-            "grant_buff:next_battle_armor"), "加固甲胄应可施加");
+        Assert.IsTrue(session.UseCampSkill(log, CampSkillTestKit.Skill("camp_tank_armor"), hero, CampSkillTestKit.Camp), "加固甲胄应可施加");
 
         var d1 = session.BeginExpeditionBattle(1, log, tuning.Expedition.DifficultyTiers);
         var unit1 = d1.Player.UnitRuntimeAt(slot);
@@ -135,8 +133,7 @@ public sealed class RunBuffTests
             NewRun(firewood: 2); // 🔴 本用例需要两次扎营（第 2 次用来验"扎营不清打气"）⇒ 柴火给 2
 
         Assert.IsTrue(flow.Camp(), "扎营成功");
-        Assert.IsTrue(session.UseCampSkill(log, "camp_commissar_pep_talk", 2, hero,
-            "morale_damage_minus_15_for_4_battles"), "打气应可施加");
+        Assert.IsTrue(session.UseCampSkill(log, CampSkillTestKit.Skill("camp_commissar_pep_talk"), hero, CampSkillTestKit.Camp), "打气应可施加");
         Assert.AreEqual(4, session.RunBuffs[0].RemainingBattles, "🔴 契约：`remaining_battles: 4`");
 
         // ① 第 1 场：注入 + **士气伤害变小**（−15%）

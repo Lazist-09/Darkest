@@ -113,7 +113,7 @@ public sealed class ExpeditionAmbushTests
         // 守夜 ／ 站岗：授予"免下一次夜袭" ⇒ 本次不触发，且免疫被消费（一次性）
         ExpeditionSession s2 = NewSession();
         Assert.IsTrue(s2.StartCamp(log, 0, 3), "扎营成功");
-        Assert.IsTrue(s2.UseCampSkill(log, "camp_warrior_watch", 3, default, "ambush_immunity_once"),
+        Assert.IsTrue(s2.UseCampSkill(log, CampSkillTestKit.Skill("camp_warrior_watch"), default, CampSkillTestKit.Camp),
             "轮流守夜应可施加（点数足够）");
         Assert.IsTrue(s2.AmbushImmune, "守夜后应持有【免下一次夜袭】");
         Assert.IsFalse(s2.RollAmbush(log, rng), "🔴 持有免疫 ⇒ 本次【不触发】夜袭");

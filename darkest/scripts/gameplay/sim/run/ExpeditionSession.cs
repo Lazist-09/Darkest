@@ -376,7 +376,7 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     }
 
     private int AverageRetainedMorale()
-        => Retained.Count == 0 ? 50 : (int)Math.Round(Retained.Values.Average(v => v.Morale));
+        => Retained.Count == 0 ? MoraleStart : (int)Math.Round(Retained.Values.Average(v => v.Morale));
 
     // ------------------------------------------------------------------
     // E3 · 扎营流程（最小版内核）：许可（柴火 1）→ 食物档位 → Respite 分配 → 结束
@@ -438,8 +438,13 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     }
 
     /// <summary>使用扎营技能：**点数不足 → 不可选（返回 false，不扣）**；成功写 `CampSkillUsedEvent`。</summary>
-    public bool UseCampSkill(CombatLog log, string skillId, int cost, UnitId target, string? effect = null)
+    public bool UseCampSkill(CombatLog log, Darkest.Data.CampSkillConfig skill, UnitId target,
+        Darkest.Data.TuningCamp camp)
     {
+        // 🔴 数字外置（P29 / 消掉"两处真值"）：数字一律来自 data ⇒ 调用方不必记得传 ✓
+        string skillId = skill.Id;
+        int cost = skill.Cost;
+        string effect = skill.Effect;
         if (cost < 1 || cost > RespiteLeft)
         {
             return false; // 点数不足 → 灰显（E3 验收）
@@ -475,40 +480,48 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         //    契约：**跨场 4 场**、**扎营【不清】它**（`ConsumeRunBuffsAfterBattle` 每场 −1，扎营不碰 ✓）
         if (effect == "morale_damage_minus_15_for_4_battles")
         {
-            GrantRunBuff(target, "pep_talk", remainingBattles: 4);
+            GrantRunBuff(target, "pep_talk", remainingBattles: camp.PepTalkBattles);
         }
 
         // 🔴 `#310` ②/①（**本趟台账 `until_run_end`**）：士气类与 HP 类
         if (effect == "morale_plus_8")
         {
-            GrantCampMorale(target, 8);            // 笑谈（单体 +8）
+            GrantCampMorale(target, effectNumberOrThrow(skill.EffectNumber, "morale_plus_8"));            // 笑谈（单体 +8）
         }
 
         if (effect == "morale_plus_5_team")
         {
-            GrantCampMoraleTeam(5);                // 埋锅造饭（全队 +5）
+            GrantCampMoraleTeam(effectNumberOrThrow(skill.EffectNumber, "morale_plus_5_team"));                // 埋锅造饭（全队 +5）
         }
 
         if (effect == "morale_plus_8_team")
         {
-            GrantCampMoraleTeam(8);                // 动员（全队 +8）
+            GrantCampMoraleTeam(effectNumberOrThrow(skill.EffectNumber, "morale_plus_8_team"));                // 动员（全队 +8）
         }
 
         if (effect == "heal_15_percent_and_clear_bleed")
         {
             // ⚠️ 「清流血」部分：流血是**战斗内**状态 ⇒ 营地"清"没有落点（契约 `#310`：归【冗余·阶段二】）
-            GrantCampHpPercent(target, 15);        // 包扎：HP +15% 部分按裁定落地 ✓
+            GrantCampHpPercent(target, effectNumberOrThrow(skill.EffectNumber, "heal_15_percent_and_clear_bleed"));        // 包扎：HP +15% 部分按裁定落地 ✓
         }
 
         if (effect == "heal_5_percent")
         {
-            GrantCampHpPercent(target, 5);         // 照料
+            GrantCampHpPercent(target, effectNumberOrThrow(skill.EffectNumber, "heal_5_percent"));         // 照料
         }
 
         return true;
     }
 
     /// <summary>是否持有"免下一次夜袭"（由扎营技能 `ambush_immunity_once` 授予；**在 `RollAmbush` 里消费**）。</summary>
+    /// <summary>🆕 空台账默认士气（`tuning.morale.start`，`init` 注入；未注入 ⇒ 契约常量 `RookieMorale`）✓</summary>
+    public int MoraleStart { get; init; } = Darkest.Data.RosterConfig.RookieMorale;
+
+    /// <summary>🆕 效果数字取值（**data 驱动**；缺失 ⇒ 立刻报错，**不静默取默认值**）✓</summary>
+    private static int effectNumberOrThrow(int? value, string effect) => value
+        ?? throw new InvalidOperationException(
+            $"camp_skills.json: 效果 \"{effect}\" 需要 effect_number（P29 数字外置）—— 缺失即报错，不静默取默认值。");
+
     public bool AmbushImmune { get; private set; }
 
     // ------------------------------------------------------------------
