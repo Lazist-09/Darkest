@@ -140,6 +140,14 @@ public class RunSession : IRunSession
         return director;
     }
 
+    /// <summary>
+    /// 🔴 **相位**（架构 §9.17.0）：规则状态的**单一真值**，由流程推进时设置 ✓
+    /// 表现层**只读**下面的派生谓词，**绝不自己推断相位**（否则会出现"两个面板同时该显示 / 都不该显示"）⚠️
+    /// </summary>
+    public FlowPhase Phase { get; private set; } = FlowPhase.Walking;
+
+    /// <summary>推进相位（由流程在正确的时机调用；内核唯一的相位写入口）✓</summary>
+    public void EnterPhase(FlowPhase next) => Phase = next;
     public RunBattleSnapshot EndBattle(BattleDirector director, int battleIndex, string result, int rounds)
     {
         List<UnitRuntime> alive = director.Player.UnitsInSlotOrder().ToList();
@@ -166,6 +174,7 @@ public class RunSession : IRunSession
             }
         }
 
+        EnterPhase(FlowPhase.Walking); // 🔴 战斗结束 ⇒ 回到【走图】相位（内核侧统一设置 ⇒ 探针与场景同源）✓
         return snapshot;
     }
 

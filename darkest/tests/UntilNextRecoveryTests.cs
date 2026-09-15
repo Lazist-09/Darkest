@@ -62,6 +62,7 @@ public sealed class UntilNextRecoveryTests
         Assert.IsTrue(hero2.SpeedMod <= -1, "契约：死门后遗症在本场也施加（速度 −1）");
 
         // ③ **扎营**（契约：到下次恢复 = 扎营/回城 ⇒ **扎营清它**）
+        session.EndBattle(d2, 2, "PlayerVictory", rounds: 5); // 🔴 相位纪律：先结束战斗才能扎营 ✓
         Assert.IsTrue(session.StartCamp(log, campIndex: 1, respiteBase: 6), "扎营应可开始（柴火 ≥1）");
         session.EndCamp(log);
 

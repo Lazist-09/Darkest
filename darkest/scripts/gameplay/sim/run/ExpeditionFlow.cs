@@ -219,6 +219,7 @@ public sealed class ExpeditionFlow
     /// </summary>
     public void OnBattleFinished(string result, int rounds, bool isAmbush = false)
     {
+        _session.EnterPhase(FlowPhase.Walking); // 🔴 打完 ⇒ 回【走图】相位（可再扎营/选路；内核单一真值）✓
         _ = rounds;
         // 🔴 M7.6：**拓扑模式下没有"线性步骤"**（推进靠 `StepTo(房间)`）⇒ 守卫必须模式感知，
         //    否则从【战斗房】返回时会抛「当前步骤不是战斗节点」（实测：链路直接中断）。
@@ -615,6 +616,7 @@ public sealed class ExpeditionFlow
     /// </summary>
     public bool FinishCamp()
     {
+        _session.EnterPhase(FlowPhase.Walking); // 🔴 收营 ⇒ 回【走图】相位 ✓
         _session.EndCamp(_log);
         LastCampAmbushed = RollAmbush();
         return true;

@@ -246,6 +246,7 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         IReadOnlyList<Darkest.Data.TuningDifficultyTier>? tiers,
         Darkest.Data.TuningLightEffect? lightEffect = null)
     {
+        EnterPhase(FlowPhase.Battle); // 🔴 进战斗 ⇒ Battle 相位（此后扎营/选路/Curio 一律不可用）✓
         BattleDirector director = BeginBattle(battleIndex, log);
         Darkest.Data.TuningDifficultyTier? tier = tiers?.FirstOrDefault(
             t => battleIndex >= t.BattleFrom && battleIndex <= t.BattleTo);
@@ -388,7 +389,22 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     public int Survivors => Retained.Values.Count(v => v.Hp > 0);
 
     /// <summary>是否可扎营（**柴火 ≥ 1**；不足 → 灰显不可选）。</summary>
-    public bool CanCamp => Firewood > 0;
+
+    /// <summary>
+    /// 能否扎营：**资源条件 + 相位条件**（原先只看 `Firewood` ⇒ 那等于"内核允许战斗中扎营" ⚠️）
+    /// ⇒ 只允许在【走图】或【已在扎营】时扎营 ✓
+    /// </summary>
+    public bool CanCamp => Firewood > 0 && Phase is FlowPhase.Walking or FlowPhase.Camp;
+
+    // ---- 🔴 派生谓词（**给表现层读的**；实现 = 读相位 + 各自资源条件）--------------------------------
+    /// <summary>可显示扎营面板（走图中且柴火 > 0，或已在扎营中）✓</summary>
+    public bool CanShowCampUi => CanCamp;
+
+    /// <summary>可显示【选路】面板（只有走图时才有"下一步选哪"）✓</summary>
+    public bool CanShowPathChoice => Phase is FlowPhase.Walking;
+
+    /// <summary>可显示【Curio】面板（Curio 是走图途中遇到的）✓</summary>
+    public bool CanShowCurioUi => Phase is FlowPhase.Walking;
 
     /// <summary>剩余 Respite 点数（扎营期间有效）。</summary>
     public int RespiteLeft { get; private set; }
@@ -397,8 +413,16 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     /// Respite 池 = `respite_base + 存活人数`（满编 12）。</summary>
     public bool StartCamp(CombatLog log, int campIndex, int respiteBase)
     {
+        if (!CanCamp)
+        {
+            return false; // 🔴 相位条件：战斗中/已结算时**不许**扎营（原先只看柴火 ⇒ 等于内核允许战斗中扎营）⚠️
+        }
+
+        EnterPhase(FlowPhase.Camp);
+
         if (!TrySpend(log, "firewood", 1, "camp"))
         {
+            EnterPhase(FlowPhase.Walking); // 扣不到柴火 ⇒ 相位**不留下**（避免"扎营了但没扣"这种半态）✓
             return false; // 无柴火 → 不可扎营（E3 验收）
         }
 
@@ -848,6 +872,7 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     /// <summary>结束扎营（夜袭判定由调用方接 `RollAmbush`；E5）。</summary>
     public void EndCamp(CombatLog log)
     {
+        EnterPhase(FlowPhase.Walking); // 🔴 收营 ⇒ 回【走图】相位（内核收口 ⇒ 不依赖调用方记得）✓
         // 🔴 补欠账（契约 `m7_expedition.md:160` ① / `O-67`）：
         //    **`until_next_recovery` = 到下次恢复（**扎营**/回城）** ⇒ **扎营必须清【死门后遗症】**。
         //    实测此前：只有**回城**清（`ReturnToTown`）⇒ 扎营后下一场**仍带着后遗症** ⚠️（红线 21 家族）。

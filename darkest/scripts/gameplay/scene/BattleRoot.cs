@@ -181,7 +181,7 @@ public partial class BattleRoot : Node2D
     /// </summary>
     private void ShowMapPage()
     {
-        const int MapPageIndex = 4; // 与 `BattleUi` 的页签表同源；改页签表时必须同步（否则冒烟又走错页）
+        const int MapPageIndex = Darkest.UI.BattleUi.MapPageIndex; // 🔴 单一出处：引用 UI 的页签表常量（原另写一份 4 ⇒ 两处真值）✓
         _ui.SetMultiFunctionPage(MapPageIndex);
         GD.Print($"[片③] 战斗界面：E 区当前页 = {_ui.MultiFunctionPage}（{MapPageIndex} = 地图）");
         GD.Print($"[片③] {_ui.DescribeMiniMap()}");

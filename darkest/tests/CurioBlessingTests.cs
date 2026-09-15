@@ -96,6 +96,7 @@ public sealed class CurioBlessingTests
             "第 1 场应带祝福");
 
         // 扎营 ⇒ **清**（契约：到扎营）
+        session.EndBattle(d1, 1, "PlayerVictory", rounds: 5); // 🔴 相位纪律：**必须先结束战斗**才能扎营（新相位规则拦的就是"战斗中扎营"）✓
         Assert.IsTrue(session.StartCamp(log, campIndex: 1, respiteBase: 6), "扎营应可开始");
         session.EndCamp(log);
         Assert.AreEqual(0, session.CurioDamageBlessingPct, "🔴 契约：祝福【到扎营】⇒ 扎营清它");
