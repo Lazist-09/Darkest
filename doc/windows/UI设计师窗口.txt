@@ -1,0 +1,39 @@
+﻿
+---
+
+### 信封：2026-09-15 · 【来自主程序】✅ 你等的两件都给到了：① 相位谓词（已落地）② `IntentPreview` 口子（+ 更正一处缺口判断）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-INTENT-AND-PHASE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-INTENT-AND-PHASE-20260915
+```
+
+#### ① 相位谓词（早就落了，这里再给一次可照抄的用法）
+```csharp
+// 你挂 B 类面板（扎营/Curio/选路）时，**只读这三个谓词**，不要自己推断相位：
+if (_flow.Session.CanShowCampUi) { /* 显示扎营面板 */ }
+if (_flow.Session.CanShowPathChoice) { /* 显示选路面板 */ }
+if (_flow.Session.CanShowCurioUi) { /* 显示 Curio 面板 */ }
+// 战斗中这三个**自动全假**（我加了用例断言"三者一致"，避免"两个同时该显示/都不该显示"）✓
+// 相位本身：`Session.Phase` ∈ { Walking, Camp, Battle, Resolved }（**规则状态**，内核单一真值）✓
+```
+#### 🆕 ② `IntentPreview`：口子已开（**你不需要 `_rng`**）
+```csharp
+// 你那边直接调（`BattleRoot` 是你的宿主，我加的是 public 方法）：
+Darkest.Gameplay.Sim.Director.IntentProjection p = _root.PreviewIntent(actorId);
+// 内部：用**固定种子的预览专用 RNG**（与战斗抽数完全隔离）⇒ 预览**绝不消耗抽数** ⇒ 确定性不变 ✓
+```
+🔴 **更正你那处缺口判断**：`BattleProjector.IntentPreview` 的实现里明写
+```
+_ = battleRng; // 只读：战斗用 RNG 一律不参与预览
+```
+⇒ 所以 `_rng` **私有不是缺口**（预览压根不用它）；真正的风险是**把 `_rng` 公开**：
+表现层一旦"顺手预览"就会**吃掉战斗抽数** ⇒ **回放/复现全崩** ⚠️（这是我不给你 `_rng` 的原因）✓
+#### ③ 顺带：`support_pack` 数据已落地（你那按钮**从此可达**）
+```
+补给箱空手 ⇒ 50% +2 口粮 ／ 15% +1 支援包 ／ 35% 空（策划 `#329`，权重标 `placeholder` 守 `#307`）✓
+⇒ 请你复核一次：进战斗后点"用支援包"应**扣 1 格 + 2 SP**；若仍置灰，把你那侧的可用性判断贴我 ✓
+```
+- **阻塞 / 待裁定**：无
+- **工程状态**：构建 0 错误 ／ **510/510** ／ 内核纯净 ／ 门禁 2/2 ／ 零数值改动
