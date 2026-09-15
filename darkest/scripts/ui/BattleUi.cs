@@ -66,6 +66,8 @@ public partial class BattleUi : CanvasLayer
 
     private Label _progressLabel = null!;
     private Panel _mfPanel = null!;
+    private PanelContainer? _slotLeft;    // 🔴 P5：左长条框 = 5 号位（向左靠齐）✓
+    private PanelContainer? _slotRight;   // 🔴 P5：右长条框 = 6 号位（向右靠齐）✓
     private Label _mfContent = null!;
     private Darkest.Ui.BattleMiniMap? _mfMap;
     private int _mfPage;
@@ -300,6 +302,65 @@ public partial class BattleUi : CanvasLayer
         }
     }
 
+    /// <summary>
+    /// 🔴 P5（用户参考图②）：**左右长条框 = 5／6 号位（后排）** —— 数据来自内核投影（`UnitProjection.Slot`）；
+    /// **空位如实显示"（空）"**（红线 21：不留不可解释的空）✓
+    /// </summary>
+    private void RefreshBackSlots()
+    {
+        if (_host?.Projector is null)
+        {
+            return;
+        }
+
+        UnitProjection[] players = _host.Projector.Units(player: true).ToArray();
+        FillBackSlot(_slotLeft, players, 5);
+        FillBackSlot(_slotRight, players, 6);
+    }
+
+    /// <summary>填一个长条框：标题 + 立绘留框(色块占位) + 名字；空位 ⇒ 如实"（空）"✓</summary>
+    private void FillBackSlot(PanelContainer? box, UnitProjection[] players, int slot)
+    {
+        if (box is null || !GodotObject.IsInstanceValid(box))
+        {
+            return;
+        }
+
+        foreach (Node old in box.GetChildren().ToArray())
+        {
+            box.RemoveChild(old);
+            old.QueueFree();
+        }
+
+        var col = new VBoxContainer { Name = $"BackSlot{slot}Col" };
+        col.AddThemeConstantOverride("separation", 4);
+        box.AddChild(col);
+
+        var title = new Label { Name = $"BackSlot{slot}Title", Text = $"{slot} 号位" };
+        title.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        col.AddChild(title);
+
+        UnitProjection? u = players.FirstOrDefault(x => x.Slot == slot);
+        if (u is null || u.UnitId == "-")
+        {
+            col.AddChild(new Label { Name = $"BackSlot{slot}Empty", Text = "（空）" });
+            return;
+        }
+
+        string display = NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId);
+        var frame = new PanelContainer { Name = $"BackSlot{slot}Frame", CustomMinimumSize = new Vector2(28, 28) };
+        col.AddChild(frame);
+        frame.AddChild(new ColorRect
+        {
+            Name = "Placeholder",
+            Color = Darkest.Ui.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, isPlayer: true),
+        });
+        var nameLabel = new Label { Name = $"BackSlot{slot}Name", Text = display, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        nameLabel.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        col.AddChild(nameLabel);
+        box.TooltipText = $"{slot} 号位：{display}　HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
+    }
+
     /// <summary>面板状态读数：**显示/隐藏 + 子控件数**（隐藏 = 门禁生效的**自证**，不是"没接上"）✓</summary>
     private static string PanelState(string name, Control? panel)
         => panel is not null && GodotObject.IsInstanceValid(panel)
@@ -508,6 +569,15 @@ public partial class BattleUi : CanvasLayer
         column.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         column.AddThemeConstantOverride("separation", 4);
         _mfPanel.AddChild(column);
+
+        // 🔴 P5：右侧 6 号位长条框（**向右靠齐**）—— 加在底栏最后 ✓
+        _slotRight = new PanelContainer
+        {
+            Name = "BackSlot6",
+            CustomMinimumSize = new Vector2(120, 132),
+            SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd,
+        };
+        _bottomRow.AddChild(_slotRight);
 
         var tabsRow = new HBoxContainer { Name = "MfTabs" };
         tabsRow.AddThemeConstantOverride("separation", 4);
@@ -975,6 +1045,17 @@ public partial class BattleUi : CanvasLayer
         var cCol = new VBoxContainer { Name = "CCol" };
         cCol.AddThemeConstantOverride("separation", 6);
         _cArea.AddChild(cCol);
+
+        // 🔴 P5（用户参考图②）：**左右各一个长条框放 5／6 号位，向两侧靠齐；其余部分向右靠** ✓
+        _slotLeft = new PanelContainer
+        {
+            Name = "BackSlot5",
+            CustomMinimumSize = new Vector2(120, 132),
+            SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,   // 左条：**向左靠齐**
+        };
+        _bottomRow.AddChild(_slotLeft);      // 先加左条 ⇒ 它在最左
+        _bottomRow.MoveChild(_slotLeft, 0);
+
         _bottomRow.AddChild(_cArea);
 
         _skillTitle = new Label { Text = "技能栏（轮到行动者时可用）", AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -1328,6 +1409,7 @@ public partial class BattleUi : CanvasLayer
         }
 
         RefreshEnemyIntent(); // 🔴 敌方意图预览（只渲染）✓
+        RefreshBackSlots();    // 🔴 P5：左右长条框（5／6 号位）✓
 
         BattleDirector d = _host.Director;
         BattleProjector p = _host.Projector;
