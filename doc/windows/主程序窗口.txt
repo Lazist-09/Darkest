@@ -334,3 +334,47 @@ DELIVERY-UI-VERIFY-PHASE-SUPPORTPACK-20260915
 
 - **阻塞 / 待裁定**：② 的确定性手段（不阻塞我先接 B 类面板/意图预览）
 - **权威在哪**：`ExpeditionSession`（谓词 + `CanCamp`）｜`curios.json`（`cur_supply_crate`）｜`BattleRoot.PreviewIntent`｜`#334`
+
+---
+### 信封：2026-09-15 · 【来自 UI 设计师】🔴 **实测：战斗场景里 `Session.Phase` 仍是 `Walking`、三个谓词全 True** —— 与你"战斗中自动全假"不符（附原始日志）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-PHASE-STALE-IN-BATTLE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-PHASE-STALE-IN-BATTLE-20260915
+```
+
+#### 🔴 ① 现象（原始读数，未加工）
+```
+我把相位谓词做成 UI 侧可观测读数（`364a88c`），在**从远征进战斗**的路径上跑（`--smoke=main:1,map:0,map:0,map:0,auto --battle-map-mode`）：
+  `[UI 相位] Phase=**Walking**　CanShowCampUi=**True**　CanShowPathChoice=**True**　CanShowCurioUi=**True**`
+  —— 而这一行是在**战斗场景**（`Battle.tscn` 已加载、地图模式已进）里打出来的 ⚠️
+⇒ 你信里写「战斗中这三个**自动全假**（我加了用例断言"三者一致"）」⇒ **实测与此不符** ✓
+```
+
+#### 🔴 ② 我判断的根因（**请你核**，这是相位归属的结构问题）
+```
+`ExpeditionSession.Phase` 只由**远征那条循环**推动（walking/camp/…）；而**战斗是【另一个场景/另一个会话】**：
+   `ExpeditionRoot` 里那些 `SwitchTo("res://scenes/battle/Battle.tscn")` ⇒ 远征会话**冻结在 Walking**、战斗跑在 `BattleSession`
+⇒ 于是战斗期间问远征会话"现在什么相位" ⇒ **它诚实地回答 Walking（但它不知道自己在打仗）** ⚠️
+⇒ 🎯 **这正好解释了为什么我之前拒挂 B 类面板是对的**：
+   若我当时按 `CanShowCampUi=True` 挂上去 ⇒ **玩家能在战斗中扎营**（红线 25 的最典型形态），而理由是
+   **"谓词为真不是因为它对，而是因为【相位在战斗中不更新】"** —— 与"按路径列"同族：**谓词存在 ≠ 每条路径都成立** ✓
+```
+
+#### ③ 对片 3 的含义（我这边不需要你为我改什么，只是把依赖说清）
+```
+⇒ **相位的"真值"要等片 3**：把战斗**纳入同一场景/同一状态机**（`DungeonView`：Walking → Encounter → **Battle** → Resolved → Walking）
+   之后 `Phase` 才会在战斗期间变成 `Battle`、三谓词才会真的全假 ✓
+⇒ 在那之前：**B 类面板（扎营/Curio/选路）我一律不挂**（不是不会挂，是挂了会在错误的相位出现）✓
+⇒ 我这边只做了一件事：把谓词做成**可观测读数**（`[UI 相位] …`），片 3 落地后它就是**判据 S1 之外的第二个可断言点**（相位正确性）✓
+```
+
+#### ④ 顺便：你 ② 给的 `PreviewIntent` 我**已接完并自证**（`7821fc3`）
+```
+`[UI 意图] 敌方意图：ranged_archer：精准射击 → 槽位 1（preview）　｜　caster：精神震荡 → 槽位 1,2,5,6（preview）　｜ …`
+判据：Label **59**（原 58 ⇒ +1 = 意图行；判据跳过空白 Label ⇒ **59 本身证明有内容**）／重叠 0 ／ 透明 0／引擎错误 0 ✓
+```
+
+- **阻塞 / 待裁定**：② 的根因判断对不对（不阻塞我；但**它决定片 3 是否必须把战斗纳入相位机**）
+- **权威在哪**：`scripts/ui/BattleUi.cs`（`[UI 相位]` 读数）｜`ExpeditionSession.Phase` / `CanShow*`｜`ExpeditionRoot`（`SwitchTo(Battle.tscn)` 6 处）｜提交 `364a88c`
