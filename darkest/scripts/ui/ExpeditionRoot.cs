@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Events;
@@ -1020,6 +1020,8 @@ public partial class ExpeditionRoot : Node
     private Darkest.Data.CurioConfig? _pendingCurio;
     private Label? _curioText;
     private PanelContainer? _curioPanel;      // Curio 面板 = 满屏不透明模态（§14.2）
+    /// <summary>🔴 `#327` 片 2 #5：Curio **内容**已抽成独立类（宿主无关 ⇒ 地图模式可复用）✓</summary>
+    private Darkest.Ui.CurioPanel? _curioContent;
     private VBoxContainer? _curioButtonBox;   // 三按钮的容器
     private readonly List<Button> _curioButtons = new();
 
@@ -1095,17 +1097,11 @@ public partial class ExpeditionRoot : Node
             //    ⇒ 实测压住列表体 `pos=(18,352) size=(735,247)`，判据报 1 对重叠）✓
             (PanelContainer panel, VBoxContainer col) = MakeModal("CurioPanel");
             _curioPanel = panel;
-            _curioText = new Label
-            {
-                Name = "CurioText",
-                AutowrapMode = TextServer.AutowrapMode.WordSmart,
-                CustomMinimumSize = new Vector2(0, 48), // §14.2④：给最小尺寸，防塌陷
-            };
-            col.AddChild(_curioText);
-
-            _curioButtonBox = new VBoxContainer { Name = "CurioActions" };
-            _curioButtonBox.AddThemeConstantOverride("separation", 6);
-            col.AddChild(_curioButtonBox);
+            // 🔴 `#327` 片 2 #5：内容层 = 独立类 `CurioPanel`（说明文本 + 逐选项按钮）
+            _curioContent = new Darkest.Ui.CurioPanel { Name = "CurioPanel" };
+            col.AddChild(_curioContent);
+            _curioText = _curioContent.Text;   // 兼容既有引用（同一对象）
+            _curioButtonBox = null;            // 按钮组已并入内容面板
         }
 
         _curioPanel.Show();
@@ -1117,10 +1113,11 @@ public partial class ExpeditionRoot : Node
 
         _curioButtons.Clear();
 
-        _curioText.Text = $"【{_pendingCurio.Name}】（{_pendingCurio.CurioType}）　" +
-                          "空手有风险；用对道具可得**确定**的好结果，用错道具也是**确定**的坏结果。";
-
-        AddCurioButton("空手", () => ResolveCurioRoute(null));
+        // 🔴 `#327` 片 2 #5：宿主只负责"选项清单 + 每个选项做什么"，渲染交给内容类 ✓
+        var options = new List<(string Label, Action OnPick)>
+        {
+            ("空手", () => ResolveCurioRoute(null)),
+        };
 
         // 🔴 V7 / 红线 21：**只列【该 Curio 定义了】且【kind 已实现】的道具**（阶段二的不列出）
         Darkest.Data.CurioItemResultConfig[] implemented = (_pendingCurio.ItemResults ?? Array.Empty<Darkest.Data.CurioItemResultConfig>())
@@ -1129,14 +1126,24 @@ public partial class ExpeditionRoot : Node
         foreach (Darkest.Data.CurioItemResultConfig r in implemented)
         {
             string item = r.Item;
-            AddCurioButton($"用道具：{item}", () => ResolveCurioRoute(item));
+            Darkest.Data.CurioConfig curio = _pendingCurio;
+            options.Add(($"用道具：{item}", () => ResolveCurioRoute(item)));
         }
 
-        AddCurioButton("走开（不碰）", () =>
+        options.Add(("走开（不碰）", () =>
         {
             _flow.LeaveCurio(_pendingCurio!);
             ReportCurioOutcome();
-        });
+        }));
+
+        _curioContent!.Refresh(
+            $"【{_pendingCurio.Name}】（{_pendingCurio.CurioType}）　" +
+            "空手有风险；用对道具可得**确定**的好结果，用错道具也是**确定**的坏结果。",
+            options);
+
+        // 镜像（供 `PressCurio*` 冒烟与既有日志计数，行为不变）✓
+        _curioButtons.Clear();
+        _curioButtons.AddRange(_curioContent.Buttons);
 
         int deferred = (_pendingCurio.ItemResults?.Count ?? 0) - implemented.Length;
         GD.Print($"[Curio] {_pendingCurio.Id}（{_pendingCurio.Name}）：可选项 {_curioButtons.Count} 个" +
