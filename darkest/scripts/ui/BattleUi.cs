@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -159,8 +159,21 @@ public partial class BattleUi : CanvasLayer
             return;
         }
 
-        _campSkillsCfgForMap ??= Darkest.Data.CampSkillsConfig.Parse(
-            Godot.FileAccess.GetFileAsString(Darkest.Data.CampSkillsConfig.ResPath));
+        // 🔴 片 4 收尾（主程序 ③）：**配置改读公共读处** `ExpeditionContext.CampSkills`（消掉"各解析一份"）——
+        //    ⚠️ 为空时（单场战斗 / 未 `BindConfigs`）退回本地解析并**留痕**（不静默、不崩）✓
+        if (_campSkillsCfgForMap is null)
+        {
+            _campSkillsCfgForMap = Darkest.Gameplay.Scene.ExpeditionContext.CampSkills;
+            if (_campSkillsCfgForMap is null)
+            {
+                _campSkillsCfgForMap = Darkest.Data.CampSkillsConfig.Parse(
+                    Godot.FileAccess.GetFileAsString(Darkest.Data.CampSkillsConfig.ResPath));
+                GD.Print("[UI 片2] `ExpeditionContext.CampSkills` 为空 ⇒ 本地解析一份" +
+                         "（留痕：单场战斗 / 未 `BindConfigs` 时会走这里）");
+            }
+        }
+
+        // `RosterConfig`（英雄 id → 原型）：**你未开公共读处** ⇒ 仍本地懒解析（已投窗口问是否要开）✓
         _rosterCfgForMap ??= Darkest.Data.RosterConfig.Parse(
             Godot.FileAccess.GetFileAsString(Darkest.Data.RosterConfig.ResPath));
 
