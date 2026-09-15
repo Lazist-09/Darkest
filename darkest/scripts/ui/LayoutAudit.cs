@@ -110,6 +110,30 @@ public static class LayoutAudit
             }
         }
 
+        // 🆕 🔴 **内容需求口径**（规则①的正确量法）：headless 的**实际视口是 1280×1280**（`--resolution` 无效），
+        //    拿"实际矩形 vs 项目 720"比会把"填满视口"误判成越界 ⚠️ ⇒ 真正有意义的是【**内容最小尺寸需求**】：
+        //    某控件的最小尺寸超过相机 ⇒ 它在真实 720 下**必然溢出**（这才是要修的东西）✓
+        var tooBig = new System.Collections.Generic.List<string>();
+        foreach (Node n in Walk(root))
+        {
+            if (n is Control tc && tc.IsVisibleInTree())
+            {
+                Vector2 need = tc.GetCombinedMinimumSize();
+                if (need.X > cam.X + 0.5f || need.Y > cam.Y + 0.5f)
+                {
+                    if (tooBig.Count < 6)
+                    {
+                        tooBig.Add($"{Path(root, tc)} 需 {need.X:0}×{need.Y:0}");
+                    }
+                    else
+                    {
+                        tooBig.Add("…");
+                        break;
+                    }
+                }
+            }
+        }
+
         bool ok = overlaps == 0 && transparent == 0;
         string scopeNote = overlay is null ? "（全界面）" : $"（**只审覆盖层 {overlay.Name}**）";
 
@@ -133,7 +157,8 @@ public static class LayoutAudit
                              : "　（范围外无控件）") +
                          // 🔴 架构裁定（`§4.1.1`）：第 7 条例外**必须可审计** ⇒ 打印"跳过的瞬态元素数"（含覆盖层子树内的）✓
                          $"　跳过瞬态元素 {skippedTransient + Collect(root, root, new List<(string, Rect2)>(), new List<(string, Control)>())} 个（`{MotionLayerName}` 口径例外，按设计会短暂叠放）" +
-                         $"　相机 {cam.X:0}×{cam.Y:0} 越界控件 {outsideList.Count} 个" +
+                         $"　相机 {cam.X:0}×{cam.Y:0}（**项目真实视口**）越界控件 {outsideList.Count} 个（实际矩形口径，含 headless 填满视口的噪声）" +
+                         $"　🔴 **内容需求超出相机 {tooBig.Count} 个**" + (tooBig.Count == 0 ? "（全部装得下 ✅）" : "：" + string.Join(" ／ ", tooBig)) +
                          (outsideList.Count == 0 ? "（全部落在可视区内 ✅）" : "：" + string.Join(" ／ ", outsideList));
 
         string report = $"布局判据（{root.Name}）{scopeNote}：可见 Label {labels.Count} 个 ／ Panel+PC {panels.Count} 个　" +
