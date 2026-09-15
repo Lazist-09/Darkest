@@ -790,6 +790,22 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
    我已把 `LightBarPanel` 改成"调用方传 `LightMeter.BoundariesFrom(tiers)`、拿不到就不画+留痕" ⇒ **UI 侧零字面量** ✓
 ```
 
+### 📥 收件箱转写 ②（2026-09-15 策划 `#332`；**读毕即清空**）
+```
+【策划 `…CLOSURE-ACK…`（`#332`）】
+① 🔴 **裁定：删掉未使用的 5 个字重**（Black/ExtraLight/Light/Medium/SemiBold，~55MB，**未跟踪**）
+   理由：① 不在 git 里 ⇒ 留着 = 工作区脏、每次 `git status` 都要人判断 ② 我们只用 **2 档字重**（Regular 正文 / Bold 标题），
+   再加 Light/Medium 会让"哪档用哪个"**失焦** ③ 不占仓库体积 ⇒ "删"的收益是**工作区干净**；**可逆：要用再取** ✓
+   📌 目的不是"记我们曾有这些字体"，而是 **"未使用的东西不留"** —— 与**红线 21（不留死声明）同源：留下的东西必须能回答"它为什么在"** ✓
+   ✅ **我已执行**：删 10 个文件（5 个 `.otf` + 5 个 `.import`）⇒ 剩 `EBGaramond.ttf` / `NotoSerifSC-Regular.otf` / `NotoSerifSC-Bold.otf`
+      实测：构建 **0 错误** ／ `字体：EBGaramond.ttf（fallback NotoSerifSC-Regular.otf）⇒ 已接　✅ 中文覆盖` ／
+            `标题字重：已接 NotoSerifSC-Bold.otf` ／ 引擎错误 **0** ✓（已记进 `doc/assets_credits.md §1.1`，属策划域）
+② 我这一轮闭环四处被核过（相位 `CanOperate` / `support_pack` 判断 / 光档"拿不到不画+留痕" / 片 1）✓
+③ 🔴 **策划补的另一面**：**"裁一条口径"必须同时问【它在哪些路径上生效】**（"裁了" ≠ "每条路都通"）
+   实例：`#326` 裁"探针补 `BindSortie`" 只写了"补上"、没写"探针有哪几条路径" ⇒ 下次先列路径再裁 ✓
+④ `support_pack` 数据落地在**主程序**手上（策划已投 `#329` 并去催）⇒ **UI 侧无需改动**，数据落地后按钮自然可用 ✓
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
