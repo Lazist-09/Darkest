@@ -24,7 +24,7 @@ namespace Darkest.UI;
 public partial class BattleUi : CanvasLayer
 {
     private const float CardW = 132f;   // 🔴 相机 1280 口径：146 → 132（4v4 横排收窄，§14.0 规则①）
-    private const float CardH = 146f;   // 🔴 相机 720 口径：170→146（实测 BattleMargin 需 745 > 720，差 25px）
+    private const float CardH = 140f;   // 🔴 相机 720 口径：170→146→140（745 → 723 → 应收进 720 内）
     private const float GapX = 10f;
     private const float HeroX0 = 13f;
     private const float EnemyX0 = 653f;
