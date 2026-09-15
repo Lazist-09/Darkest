@@ -139,3 +139,45 @@ DELIVERY-UI-INTENTPREVIEW-DONE-20260915
 
 - **阻塞 / 待裁定**：无
 - **权威在哪**：`scripts/ui/BattleUi.cs`（`RefreshEnemyIntent` / `_intentText`）｜`BattleRoot.PreviewIntent`｜提交 `a4126f3` / `f779745` / `7821fc3`
+
+---
+### 信封：2026-09-15 · 【来自 UI 设计师】✅ 片 2 **#6 扎营面板已挂**（门禁只读谓词）+ 片 2 收口台账（A 类 4 + B 类内容全就绪）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-PANEL6-HOSTED-20260915' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-UI-PANEL6-HOSTED-20260915
+```
+
+#### ① 交付（提交 `e9adec6`）：扎营面板挂进地图模式，**可见性只读 `Session.CanShowCampUi`**
+```
+· 挂在 `DungeonHost()`（**骨架之外** ⇒ 切模式不动骨架 ⇒ `S1` 仍 ✅）✓
+· 数据与 `ExpeditionRoot` **同源**：`camp_skills.json`（只列已接线）+ 名册原型映射（`RosterConfig`）+ `RespiteLeft` + `Tuning.Camp`
+  ⇒ UI **不重算**；"该原型用谁 / 够不够点数 / 点了做什么"三个决策仍由宿主给（内容类 `CampSkillPanel` 只管渲染）✓
+· 🔴 **门禁**：`if (!Session.CanShowCampUi) { 隐藏 + 留痕 }` —— **UI 绝不推断相位**（`§9.17.0`）✓
+```
+**实测（0 引擎错误）**：
+```
+[UI 片2] 【扎营】面板：Phase=Battle ⇒ `CanShowCampUi=False` ⇒ **隐藏**（只读谓词，不推断相位）✓
+[UI 相位] Phase=Battle　CanShowCampUi=False　CanShowPathChoice=False　CanShowCurioUi=False
+✅ [UI 相位·告警] 相位与宿主一致（战斗中三谓词全假）⇒ 可据此挂 B 类面板
+判据：58 Label ／ **39** Panel+PC（扎营面板隐藏 ⇒ 计数不变）／ 重叠 0 ／ 透明 0 ✅
+```
+⚠️ **诚实边界**：我核到的是"**该隐藏时隐藏**"；"**该显示时显示**"要等片 3 把**行走相位**搬进宿主后才能观察 ⇒ 届时我把**两态**读数一起投你 ✓
+
+#### ② 片 2 收口台账（**内容全部就绪**）
+```
+【A 类：战斗期数据+语义都成立】⇒ **已挂进地图模式**（骨架之外 ⇒ S1 每次 ✅）
+   #1 光照条（`Flow.Meter`，刻度**数据驱动**）· #2 侦察标记（`Flow.LastScout`）
+   #3 背包（`Flow.Bag`；**查看=A 类**，**操作=B 类相位动作** → 已按 `CanOperate` 谓词门禁 `d53452d`）
+   #4 投影列表（内核投影，实测行数=9）
+【B 类：只在行走/扎营相位成立】
+   #6 扎营：内容 ✅ `CampSkillPanel`（`640a096`）＋ **已挂 + 门禁生效**（`e9adec6`）✓
+   #5 Curio：内容 ✅ `CurioPanel`（`d4ed39e`）—— **挂载待定**：其数据是"行走流程里的 `_pendingCurio`"
+      ⇒ 战斗期的地图模式里**没有该数据** ⇒ 挂上去会是空面板（红线 21）⇒ **与 Curio 的相位一起在片 3 挂** ✓
+   `PathChoicePanel`：本已是独立类；同样需要"行走中的 `PathStep`" ⇒ 片 3 ✓
+【附加】敌方意图预览 ✅（`7821fc3`，自证读数含技能名/槽位/status）
+```
+
+- **阻塞 / 待裁定**：无（Curio/选路等片 3 的行走相位；届时两态读数一起投）
+- **权威在哪**：`scripts/ui/BattleUi.cs`（`HostDungeonCampPanel`）· `CampSkillPanel.cs` · `CurioPanel.cs`｜提交 `e9adec6` / `d4ed39e` / `640a096`
