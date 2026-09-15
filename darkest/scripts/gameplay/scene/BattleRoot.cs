@@ -53,6 +53,14 @@ public partial class BattleRoot : Node2D
 
     public override void _Ready()
     {
+        // 🔴🔴 **相位在【两个场景】之间的修补**（UI 实测报告：战斗场景里 `Phase` 仍是 `Walking` ⇒ 三谓词全 True ⚠️）
+        //   根因：战斗是**另一个场景**，而 `ExpeditionSession.Phase` 只由远征那条循环推动 ⇒ 战斗期间它"诚实但过时" ✓
+        //   ⇒ 现在进战斗就显式推进到 `Battle`（片 3 把两场景并成一个状态机后，这行会被状态机自然取代）✓
+        if (ExpeditionContext.IsActive)
+        {
+            ExpeditionContext.Flow!.Session.EnterPhase(Darkest.Gameplay.Sim.Run.FlowPhase.Battle);
+        }
+
         NewGame();
         GD.Print("[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算；R 重开（新 seed）。");
 
