@@ -570,6 +570,7 @@ public partial class BattleUi : CanvasLayer
         {
             eCtl.AddThemeStyleboxOverride("panel", Darkest.Ui.DdTheme.MakePanelStyle(null, Darkest.Ui.DdTheme.Mental));
         }
+        _eArea.CustomMinimumSize = new Vector2(0, 0); // 🔴 相机口径：E 区**可压缩到 0**（否则撑过右长条框 ⇒ 重叠）
         _eArea.AddChild(_mfPanel);
 
         var column = new VBoxContainer { Name = "MfColumn" };
@@ -580,6 +581,10 @@ public partial class BattleUi : CanvasLayer
         _eAreaTitle = new Label { Name = "EAreaTitle", VerticalAlignment = VerticalAlignment.Center };
         _eAreaTitle.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
         _eAreaTitle.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextAccent);
+        _eAreaTitle.AutowrapMode = TextServer.AutowrapMode.Off;   // 🔴 标题不换行、裁切（不撑宽 E 区）✓
+        _eAreaTitle.ClipText = true;
+        _eAreaTitle.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        _eAreaTitle.CustomMinimumSize = new Vector2(0, 0);
         column.AddChild(_eAreaTitle);
 
         _mfPanel.AddChild(column);
