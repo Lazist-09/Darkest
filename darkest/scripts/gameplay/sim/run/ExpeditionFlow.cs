@@ -127,7 +127,15 @@ public sealed class ExpeditionFlow
     }
 
     /// <summary>拓扑模式：是否已走到终点（主干末房）—— 完成口径的另一半是 `Wins ≥ battle_goal`。</summary>
-    public bool ReachedGoal => _map is not null && _currentRoomId == _map.GoalId;
+    /// <summary>
+    /// 🔴 **有效终点房间**：开走格后 = **派生终点**（策划 `#342`③ 主干 ≤3 段会把终点**提前**）；
+    /// 未开走格 = 地图原 `GoalId` ✓ —— 让"到终点/还剩几段"永远指向**玩家实际要去的那个终点** ✓
+    /// </summary>
+    private int EffectiveGoalRoomId => _map is null
+        ? -1
+        : TileWalk is { } tw && tw.TileRoom.TryGetValue(tw.Grid.Goal, out int derived) ? derived : _map.GoalId;
+
+    public bool ReachedGoal => _map is not null && _currentRoomId == EffectiveGoalRoomId;
 
     // ══════════════════════════════════════════════════════════════════════════════════════════
     // 🆕 **走格**（用户裁 (B)：格内自由走）＋**逐格光照扣除**（策划 `#338`① 的守恒口径）
@@ -256,12 +264,13 @@ public sealed class ExpeditionFlow
                 return Math.Max(0, _tuning.Expedition.NBattles - StepsDone);
             }
 
-            if (_currentRoomId == _map.GoalId)
+            int goalRoom = EffectiveGoalRoomId;
+            if (_currentRoomId == goalRoom)
             {
                 return 0; // 🔴 已到终点 ⇒ 0 ✓
             }
 
-            int d = MapTraversal.ShortestPathLength(_map, _currentRoomId, _map.GoalId);
+            int d = MapTraversal.ShortestPathLength(_map, _currentRoomId, goalRoom);
             return d < 0 ? 0 : d;
         }
     }

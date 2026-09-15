@@ -89,7 +89,9 @@ public sealed class DungeonGridDeriverTests
         foreach (MapRoom room in map.Rooms)
         {
             (int cx, int cy) = d.RoomCenters[room.Id];
-            DungeonTileKind expected = room.Id == map.GoalId
+            // 🔴 注意：派生图会把终点**提前**（策划 #342③ 主干 ≤3 段）⇒ 判定要看【派生后的】`Grid.Goal`，
+            //    不是地图原本的 `GoalId` ✓（我第一版就错在这里）
+            DungeonTileKind expected = (cx, cy) == d.Grid.Goal
                 ? DungeonTileKind.Goal // 终点房间中心被改写为 `G` ✓
                 : DungeonGridDeriver.KindForRoomType(room.Type);
             Assert.AreEqual(expected, d.Grid.TileAt(cx, cy),

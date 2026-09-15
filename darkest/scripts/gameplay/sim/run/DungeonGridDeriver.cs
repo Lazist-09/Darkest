@@ -43,7 +43,9 @@ public static class DungeonGridDeriver
         (int X, int Y) Start,
         IReadOnlyDictionary<int, (int X, int Y)> RoomCenters,
         IReadOnlyDictionary<(int X, int Y), int> TileRoom,
-        IReadOnlyList<CorridorSegment> Segments);
+        IReadOnlyList<CorridorSegment> Segments,
+        int TrunkSegments = 0,
+        int TruncatedFromTrunkSegments = 0);
 
     /// <summary>房间类型 ⇒ 瓷砖字符（结构性映射；未登记类型 ⇒ `R`，不静默当成战斗 ✓）</summary>
     public static DungeonTileKind KindForRoomType(string type) => type switch
@@ -55,7 +57,17 @@ public static class DungeonGridDeriver
         _ => DungeonTileKind.Room,
     };
 
-    public static Derived Derive(ExpeditionMap map)
+    /// <summary>
+    /// 🔴 **主干段数上限**（策划 `#342`③ 的裁定）：**一张图的【主干段数】应 ≤ 3**
+    /// （推论：`enter_value` 100 ÷ 段消耗 30 = **3.33** ⇒ 取 3 ⇒ **主干 ≈ 4 间房 / 3 条连线**）
+    /// ⇒ 派生占位图据此**把终点提前到 ≤3 段处**（支路仍保留：**支路要绕路 ⇒ 靠扎营/提亮回填** = 设计意图 ✓）
+    /// ⚠️ 这是**派生占位布局**的取舍，**不改任何数值**（`enter_value`/`new_area` 一行未动 ✓）
+    /// </summary>
+    public const int MaxTrunkSegments = 3;
+
+    public static Derived Derive(ExpeditionMap map) => Derive(map, MaxTrunkSegments);
+
+    public static Derived Derive(ExpeditionMap map, int maxTrunkSegments)
     {
         if (map is null)
         {
@@ -145,9 +157,20 @@ public static class DungeonGridDeriver
             throw new InvalidOperationException($"派生网格：地图起点房间 {map.StartId} 不在房间表里 ⇒ 拒绝派生。");
         }
 
-        if (!centers.TryGetValue(map.GoalId, out (int X, int Y) goal))
+        // 🔴 策划 #342③：**把终点沿主干提前到 ≤ `maxTrunkSegments` 段处**（否则"一罐光"走不到终点 ⚠️）
+        int truncatedFrom = 0; // 记录"原主干段数"（> 上限时非 0）⇒ 供调用方打印 ✓
+        int goalRoomId = map.GoalId;
+        int trunk = HopsOnMap(map, map.StartId, map.GoalId);
+        if (trunk > maxTrunkSegments)
         {
-            throw new InvalidOperationException($"派生网格：地图终点房间 {map.GoalId} 不在房间表里 ⇒ 拒绝派生。");
+            goalRoomId = RoomAtHops(map, map.StartId, maxTrunkSegments) ?? map.GoalId;
+            trunk = HopsOnMap(map, map.StartId, goalRoomId);
+            truncatedFrom = HopsOnMap(map, map.StartId, map.GoalId); // 🔴 内核**不打日志**（零 Godot）⇒ 交给场景层打印 ✓
+        }
+
+        if (!centers.TryGetValue(goalRoomId, out (int X, int Y) goal))
+        {
+            throw new InvalidOperationException($"派生网格：终点房间 {goalRoomId} 不在房间表里 ⇒ 拒绝派生。");
         }
 
         tiles[(goal.Y * width) + goal.X] = DungeonTileKind.Goal;
@@ -171,7 +194,7 @@ public static class DungeonGridDeriver
             throw new InvalidOperationException("派生网格：终点与 `G` 格不一致（派生逻辑错误）⇒ 拒绝。");
         }
 
-        return new Derived(grid, start, centers, tileRoom, segments);
+        return new Derived(grid, start, centers, tileRoom, segments, trunk, truncatedFrom);
 
         void Carve(int x, int y, List<(int X, int Y)> segTiles)
         {
@@ -189,5 +212,70 @@ public static class DungeonGridDeriver
             tiles[(y * width) + x] = DungeonTileKind.Corridor;
             segTiles.Add((x, y)); // 🆕 记进本段（走廊格序列）✓
         }
+    }
+
+    /// <summary>图上两房间的**跳数**（= 段数；不可达 ⇒ `int.MaxValue`）✓</summary>
+    private static int HopsOnMap(ExpeditionMap map, int from, int to)
+    {
+        if (from == to)
+        {
+            return 0;
+        }
+
+        var seen = new System.Collections.Generic.HashSet<int> { from };
+        var q = new System.Collections.Generic.Queue<(int Id, int D)>();
+        q.Enqueue((from, 0));
+        while (q.Count > 0)
+        {
+            (int id, int d) = q.Dequeue();
+            foreach (MapEdge e in map.Edges)
+            {
+                int next = e.From == id ? e.To : e.To == id ? e.From : -1;
+                if (next < 0 || !seen.Add(next))
+                {
+                    continue;
+                }
+
+                if (next == to)
+                {
+                    return d + 1;
+                }
+
+                q.Enqueue((next, d + 1));
+            }
+        }
+
+        return int.MaxValue;
+    }
+
+    /// <summary>恰好 `hops` 跳能到的房间（多个取 id 最小 ⇒ **确定性** ✓；没有 ⇒ null）✓</summary>
+    private static int? RoomAtHops(ExpeditionMap map, int from, int hops)
+    {
+        var seen = new System.Collections.Generic.HashSet<int> { from };
+        var frontier = new System.Collections.Generic.List<int> { from };
+        for (int step = 0; step < hops; step++)
+        {
+            var next = new System.Collections.Generic.List<int>();
+            foreach (int id in frontier)
+            {
+                foreach (MapEdge e in map.Edges)
+                {
+                    int n = e.From == id ? e.To : e.To == id ? e.From : -1;
+                    if (n >= 0 && seen.Add(n))
+                    {
+                        next.Add(n);
+                    }
+                }
+            }
+
+            if (next.Count == 0)
+            {
+                return null;
+            }
+
+            frontier = next;
+        }
+
+        return frontier.OrderBy(x => x).First();
     }
 }

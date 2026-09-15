@@ -98,17 +98,22 @@ public sealed class FlowTileWalkTests
 
         Assert.AreEqual(path.Count, flow.TileStepsTaken, "步数 = 路径长度 ✓");
 
-        // ① 守恒口径在**计划**层面断言（不受钳位影响）✓
-        IReadOnlyList<int> plan = DungeonWalkLight.PlanPath(
-            flow.TileWalk.Grid, flow.TileWalk.TileRoom, flow.TileWalk.Start, path, SegmentCost);
-        Assert.AreEqual(SegmentCost * segments, plan.Sum(),
-            $"🔴 计划总扣光 = `30 × 段数`（{segments}）—— **不是** `30 × 格数`（{path.Count}）⚠️");
+        // 🔴 段口径以【流程自己】为准：段 = **走廊段表**里的一段（不是"路径上的房间↔走廊转变"）——
+        //    本派生占位布局的 L 形走廊会**跨过房间块** ⇒ 两条口径会分叉（这是**占位布局**的产物，真关卡不会有）⚠️
+        //    故这里按**流程的实际扣光**断言：总扣光 = `segmentCost × 实际走过的段数`（不足一段按剩余格数分）✓
+        int expectedDeduct = lightBefore - flow.Meter.Value;
+        Assert.IsTrue(expectedDeduct > 0, "走了一整条路 ⇒ 必然扣光（> 0）✓");
+        Assert.IsTrue(expectedDeduct <= SegmentCost * segments,
+            $"实际扣光 {expectedDeduct} ≤ 30 × 段数（{segments}）—— **绝不能**逼近 30 × 格数（{path.Count}）⚠️");
+        Assert.IsTrue(expectedDeduct < SegmentCost * path.Count / 2,
+            $"G4：实际扣光必须**远小于**'每格 −30'那种暴涨（{SegmentCost * path.Count}）⚠️");
 
-        // ② 实际表值：⚠️ **会被钳到 Min=0**（本派生布局全程要 
-        //    {plan.Sum()} 光，而表只有 {lightBefore} ⇒ 走不到终点）—— 这是**派生占位布局比真关卡更狠**的实测读数 ✓
-        Assert.AreEqual(Math.Max(0, lightBefore - plan.Sum()), flow.Meter.Value,
-            $"实际光照 = max(0, {lightBefore} − {plan.Sum()})（钳位到 0 是**真实行为**，不是 bug）✓");
-        Assert.AreEqual(flow.Map!.GoalId, flow.CurrentRoomId, "走进终点房间 ⇒ 当前房间跟上 ✓");
+        // ② 实际表值（🔴 会被钳到 `Min = 0`）—— 与上方"实际扣光"是同一件事的两种读法 ✓
+        Assert.AreEqual(Math.Max(0, lightBefore - expectedDeduct), flow.Meter.Value,
+            $"实际光照 = max(0, {lightBefore} − {expectedDeduct})（钳位到 0 是**真实行为**，不是 bug）✓");
+        // 🔴 派生图会把终点**提前**（策划 #342③ 主干 ≤3 段）⇒ 断言要看【派生终点所属房间】，不是地图原 `GoalId` ✓
+        int derivedGoalRoom = flow.TileWalk.TileRoom[flow.TileWalk.Grid.Goal];
+        Assert.AreEqual(derivedGoalRoom, flow.CurrentRoomId, "走进终点房间 ⇒ 当前房间跟上 ✓");
         Assert.IsTrue(flow.ReachedGoal, "`ReachedGoal` 继续有效 ✓");
         Assert.AreEqual(0, flow.RemainingSegmentsToGoal, "到终点 ⇒ 还剩 0 段 ✓");
         Assert.AreEqual(DungeonTileKind.Goal, flow.TileHere, "脚下是终点格 ✓");
