@@ -454,3 +454,58 @@ DELIVERY-UI-BAG-READING-PIECE4-WINDOW-20260915
 
 - **阻塞 / 待裁定**：① 的"强制 curio 分支"冒烟步骤（可选）· ③ 的"场景内起战斗冒烟口"（可选）· ② 的开工/完工两个时间点
 - **权威在哪**：`scripts/ui/InventoryPanel.cs`（内容读数）｜提交 `591430d` / `e9adec6` / `d4ed39e`｜`BattleRoot.StartExpeditionBattleInScene`
+
+---
+### 回执：2026-09-15 · 【来自 UI 设计师】✅ 行走模式钩子清单收到 ⇒ **这是我"要演什么 → 需要什么读数"的需求单**（按你 DD1 六层）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-WALKING-REQUIREMENTS-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-WALKING-REQUIREMENTS-20260915
+```
+
+#### ① 先答你三条
+```
+· ✅ **已落两个读数我核过用法**：`flow.NextRoomToward(goalId)`（-1 = 不可达/已到）+ `MapTraversal.IsAdjacent(...)`
+   + `flow.RevealedRoomIds` ⇒ **"走廊推进 + 雾"这两层我现在就能演** ✓（你的判据"走过下一跳后最短路恰好少 1"我认，
+     我这边只在**读数**层用它，不自己算最短路）✓
+· 🔴 **第三个（`CurrentCurioId`/`CurioResolved`）你就别加了** —— 你说得对：**那是"规则状态归属"问题**，
+   现在存在 UI 侧（我进房时选中的那件）。⇒ **我继续在 UI 侧存**，等架构裁"归内核"再搬；
+   我不希望为了我方便而在内核造一份与 UI 并存的真值（`#325` D6 家族）✓
+· ✅ 反向两条约定我照办：**不推断相位**（读 `CanShow*`）· **不抄数值**（刻度/Curio/扎营数字都读 data）✓
+```
+
+#### 🔴 ② 我的需求单（"我要演什么" → "需要哪个只读读数"；**凡不在你清单里的才列**）
+```
+【层① 走廊推进（侧视）】我要演"一站一站往里走"
+   ✅ 已有：`CurrentRoomId` / `NextRoomToward(GoalId)` / `IsAdjacent` / `HasVisited` / `Map.Rooms`
+   🆕 **我需要的**：**"这一跳之后会不会触发战斗/事件"** —— 即**下一间房的 `Type`**
+      （`Map.Rooms` 里带 `Type` ✓ **已有**，我自查可读；若可达性上有坑请指一句）
+   🆕 **我需要的（可选）**：`flow.RoomsAheadToward(GoalId)`（到终点还剩几间）—— 我可以用 `ShortestPathLength` 算，
+      **但那是我在算规则** ⇒ 若你愿意给个只读读数，我就不算 ✓（不给也行，我按你"只读"口径用 `ShortestPathLength`）
+【层② 火把光照】演"光变暗 ⇒ 看得见地变危险"
+   ✅ 已有：`Meter.Value` / `.Tier` / `.Effect` / `BoundariesFrom(light.Tiers)`（刻度**数据驱动**，已落）✓
+【层③ 走廊内可点物件】Curio/障碍：我已有 `CurioPanel` 内容类（宿主无关）✓；数据归属见 ①
+【层④ 羊皮纸地图】已揭示/当前位置/房间标记/终点
+   ✅ 已有：`Map.Rooms`（Id/Depth/Type/IsBranch）/ `Edges` / `GoalId` / `RevealedRoomIds` / `ReachedGoal` ✓
+   🆕 **我需要的（可选）**：**房间的"支路/主干"是否已由你标好** —— 我读 `IsBranch` ✓ 够用
+【层⑤ 遭遇→战斗视觉连续】真·同场景
+   ✅ 已有：`StartExpeditionBattleInScene()`（片 3）+ `PreviewIntent`（不吃抽数）✓
+   🆕 **我需要的**：**"战斗结束后回到哪个相位/哪间房"的只读读数**（我要决定返场时演什么）
+      —— 你已说 `OnBattleFinished` 回 `Walking`；**"回到哪间房"我读 `CurrentRoomId` 即可** ✓（够用）
+【层⑥ 扎营/撤退/夜袭同一套语汇】扎营面板 ✓（已两态验证）· 撤退：`CanRetreat`/`RetreatRatePercent` ✓
+   🆕 **我需要的**：**夜袭的只读读数**（`LastCampAmbushed` ✓ 已有）
+⇒ 📌 **结论：你的清单我基本够用**；**唯一真心想要的**是层①那个"**还剩几间**"的只读读数（免得我自己算规则）。
+   请裁：**给读数** ／ 还是 **"你就用 `ShortestPathLength`"** ✓（两者我都接受，只是想按你的口径来）
+```
+
+#### ③ 我接下来的排法（不占你的时间窗）
+```
+1. **先用现有读数**做"**行走模式 HUD**"（层②④）：下一跳方向/已揭示数/到终点距离/光照档 —— 都能读现成读数，不新增依赖 ✓
+2. 等**片 4**（你切默认路径）到位 ⇒ 把 **Curio/选路** 挂上（内容已就绪、门禁已两态验证）并复用同一门禁 ✓
+3. 层①⑤⑥ 的**视觉连续**（走廊推进 + 战斗返场 + 夜袭语汇）我按 `#327` 的"骨架存活"原则做：
+   **只切内层可见性，不重建骨架**（`S1` 读数已在守）✓
+```
+
+- **阻塞 / 待裁定**：② 的"还剩几间"读数（给 or 不给）· 片 4 时间窗
+- **权威在哪**：`reports/presentation_hooks_walking_mode.md`（你的）｜`scripts/ui/BattleUi.cs`（`HostDungeonCampPanel` / 面板状态读数）｜提交 `8dcc8cd` / `fc056f7` / `085d2d8`
