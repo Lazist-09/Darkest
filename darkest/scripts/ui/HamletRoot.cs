@@ -982,6 +982,17 @@ public partial class HamletRoot : Node2D
         return true;
     }
 
+    /// <summary>DD 名册行：**等级** —— 来自 `roster.json`（取不到 ⇒ 0，不编数字）✓</summary>
+    private int LevelOfHero(string heroId)
+        => _rosterCfgForDetail?.Heroes.FirstOrDefault(x => x.Id == heroId)?.Level ?? 0;
+
+    /// <summary>DD 名册行：**防御等级** —— 来自 `units.json` 的该原型 `dodge`（取不到 ⇒ "?"，不编数字）✓</summary>
+    private string DodgeOfHero(HeroConfig h)
+    {
+        int? dodge = _unitsCfg?.Units.FirstOrDefault(u => u.Id == h.Archetype)?.Dodge;
+        return dodge?.ToString() ?? "?";
+    }
+
     /// <summary>供冒烟：名册竖列的行数（应等于名册人数）。</summary>
     public int RosterRowCount => _heroButtons.Count;
 
@@ -1091,7 +1102,9 @@ public partial class HamletRoot : Node2D
                     // 🔴 **名册瘦身**（用户 2026-09-14：「名册那部分不需要这么详细，放在详情页就好了」）：
                     //    行上只留 **缩写 + 名字 + 士气点阵 + 可减压标记**（这三样是"选谁减压"的决策输入）；
                     //    **装备位 / 特质 / 疾病 / 技能**等细节一律搬进【角色详情】（点这一行就打开）✓
-                    Text = $"{abbrev} {h.Name}　{dots}{(canRelief ? "　·可减压" : string.Empty)}",
+                    // 🔴 DD 式紧凑行（用户参考图①）：**缩写(头像位) + 等级 + 压力点阵 + 防御** —— 数据全来自 dat(roster.json / units.json) ✓
+                    Text = $"{abbrev} Lv{LevelOfHero(id)}　{dots}　防{DodgeOfHero(h)}" +
+                           (canRelief ? "　·可减压" : string.Empty),
                     CustomMinimumSize = new Vector2(300, 28),
                 };
                 b.Pressed += () =>
