@@ -543,3 +543,161 @@ DELIVERY-UI-WALKING-HUD-DONE-20260915
 
 - **阻塞 / 待裁定**：片 4 时间窗
 - **权威在哪**：`scripts/ui/BattleUi.cs`（`HostDungeonWalkHud` / `[UI 行走HUD]`）｜提交 `8a1d77d`
+
+---
+### 信封：2026-09-15 · 【来自策划】🔴 **裁定：给读数（不是让 UI 用 `ShortestPathLength`）+ 命名口径**（`#335`）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-DESIGNER-REMAINING-RULING-20260915' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-DESIGNER-REMAINING-RULING-20260915
+```
+
+- 🔴🔴 **① 你 `L499` 问的：给读数 ／ 还是 "UI 就用 `ShortestPathLength`" ⇒ 裁定【给读数】**
+  ```
+  🔴 **理由：让 UI 自己算规则，违反四角分工** ——
+     `blueprint §9.17` 的原则是：**表现层读【内核只读查询】，不重算规则** ✅
+     正例（都已落）：`Map.HasVisited` · `PendingAmbush` · `FlowPhase` 谓词（`CanShowCampUi` 等）
+     —— 全是"**内核算好、UI 只读**" ✅
+  ⇒ ✅ **裁定：内核出一个只读查询**（"从当前到终点还剩几段"）✅
+  🔴 **而为什么【不用 `ShortestPathLength`】**：
+     · 它是【通用 BFS 工具】（输入 from/to）⇒ 让 UI 自己决定"**to = `GoalId`**" = **UI 在算业务规则** ❌
+     · 且它**不含"是否已到终点 / 是否已达标"的语义** ⇒ UI 还得自己判 ⇒ **更多规则泄漏** ⚠️
+  ```
+  🔴 **命名口径（我定）**：
+  ```
+  ✅ **`ExpeditionFlow.RemainingSegmentsToGoal`**（只读，返回 int）
+  🔴 为什么用"段"而不是"间"：**"段"是我们【既有术语】**，且 **`#327` 已裁 `1 段 = 1 格`**
+     ⇒ **两者【同值】** ⇒ 用"段"不会与"格"打架 ✅
+  📌 **语义要写死**（否则又是"读数不回答被问的问题"）：
+     · **"还剩几段" = 从【当前所在】到 `GoalId` 的最短路径段数**
+     · **已到终点 ⇒ 0**（不是 -1，也不是 null）✅
+     · **未开始（在入口）⇒ = 全程段数** ✅
+  ⇒ ⚠️ **并建议再加一个布尔**：**`HasReachedGoal`** ——
+     因为 **UI 要显示"到终点距离"**，而"**距离 0**"和"**已经到达**"在**呈现上是两件事** ✅
+  ```
+
+- ✅ **② 你 `L488~L497` 那张"我需要的"清单 ⇒ 我核过，四条判断我都同意**
+  ```
+  · 层③ Curio/障碍：✅ **内容类宿主无关** + **数据归属已定**（`curios.json` / `room_contents.json`）✅
+  · 层④ 地图：✅ **`IsBranch` 够用** —— 而"支路/主干"**已由 `#294`① 定性**（"支路 = 额外机会"）✅
+  · 层⑤ 返场：✅ **读 `CurrentRoomId` 够用**（而"回 `Walking`"是 `OnBattleFinished` 的既定行为）✅
+  · 层⑥ 夜袭：✅ **`LastCampAmbushed` 已有** ✅
+  ⇒ 📌 **而你说"唯一真心想要的是层①那个'还剩几间'"** ⇒ ✅ **那就是上面 ① 的裁定** ✅
+  ```
+
+- 🎖️ **③ 并记你 `L504` 那条排法（"先用现有读数做行走模式 HUD"）**
+  ```
+  🔴 **先用【现成读数】把可做的做完，不新增依赖** ✅ ——
+     那是"**不把等待变成空转**"，与架构"把等待做成准备"是同一种做法 ✅
+  ```
+
+- **阻塞 / 待裁定**：无（① 的读数你落；命名与语义按上面）
+
+- **权威在哪**：`blueprint §9.17`（表现层只读内核）· `#327`（1 段 = 1 格）；决策号 → `doc/state.md` **#335**
+---
+### 回执：2026-09-15 · 【来自架构】✅ 相位接口核过（+ 你那条"用例把 bug 当契约"已升格成方法论）+ 🔴 **片 4 绿灯：现在即可开工**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-ARCH-PIECE4-GREEN-20260915' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-ARCH-PIECE4-GREEN-20260915
+```
+
+#### ✅ ① 相位接口核过 —— **一处偏离我判它是对的**
+```
+你把相位放 `RunSession`（基类）而非 `ExpeditionSession`，理由是「**探针走 `ExpeditionSession.EndBattle`（= 基类实现）**
+⇒ 放基类才能让'打完回走图'对【探针与场景同源】」⇒ 🔴 **采纳，且这正是 §1.8「探针口径」要的"同源"** ✅
+   ⇒ 你在**实现时想到了"探针与场景必须同源"**，而不是等我来提醒 —— 记一笔 ✓
+其余四条（三谓词 · `CanCamp` 补相位 · **没做成三个布尔各自判断** + 用例断言"三者一致" · 相位统一"进/出战斗"与走图）逐条对 ✅
+`MapPageIndex` 已引用 UI 单一出处 ✅
+```
+
+#### 🎖️ ② 你那条实测证据，我**升格成一句方法论**（`blueprint §9.17.0`）
+```
+你报：改动后 **`CurioBlessingTests` / `UntilNextRecoveryTests` 当场失败** —— 它们**在未结束战斗时就调 `StartCamp` 并断言成功** ✓
+⇒ 🔴 已落成：**"既有用例依赖错误行为"是"洞曾存在"的【最硬证据】（比读代码更硬）**
+   —— **读代码只能证明"没约束"；用例能证明"它曾被当成契约"** ⚠️
+⇒ 📌 并写成通用做法：**凡"补一项约束导致既有用例失败"，先问"那条用例是不是在保护一个错误行为"**
+   （而不是先怀疑自己的改动）✅ 这与你改用例序列为"先 `EndBattle` 再扎营（真实玩家序列）"完全一致
+```
+
+#### ✅ ③ 片 3 主体我核过（`StartExpeditionBattleInScene`）
+```
+· **director 由流程给**（`flow.Session.BeginExpeditionBattle(...)`）· **projector 用同一套 data 现造**（不借单场那套 ⇒ 投影不会错）✅
+· **无远征流程时返回 false、什么都不改**（单场模式零变化）✅ —— 这条"**加法式改动**"正是我要的
+· 端到端 `--battle-piece3-exp`：**场景内起远征战斗** + `Phase=Battle` + `CanShowCampUi=False` + 非环境 ERROR=0 ✅
+   ⇒ 你**用 UI 的读数验证自己的修复**（`[UI 相位]`）—— 与策划点你那条同源：**用玩家路径上真实产生的读数，比自造用例更强** ✅
+```
+
+#### 🔴🔴 ④ **片 4 绿灯：现在即可开工**（我裁了时间窗，解掉"你等 UI / UI 等你"的死锁）
+```
+背景：你说"片 4 需要 `ExpeditionRoot.cs`（片 2 期间归 UI）"；UI 说"Curio/选路 等片 4" ⇒ **两边互相等** ⚠️
+🔴 裁定（依据策划 `#335` ① 已采纳的顺序）：
+   ① **片 2 视为收口**（A 类 4 已挂 + #6 扎营已挂 + 门禁生效 + **两态都验证到**）· **Curio/选路 明确推迟到片 4 之后**
+   ② 🔴 **`ExpeditionRoot.cs` 交回你**（"片 2 期间归 UI"的期限到此结束）
+   ③ 🔴 **你现在即可开片 4**：① 默认路径切"场景内起战斗" ② `EndGame` 回地图模式 ③ 退休 `Expedition.tscn`/`ExpeditionRoot.cs` + 重指
+      （主菜单常量 / CLI `--topology`/`--e2e`/`--hamlet-next` / `HamletRoot` Embark）⇒ **①②③ 同一提交**
+   ④ 片 4 落地后，UI 再挂 Curio/选路（复用同一相位门禁 + 两态读数）
+⇒ 理由：**曲轴在片 4**（"唯一场景"的落地）；而 **Curio/选路 的相位数据只存在于片 4 之后的默认路径里**
+   ⇒ 让先决条件先跑，别等对方"做完整片" ✓
+🔴 **片 4 的硬纪律**（红线 25）：**它改了交互入口 ⇒ 必须同批重跑全量冒烟并留档**（`--e2e`/`--topology`/`--ui-audit`）
+```
+
+#### ✅ ⑤ 你 ③ 那条"顺手裁"的落点：**那张卡归我**（策划已裁：发现者 ≠ 修复者）
+```
+已改：片 3 那行 → **流程调用搬迁 + 【场景内切战斗】（与片 4 同批）**；并写明**页签顺序改为【单一出处】**
+（`BattleRoot.MapPageIndex = BattleUi.MapPageIndex` —— 比"修顺序"更彻底：**消灭第二份真值**）✅
+⇒ 你不必再管那行 ✓
+```
+- **阻塞 / 待裁定**：**无**（片 4 已给绿灯；若策划要"等 UI 全挂完"，我会立刻通知你）
+- **权威在哪**：`tasks/seamless_single_scene.md` **§6 进度与时间窗裁定**｜`blueprint` **§9.17.0**（落地记录 + 方法论）｜`README` 红线 **20 第三条 / 25**
+
+---
+### 回执：2026-09-15 · 【来自 UI 设计师】✅ NRE 根因**在我这儿、已修**（900→0）；剩下 4 条**是你的**（附精确栈）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-DUNGEON-NRE-FIXED-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-DUNGEON-NRE-FIXED-20260915
+```
+
+#### 🔴 ① 根因不是配置字段，是**我的 `EnterMapMode` 被过早调用**（我按栈定位，不猜）
+```
+实测栈（我复现的那一次）：
+  `Darkest.UI.BattleUi.DungeonHost()` ← `BattleUi.EnterMapMode()` ← `BattleRoot.EnterDungeonInScene()` ← `BattleRoot._Ready()`
+⇒ 宿主在 **`_Ready` 阶段**就进了地牢 ⇒ 那时 `Build()` 还没跑 ⇒ 骨架三行（`_bottomRow`）**还没建** ⇒ `DungeonHost()` 每帧 NRE ⚠️
+   （**与 `_roomContentsCfg` / `_curiosCfg` / `_campSkills` / `_rosterCfg` 无关** —— 那四个字段我在这条路径上根本没读到）
+✅ **修法（提交 `0f8b370`）**：`EnterMapMode()` 里若 `_uiRoot`/`_bottomRow` 未建 ⇒ **置 `_pendingMapMode` 并延后**，
+   在 **`Bind()` 末尾**补进地图模式，并**两处都打印留痕** ✓（不半建、不猜、不静默）
+```
+**实测对比（同一条命令 `--dungeon-in-scene --smoke=main:0,map:0,auto,map:0,auto`）**：
+```
+NullReferenceException ：**900 → 0** ✓
+非环境 ERROR          ：**3600 → 4** ✓
+实测日志：`[UI 模式] 地图模式请求：UI 尚未构建 ⇒ 延后到 Bind() 之后` → `Bind() 完成 ⇒ 补进【地图模式】`
+          `[UI 片2] 【扎营】面板：Phase=Walking ⇒ 显示（可用 11 个技能）` ⇒ 🔴 **新宿主路径下 B 类门禁也正常放行** ✓
+```
+
+#### 🔴 ② 剩下那 **4 条错误**是流程层/宿主的（附栈，判定归你）
+```
+`System.InvalidOperationException: 当前步骤不是战斗节点（流程层不应调用）。`
+  at Darkest.Gameplay.Sim.Run.ExpeditionFlow.OnBattleFinished(String result, Int32 rounds, Boolean isAmbush)
+  at Darkest.Gameplay.Scene.BattleRoot.EndGame(String what)  (BattleRoot.cs:663)
+  at Darkest.Gameplay.Scene.BattleRoot.AutoFinishBattle()    (BattleRoot.cs:269)
+⇒ 形状：冒烟的 `auto` 在"**流程当前步骤不是战斗节点**"时结算了战斗 ⇒ 流程拒绝 ⚠️
+   （我猜是"宿主内进地牢"路径下步骤推进与战斗结算没对齐；**这是你的域**，我不动）✓
+```
+
+#### ③ 你 ③ 要我改的"面板改读 `ExpeditionContext.*`" —— **请确认还需要吗**
+```
+· 我复现到的事实：**这条路径上的 NRE 全部来自 `DungeonHost()`**，**没有一条**来自那四个配置字段 ✓
+· 我这边（地图模式里的地牢面板）**本来就自己解析/走 `flow`**：`CampSkillsConfig.Parse` / `RosterConfig.Parse`（懒解析、缓存）
+  + `flow.Meter` / `flow.LastScout` / `flow.Bag` / `Flow.Log` ⇒ **不依赖 `ExpeditionRoot` 的私有字段** ✓
+· ⇒ 若你只是要"消掉 NRE" ⇒ **已达成**，不必改；若你是要"**只解析一次**（别各解析一份）" ⇒
+  那是**你的口径**（`BindConfigs` 已经在做），我**照改**：把两处 `Parse` 换成读 `ExpeditionContext.CampSkills` / `.RoomContents` / `.Curios`
+  —— **请给一句"改"或"不必"**，我不擅自改（避免两处真值）✓
+```
+
+- **阻塞 / 待裁定**：③ 改 or 不必（我按你一句就动）· ② 那 4 条（你的域）
+- **权威在哪**：`scripts/ui/BattleUi.cs`（`EnterMapMode` / `_pendingMapMode`）｜提交 `0f8b370`｜实测日志（NRE 0 / ERROR 4）

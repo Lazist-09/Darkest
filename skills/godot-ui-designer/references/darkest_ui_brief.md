@@ -872,6 +872,31 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
      ③ 视觉连续按 `#327` 原则做：**只切内层可见性、不重建骨架**（`S1` 读数在守）✓
 ```
 
+### 📥 收件箱转写 ⑥（2026-09-15 架构记功 + 主程序"片 4 收尾只剩一件你的活"；读毕即清空）
+```
+【架构 `…BOTH-STATES-V9…`】
+① 🎖️ 「B 类两态都验证到了」被记为本轮最看重的一条 ⇒ **V9 扩为「分支的【正反两态】都必须被走到」**
+   （凡"按条件显示/隐藏"或"允许/拒绝"的分支，**两个方向都要有冒烟真的走到**）✓
+② 🎖️ 我修自己看门狗误报那步 ⇒ 写成读数判据教训：**读数判据必须覆盖【正常的另一条路径】**（否则绿灯/红灯都会骗人）
+③ 🎖️ 我"自我揭发"（`_intentText` 创建块没落盘 ⇒ 构建绿但功能不生效）也记功 ⇒
+   **"构建绿 ≠ 生效"已是四角色共识纪律** ✓
+④ 🔴 **流程裁定（解死锁）**：**Curio / 选路 挂载 = 【片 4 之后】**；同时 **`ExpeditionRoot.cs` 交回主程序**（片 2 期限结束）
+   ⇒ 片 4 落地后我挂 Curio/选路，复用同一门禁 + 两态读数（验收口就是我那份 `PanelState` 读数）✓
+⑤ ⚠️ 仍待补：**背包"操作"的【拒绝态】尚未走到**（冒烟背包 11/12 未满）⇒ 建议补 `--topology --bag-full`（V9 的另一态）✓
+【主程序 `…PIECE4-PANEL-DEPS…`】🔴 片 4 收尾只剩**一件我的活**（按他判断：面板仍读 `ExpeditionRoot` 私有字段 ⇒ 宿主路径 NRE 2428）
+   他已在 `ExpeditionContext.BindConfigs(...)` 放公共读处：`.CampSkills` / `.RoomContents` / `.Curios` / `.Flow` / `.Log`
+   请我把 `_roomContentsCfg`/`_curiosCfg`/`_campSkills`/`_rosterCfg` 的读取改读 `ExpeditionContext.*`，
+   然后跑 `--dungeon-in-scene --smoke=main:0,map:0,auto,map:0,auto` **期望 ERROR=0**
+✅ **我的实测与回复（`DELIVERY-UI-DUNGEON-NRE-FIXED-20260915`）**：
+   · 🔴 **他的判断不成立**：我按栈复现 ⇒ NRE 全在 **`BattleUi.DungeonHost()` ← `EnterMapMode()` ← `BattleRoot.EnterDungeonInScene()` ← `_Ready()`**，
+     即**宿主在 `Build()` 之前就进了地牢** ⇒ `_bottomRow` 未建 ⇒ 每帧 NRE（**与那四个配置字段无关**）
+   · ✅ 修（`0f8b370`）：`EnterMapMode()` 若 UI 未建 ⇒ **置 `_pendingMapMode` 延后到 `Bind()` 之后** + 两处留痕
+     ⇒ 实测 **NRE 900 → 0**、非环境 **ERROR 3600 → 4**；且新宿主路径下 `Phase=Walking ⇒ 扎营面板显示`（B 类门禁正常放行）✓
+   · 🔴 剩下 **4 条不是我的**：`ExpeditionFlow.OnBattleFinished` 抛"当前步骤不是战斗节点" ← `BattleRoot.EndGame` ← `AutoFinishBattle`
+     （流程层/宿主：`auto` 在非战斗步骤结算了战斗）⇒ 已附栈交他 ✓
+   · ③ 我请他裁"改 or 不必"：**消 NRE 已达成**；若他要的是"只解析一次"（别各解析一份），我照改读 `ExpeditionContext.*` ✓
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
