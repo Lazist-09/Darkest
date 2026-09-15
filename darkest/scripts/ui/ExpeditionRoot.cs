@@ -997,6 +997,8 @@ public partial class ExpeditionRoot : Node
     private Label? _campSkillStatus;
     private Button? _finishCamp;
     private PanelContainer? _campPanel;       // 扎营技能面板 = 满屏不透明模态（§14.2）
+    /// <summary>🔴 `#327` 片 2 #6：扎营技能**内容**已抽成独立类（宿主无关 ⇒ 地图模式可复用同一份）✓</summary>
+    private Darkest.Ui.CampSkillPanel? _campSkillPanel;
     private VBoxContainer? _campButtonBox;    // 技能按钮的容器
     private readonly List<Button> _campSkillButtons = new();
     private CampSkillsConfig? _campSkills;                       // 扎营技能数据（装配时读入）
@@ -1236,17 +1238,11 @@ public partial class ExpeditionRoot : Node
             (PanelContainer campPanel, VBoxContainer campCol) = MakeModal("CampSkillPanel");
             _campPanel = campPanel;
 
-            _campSkillStatus = new Label
-            {
-                Name = "CampSkillStatus",
-                AutowrapMode = TextServer.AutowrapMode.WordSmart,
-                CustomMinimumSize = new Vector2(0, 26),
-            };
-            campCol.AddChild(_campSkillStatus);
-
-            _campButtonBox = new VBoxContainer { Name = "CampSkillActions" };
-            _campButtonBox.AddThemeConstantOverride("separation", 6);
-            campCol.AddChild(_campButtonBox);
+            // 🔴 `#327` 片 2 #6：内容层 = 独立类 `CampSkillPanel`（状态行 + 逐技能按钮）
+            _campSkillPanel = new Darkest.Ui.CampSkillPanel { Name = "CampSkillPanel" };
+            campCol.AddChild(_campSkillPanel);
+            _campSkillStatus = _campSkillPanel.Status; // 兼容既有引用（同一对象）
+            _campButtonBox = null;                     // 按钮组已并入内容面板
 
             _finishCamp = new Button
             {
@@ -1270,7 +1266,7 @@ public partial class ExpeditionRoot : Node
                 ClearCampSkillPanel();
                 RefreshMapView();
             };
-            _campButtonBox!.AddChild(_finishCamp);
+            campCol.AddChild(_finishCamp); // 结束扎营 = **宿主行为** ⇒ 留在宿主（不进内容面板）✓
         }
 
         foreach (Button b in _campSkillButtons)
@@ -1302,40 +1298,29 @@ public partial class ExpeditionRoot : Node
         GD.Print($"[拓扑UI] 扎营技能面板：可用 {usable.Length} 个（英雄槽位映射 {_heroSlots.Count} 个；" +
                  $"名册 {_rosterCfg?.Heroes.Count ?? 0} 人；技能数据 {_campSkills.Skills.Count} 条）");
 
-        for (int i = 0; i < usable.Length; i++)
-        {
-            CampSkillConfig skill = usable[i];
-            bool afford = Session.RespiteLeft >= skill.Cost;
-            var b = new Button
+        // 🔴 `#327` 片 2 #6：内容层交给独立类 —— 宿主只给三个决策（该原型用谁 / 够不够点数 / 点了做什么）✓
+        _campSkillPanel!.Refresh(
+            usable,
+            heroOf: s => heroByArchetype.TryGetValue(s.OwnerUnit, out string? hero) ? hero : null,
+            affordOf: s => Session.RespiteLeft >= s.Cost,
+            useOf: (s, target) =>
             {
-                Name = $"CampSkill_{skill.Id}",
-                Text = $"{skill.Name}（{skill.Cost} 点）",
-                CustomMinimumSize = new Vector2(360, 30),
-                Disabled = !afford,
-            };
-            // 🔴 主程序新签名（数字从 data 取：`skill.EffectNumber` + `camp.PepTalkBattles`）⇒ 旧参数 `skill.Id/Cost/effect` 全部去掉 ✓
-            string target = heroByArchetype[skill.OwnerUnit];
-            b.Pressed += () =>
-            {
-                bool used = Session.UseCampSkill(Log, skill, Darkest.Core.Contracts.UnitId.Of(target), Tuning!.Camp!);
-                GD.Print($"[拓扑UI] 扎营技能 {skill.Name}：{(used ? "已使用" : "拒绝")}　剩余 Respite {Session.RespiteLeft}");
+                bool used = Session.UseCampSkill(Log, s, Darkest.Core.Contracts.UnitId.Of(target), Tuning!.Camp!);
+                GD.Print($"[拓扑UI] 扎营技能 {s.Name}：{(used ? "已使用" : "拒绝")}　剩余 Respite {Session.RespiteLeft}");
                 BuildCampSkillPanel(); // 刷新（点数/可用性变化）
-            };
-            _campButtonBox!.AddChild(b); // 🔴 进容器（不再手摆坐标）
-            _campSkillButtons.Add(b);
-        }
+            },
+            statusText: _campSkillStatus.Text);
+
+        _campSkillButtons.Clear();                       // 镜像（供 `PressCampSkill` 按序点击，行为不变）
+        _campSkillButtons.AddRange(_campSkillPanel.Buttons);
     }
 
     /// <summary>收起扎营面板（结束扎营后）。</summary>
     public void ClearCampSkillPanel()
     {
-        foreach (Button b in _campSkillButtons)
-        {
-            b.QueueFree();
-        }
-
-        _campSkillButtons.Clear();
-        _campPanel?.Hide(); // 🔴 模态面板一并收起（否则它会一直挡住地图）
+        _campSkillPanel?.Clear();   // 🔴 内容层清空（内容归独立类）✓
+        _campSkillButtons.Clear();  // 镜像同步
+        _campPanel?.Hide();         // 🔴 模态面板一并收起（否则它会一直挡住地图）
     }
 
     /// <summary>🔴 供冒烟：**真实点击第 i 个扎营技能**。</summary>
