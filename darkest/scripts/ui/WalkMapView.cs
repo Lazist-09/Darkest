@@ -27,6 +27,7 @@ public partial class WalkMapView : PanelContainer
     private Control _canvas = null!;
     private int _lastKey = -1;
     private string _lastSketch = string.Empty;
+    private Label? _info;   // 🔴 (A)：格子视图顶部信息（当前类型/剩余段数/已揭示）✓
 
     /// <summary>🔴 主程序 (A)：**点相邻房间 ⇒ 移动一格** 的回调 ✓</summary>
     public Action<int>? OnRoomClicked;
@@ -40,11 +41,20 @@ public partial class WalkMapView : PanelContainer
     public override void _Ready()
     {
         _canvas = new Control { Name = "WalkMapCanvas" };
+        // 🔴 主程序 (A)：**把"当前房间类型 + 剩余段数"画在格子上方**（提示不该只活在 log 里）✓
+        _info = new Label { Name = "WalkInfo", VerticalAlignment = VerticalAlignment.Center };
+        _info.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        _info.AutowrapMode = TextServer.AutowrapMode.Off;
+        _info.ClipText = true;
+        _info.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        _info.CustomMinimumSize = new Vector2(0, 18);
+        AddChild(_info);
+
         AddChild(_canvas);
     }
 
     /// <summary>重画（数据全来自内核；`revealed` 是"已揭示"集合）✓</summary>
-    public void Refresh(Darkest.Gameplay.Sim.Run.ExpeditionMap map, int currentRoomId, IReadOnlyList<int> revealed, IReadOnlyList<int>? movable = null)
+    public void Refresh(Darkest.Gameplay.Sim.Run.ExpeditionMap map, int currentRoomId, IReadOnlyList<int> revealed, IReadOnlyList<int>? movable = null, int remainingSegments = -1, string? currentType = null)
     {
         // 只在"画的东西会变"时重画（房间/揭示/当前/终点任一变化）——避免每帧重建 ✓
         int key = HashCode.Combine(map.RoomCount, revealed.Count, currentRoomId, map.GoalId, _lastKey == -1 ? 0 : 1);
@@ -153,6 +163,13 @@ public partial class WalkMapView : PanelContainer
         //    ⇒ 画布尺寸**夹在预算内**（超出部分由画布裁剪），本视图自身最小尺寸设为 0 ✓
         _canvas.CustomMinimumSize = new Vector2(System.Math.Min(maxX + Pad, 260), System.Math.Min(maxY + Pad, 150));
         CustomMinimumSize = new Vector2(0, 0);
+        if (_info is not null)
+        {
+            _info.Text = $"当前：{(string.IsNullOrEmpty(currentType) ? "?" : currentType)}" +
+                         (remainingSegments >= 0 ? $"　剩余 {remainingSegments} 段" : string.Empty) +
+                         $"　已揭示 {revealedSet.Count}/{map.Rooms.Count}";
+        }
+
         _lastSketch = Sketch(map, currentRoomId, revealedSet, pos);
     }
 

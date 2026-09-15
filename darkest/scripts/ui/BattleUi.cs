@@ -691,7 +691,8 @@ public partial class BattleUi : CanvasLayer
                     var outcome = mFlow.StepTo(rid);
                     GD.Print($"[UI 行走] 点击房间 {rid} ⇒ `StepTo` 结果={outcome}（当前房间 {mFlow.CurrentRoomId}：{mFlow.CurrentRoomType}）剩余 {mFlow.RemainingSegmentsToGoal} 段 ✓");
                 };
-                _mfMapWalk.Refresh(mFlow.Map!, mFlow.CurrentRoomId, mFlow.RevealedRoomIds, movable);
+                _mfMapWalk.Refresh(mFlow.Map!, mFlow.CurrentRoomId, mFlow.RevealedRoomIds, movable,
+                    mFlow.RemainingSegmentsToGoal, mFlow.CurrentRoomType);
                 if (_mfMapWalk.LastSketch != _lastMapPageSketch)
                 {
                     _lastMapPageSketch = _mfMapWalk.LastSketch;
