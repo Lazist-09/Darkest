@@ -235,7 +235,7 @@ public partial class HamletRoot : Node2D
             {
                 Name = $"BuildingEntry_{bId}",
                 Text = buildingEntryText, // 入口文案 = 三栋摘要（见下，一次性算好）
-                CustomMinimumSize = new Vector2(220, 34),
+                CustomMinimumSize = new Vector2(176, 30),   // 🔴 收窄（原 220）
             };
             ub.Pressed += () => OpenBuildingPopup(bId);
             ub.MouseEntered += () => ShowBuildingInfo(bId); // 悬停仍给一行摘要（低成本、不占版面）
@@ -280,7 +280,7 @@ public partial class HamletRoot : Node2D
             {
                 Name = $"Sani_{service}",
                 Text = $"Sanitarium·{service}",
-                CustomMinimumSize = new Vector2(230, 32),
+                CustomMinimumSize = new Vector2(186, 30),   // 🔴 收窄（原 230）
             };
             sb.Pressed += () => DoService(service);
             saniRow.AddChild(sb);
@@ -329,6 +329,15 @@ public partial class HamletRoot : Node2D
             CustomMinimumSize = new Vector2(120, 44),
         };
         _menuButton.Pressed += OpenHamletMenu;
+
+        // 🔴 相机 1280 口径（规则①）：**把所有单行长文本 Label 设为"裁切+省略号"** ——
+        //    否则它们的最小宽（= 文本宽）会把整屏撑宽 ⇒ 名册被切（实测 HamletMargin 1397 > 1280）✓
+        foreach (Label l in new[] { _status, _hint, _buildingInfo, _upgradeStatus, _saniStatus, _rosterCount, _rosterTitle, _resourceBar })
+        {
+            l.AutowrapMode = TextServer.AutowrapMode.Off;
+            l.ClipText = true;
+            l.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        }
         bottomRow.AddChild(_menuButton);
 
         var embark = new Button
@@ -1314,7 +1323,7 @@ public partial class HamletRoot : Node2D
                 var b = new Button
                 {
                     Name = $"RosterRow_{id}",
-                    CustomMinimumSize = new Vector2(300, 32),
+                    CustomMinimumSize = new Vector2(232, 32),   // 🔴 相机 1280 口径收窄（原 300）
                     TooltipText = $"{h.Name}　Lv{lv}　士气 {morale}　防御 {dodge}{(canRelief ? "　·可减压" : string.Empty)}",
                 };
                 var rowBody = new HBoxContainer { Name = "RosterRowBody" };
