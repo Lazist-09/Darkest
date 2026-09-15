@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -144,6 +144,12 @@ public partial class BattleUi : CanvasLayer
     /// <summary>地牢面板 #2：**侦察标记**（`ScoutMarkPanel`，两态可区分）。数据：`ExpeditionContext.Flow.LastScout` ✓</summary>
     private Darkest.Ui.ScoutMarkPanel? _mapModeScoutMark;
 
+    /// <summary>地牢面板 #3：**背包**（`InventoryPanel`，含"满则选择丢弃"流程）。数据：`ExpeditionContext.Flow.Bag` ✓</summary>
+    private Darkest.Ui.InventoryPanel? _mapModeInventory;
+
+    /// <summary>已注入的背包实例（判断是否需要重新 `Initialize`，避免每次进模式都清掉面板内部状态）✓</summary>
+    private Darkest.Gameplay.Sim.Run.Inventory? _mapModeInventoryBag;
+
     /// <summary>
     /// 🔴 `#327` 片 2：**逐个把地牢面板挂进地图模式**（宿主 = `DungeonHost()`，在骨架之外 ⇒ 切模式不动骨架）✓
     /// 纪律：数据**只来自本趟流程**（`ExpeditionContext.Flow`，与 `BattleMiniMap` 同一手法）；UI **不重算**任何数字；
@@ -170,17 +176,37 @@ public partial class BattleUi : CanvasLayer
             host.AddChild(_mapModeScoutMark);
         }
 
+        // ③ 背包（面板 #3）：`Initialize(bag, onChanged)` 是它的正式入口（含"满则选择丢弃"流程）✓
+        if (_mapModeInventory is null || !GodotObject.IsInstanceValid(_mapModeInventory))
+        {
+            _mapModeInventory = new Darkest.Ui.InventoryPanel
+            {
+                Name = "MapModeInventory",
+                Visible = true,
+                CustomMinimumSize = new Vector2(0, 128),
+            };
+            host.AddChild(_mapModeInventory);
+        }
+
         if (flow is not null)
         {
             _mapModeLightBar.Refresh(flow.Meter, Darkest.Gameplay.Sim.Run.LightMeter.BoundariesFrom(flow.Tuning.Light!.Tiers)); // 🔴 读数+边界都来自本趟数据
             _mapModeScoutMark.Refresh(flow.LastScout);   // 🔴 单一数据源：本趟侦察结果（null ⇒ 面板自己走空态）✓
-            GD.Print($"[UI 片2] 地图模式：已挂 2 个地牢面板（光照条 ← `Flow.Meter`；侦察标记 ← `Flow.LastScout`，" +
+            if (!ReferenceEquals(_mapModeInventoryBag, flow.Bag))
+            {
+                _mapModeInventoryBag = flow.Bag;
+                _mapModeInventory.Visible = true; // 该面板 `_Ready` 里默认隐藏 ⇒ 入地图模式必须显式显示
+                _mapModeInventory.Initialize(flow.Bag, HostDungeonPanels); // 背包变化 ⇒ 重挂（顺带刷新光照/侦察）✓
+            }
+
+            GD.Print($"[UI 片2] 地图模式：已挂 3 个地牢面板（光照条 ← `Flow.Meter`；侦察标记 ← `Flow.LastScout`；" +
+                     $"背包 ← `Flow.Bag`，{flow.Bag.Slots.Count}/{flow.Bag.SlotCap}，" +
                      $"LastScout={(flow.LastScout is null ? "null（未侦察）" : "有")}）");
         }
         else
         {
             // 🔴 无本趟数据 ⇒ **空态 + 留痕**（红线 21：不留不可解释的空；也不假装有数据）✓
-            GD.Print("[UI 片2] 地图模式：**无本趟流程** ⇒ 2 个地牢面板均为空态（如实报，不假绿）");
+            GD.Print("[UI 片2] 地图模式：**无本趟流程** ⇒ 3 个地牢面板均为空态（如实报，不假绿）");
         }
     }
 
