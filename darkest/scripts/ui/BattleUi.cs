@@ -150,6 +150,9 @@ public partial class BattleUi : CanvasLayer
     /// <summary>已注入的背包实例（判断是否需要重新 `Initialize`，避免每次进模式都清掉面板内部状态）✓</summary>
     private Darkest.Gameplay.Sim.Run.Inventory? _mapModeInventoryBag;
 
+    /// <summary>地牢面板 #4：**本趟投影列表**（`ExpeditionListPanel`）。数据：`ExpeditionProjector.Project/RenderList`（内核投影）✓</summary>
+    private Darkest.Ui.ExpeditionListPanel? _mapModeList;
+
     /// <summary>
     /// 🔴 `#327` 片 2：**逐个把地牢面板挂进地图模式**（宿主 = `DungeonHost()`，在骨架之外 ⇒ 切模式不动骨架）✓
     /// 纪律：数据**只来自本趟流程**（`ExpeditionContext.Flow`，与 `BattleMiniMap` 同一手法）；UI **不重算**任何数字；
@@ -188,10 +191,38 @@ public partial class BattleUi : CanvasLayer
             host.AddChild(_mapModeInventory);
         }
 
+        // ④ 本趟投影列表（面板 #4）：建一次即可（内容由 `Refresh(lines)` 更新）✓
+        if (_mapModeList is null || !GodotObject.IsInstanceValid(_mapModeList))
+        {
+            _mapModeList = new Darkest.Ui.ExpeditionListPanel
+            {
+                Name = "MapModeList",
+                CustomMinimumSize = new Vector2(0, 140),
+            };
+            host.AddChild(_mapModeList);
+        }
+
         if (flow is not null)
         {
             _mapModeLightBar.Refresh(flow.Meter, Darkest.Gameplay.Sim.Run.LightMeter.BoundariesFrom(flow.Tuning.Light!.Tiers)); // 🔴 读数+边界都来自本趟数据
             _mapModeScoutMark.Refresh(flow.LastScout);   // 🔴 单一数据源：本趟侦察结果（null ⇒ 面板自己走空态）✓
+
+            // ④ 本趟投影列表（面板 #4）：**行文只来自内核投影**（`ExpeditionProjector`），UI 不自己拼数字 ✓
+            Darkest.Core.Events.CombatLog? expeditionLog = Darkest.Gameplay.Scene.ExpeditionContext.Log;
+            if (expeditionLog is not null)
+            {
+                Darkest.Gameplay.Sim.Run.ExpeditionViewState view = Darkest.Gameplay.Sim.Run.ExpeditionProjector.Project(
+                    expeditionLog, flow.Bag.CountOf(Darkest.Gameplay.Sim.Run.ItemKind.Firewood),
+                    flow.Bag.CountOf(Darkest.Gameplay.Sim.Run.ItemKind.Food),
+                    flow.Session, flow.Tuning.Camp!, flow.Tuning.Expedition.NBattles, flow.Tuning.Expedition.DifficultyTiers);
+                _mapModeList!.Refresh(Darkest.Gameplay.Sim.Run.ExpeditionProjector.RenderList(
+                    view, flow.Session, flow.Tuning.Expedition.NBattles, ambushTriggered: false, flow.Tuning.Camp!));
+            }
+            else
+            {
+                GD.Print("[UI 片2] 地图模式：`ExpeditionContext.Log` 为空 ⇒ 投影列表为空态（如实报）");
+            }
+
             if (!ReferenceEquals(_mapModeInventoryBag, flow.Bag))
             {
                 _mapModeInventoryBag = flow.Bag;
