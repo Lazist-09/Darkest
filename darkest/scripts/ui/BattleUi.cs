@@ -671,6 +671,18 @@ public partial class BattleUi : CanvasLayer
         _orderBox.AddThemeConstantOverride("separation", 4);
         _topRow.AddChild(_orderBox);
 
+        // 🔴 主程序清单第 3 条：**敌方意图预览**（`BattleRoot.PreviewIntent` ← `BattleProjector.IntentPreview`）
+        //    内部用**固定种子的预览专用 RNG**（与战斗抽数完全隔离）⇒ 预览**绝不消耗抽数**（确定性不变）✓
+        _intentText = new Label
+        {
+            Name = "EnemyIntent",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(0, 22),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+        };
+        _intentText.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
+        _topRow.AddChild(_intentText);
+
         _progressLabel = new Label { Text = "" };
         _progressLabel.AddThemeFontSizeOverride("font_size", 13);
         _progressLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
