@@ -146,7 +146,7 @@ public partial class HamletRoot : Node2D
         var rightPanel = new PanelContainer
         {
             Name = "RightColumn",
-            CustomMinimumSize = new Vector2(320, 0), // 🔴 相机 1280 口径：420 → 320（原值会把整屏撑到 1397 > 1280）
+            CustomMinimumSize = new Vector2(300, 0), // 🔴 相机 1280 口径：420 → 300（320 时实测 1297，仍超 17px）
         };
         body.AddChild(rightPanel);
         var rightCol = new VBoxContainer { Name = "RightCol" };
@@ -639,7 +639,16 @@ public partial class HamletRoot : Node2D
             dTitle.ThemeTypeVariation = Darkest.Ui.DdTheme.TitleVariation; // 🔴 架构裁定②：标题用 Bold
             dCol.AddChild(dTitle);
 
-            var dBody = new HBoxContainer { Name = "DetailBody", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+            // 🔴 用户规则③（§14.0.2）：**二级弹窗必须有显式【退出】按钮**（`Esc` 只作附加出口）✓
+        var dExit = new Button { Name = "DetailExit", Text = "✕ 退出", CustomMinimumSize = new Vector2(110, 34) };
+        dExit.Pressed += () =>
+        {
+            GD.Print("[HamletRoot] 角色详情：✕ 退出 ⇒ 回到城池");
+            CloseHeroDetail();
+        };
+        dCol.AddChild(dExit);
+
+        var dBody = new HBoxContainer { Name = "DetailBody", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
             dBody.AddThemeConstantOverride("separation", 10);
             dCol.AddChild(dBody);
 
