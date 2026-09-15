@@ -565,7 +565,11 @@ public partial class BattleUi : CanvasLayer
         //    （容器负责尺寸 ⇒ 不再写 `BottomRight` 锚点与负偏移）
         _mfPanel = new Panel { Name = "MultiFunctionBox" };
         _mfPanel.Modulate = Darkest.Ui.DdTheme.PanelBgRaised;
-        _eArea.Modulate = Darkest.Ui.DdTheme.Mental; // 🔴 P5：**紫框分区**（DD 图②"右侧紫框=多功能/详情"）✓
+        // 🔴 P5：**紫框分区** —— 同上一律只染边框（不 `Modulate`）✓
+        if (_eArea is Control eCtl)
+        {
+            eCtl.AddThemeStyleboxOverride("panel", Darkest.Ui.DdTheme.MakePanelStyle(null, Darkest.Ui.DdTheme.Mental));
+        }
         _eArea.AddChild(_mfPanel);
 
         var column = new VBoxContainer { Name = "MfColumn" };
@@ -1090,7 +1094,10 @@ public partial class BattleUi : CanvasLayer
         _bottomRow.AddChild(_slotLeft);      // 先加左条 ⇒ 它在最左
         _bottomRow.MoveChild(_slotLeft, 0);
 
-        _cArea.Modulate = Darkest.Ui.DdTheme.Gold;   // 🔴 P5：**橙框分区**（DD 图②"橙框=当前角色+技能选择"）✓
+        // 🔴 P5：**橙框分区** —— ⚠️ 只能用【只染边框】的手段：`Modulate` 是**乘法**，会把整个子树（含文字）压暗
+        //    （实测教训：一度用 `Modulate` 上色 ⇒ "战斗 UI 啥也看不见"）⇒ 正解 = `panel` 样式覆盖，仅换边框色 ✓
+        ((Control)_cArea).AddThemeStyleboxOverride("panel",
+            Darkest.Ui.DdTheme.MakePanelStyle(null, Darkest.Ui.DdTheme.Gold));
 
         // 🔴 P5：**橙框 = 当前角色头像 + 技能选择**（头像留框+色块占位+名字；技能栏在其下）✓
         _actorRow = new HBoxContainer { Name = "CurrentActorRow" };
