@@ -242,6 +242,14 @@ public partial class BattleUi : CanvasLayer
                      $"背包 ← `Flow.Bag`，{flow.Bag.Slots.Count}/{flow.Bag.SlotCap}；投影列表 ← `ExpeditionProjector`，" +
                      $"行数={(listLineCount < 0 ? "无 Log ⇒ 空态" : listLineCount.ToString())}；" +
                      $"LastScout={(flow.LastScout is null ? "null（未侦察）" : "有")}）");
+
+            // 🔴 相位谓词读数（架构 `…PHASE-RULING…`）：**UI 只读谓词、绝不推断相位** ——
+            //    先把谓词变成**可观测读数**，B 类面板（扎营/Curio/选路）挂载时直接消费它 ✓
+            //    ⚠️ 如实说明：**战斗中相位=Battle ⇒ 三个谓词全假** ⇒ B 类面板此刻本就不可见，
+            //       "真显示"要等片 3 把**行走相位**搬进宿主后才能观察（我不做"挂了但观察不到"的假接线）✓
+            GD.Print($"[UI 相位] Phase={flow.Session.Phase}　CanShowCampUi={flow.Session.CanShowCampUi}" +
+                     $"　CanShowPathChoice={flow.Session.CanShowPathChoice}　CanShowCurioUi={flow.Session.CanShowCurioUi}" +
+                     "　（B 类面板：扎营／选路／Curio 按此三者显示；战斗相位下应全假）");
         }
         else
         {
