@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Run;
 using Godot;
@@ -26,12 +26,18 @@ public partial class LightBarPanel : PanelContainer
 
     /// <summary>
     /// 档位**边界视觉标记**（`#272` ③ / `m7_verification` V11 ④）：
-    /// 在 25 / 50 / 75 三处画竖线 + 文字 —— 否则玩家看不出"**再走一步就进 Dark**"，
+    /// 在档位分界处画竖线 + 文字 —— 否则玩家看不出"**再走一步就进 Dark**"，
     /// 而"自选风险"要求玩家能**预判**（看不见边界就无法预判）。
-    /// 🔴 **单一常量源**（主程序 `e70be44` / 改法 A）：**直接引用内核的 `LightMeter.TierBoundaries`** ——
-    ///    此前这里另写一份 `{25,50,75}` ⇒ **跨层两处真值**（只改一处 ⇒ 刻度与判定不符，玩家会按错刻度做决策）⚠️
+    /// 🔴 **边界 = 数据**（策划 `#328`① 裁 (b)：**两侧都读 data** ⇒ 唯一真相）：
+    ///    边界在 `tuning.json: light.tiers` 的每档 `min/max` 里；内核用 `LightMeter.BoundariesFrom(tiers)` 推导 ✓
+    ///    ⇒ 本面板**不再自带任何边界常量**（此前抄过一份 `{25,50,75}`、后又引用过内核常量，两次都是"两处真值"）⚠️
+    ///    ⇒ 现在由**调用方**把 `LightMeter.BoundariesFrom(Tuning.Light.Tiers)` 传进 <see cref="BuildMarks"/>；
+    ///      拿不到就**不画刻度并留痕**（红线 21：不假装有刻度）✓
     /// </summary>
-    public static readonly int[] TierBoundaries = Darkest.Gameplay.Sim.Run.LightMeter.TierBoundaries;
+    private static readonly int[] NoBoundaries = System.Array.Empty<int>();
+
+    private Control _barHost = null!;
+    private int _marksBuiltFor = -1; // 已按哪一组边界画过刻度（避免重复建；也用于留痕）
 
     public override void _Ready()
     {
@@ -42,8 +48,8 @@ public partial class LightBarPanel : PanelContainer
         AddChild(col);
 
         // 第 1 行：光照条 + 档位边界刻度（刻度是"相对条"的仪表 ⇒ 放在一个固定尺寸的宿主里，避免用屏幕坐标）
-        var barHost = new Control { Name = "LightBarHost", CustomMinimumSize = new Vector2(360, 66) };
-        col.AddChild(barHost);
+        _barHost = new Control { Name = "LightBarHost", CustomMinimumSize = new Vector2(360, 66) };
+        col.AddChild(_barHost);
 
         _bar = new ProgressBar
         {
@@ -54,28 +60,9 @@ public partial class LightBarPanel : PanelContainer
             Position = new Vector2(0, 4),
             Size = new Vector2(360, 24),
         };
-        barHost.AddChild(_bar);
+        _barHost.AddChild(_bar);
 
-        // 边界竖线（按条宽等比放在对应百分比处）+ 刻度文字
-        foreach (int boundary in TierBoundaries)
-        {
-            var mark = new ColorRect
-            {
-                Name = $"LightMark{boundary}",
-                Color = new Color(Darkest.Ui.DdTheme.Gold, 0.9f), // 🔴 `§14.4`：边界刻度 = 强调金（不再硬写字面量）
-                Position = new Vector2((int)(360 * boundary / 100.0) - 1, 0),
-                Size = new Vector2(2, 32),
-            };
-            barHost.AddChild(mark);
-
-            var caption = new Label
-            {
-                Name = $"LightMarkText{boundary}",
-                Text = boundary.ToString(),
-                Position = new Vector2((int)(360 * boundary / 100.0) - 6, 32),
-            };
-            barHost.AddChild(caption);
-        }
+        // 🔴 边界刻度**不在这里写死**（见 `BuildMarks`）：由调用方传入 `LightMeter.BoundariesFrom(tiers)`（数据驱动）✓
 
         // 第 2 行：说明文本（当前值 + 档位 + 该档给敌人什么）
         _text = new Label
@@ -87,11 +74,64 @@ public partial class LightBarPanel : PanelContainer
         col.AddChild(_text);
     }
 
-    /// <summary>按内核读数刷新（**只渲染，不计算**）。</summary>
-    public void Refresh(LightMeter meter)
+    /// <summary>按内核读数刷新（**只渲染，不计算**）；`boundaries` 由调用方从**数据**推导（`LightMeter.BoundariesFrom(tiers)`）✓</summary>
+    public void Refresh(LightMeter meter, int[]? boundaries = null)
     {
         _bar.Value = meter.Value;
         _text.Text = Describe(meter.Value, meter.Tier, meter.Effect);
+        BuildMarks(boundaries);
+    }
+
+    /// <summary>
+    /// 画档位边界刻度（**边界来自数据**，不在 UI 写死）。同一组边界只建一次；
+    /// ⚠️ **拿不到边界 ⇒ 不画刻度并留痕**（红线 21：不假装有刻度、也不静默）✓
+    /// </summary>
+    private void BuildMarks(int[]? boundaries)
+    {
+        int[] bs = boundaries ?? NoBoundaries;
+        int key = bs.Length == 0 ? 0 : bs[0] * 1000 + bs[^1] * 10 + bs.Length;
+        if (key == _marksBuiltFor)
+        {
+            return;
+        }
+
+        foreach (Node child in _barHost.GetChildren())
+        {
+            if (child is ColorRect or Label && child.Name.ToString().StartsWith("LightMark", System.StringComparison.Ordinal))
+            {
+                _barHost.RemoveChild(child);
+                child.QueueFree();
+            }
+        }
+
+        _marksBuiltFor = key;
+        if (bs.Length == 0)
+        {
+            GD.Print("[UI 光照条] **未提供档位边界** ⇒ 不画刻度（如实留痕；边界应由 `LightMeter.BoundariesFrom(tiers)` 传入）");
+            return;
+        }
+
+        foreach (int boundary in bs)
+        {
+            var mark = new ColorRect
+            {
+                Name = $"LightMark{boundary}",
+                Color = new Color(Darkest.Ui.DdTheme.Gold, 0.9f), // `§14.4`：边界刻度 = 强调金
+                Position = new Vector2((int)(360 * boundary / 100.0) - 1, 0),
+                Size = new Vector2(2, 32),
+            };
+            _barHost.AddChild(mark);
+
+            var caption = new Label
+            {
+                Name = $"LightMarkText{boundary}",
+                Text = boundary.ToString(),
+                Position = new Vector2((int)(360 * boundary / 100.0) - 6, 32),
+            };
+            _barHost.AddChild(caption);
+        }
+
+        GD.Print($"[UI 光照条] 刻度已按**数据**建立：{string.Join("/", bs)}（来源 `LightMeter.BoundariesFrom(tiers)`）");
     }
 
     /// <summary>

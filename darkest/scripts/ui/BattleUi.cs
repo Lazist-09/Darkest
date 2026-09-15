@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -141,24 +141,46 @@ public partial class BattleUi : CanvasLayer
     /// <summary>地牢面板 #1：**光照条**（`LightBarPanel`）。数据**不新造**：走 `ExpeditionContext.Flow.Meter`（与 `BattleMiniMap` 同法）✓</summary>
     private Darkest.Ui.LightBarPanel? _mapModeLightBar;
 
-    private void HostDungeonLightBar()
+    /// <summary>地牢面板 #2：**侦察标记**（`ScoutMarkPanel`，两态可区分）。数据：`ExpeditionContext.Flow.LastScout` ✓</summary>
+    private Darkest.Ui.ScoutMarkPanel? _mapModeScoutMark;
+
+    /// <summary>
+    /// 🔴 `#327` 片 2：**逐个把地牢面板挂进地图模式**（宿主 = `DungeonHost()`，在骨架之外 ⇒ 切模式不动骨架）✓
+    /// 纪律：数据**只来自本趟流程**（`ExpeditionContext.Flow`，与 `BattleMiniMap` 同一手法）；UI **不重算**任何数字；
+    ///       无本趟数据 ⇒ **空态 + 留痕**（红线 21：不假装有数据、不留不可解释的空）。
+    /// ⚠️ 选面板的判据：**数据在战斗期就存在**才迁 —— 例：`PathChoicePanel` 需要"行走中的 `PathStep`"，
+    ///    战斗里的地图模式没有它 ⇒ 现在挂上去就是空面板（触发红线 21）⇒ **等片 3 把流程驱动搬进宿主后再迁** ✓
+    /// </summary>
+    private void HostDungeonPanels()
     {
         Darkest.Gameplay.Sim.Run.ExpeditionFlow? flow = Darkest.Gameplay.Scene.ExpeditionContext.Flow;
+        Control host = DungeonHost();
+
+        // ① 光照条（面板 #1）
         if (_mapModeLightBar is null || !GodotObject.IsInstanceValid(_mapModeLightBar))
         {
             _mapModeLightBar = new Darkest.Ui.LightBarPanel { Name = "MapModeLightBar" };
-            DungeonHost().AddChild(_mapModeLightBar);
+            host.AddChild(_mapModeLightBar);
+        }
+
+        // ② 侦察标记（面板 #2）
+        if (_mapModeScoutMark is null || !GodotObject.IsInstanceValid(_mapModeScoutMark))
+        {
+            _mapModeScoutMark = new Darkest.Ui.ScoutMarkPanel { Name = "MapModeScoutMark" };
+            host.AddChild(_mapModeScoutMark);
         }
 
         if (flow is not null)
         {
-            _mapModeLightBar.Refresh(flow.Meter); // 🔴 单一数据源：本趟的 `LightMeter`（UI 不重算）✓
-            GD.Print("[UI 片2] 地图模式：已挂【光照条】（数据来自本趟 `ExpeditionContext.Flow.Meter`）");
+            _mapModeLightBar.Refresh(flow.Meter, Darkest.Gameplay.Sim.Run.LightMeter.BoundariesFrom(flow.Tuning.Light!.Tiers)); // 🔴 读数+边界都来自本趟数据
+            _mapModeScoutMark.Refresh(flow.LastScout);   // 🔴 单一数据源：本趟侦察结果（null ⇒ 面板自己走空态）✓
+            GD.Print($"[UI 片2] 地图模式：已挂 2 个地牢面板（光照条 ← `Flow.Meter`；侦察标记 ← `Flow.LastScout`，" +
+                     $"LastScout={(flow.LastScout is null ? "null（未侦察）" : "有")}）");
         }
         else
         {
             // 🔴 无本趟数据 ⇒ **空态 + 留痕**（红线 21：不留不可解释的空；也不假装有数据）✓
-            GD.Print("[UI 片2] 地图模式：**无本趟流程** ⇒ 光照条为空态（如实报，不假绿）");
+            GD.Print("[UI 片2] 地图模式：**无本趟流程** ⇒ 2 个地牢面板均为空态（如实报，不假绿）");
         }
     }
 
@@ -168,7 +190,7 @@ public partial class BattleUi : CanvasLayer
         SetMultiFunctionPage(MapPageIndex);
         // 🔴 片 2 第一步：把**地牢面板 #1（光照条）**挂进地图模式（宿主可见性随模式；骨架不动）✓
         DungeonHost().Visible = true;
-        HostDungeonLightBar();
+        HostDungeonPanels();
         GD.Print($"[UI 模式] 进入【地图模式】　{ModeAudit()}");
         GD.Print($"[UI S1] {SkeletonVerdict()}"); // 🔴 切模式后**立即**断言（不是只打印 id）✓
     }

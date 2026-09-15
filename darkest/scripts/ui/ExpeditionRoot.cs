@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Events;
@@ -493,7 +493,7 @@ public partial class ExpeditionRoot : Node
         _campButton.Disabled = !Session.CanCamp; // 灰显依据来自内核（不是 UI 自算）
 
         // 必显 11 光照条（数值 + 档位 + 该档给敌人什么）与 必显 13 侦察标记（两态可区分）
-        _lightBar?.Refresh(Meter!);
+        _lightBar?.Refresh(Meter!, Darkest.Gameplay.Sim.Run.LightMeter.BoundariesFrom(Tuning!.Light!.Tiers)); // 🔴 边界来自数据（#328①(b)）
         _scoutMark?.Refresh(_flow?.LastScout);
     }
 
