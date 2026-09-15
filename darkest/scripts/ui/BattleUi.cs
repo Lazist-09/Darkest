@@ -67,6 +67,7 @@ public partial class BattleUi : CanvasLayer
     private Label _progressLabel = null!;
     private Panel _mfPanel = null!;
     private PanelContainer? _slotLeft;    // 🔴 P5：左长条框 = 5 号位（向左靠齐）✓
+    private Darkest.Ui.LightBarPanel? _topTorch;  // 🔴 P5：正上方火把条（光照，居中）✓
     private PanelContainer? _slotRight;   // 🔴 P5：右长条框 = 6 号位（向右靠齐）✓
     private Label _mfContent = null!;
     private Darkest.Ui.BattleMiniMap? _mfMap;
@@ -403,12 +404,7 @@ public partial class BattleUi : CanvasLayer
         Darkest.Gameplay.Sim.Run.ExpeditionFlow? flow = Darkest.Gameplay.Scene.ExpeditionContext.Flow;
         Control host = DungeonHost();
 
-        // ① 光照条（面板 #1）
-        if (_mapModeLightBar is null || !GodotObject.IsInstanceValid(_mapModeLightBar))
-        {
-            _mapModeLightBar = new Darkest.Ui.LightBarPanel { Name = "MapModeLightBar" };
-            host.AddChild(_mapModeLightBar);
-        }
+        // ① 光照条：**已移到战斗屏【正上方】**（DD 图②）⇒ 此处不再挂第二份（同一读数只显示一处）✓
 
         // ② 侦察标记（面板 #2）
         if (_mapModeScoutMark is null || !GodotObject.IsInstanceValid(_mapModeScoutMark))
@@ -442,7 +438,6 @@ public partial class BattleUi : CanvasLayer
 
         if (flow is not null)
         {
-            _mapModeLightBar.Refresh(flow.Meter, Darkest.Gameplay.Sim.Run.LightMeter.BoundariesFrom(flow.Tuning.Light!.Tiers)); // 🔴 读数+边界都来自本趟数据
             _mapModeScoutMark.Refresh(flow.LastScout);   // 🔴 单一数据源：本趟侦察结果（null ⇒ 面板自己走空态）✓
 
             // ④ 本趟投影列表（面板 #4）：**行文只来自内核投影**（`ExpeditionProjector`），UI 不自己拼数字 ✓
@@ -483,9 +478,9 @@ public partial class BattleUi : CanvasLayer
             }
 
             GD.Print($"[UI 片2] 地图模式面板状态：" +
-                     $"{PanelState("光照条", _mapModeLightBar)}　{PanelState("侦察标记", _mapModeScoutMark)}　" +
+                     $"{PanelState("侦察标记", _mapModeScoutMark)}　" +
                      $"{PanelState("背包", _mapModeInventory)}　{PanelState("投影列表", _mapModeList)}　" +
-                     $"{PanelState("扎营", _mapModeCamp)}" +
+                     $"{PanelState("扎营", _mapModeCamp)}　{PanelState("顶部火把条", _topTorch)}" +
                      "　（**显示/隐藏 + 子控件数** ⇒ 门禁与内容都能自证；隐藏是门禁生效，不是没接）");
 
             // 🔴 相位谓词读数（架构 `…PHASE-RULING…`）：**UI 只读谓词、绝不推断相位** ——
@@ -968,6 +963,14 @@ public partial class BattleUi : CanvasLayer
         _intentText.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
         _topRow.AddChild(_intentText);
 
+        // 🔴 P5（用户参考图②）：**正上方 = 火把条**（光照既是机制、也要"看得见"）—— **居中**放置；
+        //    数据只读本趟 `Flow.Meter`（无本趟 ⇒ 隐藏并留痕）✓
+        //    ⚠️ 与地图模式里那条光照条是**同一个信息** ⇒ **只保留这一条**（地图模式那条收起，避免两处显示同一读数）✓
+        var torchWrap = new CenterContainer { Name = "TorchWrap", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _topRow.AddChild(torchWrap);
+        _topTorch = new Darkest.Ui.LightBarPanel { Name = "TopTorchBar" };
+        torchWrap.AddChild(_topTorch);
+
         _progressLabel = new Label { Text = "" };
         _progressLabel.AddThemeFontSizeOverride("font_size", 13);
         _progressLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
@@ -1410,6 +1413,22 @@ public partial class BattleUi : CanvasLayer
 
         RefreshEnemyIntent(); // 🔴 敌方意图预览（只渲染）✓
         RefreshBackSlots();    // 🔴 P5：左右长条框（5／6 号位）✓
+
+        // 🔴 P5：正上方火把条（只读本趟 `Flow.Meter`；无本趟 ⇒ 隐藏 + 留痕，不编数字）✓
+        Darkest.Gameplay.Sim.Run.ExpeditionFlow? torchFlow = Darkest.Gameplay.Scene.ExpeditionContext.Flow;
+        if (_topTorch is not null)
+        {
+            if (torchFlow is not null)
+            {
+                _topTorch.Visible = true;
+                _topTorch.Refresh(torchFlow.Meter,
+                    Darkest.Gameplay.Sim.Run.LightMeter.BoundariesFrom(torchFlow.Tuning.Light!.Tiers));
+            }
+            else
+            {
+                _topTorch.Visible = false; // 单场战斗（无本趟）⇒ 如实隐藏
+            }
+        }
 
         BattleDirector d = _host.Director;
         BattleProjector p = _host.Projector;
