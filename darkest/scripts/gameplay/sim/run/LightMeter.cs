@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Data;
+using System.Collections.Generic;
 
 namespace Darkest.Gameplay.Sim.Run;
 
@@ -55,32 +56,61 @@ public sealed class LightMeter : ILightMeter
 
     public int Value { get; private set; }
 
-    public LightTier Tier => TierFor(Value);
+    public LightTier Tier => TierFor(Value, _config.Tiers);
 
     public TuningLightEffect Effect => _config.Effects[TierId(Tier)];
 
     /// <summary>
-    /// 🔴 **档位边界的【单一常量源】**（P21 ① 规定"写死"⇒ **不得**改成 data；但**也不得**在别处再写一份）：
-    /// `&gt;75` Radiant ／ `75..51` Dim ／ `50..26` Shadowy ／ `25..1` Dark ／ `0` Black ✓
-    /// ⚠️ UI 侧的 `LightBarPanel` 刻度必须**引用这里**（或至少加一致性用例）——
-    ///    否则只改一处 ⇒ **刻度与判定不符**，而玩家正是照刻度做"再暗一档值不值"的决策 ⚠️
+    /// 🔴 **档位边界 = 数据**（策划 `#328`① 裁 (b)：两侧都读 data ⇒ **唯一真相**）：
+    /// 边界本来就在 `tuning.json` 的 `light.tiers`（每档 `min`/`max`）里 —— 此前**内核没用它**、
+    /// 而在本文件硬写 `>75/>50/>25` ⚠️（UI 侧又抄一份 ⇒ 只改一处就"刻度与判定不符"）✓
+    /// ⇒ 现在按 `tiers` 取档：**Radiant 76..100 ／ Dim 51..75 ／ Shadowy 26..50 ／ Dark 1..25 ／ Black 0** ✓
+    /// （注意：仍**不是**数值改动 ⇒ `tiers` 的现有 min/max 与旧硬编码边界**逐一等价** ✓）
     /// </summary>
-    public const int RadiantMinExclusive = 75;
-    public const int DimMinExclusive = 50;
-    public const int ShadowyMinExclusive = 25;
-
-    /// <summary>三个边界值（供 UI 刻度/用例引用；顺序 = 由亮到暗）✓</summary>
-    public static readonly int[] TierBoundaries = { ShadowyMinExclusive, DimMinExclusive, RadiantMinExclusive };
-
-    /// <summary>边界取档（**边界常量见上**；P21 ① 要求写死，故这里只做命名化，不改语义）✓</summary>
-    public static LightTier TierFor(int value) => value switch
+    public static LightTier TierFor(int value, IReadOnlyList<Darkest.Data.TuningLightTier> tiers)
     {
-        > RadiantMinExclusive => LightTier.Radiant,
-        > DimMinExclusive => LightTier.Dim,
-        > ShadowyMinExclusive => LightTier.Shadowy,
-        > 0 => LightTier.Dark,
+        foreach (Darkest.Data.TuningLightTier t in tiers)
+        {
+            if (value >= t.Min && value <= t.Max)
+            {
+                return TierFromId(t.Id);
+            }
+        }
+
+        // 数据没覆盖 ⇒ 落到黑（例如 value < 0）；**不静默选一个"看起来合理"的档** ✓
+        return LightTier.Black;
+    }
+
+    /// <summary>档位 id（data）→ 枚举 ✓</summary>
+    public static LightTier TierFromId(string id) => id switch
+    {
+        "radiant" => LightTier.Radiant,
+        "dim" => LightTier.Dim,
+        "shadowy" => LightTier.Shadowy,
+        "dark" => LightTier.Dark,
         _ => LightTier.Black,
     };
+
+    /// <summary>
+    /// 🔴 **UI 刻度用**：由 `light.tiers` 推出的边界值（除最亮档外，每档的 `max`）——
+    /// UI 侧**必须**用它（或直接读 `tiers`）而不是另写一份数字 ⚠️
+    /// </summary>
+    public static int[] BoundariesFrom(IReadOnlyList<Darkest.Data.TuningLightTier> tiers)
+    {
+        var marks = new List<int>();
+        foreach (Darkest.Data.TuningLightTier t in tiers)
+        {
+            // ⚠️ 排除两种：① 最亮档（max = 100 ⇒ 不是刻度线）② **零宽底档**（black 是 0..0 ⇒ max=0 不是刻度；
+            //    我第一版漏了 ② ⇒ 刻度变成 {0,25,50,75} ⇒ 用例当场抓到 ✓）
+            if (t.Max is > 0 and < 100)
+            {
+                marks.Add(t.Max);
+            }
+        }
+
+        marks.Sort();
+        return marks.ToArray();
+    }
 
     public static string TierId(LightTier tier) => tier switch
     {

@@ -38,15 +38,15 @@ public sealed class LightMeterTests
     [TestMethod]
     public void D0_TierBoundaries_AreWrittenDown()
     {
-        Assert.AreEqual(LightTier.Radiant, LightMeter.TierFor(100));
-        Assert.AreEqual(LightTier.Radiant, LightMeter.TierFor(76), ">75 = Radiant");
-        Assert.AreEqual(LightTier.Dim, LightMeter.TierFor(75), "75 = Dim（边界归下档）");
-        Assert.AreEqual(LightTier.Dim, LightMeter.TierFor(51));
-        Assert.AreEqual(LightTier.Shadowy, LightMeter.TierFor(50), "50 = Shadowy");
-        Assert.AreEqual(LightTier.Shadowy, LightMeter.TierFor(26));
-        Assert.AreEqual(LightTier.Dark, LightMeter.TierFor(25), "25 = Dark");
-        Assert.AreEqual(LightTier.Dark, LightMeter.TierFor(1));
-        Assert.AreEqual(LightTier.Black, LightMeter.TierFor(0), "0 = Black");
+        Assert.AreEqual(LightTier.Radiant, LightMeter.TierFor(100, Darkest.Data.TuningConfig.Parse(ReadData("tuning.json")).Light!.Tiers));
+        Assert.AreEqual(LightTier.Radiant, LightMeter.TierFor(76, Darkest.Data.TuningConfig.Parse(ReadData("tuning.json")).Light!.Tiers), ">75 = Radiant");
+        Assert.AreEqual(LightTier.Dim, LightMeter.TierFor(75, Darkest.Data.TuningConfig.Parse(ReadData("tuning.json")).Light!.Tiers), "75 = Dim（边界归下档）");
+        Assert.AreEqual(LightTier.Dim, LightMeter.TierFor(51, Darkest.Data.TuningConfig.Parse(ReadData("tuning.json")).Light!.Tiers));
+        Assert.AreEqual(LightTier.Shadowy, LightMeter.TierFor(50, Darkest.Data.TuningConfig.Parse(ReadData("tuning.json")).Light!.Tiers), "50 = Shadowy");
+        Assert.AreEqual(LightTier.Shadowy, LightMeter.TierFor(26, Darkest.Data.TuningConfig.Parse(ReadData("tuning.json")).Light!.Tiers));
+        Assert.AreEqual(LightTier.Dark, LightMeter.TierFor(25, Darkest.Data.TuningConfig.Parse(ReadData("tuning.json")).Light!.Tiers), "25 = Dark");
+        Assert.AreEqual(LightTier.Dark, LightMeter.TierFor(1, Darkest.Data.TuningConfig.Parse(ReadData("tuning.json")).Light!.Tiers));
+        Assert.AreEqual(LightTier.Black, LightMeter.TierFor(0, Darkest.Data.TuningConfig.Parse(ReadData("tuning.json")).Light!.Tiers), "0 = Black");
     }
 
     [TestMethod]
