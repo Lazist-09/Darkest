@@ -686,7 +686,33 @@ public partial class BattleUi : CanvasLayer
             if (_mfMapWalk.Visible && mFlow is not null)
             {
                 // 🔴 主程序 (A)：把**相邻未探索房间**设为可点（点击 ⇒ 走一格）✓
-                System.Collections.Generic.List<int> movable = mFlow.AdjacentUnexplored().Select(r => r.Id).ToList();
+                // 🔴 (B) ③ 落地：**走格开启时用【瓷砖网格主画面】**（主程序 `TileWalk` 已就绪）——
+                //    格=大方块、相邻可走格之间=走廊小方块；点击格 ⇒ `TryStepTile(dx,dy)`
+                //    （**返回 false = 墙/越界 ⇒ 内核状态零变化**：我只重绘，不改状态）✓
+                if (mFlow.TileWalkEnabled && mFlow.TileWalk is not null)
+                {
+                    Darkest.Ui.MapSketch ts = Darkest.Ui.WalkMapView.FromTileWalk(
+                        mFlow.TileWalk, mFlow.TilePosition, mFlow.RevealedRoomIds,
+                        mFlow.RemainingSegmentsToGoal, mFlow.TileHere);
+                    _mfMapWalk.MovableRooms = ts.Cells.Where(c => c.Movable).Select(c => c.Id).ToList();
+                    _mfMapWalk.OnRoomClicked = id =>
+                    {
+                        Darkest.Ui.SketchCell? cell = ts.Cells.FirstOrDefault(c => c.Id == id);
+                        if (cell is null)
+                        {
+                            return;
+                        }
+
+                        int dx = cell.Depth - mFlow.TilePosition.X;
+                        int dy = cell.Lane - mFlow.TilePosition.Y;
+                        bool moved = mFlow.TryStepTile(dx, dy);
+                        GD.Print($"[UI 走格] 点格 ({cell.Depth},{cell.Lane}) ⇒ `TryStepTile({dx},{dy})`={moved}" +
+                                 $"（现在 {mFlow.TilePosition}：{mFlow.TileHere}　已走 {mFlow.TileStepsTaken} 格）✓");
+                    };
+                    _mfMapWalk.Refresh(ts);
+                }
+                else
+                {                System.Collections.Generic.List<int> movable = mFlow.AdjacentUnexplored().Select(r => r.Id).ToList();
                 _mfMapWalk.MovableRooms = movable;
                 _mfMapWalk.OnRoomClicked = rid =>
                 {
@@ -695,6 +721,7 @@ public partial class BattleUi : CanvasLayer
                 };
                 _mfMapWalk.Refresh(mFlow.Map!, mFlow.CurrentRoomId, mFlow.RevealedRoomIds, movable,
                     mFlow.RemainingSegmentsToGoal, mFlow.CurrentRoomType);
+                }
                 if (_mfMapWalk.LastSketch != _lastMapPageSketch)
                 {
                     _lastMapPageSketch = _mfMapWalk.LastSketch;

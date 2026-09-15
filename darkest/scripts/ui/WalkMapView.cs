@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +22,8 @@ public sealed record MapSketch(
     IReadOnlyList<SketchCell> Cells,
     IReadOnlyList<SketchLink> Links,
     int RemainingSegments,
-    string CurrentType);
+    string CurrentType,
+    (int X, int Y) CurrentTile = default);
 
 /// <summary>
 /// 🔴 `#327` 层④：**DD 式示意地图**（用户要求："**大方块=房间、小方块=走廊**，就那么简单"）。
@@ -121,6 +122,57 @@ public partial class WalkMapView : PanelContainer
 
         var links = map.Edges.Select(e => new SketchLink(e.From, e.To)).ToList();
         return new MapSketch(cells, links, remainingSegments, currentType ?? string.Empty);
+    }
+
+    /// <summary>
+    /// 🔴 **(B) ③ 的适配器**：把主程序已就绪的**瓷砖网格**（`flow.TileWalk`）翻成表现层快照 ✓
+    /// · 格 = 大方块（`Depth=x` · `Lane=y`）· 相邻非墙格之间的连线 = 走廊小方块串 ✓
+    /// · `Movable` = **队伍所在格的 4 邻居**（能不能走由内核 `TryStepTile` 判：**返回 false ⇒ 状态零变化**）✓
+    /// ⚠️ 本方法是**唯一读内核新类型**的地方；渲染类一行不改（这就是上一轮"渲染无关化"的目的）✓
+    /// </summary>
+    public static MapSketch FromTileWalk(
+        Darkest.Gameplay.Sim.Run.DungeonGridDeriver.Derived tw,
+        (int X, int Y) party,
+        IReadOnlyList<int> revealed,
+        int remainingSegments,
+        Darkest.Gameplay.Sim.Run.DungeonTileKind here)
+    {
+        var revealedSet = new HashSet<int>(revealed);
+        var cells = new List<SketchCell>();
+        var links = new List<SketchLink>();
+
+        int Id(int x, int y) => (y * tw.Grid.Width) + x;
+
+        for (int y = 0; y < tw.Grid.Height; y++)
+        {
+            for (int x = 0; x < tw.Grid.Width; x++)
+            {
+                Darkest.Gameplay.Sim.Run.DungeonTileKind kind = tw.Grid.TileAt(x, y);
+                if (kind == Darkest.Gameplay.Sim.Run.DungeonTileKind.Wall)
+                {
+                    continue; // 墙不画（DD 的迷宫就是"画出来的可走格"）✓
+                }
+
+                int roomId = tw.TileRoom.TryGetValue((x, y), out int r) ? r : -1;
+                bool isCurrent = party.X == x && party.Y == y;
+                bool isGoal = tw.Grid.Goal == (x, y);
+                bool adjacent = Math.Abs(party.X - x) + Math.Abs(party.Y - y) == 1;
+                cells.Add(new SketchCell(Id(x, y), x, y, kind.ToString(), revealedSet.Contains(roomId), isCurrent, isGoal, adjacent));
+
+                // 连线只连"右/下"两个方向（避免重复），且两端都不是墙 ✓
+                if (x + 1 < tw.Grid.Width && tw.Grid.TileAt(x + 1, y) != Darkest.Gameplay.Sim.Run.DungeonTileKind.Wall)
+                {
+                    links.Add(new SketchLink(Id(x, y), Id(x + 1, y)));
+                }
+
+                if (y + 1 < tw.Grid.Height && tw.Grid.TileAt(x, y + 1) != Darkest.Gameplay.Sim.Run.DungeonTileKind.Wall)
+                {
+                    links.Add(new SketchLink(Id(x, y), Id(x, y + 1)));
+                }
+            }
+        }
+
+        return new MapSketch(cells, links, remainingSegments, here.ToString(), party);
     }
 
     /// <summary>重画（**只吃 `MapSketch`** ⇒ 与内核表示解耦）✓</summary>
