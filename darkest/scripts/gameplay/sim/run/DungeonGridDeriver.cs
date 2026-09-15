@@ -27,12 +27,23 @@ public static class DungeonGridDeriver
     /// <summary>房间之间的走廊间隔（格）✓</summary>
     public const int RoomGap = 1;
 
-    /// <summary>派生产物：网格 + **房间中心** + **格 → 房间 id**（内容引用零改动的关键）✓</summary>
+    /// <summary>
+    /// 🆕 **走廊段**（策划 `#338`① 的"段"在派生网格里的对应物）：
+    /// `From/To` 两端房间 · `Tiles` = 该段的**走廊格序列**（从离开 A 后的第一格 → 进 B 前的最后一格）
+    /// ⇒ 有了**预知长度**，"逐格扣 `floor(acc/剩余格数)`" 才能既**守恒**又**不靠猜** ✓
+    /// </summary>
+    public sealed record CorridorSegment(int From, int To, IReadOnlyList<(int X, int Y)> Tiles)
+    {
+        public int Length => Tiles.Count;
+    }
+
+    /// <summary>派生产物：网格 + **房间中心** + **格 → 房间 id** + **走廊段表**（内容引用零改动的关键）✓</summary>
     public sealed record Derived(
         DungeonGrid Grid,
         (int X, int Y) Start,
         IReadOnlyDictionary<int, (int X, int Y)> RoomCenters,
-        IReadOnlyDictionary<(int X, int Y), int> TileRoom);
+        IReadOnlyDictionary<(int X, int Y), int> TileRoom,
+        IReadOnlyList<CorridorSegment> Segments);
 
     /// <summary>房间类型 ⇒ 瓷砖字符（结构性映射；未登记类型 ⇒ `R`，不静默当成战斗 ✓）</summary>
     public static DungeonTileKind KindForRoomType(string type) => type switch
@@ -81,6 +92,7 @@ public static class DungeonGridDeriver
         }
 
         var tileRoom = new Dictionary<(int X, int Y), int>();
+        var segments = new List<CorridorSegment>();
 
         // ② 挖房间：每个房间一个 RoomSize×RoomSize 格块；记录"格 → 房间"映射 ✓
         foreach (MapRoom room in map.Rooms)
@@ -113,15 +125,18 @@ public static class DungeonGridDeriver
                 continue; // 悬空边（生成器不该产生；此处**不静默造房间** ✓）
             }
 
+            var segTiles = new List<(int X, int Y)>();
             for (int x = Math.Min(a.X, b.X); x <= Math.Max(a.X, b.X); x++)
             {
-                Carve(x, a.Y);
+                Carve(x, a.Y, segTiles);
             }
 
             for (int y = Math.Min(a.Y, b.Y); y <= Math.Max(a.Y, b.Y); y++)
             {
-                Carve(b.X, y);
+                Carve(b.X, y, segTiles);
             }
+
+            segments.Add(new CorridorSegment(e.From, e.To, segTiles));
         }
 
         // ④ 起点/终点：房间中心；终点中心改写为 `G` ✓
@@ -156,9 +171,9 @@ public static class DungeonGridDeriver
             throw new InvalidOperationException("派生网格：终点与 `G` 格不一致（派生逻辑错误）⇒ 拒绝。");
         }
 
-        return new Derived(grid, start, centers, tileRoom);
+        return new Derived(grid, start, centers, tileRoom, segments);
 
-        void Carve(int x, int y)
+        void Carve(int x, int y, List<(int X, int Y)> segTiles)
         {
             if (x < 0 || y < 0 || x >= width || y >= height)
             {
@@ -172,6 +187,7 @@ public static class DungeonGridDeriver
             }
 
             tiles[(y * width) + x] = DungeonTileKind.Corridor;
+            segTiles.Add((x, y)); // 🆕 记进本段（走廊格序列）✓
         }
     }
 }

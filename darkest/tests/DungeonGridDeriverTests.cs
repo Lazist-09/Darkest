@@ -123,4 +123,47 @@ public sealed class DungeonGridDeriverTests
         Assert.AreEqual(DungeonTileKind.Camp, DungeonGridDeriver.KindForRoomType("camp"));
         Assert.AreEqual(DungeonTileKind.Curio, DungeonGridDeriver.KindForRoomType("treasure"));
     }
+
+    /// <summary>
+    /// 🔴 **走廊段表**（为"逐格扣光"提供**预知长度**）：每段的格序列必须全是**走廊格**，
+    /// 且长度 &gt; 0 的段用 `WalkLightCost` 逐格走完 ⇒ **恰好 = `segmentCost`**（守恒 ✓）
+    /// </summary>
+    [TestMethod]
+    public void CorridorSegments_HaveWalkableTileRuns_AndConserveLightCost()
+    {
+        ExpeditionMap map = NewMap(20260915);
+        DungeonGridDeriver.Derived d = DungeonGridDeriver.Derive(map);
+        Assert.IsTrue(d.Segments.Count > 0, "派生网格必有走廊段（房间之间必有连线）✓");
+
+        int nonEmpty = 0;
+        foreach (DungeonGridDeriver.CorridorSegment seg in d.Segments)
+        {
+            foreach ((int x, int y) t in seg.Tiles)
+            {
+                Assert.AreEqual(DungeonTileKind.Corridor, d.Grid.TileAt(t.x, t.y),
+                    $"段 {seg.From}→{seg.To} 的格 ({t.x},{t.y}) 必须是走廊格（房间格不被走廊覆盖 ✓）");
+                Assert.IsFalse(d.TileRoom.ContainsKey(t), "段的格**不得**落在房间块里 ✓");
+            }
+
+            if (seg.Length == 0)
+            {
+                continue; // 整条 L 路径都在房间块内 ⇒ 该段没有走廊格 ⇒ 行走**不扣光**（守恒口径：只算有格的段 ✓）
+            }
+
+            nonEmpty++;
+            int acc = 30;
+            int total = 0;
+            for (int i = 0; i < seg.Length; i++)
+            {
+                (int deduct, int newAcc) = WalkLightCost.StepCost(acc, seg.Length - i);
+                total += deduct;
+                acc = newAcc;
+            }
+
+            Assert.AreEqual(30, total, $"段 {seg.From}→{seg.To}（{seg.Length} 格）逐格走完 ⇒ 总计必须 = 30 ✓");
+            Assert.AreEqual(0, acc, "走完一段 ⇒ 余额清零（余数不留到下一段）✓");
+        }
+
+        Assert.IsTrue(nonEmpty > 0, "至少有一段**真的有走廊格**（否则说明布局把走廊全埋进房间块了）✓");
+    }
 }
