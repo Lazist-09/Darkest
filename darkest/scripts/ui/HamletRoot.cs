@@ -29,6 +29,9 @@ public partial class HamletRoot : Node2D
 
     /// <summary>🔴 P2：建筑**唯一入口**按钮（三栋共用；明细在二级窗口里切换）✓</summary>
     private Button? _buildingEntry;
+    private Button? _menuButton;                 // 🔴 P2：底部"☰ 菜单"入口 ✓
+    private PanelContainer? _hamletMenu;         // 🔴 P2：城池二级菜单（弹窗）✓
+    private VBoxContainer? _hamletMenuBody;
     private string[] _buildingIds = System.Array.Empty<string>();     // 🔴 P3：左列切换用的同一份清单 ✓
     private string[] _buildingLabels = System.Array.Empty<string>();
     private Label _buildingInfo = null!;
@@ -318,6 +321,16 @@ public partial class HamletRoot : Node2D
         };
         bottomRow.AddChild(_resourceBar);
 
+        // 🔴 P2（用户参考图①）：**最下方资源 UI 可点开【二级菜单】** —— 库存/角色详情/建筑都从这里进 ✓
+        _menuButton = new Button
+        {
+            Name = "HamletMenuButton",
+            Text = "☰ 菜单",
+            CustomMinimumSize = new Vector2(120, 44),
+        };
+        _menuButton.Pressed += OpenHamletMenu;
+        bottomRow.AddChild(_menuButton);
+
         var embark = new Button
         {
             Name = "Embark",
@@ -358,6 +371,11 @@ public partial class HamletRoot : Node2D
         if (bArg is not null)
         {
             OpenBuildingPopup(bArg["--hamlet-building=".Length..]);
+        }
+
+        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-menu"))
+        {
+            OpenHamletMenu(); // 🔴 P2 冒烟：打开城池二级菜单 ✓
         }
 
         if (System.Array.Exists(hamletArgs, a => a == "--hamlet-popup-close"))
@@ -847,6 +865,71 @@ public partial class HamletRoot : Node2D
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// 🔴 P2：**城池二级菜单**（用户参考图①"最下方资源 UI 可点开二级菜单；库存/装备/角色详情/建筑都是二级菜单"）✓
+    /// 纪律（红线 21）：**不可用的项直接不显示**（不留"点了没反应"的禁用），并在日志里**说明为什么少了一项** ✓
+    /// </summary>
+    public void OpenHamletMenu()
+    {
+        if (_hamletMenu is null)
+        {
+            (PanelContainer panel, Label title, VBoxContainer body) = MakePopup("HamletMenu", "☰ 【城池菜单】");
+            _hamletMenu = panel;
+            _hamletMenuBody = body;
+        }
+
+        foreach (Node child in _hamletMenuBody!.GetChildren().ToArray())
+        {
+            _hamletMenuBody.RemoveChild(child);
+            child.QueueFree();
+        }
+
+        // ① 建筑（始终可用）
+        var bBuilding = new Button { Name = "Menu_Building", Text = "🏛 建筑", CustomMinimumSize = new Vector2(320, 34) };
+        bBuilding.Pressed += () =>
+        {
+            _hamletMenu!.Visible = false;
+            OpenBuildingPopup(_buildingIds.Length > 0 ? _buildingIds[0] : "tavern");
+        };
+        _hamletMenuBody.AddChild(bBuilding);
+
+        // ② 角色详情（有名册才可用；用"当前选中"或士气最低者作默认）
+        Roster? rosterNow = ExpeditionContext.Roster;
+        string? heroPick = _selectedHero ?? rosterNow?.Heroes.OrderBy(h => rosterNow.MoraleOf(h.Id)).FirstOrDefault()?.Id;
+        if (heroPick is not null)
+        {
+            var bHero = new Button { Name = "Menu_HeroDetail", Text = "👤 角色详情", CustomMinimumSize = new Vector2(320, 34) };
+            string pick = heroPick;
+            bHero.Pressed += () =>
+            {
+                _hamletMenu!.Visible = false;
+                OpenHeroDetail(pick);
+            };
+            _hamletMenuBody.AddChild(bHero);
+        }
+
+        // ③ 库存（**只在本趟有背包时**才出现 —— 否则不显示，也不假装可用）✓
+        Darkest.Gameplay.Sim.Run.Inventory? bag = ExpeditionContext.Flow?.Bag;
+        if (bag is not null)
+        {
+            var bBag = new Button { Name = "Menu_Inventory", Text = "🎒 库存", CustomMinimumSize = new Vector2(320, 34) };
+            bBag.Pressed += () =>
+            {
+                _hamletMenu!.Visible = false;
+                GD.Print($"[城池菜单] 库存：本趟背包 {bag.Slots.Count}/{bag.SlotCap}（详情面板在远征层；此处先只报读数）");
+            };
+            _hamletMenuBody.AddChild(bBag);
+        }
+        else
+        {
+            GD.Print("[城池菜单] 库存：**本趟无背包**（`ExpeditionContext.Flow` 为空）⇒ 不显示该项（红线 21：不假装可用）✓");
+        }
+
+        _hamletMenu.Visible = true;
+        GD.Print($"[城池菜单] 打开：建筑{(heroPick is null ? "" : " ／ 角色详情")}{(bag is null ? "" : " ／ 库存")}" +
+                 $"（只列**当前可用**项）✓");
     }
 
     /// <summary>🔴 打开**建筑详情弹窗**（二级窗口）：功能 ／ 当前等级 ／ 下一级所需 ／ **升级按钮** ／ 关闭 ✓
