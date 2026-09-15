@@ -683,7 +683,15 @@ public partial class BattleUi : CanvasLayer
             _mfMapWalk.Visible = page == MapPageIndex && topology;
             if (_mfMapWalk.Visible && mFlow is not null)
             {
-                _mfMapWalk.Refresh(mFlow.Map!, mFlow.CurrentRoomId, mFlow.RevealedRoomIds);
+                // 🔴 主程序 (A)：把**相邻未探索房间**设为可点（点击 ⇒ 走一格）✓
+                System.Collections.Generic.List<int> movable = mFlow.AdjacentUnexplored().Select(r => r.Id).ToList();
+                _mfMapWalk.MovableRooms = movable;
+                _mfMapWalk.OnRoomClicked = rid =>
+                {
+                    var outcome = mFlow.StepTo(rid);
+                    GD.Print($"[UI 行走] 点击房间 {rid} ⇒ `StepTo` 结果={outcome}（当前房间 {mFlow.CurrentRoomId}：{mFlow.CurrentRoomType}）剩余 {mFlow.RemainingSegmentsToGoal} 段 ✓");
+                };
+                _mfMapWalk.Refresh(mFlow.Map!, mFlow.CurrentRoomId, mFlow.RevealedRoomIds, movable);
                 if (_mfMapWalk.LastSketch != _lastMapPageSketch)
                 {
                     _lastMapPageSketch = _mfMapWalk.LastSketch;

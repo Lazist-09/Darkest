@@ -28,6 +28,12 @@ public partial class WalkMapView : PanelContainer
     private int _lastKey = -1;
     private string _lastSketch = string.Empty;
 
+    /// <summary>🔴 主程序 (A)：**点相邻房间 ⇒ 移动一格** 的回调 ✓</summary>
+    public Action<int>? OnRoomClicked;
+
+    /// <summary>当前**可移动**的房间 id（= low.AdjacentUnexplored()）✓</summary>
+    public IReadOnlyList<int> MovableRooms = System.Array.Empty<int>();
+
     /// <summary>最近一次文字速写（供日志自证；headless 看不到画面 ⇒ 用文字证明布局与标记 ✓）</summary>
     public string LastSketch => _lastSketch;
 
@@ -38,7 +44,7 @@ public partial class WalkMapView : PanelContainer
     }
 
     /// <summary>重画（数据全来自内核；`revealed` 是"已揭示"集合）✓</summary>
-    public void Refresh(Darkest.Gameplay.Sim.Run.ExpeditionMap map, int currentRoomId, IReadOnlyList<int> revealed)
+    public void Refresh(Darkest.Gameplay.Sim.Run.ExpeditionMap map, int currentRoomId, IReadOnlyList<int> revealed, IReadOnlyList<int>? movable = null)
     {
         // 只在"画的东西会变"时重画（房间/揭示/当前/终点任一变化）——避免每帧重建 ✓
         int key = HashCode.Combine(map.RoomCount, revealed.Count, currentRoomId, map.GoalId, _lastKey == -1 ? 0 : 1);
@@ -122,6 +128,21 @@ public partial class WalkMapView : PanelContainer
                 Position = new Vector2(p.X, p.Y),
                 Size = new Vector2(RoomSize, RoomSize),
             });
+
+            // 🔴 主程序 (A)：**格子上叠一个可点热区** —— 相邻未探索房间才可点（点击 ⇒ 走一格）✓
+            //    视觉仍是 `ColorRect`（不参与"框必须不透明"判据）；热区是扁平透明 Button ✓
+            var hit = new Button
+            {
+                Name = $"RoomHit_{room.Id}",
+                Position = new Vector2(p.X, p.Y),
+                Size = new Vector2(RoomSize, RoomSize),
+                Flat = true,
+                Disabled = !(movable ?? System.Array.Empty<int>()).Contains(room.Id),
+                TooltipText = $"房间 {room.Id}（{room.Type}）" + ((movable ?? System.Array.Empty<int>()).Contains(room.Id) ? "　点击 ⇒ 走一格" : "　（不可达）"),
+            };
+            int rid = room.Id;
+            hit.Pressed += () => OnRoomClicked?.Invoke(rid);
+            _canvas.AddChild(hit);
 
             maxX = Math.Max(maxX, p.X + RoomSize);
             maxY = Math.Max(maxY, p.Y + RoomSize);
