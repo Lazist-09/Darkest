@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -29,6 +29,8 @@ public partial class HamletRoot : Node2D
 
     /// <summary>🔴 P2：建筑**唯一入口**按钮（三栋共用；明细在二级窗口里切换）✓</summary>
     private Button? _buildingEntry;
+    private string[] _buildingIds = System.Array.Empty<string>();     // 🔴 P3：左列切换用的同一份清单 ✓
+    private string[] _buildingLabels = System.Array.Empty<string>();
     private Label _buildingInfo = null!;
     private Label _rosterTitle = null!;
     private VBoxContainer _rosterList = null!; // 🔴 §14：名册竖列的容器（行由 Refresh 填，不再写坐标）
@@ -187,6 +189,8 @@ public partial class HamletRoot : Node2D
         // 🔴 M8.1 建筑区（= 片① 的"中央建筑区"）+ `next_round`③ 消费点 (a)：**按解锁显示**
         string[] upgradable = { "tavern", "abbey", "stagecoach" };
         string[] buildingNames = { "酒馆 Tavern", "修道院 Abbey", "驿站 Stage Coach" };
+        _buildingIds = upgradable;      // 🔴 P3：左列切换用**同一份**清单（不抄第二份）✓
+        _buildingLabels = buildingNames;
         UnlocksConfig unlockCfg = UnlocksConfig.Parse(FileAccess.GetFileAsString(UnlocksConfig.ResPath),
             HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
             CuriosConfig.Parse(FileAccess.GetFileAsString(CuriosConfig.ResPath)).RealCurios
@@ -861,7 +865,38 @@ public partial class HamletRoot : Node2D
             (PanelContainer panel, Label title, VBoxContainer body) = MakePopup("BuildingPopup", "🏛 【建筑】");
             _buildingPopup = panel;
             _buildingPopupTitle = title;
-            _buildingPopupBody = body;
+
+            // 🔴 P3（用户参考图③）：**左列切换建筑** + **店长位留框**　｜　**右侧 = 建筑内容** ✓
+            var split = new HBoxContainer { Name = "BuildingSplit", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+            split.AddThemeConstantOverride("separation", 12);
+            body.AddChild(split);
+
+            var leftCol = new VBoxContainer { Name = "BuildingList", CustomMinimumSize = new Vector2(230, 0) };
+            leftCol.AddThemeConstantOverride("separation", 6);
+            split.AddChild(leftCol);
+
+            // 🔴 **店长位留框**（用户原话"为店长位置留一个空间"）：不透明面板样式(1px 边框) + **色块占位** ⇒ 以后只换里面那格 ✓
+            var shopFrame = new PanelContainer { Name = "ShopkeeperSlot", CustomMinimumSize = new Vector2(0, 96) };
+            leftCol.AddChild(shopFrame);
+            shopFrame.AddChild(new ColorRect { Name = "ShopkeeperPlaceholder", Color = Darkest.Ui.DdTheme.PanelBgRaised });
+
+            for (int k = 0; k < _buildingIds.Length; k++)
+            {
+                string bid = _buildingIds[k];
+                var nav = new Button
+                {
+                    Name = $"BuildingNav_{bid}",
+                    Text = _buildingLabels[k],
+                    CustomMinimumSize = new Vector2(220, 32),
+                };
+                nav.Pressed += () => { _buildingPopupId = bid; RefreshBuildingPopup(); }; // 🔴 左列切换（只换右侧内容）✓
+                leftCol.AddChild(nav);
+            }
+
+            var rightCol = new VBoxContainer { Name = "BuildingContent", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+            rightCol.AddThemeConstantOverride("separation", 6);
+            split.AddChild(rightCol);
+            _buildingPopupBody = rightCol; // 右侧 = 建筑内容（原 `body` 的职责）✓
         }
 
         _buildingPopupId = building;
@@ -941,7 +976,7 @@ public partial class HamletRoot : Node2D
         };
         _buildingPopupBody.AddChild(upgrade);
 
-        _buildingPopupBody.AddChild(PopupLine("提示：点【✕ 关闭】或按 Esc 返回城池。"));
+        // 🔴 P3 文案精简：去掉"怎么关窗"的提示行（关闭按钮与 Esc 已自明）✓
         GD.Print($"[HamletRoot] 建筑弹窗内容：{label} Lv{level}　下一级 {nextText}　可升级={affordable}");
     }
 
