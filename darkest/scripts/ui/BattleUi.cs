@@ -568,7 +568,8 @@ public partial class BattleUi : CanvasLayer
         // 🔴 P5：**紫框分区** —— 同上一律只染边框（不 `Modulate`）✓
         if (_eArea is Control eCtl)
         {
-            eCtl.AddThemeStyleboxOverride("panel", Darkest.Ui.DdTheme.MakePanelStyle(null, Darkest.Ui.DdTheme.Mental));
+            eCtl.AddThemeStyleboxOverride("panel",
+                Darkest.Ui.DdTheme.MakePanelStyle(Darkest.Ui.DdTheme.PanelBgRaised, Darkest.Ui.DdTheme.Mental)); // 🔴 只染边框，不换暗底
         }
         _eArea.CustomMinimumSize = new Vector2(0, 0); // 🔴 相机口径：E 区**可压缩到 0**（否则撑过右长条框 ⇒ 重叠）
         _eArea.AddChild(_mfPanel);
@@ -587,15 +588,14 @@ public partial class BattleUi : CanvasLayer
         _eAreaTitle.CustomMinimumSize = new Vector2(0, 0);
         column.AddChild(_eAreaTitle);
 
+        // 🔴 用户要求：6 号位**集成在紫色多功能框里**（不再单占一个最右长条框）✓
+        _slotRight = new PanelContainer { Name = "BackSlot6InE", CustomMinimumSize = new Vector2(0, 52) };
+        column.AddChild(_slotRight);
+
         _mfPanel.AddChild(column);
 
         // 🔴 P5：右侧 6 号位长条框（**向右靠齐**）—— 加在底栏最后 ✓
-        _slotRight = new PanelContainer
-        {
-            Name = "BackSlot6",
-            CustomMinimumSize = new Vector2(72, 112),   // 🔴 再收（相机 1280 口径）
-            SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd,
-        };
+        // 🔴 用户要求（2026-09-16）：**底部最右框撤掉** ⇒ 6 号位集成进紫色多功能框（`BackSlot6InE`）✓
         _bottomRow.AddChild(_slotRight);
 
         var tabsRow = new HBoxContainer { Name = "MfTabs" };
@@ -1114,8 +1114,10 @@ public partial class BattleUi : CanvasLayer
 
         // 🔴 P5：**橙框分区** —— ⚠️ 只能用【只染边框】的手段：`Modulate` 是**乘法**，会把整个子树（含文字）压暗
         //    （实测教训：一度用 `Modulate` 上色 ⇒ "战斗 UI 啥也看不见"）⇒ 正解 = `panel` 样式覆盖，仅换边框色 ✓
+        // ⚠️ 教训：`MakePanelStyle(null, color)` 的 `null` 会落到**更暗的** `PanelBg` ⇒ 整块发黑（用户实测："紫色框为什么这么黑"）
+        //    ⇒ 正解：**底色保持 raised（与其它面板一致），只换边框色** ✓
         ((Control)_cArea).AddThemeStyleboxOverride("panel",
-            Darkest.Ui.DdTheme.MakePanelStyle(null, Darkest.Ui.DdTheme.Gold));
+            Darkest.Ui.DdTheme.MakePanelStyle(Darkest.Ui.DdTheme.PanelBgRaised, Darkest.Ui.DdTheme.Gold));
 
         // 🔴 P5：**橙框 = 当前角色头像 + 技能选择**（头像留框+色块占位+名字；技能栏在其下）✓
         _actorRow = new HBoxContainer { Name = "CurrentActorRow" };
