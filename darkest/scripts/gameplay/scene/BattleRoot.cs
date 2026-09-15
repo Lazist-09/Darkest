@@ -112,7 +112,7 @@ public partial class BattleRoot : Node2D
             Position = new Vector2(520, 700),
             Size = new Vector2(240, 40),
         };
-        startExpedition.Pressed += () => GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
+        startExpedition.Pressed += () => EnterDungeonInScene(); // 🔴 片 4：场景内进地牢（不再切场景）✓
         AddChild(startExpedition);
 
         // 🔴 M8.0 ③（红线 18）：**回城入口也必须从启动场景可达**
@@ -139,7 +139,7 @@ public partial class BattleRoot : Node2D
             GD.Print("[BattleRoot] --expedition/--e2e ⇒ 直接进入地牢层（端到端冒烟路径：启动 → 进入地牢层选路）");
             // 🔴 必须 **deferred**：`_Ready` 期间父节点正在增删子节点，直接 ChangeSceneToFile 会报
             // 「Parent node is busy adding/removing children」（实测 exit 1）
-            GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
+            EnterDungeonInScene(); // 🔴 片 4：场景内进地牢（不再切场景）✓
         }
 
         // 🔴 冒烟（`#307`⑤ 流程闭环）：`--battle-auto-finish` ⇒ **自动结束本场并自动点【继续（回远征）】**
@@ -285,6 +285,25 @@ public partial class BattleRoot : Node2D
     }
 
     /// <summary>把 UI 绑到当前 `Director`（`NewGame` 与"场景内起远征战斗"共用同一条绑定 ⇒ 不会两处各写一份）✓</summary>
+    /// <summary>
+    /// 🔴🔴 **`#327` 片 4：在【本场景内】进入地牢**（组装流程 + 切地图模式，**不切场景**）
+    /// 组装交给 `ExpeditionComposition.BuildInScene`（从 `ExpeditionRoot` 搬过来的那一段）✓
+    /// </summary>
+    public bool EnterDungeonInScene()
+    {
+        Darkest.Core.Events.CombatLog log = ExpeditionContext.Log ?? new Darkest.Core.Events.CombatLog();
+        ExpeditionComposition.Built built = ExpeditionComposition.BuildInScene(this, log);
+        if (_ui is null)
+        {
+            _ui = GetNode<BattleUi>("BattleUi");
+        }
+
+        _ui.EnterMapMode();
+        GD.Print($"[片4] ✅ **场景内进入地牢**（地图模式）：Phase={built.Flow.Session.Phase}　" +
+                 $"段数={built.Flow.StepsDone}　光照={built.Flow.Meter.Value}　" +
+                 $"CanShowPathChoice={built.Flow.Session.CanShowPathChoice}（应为 True）✓");
+        return true;
+    }
     private void BindUi()
     {
         if (_ui is null)
@@ -640,7 +659,7 @@ public partial class BattleRoot : Node2D
                 Position = new Vector2(540, 660),
                 Size = new Vector2(200, 40),
             };
-            toExpedition.Pressed += () => GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
+            toExpedition.Pressed += () => EnterDungeonInScene(); // 🔴 片 4：场景内进地牢（不再切场景）✓
             AddChild(toExpedition);
             GD.Print($"[BattleRoot] 远征模式：本场结果 {result}，点【继续（回远征）】返回远征界面");
 
