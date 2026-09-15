@@ -97,6 +97,9 @@ public partial class BattleUi : CanvasLayer
     /// 这是"无缝"的**可测定义**：变了 ⇒ 说明发生了场景切换或整体重建 ✗（`--battle-map-mode` 冒烟可复现）✓</summary>
     private string _skeletonAtBind = string.Empty;
 
+    /// <summary>重绑次数（`#327` S1 的多入口断言用：第 2 次起才有"是否被重建"的对比）✓</summary>
+    private int _bindCount;
+
     /// <summary>记录绑定时刻的骨架指纹（`Bind()` 末尾调用）。</summary>
     private void CaptureSkeleton() => _skeletonAtBind = SkeletonFingerprint();
 
@@ -422,7 +425,27 @@ public partial class BattleUi : CanvasLayer
             first.GrabFocus();
         }
 
-        CaptureSkeleton(); // 🔴 `#327` S1：绑定时刻的骨架指纹（供切模式后比对）
+        // 🔴 `#327` S1（**多入口断言**，架构 `…S1-APPROVED…` ③ 的口径升级：
+        //    "凡必须有某个性质的东西，都要在【各入口/模式】下各断言一次"）——
+        //    入口 ① 切模式（`EnterMapMode`/`ExitMapMode`）② **重入 `Bind()`**（再战 / 换一场）
+        //    ⇒ 后者正是"骨架被重建"的历史靶子：这里**每次重绑都自动判定并留痕** ✓
+        {
+            string before = _skeletonAtBind;
+            CaptureSkeleton();
+            _bindCount++;
+            if (before.Length > 0)
+            {
+                bool same = before == _skeletonAtBind;
+                GD.Print(same
+                    ? $"✅ S1（重入 Bind 第 {_bindCount} 次）骨架**未重建**（id 与上次绑定一致）"
+                    : $"🔴 S1（重入 Bind 第 {_bindCount} 次）骨架**被重建**（{before} ⇒ {_skeletonAtBind}）" +
+                      "　⇒ 这正是迁移要消灭的那条（架构 `§9.17` S1）");
+            }
+            else
+            {
+                GD.Print($"[UI S1] 首次绑定（第 {_bindCount} 次）：已记录骨架指纹，重绑/切模式时自动判定 ✓");
+            }
+        }
         // 🔴 冒烟：`--battle-support` ⇒ **真实点击【用支援包】**（与玩家同一条 `Pressed` 路径；红线 26）
         if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-support"))
         {
