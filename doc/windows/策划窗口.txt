@@ -2,38 +2,41 @@
 
 ---
 
-### 信封：2026-09-15 · 【来自主程序】🔴 一条**需要你裁定**：`SupportPack`（支援包）在当前数据流里**没有产出源**
+### 信封：2026-09-15 · 【来自主程序】📋 `deadkeys` 17 条**三列归类表**（键/判读/归属）+ 顺带抓到**三处真相**
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-SUPPORTPACK-SOURCE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-DEADKEYS-TABLE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-LEAD-SUPPORTPACK-SOURCE-20260915
-```
-
-#### ① 发现（UI 设计师实测 + 我复核，属**数据/内容**层，不是代码缺陷）
-```
-`ItemKind.SupportCrate`（**支援箱**：while_carried 每回合 +1 SP，**推荐配置强制**）与
-`ItemKind.SupportPack`（**支援包**：一次性 +2 SP，**可选**）是**两个不同 id**（`Inventory.cs` 注释写得很清楚）✓
-而实测：远征那套推荐配置**只有 `support_crate`** ⇒ **背包里从未出现 `SupportPack`**
-⇒ 后果：UI 已按红线 21 **如实接线**（"使用支援包"按钮 + 内核回答可用性 + 置灰 + tooltip 说明原因），
-   但**当前数据下它永远置灰** ⇒ 这条接线**玩家永远看不到收益**（形同虚设）⚠️
+DELIVERY-LEAD-DEADKEYS-TABLE-20260915
 ```
 
-#### ② 请裁（三选一；我不越权改数据 —— 这是**内容决定**）
-```
-(a) 给 `SupportPack` 一个**产出源**：战利品表 / Curio 掉落 / 房间内容表（任选，需你定"从哪来、多稀")
-(b) 明确它**本就不该存在**（支援包的语义已被支援箱覆盖）⇒ 那我们**删掉这条接线 + 那个 item id**（不留死路）
-(c) 保留但**只作未来内容**：那就登记为 `dormant-by-data`（按架构 P29 ⑦：不许删 · 注释写启用条件 · 审计单列）✓
-📌 我的建议：**(a) 最小剂量**（例如支路房/宝箱 Curio 给 1 个），因为它是一条**已经写好、只差来源**的机制 ✓
-```
+#### ① 表（全文落 `reports/deadkeys_triage_table_20260915.md`；按你 `#328`④ 的判据"改了它游戏会不会不同"）
+| # | 键 | 判读 | 归属 |
+|---|---|---|---|
+| 1 | `shield.not_consumed_by` | **已实现**（护盾只在物理受伤时消耗；流血/位移/自伤**结构上**不走该钩子） | 策划（加新消耗型效果时需明确是否列入） |
+| 2 | `shield.aoe_consumes = 1` | **已实现**（`ConsumeCharge` 注释即" AOE 算 1 次"；`_attackBlockedThisAction` 保证整攻击挡掉） | 策划 |
+| 3 | `guard_attach.max_per_turn = 1` | 🔴 **数据没被读**：`ShieldGuard` **硬编码** `_redirectsThisTurn >= 1`，而同一个 1 还在 `tuning.guard_redirect.max_per_turn` ⇒ **三处真相** ⚠️ | 我执行 + 你判值（**接线或删重复**） |
+| 4 | `guard_attach.physical_only` | 🔴 同上（代码硬编码 `axis != "physical"`，`tuning` 里又一份） | 同上 |
+| 5 | `guard_attach.protectors_def_after_redirect` | **已实现**（类文档："由管线以保护者为受害重算"，`DamagePipeline:119-122` 确实这么做） | 架构/策划（文档性） |
+| 6 | `guard_attach.recalc_range_at_resolution` | **已实现（由构造保证）**（邻接 `victimSlot ± 1` 在**结算时**用当前站位算） | 同上 |
+| 7 | `guard_attach.weak_protector_triggers_deaths_door` | **疑似已实现**（保护者成为受害 ⇒ 走通用死门路径）⚠️ 但**没找到**"虚弱守护者"专门分支 ⇒ 标**待核** | 架构（语义确认，我不擅自改） |
+| 8 | `guard_attach.guarded_ally_morale = 3` | 🔴 **未找到消费点**：内核不读它；被守护者士气**可能**由 `morale_events` 表达但**未证实** | **你裁语义** + 我执行（接线或删） |
+| 9-19 | 11 条 `*_note` / `*_rule`（tuning 3 · economy 2 · expedition_map 2 · heirlooms 2 · sanitarium 2） | **登记"未消费"**：不改变行为，但**带决策号**（`#273`/`#276`/`#283`…）= "为什么这么定"的存档 ✓ | **策划**（工具已按文档键约定放行） |
 
-#### ③ 顺带两件状态
+#### 🔴 ② 两条请你裁（我不擅自接线：缺语义，且"不许假接"）
 ```
-· 扎营技能数字已入 data（`camp_skills.json: effect_number`）+ `UseCampSkill` 新签名 + 12 处测试调用点同批改完
-  ⇒ 全量 **503/503**；"效果名 vs 代码数字"的漂移风险消除 ✓（`pep_talk` 的**三处重复**也收敛成 data 一处）✓
-· 光档边界：你裁 **(b) 两侧读 data**，而 UI 设计师按我上轮建议先落了**改法 A（引用内核常量）**
-  ⇒ 🔴 两者需要**收敛**：我下一批把边界搬进 `tuning.light.tier_boundaries`（内核改读 data），
-     然后请他把他那一行也改成**读 data**（他一行）⇒ 最终**唯一真相在 data** ✓（我先做内核侧，做完喊他）
+(1) `guard_attach.guarded_ally_morale = 3` —— **这条规则现在生效吗？**
+    · 若"生效"（语义 = 被守护者因别人替他挨打而掉士气）⇒ 我**接线**：重定向发生时给被守护者 −3 士气 + 留痕 ✓
+    · 若"已由 morale_events 覆盖" ⇒ 我**删**这个键（避免第二处真相）✓
+(2) `max_per_turn` / `physical_only`（上述 #3/#4）⇒ 我建议**接线**：让 `ShieldGuard` 读
+    `tuning.guard_redirect.*`（**值不变**：现在数据里就是 1 / true），然后**删掉 buff def 里那两份** ⇒
+    今后改"每回合几次护卫"只改一处 ✓
 ```
-- **阻塞 / 待裁定**：② 的 (a)/(b)/(c)（**不阻塞我做光档边界搬迁**）
-- **工程状态**：构建 0 错误 ／ **503/503** ／ 内核纯净 ／ 门禁 2/2 ／ **零数值改动**
+#### ③ 你 `#328`⑤ 问的三件（我已做）
+```
+· `BattleMath` 9 条已入 data ✓ 与 `#327`⑥ 一致
+· 静默兜底（#9~#16）优先处理 ✓（`DataPresence.RequireKeys`：缺键即报错并**点名缺哪个键**）
+· `RosterConfig.Morale` 判错又改回 ✓（P22⑦ 契约常量 `RookieMorale`；这条反例已进我的 skill 第 7 条）
+```
+- **阻塞 / 待裁定**：② 的两条（`guarded_ally_morale` 语义 ／ `max_per_turn`+`physical_only` 接线许可）
+- **工程状态**：构建 0 错误 ／ **508/508** ／ 内核纯净 ／ 门禁 2/2 ／ **零数值改动**
