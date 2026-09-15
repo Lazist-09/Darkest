@@ -20,6 +20,24 @@ public static class ExpeditionContext
     /// <summary>当前进行中的远征流程（null = 不在远征中）。</summary>
     public static ExpeditionFlow? Flow { get; private set; }
 
+    /// <summary>🆕 **片 4**：地牢面板要用的配置（由 `ExpeditionComposition` 组装时一并放入 ⇒ 表现层直接读，**不必自己再解析一份**）✓</summary>
+    public static Darkest.Data.CampSkillsConfig? CampSkills { get; private set; }
+
+    /// <summary>🆕 同上：房间内容表 ✓</summary>
+    public static Darkest.Data.RoomContentsConfig? RoomContents { get; private set; }
+
+    /// <summary>🆕 同上：Curio 目录 ✓</summary>
+    public static Darkest.Data.CuriosConfig? Curios { get; private set; }
+
+    /// <summary>🆕 片 4：由组合根（`ExpeditionComposition`）放入面板配置 ✓</summary>
+    public static void BindConfigs(Darkest.Data.CampSkillsConfig campSkills,
+        Darkest.Data.RoomContentsConfig roomContents, Darkest.Data.CuriosConfig curios)
+    {
+        CampSkills = campSkills;
+        RoomContents = roomContents;
+        Curios = curios;
+    }
+
     /// <summary>本趟远征共用的日志（事件流是唯一事实来源）。</summary>
     public static CombatLog? Log { get; private set; }
 

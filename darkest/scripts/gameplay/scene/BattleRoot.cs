@@ -93,6 +93,12 @@ public partial class BattleRoot : Node2D
         }
 
         // 🔴 片 3 冒烟触发器：`--battle-piece3-exp` ⇒ 由宿主**在场景内**起流程战斗（验证"不再切场景"这条路）✓
+        // 🔴 片 4④：`--dungeon-in-scene` ⇒ **宿主直接进地牢**（用新组装 `ExpeditionComposition`，不经过远征场景）✓
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--dungeon-in-scene"))
+        {
+            EnterDungeonInScene();
+        }
+
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-piece3-exp"))
         {
             StartExpeditionBattleInScene();

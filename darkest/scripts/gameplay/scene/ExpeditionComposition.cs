@@ -127,6 +127,7 @@ public static class ExpeditionComposition
         RoomContentsConfig roomContents = RoomContentsConfig.Parse(
             FileAccess.GetFileAsString(RoomContentsConfig.ResPath), curiosCfg);
 
+        ExpeditionContext.BindConfigs(campSkills, roomContents, curiosCfg); // 🔴 片 4：面板配置进上下文 ⇒ 表现层读一处 ✓
         return new Built(flow, campSkills, rosterCfg, roomContents, curiosCfg, heroSlots);
     }
 }

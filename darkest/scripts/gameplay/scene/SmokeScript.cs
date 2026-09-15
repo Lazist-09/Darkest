@@ -158,6 +158,17 @@ public static class SmokeScript
             case "map:0":
             case "map:1":
             case "map:2":
+                // 🔴 片 4④：**宿主内**（`BattleRoot`）的行走步骤 —— 选第 N 条出路；若该步是战斗步骤 ⇒ **场景内起战斗** ✓
+                if (node is Darkest.Gameplay.Scene.BattleRoot hostMap)
+                {
+                    if (hostMap.MapModeAdvance(step[^1] - '0'))
+                    {
+                        hostMap.StartExpeditionBattleInScene();
+                    }
+
+                    break;
+                }
+
                 PressExpedition(node, c => c.PressMapRoom(step[^1] - '0'));
                 break;
             case "camp":
@@ -186,6 +197,14 @@ public static class SmokeScript
                 break;
             case "town":
                 PressExpedition(node, c => c.PressReturnToTown());
+                break;
+            // 🔴 片 4④：**宿主内的行走步骤**（`dungeon` = 进地牢；`map:N` = 选第 N 条出路 ⇒ 战斗步骤自动起战斗）✓
+            case "dungeon":
+                if (node is Darkest.Gameplay.Scene.BattleRoot br0)
+                {
+                    br0.EnterDungeonInScene();
+                }
+
                 break;
             case "auto":
                 PressBattle(node);
