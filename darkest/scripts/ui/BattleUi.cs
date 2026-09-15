@@ -1522,6 +1522,16 @@ public partial class BattleUi : CanvasLayer
             _eAreaTitle.Visible = _mode == SceneMode.Battle;
         }
 
+        // 🔴 相机 720 口径 + DD 图②：**地图模式下隐藏"战斗专用"顶栏项** ——
+        //    实测地图模式（含本趟流程）下顶栏需求 **1396×105** ⇒ 整屏 1428×907 > 相机 720 ⚠️
+        //    DD 的地图模式本就不显示"本回合顺序/意图/进度/日志" ⇒ 按模式切可见性 ✓
+        bool battleMode = _mode == SceneMode.Battle;
+        _orderBox.Visible = battleMode;
+        if (_intentText is not null) { _intentText.Visible = battleMode; }
+        if (_progressLabel is not null) { _progressLabel.Visible = battleMode; }
+        if (_devLogButton is not null) { _devLogButton.Visible = battleMode; }
+        if (_statusLabel is not null) { _statusLabel.Visible = battleMode; }
+
         // 🔴 P5：正上方火把条（只读本趟 `Flow.Meter`；无本趟 ⇒ 隐藏 + 留痕，不编数字）✓
         Darkest.Gameplay.Sim.Run.ExpeditionFlow? torchFlow = Darkest.Gameplay.Scene.ExpeditionContext.Flow;
         if (_topTorch is not null)
