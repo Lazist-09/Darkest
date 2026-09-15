@@ -1515,6 +1515,13 @@ public partial class BattleUi : CanvasLayer
 
         RefreshBackSlots();    // 🔴 P5：左右长条框（5／6 号位）✓
 
+        // 🔴 相机 1280 口径：**多功能分区标题只在战斗模式显示** —— 地图模式下底栏已由地牢内容占用，
+        //    该标题会与右长条框同排争空间（实测 1 对重叠：`EAreaTitle` ⟷ `BackSlot6Title`，均 y=683）✓
+        if (_eAreaTitle is not null)
+        {
+            _eAreaTitle.Visible = _mode == SceneMode.Battle;
+        }
+
         // 🔴 P5：正上方火把条（只读本趟 `Flow.Meter`；无本趟 ⇒ 隐藏 + 留痕，不编数字）✓
         Darkest.Gameplay.Sim.Run.ExpeditionFlow? torchFlow = Darkest.Gameplay.Scene.ExpeditionContext.Flow;
         if (_topTorch is not null)
