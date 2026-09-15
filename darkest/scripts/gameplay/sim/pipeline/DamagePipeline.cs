@@ -124,6 +124,14 @@ public sealed class DamagePipeline
                     {
                         victim = protector;
                         _log.Append(new EffectEvent(pid, "guard_redirect", 100.0, true));
+                        
+                        // 🔴 **被守护者的代价**（策划 #331①：守护不能纯赚；红线 24 第一形态）——"看着别人替你挨打" ⇒ 士气 −N（+**留痕**）
+                        //    数据 = `tuning.guard_redirect.guarded_ally_morale`（唯一真相）✓
+                        int guardedCost = _balance.Tuning.GuardRedirect.GuardedAllyMorale;
+                        if (guardedCost != 0)
+                        {
+                            _ledger.Apply(target, -guardedCost, "guarded_ally_morale", _log);
+                        }
                     }
                 }
             }

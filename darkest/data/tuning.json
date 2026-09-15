@@ -79,7 +79,7 @@
   "support_slot_morale_per_turn": 3,
   "support_points": { "start": 3, "regen_per_round": 1, "cap": 4, "cost_skill": 2, "cost_reinforce": 2 },
   "affliction_proc_percent": 33,
-  "guard_redirect": { "max_per_turn": 1, "physical_only": true },
+  "guard_redirect": { "max_per_turn": 1, "physical_only": true, "guarded_ally_morale": 3 },
   "overtime_reinforcement": { "trigger_round": 7, "fill_or_buff": "fill_empty_then_buff_present", "buff_attack_delta": 3, "buff_speed_delta": 3, "wave_interval_rounds": 3, "safety_factor": 0.8, "m_value": 7, "measured_d": 21.04, "enemy_full_hp": 110, "elastic": { "enabled": true, "k_rounds": 2, "idle_output_slots": 3, "max_bonus": 3 } },
   "enemy_actions_per_round": 1,
   "bleed": { "per_round_damage": 3, "rounds": 2 },

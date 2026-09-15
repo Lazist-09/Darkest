@@ -59,7 +59,9 @@ public sealed record TuningRetreat(
 /// <summary>护卫（#159；O-22 只挡物理）。M4 消费。</summary>
 public sealed record TuningGuardRedirect(
     [property: JsonPropertyName("max_per_turn")] int MaxPerTurn,
-    [property: JsonPropertyName("physical_only")] bool PhysicalOnly);
+    [property: JsonPropertyName("physical_only")] bool PhysicalOnly,
+    // 🔴 被守护者的**代价**（策划 #331①）："看着别人替你挨打" ⇒ 士气 −N（+留痕）—— 没有它 ⇒ **守护纯赚**（红线 24 第一形态）⚠️
+    [property: JsonPropertyName("guarded_ally_morale")] int GuardedAllyMorale);
 
 /// <summary>超时增援（GDD §1.5.2；#194：首波 trigger_round、此后每 wave_interval_rounds 一波、每波补齐全部空位）。</summary>
 public sealed record TuningOvertimeReinforcement(

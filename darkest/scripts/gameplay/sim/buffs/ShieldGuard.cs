@@ -14,12 +14,18 @@ namespace Darkest.Gameplay.Sim.Buffs;
 public sealed class ShieldGuard
 {
     private readonly IBuffLedger _buffs;
+
+    /// <summary>🔴 护卫参数**来自数据**（`tuning.guard_redirect`；策划 #331②：三处真相收敛成一处）✓</summary>
+    private readonly Darkest.Data.TuningGuardRedirect _cfg;
+
+
     private bool _attackBlockedThisAction;
     private int _redirectsThisTurn;
 
-    public ShieldGuard(IBuffLedger buffs)
+    public ShieldGuard(IBuffLedger buffs, Darkest.Data.TuningGuardRedirect cfg)
     {
         _buffs = buffs ?? throw new System.ArgumentNullException(nameof(buffs));
+        _cfg = cfg ?? throw new System.ArgumentNullException(nameof(cfg));
     }
 
     /// <summary>动作开始：重置"本次攻击已挡"（AOE/多目标整攻击完全无效 #156）。</summary>
@@ -50,7 +56,7 @@ public sealed class ShieldGuard
     /// </summary>
     public UnitId? FindProtector(UnitRuntime victim, FormationBoard teamBoard, int victimSlot, string axis)
     {
-        if (axis != "physical" || _redirectsThisTurn >= 1)
+        if ((_cfg.PhysicalOnly && axis != "physical") || _redirectsThisTurn >= _cfg.MaxPerTurn)
         {
             return null;
         }

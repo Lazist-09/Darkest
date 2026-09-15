@@ -81,7 +81,7 @@ public sealed class ShieldGuardTests
         (BalanceTable balance, MoraleEventsConfig morale, _, _) = Data();
         BuffDefsConfig buffDefs = BuffDefsConfig.Parse(File.ReadAllText(FindDataFile("buff_defs.json")));
         var buffs = new BuffLedger(buffDefs);
-        var shield = new ShieldGuard(buffs);
+        var shield = new ShieldGuard(buffs, new Darkest.Data.TuningGuardRedirect(1, true, 3));
         var log = new CombatLog();
         var pipeline = new DamagePipeline(balance, morale, log, buffs, shield);
 
@@ -109,7 +109,7 @@ public sealed class ShieldGuardTests
         (BalanceTable balance, MoraleEventsConfig morale, _, _) = Data();
         BuffDefsConfig buffDefs = BuffDefsConfig.Parse(File.ReadAllText(FindDataFile("buff_defs.json")));
         var buffs = new BuffLedger(buffDefs);
-        var shield = new ShieldGuard(buffs);
+        var shield = new ShieldGuard(buffs, new Darkest.Data.TuningGuardRedirect(1, true, 3));
         var log = new CombatLog();
         var pipeline = new DamagePipeline(balance, morale, log, buffs, shield);
         pipeline.InitializeMorale(playerBoard());
@@ -135,7 +135,7 @@ public sealed class ShieldGuardTests
         (BalanceTable balance, MoraleEventsConfig morale, _, _) = Data();
         BuffDefsConfig buffDefs = BuffDefsConfig.Parse(File.ReadAllText(FindDataFile("buff_defs.json")));
         var buffs = new BuffLedger(buffDefs);
-        var shield = new ShieldGuard(buffs);
+        var shield = new ShieldGuard(buffs, new Darkest.Data.TuningGuardRedirect(1, true, 3));
         var log = new CombatLog();
         var pipeline = new DamagePipeline(balance, morale, log, buffs, shield);
 
@@ -163,7 +163,7 @@ public sealed class ShieldGuardTests
         (BalanceTable balance, MoraleEventsConfig morale, _, _) = Data();
         BuffDefsConfig buffDefs = BuffDefsConfig.Parse(File.ReadAllText(FindDataFile("buff_defs.json")));
         var buffs = new BuffLedger(buffDefs);
-        var shield = new ShieldGuard(buffs);
+        var shield = new ShieldGuard(buffs, new Darkest.Data.TuningGuardRedirect(1, true, 3));
         var log = new CombatLog();
         var pipeline = new DamagePipeline(balance, morale, log, buffs, shield);
 
@@ -191,7 +191,7 @@ public sealed class ShieldGuardTests
         (BalanceTable balance, MoraleEventsConfig morale, _, _) = Data();
         BuffDefsConfig buffDefs = BuffDefsConfig.Parse(File.ReadAllText(FindDataFile("buff_defs.json")));
         var buffs = new BuffLedger(buffDefs);
-        var shield = new ShieldGuard(buffs);
+        var shield = new ShieldGuard(buffs, new Darkest.Data.TuningGuardRedirect(1, true, 3));
         var log = new CombatLog();
         var pipeline = new DamagePipeline(balance, morale, log, buffs, shield);
 

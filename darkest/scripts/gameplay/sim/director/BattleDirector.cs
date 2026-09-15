@@ -76,7 +76,7 @@ public sealed class BattleDirector
         // 🔴 M7 E3 / #240：**可注入会话级台账** —— `next_battle`（磨刀/加固甲胄）需跨场持久且**单源**；
         // 未注入时行为与从前完全一致（每场自建 → 单场纯、同 seed 可复现）。
         _buffs = sharedBuffs ?? new BuffLedger(buffDefs, log); // G0/O-55：buff 生命周期事件接入事件流
-        _shield = new ShieldGuard(_buffs);
+        _shield = new ShieldGuard(_buffs, balance.Tuning.GuardRedirect); // 🔴 护卫参数来自 data（唯一真相）✓
         _runtime = new SkillRuntimeState();
         _pipeline = new DamagePipeline(balance, moraleEvents, log, _buffs, _shield);
         _executor = new SkillExecutor(skills, balance, moraleEvents, log, _runtime, _buffs);
