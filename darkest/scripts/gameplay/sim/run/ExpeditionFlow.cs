@@ -129,6 +129,109 @@ public sealed class ExpeditionFlow
     /// <summary>拓扑模式：是否已走到终点（主干末房）—— 完成口径的另一半是 `Wins ≥ battle_goal`。</summary>
     public bool ReachedGoal => _map is not null && _currentRoomId == _map.GoalId;
 
+    // ══════════════════════════════════════════════════════════════════════════════════════════
+    // 🆕 **走格**（用户裁 (B)：格内自由走）＋**逐格光照扣除**（策划 `#338`① 的守恒口径）
+    //    🔴 **opt-in**：不开启时，现有"按房间推进"的路径**一行都不受影响** ✓
+    //    🔴 未登记遭遇/视野/陷阱 ⇒ 此处**一律不做**（用户"规则暂留"；契约 P30 ⑤⑥ 也不许填默认值）✓
+    // ══════════════════════════════════════════════════════════════════════════════════════════
+
+    private DungeonWalker? _tileWalker;
+    private Dictionary<(int X, int Y), int>? _tileRoom;
+    private Dictionary<(int X, int Y), (int Segment, int Index, int Length)>? _tileSegAt;
+    private int _tileSegmentCost;
+    private int _tileAcc;
+    private int _tileSegmentId = -1;
+
+    /// <summary>是否已开启走格（表现层据此决定用"格子主画面"还是旧的房间视图）✓</summary>
+    public bool TileWalkEnabled => _tileWalker is not null;
+
+    public (int X, int Y) TilePosition => _tileWalker?.Position ?? (-1, -1);
+
+    public DungeonTileKind TileHere => _tileWalker?.CurrentTile ?? DungeonTileKind.Wall;
+
+    public int TileStepsTaken => _tileWalker?.StepsTaken ?? 0;
+
+    /// <summary>本趟派生出的瓷砖网格（`null` = 未开启走格）✓</summary>
+    public DungeonGridDeriver.Derived? TileWalk { get; private set; }
+
+    /// <summary>
+    /// 🔴 **开启走格**（幂等）：从当前拓扑图**派生**网格，队伍落在**起点房间中心** ✓
+    /// `segmentCost` 由调用方给（**现值** = `tuning.expedition`/`map.move.new_area` = 30 ⇒ 本类不写死）✓
+    /// </summary>
+    public void EnableTileWalk(int segmentCost)
+    {
+        if (_map is null)
+        {
+            throw new InvalidOperationException("未开启拓扑模式（先 `BeginTopology`）⇒ 不能开启走格 ✓");
+        }
+
+        if (_tileWalker is not null)
+        {
+            return; // 幂等 ✓
+        }
+
+        DungeonGridDeriver.Derived d = DungeonGridDeriver.Derive(_map);
+        TileWalk = d;
+        _tileRoom = new Dictionary<(int X, int Y), int>(d.TileRoom);
+        _tileSegAt = new Dictionary<(int X, int Y), (int Segment, int Index, int Length)>();
+        for (int si = 0; si < d.Segments.Count; si++)
+        {
+            DungeonGridDeriver.CorridorSegment seg = d.Segments[si];
+            for (int i = 0; i < seg.Tiles.Count; i++)
+            {
+                _tileSegAt[seg.Tiles[i]] = (si, i, seg.Tiles.Count); // 🔴 预知长度 ⇒ 逐格扣才算得准 ✓
+            }
+        }
+
+        _tileWalker = new DungeonWalker(d.Grid, d.Start);
+        _tileSegmentCost = segmentCost;
+        _tileAcc = 0;
+        _tileSegmentId = -1;
+        _currentRoomId = _map.StartId; // 走格把"当前房间"也带上（`ReachedGoal`/内容判定继续有效）✓
+    }
+
+    /// <summary>
+    /// 🔴 **走一格**（四向）：撞墙/越界 ⇒ `false` 且**状态零变化**（不计步、不扣光、不揭示）✓
+    /// 走廊格 ⇒ 按**本段剩余格数**逐格扣光（余数结转、末格扣清 ⇒ 总扣除恒 = 段数 × `segmentCost`）✓
+    /// 房间格 ⇒ **不扣光**，并把"当前房间"跟到该格所属房间 ✓
+    /// </summary>
+    public bool TryStepTile(int dx, int dy)
+    {
+        if (_tileWalker is null || _tileRoom is null || _tileSegAt is null)
+        {
+            return false;
+        }
+
+        if (!_tileWalker.TryStep(dx, dy))
+        {
+            return false; // 被拒 ⇒ 什么都不变 ✓
+        }
+
+        (int X, int Y) pos = _tileWalker.Position;
+        if (_tileSegAt.TryGetValue(pos, out (int Segment, int Index, int Length) at))
+        {
+            if (at.Segment != _tileSegmentId)
+            {
+                _tileSegmentId = at.Segment;
+                _tileAcc = _tileSegmentCost; // 🔴 进段：acc = 段消耗 ✓
+            }
+
+            int remaining = at.Length - at.Index; // **含本格** ✓
+            (int deduct, int newAcc) = WalkLightCost.StepCost(_tileAcc, remaining);
+            _tileAcc = newAcc;
+            if (deduct > 0)
+            {
+                _meter.TryAdvanceBy(_log, -deduct, "walk"); // 负值 = 前进消耗 ✓
+            }
+        }
+        else if (_tileRoom.TryGetValue(pos, out int roomId))
+        {
+            _currentRoomId = roomId; // 进房间 ⇒ 房间状态跟上（不扣光 ✓）
+        }
+
+        return true;
+    }
+
     /// <summary>
     /// 🔴 策划 `#335`① **命名口径**：`HasReachedGoal`（与既有 `ReachedGoal` 同义，按裁定命名；两者并存只为不破坏既有调用）✓
     /// </summary>
