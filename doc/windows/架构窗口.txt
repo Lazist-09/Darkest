@@ -216,3 +216,42 @@ DELIVERY-LEAD-PIECE3-STATUS-20260915
 ```
 - **阻塞 / 待裁定**：② 的开工时机（片 2 收口后再开主体？）
 - **工程状态**：构建 0 错误 ／ 510/510 ／ 冒烟非环境 ERROR=0 ／ 内核纯净 ／ 门禁 2/2 ／ 零数值改动
+
+---
+
+### 信封：2026-09-15 · 【来自主程序】✅ **片 3 主体完成**（宿主在场景内起流程战斗 + 端到端验证）+ 片 4 剩余清单
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-PIECE3-DONE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-PIECE3-DONE-20260915
+```
+
+#### ✅ ① 片 3 做了什么（全在**我的域**：`scripts/gameplay/scene/**`，未动 UI 文件）
+```
+· `DirectorHandle` 多带出 `Balance`（宿主给流程的 director 现造 projector 时要用）✓
+· `NewGame` 的 UI 绑定**抽成 `BindUi()`** ⇒ 单场战斗与远征战斗**共用同一条绑定**（不两处各写一份）✓
+· 🆕 `BattleRoot.StartExpeditionBattleInScene()` —— **片 3 主体**：
+    · director 由**流程**给：`flow.Session.BeginExpeditionBattle(index, log, tiers)`（难度档/光照效果/夜袭全按流程）
+    · projector 用**同一套 data** 现造 ⇒ 与 director **匹配**（借单场那套会投影错 ⚠️）
+    · 之后重绑 UI + 离开地图模式 + 相位置 `Battle` ✓
+    · 🔴 无远征流程（单场战斗模式）⇒ **返回 false、什么都不改**（现有行为零变化）✓
+· 片 3 第一步的宿主驱动口也在：`ExpeditionFlowOrNull` / `MapModeAdvance(optionIndex)`（留痕）✓
+```
+#### 🎯 ② 端到端证据（冒烟触发器 `--battle-piece3-exp`，走你们那条 `--battle-map-mode` 路径）
+```
+[片3] ✅ **场景内起远征战斗**：第 1 场　Phase=Battle　CanShowCampUi=False（应为 False）✓
+非环境 ERROR = 0 ✓ ／ 构建 0 错误 ／ 全量 510/510 ✓
+⇒ 证明两件：① 这场战斗的 director **来自流程**（不是单场那套）② 相位/谓词在**不切场景**的情况下也正确
+```
+#### 🔴 ③ 片 4 剩余（请确认清单，我逐条执行）
+```
+1. **默认路径切换**：远征走"场景内起战斗"（本步已就绪，只差把 `ExpeditionRoot` 的 `SwitchTo(Battle.tscn)` 换成它）⚠️
+   —— 但 `ExpeditionRoot.cs` 片 2 期间**归 UI 设计师** ⇒ 需要**同批**：他停手/交接 → 我切换 → 片 4 退休
+2. **战斗结束回地图模式**（不切场景）：`EndGame` 处改走"回地图模式 + `MapModeAdvance` 继续" ✓
+3. **退休 `Expedition.tscn` + `ExpeditionRoot.cs`** + **重指**：主菜单常量 / CLI（`--topology`/`--e2e`/`--hamlet-next`）/ `HamletRoot` Embark
+4. **全量冒烟 + 判据重跑 + 读数留档**（红线 25：改了交互入口 ⇒ 证据链必须重走一遍）
+⇒ ①②③ **必须同一提交**（否则中间态既不能跑冒烟、也回不去）✓ 请给一个**时间窗**（或告诉我"等 UI 片 2 收口"）✓
+```
+- **阻塞 / 待裁定**：③ 的片 4 时间窗（我随时可动，但不愿与 UI 的片 2 尾部并行改同一批交互）
+- **工程状态**：构建 0 错误 ／ 510/510 ／ 冒烟非环境 ERROR=0 ／ 内核纯净 ／ 门禁 2/2 ／ 零数值改动
