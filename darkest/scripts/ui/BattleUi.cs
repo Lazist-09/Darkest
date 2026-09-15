@@ -911,9 +911,9 @@ public partial class BattleUi : CanvasLayer
         var uiMargin = new MarginContainer { Name = "BattleMargin" };
         uiMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         uiMargin.AddThemeConstantOverride("margin_left", 10);
-        uiMargin.AddThemeConstantOverride("margin_top", 8);
+        uiMargin.AddThemeConstantOverride("margin_top", 4);   // 🔴 相机 720 口径：8→4（战斗内容需求曾 723，差 3px）
         uiMargin.AddThemeConstantOverride("margin_right", 10);
-        uiMargin.AddThemeConstantOverride("margin_bottom", 8);
+        uiMargin.AddThemeConstantOverride("margin_bottom", 4);   // 🔴 同上
         _uiRoot.AddChild(uiMargin);
 
         var uiCol = new VBoxContainer { Name = "BattleCol" };
