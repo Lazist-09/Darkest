@@ -969,7 +969,7 @@ public partial class BattleUi : CanvasLayer
         _statusLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
         _statusLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; // 占满剩余宽度
         // 🔴 P5（用户参考图②）：**左上 = 任务与撤退** —— 独立成组放在顶栏最左；其余项在其右 ✓
-        _topLeftGroup = new HBoxContainer { Name = "TopLeftGroup", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
+        _topLeftGroup = new HBoxContainer { Name = "TopLeftGroup", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin, SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };
         _topLeftGroup.AddThemeConstantOverride("separation", 8);
         _topRow.AddChild(_topLeftGroup);
 
@@ -991,9 +991,14 @@ public partial class BattleUi : CanvasLayer
         _intentText = new Label
         {
             Name = "EnemyIntent",
-            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            // 🔴 **禁止 autowrap**：实测它在窄分配下折成几百行 ⇒ 把顶栏撑到 3377px ⇒ **整屏 UI 被拉伸到看不见** ⚠️
+            //    ⇒ 单行 + **裁切**（`§14.6`：clip_text / 防溢出防撑爆）；完整内容走 `TooltipText` ✓
+            AutowrapMode = TextServer.AutowrapMode.Off,
+            ClipText = true,
+            TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
             CustomMinimumSize = new Vector2(0, 22),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ShrinkBegin,
         };
         _intentText.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
         _topRow.AddChild(_intentText);
@@ -1001,7 +1006,7 @@ public partial class BattleUi : CanvasLayer
         // 🔴 P5（用户参考图②）：**正上方 = 火把条**（光照既是机制、也要"看得见"）—— **居中**放置；
         //    数据只读本趟 `Flow.Meter`（无本趟 ⇒ 隐藏并留痕）✓
         //    ⚠️ 与地图模式里那条光照条是**同一个信息** ⇒ **只保留这一条**（地图模式那条收起，避免两处显示同一读数）✓
-        var torchWrap = new CenterContainer { Name = "TorchWrap", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        var torchWrap = new CenterContainer { Name = "TorchWrap", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };
         _topRow.AddChild(torchWrap);
         _topTorch = new Darkest.Ui.LightBarPanel { Name = "TopTorchBar" };
         torchWrap.AddChild(_topTorch);
