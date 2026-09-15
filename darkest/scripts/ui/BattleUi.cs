@@ -968,6 +968,11 @@ public partial class BattleUi : CanvasLayer
         _statusLabel = new Label { Text = "" };
         _statusLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
         _statusLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; // 占满剩余宽度
+        // 🔴 相机 1280 口径（规则①）：**长文本 Label 的最小宽 = 文本宽** ⇒ 会把整行撑宽 ⇒ 必须**裁切**（不换行、超出省略）✓
+        _statusLabel.AutowrapMode = TextServer.AutowrapMode.Off;
+        _statusLabel.ClipText = true;
+        _statusLabel.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        _statusLabel.CustomMinimumSize = new Vector2(0, 22);
         // 🔴 P5（用户参考图②）：**左上 = 任务与撤退** —— 独立成组放在顶栏最左；其余项在其右 ✓
         _topLeftGroup = new HBoxContainer { Name = "TopLeftGroup", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin, SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };
         _topLeftGroup.AddThemeConstantOverride("separation", 8);
@@ -1015,6 +1020,9 @@ public partial class BattleUi : CanvasLayer
         _progressLabel.AddThemeFontSizeOverride("font_size", 13);
         _progressLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
         _progressLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        _progressLabel.AutowrapMode = TextServer.AutowrapMode.Off;   // 🔴 同上：长文本裁切，不撑宽整行 ✓
+        _progressLabel.ClipText = true;
+        _progressLabel.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
         _topRow.AddChild(_progressLabel);
 
         _devLogButton = new Button { Text = "日志 F1" };
