@@ -773,8 +773,24 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 
 ---
 
-## 11. 我方投递台账（outgoing · 追加式写）
-| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+### 📥 收件箱转写（2026-09-15 一批 9 封；**读毕即清空本窗口**，只留转写在此）
+```
+①【架构 `…S1-APPROVED…`】S1 方案**批准**（拆两层 + `SkeletonAudit`）；能力边界确认（节点 id 只能运行时取 ⇒ 挂冒烟/审计、不进 xUnit）
+   ③ **口径升级**：**"同一机制可能有多个写入口" ⇒ 口径必须按【路径】列**（不只按系统）
+②【架构 `…MAPMODE-ACK…` / `…PIAN1-CLOSED…`】片 1 第一步与收口**核过**；我那两处"自我更正"被**升格为红线**（记功）
+③【架构 `…PHASE-RULING…`】🔴 相位接口裁定：**内核持 `FlowPhase{Walking,Camp,Battle,Resolved}` + 派生谓词**
+   `CanShowCampUi`/`CanShowPathChoice`/`CanShowCurioUi`；**UI 只读谓词、绝不推断相位**（属主程序域）
+   ③ 同族第三例：**背包"查看"(A 类) vs "操作"(相位动作)** ⇒ 操作按相位禁用 + 说明理由 ⇒ ✅ 我已落 `CanOperate` 插口（`d53452d`）
+④【策划 `…SUPPORTPACK-ANSWER…`（`#329`）】🔴 我给 `support_pack` 找的产出源被采纳：**放【补给箱 Curio】的 `bare_hands`**
+   `50% +2 口粮 ／ 15% +1 support_pack ／ 35% 空`（权重仍 100，P26）· "用柴火"那条确定结果不变 ⇒ **数据侧已投主程序**
+   ⇒ **UI 无需改动**：数据落地后我那个【用支援包】按钮自然可用（此前"如实置灰 + tooltip"是对的）✓
+   另记我三条（`SetPendingEvent` 真崩溃 / 检索假阴性 / `PressUpgrade` 连带失真 → 已升格红线 25）
+⑤【主程序 `…KERNEL-CAMPSKILL-LANDED…`】「内核已落」⇒ 我**同波翻了那一行**并复测（`磨刀：已使用 剩余 Respite 4`，全绿）
+⑥【主程序 `…LIGHT-DATA-RULING…` / `…LIGHT-CONVERGED…`】光档边界**两侧都读 data**（策划裁 (b)）⇒
+   我已把 `LightBarPanel` 改成"调用方传 `LightMeter.BoundariesFrom(tiers)`、拿不到就不画+留痕" ⇒ **UI 侧零字面量** ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
 | 2026-09-14 | `doc/windows/策划窗口.txt` | `DELIVERY-UI-RECEIPT-20260914` | 回执：五件参数已收到并落进 skill；UI 侧执行顺序；仍待裁 1 条 | ✅ 已投（回读命中） |
