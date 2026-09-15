@@ -138,6 +138,69 @@ public partial class BattleUi : CanvasLayer
         return _dungeonHost;
     }
 
+    /// <summary>
+    /// 🔴 `#327` 片 2 #6：把 **【扎营】面板（B 类）**挂进地图模式。
+    /// 铁律：**可见性只读 `Session.CanShowCampUi`**（`blueprint §9.17.0`：内核持相位、UI 只读谓词 ⇒ 绝不推断相位）✓
+    /// 数据与 `ExpeditionRoot` **同源**（`camp_skills.json` + 名册原型映射 + `RespiteLeft` + `Tuning.Camp`），UI 不重算 ✓
+    /// ⚠️ 诚实边界：**战斗相位下谓词为假 ⇒ 面板必然隐藏**；"该显示时显示"要等片 3 的行走相位进宿主后才能观察 ✓
+    /// </summary>
+    private void HostDungeonCampPanel(Darkest.Gameplay.Sim.Run.ExpeditionFlow flow)
+    {
+        if (_mapModeCamp is null || !GodotObject.IsInstanceValid(_mapModeCamp))
+        {
+            _mapModeCamp = new Darkest.Ui.CampSkillPanel { Name = "MapModeCamp", CustomMinimumSize = new Vector2(0, 96) };
+            DungeonHost().AddChild(_mapModeCamp);
+        }
+
+        if (!flow.Session.CanShowCampUi) // 🔴 只读谓词
+        {
+            _mapModeCamp.Visible = false;
+            GD.Print($"[UI 片2] 【扎营】面板：Phase={flow.Session.Phase} ⇒ `CanShowCampUi=False` ⇒ **隐藏**（只读谓词，不推断相位）✓");
+            return;
+        }
+
+        _campSkillsCfgForMap ??= Darkest.Data.CampSkillsConfig.Parse(
+            Godot.FileAccess.GetFileAsString(Darkest.Data.CampSkillsConfig.ResPath));
+        _rosterCfgForMap ??= Darkest.Data.RosterConfig.Parse(
+            Godot.FileAccess.GetFileAsString(Darkest.Data.RosterConfig.ResPath));
+
+        var heroByArchetype = new System.Collections.Generic.Dictionary<string, string>(StringComparer.Ordinal);
+        foreach ((string id, int _, int _, int _) in flow.Session.Roster())
+        {
+            string? archetype = _rosterCfgForMap.Heroes.FirstOrDefault(h => h.Id == id)?.Archetype;
+            if (archetype is not null && !heroByArchetype.ContainsKey(archetype))
+            {
+                heroByArchetype[archetype] = id;
+            }
+        }
+
+        Darkest.Data.CampSkillConfig[] usable = _campSkillsCfgForMap.Skills
+            .Where(s => Darkest.Data.CampSkillsConfig.ConsumedEffectNames.Contains(s.Effect)) // 只列已接线（红线 21）
+            .ToArray();
+        Darkest.Core.Events.CombatLog? log = Darkest.Gameplay.Scene.ExpeditionContext.Log;
+
+        _mapModeCamp.Visible = true;
+        _mapModeCamp.Refresh(
+            usable,
+            heroOf: s => heroByArchetype.TryGetValue(s.OwnerUnit, out string? hero) ? hero : null,
+            affordOf: s => flow.Session.RespiteLeft >= s.Cost,
+            useOf: (s, target) =>
+            {
+                if (log is null)
+                {
+                    GD.Print("[UI 片2] 扎营：无 `ExpeditionContext.Log` ⇒ 不执行（如实拒绝）");
+                    return;
+                }
+
+                bool used = flow.Session.UseCampSkill(log, s, Darkest.Core.Contracts.UnitId.Of(target), flow.Tuning.Camp!);
+                GD.Print($"[UI 片2] 扎营技能 {s.Name}：{(used ? "已使用" : "拒绝")}　剩余 Respite {flow.Session.RespiteLeft}");
+                HostDungeonPanels(); // 刷新（点数/可用性变化）
+            },
+            statusText: $"【扎营】Respite {flow.Session.RespiteLeft} 点　可用技能 {usable.Length} 个（只列已接线）");
+
+        GD.Print($"[UI 片2] 【扎营】面板：Phase={flow.Session.Phase} ⇒ **显示**（可用 {usable.Length} 个技能）✓");
+    }
+
     /// <summary>地牢面板 #1：**光照条**（`LightBarPanel`）。数据**不新造**：走 `ExpeditionContext.Flow.Meter`（与 `BattleMiniMap` 同法）✓</summary>
     private Darkest.Ui.LightBarPanel? _mapModeLightBar;
 
@@ -155,6 +218,11 @@ public partial class BattleUi : CanvasLayer
 
     /// <summary>地牢面板 #4：**本趟投影列表**（`ExpeditionListPanel`）。数据：`ExpeditionProjector.Project/RenderList`（内核投影）✓</summary>
     private Darkest.Ui.ExpeditionListPanel? _mapModeList;
+
+    /// <summary>🔴 `#327` 片 2 #6：**扎营**面板（B 类）—— 内容已独立化（`CampSkillPanel`），可见性**只读** `Session.CanShowCampUi` ✓</summary>
+    private Darkest.Ui.CampSkillPanel? _mapModeCamp;
+    private Darkest.Data.CampSkillsConfig? _campSkillsCfgForMap;   // 懒解析（与 `ExpeditionRoot` 同一数据源）
+    private Darkest.Data.RosterConfig? _rosterCfgForMap;           // 懒解析（英雄 id → 原型）
 
     /// <summary>
     /// 🔴 `#327` 片 2：**逐个把地牢面板挂进地图模式**（宿主 = `DungeonHost()`，在骨架之外 ⇒ 切模式不动骨架）✓
@@ -227,6 +295,9 @@ public partial class BattleUi : CanvasLayer
             {
                 GD.Print("[UI 片2] 地图模式：`ExpeditionContext.Log` 为空 ⇒ 投影列表为空态（如实报）");
             }
+
+            // 🔴 片 2 #6：**扎营**面板（B 类）—— 门禁**只读谓词**（UI 绝不推断相位）✓
+            HostDungeonCampPanel(flow);
 
             if (!ReferenceEquals(_mapModeInventoryBag, flow.Bag))
             {
