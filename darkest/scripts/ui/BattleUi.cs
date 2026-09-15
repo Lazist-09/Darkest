@@ -74,6 +74,7 @@ public partial class BattleUi : CanvasLayer
     private HBoxContainer? _actorRow;      // 🔴 P5：橙框"当前角色"行（头像 + 名字）✓
     private ColorRect? _actorPortrait;     // 🔴 P5：当前角色头像**留框**里的色块占位 ✓
     private Label? _actorName;
+    private Label? _eAreaTitle;    // 🔴 P5：E 区分区标题（第0页=角色详情／其余=多功能）✓
     private PanelContainer? _slotRight;   // 🔴 P5：右长条框 = 6 号位（向右靠齐）✓
     private Label _mfContent = null!;
     private Darkest.Ui.BattleMiniMap? _mfMap;
@@ -564,6 +565,12 @@ public partial class BattleUi : CanvasLayer
         //    （容器负责尺寸 ⇒ 不再写 `BottomRight` 锚点与负偏移）
         _mfPanel = new Panel { Name = "MultiFunctionBox" };
         _mfPanel.Modulate = Darkest.Ui.DdTheme.PanelBgRaised;
+        // 🔴 P5（用户参考图②）：**紫框 = 角色详情**（E 区第 0 页）／**右侧 = 多功能框** ⇒ 加**分区标题**一眼可辨 ✓
+        _eAreaTitle = new Label { Name = "EAreaTitle", VerticalAlignment = VerticalAlignment.Center };
+        _eAreaTitle.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        _eAreaTitle.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextAccent);
+        _eArea.AddChild(_eAreaTitle);
+
         _eArea.AddChild(_mfPanel);
 
         var column = new VBoxContainer { Name = "MfColumn" };
