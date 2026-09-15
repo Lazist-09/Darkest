@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -298,6 +298,7 @@ public partial class BattleUi : CanvasLayer
 
     /// <summary>🔴 主程序清单第 3 条：**敌方意图预览**那一行（`_host.PreviewIntent` ⇒ 只渲染，不推断）✓</summary>
     private Label _intentText = null!;
+    private bool _pendingMapMode;   // 🔴 宿主在 Build 之前请求进地图模式 ⇒ 延后到 Bind 之后（修 NRE）
 
     /// <summary>地牢面板 #2：**侦察标记**（`ScoutMarkPanel`，两态可区分）。数据：`ExpeditionContext.Flow.LastScout` ✓</summary>
     private Darkest.Ui.ScoutMarkPanel? _mapModeScoutMark;
@@ -441,6 +442,16 @@ public partial class BattleUi : CanvasLayer
 
     public void EnterMapMode()
     {
+        // 🔴 修 NRE（片 4 宿主内进地牢实测：`BattleRoot._Ready` 会在 `Build()` 之前就调本方法）：
+        //    此时 `_bottomRow`（骨架三行之一）**还没建** ⇒ `DungeonHost()` 会每帧抛 NRE ⚠️
+        //    ⇒ 正解：**延后到 `Bind()` 之后再进地图模式**（不猜、不半建），并**如实留痕** ✓
+        if (_bottomRow is null || _uiRoot is null)
+        {
+            _pendingMapMode = true;
+            GD.Print("[UI 模式] 地图模式请求：**UI 尚未构建**（宿主在 `_Ready` 阶段就调了）⇒ 延后到 `Bind()` 之后 ✓");
+            return;
+        }
+
         _mode = SceneMode.Map;
         SetMultiFunctionPage(MapPageIndex);
         // 🔴 片 2 第一步：把**地牢面板 #1（光照条）**挂进地图模式（宿主可见性随模式；骨架不动）✓
@@ -730,6 +741,8 @@ public partial class BattleUi : CanvasLayer
         }
 
         // 🔴 `#327` 片 1 冒烟：`--battle-map-mode` ⇒ 走**真实模式切换**（不重建骨架）⇒ 打印模式 + 骨架 id 读数 ✓
+        if (_pendingMapMode) { _pendingMapMode = false; GD.Print("[UI 模式] `Bind()` 完成 ⇒ 补进【地图模式】（此前因 UI 未建而延后）✓"); EnterMapMode(); }
+
         if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-map-mode"))
         {
             CallDeferred(nameof(EnterMapMode));
