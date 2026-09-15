@@ -1364,6 +1364,11 @@ public partial class HamletRoot : Node2D
                     Name = "RosterInfo",
                     Text = $"Lv{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压" : string.Empty)}",
                     VerticalAlignment = VerticalAlignment.Center,
+                    // 🔴 相机 1280 口径（规则①）：行内文本**可收缩 + 裁切**（否则长文本把整行撑宽 ⇒ 实测长文本下 4 处越界）✓
+                    SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                    ClipText = true,
+                    TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+                    CustomMinimumSize = new Vector2(0, 0),
                 };
                 info.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
                 rowBody.AddChild(info);
