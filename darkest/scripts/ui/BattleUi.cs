@@ -71,7 +71,7 @@ public partial class BattleUi : CanvasLayer
     private HBoxContainer? _topLeftGroup;         // 🔴 P5：左上"任务与撤退"组 ✓
     private Label? _missionLabel;                 // 🔴 P5：任务文案（只读内核进度）✓
     private string _lastEnemyTipLogged = string.Empty; // 🔴 P5：悬停敌人信息读数（变化才打，避免刷屏）✓
-    private bool _rowsPrinted; // 🔴 行级读数只打一次 ✓
+    private int _rowsPrinted; // 🔴 行级读数打 3 次（早/中/晚）⇒ 能看出"谁在中途长大" ✓
     private Label? _eAreaTitle;           // 🔴 P5：E 区显式标题（第0页=角色详情／其余=多功能）✓
     private HBoxContainer? _actorRow;     // 🔴 P5：橙框"当前角色"行（头像 + 名字）✓
     private ColorRect? _actorPortrait;    // 🔴 P5：当前角色头像留框里的色块占位 ✓
@@ -1125,7 +1125,17 @@ public partial class BattleUi : CanvasLayer
         };
         var cCol = new VBoxContainer { Name = "CCol" };
         cCol.AddThemeConstantOverride("separation", 6);
-        _cArea.AddChild(cCol);
+        // 🔴 相机 720 口径：**C 区（橙框：当前角色 + 技能选择）内容会"中途长大"** ——
+        //    实测 底栏/ C区 需 162 → **438**（我方回合技能填入后）⇒ 底栏整行被顶高 ⚠️
+        //    ⇒ 用 `ScrollContainer` 兜住高度（技能再多也只在框内滚动，不再撑行）✓
+        var cScroll = new ScrollContainer
+        {
+            Name = "CAreaScroll",
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+        };
+        _cArea.AddChild(cScroll);
+        cScroll.AddChild(cCol);
 
         // 🔴 P5（用户参考图②）：**左右各一个长条框放 5／6 号位，向两侧靠齐；其余部分向右靠** ✓
         _slotLeft = new PanelContainer
@@ -1541,9 +1551,9 @@ public partial class BattleUi : CanvasLayer
 
         // 🔴 行级高度读数（诊断工具，用户规则①）：`--ui-rows` ⇒ 打印三行 + 地牢宿主各自的最小尺寸需求
         //    用途：当"整屏需求 > 相机"时，**一眼看出是哪一行在撑**（不靠猜）✓
-        if (Array.Exists(OS.GetCmdlineArgs(), x => x == "--ui-rows") && !_rowsPrinted)
+        if (Array.Exists(OS.GetCmdlineArgs(), x => x == "--ui-rows") && _rowsPrinted < 3 && Engine.GetProcessFrames() % 240 == 1)
         {
-            _rowsPrinted = true;
+            _rowsPrinted++;
             GD.Print($"[UI 行读数] 顶栏 需 {_topRow.GetCombinedMinimumSize()}　主体 需 {_midRow.GetCombinedMinimumSize()}" +
                      $"　底栏 需 {_bottomRow.GetCombinedMinimumSize()}" +
                      (_dungeonHost is not null && GodotObject.IsInstanceValid(_dungeonHost)
