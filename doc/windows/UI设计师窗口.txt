@@ -1,0 +1,44 @@
+﻿
+---
+
+### 信封：2026-09-15 · 【来自主程序】📋 **行走模式（DD 式）表现层钩子清单** —— 你要演什么 → 内核给什么（含"还缺的，我加"）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-WALKING-HOOKS-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-WALKING-HOOKS-20260915
+```
+
+#### ① 背景：用户想要"行走模式模仿 DD 那种"（我按 DD1 的真实形态拆成 6 层）
+```
+DD1 行走 = ①侧视走廊推进（**按你选的下一间一站一站走**，不是自由/格子移动）②火把光照**看得见**（也是机制）
+           ③走廊内**可点物件**（Curio/障碍）④羊皮纸地图（辅助视图：已揭示/当前位置/房间标记）
+           ⑤遭遇→战斗**视觉连续**（我们做更严格的：真·同场景 `#327`）⑥扎营/撤退/夜袭同一套语汇
+🔴 **美术必须自制**：策划 `assets_credits.md` 判据 A1「工程内不得出现任何来自 DD 安装目录的文件」
+   ⇒ 模仿造型/构图可以，**抄文件不行** ⚠️
+```
+#### ② 清单正文（落盘：`reports/presentation_hooks_walking_mode.md`，含"你读什么 / 我保证什么 / 我还缺什么"）
+```
+我逐层对照了**内核真实公开面**（不是凭记忆写），结论：**大部分你已经能读** ✓
+  · 走廊/站位：`flow.IsTopologyMode` / `CurrentRoomId` / `HasVisited(id)` / `AdjacentUnexplored()`
+  · 光照：`flow.Meter.Value` / `.Tier` / `.Effect` / `LightMeter.BoundariesFrom(light.Tiers)`
+  · 地图：`flow.Map.Rooms`（`Id/Depth/Type/IsBranch`）/ `.Edges` / `GoalId` / `flow.ReachedGoal` / `ShortestPathLength(...)`
+  · 相位门禁：`Session.Phase` + `CanShowCampUi`/`CanShowPathChoice`/`CanShowCurioUi`（战斗中必为假，已端到端验证 ✓）
+  · 战斗衔接：`BattleRoot.PreviewIntent(actor)`（**不消耗抽数**）· `BattleRoot.StartExpeditionBattleInScene()`（片 3 ✓）
+  · 扎营/补给：`Session.CanCamp` / `RespiteLeft` / `UseCampSkill(log, skill, unitId, camp)` / `CanAffordFood` / `FinishCamp`
+  · 进度：`StepsDone` / `Wins` / `IsFinished` / `PendingLoot`（**待处理≠丢弃**）/ `TryCollectLoot`
+```
+#### 🔴 ③ 我打算补的三个**只读读数**（都是"免得你自己存状态"，不新增机制）
+```
+① `flow.CurrentCurioId` / `flow.CurioResolved` —— 本间 Curio 是哪件、是否已解决（否则你要自己存"进房时选中的那件"）
+② `flow.NextStepDirection(roomId)` —— 从当前间到目标间的**相对方向**（走廊推进用；确定性、只读）
+③ `flow.RevealedRoomIds` —— 已揭示集合（= `HasVisited` 的集合形态，省得逐间问）
+⇒ 📌 **你若要别的读数**：直接列"**我要演什么**"给我，我按"内核保证口径 + 只读"补 ✓ **别自己推断** ✓
+```
+#### ④ 反向两条约定（避免两处真值）
+```
+1. **不自己推断相位**：显隐一律读 `CanShow*` ✓
+2. **不自己抄数值**：光照刻度读 `BoundariesFrom(light.Tiers)`；Curio/扎营数字读 data ✓
+```
+- **阻塞 / 待裁定**：无（要我补那三个读数就说一声，或直接列你要演的东西）
+- **工程状态**：构建 0 错误 ／ 510/510 ／ 冒烟非环境 ERROR=0 ／ 内核纯净 ／ 门禁 2/2 ／ 零数值改动
