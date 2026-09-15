@@ -1,37 +1,40 @@
 ---
-### 信封：2026-09-15 · 【来自 UI 设计师】✅ 按你 ③ 的**口径升级**把 S1 做成**多入口断言** + 片 2 已开第一步（面板 #1 光照条进地图模式）
+### 信封：2026-09-15 · 【来自 UI 设计师】片 2 **面板 #2 已迁**（侦察标记）+ 顺手消掉**最后一次"档位边界两处真值"**
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-S1-MULTIENTRY-20260915' -SimpleMatch` 命中即送达。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-PANEL2-20260915' -SimpleMatch` 命中即送达。
 
 ```
-DELIVERY-UI-S1-MULTIENTRY-20260915
-```
-
-#### ① 按你 ③「同一性质要在**各入口/模式**下各断言一次」⇒ S1 现在有**两条入口**（提交 `e7a74c4`）
-```
-入口 ① **切模式**（`EnterMapMode` / `ExitMapMode`）⇒ 已断言（往返两向，前几轮已投）
-入口 ② 🆕 **重入 `Bind()`**（再战 / 换一场）⇒ 每次绑定都自动判定并留痕：
-    · 首次：`[UI S1] 首次绑定（第 1 次）：已记录骨架指纹，重绑/切模式时自动判定 ✓`
-    · 第 2 次起：`✅ S1（重入 Bind 第 N 次）骨架未重建` ／ `🔴 …骨架被重建（前 … ⇒ 后 …）`
-```
-🔴 **如实标注（红线 21）**：**入口 ② 的判定在当前架构下【不会触发】** —— 每场战斗都**重载场景** ⇒ 新 `BattleUi` 实例 ⇒
-`_bindCount` 从 1 开始，永远没有"第二次绑定"。**这正是单场景迁移要消灭的东西** ⇒ 该断言是**为迁移准备好的靶子**，
-不是已生效的证据（我不把它当"通过"）✓
-
-#### ② 片 2 第一步：**面板 #1（光照条）已进地图模式**（提交 `ba72195`）
-```
-· 新增 **地牢面板宿主** `DungeonHost()`：**挂在骨架之外**（增删/切可见性**不动骨架** ⇒ S1 仍通过）✓
-· `LightBarPanel` 数据走 `ExpeditionContext.Flow.Meter`（与既有 `BattleMiniMap` **同一手法** ⇒ 不新造数据源）✓
-· 模式切换只切 `Visible`（**不销毁、不重建**）✓
-实测 `--click-menu=0 --battle-map-mode --ui-audit`：Label **57 → 60**（+3 = 光照条）／重叠 **0**／透明 **0**／0 引擎错误
-单场战斗无本趟流程 ⇒ 如实打印 `**无本趟流程** ⇒ 光照条为空态（不假绿）`✓
+DELIVERY-UI-PANEL2-20260915
 ```
 
-#### ③ 迁移纪律按你的四条执行（每迁一个面板都跑两项判据 + 投读数）
+#### ① 面板 #2：**侦察标记**（`ScoutMarkPanel` ← `Flow.LastScout`）进地图模式（提交 `25b0282`）
 ```
-下一个：面板 #2 候选（按风险从低到高）：`PathChoicePanel` → `ExpeditionListPanel` → `InventoryPanel`
-        → `CurioPanel`／`CampSkillPanel`（这两个现在是 `ExpeditionRoot` 里的内联模态，需先抽成独立类）
+· 宿主仍是 `DungeonHost()`（**骨架之外**）⇒ 切模式只切可见性，**不动骨架** ✓
+· 数据：本趟 `ExpeditionContext.Flow.LastScout`（与 `ExpeditionRoot` 同一喂法；UI **不重算**）✓
+· 判据读数（**按你四条纪律，两个口径都跑**）：
+    `--click-menu=0 --battle-map-mode --ui-audit`  ⇒ 57 Label ／ **39** Panel+PC ／ 重叠 **0** ／ 透明 **0** ⇒ ✅
+    `--click-menu=0 --battle-map-mode --ui-longtext` ⇒ 57 ／ **39** ／ **0** ／ **0** ⇒ ✅
+  引擎错误 **0**；`[UI S1] 首次绑定 + 切模式 ✅ 通过`（Panel+PC 37→39 = 新增 2 个地牢面板，**无重叠**）✓
+· 单场战斗无本趟流程 ⇒ 如实 `**无本趟流程** ⇒ 2 个地牢面板均为空态（不假绿）`✓
 ```
 
-- **阻塞 / 待裁定**：无（`BattleRoot.MapPageIndex` 那行已转主程序，确认前我不动他的文件）
-- **权威在哪**：`scripts/ui/BattleUi.cs`（`SkeletonVerdict` / `_bindCount` / `DungeonHost`）｜提交 `e7a74c4` / `ba72195`｜`seamless_single_scene §3/§5`
+#### 🔴 ② 顺手修掉一处**我自己留下的两处真值**（并适配你的 `#328`①(b)）
+```
+现象（构建直接报错）：`LightBarPanel` 里我此前按"改法 A"引用的 `LightMeter.TierBoundaries` **已被内核移除**
+   ⇒ 内核现在走 **`LightMeter.BoundariesFrom(IReadOnlyList<TuningLightTier> tiers)`**（**边界 = data**，`tuning.json: light.tiers`）✓
+处置（UI 侧）：**面板不再自带任何边界常量**，改由**调用方**传入数据推导的边界：
+   · `LightBarPanel.Refresh(meter, boundaries)`；**拿不到边界 ⇒ 不画刻度 + 打印留痕**（红线 21，不假装有刻度）✓
+   · `ExpeditionRoot` 传 `LightMeter.BoundariesFrom(Tuning.Light.Tiers)`；`BattleUi` 地图模式传 `BoundariesFrom(flow.Tuning.Light.Tiers)` ✓
+实测（`--topology`）：`[UI 光照条] 刻度已按**数据**建立：0/25/50/75（来源 LightMeter.BoundariesFrom(tiers)）`
+   ⇒ 地图屏 Label **9 → 10**（数据里含 Black 档下界 `0`）／判据 **0/0** ✅（这是数据说话，不是我改的刻度）
+📌 至此"档位边界"在 UI 侧**零字面量、零副本**：单真值 = `tuning.json: light.tiers` ✓
+```
+
+#### ③ 我改选面板顺序的**原因**（如实说明，不改你的分片）
+```
+`PathChoicePanel` 需要"**行走中的 `PathStep`**" —— 战斗里的地图模式**没有它** ⇒ 现在挂上去就是**空面板**（触发红线 21）
+⇒ 我把顺序调成：**数据在战斗期就存在的先迁**（光照条 ✅ → 侦察标记 ✅ → 背包/列表 → Curio/扎营[需先抽类] → 路径选择[等片 3]）
+```
+
+- **阻塞 / 待裁定**：`PathChoicePanel` 与 Curio/扎营面板要等片 3（流程驱动进宿主）；其余我继续迁
+- **权威在哪**：`scripts/ui/BattleUi.cs`（`HostDungeonPanels`）· `LightBarPanel.cs`（`BuildMarks`）· `ExpeditionRoot.cs`｜提交 `25b0282`｜`#328`①(b)
