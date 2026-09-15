@@ -205,6 +205,41 @@ public partial class BattleUi : CanvasLayer
     private Label? _walkHud;
     private string _lastWalkHud = string.Empty;
 
+    /// <summary>🔴 层④：**DD 式示意地图**（大方块=房间 / 小方块=走廊）—— 数据全只读内核 ✓</summary>
+    private Darkest.Ui.WalkMapView? _walkMap;
+    private string _lastWalkMapSketch = string.Empty;
+
+    /// <summary>层④：把示意地图挂进地图模式（非地图模式 ⇒ 不建/隐藏，如实空态）✓</summary>
+    private void HostDungeonWalkMap(Darkest.Gameplay.Sim.Run.ExpeditionFlow flow)
+    {
+        var map = flow.Map;
+        if (!flow.IsTopologyMode || map is null)
+        {
+            if (_walkMap is not null && GodotObject.IsInstanceValid(_walkMap))
+            {
+                _walkMap.Visible = false;
+            }
+
+            return;
+        }
+
+        if (_walkMap is null || !GodotObject.IsInstanceValid(_walkMap))
+        {
+            _walkMap = new Darkest.Ui.WalkMapView { Name = "MapModeWalkMap" };
+            DungeonHost().AddChild(_walkMap);
+        }
+
+        _walkMap.Visible = true;
+        _walkMap.Refresh(map, flow.CurrentRoomId, flow.RevealedRoomIds);
+
+        // 布局自证：headless 看不到画面 ⇒ 用**文字速写**证明位置与标记（红线 25：不是"看起来像"）✓
+        if (_walkMap.LastSketch != _lastWalkMapSketch)
+        {
+            _lastWalkMapSketch = _walkMap.LastSketch;
+            GD.Print($"[UI 行走地图] {_lastWalkMapSketch}");
+        }
+    }
+
     /// <summary>
     /// 🔴 **行走模式 HUD**（DD 式层②④ 的最小可用版）：**只读**内核读数，不新增机制、不自己算规则：
     /// `flow.CurrentRoomId` / `Map.Rooms`（Id/Depth/Type）· `flow.NextRoomToward(GoalId)` + `MapTraversal.IsAdjacent`
@@ -358,6 +393,9 @@ public partial class BattleUi : CanvasLayer
 
             // 🔴 行走模式 HUD（层②④）：只读内核读数（下一跳 / 到终点 / 已揭示 / 光照档）✓
             HostDungeonWalkHud(flow);
+
+            // 🔴 层④：DD 式示意地图（大方块=房间 / 小方块=走廊）✓
+            HostDungeonWalkMap(flow);
 
             if (!ReferenceEquals(_mapModeInventoryBag, flow.Bag))
             {
