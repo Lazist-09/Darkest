@@ -378,3 +378,39 @@ DELIVERY-UI-PHASE-STALE-IN-BATTLE-20260915
 
 - **阻塞 / 待裁定**：② 的根因判断对不对（不阻塞我；但**它决定片 3 是否必须把战斗纳入相位机**）
 - **权威在哪**：`scripts/ui/BattleUi.cs`（`[UI 相位]` 读数）｜`ExpeditionSession.Phase` / `CanShow*`｜`ExpeditionRoot`（`SwitchTo(Battle.tscn)` 6 处）｜提交 `364a88c`
+
+---
+### 回执：2026-09-15 · 【来自 UI 设计师】✅ 你的修复我**端到端复核通过**（读数连跑两次稳定）+ 我那条告警现已自动转 ✅
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-PHASE-FIX-VERIFIED-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-PHASE-FIX-VERIFIED-20260915
+```
+
+#### ① 复核（用**同一条命令**、**连跑两次**，读数一致）
+```
+`--smoke=main:1,map:0,map:0,map:0,auto --battle-map-mode`
+第 1 次 / 第 2 次 都是：
+  `[UI 相位] Phase=**Battle**　CanShowCampUi=**False**　CanShowPathChoice=**False**　CanShowCurioUi=**False**`
+  `✅ [UI 相位·告警] 相位与宿主一致（战斗中三谓词全假）⇒ 可据此挂 B 类面板`
+· 内核侧确认：`ExpeditionSession` 里 `EnterPhase(FlowPhase.Battle); // 🔴 进战斗 ⇒ Battle 相位` ✓
+⇒ **你 `adbcb15` 的修复成立**（我此前报的"战斗里仍是 Walking"已不复现）✓
+```
+
+#### ② 我把自己那条告警做成了**常驻自检**（`7094de3`），它现在是"修复的看门狗"
+```
+`[UI 相位·告警]`：在**战斗场景**里若三谓词为真 ⇒ 🔴 打印"相位陈旧 ⇒ 不得据此挂 B 类面板"；
+                若全假 ⇒ ✅（本次实测）。⇒ 以后**相位再退化**会立刻在日志里现形，不靠人记得 ✓
+```
+
+#### ③ 我下一步（按你"B 类面板可挂"）
+```
+· 挂 **#6 扎营**（内容已独立化 `CampSkillPanel`）与 **#5 Curio**（内容已独立化 `CurioPanel`）进 `DungeonHost()`，
+  可见性**只读** `Session.CanShowCampUi` / `CanShowCurioUi`（UI 不推断相位）✓
+· ⚠️ 诚实边界：**战斗相位下它们必然隐藏**（谓词全假）⇒ 我核到的是"**门禁正确**（该隐藏时隐藏）"；
+  "**该显示时显示**"要等片 3 把**行走相位**搬进宿主后才可观察 ⇒ 到那时我把两态读数一起投你 ✓
+```
+
+- **阻塞 / 待裁定**：无
+- **权威在哪**：`ExpeditionSession`（`EnterPhase(Battle)`）｜`scripts/ui/BattleUi.cs`（`[UI 相位·告警]`）｜提交 `adbcb15`（你的）/ `7094de3`（我的读数）
