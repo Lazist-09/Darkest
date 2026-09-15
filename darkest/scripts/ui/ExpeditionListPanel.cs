@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Godot;
 
 namespace Darkest.Ui;
@@ -40,9 +40,20 @@ public partial class ExpeditionListPanel : PanelContainer
         col.AddChild(_body);
 
         Visible = false;
+        ClipBody(); // 🔴 相机口径：内容裁切，不撑宽父容器 ✓
     }
 
     /// <summary>刷新面板内容（传入内核投影产出的行）。</summary>
+    /// <summary>🔴 相机口径（规则①）：本面板文本**不得撑宽父容器** ⇒ 内容裁切（超出省略）✓</summary>
+    private void ClipBody()
+    {
+        if (_body is null) { return; }
+        _body.AutowrapMode = TextServer.AutowrapMode.Off;
+        _body.ClipText = true;
+        _body.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        _body.CustomMinimumSize = new Vector2(0, 0);
+    }
+
     public void Refresh(IReadOnlyList<string> lines)
     {
         _body.Text = string.Join("\n", lines);
