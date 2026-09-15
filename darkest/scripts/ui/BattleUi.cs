@@ -71,6 +71,7 @@ public partial class BattleUi : CanvasLayer
     private HBoxContainer? _topLeftGroup;         // 🔴 P5：左上"任务与撤退"组 ✓
     private Label? _missionLabel;                 // 🔴 P5：任务文案（只读内核进度）✓
     private string _lastEnemyTipLogged = string.Empty; // 🔴 P5：悬停敌人信息读数（变化才打，避免刷屏）✓
+    private bool _rowsPrinted; // 🔴 行级读数只打一次 ✓
     private Label? _eAreaTitle;           // 🔴 P5：E 区显式标题（第0页=角色详情／其余=多功能）✓
     private HBoxContainer? _actorRow;     // 🔴 P5：橙框"当前角色"行（头像 + 名字）✓
     private ColorRect? _actorPortrait;    // 🔴 P5：当前角色头像留框里的色块占位 ✓
@@ -1517,6 +1518,18 @@ public partial class BattleUi : CanvasLayer
             {
                 _actorName.Text = "当前角色：等待中（敌方行动）";
             }
+        }
+
+        // 🔴 行级高度读数（诊断工具，用户规则①）：`--ui-rows` ⇒ 打印三行 + 地牢宿主各自的最小尺寸需求
+        //    用途：当"整屏需求 > 相机"时，**一眼看出是哪一行在撑**（不靠猜）✓
+        if (Array.Exists(OS.GetCmdlineArgs(), x => x == "--ui-rows") && !_rowsPrinted)
+        {
+            _rowsPrinted = true;
+            GD.Print($"[UI 行读数] 顶栏 需 {_topRow.GetCombinedMinimumSize()}　主体 需 {_midRow.GetCombinedMinimumSize()}" +
+                     $"　底栏 需 {_bottomRow.GetCombinedMinimumSize()}" +
+                     (_dungeonHost is not null && GodotObject.IsInstanceValid(_dungeonHost)
+                         ? $"　地牢宿主 需 {_dungeonHost.GetCombinedMinimumSize()}" : string.Empty) +
+                     $"　C区 需 {_cArea.GetCombinedMinimumSize()}　E区 需 {(_eArea as Control)?.GetCombinedMinimumSize()}");
         }
 
         RefreshBackSlots();    // 🔴 P5：左右长条框（5／6 号位）✓
