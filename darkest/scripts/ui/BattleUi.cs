@@ -71,6 +71,9 @@ public partial class BattleUi : CanvasLayer
     private HBoxContainer? _topLeftGroup;         // 🔴 P5：左上"任务与撤退"组 ✓
     private Label? _missionLabel;                 // 🔴 P5：任务文案（只读内核进度）✓
     private string _lastEnemyTipLogged = string.Empty; // 🔴 P5：悬停敌人信息读数（变化才打，避免刷屏）✓
+    private HBoxContainer? _actorRow;      // 🔴 P5：橙框"当前角色"行（头像 + 名字）✓
+    private ColorRect? _actorPortrait;     // 🔴 P5：当前角色头像**留框**里的色块占位 ✓
+    private Label? _actorName;
     private PanelContainer? _slotRight;   // 🔴 P5：右长条框 = 6 号位（向右靠齐）✓
     private Label _mfContent = null!;
     private Darkest.Ui.BattleMiniMap? _mfMap;
@@ -1060,6 +1063,18 @@ public partial class BattleUi : CanvasLayer
         cCol.AddThemeConstantOverride("separation", 6);
         _cArea.AddChild(cCol);
 
+        // 🔴 P5（用户参考图②）：**橙框 = 当前角色头像 + 技能选择** —— 头像**留框(色块占位)** + 名字，技能栏在其下 ✓
+        _actorRow = new HBoxContainer { Name = "CurrentActorRow" };
+        _actorRow.AddThemeConstantOverride("separation", 6);
+        cCol.AddChild(_actorRow);
+
+        var actorFrame = new PanelContainer { Name = "CurrentActorFrame", CustomMinimumSize = new Vector2(36, 36) };
+        _actorRow.AddChild(actorFrame);
+        _actorPortrait = new ColorRect { Name = "CurrentActorPlaceholder", Color = Darkest.Ui.DdTheme.PanelBgRaised };
+        actorFrame.AddChild(_actorPortrait);
+        _actorName = new Label { Name = "CurrentActorName", VerticalAlignment = VerticalAlignment.Center };
+        _actorRow.AddChild(_actorName);
+
         // 🔴 P5（用户参考图②）：**左右各一个长条框放 5／6 号位，向两侧靠齐；其余部分向右靠** ✓
         _slotLeft = new PanelContainer
         {
@@ -1431,6 +1446,28 @@ public partial class BattleUi : CanvasLayer
                 ? "任务：单场战斗（无本趟进度）"
                 : $"任务：本趟 第 {mFlow.StepsDone} 步　已胜 {mFlow.Wins}" +
                   (mFlow.IsFinished ? "　（本趟已结束）" : string.Empty);
+        }
+
+        // 🔴 P5：橙框"当前角色"（头像色块 + 名字）—— **只读内核**（`IsAwaitingPlayer` / `ActiveActor`）✓
+        if (_actorName is not null && _host is not null)
+        {
+            if (_host.IsAwaitingPlayer)
+            {
+                UnitProjection? actor = _host.Projector.Units(player: true)
+                    .FirstOrDefault(x => x.UnitId == _host.ActiveActor.Value);
+                string actorName = actor is null ? _host.ActiveActor.Value
+                    : NameOf(actor.Archetype.Length > 0 ? actor.Archetype : actor.UnitId);
+                _actorName.Text = $"当前角色：{actorName}（请选技能）";
+                if (_actorPortrait is not null && actor is not null)
+                {
+                    _actorPortrait.Color = Darkest.Ui.DdTheme.ArchetypeColor(
+                        actor.Archetype.Length > 0 ? actor.Archetype : actor.UnitId, isPlayer: true);
+                }
+            }
+            else
+            {
+                _actorName.Text = "当前角色：等待中（敌方行动）";
+            }
         }
 
         RefreshBackSlots();    // 🔴 P5：左右长条框（5／6 号位）✓
