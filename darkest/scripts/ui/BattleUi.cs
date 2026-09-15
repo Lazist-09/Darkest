@@ -471,7 +471,8 @@ public partial class BattleUi : CanvasLayer
             HostDungeonCampPanel(flow);
 
             // 🔴 行走模式 HUD（层②④）：只读内核读数（下一跳 / 到终点 / 已揭示 / 光照档）✓
-            HostDungeonWalkHud(flow);
+            // 🔴 相机 720 口径：行走 HUD（75px 高）**移到地图页的格子主画面上方**（避免与主画面重复占高）
+            // HostDungeonWalkHud(flow);   // 暂撤：底栏高度是 topology 路径超相机的最后一项
 
             // 🔴 层④：DD 式示意地图（大方块=房间 / 小方块=走廊）✓
             // 🔴 主程序 (A) 落地：**格子地图已升级为【地图页主画面】** ⇒ 宿主里这份**重复**小图撤掉
@@ -1548,6 +1549,22 @@ public partial class BattleUi : CanvasLayer
                      (_dungeonHost is not null && GodotObject.IsInstanceValid(_dungeonHost)
                          ? $"　地牢宿主 需 {_dungeonHost.GetCombinedMinimumSize()}" : string.Empty) +
                      $"　C区 需 {_cArea.GetCombinedMinimumSize()}　E区 需 {(_eArea as Control)?.GetCombinedMinimumSize()}");
+
+            // 🔴 逐行点名（诊断）：`BattleCol` 的每个直接子节点各需多少 ⇒ 定位"三行之和与整列需求差 230px"的谜团 ✓
+            if (_uiRoot is not null)
+            {
+                Control? col = _uiRoot.GetNodeOrNull<Control>("BattleMargin/BattleCol");
+                if (col is not null)
+                {
+                    foreach (Node ch in col.GetChildren())
+                    {
+                        if (ch is Control cc)
+                        {
+                            GD.Print($"[UI 列读数] {cc.Name} 需 {cc.GetCombinedMinimumSize()}　可见={cc.Visible}");
+                        }
+                    }
+                }
+            }
 
             // 🔴 逐面板点名（诊断）：地牢宿主里每个子面板各需多少高 ⇒ 超相机时**直接指出是谁**✓
             if (_dungeonHost is not null && GodotObject.IsInstanceValid(_dungeonHost))
