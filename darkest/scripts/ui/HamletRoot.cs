@@ -385,6 +385,12 @@ public partial class HamletRoot : Node2D
             GD.Print($"[HamletRoot] --hamlet-popup-close：关闭后 BuildingPopupOpen={BuildingPopupOpen}（应 False）");
         }
 
+        string? detailArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-hero-detail=", StringComparison.Ordinal));
+        if (detailArg is not null && int.TryParse(detailArg["--hamlet-hero-detail=".Length..], out int dIdx))
+        {
+            PressPortraitRightClick(dIdx); // 🔴 右键头像 ⇒ 角色详情（用户 2026-09-15 要求）✓
+        }
+
         string? rowArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-row=", StringComparison.Ordinal));
         if (rowArg is not null && int.TryParse(rowArg["--hamlet-row=".Length..], out int rowIdx))
         {
@@ -1173,6 +1179,28 @@ public partial class HamletRoot : Node2D
     {
         int? dodge = _unitsCfg?.Units.FirstOrDefault(u => u.Id == h.Archetype)?.Dodge;
         return dodge?.ToString() ?? "?";
+    }
+
+    /// <summary>🔴 冒烟：**右键头像**（真实走 `GuiInput` 处理器 ⇒ 与玩家同一条路径）⇒ 打开角色详情 ✓</summary>
+    public bool PressPortraitRightClick(int index)
+    {
+        if (index < 0 || index >= _heroButtons.Count)
+        {
+            GD.Print($"[HamletRoot] 右键头像({index})：没有这一行（当前 {_heroButtons.Count} 行）");
+            return false;
+        }
+
+        Control? frame = _heroButtons[index].GetNodeOrNull<Control>("RosterRowBody/PortraitFrame");
+        if (frame is null)
+        {
+            GD.Print("[HamletRoot] 右键头像：**找不到头像框**（红线 21：控件没挂上 ⇒ 如实报，不静默）");
+            return false;
+        }
+
+        var ev = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true };
+        GD.Print($"[HamletRoot] 右键头像({index})：发出真实 `GuiInput`（右键按下）⇒ 打开角色详情");
+        frame.EmitSignal(Control.SignalName.GuiInput, ev);
+        return true;
     }
 
     /// <summary>供冒烟：名册竖列的行数（应等于名册人数）。</summary>
