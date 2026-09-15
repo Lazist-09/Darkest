@@ -17,7 +17,7 @@ namespace Darkest.Ui;
 public partial class CampSkillPanel : PanelContainer
 {
     private Label _status = null!;
-    private VBoxContainer _box = null!;
+    private GridContainer _box = null!;   // 🔴 相机 720 口径：技能按钮排成网格（原 VBox 竖排 ⇒ 面板需 574 高）
     private readonly List<Button> _buttons = new();
 
     /// <summary>逐技能按钮（供宿主/冒烟按序点击；顺序与 `Refresh` 传入的列表一致）✓</summary>
