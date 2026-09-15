@@ -68,8 +68,13 @@ public partial class LightBarPanel : PanelContainer
         _text = new Label
         {
             Name = "LightText",
-            AutowrapMode = TextServer.AutowrapMode.WordSmart,
-            CustomMinimumSize = new Vector2(0, 52), // §14.2 ④：给最小高度（防塌陷）
+            // 🔴 相机 720 口径（规则①）：**说明文本不换行 + 裁切** ——
+            //    实测它在窄分配下换行把顶栏顶到 **209 高**（正常仅 ~50），进而让战斗屏需求 1019 > 720 ⚠️
+            //    完整说明走 `TooltipText` ✓
+            AutowrapMode = TextServer.AutowrapMode.Off,
+            ClipText = true,
+            TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+            CustomMinimumSize = new Vector2(0, 22),
         };
         col.AddChild(_text);
     }
