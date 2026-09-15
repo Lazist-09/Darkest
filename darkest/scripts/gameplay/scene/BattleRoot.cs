@@ -144,7 +144,7 @@ public partial class BattleRoot : Node2D
         };
         toHamlet.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/hamlet/Hamlet.tscn");
         AddChild(toHamlet);
-        GD.Print("[BattleRoot] 地牢层入口就绪：StartExpedition 按钮（或 --expedition 命令行）⇒ res://scenes/expedition/Expedition.tscn");
+        GD.Print("[BattleRoot] 地牢层入口就绪：StartExpedition 按钮（或 --expedition 命令行）⇒ **本场景内进地牢**（片 4：唯一宿主）✓");
         GD.Print("[BattleRoot] 回城入口就绪：ToHamlet 按钮（或 --hamlet 命令行）⇒ res://scenes/hamlet/Hamlet.tscn");
 
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--hamlet"))
@@ -710,12 +710,8 @@ public partial class BattleRoot : Node2D
                     GD.Print($"[片4] ✅ 战后回地图模式（同一场景）：Phase={ExpeditionContext.Flow!.Session.Phase}　" +
                              $"CanShowPathChoice={ExpeditionContext.Flow.Session.CanShowPathChoice}（应为 True）✓");
                 }
-                else
-                {
-                    // 🔴 过渡期：**旧路径**（从远征场景进来的）仍回远征场景 —— 否则旧冒烟循环（`run-full`）会断 ⚠️
-                    //    片 4 收尾（退休旧场景）后本分支随之删除 ✓
-                    GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
-                }
+                // 🔴 片 4 收尾：**旧场景已退休** ⇒ 两条路都回**同一场景的地图模式**（过渡分支删除 ✓）
+                _ui.EnterMapMode();
             };
 
             AddChild(toExpedition);

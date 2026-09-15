@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -468,7 +468,8 @@ public partial class HamletRoot : Node2D
             }
 
             ExpeditionContext.E2EStage = 2;
-            GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
+            Darkest.Gameplay.Scene.ExpeditionContext.RequestDungeon(); // 🔴 片 4：再出发 ⇒ 宿主进地牢（旧场景已退休）✓
+                GetTree().CallDeferred("change_scene_to_file", Darkest.Ui.MainMenuRoot.BattleScene);
         }
     }
 

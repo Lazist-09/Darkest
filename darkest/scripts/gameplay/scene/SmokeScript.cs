@@ -119,7 +119,9 @@ public static class SmokeScript
         "main:0" or "main:1" or "main:2" => node is Darkest.Ui.MainMenuRoot,
         "map:0" or "map:1" or "map:2" or "camp" or "skill:0" or "skill:1" or "skill:2" or "finish"
             or "run-full" or "town" or "curio:bare" or "curio:leave" or "curio:item:0" or "curio:item:1"
-            => node is Darkest.Ui.ExpeditionRoot,
+            // 🔴 片 4 收尾：旧远征场景已退休 ⇒ 这些步骤现在落在**宿主**（`map:*` 已接宿主；
+            //    其余由 `HostStepNotWired` **如实停步** ⇒ 绝不允许"因为不匹配而静默跳过" ✓
+            => node is BattleRoot,
         "auto" => node is BattleRoot,
         "hover:tavern" or "hover:abbey" or "hover:stagecoach" or "row:0" or "row:1" or "row:2"
             or "back" or "embark" => node is Darkest.Ui.HamletRoot,
@@ -169,34 +171,34 @@ public static class SmokeScript
                     break;
                 }
 
-                PressExpedition(node, c => c.PressMapRoom(step[^1] - '0'));
+                HostStepNotWired("PressMapRoom");
                 break;
             case "camp":
-                PressExpedition(node, c => c.PressCampAndMaybeRouteToBattle());
+                HostStepNotWired("PressCampAndMaybeRouteToBattle");
                 break;
             case "skill:0":
             case "skill:1":
             case "skill:2":
-                PressExpedition(node, c => c.PressCampSkill(step[^1] - '0'));
+                HostStepNotWired("PressCampSkill");
                 break;
             case "finish":
-                PressExpedition(node, c => c.PressFinishCamp());
+                HostStepNotWired("PressFinishCamp");
                 break;
             case "curio:bare":
-                PressExpedition(node, c => c.PressCurioBare());
+                HostStepNotWired("PressCurioBare");
                 break;
             case "curio:leave":
-                PressExpedition(node, c => c.PressCurioLeave());
+                HostStepNotWired("PressCurioLeave");
                 break;
             case "curio:item:0":
             case "curio:item:1":
-                PressExpedition(node, c => c.PressCurioButton(1 + (step[^1] - '0')));
+                HostStepNotWired("PressCurioButton");
                 break;
             case "run-full":
-                PressExpedition(node, c => c.RunFullSmokeStep());
+                HostStepNotWired("RunFullSmokeStep");
                 break;
             case "town":
-                PressExpedition(node, c => c.PressReturnToTown());
+                HostStepNotWired("PressReturnToTown");
                 break;
             // 🔴 片 4④：**宿主内的行走步骤**（`dungeon` = 进地牢；`map:N` = 选第 N 条出路 ⇒ 战斗步骤自动起战斗）✓
             case "dungeon":
@@ -247,16 +249,13 @@ public static class SmokeScript
         GD.Print("[冒烟] 🔴 main:N 步骤不在主菜单场景里 ⇒ 停下");
     }
 
-    private static void PressExpedition(Node node, Action<Darkest.Ui.ExpeditionRoot> act)
-    {
-        if (node is Darkest.Ui.ExpeditionRoot root)
-        {
-            act(root);
-            return;
-        }
-
-        GD.Print("[冒烟] 🔴 该步骤需要远征场景 ⇒ 停下");
-    }
+    /// <summary>
+    /// 🔴 **片 4 收尾：旧远征场景已退休** ⇒ 那些"只在旧场景里有实现"的冒烟步骤改为**诚实的停步**：
+    /// 打印"尚未在宿主侧接线"并停下（红线 21：**不静默、也不假装跑过**）✓
+    /// 📌 宿主侧的对应步骤属**片 2 尾部**（扎营/Curio/选路面板搬进 `BattleUi` 之后）⇒ 届时在此接上 ✓
+    /// </summary>
+    private static void HostStepNotWired(string step)
+        => GD.Print($"[冒烟] 🔴 步骤「{step}」尚未在宿主侧接线（属片 2 尾部：扎营/Curio/选路面板）⇒ 如实停下 ✓");
 
     private static void PressHamlet(Node node, Action<Darkest.Ui.HamletRoot> act)
     {
