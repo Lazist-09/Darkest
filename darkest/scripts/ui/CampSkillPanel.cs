@@ -42,7 +42,7 @@ public partial class CampSkillPanel : PanelContainer
 
         // 🔴 相机 720 口径（规则①）：技能按钮**排成网格**（DD 图②的图标阵）——
         //    实测竖排 11 个 ⇒ 面板需 **574 高**，把战斗屏内容需求顶到 918 > 720 ⚠️
-        _box = new GridContainer { Name = "CampSkillActions", Columns = 3 };
+        _box = new GridContainer { Name = "CampSkillActions", Columns = 5 };
         _box.AddThemeConstantOverride("separation", 6);
         col.AddChild(_box);
         Visible = false;
@@ -75,7 +75,7 @@ public partial class CampSkillPanel : PanelContainer
             {
                 Name = $"CampSkill_{skill.Id}",
                 Text = $"{skill.Name}（{skill.Cost} 点）",
-                CustomMinimumSize = new Vector2(150, 32),   // 🔴 网格单元（相机 720 口径）
+                CustomMinimumSize = new Vector2(96, 28),   // 🔴 相机 720：11 个技能 5 列 3 行 ⇒ 面板高约 130（原 3 列 4 行约 270）   // 🔴 网格单元（相机 720 口径）
                 Disabled = !affordOf(skill),
             };
             b.Pressed += () => useOf(skill, target);
