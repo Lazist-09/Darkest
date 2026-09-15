@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Darkest.Gameplay.Sim.Run;
 using Godot;
 
@@ -28,6 +29,7 @@ public partial class InventoryPanel : PanelContainer
 
     private GridContainer _grid = null!;
     private Button? _consumeFood; // 包满时的显式"消耗口粮腾格"动作（内核回答可用性）
+    private string _lastBagSnapshot = string.Empty; // 🔴 (b) 背包内容读数：只在变化时打一行 ✓
     private Label _hint = null!;
     private readonly List<Button> _slotButtons = new();
 
@@ -204,6 +206,15 @@ public partial class InventoryPanel : PanelContainer
         }
 
         RefreshConsumeFoodButton(); // 🔴 包满时才出现"消耗口粮腾格"（可见性/可用性由内核回答）✓
+
+        // 🔴 主程序裁定（准我的 (b)）：**背包内容只读读数** —— 让"到底有没有 `support_pack`"可判、可复核 ✓
+        //    形态：内容**变化时**打一行（不刷屏）；**这不是调试开关，是"不是看起来像"的取证口**（红线 25）✓
+        string snapshot = $"{_bag.Slots.Count}/{_bag.SlotCap}　" + string.Join("　", _bag.Slots.Select(Describe));
+        if (snapshot != _lastBagSnapshot)
+        {
+            _lastBagSnapshot = snapshot;
+            GD.Print($"[背包] 内容={snapshot}");
+        }
 
         _slotButtons.Clear();
         for (int i = 0; i < _bag.SlotCap; i++)
