@@ -465,6 +465,7 @@ public partial class BattleUi : CanvasLayer
             //    （背包/投影列表在战斗模式或经多功能框查看；扎营由相位谓词门禁控制）✓
             if (_mapModeInventory is not null) { _mapModeInventory.Visible = false; }
             if (_mapModeList is not null) { _mapModeList.Visible = false; }
+        if (_slotRight is not null) { _slotRight.Visible = _mode == SceneMode.Battle; }   // 🔴 紫框内 6 号位：地图模式让位给地牢面板（实测曾与 ScoutMark/CampStatus 相压）
 
             // 🔴 片 2 #6：**扎营**面板（B 类）—— 门禁**只读谓词**（UI 绝不推断相位）✓
             HostDungeonCampPanel(flow);
@@ -475,15 +476,8 @@ public partial class BattleUi : CanvasLayer
             // 🔴 层④：DD 式示意地图（大方块=房间 / 小方块=走廊）✓
             HostDungeonWalkMap(flow);
 
-            if (!ReferenceEquals(_mapModeInventoryBag, flow.Bag))
-            {
-                _mapModeInventoryBag = flow.Bag;
-                _mapModeInventory.Visible = true; // 该面板 `_Ready` 里默认隐藏 ⇒ 入地图模式必须显式显示
-                // 🔴 相位裁定（架构 `…PHASE-RULING…` ③）：**操作是相位动作** ⇒ 地图模式下**先禁用操作**（查看仍可用）
-                //    诚实边界：相位谓词归内核（主程序落 `CanShow…` 后我改读它；**UI 不自己推断相位**）✓
-                _mapModeInventory.CanOperate = () => false;
-                _mapModeInventory.Initialize(flow.Bag, HostDungeonPanels); // 背包变化 ⇒ 重挂（顺带刷新光照/侦察）✓
-            }
+            // 🔴 相机 720 口径（DD 图②）：地图模式**不内联背包**（经多功能框查看）⇒ 该初始化块已移除
+            //    ⚠️ 教训：删创建块时必须同时删**使用点**，否则每帧 NRE（实测 topology 路径 E=4）✓
 
             GD.Print($"[UI 片2] 地图模式面板状态：" +
                      $"{PanelState("侦察标记", _mapModeScoutMark)}　" +
@@ -1585,6 +1579,7 @@ public partial class BattleUi : CanvasLayer
         //    `Visible = true` 覆盖了）⇒ 把模式可见性**集中到这里**（唯一权威处），否则"设了又被覆盖" ⚠️
         if (_mapModeInventory is not null) { _mapModeInventory.Visible = false; }
         if (_mapModeList is not null) { _mapModeList.Visible = false; }
+        if (_slotRight is not null) { _slotRight.Visible = _mode == SceneMode.Battle; }   // 🔴 紫框内 6 号位：地图模式让位给地牢面板（实测曾与 ScoutMark/CampStatus 相压）
         _orderBox.Visible = battleMode;
         if (_intentText is not null) { _intentText.Visible = battleMode; }
         if (_progressLabel is not null) { _progressLabel.Visible = battleMode; }
