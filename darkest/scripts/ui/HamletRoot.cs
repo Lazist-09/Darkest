@@ -348,7 +348,11 @@ public partial class HamletRoot : Node2D
             CustomMinimumSize = new Vector2(280, 44),
             Modulate = Darkest.Ui.DdTheme.Danger, // 🔴 `§14.4`：颜色不得在节点上硬写 ⇒ 走语义色（Embark = 危险红：出发是要付代价的）
         };
-        embark.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/expedition/Expedition.tscn");
+        embark.Pressed += () =>
+        {
+            Darkest.Gameplay.Scene.ExpeditionContext.RequestDungeon(); // 🔴 片 4①：再出发 ⇒ 宿主进地牢 ✓
+            GetTree().ChangeSceneToFile(Darkest.Ui.MainMenuRoot.BattleScene);
+        };
         bottomRow.AddChild(embark);
         _embark = embark;
 
@@ -648,9 +652,19 @@ public partial class HamletRoot : Node2D
         };
         dCol.AddChild(dExit);
 
+        // 🔴 相机 720 口径（规则①）：详情内容实测需 **1169 高**（超相机 449px）⇒ 正文**必须可滚动**：
+        //    由 `ScrollContainer` 兜住高度（面板自身最小高不再由长文本决定）✓
+        var dScroll = new ScrollContainer
+        {
+            Name = "DetailScroll",
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+        };
+        dCol.AddChild(dScroll);
+
         var dBody = new HBoxContainer { Name = "DetailBody", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
             dBody.AddThemeConstantOverride("separation", 10);
-            dCol.AddChild(dBody);
+            dScroll.AddChild(dBody);   // 🔴 正文进滚动容器 ✓
 
             var dLeftCol = new VBoxContainer { Name = "DetailLeftCol", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
             dLeftCol.AddThemeConstantOverride("separation", 6);
