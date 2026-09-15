@@ -593,7 +593,7 @@ public partial class BattleUi : CanvasLayer
         _slotRight = new PanelContainer
         {
             Name = "BackSlot6",
-            CustomMinimumSize = new Vector2(88, 120),   // 🔴 收窄（相机 1280 口径）
+            CustomMinimumSize = new Vector2(72, 112),   // 🔴 再收（相机 1280 口径）
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd,
         };
         _bottomRow.AddChild(_slotRight);
@@ -1095,7 +1095,7 @@ public partial class BattleUi : CanvasLayer
         _cArea = new PanelContainer
         {
             Name = "CArea",
-            CustomMinimumSize = new Vector2(320, 0),   // 🔴 收窄（相机 1280 口径）                    // 固定宽 ≈ 30%（`#321`③）
+            CustomMinimumSize = new Vector2(260, 0),   // 🔴 再收（相机 1280 口径：底栏多项最小宽之和曾超额）                    // 固定宽 ≈ 30%（`#321`③）
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,        // 不 ExpandFill
         };
         var cCol = new VBoxContainer { Name = "CCol" };
@@ -1106,7 +1106,7 @@ public partial class BattleUi : CanvasLayer
         _slotLeft = new PanelContainer
         {
             Name = "BackSlot5",
-            CustomMinimumSize = new Vector2(88, 120),   // 🔴 收窄（相机 1280 口径）
+            CustomMinimumSize = new Vector2(72, 112),   // 🔴 再收（相机 1280 口径）
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,   // 左条：**向左靠齐**
         };
         _bottomRow.AddChild(_slotLeft);      // 先加左条 ⇒ 它在最左

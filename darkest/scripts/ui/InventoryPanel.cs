@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Gameplay.Sim.Run;
@@ -53,7 +53,7 @@ public partial class InventoryPanel : PanelContainer
         _grid = new GridContainer
         {
             Name = "InventoryGrid",
-            Columns = 4,
+            Columns = 2 // 🔴 相机口径：4 列网格最小宽过大 ⇒ 2 列,
         };
         _grid.AddThemeConstantOverride("h_separation", 6);
         _grid.AddThemeConstantOverride("v_separation", 6);
