@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Events;
@@ -964,6 +964,15 @@ public partial class ExpeditionRoot : Node
         col.AddThemeConstantOverride("separation", 8);
         margin.AddChild(col);
         panel.AddChild(margin);
+
+        // 🔴 **用户要求（2026-09-15）：所有二级窗口都要有【关闭】** ⇒ 在工厂里统一给一个 ✕（每个模态自动具备）✓
+        var headRow = new HBoxContainer { Name = $"{name}Head" };
+        headRow.AddThemeConstantOverride("separation", 8);
+        col.AddChild(headRow);
+        headRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
+        var closeBtn = new Button { Name = $"{name}Close", Text = "✕ 关闭", CustomMinimumSize = new Vector2(110, 32) };
+        closeBtn.Pressed += () => { panel.Visible = false; GD.Print($"[UI] {name} 关闭（✕）✓"); };
+        headRow.AddChild(closeBtn);
 
         // 🔴 挂到【模态宿主】（有真实矩形的 Control）⇒ 模态的 `FullRect` 锚点才算得出满屏尺寸 ✓
         Control host = ModalHost();

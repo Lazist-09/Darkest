@@ -557,6 +557,8 @@ public partial class HamletRoot : Node2D
     private Label? _detailLeft;
     private Label? _detailRight;
     private Label? _detailCampSkills;
+    private HBoxContainer? _detailSkills;          // 🔴 P4：技能图标行（图标 + tooltip 讲解）✓
+    private PanelContainer? _detailRecommend;      // 🔴 P4：右上"推荐位置"留框 ✓
     private string? _detailHeroId;
 
     /// <summary>详情面板是否已打开（供冒烟断言）。</summary>
@@ -641,7 +643,22 @@ public partial class HamletRoot : Node2D
             };
             dLeftCol.AddChild(_detailLeft);
 
-            _detailRight = new Label
+            // 🔴 P4（用户参考图④）：**技能 = 图标 + 悬停 tooltip 讲解**（不再是大段文字行）——
+        //    图标 = 立绘留框同款（不透明面板样式 1px 边框 + 色块占位）；讲解走 `TooltipText` ✓
+        _detailSkills = new HBoxContainer { Name = "DetailSkillIcons" };
+        _detailSkills.AddThemeConstantOverride("separation", 6);
+        dRightCol.AddChild(_detailSkills);
+
+        // 🔴 P4：**右上角"推荐位置"留框**（用户原话"这个留一个框后面做都可以"）✓
+        _detailRecommend = new PanelContainer { Name = "DetailRecommendSlot", CustomMinimumSize = new Vector2(0, 44) };
+        dRightCol.AddChild(_detailRecommend);
+        var recRow = new HBoxContainer { Name = "DetailRecommendRow" };
+        recRow.AddThemeConstantOverride("separation", 6);
+        _detailRecommend.AddChild(recRow);
+        recRow.AddChild(new PanelContainer { Name = "RecommendPortraitFrame", CustomMinimumSize = new Vector2(36, 36) });
+        recRow.AddChild(new Label { Name = "RecommendText", Text = "推荐位置（待定）", VerticalAlignment = VerticalAlignment.Center });
+
+        _detailRight = new Label
             {
                 Name = "DetailRight",
                 AutowrapMode = TextServer.AutowrapMode.WordSmart,
@@ -712,8 +729,39 @@ public partial class HamletRoot : Node2D
         }
         right.AppendLine();
 
+        // 🔴 P4（用户参考图④）：**战斗技能改成【图标 + 悬停讲解】** —— 图标行在这里填充，
+        //    文字区**只留一行提示**（不再逐条列大段说明 ⇒ "简洁、文字不要太多"）✓
+        if (_detailSkills is not null)
+        {
+            foreach (Node c in _detailSkills.GetChildren().ToArray())
+            {
+                _detailSkills.RemoveChild(c);
+                c.QueueFree();
+            }
+
+            if (_skillsCfg is not null)
+            {
+                foreach (SkillTemplateConfig s in _skillsCfg.Skills.Where(s => s.OwnerUnit == hero.Archetype).Take(5))
+                {
+                    // 图标 = 立绘留框同款（1px 边框 + 色块占位）；**讲解走 TooltipText**（悬停即可读全）✓
+                    var slot = new PanelContainer
+                    {
+                        Name = $"SkillIcon_{s.Id}",
+                        CustomMinimumSize = new Vector2(40, 40),
+                        TooltipText = $"{s.Name}（{s.Id}）\n命中修正 {s.HitMod:+#;-#;0}　效果 {s.Effects.Count} 条",
+                    };
+                    slot.AddChild(new ColorRect
+                    {
+                        Name = "SkillIconPlaceholder",
+                        Color = Darkest.Ui.DdTheme.ArchetypeColor(hero.Archetype, isPlayer: true),
+                    });
+                    _detailSkills.AddChild(slot);
+                }
+            }
+        }
+
         // ④ 战斗技能 5 个（该原型；悬停 tooltip 的文本直接展开，避免依赖 tooltip 机制）
-        right.AppendLine("【战斗技能】");
+        right.AppendLine("【战斗技能】（见上方图标；悬停读讲解）");
         if (_skillsCfg is not null)
         {
             foreach (SkillTemplateConfig s in _skillsCfg.Skills.Where(s => s.OwnerUnit == hero.Archetype).Take(5))
@@ -1252,6 +1300,18 @@ public partial class HamletRoot : Node2D
                     Name = "PortraitPlaceholder", // 🔴 色块占位（`§14.4` 原型色 ⇒ 不硬写字面量）✓
                     Color = Darkest.Ui.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true),
                 });
+
+                // 🔴 **用户要求（2026-09-15）：角色详情 = 【右键头像】点开**（左键点行仍是"选中"，供减压用）✓
+                frame.MouseFilter = Control.MouseFilterEnum.Stop; // 头像要自己收鼠标事件（否则被按钮吃掉）
+                frame.TooltipText = "右键 ⇒ 打开角色详情";
+                frame.GuiInput += (InputEvent ev) =>
+                {
+                    if (ev is InputEventMouseButton { ButtonIndex: MouseButton.Right, Pressed: true })
+                    {
+                        GD.Print($"[HamletRoot] **右键头像** ⇒ 打开角色详情：{id}");
+                        OpenHeroDetail(id);
+                    }
+                };
                 var info = new Label
                 {
                     Name = "RosterInfo",
@@ -1262,8 +1322,8 @@ public partial class HamletRoot : Node2D
                 rowBody.AddChild(info);
                 b.Pressed += () =>
                 {
-                    SelectHero(id);          // 保留既有"减压按人选"
-                    OpenHeroDetail(id);      // 🔴 片②：**点行 ⇒ 打开角色详情**（唯一入口）
+                    SelectHero(id);          // 左键 = **选中**（减压按人选）
+                    GD.Print($"[HamletRoot] 左键选中 {id}（角色详情请**右键头像**打开 —— 用户 2026-09-15 要求）✓");
                 };
                 _rosterList.AddChild(b); // 🔴 §14：填进名册容器（容器自动堆叠 ⇒ 不可能重叠）✓
                 _heroButtons.Add(b);

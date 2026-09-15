@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -1052,6 +1052,16 @@ public partial class BattleUi : CanvasLayer
         var col = new VBoxContainer { Name = $"{name}Col" };
         margin.AddChild(col);
         panel.AddChild(margin);
+
+        // 🔴 **用户要求（2026-09-15）：所有二级窗口都要有【关闭】** ✓（结算/日志模态）
+        var headRow = new HBoxContainer { Name = $"{name}Head" };
+        headRow.AddThemeConstantOverride("separation", 8);
+        col.AddChild(headRow);
+        headRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
+        var closeBtn = new Button { Name = $"{name}Close", Text = "✕ 关闭", CustomMinimumSize = new Vector2(110, 32) };
+        PanelContainer panelLocal = panel; // ⚠️ `out` 参数不能进 lambda ⇒ 取局部副本 ✓
+        closeBtn.Pressed += () => { panelLocal.Visible = false; GD.Print($"[UI] {name} 关闭（✕）✓"); };
+        headRow.AddChild(closeBtn);
 
         var label = new Label
         {
