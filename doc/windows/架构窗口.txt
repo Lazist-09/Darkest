@@ -1,29 +1,43 @@
 ---
-### 信封：2026-09-15 · 【来自 UI 设计师】片 2 **#6 前置完成**：扎营技能内容已抽成独立类（行为不变，已核）
+### 信封：2026-09-15 · 【来自 UI 设计师】🔴 片 2 结论：面板**分两类** —— B 类（扎营/Curio/选路）**必须先有"相位"才能迁**（附内核实测证据）
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-CAMPEXTRACT-20260915' -SimpleMatch` 命中即送达。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-PANEL-A-B-20260915' -SimpleMatch` 命中即送达。
 
 ```
-DELIVERY-UI-CAMPEXTRACT-20260915
-```
-
-#### ① 交付（提交 `640a096`）：按我 brief `§13.8` 的既定方案机械执行
-```
-🆕 `scripts/ui/CampSkillPanel.cs`（`PanelContainer`）：**只承载内容**（状态行 + 逐技能按钮）
-   宿主无关入口：`Refresh(skills, heroOf, affordOf, useOf, statusText)`
-   ⇒ "该原型用谁 / 够不够点数 / 点了做什么"三个决策**全由宿主给**；本类**不碰内核、不重算数字** ✓
-🔴 **模态/外框仍归宿主**（`ExpeditionRoot.MakeModal` 不动）· **"结束扎营"仍属宿主行为**（留在宿主，不进内容面板）✓
-接线：`ExpeditionRoot.BuildCampSkillPanel()` = 取模态 → `_campSkillPanel.Refresh(...)`（`PressCampSkill` 用镜像列表 ⇒ 行为不变）
+DELIVERY-UI-PANEL-A-B-20260915
 ```
 
-#### ② 验收（我 `§13.8` 里写的三条，前两条已过）
+#### 🔴 ① 我本来这轮要把 `CampSkillPanel` 挂进地图模式，**核实后决定不挂**（否则是语义错误，不只是空面板）
 ```
-① `--topology --camp --camp-skill=0` ⇒ **逐字不变**：`[拓扑UI] 扎营技能 磨刀：已使用　剩余 Respite 4` ✅
-   （+ `扎营技能面板：可用 11 个（英雄槽位映射 6 个；名册 8 人；技能数据 12 条）` 同前）
-② `--ui-audit`（扎营模态）⇒ 重叠 **0** ／ 透明 **0** ✅　引擎错误 **0** ✅
-③ ⏳ 把它挂进 `BattleUi.DungeonHost()`（= #6 完成）——需在战斗侧构造 `heroByArchetype`（`Session.Roster()` + roster 配置），
-   留下一步（下一轮做，随后复跑同一组判据）✓
+证据（本轮实测内核）：`ExpeditionSession.CanCamp => **Firewood > 0**` —— **没有相位项**，内核**不**约束"战斗中不许扎营"⚠️
+⇒ 若我此刻把扎营面板挂进**战斗中的地图模式**，玩家就能【**战斗中扎营**】—— 红线 25（动作 ≠ 意义）里最典型的一种：
+   数据齐、控件通、也能跑，但**这件事在当前相位根本不该发生**。
+⇒ 所以我不硬做；把它变成**片 3 的接口要求**（见 ③），而不是留一个语义错误的入口 ✓
 ```
 
-- **阻塞 / 待裁定**：无
-- **权威在哪**：`scripts/ui/CampSkillPanel.cs`（新）· `ExpeditionRoot.cs`（`BuildCampSkillPanel`）｜提交 `640a096`｜我的 brief `§13.8`
+#### ② 片 2 台账（按"数据 + 语义是否成立"分类；A 类全部已挂）
+```
+【A 类：战斗期数据与语义都成立】⇒ **已挂进地图模式**（挂 `DungeonHost()`，骨架之外 ⇒ `S1` 每次仍 ✅）
+   #1 光照条（`Flow.Meter`，刻度数据驱动）· #2 侦察标记（`Flow.LastScout`）
+   #3 背包（`Flow.Bag`，含满则丢弃 + 消耗口粮腾格）· #4 投影列表（内核投影，实测行数=9）✓
+【B 类：数据在、但语义只在"行走/扎营相位"成立】⇒ **等片 3**
+   #6 扎营技能（内容**已独立化** `CampSkillPanel`，行为已核）· #5 Curio（事件房三按钮）· `PathChoicePanel`（选路）
+```
+
+#### 🔴 ③ 请你裁一条接口（片 3 的"相位"由谁给）
+```
+宿主（单场景）需要提供**相位/谓词**，例如其中之一：
+  (a) `FlowPhase { Walking, Camp, Battle, Resolved }`（枚举，最清晰）
+  (b) 三个布尔谓词 `CanShowCampUi` / `CanShowPathChoice` / `CanShowCurioUi`（最小改动）
+⇒ 我这边**按谓词决定 B 类面板可见性**，**绝不自己推断相位**（否则又是一处"两处真值"，`#325` D6 家族）✓
+⇒ 在你给之前，B 类**保持不挂**（现在是"内容已就绪、入口等相位"——不是忘了做，也不是做不了）✓
+```
+
+#### ④ 本轮另一件已交付（片 2 #6 前置，`640a096`）
+```
+`CampSkillPanel` 抽取完成：**行为逐字不变**（`--topology --camp --camp-skill=0` 仍 `磨刀：已使用　剩余 Respite 4`）·
+判据 0/0 · 0 错误；模态与外框仍归宿主 ⇒ 两个宿主可复用同一份内容 ✓
+```
+
+- **阻塞 / 待裁定**：③ 的 (a) 或 (b)（B 类面板的唯一阻塞项；A 类不受影响）
+- **权威在哪**：我的 brief **§13.7 / §13.7.1 / §13.8**｜`scripts/ui/CampSkillPanel.cs`｜`ExpeditionSession.cs`（`CanCamp`）｜提交 `640a096` / `f2c3fee`

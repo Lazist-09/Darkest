@@ -715,6 +715,19 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 🆕 冒烟：`--battle-map-mode`（进）/ `--battle-map-mode-exit`（往返）· 读数行 `[UI 片2]` 会列出**已挂面板 + 数据来源**
 ⏳ #5 `CurioPanel` / #6 `CampSkillPanel` —— **需先从 `ExpeditionRoot` 抽成独立类**（见下 §13.8 抽取方案）
 ⏳ `PathChoicePanel` —— 需"行走中的 `PathStep`" ⇒ **等片 3**（流程驱动进宿主），否则挂上去就是空面板（红线 21）
+
+#### 🔴 13.7.1 面板**分两类**（本轮核实后的结论，直接决定片 3 的接口要求）
+```
+【A 类：战斗期"数据 + 语义"都成立】⇒ **已挂进地图模式**（挂 `DungeonHost()`，骨架之外 ⇒ S1 仍 ✅）
+   #1 光照条（`Flow.Meter`）· #2 侦察标记（`Flow.LastScout`）· #3 背包（`Flow.Bag`）· #4 投影列表（内核投影）✓
+【B 类：数据在、但**语义只在"行走/扎营相位"成立**】⇒ **不能现在挂**（挂了 = 语义错误，不只是空面板）
+   #6 扎营技能 · #5 Curio（事件房三按钮）· `PathChoicePanel`（选路）
+   🔴 证据（本轮实测内核）：`ExpeditionSession.CanCamp => Firewood > 0` —— **没有相位项** ⚠️
+      ⇒ 内核**不**约束"战斗中不许扎营"；那是**宿主相位**的事 ⇒ 若我此刻挂上去，玩家就能**战斗中扎营**（红线 25：动作≠意义）
+   ⇒ 📌 **片 3 的接口要求（请架构确认）**：宿主（单场景）必须提供**相位/谓词**，例如
+      `bool CanShowCampUi` / `bool CanShowPathChoice`（或统一 `FlowPhase { Walking, Camp, Battle, Resolved }`）
+      —— 我这边按谓词决定 B 类面板的可见性（**不自己判断相位**，避免又一处"两处真值"）✓
+```
 ```
 
 ### 13.8 🔴 `CampSkillPanel` 抽取方案（下一轮机械执行；**只搬不重写**）
