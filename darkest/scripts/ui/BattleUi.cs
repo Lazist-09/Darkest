@@ -209,6 +209,7 @@ public partial class BattleUi : CanvasLayer
 
             // ④ 本趟投影列表（面板 #4）：**行文只来自内核投影**（`ExpeditionProjector`），UI 不自己拼数字 ✓
             Darkest.Core.Events.CombatLog? expeditionLog = Darkest.Gameplay.Scene.ExpeditionContext.Log;
+            int listLineCount = -1;
             if (expeditionLog is not null)
             {
                 Darkest.Gameplay.Sim.Run.ExpeditionViewState view = Darkest.Gameplay.Sim.Run.ExpeditionProjector.Project(
@@ -217,6 +218,7 @@ public partial class BattleUi : CanvasLayer
                     flow.Session, flow.Tuning.Camp!, flow.Tuning.Expedition.NBattles, flow.Tuning.Expedition.DifficultyTiers);
                 _mapModeList!.Refresh(Darkest.Gameplay.Sim.Run.ExpeditionProjector.RenderList(
                     view, flow.Session, flow.Tuning.Expedition.NBattles, ambushTriggered: false, flow.Tuning.Camp!));
+                listLineCount = _mapModeList.LineCount; // 供读数（证明投影列表**真喂到了行**）✓
             }
             else
             {
@@ -230,8 +232,9 @@ public partial class BattleUi : CanvasLayer
                 _mapModeInventory.Initialize(flow.Bag, HostDungeonPanels); // 背包变化 ⇒ 重挂（顺带刷新光照/侦察）✓
             }
 
-            GD.Print($"[UI 片2] 地图模式：已挂 3 个地牢面板（光照条 ← `Flow.Meter`；侦察标记 ← `Flow.LastScout`；" +
-                     $"背包 ← `Flow.Bag`，{flow.Bag.Slots.Count}/{flow.Bag.SlotCap}，" +
+            GD.Print($"[UI 片2] 地图模式：已挂 **4 个**地牢面板（光照条 ← `Flow.Meter`；侦察标记 ← `Flow.LastScout`；" +
+                     $"背包 ← `Flow.Bag`，{flow.Bag.Slots.Count}/{flow.Bag.SlotCap}；投影列表 ← `ExpeditionProjector`，" +
+                     $"行数={(listLineCount < 0 ? "无 Log ⇒ 空态" : listLineCount.ToString())}；" +
                      $"LastScout={(flow.LastScout is null ? "null（未侦察）" : "有")}）");
         }
         else
