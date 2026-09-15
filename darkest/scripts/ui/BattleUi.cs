@@ -465,6 +465,12 @@ public partial class BattleUi : CanvasLayer
                 GD.Print("[UI 片2] 地图模式：`ExpeditionContext.Log` 为空 ⇒ 投影列表为空态（如实报）");
             }
 
+            // 🔴 相机 720 口径 + DD 图②：**地图模式只显示 地图/侦察/光** ——
+            //    实测该模式下底栏叠加背包+投影列表+扎营 ⇒ 内容需求高 **918 > 720** ⚠️
+            //    （背包/投影列表在战斗模式或经多功能框查看；扎营由相位谓词门禁控制）✓
+            if (_mapModeInventory is not null) { _mapModeInventory.Visible = false; }
+            if (_mapModeList is not null) { _mapModeList.Visible = false; }
+
             // 🔴 片 2 #6：**扎营**面板（B 类）—— 门禁**只读谓词**（UI 绝不推断相位）✓
             HostDungeonCampPanel(flow);
 
