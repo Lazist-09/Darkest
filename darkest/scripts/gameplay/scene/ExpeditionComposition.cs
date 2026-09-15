@@ -122,6 +122,13 @@ public static class ExpeditionComposition
         };
         ExpeditionContext.Bind(flow, log);
 
+        // 🔴🔴 **必须是拓扑模式**（表现层"地图模式"的唯一形态）—— 原 `ExpeditionRoot` 也在此处 `BeginTopology` ✓
+        //    ⚠️ 我第一版**漏了这一句** ⇒ 宿主在线性模式下跑（无地图、`Current` 步存在）⇒ 步骤 ↔ 战斗**对不上** ⇒ 冒烟跑飞 ⚠️
+        ExpeditionMapConfig mapCfg = ExpeditionMapConfig.Parse(FileAccess.GetFileAsString(ExpeditionMapConfig.ResPath));
+        ExpeditionMap map = flow.BeginTopology(mapCfg);
+        GD.Print($"[片4] 拓扑模式已开启：{map.RoomCount} 间 ／ 支路 {map.BranchCount} ／ 分叉 {map.ForkCount} ／ " +
+                 $"起点 {map.StartId} ⇒ 终点 {map.GoalId}（还剩 {flow.RemainingSegmentsToGoal} 段）✓");
+
         CampSkillsConfig campSkills = CampSkillsConfig.Parse(FileAccess.GetFileAsString(CampSkillsConfig.ResPath));
         RosterConfig rosterCfg = RosterConfig.Parse(FileAccess.GetFileAsString(RosterConfig.ResPath));
         RoomContentsConfig roomContents = RoomContentsConfig.Parse(
