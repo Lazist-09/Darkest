@@ -123,6 +123,7 @@ public partial class HamletRoot : Node2D
         // ---- 状态栏（第二行，独占一条，避免与别的文字压在一起）----
         var statusPanel = new PanelContainer { Name = "StatusBar" };
         rootCol.AddChild(statusPanel);
+        // 🔴 相机 1280 口径：状态行**不设最小宽**、允许收缩到 0（内容裁切显示）
         _status = new Label
         {
             Name = "HamletStatus",
@@ -145,7 +146,7 @@ public partial class HamletRoot : Node2D
         var rightPanel = new PanelContainer
         {
             Name = "RightColumn",
-            CustomMinimumSize = new Vector2(420, 0), // 名册列固定宽度（否则会被左栏挤扁）
+            CustomMinimumSize = new Vector2(320, 0), // 🔴 相机 1280 口径：420 → 320（原值会把整屏撑到 1397 > 1280）
         };
         body.AddChild(rightPanel);
         var rightCol = new VBoxContainer { Name = "RightCol" };
@@ -332,7 +333,7 @@ public partial class HamletRoot : Node2D
 
         // 🔴 相机 1280 口径（规则①）：**把所有单行长文本 Label 设为"裁切+省略号"** ——
         //    否则它们的最小宽（= 文本宽）会把整屏撑宽 ⇒ 名册被切（实测 HamletMargin 1397 > 1280）✓
-        foreach (Label l in new[] { _status, _hint, _buildingInfo, _upgradeStatus, _saniStatus, _rosterCount, _rosterTitle, _resourceBar })
+        foreach (Label l in new[] { _status, _hint, _buildingInfo, _upgradeStatus, _saniStatus, _rosterCount, _rosterTitle, _resourceBar, _banner }) // 🔴 `_banner` 补进（实测它宽 1348px，是整屏 1373 的元凶）
         {
             l.AutowrapMode = TextServer.AutowrapMode.Off;
             l.ClipText = true;

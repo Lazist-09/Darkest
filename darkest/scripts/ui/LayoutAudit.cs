@@ -92,7 +92,7 @@ public static class LayoutAudit
                 Vector2 op = oc.GlobalPosition;
                 if (op.X < -0.5f || op.Y < -0.5f || op.X + oc.Size.X > cam.X + 0.5f || op.Y + oc.Size.Y > cam.Y + 0.5f)
                 {
-                    if (outsideList.Count < 6)
+                    if (outsideList.Count < 20)
                     {
                         outsideList.Add($"{Path(root, oc)} {Fmt(new Rect2(op, oc.Size))}");
                     }
