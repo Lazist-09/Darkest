@@ -24,7 +24,7 @@ namespace Darkest.UI;
 public partial class BattleUi : CanvasLayer
 {
     private const float CardW = 132f;   // 🔴 相机 1280 口径：146 → 132（4v4 横排收窄，§14.0 规则①）
-    private const float CardH = 140f;   // 🔴 相机 720 口径：170→146→140（745 → 723 → 应收进 720 内）
+    private const float CardH = 112f;   // 🔴 相机 720 口径：170→146→140→112（topology 路径仍超 62px）
     private const float GapX = 10f;
     private const float HeroX0 = 13f;
     private const float EnemyX0 = 653f;
@@ -928,7 +928,7 @@ public partial class BattleUi : CanvasLayer
 
         var midPanel = new PanelContainer { Name = "MidRow", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         uiCol.AddChild(midPanel);
-        var midRow = new HBoxContainer { Name = "MidRowBox", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        var midRow = new HBoxContainer { Name = "MidRowBox", SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };   // 🔴 相机口径：不参与垂直拉伸
         midRow.AddThemeConstantOverride("separation", 8);
         midPanel.AddChild(midRow);
         _midRow = midRow;
