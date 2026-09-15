@@ -129,6 +129,40 @@ public sealed class ExpeditionFlow
     /// <summary>拓扑模式：是否已走到终点（主干末房）—— 完成口径的另一半是 `Wins ≥ battle_goal`。</summary>
     public bool ReachedGoal => _map is not null && _currentRoomId == _map.GoalId;
 
+    /// <summary>
+    /// 🔴 策划 `#335`① **命名口径**：`HasReachedGoal`（与既有 `ReachedGoal` 同义，按裁定命名；两者并存只为不破坏既有调用）✓
+    /// </summary>
+    public bool HasReachedGoal => ReachedGoal;
+
+    /// <summary>
+    /// 🔴🔴 策划 `#335`① **只读读数**：**从【当前所在】到 `GoalId` 还剩几段**（表现层"到终点距离"用）。
+    ///
+    /// 语义**写死**（否则又是"读数不回答被问的问题"）：
+    ///   · **已到终点 ⇒ 0**（不是 -1、不是 null）✓
+    ///   · **未开始（在入口）⇒ = 全程段数** ✓
+    ///   · 只在**拓扑模式**下有 `GoalId`；线性模式（历史路径）用**等价口径**：剩余场数 = `NBattles − StepsDone`（注释写明，避免误读）✓
+    /// 📌 为什么不让表现层自己算：`ShortestPathLength` 是**通用 BFS 工具**，让 UI 决定"to = GoalId" = **UI 在算业务规则** ❌（`blueprint §9.17`）
+    /// </summary>
+    public int RemainingSegmentsToGoal
+    {
+        get
+        {
+            if (_map is null)
+            {
+                // 线性模式（历史路径）：没有图、没有 GoalId ⇒ 用"剩余场数"作**等价口径**并在注释里写清 ✓
+                return Math.Max(0, _tuning.Expedition.NBattles - StepsDone);
+            }
+
+            if (_currentRoomId == _map.GoalId)
+            {
+                return 0; // 🔴 已到终点 ⇒ 0 ✓
+            }
+
+            int d = MapTraversal.ShortestPathLength(_map, _currentRoomId, _map.GoalId);
+            return d < 0 ? 0 : d;
+        }
+    }
+
     /// <summary>拓扑模式下当前房间的类型（battle / event ⇒ 决定进战斗还是进事件）。</summary>
     public string? CurrentRoomType => _map?.Rooms.First(r => r.Id == _currentRoomId).Type;
 

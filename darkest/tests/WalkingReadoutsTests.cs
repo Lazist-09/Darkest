@@ -88,4 +88,54 @@ public sealed class WalkingReadoutsTests
             "读数的下一跳必须与当前间相邻（表现层据此推进走廊）✓");
         Assert.IsFalse(flow.RevealedRoomIds.Contains(next), "未走过的那间**还没揭示**（表现层据此画雾）✓");
     }
+
+    /// <summary>
+    /// 🔴 策划 `#335`① 的**语义写死**用例：
+    /// · 入口 ⇒ = 全程段数（**不是 0**）· 走到终点 ⇒ **0** · 同时 `HasReachedGoal` 为真（"距离 0"与"已到达"在呈现上是两件事）
+    /// · 线性模式（历史路径）⇒ 等价口径 = `NBattles − StepsDone` ✓
+    /// </summary>
+    [TestMethod]
+    public void RemainingSegmentsToGoal_SemanticsArePinned()
+    {
+        TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
+        ExpeditionMapConfig mapCfg = ExpeditionMapConfig.Parse(ReadData("expedition_map.json"));
+        ExpeditionFlow flow = NewFlow(tuning);
+
+        // 线性模式（未进拓扑）：等价口径 = 剩余场数 ✓
+        Assert.AreEqual(tuning.Expedition.NBattles, flow.RemainingSegmentsToGoal, "未开始 ⇒ 全程（线性口径）✓");
+
+        flow.BeginTopology(mapCfg);
+        int full = flow.RemainingSegmentsToGoal;
+        Assert.AreEqual(MapTraversal.ShortestPathLength(flow.Map!, flow.Map!.StartId, flow.Map!.GoalId), full,
+            "入口 ⇒ = 全程段数（**不是 0**）✓");
+        Assert.IsFalse(flow.HasReachedGoal, "刚入口 ⇒ 未到达 ✓");
+
+        // 顺着"下一跳"一路走到终点 ⇒ 每次都必须减少（单调递减 = 朝目标走）✓
+        int guard = 0;
+        int last = full;
+        while (!flow.HasReachedGoal && guard++ < 200)
+        {
+            int step = flow.NextRoomToward(flow.Map!.GoalId);
+            Assert.IsTrue(step >= 0, "未到终点就应给出下一跳 ✓");
+            MoveOutcome mv = flow.StepTo(step);
+            Assert.IsTrue(mv.Moved, $"走一步应成功（{mv.Reason}）✓");
+            Assert.IsTrue(flow.RemainingSegmentsToGoal < last, "每走一步 ⇒ 到终点**必须更近**（否则不是朝目标走）✓");
+            last = flow.RemainingSegmentsToGoal;
+        }
+
+        Assert.IsTrue(flow.HasReachedGoal, "应能走到终点 ✓");
+        Assert.AreEqual(0, flow.RemainingSegmentsToGoal, "🔴 已到终点 ⇒ **0**（不是 -1 / 不是 null）✓");
+    }
+
+    private static ExpeditionFlow NewFlow(TuningConfig tuning)
+    {
+        var bag = new Inventory(tuning.Inventory!);
+        bag.ConfigureRecommended(out _);
+        bag.LockForRun();
+        var session = new ExpeditionSession(l => MonteCarlo.HeadlessDriver.NewDirector(l),
+            tuning.Expedition.NBattles, firewood: 2, food: 2, tuning.Expedition.AmbushChance);
+        return new ExpeditionFlow(session, new LightMeter(tuning.Light!), bag,
+            new Scouting(tuning.Scouting!, tuning.Light!), ExpeditionNodesConfig.Parse(ReadData("expedition_nodes.json")),
+            tuning, new CombatLog(), new RngProvider(7));
+    }
 }
