@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Events;
@@ -28,7 +28,8 @@ namespace Darkest.Ui;
 public partial class MainMenuRoot : Control
 {
     public const string BattleScene = "res://scenes/battle/Battle.tscn";
-    public const string ExpeditionScene = "res://scenes/expedition/Expedition.tscn";
+    // 🔴 片 4①：远征入口**改指唯一宿主** `Battle.tscn`（原 `Expedition.tscn` 退休）⇒ 配合 `ExpeditionContext.RequestDungeon()` 进入**地图模式** ✓
+    public const string ExpeditionScene = BattleScene;
     public const string HamletScene = "res://scenes/hamlet/Hamlet.tscn";
 
     private Label _title = null!;
@@ -222,6 +223,7 @@ public partial class MainMenuRoot : Control
         else if (Array.Exists(args, a => a == "--expedition" || a == "--e2e" || a == "--hamlet-next" || a == "--topology"))
         {
             GD.Print("[MainMenuRoot] --expedition/--e2e/--hamlet-next/--topology ⇒ 直达地牢层（冒烟路径）");
+            Darkest.Gameplay.Scene.ExpeditionContext.RequestDungeon(); // 🔴 片 4①：回退路径同样置"请求地牢"（否则会变成单场战斗 ⚠️）
             GetTree().CallDeferred("change_scene_to_file", ExpeditionScene);
         }
 
@@ -243,7 +245,15 @@ public partial class MainMenuRoot : Control
         };
         // 🔴 必须 **deferred**：冒烟会在 `_Ready` 里直接按下菜单键 ⇒ 同步切场景会报
         //    `Parent node is busy adding/removing children`（实测抓到的真凶就在这一行）
-        button.Pressed += () => GetTree().CallDeferred("change_scene_to_file", scenePath);
+        button.Pressed += () =>
+        {
+            if (index == 1)
+            {
+                Darkest.Gameplay.Scene.ExpeditionContext.RequestDungeon(); // 🔴 片 4①：出发远征 ⇒ 宿主进地牢 ✓
+            }
+
+            GetTree().CallDeferred("change_scene_to_file", scenePath);
+        };
         _optionsCol.AddChild(button); // 🔴 `§14.2`①：**创建时进容器**
         _menuButtons.Add(button);
     }

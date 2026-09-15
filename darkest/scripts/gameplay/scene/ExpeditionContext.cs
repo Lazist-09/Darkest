@@ -20,6 +20,23 @@ public static class ExpeditionContext
     /// <summary>当前进行中的远征流程（null = 不在远征中）。</summary>
     public static ExpeditionFlow? Flow { get; private set; }
 
+    /// <summary>
+    /// 🔴 **片 4：一次性"请求进入地牢"标记**（主菜单/Hamlet 的"出发远征"入口置它 ⇒ 宿主 `_Ready` 认领并进地图模式）
+    /// ⚠️ 用**一次性认领**（`ConsumeRequestDungeon`）而不是布尔查询 ⇒ 不会出现"两次进入都当地牢"的串味 ✓
+    /// </summary>
+    private static bool _requestDungeon;
+
+    /// <summary>片 4：入口置位（在**切场景之前**调用）✓</summary>
+    public static void RequestDungeon() => _requestDungeon = true;
+
+    /// <summary>片 4：宿主认领（**读到即清**）⇒ 只生效一次 ✓</summary>
+    public static bool ConsumeRequestDungeon()
+    {
+        bool v = _requestDungeon;
+        _requestDungeon = false;
+        return v;
+    }
+
     /// <summary>🆕 **片 4**：地牢面板要用的配置（由 `ExpeditionComposition` 组装时一并放入 ⇒ 表现层直接读，**不必自己再解析一份**）✓</summary>
     public static Darkest.Data.CampSkillsConfig? CampSkills { get; private set; }
 
