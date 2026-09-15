@@ -18,6 +18,10 @@ public enum DungeonTileKind
     Event,
     Camp,
     Goal,
+
+    /// <summary>🔴 陷阱（策划 `#338`③）：**本次只留枚举位**，行为/触发规则**暂留**（与"每格遭遇"同类）——
+    /// 当前**可通行且无任何效果**；表现层/流程**不得**据此假设"有陷阱效果" ✓</summary>
+    Trap,
 }
 
 /// <summary>
@@ -38,6 +42,7 @@ public static class DungeonTileMap
         'E' => DungeonTileKind.Event,
         'A' => DungeonTileKind.Camp,
         'G' => DungeonTileKind.Goal,
+        '^' => DungeonTileKind.Trap, // 🔴 陷阱（规则暂留）✓
         _ => DungeonTileKind.Wall, // 未登记字符 ⇒ **当墙**（不可通行；不静默当成地板 ✓）
     };
 
@@ -53,6 +58,7 @@ public static class DungeonTileMap
         DungeonTileKind.Event => 'E',
         DungeonTileKind.Camp => 'A',
         DungeonTileKind.Goal => 'G',
+        DungeonTileKind.Trap => '^',
         _ => '#',
     };
 
