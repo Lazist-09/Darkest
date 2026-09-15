@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -229,6 +229,9 @@ public partial class BattleUi : CanvasLayer
             {
                 _mapModeInventoryBag = flow.Bag;
                 _mapModeInventory.Visible = true; // 该面板 `_Ready` 里默认隐藏 ⇒ 入地图模式必须显式显示
+                // 🔴 相位裁定（架构 `…PHASE-RULING…` ③）：**操作是相位动作** ⇒ 地图模式下**先禁用操作**（查看仍可用）
+                //    诚实边界：相位谓词归内核（主程序落 `CanShow…` 后我改读它；**UI 不自己推断相位**）✓
+                _mapModeInventory.CanOperate = () => false;
                 _mapModeInventory.Initialize(flow.Bag, HostDungeonPanels); // 背包变化 ⇒ 重挂（顺带刷新光照/侦察）✓
             }
 

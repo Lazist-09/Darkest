@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Darkest.Gameplay.Sim.Run;
 using Godot;
@@ -74,6 +74,13 @@ public partial class InventoryPanel : PanelContainer
                 return;
             }
 
+            if (!CanOperate())
+            {
+                _hint.Text = "当前相位不可操作背包（消耗口粮属相位动作）";
+                GD.Print("[背包] 消耗口粮被相位谓词拒绝 ⇒ 不改背包（如实报）");
+                return;
+            }
+
             bool ok = _bag.TryConsumeFoodToFreeSlot(out InventoryItem? consumed);
             _hint.Text = ok
                 ? $"已消耗 {Describe(consumed!)} 腾出一格"
@@ -93,6 +100,13 @@ public partial class InventoryPanel : PanelContainer
         _onChanged = onChanged;
         Rebuild();
     }
+
+    /// <summary>
+    /// 🔴 `#327` 相位裁定（架构 `…PHASE-RULING…` ③）：**"查看"是 A 类（战斗期成立），"操作"是相位动作** ——
+    /// 背包里混了两种动作 ⇒ 操作（`消耗口粮腾格` / `满则丢弃`）必须**按相位禁用 + 说明理由**（不留不可解释的禁用）✓
+    /// 🔴 UI **绝不自己推断相位**（`#325` D6 家族）⇒ 由**宿主**传入谓词；未传 ⇒ 旧行为（`true`，兼容既有调用点）✓
+    /// </summary>
+    public Func<bool> CanOperate { get; set; } = () => true;
 
     /// <summary>拾取一格：**满则进入"选择丢弃"状态**（P21 ⑬：禁止静默丢弃）。</summary>
     public bool TryPickup(InventoryItem item)
@@ -130,6 +144,14 @@ public partial class InventoryPanel : PanelContainer
 
         if (_pendingPickup is { } item)
         {
+            if (!CanOperate())
+            {
+                // 🔴 相位不允许"操作" ⇒ **禁用 + 说明理由**（红线 21：不留不可解释的禁用）✓
+                _hint.Text = "当前相位不可操作背包（丢弃/消耗属相位动作；相位谓词由内核给 ⇒ 待 `CanShow…` 落地）";
+                GD.Print("[背包] 丢弃被相位谓词拒绝 ⇒ 不改背包（如实报）");
+                return;
+            }
+
             if (!_bag.TryDiscardAt(index, out _))
             {
                 return;
@@ -160,9 +182,11 @@ public partial class InventoryPanel : PanelContainer
 
         bool full = _bag.Slots.Count >= _bag.SlotCap;
         _consumeFood.Visible = full;
-        _consumeFood.Disabled = !full || _bag.CountOf(ItemKind.Food) <= 0;
+        bool phaseOk = CanOperate();
+        _consumeFood.Disabled = !full || !phaseOk || _bag.CountOf(ItemKind.Food) <= 0;
         _consumeFood.TooltipText = !full
             ? "背包未满 ⇒ 不需要腾格"
+            : !phaseOk ? "当前相位不可操作背包（操作属相位动作，相位谓词待内核落地）"
             : _bag.CountOf(ItemKind.Food) <= 0 ? "没有口粮可消耗" : "消耗 1 个口粮腾出一格（内核决定规则）";
     }
 
