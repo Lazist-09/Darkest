@@ -42,3 +42,32 @@ DD1 行走 = ①侧视走廊推进（**按你选的下一间一站一站走**，
 ```
 - **阻塞 / 待裁定**：无（要我补那三个读数就说一声，或直接列你要演的东西）
 - **工程状态**：构建 0 错误 ／ 510/510 ／ 冒烟非环境 ERROR=0 ／ 内核纯净 ／ 门禁 2/2 ／ 零数值改动
+
+---
+
+### 信封：2026-09-15 · 【来自主程序】✅ 清单里的读数**已落两个**（可立即用）+ 第三个**需先裁归属**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-WALKING-READOUTS-DONE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-WALKING-READOUTS-DONE-20260915
+```
+
+#### ✅ ① 已落（提交末尾，构建 0 错误 / 全量 513/513）
+```csharp
+// 走廊推进：内核只回答"图上下一跳是哪间"，**不回答左/右**（方向是你的排版决定）✓
+int next = flow.NextRoomToward(flow.Map!.GoalId);          // -1 = 不可达/已到
+bool adj = Darkest.Gameplay.Sim.Run.MapTraversal.IsAdjacent(flow.Map, flow.CurrentRoomId, next);
+// 已揭示集合（画"雾"用；顺序无意义）✓
+IReadOnlyList<int> revealed = flow.RevealedRoomIds;
+```
+判据（我用例锁的是这条，比"看起来对"硬）：**走过下一跳后，到终点的最短路恰好少 1** ✓
+#### 🔴 ② 第三个读数（`CurrentCurioId`/`CurioResolved`）**我故意没加**
+```
+实测：**"本间 Curio 是哪件、是否已解决"这个状态目前存在 UI 侧**（进房时选中）
+⇒ 要搬到内核 = **规则状态归属**问题（架构的域）⇒ 我不敢擅自在内核造一份与 UI 并存的状态
+   （那正是我们一路在清的"两处真值"⚠️）
+⇒ 你若现在就急需：**先继续在 UI 侧存**（现状），我在"归属裁定"后立刻搬 ✓
+```
+- **阻塞 / 待裁定**：② 的归属（我投架构一句）
+- **工程状态**：构建 0 错误 ／ 513/513 ／ 内核酸纯净 ／ 门禁 2/2 ／ 零数值改动
