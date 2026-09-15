@@ -330,13 +330,15 @@ public partial class BattleUi : CanvasLayer
                      "　（B 类面板：扎营／选路／Curio 按此三者显示；战斗相位下应全假）");
 
             // 🔴 **常驻告警**（把我在 `DELIVERY-UI-PHASE-STALE-IN-BATTLE` 里报的发现固化下来）：
-            //    本行是在**战斗场景**里打的 ⇒ 若谓词为真，说明**相位陈旧**（远征会话冻结在 Walking）
-            //    ⇒ 此时此刻**不得**据此挂 B 类面板（否则玩家能战斗中扎营 —— 红线 25 最典型形态）⚠️
-            bool phaseStaleHere = flow.Session.CanShowCampUi || flow.Session.CanShowPathChoice || flow.Session.CanShowCurioUi;
-            GD.Print(phaseStaleHere
-                ? "🔴 [UI 相位·告警] **战斗场景里谓词为真 ⇒ 相位陈旧**（远征会话冻结在 Walking；战斗是另一个场景/会话）" +
-                  "　⇒ 片 3 把战斗纳入相位机【之前】，**不得**据此挂 B 类面板（否则=战斗中能扎营）"
-                : "✅ [UI 相位·告警] 相位与宿主一致（战斗中三谓词全假）⇒ 可据此挂 B 类面板");
+            //    ⚠️ **判据必须带"战斗是否仍在进行"**：`_host.GameOver == true` 时相位回 `Walking` 是**正常的**
+            //    （战斗结束 ⇒ 回到行走相位）—— 我第一版只判"在战斗场景里 + 谓词为真" ⇒ **误报**（已修）⚠️
+            bool battleRunning = _host is not null && !_host.GameOver;
+            bool predicatesTrue = flow.Session.CanShowCampUi || flow.Session.CanShowPathChoice || flow.Session.CanShowCurioUi;
+            GD.Print(battleRunning && predicatesTrue
+                ? "🔴 [UI 相位·告警] **战斗仍在进行、谓词却为真 ⇒ 相位陈旧**" +
+                  "（远征会话冻结在 Walking）⇒ **不得**据此挂 B 类面板（否则=战斗中能扎营）"
+                : $"✅ [UI 相位·告警] 相位与宿主一致（战斗进行中={battleRunning}／谓词为真={predicatesTrue}）" +
+                  (battleRunning ? "⇒ 可据此挂 B 类面板" : "　—— 战斗已结束 ⇒ 相位回 Walking 是**正常**的 ✓"));
         }
         else
         {
