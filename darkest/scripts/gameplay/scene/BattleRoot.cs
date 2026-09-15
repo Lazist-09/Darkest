@@ -32,6 +32,37 @@ public partial class BattleRoot : Node2D
     ///    （若把 `_rng` 泄给表现层，迟早有人用它"顺手预览" ⇒ **抽数被吃 ⇒ 回放/复现全崩** ⚠️）
     /// ⇒ 这里传一个**固定种子的预览专用 RNG**，与战斗抽数完全隔离 ✓
     /// </summary>
+    // ═══════════════════════════════════════════════════════════════════════════════════════════
+    // 🔴 **`#327` 片 3 第一步：宿主侧的【流程驱动口】**（`tasks/seamless_single_scene.md` 片 3 = 我的域）
+    //    现状：流程驱动（`Advance`/`OnBattleFinished`）写在 `ExpeditionRoot`（UI 侧，片 2 期间归他）
+    //    ⇒ 片 3 的终态是"**由宿主（本文件）驱动流程**"，但那需要**场景内切战斗**（片 4 同批）⚠️
+    //    ⇒ 本步只做**加法**：把"宿主能驱动流程"的口开出来并**如实报告**，
+    //      不改现有生命周期（远征场景仍负责切场景）⇒ 现有游戏行为**零变化** ✓
+    //    📌 判据（红线 25）：这一步**不是**片 3 完成 —— 只是"口开在这里、由谁调用"已定 ✓
+    // ═══════════════════════════════════════════════════════════════════════════════════════════
+
+    /// <summary>🔴 片 3：当前是否有**远征流程**可驱动（没有 ⇒ 单场战斗模式，一切谓词/面板都不适用）✓</summary>
+    public Darkest.Gameplay.Sim.Run.ExpeditionFlow? ExpeditionFlowOrNull
+        => ExpeditionContext.IsActive ? ExpeditionContext.Flow : null;
+
+    /// <summary>
+    /// 🔴 片 3：宿主侧**推进流程一步**（地图模式下"选路"的落点）。
+    /// 返回 = 这一步是否为**战斗步骤**（若是，片 4 会在这里**场景内切战斗**，而不是切场景）✓
+    /// </summary>
+    public bool MapModeAdvance(int optionIndex)
+    {
+        Darkest.Gameplay.Sim.Run.ExpeditionFlow? flow = ExpeditionFlowOrNull;
+        if (flow is null)
+        {
+            return false;
+        }
+
+        Darkest.Gameplay.Sim.Run.FlowStep step = flow.Advance(optionIndex);
+        bool isBattle = step.Kind == Darkest.Gameplay.Sim.Run.FlowStepKind.Battle;
+        GD.Print($"[片3] 宿主驱动流程：Advance({optionIndex}) ⇒ 步骤 {step.Kind}（节点 {step.NodeId}）" +
+                 (isBattle ? "　🔴 战斗步骤：**片 4 起在本场景内切战斗**（当前仍由远征场景切场景）✓" : string.Empty));
+        return isBattle;
+    }
     public Darkest.Gameplay.Sim.Director.IntentProjection PreviewIntent(Darkest.Core.Contracts.UnitId actor)
         => Projector.IntentPreview(actor, _previewRng, enabled: true);
 
