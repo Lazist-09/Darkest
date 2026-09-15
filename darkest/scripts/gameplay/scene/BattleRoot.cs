@@ -660,6 +660,23 @@ public partial class BattleRoot : Node2D
             string result = what.Contains("撤退", System.StringComparison.Ordinal)
                 ? "DrawRetreat"
                 : Director.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+            // 🔴 修 UI 报的 4 条：**流程层的 `OnBattleFinished` 只接受【当前步骤是战斗节点】时调用** ——
+            //    冒烟的 `auto` 可能在"非战斗步骤"上触发战斗结束（宿主内进地牢的步骤对齐还没做完）⇒ 那会被流程**如实拒绝** ✓
+            //    ⇒ 这里**先判**，不把非法调用递进去（红线 21：不静默、也不假装）✓
+            // 🔴 判据修正（实测教训）：**拓扑模式下 `flow.Current` 恒为 null**（`BeginTopology` 只设 `_currentRoomId`）
+            //    ⇒ 原先按 `Current.Kind` 判 ⇒ 恒假 ⇒ 战斗结算被静默跳过 ⚠️
+            //    ⇒ 正解：**按当前房间类型**判（拓扑）＋ 兼容线性步（`Current.Kind`）✓
+            bool flowExpectsBattle =
+                ExpeditionContext.Flow!.Current?.Kind == Darkest.Gameplay.Sim.Run.FlowStepKind.Battle
+                || ExpeditionContext.Flow.CurrentRoomType == "battle";
+            if (!flowExpectsBattle)
+            {
+                GD.Print($"[片4] ⚠️ 战斗结束但**当前步骤不是战斗节点**（{ExpeditionContext.Flow.Current?.Kind}）"
+                         + "⇒ 不调用 `OnBattleFinished`（否则流程如实抛错）；这属【宿主内进地牢的步骤对齐未完成】✓");
+            }
+
+            if (flowExpectsBattle)
+            {
             ExpeditionContext.Flow!.OnBattleFinished(result, Director.Round,
                 isAmbush: ExpeditionContext.ConsumePendingAmbush()); // 🔴 #307③：夜袭战斗不是节点步骤
 
@@ -687,6 +704,7 @@ public partial class BattleRoot : Node2D
                     GetTree().CallDeferred("change_scene_to_file", "res://scenes/expedition/Expedition.tscn");
                 }
             };
+
             AddChild(toExpedition);
             GD.Print($"[BattleRoot] 远征模式：本场结果 {result}，点【继续（回地图）】回地图模式继续走图");
 
@@ -698,6 +716,8 @@ public partial class BattleRoot : Node2D
                 GD.Print("[BattleRoot] 自动点【继续（回远征）】（真实 Pressed）");
                 toExpedition.EmitSignal(BaseButton.SignalName.Pressed);
             }
+
+            } // ← 收 `if (flowExpectsBattle)`（🔴 修 UI 报的 4 条：非战斗步骤**不递非法调用**给流程）✓
         }
         // T-M6-07 系统触发日志 + P0④ 结算面板数据（同一批计数）
         var events = Director.Log.Events;
