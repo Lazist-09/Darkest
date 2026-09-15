@@ -70,6 +70,7 @@ public partial class BattleUi : CanvasLayer
     private Darkest.Ui.LightBarPanel? _topTorch;  // 🔴 P5：正上方火把条（光照，居中）✓
     private HBoxContainer? _topLeftGroup;         // 🔴 P5：左上"任务与撤退"组 ✓
     private Label? _missionLabel;                 // 🔴 P5：任务文案（只读内核进度）✓
+    private string _lastEnemyTipLogged = string.Empty; // 🔴 P5：悬停敌人信息读数（变化才打，避免刷屏）✓
     private PanelContainer? _slotRight;   // 🔴 P5：右长条框 = 6 号位（向右靠齐）✓
     private Label _mfContent = null!;
     private Darkest.Ui.BattleMiniMap? _mfMap;
@@ -1485,6 +1486,26 @@ public partial class BattleUi : CanvasLayer
         for (int i = 0; i < 4; i++)
         {
             FillCard(_cards[4 + i], enemy[i], _portraits[4 + i]); // 敌方 1,2,3,4
+
+            // 🔴 P5（用户参考图②）：**悬停敌人 ⇒ 显示敌人信息** —— 走 `TooltipText`（悬停即现），
+            //    内容 = 名字/HP/士气/状态 + **意图**（`PreviewIntent`，隔离 RNG 不吃抽数）✓
+            UnitProjection eu = enemy[i];
+            if (eu.UnitId != "-" && _host is not null)
+            {
+                Darkest.Gameplay.Sim.Director.IntentProjection ip = _host.PreviewIntent(new Darkest.Core.Contracts.UnitId(eu.UnitId));
+                string intent = ip.SkillId is null
+                    ? $"意图：{ip.Status}"
+                    : $"意图：{SkillName(ip.SkillId)} → 槽位 {(ip.TargetSlots.Length == 0 ? "无" : string.Join(",", ip.TargetSlots))}";
+                string buffs = eu.Buffs.Count == 0 ? "无" : string.Join("、", eu.Buffs);
+                string tip = $"{NameOf(eu.Archetype.Length > 0 ? eu.Archetype : eu.UnitId)}（{eu.UnitId}）\n" +
+                             $"HP {eu.Hp}/{eu.MaxHp}　士气 {eu.Morale}　状态：{buffs}\n{intent}";
+                _cards[4 + i].card.TooltipText = tip;
+                if (_lastEnemyTipLogged != tip)
+                {
+                    _lastEnemyTipLogged = tip;
+                    GD.Print($"[UI 敌人信息·悬停] 槽位 {eu.Slot} ⇒ " + tip.Replace("\n", " ｜ "));
+                }
+            }
         }
 
         FillCard(_cards[8], player[4], _portraits[8]);
