@@ -27,3 +27,14 @@ Example/**
 
 
 tools/__pycache__/
+
+# 🔴 借用占位素材（Steam Workshop mod，无授权）—— 绝不进仓库
+# 依据：doc/modules/hero_assets.md（英雄资产接口）· ssets_credits.md A1 · 红线 27
+borrow/
+# 借用占位的落点（永不用正式资产）—— 也不进仓库
+darkest/assets/heroes_placeholder/
+
+# 🔴 大留档不入库（架构 O-90：与 2.8GB 事故同族）—— reports/ 只入库【摘要与文档】：
+reports/*.txt
+!reports/*_summary_*.txt
+reports/*.log
