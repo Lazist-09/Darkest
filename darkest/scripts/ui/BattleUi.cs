@@ -161,7 +161,7 @@ public partial class BattleUi : CanvasLayer
     {
         if (_mapModeCamp is null || !GodotObject.IsInstanceValid(_mapModeCamp))
         {
-            _mapModeCamp = new Darkest.Ui.CampSkillPanel { Name = "MapModeCamp", CustomMinimumSize = new Vector2(0, 64) };  // 🔴 相机 720 口径：96→64
+            _mapModeCamp = new Darkest.Ui.CampSkillPanel { Name = "MapModeCamp", CustomMinimumSize = new Vector2(210, 96) }; // 🔴 预留宽度+按 720 收高  // 🔴 相机 720 口径：96→64
             DungeonHost().AddChild(_mapModeCamp);
         }
 
@@ -420,6 +420,7 @@ public partial class BattleUi : CanvasLayer
         if (_mapModeScoutMark is null || !GodotObject.IsInstanceValid(_mapModeScoutMark))
         {
             _mapModeScoutMark = new Darkest.Ui.ScoutMarkPanel { Name = "MapModeScoutMark" };
+        _mapModeScoutMark.CustomMinimumSize = new Vector2(210, 36);   // 🔴 预留宽度：内部内容 314 宽 ⇒ 不预留就溢出压邻居（实测 1 对重叠）
             host.AddChild(_mapModeScoutMark);
         }
 
