@@ -27,6 +27,7 @@ public partial class InventoryPanel : PanelContainer
     private InventoryItem? _pendingPickup;
 
     private GridContainer _grid = null!;
+    private Button? _consumeFood; // 包满时的显式"消耗口粮腾格"动作（内核回答可用性）
     private Label _hint = null!;
     private readonly List<Button> _slotButtons = new();
 
@@ -55,6 +56,33 @@ public partial class InventoryPanel : PanelContainer
         _grid.AddThemeConstantOverride("h_separation", 6);
         _grid.AddThemeConstantOverride("v_separation", 6);
         col.AddChild(_grid);
+
+        // 🔴 主程序清单第 4 组之一：**就地消耗口粮腾格**（`Inventory.TryConsumeFoodToFreeSlot`）
+        //    —— 原先这里只有一句注释/HINT"备选路径之一"，**并没有动作**（红线 21：不留"看起来能点"的假动作）⚠️
+        //    ⇒ 现在做成**显式按钮**：仅在**包满**时出现；可用性由内核回答（无口粮 ⇒ 置灰 + tooltip 说明）✓
+        _consumeFood = new Button
+        {
+            Name = "ConsumeFoodToFreeSlot",
+            Text = "消耗口粮腾出一格",
+            CustomMinimumSize = new Vector2(0, 30),
+            Visible = false,
+        };
+        _consumeFood.Pressed += () =>
+        {
+            if (_bag is null)
+            {
+                return;
+            }
+
+            bool ok = _bag.TryConsumeFoodToFreeSlot(out InventoryItem? consumed);
+            _hint.Text = ok
+                ? $"已消耗 {Describe(consumed!)} 腾出一格"
+                : "没有可消耗的口粮（内核拒绝，不部分扣）";
+            GD.Print($"[背包] 消耗口粮腾格：内核受理={ok}（剩余 {_bag.Slots.Count}/{_bag.SlotCap}）");
+            Rebuild();
+            _onChanged?.Invoke();
+        };
+        col.AddChild(_consumeFood);
         Visible = false;
     }
 
@@ -115,11 +143,27 @@ public partial class InventoryPanel : PanelContainer
             return;
         }
 
-        // 非丢弃状态：就地消耗口粮腾格（策划给的备选路径之一）
+        // 非丢弃状态：只是**选中**该格并说明（真正"腾格"走上面那个显式按钮；文案不得承诺未实现的动作 ✓）
         if (_bag.Slots.Count > index)
         {
             _hint.Text = $"已选中第 {index + 1} 格：{Describe(_bag.Slots[index])}";
         }
+    }
+
+    /// <summary>包满时刷新显式"消耗口粮腾格"按钮的可见性/可用性（**由内核回答**，红线 21）✓</summary>
+    private void RefreshConsumeFoodButton()
+    {
+        if (_bag is null || _consumeFood is null)
+        {
+            return;
+        }
+
+        bool full = _bag.Slots.Count >= _bag.SlotCap;
+        _consumeFood.Visible = full;
+        _consumeFood.Disabled = !full || _bag.CountOf(ItemKind.Food) <= 0;
+        _consumeFood.TooltipText = !full
+            ? "背包未满 ⇒ 不需要腾格"
+            : _bag.CountOf(ItemKind.Food) <= 0 ? "没有口粮可消耗" : "消耗 1 个口粮腾出一格（内核决定规则）";
     }
 
     /// <summary>重建格子（纯渲染；格数来自内核 `SlotCap`）。</summary>
@@ -134,6 +178,8 @@ public partial class InventoryPanel : PanelContainer
         {
             child.QueueFree();
         }
+
+        RefreshConsumeFoodButton(); // 🔴 包满时才出现"消耗口粮腾格"（可见性/可用性由内核回答）✓
 
         _slotButtons.Clear();
         for (int i = 0; i < _bag.SlotCap; i++)
