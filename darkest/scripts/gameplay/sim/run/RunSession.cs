@@ -81,7 +81,7 @@ public class RunSession : IRunSession
     private readonly List<string> _roster = new();
     private readonly Dictionary<string, int> _rosterMaxHp = new(); // 整编最大 HP 分母（第一场记录，跨场固定）
 
-    public RunSession(Func<CombatLog, BattleDirector> buildDirector, int battles = 3)
+    public RunSession(Func<CombatLog, BattleDirector> buildDirector, int battles) // 🔴 数字外置：去掉默认值 `= 3`（默认参数 = 静默默认 ⚠️）⇒ 由调用方显式给（`tuning.expedition.n_battles`）✓
     {
         _buildDirector = buildDirector ?? throw new ArgumentNullException(nameof(buildDirector));
         _battles = Math.Max(1, battles);

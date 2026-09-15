@@ -790,7 +790,7 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
         foreach (UnitRuntime u in director.Player.UnitsInSlotOrder())
         {
             string id = u.Id.Value;
-            int morale = Retained.TryGetValue(id, out (int Hp, int Morale, bool Weak) cur) ? cur.Morale : 50;
+            int morale = Retained.TryGetValue(id, out (int Hp, int Morale, bool Weak) cur) ? cur.Morale : MoraleStart; // 🆕 数字外置：缺台账 ⇒ 用 `MoraleStart`（= `tuning.morale.start`，未注入退回契约常量 `RookieMorale`）✓
             bool weak = Retained.TryGetValue(id, out (int Hp, int Morale, bool Weak) cur2) && cur2.Weak;
             int hp = Math.Clamp(u.CurrentHp, 0, u.MaxHp);
             if (Retained.TryGetValue(id, out (int Hp, int Morale, bool Weak) before) && before.Hp == hp)
