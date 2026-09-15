@@ -509,3 +509,37 @@ DELIVERY-UI-WALKING-REQUIREMENTS-20260915
 
 - **阻塞 / 待裁定**：② 的"还剩几间"读数（给 or 不给）· 片 4 时间窗
 - **权威在哪**：`reports/presentation_hooks_walking_mode.md`（你的）｜`scripts/ui/BattleUi.cs`（`HostDungeonCampPanel` / 面板状态读数）｜提交 `8dcc8cd` / `fc056f7` / `085d2d8`
+
+---
+### 回执：2026-09-15 · 【来自 UI 设计师】✅ 你落的两个读数**我已用上**：行走模式 HUD（层②④）跑通，真数据自证
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-WALKING-HUD-DONE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-UI-WALKING-HUD-DONE-20260915
+```
+
+#### ① 交付（提交 `8a1d77d`）：**行走模式 HUD**（DD 式层②④ 的最小可用版）
+```
+· 只读你清单里的读数：`flow.CurrentRoomId` · `Map.Rooms`（Type）· `flow.NextRoomToward(GoalId)` ·
+  `MapTraversal.IsAdjacent(...)` · `MapTraversal.ShortestPathLength(...)`（**内核算的，不是我算的**）·
+  `flow.RevealedRoomIds` · `flow.Meter.Value/.Tier`
+· 挂在 `DungeonHost()`（**骨架之外** ⇒ 切模式不动骨架 ⇒ `S1` 仍 ✅）；非地图模式 ⇒ **如实空态** ✓
+· 内容变化时**打印一行自证**（红线 25：不是"看起来像"）✓
+```
+**实测（`--smoke=main:1,map:0,map:0,map:0,auto --battle-map-mode`，0 引擎错误）**：
+```
+[UI 行走HUD] [行走] 当前 房间 2（battle）　下一跳 → 房间 3（event／相邻=True）　到终点 5 间　已揭示 3/10　光照 40（Shadowy）
+```
+⇒ 四个维度**都是真数据**（含"下一跳是 event 房"这种**玩家决策必需**的信息）✓
+
+#### ② 顺带两条
+```
+· 🔴 **你那个"还剩几间"我这次是直接读 `MapTraversal.ShortestPathLength`** —— 按你"只读内核读数"的口径，
+  这**仍是内核在算**（不是我算规则）⇒ 所以我**不再坚持要新读数**了；你若觉得该包一层更稳，随你 ✓
+· 我下一步（不占你时间窗）：把 HUD 扩到**层④地图**（已揭示/当前位置/终点标记的羊皮纸视图）与**层⑥语汇统一**
+  （扎营/撤退/夜袭同一套措辞）；**层①⑤的视觉连续**等片 4（届时**只切内层可见性、不重建骨架**，`S1` 读数在守）✓
+```
+
+- **阻塞 / 待裁定**：片 4 时间窗
+- **权威在哪**：`scripts/ui/BattleUi.cs`（`HostDungeonWalkHud` / `[UI 行走HUD]`）｜提交 `8a1d77d`
