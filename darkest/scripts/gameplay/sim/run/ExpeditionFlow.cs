@@ -65,6 +65,12 @@ public sealed class ExpeditionFlow
     /// <summary>某个房间是否已探索过（供 UI 区分"已探索 / 可走"）。</summary>
     public bool HasVisited(int roomId) => _visitedRooms?.Contains(roomId) ?? false;
 
+    /// <summary>🆕 表现层读数：**已揭示房间集合**（= `HasVisited` 的集合形态；省得逐间问）✓ 顺序无意义 ✓</summary>
+    public IReadOnlyList<int> RevealedRoomIds => _visitedRooms is null ? Array.Empty<int>() : _visitedRooms.ToArray();
+
+    /// <summary>🆕 表现层读数：**朝目标走的下一间**（走廊推进用；-1 = 不可达/已到）—— 口径见 `MapTraversal.FirstStepToward` ✓</summary>
+    public int NextRoomToward(int roomId) => _map is null ? -1 : MapTraversal.FirstStepToward(_map, _currentRoomId, roomId);
+
     /// <summary>当前房间（拓扑模式）。</summary>
     public int CurrentRoomId => _currentRoomId;
 

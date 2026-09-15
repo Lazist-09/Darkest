@@ -47,6 +47,53 @@ public static class MapTraversal
     }
 
     /// <summary>从起点走到终点的**最短段数**（BFS；用于报告"这张图要走几段"）。</summary>
+    /// <summary>
+    /// 🔴 **朝目标走的下一个房间**（表现层"走廊推进"用；返回 -1 = 不可达/已在目标）——
+    /// BFS 求一条最短路，返回**第一跳**的房间 id ✓
+    /// 📌 为什么返回"房间 id"而不是"左/右"：**方向是表现层的排版决定**（走廊怎么摆是 UI 的事），
+    ///    内核只保证"图上的下一跳是哪间"（口径确定、可断言）✓
+    /// </summary>
+    public static int FirstStepToward(ExpeditionMap map, int from, int to)
+    {
+        if (map is null || from == to)
+        {
+            return -1;
+        }
+
+        var prev = new System.Collections.Generic.Dictionary<int, int>();
+        var queue = new System.Collections.Generic.Queue<int>();
+        queue.Enqueue(from);
+        prev[from] = -1;
+        while (queue.Count > 0)
+        {
+            int cur = queue.Dequeue();
+            foreach (MapEdge e in map.Edges)
+            {
+                int next = e.From == cur ? e.To : e.To == cur ? e.From : -1;
+                if (next < 0 || prev.ContainsKey(next))
+                {
+                    continue;
+                }
+
+                prev[next] = cur;
+                if (next == to)
+                {
+                    // 回溯到 from 的**第一跳** ✓
+                    int step = to;
+                    while (prev[step] != from && prev[step] >= 0)
+                    {
+                        step = prev[step];
+                    }
+
+                    return step;
+                }
+
+                queue.Enqueue(next);
+            }
+        }
+
+        return -1;
+    }
     public static int ShortestPathLength(ExpeditionMap map, int from, int to)
     {
         var adj = new Dictionary<int, List<int>>();
