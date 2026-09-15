@@ -977,7 +977,7 @@ public partial class HamletRoot : Node2D
             return false;
         }
 
-        GD.Print($"[HamletRoot] PressRosterRow({index})：发出真实 Pressed（「{_heroButtons[index].Text}」）");
+        GD.Print($"[HamletRoot] PressRosterRow({index})：发出真实 Pressed（「{(_heroButtons[index].Text is { Length: > 0 } t ? t : _heroButtons[index].TooltipText)}」）");
         _heroButtons[index].EmitSignal(BaseButton.SignalName.Pressed);
         return true;
     }
@@ -1096,17 +1096,36 @@ public partial class HamletRoot : Node2D
                 string dots = new string('●', Math.Clamp(morale / 10, 0, 10)).PadRight(10, '○');
                 string abbrev = h.Name.Length > 0 ? h.Name[..1] : "?";
                 bool canRelief = morale < RosterConfig.RookieMorale;
+                int lv = LevelOfHero(id);
+                string dodge = DodgeOfHero(h);
+                // 🔴 DD 式紧凑行（用户参考图①）：**立绘留框（色块占位） + 等级 + 压力点阵 + 防御** ✓
+                //    框 = `PanelContainer`（主题不透明面板样式 ⇒ 自带 1px 边框）⇒ 以后放立绘只换里面那格 ✓
+                //    文字走**子 Label**（按钮自身 `Text` 置空，避免与子控件叠字）✓
                 var b = new Button
                 {
                     Name = $"RosterRow_{id}",
-                    // 🔴 **名册瘦身**（用户 2026-09-14：「名册那部分不需要这么详细，放在详情页就好了」）：
-                    //    行上只留 **缩写 + 名字 + 士气点阵 + 可减压标记**（这三样是"选谁减压"的决策输入）；
-                    //    **装备位 / 特质 / 疾病 / 技能**等细节一律搬进【角色详情】（点这一行就打开）✓
-                    // 🔴 DD 式紧凑行（用户参考图①）：**缩写(头像位) + 等级 + 压力点阵 + 防御** —— 数据全来自 dat(roster.json / units.json) ✓
-                    Text = $"{abbrev} Lv{LevelOfHero(id)}　{dots}　防{DodgeOfHero(h)}" +
-                           (canRelief ? "　·可减压" : string.Empty),
-                    CustomMinimumSize = new Vector2(300, 28),
+                    CustomMinimumSize = new Vector2(300, 32),
+                    TooltipText = $"{h.Name}　Lv{lv}　士气 {morale}　防御 {dodge}{(canRelief ? "　·可减压" : string.Empty)}",
                 };
+                var rowBody = new HBoxContainer { Name = "RosterRowBody" };
+                rowBody.AddThemeConstantOverride("separation", 6);
+                rowBody.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+                b.AddChild(rowBody);
+                var frame = new PanelContainer { Name = "PortraitFrame", CustomMinimumSize = new Vector2(26, 26) };
+                rowBody.AddChild(frame);
+                frame.AddChild(new ColorRect
+                {
+                    Name = "PortraitPlaceholder", // 🔴 色块占位（`§14.4` 原型色 ⇒ 不硬写字面量）✓
+                    Color = Darkest.Ui.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true),
+                });
+                var info = new Label
+                {
+                    Name = "RosterInfo",
+                    Text = $"Lv{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压" : string.Empty)}",
+                    VerticalAlignment = VerticalAlignment.Center,
+                };
+                info.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+                rowBody.AddChild(info);
                 b.Pressed += () =>
                 {
                     SelectHero(id);          // 保留既有"减压按人选"
