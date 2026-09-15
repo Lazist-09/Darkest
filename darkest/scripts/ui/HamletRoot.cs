@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -26,6 +26,9 @@ public partial class HamletRoot : Node2D
     private Label _banner = null!;
     private Label _rosterCount = null!;
     private Label _resourceBar = null!;
+
+    /// <summary>🔴 P2：建筑**唯一入口**按钮（三栋共用；明细在二级窗口里切换）✓</summary>
+    private Button? _buildingEntry;
     private Label _buildingInfo = null!;
     private Label _rosterTitle = null!;
     private VBoxContainer _rosterList = null!; // 🔴 §14：名册竖列的容器（行由 Refresh 填，不再写坐标）
@@ -198,6 +201,10 @@ public partial class HamletRoot : Node2D
         {
             string bId = upgradable[i];
             string label = buildingNames[i];
+
+            // 🔴 P2：入口文案 = **三栋摘要**（一次算好）；只**建一个**按钮（i>0 直接跳过）✓
+            string buildingEntryText = "🏛 建筑：" + string.Join("　", upgradable.Select((bid, k) =>
+                $"{buildingNames[k]} Lv{ExpeditionContext.Heirlooms?.LevelOf(bid) ?? 0}"));
             bool unlocked = bId == "stagecoach" || unlockedBuildings.Contains(bId);
 
             if (!unlocked)
@@ -215,19 +222,28 @@ public partial class HamletRoot : Node2D
                 continue;
             }
 
+            // 🔴 DD 式 P2（用户参考图①）：**建筑只留【一个入口】**（用户原话"只有一个按钮没有其他"）——
+            //    三栋的明细与切换一并在**二级窗口**里（`BuildingPopup` 左列切换）⇒ 主城本体干净 ✓
             var ub = new Button
             {
-                Name = $"Upgrade_{bId}",
-                // 🔴 按钮上只留"名称 + 当前等级"（详细使用走二级窗口 —— 用户 2026-09-14 要求）✓
-                Text = $"🏛 {label}　Lv{ExpeditionContext.Heirlooms?.LevelOf(bId) ?? 0}",
-                CustomMinimumSize = new Vector2(180, 32),
+                Name = $"BuildingEntry_{bId}",
+                Text = buildingEntryText, // 入口文案 = 三栋摘要（见下，一次性算好）
+                CustomMinimumSize = new Vector2(220, 34),
             };
-
-            // 🔴 **点击 = 打开建筑详情弹窗**（可关）；**升级**变成弹窗里的显式动作（不再是"点一下就升级"）✓
             ub.Pressed += () => OpenBuildingPopup(bId);
             ub.MouseEntered += () => ShowBuildingInfo(bId); // 悬停仍给一行摘要（低成本、不占版面）
             buildingRow.AddChild(ub);
-            _upgradeButtons[bId] = ub;
+            _upgradeButtons[bId] = ub; // ⚠️ 明细按钮在弹窗里（`RefreshBuildingPopup` 重建）；这里三栋都登记到**同一个入口**（`PressUpgrade` 两步路径仍成立）✓
+            if (i == 0)
+            {
+                _buildingEntry = ub; // 只保留第一个作为入口；其余栋不再各建按钮（DD 式"只有一个按钮"）✓
+            }
+            else
+            {
+                buildingRow.RemoveChild(ub);
+                ub.QueueFree();
+                continue;
+            }
         }
 
         _buildingInfo = new Label
@@ -1197,6 +1213,8 @@ public partial class HamletRoot : Node2D
                 bool can = heirlooms.CanUpgrade(b);
                 btn.Disabled = !can;
                 UpgradeLevel? next = heirlooms.NextLevel(b);
+                if (ReferenceEquals(btn, _buildingEntry)) { continue; } // 🔴 入口按钮文案由摘要统一写（不在按栋循环里覆盖）
+
                 // 🔴 按钮文案带上【当前等级】（玩家一眼看得到），详细使用仍走点击后的二级窗口 ✓
                 btn.Text = next is null
                     ? $"🏛 {b}　Lv{heirlooms.LevelOf(b)}（已满级）"
