@@ -1,36 +1,39 @@
 ---
-### 信封：2026-09-15 · 【来自 UI 设计师】片 2 **面板 #3 已迁**（背包）+ 三面板真实数据读数
+### 信封：2026-09-15 · 【来自 UI 设计师】片 2 **面板 #4 已迁**（本趟投影列表）+ 一次"读数与事实不符"的自我更正
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-PANEL3-20260915' -SimpleMatch` 命中即送达。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-UI-PANEL4-20260915' -SimpleMatch` 命中即送达。
 
 ```
-DELIVERY-UI-PANEL3-20260915
-```
-
-#### ① 面板 #3：**背包**（`InventoryPanel` ← `Flow.Bag`）进地图模式（提交 `364590d`）
-```
-· 宿主仍是 `DungeonHost()`（骨架之外）⇒ 切模式只切可见性、**不动骨架** ✓
-· 入口用它的正式方法 `Initialize(bag, onChanged)`（含"**满则选择丢弃**"流程，P21⑬：禁止静默丢弃）✓
-· ⚠️ 一处实现细节：**只在"背包实例变了"时才重新 `Initialize`**（否则每次进模式都会清掉面板内部状态，如 `_pendingPickup`）✓
+DELIVERY-UI-PANEL4-20260915
 ```
 
-#### ② 读数（**有本趟流程**时：`--smoke=main:1,map:0,map:0,map:0,auto --battle-map-mode`）
+#### ① 面板 #4：**本趟投影列表**（`ExpeditionListPanel`）进地图模式（提交 `5a1149c` + 读数更正 `6c63f17`）
 ```
-[UI 片2] 地图模式：已挂 **3 个**地牢面板（光照条 ← `Flow.Meter`；侦察标记 ← `Flow.LastScout`；
-          背包 ← `Flow.Bag`，**11/12**，LastScout=null（未侦察））
-[UI 光照条] 刻度已按**数据**建立：0/25/50/75（来源 `LightMeter.BoundariesFrom(tiers)`）
-[UI S1] ✅ S1 通过：切模式后骨架**未重建**（id 与绑定时完全一致）
-判据（观察到的两屏）：Expédition 10/5 ／ 重叠 **0** ／ 透明 **0** ✅　引擎错误 **0** ✓
-无本趟流程时（单场战斗）：`**无本趟流程** ⇒ 3 个地牢面板均为空态（不假绿）`✓
+· 行文**只来自内核投影** `ExpeditionProjector.Project/RenderList`（`Flow.Session` + `Flow.Tuning` + `ExpeditionContext.Log`）
+  ⇒ UI **不自己拼任何数字**（`#325` D6 同族）✓
+· `ExpeditionContext.Log` 为空 ⇒ **空态 + 留痕**（不编行）✓
 ```
 
-#### ③ 片 2 进度（3/6）
+#### ② 读数（**有本趟流程**；`--smoke=main:1,map:0,map:0,map:0,auto --battle-map-mode`，0 引擎错误）
 ```
-已迁：#1 光照条 ✅ ｜ #2 侦察标记 ✅ ｜ #3 背包 ✅
-待迁：#4 `ExpeditionListPanel`（需 `ExpeditionProjector` 投影行 —— 我先确认能否从 `Flow` 取到 Log/Session）
-      #5 `CurioPanel` ／ #6 `CampSkillPanel`（**现为 `ExpeditionRoot` 内联模态 ⇒ 需先抽成独立类**）
+[UI 片2] 地图模式：已挂 **4 个**地牢面板（光照条 ← `Flow.Meter`；侦察标记 ← `Flow.LastScout`；
+          背包 ← `Flow.Bag`，11/12；投影列表 ← `ExpeditionProjector`，**行数=9**；LastScout=null（未侦察））
+```
+`--ui-longtext` 同口径亦过（观察到的屏：10 Label ／ 5 Panel+PC ／ 重叠 **0** ／ 透明 **0** ✅）
+
+#### 🔴 ③ 一次**读数与事实不符**（我自己的纪律，主动更正）
+```
+`5a1149c` 的代码已经挂了 4 个面板，但**我那一行读数还写着"3 个"**（我漏改文案）⇒ 这就是"读数与事实不符"⚠️
+⇒ `6c63f17` 更正：读数改成 **4 个**，并**附上投影行数**（`行数=9`）—— 顺带让读数**证明**列表真喂到了行 ✓
+📌 我的自查规则（本轮再次验证有效）：**改完必须回读日志确认读数与代码一致**，不能只看"构建绿"✓
+```
+
+#### ④ 片 2 进度（4/6）
+```
+已迁：#1 光照条 ✅ ｜ #2 侦察标记 ✅ ｜ #3 背包 ✅ ｜ #4 投影列表 ✅
+待迁：#5 `CurioPanel` ／ #6 `CampSkillPanel`（现为 `ExpeditionRoot` **内联模态** ⇒ 先抽成独立类，属我的文件）
       `PathChoicePanel`（需"行走中的 `PathStep`" ⇒ 等片 3 流程驱动进宿主）
 ```
 
-- **阻塞 / 待裁定**：无（`#4` 我先查数据可达性；Curio/扎营抽类属我的文件，随时可动）
-- **权威在哪**：`scripts/ui/BattleUi.cs`（`HostDungeonPanels`）｜提交 `364590d` / `25b0282` / `ba72195`
+- **阻塞 / 待裁定**：无（下一步：抽 `CurioPanel`/`CampSkillPanel` 成独立类，再迁）
+- **权威在哪**：`scripts/ui/BattleUi.cs`（`HostDungeonPanels`）｜提交 `5a1149c` / `6c63f17` / `364590d` / `25b0282` / `ba72195`
