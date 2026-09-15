@@ -1,0 +1,8 @@
+﻿# 片 4 收尾·全量冒烟留档（20260915_2343） # 每例加 --quit-after 3600（约 60 秒）；退休后冒烟会停在「等玩家」⇒ 正常，不是挂死 ✓ # 列：用例 | 行数 | 非环境ERROR
+entry-main1 | 行数=61 | 非环境ERROR=0
+topology-auto | 行数=42 | 非环境ERROR=0
+hamlet-next | 行数=36 | 非环境ERROR=0
+e2e | 行数=85 | 非环境ERROR=0
+map-mode | 行数=70 | 非环境ERROR=0
+click-menu0 | 行数=24 | 非环境ERROR=0
+ui-audit | 行数=124 | 非环境ERROR=0

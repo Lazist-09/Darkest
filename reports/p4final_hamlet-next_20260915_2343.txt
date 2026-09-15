@@ -1,0 +1,36 @@
+Godot Engine v4.6.1.stable.mono.official.14d19694e - https://godotengine.org
+D3D12 12_0 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+[Theme] 字体：EBGaramond.ttf（fallback NotoSerifSC-Regular.otf）⇒ 已接（`§13.4①`）　✅ 中文覆盖（`HasChar('黑')` = true）
+[Theme] 标题字重：已接 NotoSerifSC-Bold.otf（type variation `TitleLabel`，字号 18）
+[MainMenuRoot] 解锁阈值表：4 条　起手可用上限 8（硬上限 12）　征途进度：已完成出征 0 趟（已胜 0 场）　已解锁 0 项［］　名册当前可用上限 8（硬上限 12）　Curio 可用 4 种
+[启动自检·调色板] ✅ `UiPalette.Default()` 与 `res://resources/theme/ui_palette.tres` **逐字段一致**（32 项）⇒ 两视图未分叉（`#325` D6）
+[冒烟] 步骤驱动已启用：共 1 步 —— main:1
+[冒烟] 第 1 步：main:1（场景 MainMenu / MainMenuRoot）
+[MainMenuRoot] PressMenu(1)：发出真实 Pressed 信号（按钮「出发远征（地牢层）」）
+[MainMenuRoot] --expedition/--e2e/--hamlet-next/--topology ⇒ 直达地牢层（冒烟路径）
+[片4] 名册出征 6 人（按模板槽位原型配人）：石墙(tank Lv2 士气40)、老铁(warrior Lv2 士气45)、血徽(commissar Lv2 士气50)、白手(medic Lv2 士气50)、灰手(warrior Lv1 士气50)、麻布(medic Lv1 士气50)
+[片4] 拓扑模式已开启：9 间 ／ 支路 2 ／ 分叉 2 ／ 起点 0 ⇒ 终点 6（还剩 6 段）✓
+[UI 模式] 地图模式请求：**UI 尚未构建**（宿主在 `_Ready` 阶段就调了）⇒ 延后到 `Bind()` 之后 ✓
+[片4] ✅ **场景内进入地牢**（地图模式）：Phase=Walking　段数=0　光照=100　CanShowPathChoice=True（应为 True）✓
+[片4-driver] --hamlet-next ⇒ 本趟结算并回城（冒烟路径：启动 → 跑图 → 回城）✓
+[片③] E 区多功能框 ⇒ 切到【详情】页
+[BattleUi] 容器树就绪：顶栏／主体（我方 4+2 ←→ 敌方 4）／底栏（C 区含技能栏 ＋ E 区多功能框） ⇒ 控件**创建时进容器** ✓
+[BattleUi] 暗黑地牢式排布就绪（横排：我方 4321 ｜ 敌方 1234；支援位后排；底部技能栏）。
+[UI S1] 首次绑定（第 1 次）：已记录骨架指纹，重绑/切模式时自动判定 ✓
+[UI 模式] `Bind()` 完成 ⇒ 补进【地图模式】（此前因 UI 未建而延后）✓
+[片③] E 区多功能框 ⇒ 切到【地图】页
+[片③] E 区多功能框 ⇒ 切到【地图】页
+[UI 模式] 进地图模式 ⇒ 已切到地图页（拓扑模式下为【格子主画面】）✓
+[UI 片2] 地图模式：**无本趟流程** ⇒ 4 个地牢面板均为空态（如实报，不假绿）
+[UI 模式] 进入【地图模式】　模式=Map　E区页=4（地图页=4）　S1 骨架存活读数：根=UiRoot#39191578047 背景=BattleBg#39225132482 顶栏=TopRowBox#39359350233 主体=MidRowBox#39426459105 底栏=BottomRowBox#39493567973 地图(MfMap#45600474964)（**进战斗前后应相同**；当前每次 Bind 会重建 ⇒ 迁移目标）
+[UI S1] ✅ S1 通过：切模式后骨架**未重建**（id 与绑定时完全一致）
+[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算；R 重开（新 seed）。
+[BattleRoot] 地牢层入口就绪：StartExpedition 按钮（或 --expedition 命令行）⇒ **本场景内进地牢**（片 4：唯一宿主）✓
+[BattleRoot] 回城入口就绪：ToHamlet 按钮（或 --hamlet 命令行）⇒ res://scenes/hamlet/Hamlet.tscn
+[冒烟] 落到战斗场景且下一步不是 auto ⇒ 自动打完并返回（脚本无需预知房间类型）
+[BattleRoot] --battle-auto-finish ⇒ **自动玩家打完**：胜　回合 5
+[BattleRoot] 战斗结束：我方胜利（自动玩家）（第 5 回合）。系统触发：士气触底 1 / 虚弱 1 / 死门 0 / 撤退出现 0 / 美德 0 / 折磨 1 / 位移 2。按 R 重开。
+[HamletRoot] 城池建筑：已解锁 2 ／ 3（起手只有 Stage Coach；已完成出征 1 趟）
+[HamletRoot] 回城就绪：金钱 0（跨趟持有；减压一次 3）　名册 8 人（士气跨趟；最低 40）
+[冒烟] ✅ 全部 1 步已执行完 ⇒ 退出

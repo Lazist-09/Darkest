@@ -1,0 +1,42 @@
+Godot Engine v4.6.1.stable.mono.official.14d19694e - https://godotengine.org
+D3D12 12_0 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+[Theme] 字体：EBGaramond.ttf（fallback NotoSerifSC-Regular.otf）⇒ 已接（`§13.4①`）　✅ 中文覆盖（`HasChar('黑')` = true）
+[Theme] 标题字重：已接 NotoSerifSC-Bold.otf（type variation `TitleLabel`，字号 18）
+[MainMenuRoot] 解锁阈值表：4 条　起手可用上限 8（硬上限 12）　征途进度：已完成出征 0 趟（已胜 0 场）　已解锁 0 项［］　名册当前可用上限 8（硬上限 12）　Curio 可用 4 种
+[启动自检·调色板] ✅ `UiPalette.Default()` 与 `res://resources/theme/ui_palette.tres` **逐字段一致**（32 项）⇒ 两视图未分叉（`#325` D6）
+[冒烟] 步骤驱动已启用：共 1 步 —— main:1
+[冒烟] 第 1 步：main:1（场景 MainMenu / MainMenuRoot）
+[MainMenuRoot] PressMenu(1)：发出真实 Pressed 信号（按钮「出发远征（地牢层）」）
+[片4] 名册出征 6 人（按模板槽位原型配人）：石墙(tank Lv2 士气40)、老铁(warrior Lv2 士气45)、血徽(commissar Lv2 士气50)、白手(medic Lv2 士气50)、灰手(warrior Lv1 士气50)、麻布(medic Lv1 士气50)
+[片4] 拓扑模式已开启：9 间 ／ 支路 2 ／ 分叉 2 ／ 起点 0 ⇒ 终点 6（还剩 6 段）✓
+[UI 模式] 地图模式请求：**UI 尚未构建**（宿主在 `_Ready` 阶段就调了）⇒ 延后到 `Bind()` 之后 ✓
+[片4] ✅ **场景内进入地牢**（地图模式）：Phase=Walking　段数=0　光照=100　CanShowPathChoice=True（应为 True）✓
+[片4-driver] --topology-auto：走到**终点**　路径 1(−-30) → 2(−-30) → 3(−-30) → 4(−-30) → 5(−-30) → 6(−-30)　光照 0　还剩 0 段 ✓
+[片③] E 区多功能框 ⇒ 切到【详情】页
+[BattleUi] 容器树就绪：顶栏／主体（我方 4+2 ←→ 敌方 4）／底栏（C 区含技能栏 ＋ E 区多功能框） ⇒ 控件**创建时进容器** ✓
+[BattleUi] 暗黑地牢式排布就绪（横排：我方 4321 ｜ 敌方 1234；支援位后排；底部技能栏）。
+[UI S1] 首次绑定（第 1 次）：已记录骨架指纹，重绑/切模式时自动判定 ✓
+[UI 模式] `Bind()` 完成 ⇒ 补进【地图模式】（此前因 UI 未建而延后）✓
+[UI 地图页·格子主画面] 房间方块 9 个／走廊小方块 8 条（x=深度 · y=同深度内序号）　图例：■当前 ◆终点 □已揭示 ·未揭示（**只画房间**；走廊在画面上是两房之间的小方块） ／ □ □ □ □ □ □ ■  ／       · ·     
+[片③] E 区多功能框 ⇒ 切到【地图】页
+[片③] E 区多功能框 ⇒ 切到【地图】页
+[UI 模式] 进地图模式 ⇒ 已切到地图页（拓扑模式下为【格子主画面】）✓
+[UI 片2] 【扎营】面板：Phase=Walking ⇒ **显示**（可用 11 个技能）✓
+[UI 片2] 地图模式面板状态：侦察标记=显示(1子)　背包=未建　投影列表=隐藏(1子)　扎营=显示(1子)　顶部火把条=显示(1子)　（**显示/隐藏 + 子控件数** ⇒ 门禁与内容都能自证；隐藏是门禁生效，不是没接）
+[UI 相位] Phase=Walking　CanShowCampUi=True　CanShowPathChoice=True　CanShowCurioUi=True　（B 类面板：扎营／选路／Curio 按此三者显示；战斗相位下应全假）
+🔴 [UI 相位·告警] **战斗仍在进行、谓词却为真 ⇒ 相位陈旧**（远征会话冻结在 Walking）⇒ **不得**据此挂 B 类面板（否则=战斗中能扎营）
+[UI 模式] 进入【地图模式】　模式=Map　E区页=4（地图页=4）　S1 骨架存活读数：根=UiRoot#38973474239 背景=BattleBg#39007028674 顶栏=TopRowBox#39141246425 主体=MidRowBox#39208355297 底栏=BottomRowBox#39275464165 地图(MfMap#45382371156)（**进战斗前后应相同**；当前每次 Bind 会重建 ⇒ 迁移目标）
+[UI S1] ✅ S1 通过：切模式后骨架**未重建**（id 与绑定时完全一致）
+[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算；R 重开（新 seed）。
+[BattleRoot] 地牢层入口就绪：StartExpedition 按钮（或 --expedition 命令行）⇒ **本场景内进地牢**（片 4：唯一宿主）✓
+[BattleRoot] 回城入口就绪：ToHamlet 按钮（或 --hamlet 命令行）⇒ res://scenes/hamlet/Hamlet.tscn
+[冒烟] 落到战斗场景且下一步不是 auto ⇒ 自动打完并返回（脚本无需预知房间类型）
+[BattleRoot] --battle-auto-finish ⇒ **自动玩家打完**：胜　回合 5
+[片4] ⚠️ 战斗结束但**当前步骤不是战斗节点**（）⇒ 不调用 `OnBattleFinished`（否则流程如实抛错）；这属【宿主内进地牢的步骤对齐未完成】✓
+[BattleRoot] 战斗结束：我方胜利（自动玩家）（第 5 回合）。系统触发：士气触底 1 / 虚弱 1 / 死门 0 / 撤退出现 0 / 美德 0 / 折磨 1 / 位移 2。按 R 重开。
+[UI 意图] 敌方意图：（当前无敌方单位）
+[UI 光照条] 刻度已按**数据**建立：25/50/75（来源 `LightMeter.BoundariesFrom(tiers)`）
+[UI 动效] 动效（§12.1）：已播 34 次 ／ 运行中 34 ／ 动效层 MouseFilter=Ignore 且不改 ProcessMode ⇒ 输入不被吞 ✓　动效层鼠标穿透实测=✅ Ignore　被冻结 ProcessMode 的控件=0（应为 0）
+[UI 音效] 音效（§12.2）：命中(我) 19 ／ 命中(敌) 12 ／ 受击 12 ／ 死门 0 ／ 阵亡 4 ／ 结算 1　｜　音源：真音源 0 类 ／ 6 类为**程序生成占位音**（res://resources/audio/ 放 <kind>.ogg 即自动替换）　｜　播放器 6 个（无外部文件依赖 ⇒ **音源缺失也能跑**）✓
+[UI S1] S1 骨架存活读数：根=UiRoot#38973474239 背景=BattleBg#39007028674 顶栏=TopRowBox#39141246425 主体=MidRowBox#39208355297 底栏=BottomRowBox#39275464165 地图(MfMap#45382371156)（**进战斗前后应相同**；当前每次 Bind 会重建 ⇒ 迁移目标）

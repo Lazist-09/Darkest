@@ -1,0 +1,24 @@
+Godot Engine v4.6.1.stable.mono.official.14d19694e - https://godotengine.org
+D3D12 12_0 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+[Theme] 字体：EBGaramond.ttf（fallback NotoSerifSC-Regular.otf）⇒ 已接（`§13.4①`）　✅ 中文覆盖（`HasChar('黑')` = true）
+[Theme] 标题字重：已接 NotoSerifSC-Bold.otf（type variation `TitleLabel`，字号 18）
+[MainMenuRoot] 解锁阈值表：4 条　起手可用上限 8（硬上限 12）　征途进度：已完成出征 0 趟（已胜 0 场）　已解锁 0 项［］　名册当前可用上限 8（硬上限 12）　Curio 可用 4 种
+[启动自检·调色板] ✅ `UiPalette.Default()` 与 `res://resources/theme/ui_palette.tres` **逐字段一致**（32 项）⇒ 两视图未分叉（`#325` D6）
+[冒烟] 步骤驱动已启用：共 1 步 —— main:0
+[冒烟] 第 1 步：main:0（场景 MainMenu / MainMenuRoot）
+[MainMenuRoot] PressMenu(0)：发出真实 Pressed 信号（按钮「单场战斗（A1 判定闸）」）
+[片③] E 区多功能框 ⇒ 切到【详情】页
+[BattleUi] 容器树就绪：顶栏／主体（我方 4+2 ←→ 敌方 4）／底栏（C 区含技能栏 ＋ E 区多功能框） ⇒ 控件**创建时进容器** ✓
+[BattleUi] 暗黑地牢式排布就绪（横排：我方 4321 ｜ 敌方 1234；支援位后排；底部技能栏）。
+[UI S1] 首次绑定（第 1 次）：已记录骨架指纹，重绑/切模式时自动判定 ✓
+[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算；R 重开（新 seed）。
+[BattleRoot] 地牢层入口就绪：StartExpedition 按钮（或 --expedition 命令行）⇒ **本场景内进地牢**（片 4：唯一宿主）✓
+[BattleRoot] 回城入口就绪：ToHamlet 按钮（或 --hamlet 命令行）⇒ res://scenes/hamlet/Hamlet.tscn
+[冒烟] 落到战斗场景且下一步不是 auto ⇒ 自动打完并返回（脚本无需预知房间类型）
+[BattleRoot] --battle-auto-finish ⇒ **自动玩家打完**：胜　回合 5
+[BattleRoot] 战斗结束：我方胜利（自动玩家）（第 5 回合）。系统触发：士气触底 1 / 虚弱 1 / 死门 0 / 撤退出现 0 / 美德 0 / 折磨 1 / 位移 2。按 R 重开。
+[UI 意图] 敌方意图：（当前无敌方单位）
+[UI 动效] 动效（§12.1）：已播 34 次 ／ 运行中 34 ／ 动效层 MouseFilter=Ignore 且不改 ProcessMode ⇒ 输入不被吞 ✓　动效层鼠标穿透实测=✅ Ignore　被冻结 ProcessMode 的控件=0（应为 0）
+[UI 音效] 音效（§12.2）：命中(我) 19 ／ 命中(敌) 12 ／ 受击 12 ／ 死门 0 ／ 阵亡 4 ／ 结算 1　｜　音源：真音源 0 类 ／ 6 类为**程序生成占位音**（res://resources/audio/ 放 <kind>.ogg 即自动替换）　｜　播放器 6 个（无外部文件依赖 ⇒ **音源缺失也能跑**）✓
+[UI S1] S1 骨架存活读数：根=UiRoot#38654707135 背景=BattleBg#38688261570 顶栏=TopRowBox#38822479321 主体=MidRowBox#38889588193 底栏=BottomRowBox#38956697061 地图(MfMap#45063604052)（**进战斗前后应相同**；当前每次 Bind 会重建 ⇒ 迁移目标）
