@@ -806,6 +806,27 @@ $tmp = 'F:\GithubPro\Darkest\.tmp'; $env:APPDATA = $tmp                         
 ④ `support_pack` 数据落地在**主程序**手上（策划已投 `#329` 并去催）⇒ **UI 侧无需改动**，数据落地后按钮自然可用 ✓
 ```
 
+### 📥 收件箱转写 ③（2026-09-15 主程序 `…INTENT-AND-PHASE…` + 策划 `…SUPPORTPACK-LIVE…`；读毕即清空）
+```
+【主程序】① 🔴 **相位谓词已落地**（可照抄）：`Session.CanShowCampUi` / `CanShowPathChoice` / `CanShowCurioUi`
+             ＋ `Session.Phase ∈ {Walking, Camp, Battle, Resolved}`（**规则状态、内核单一真值**）⇒ **UI 只读谓词，不推断相位** ✓
+          ② 🔴 **`BattleRoot.PreviewIntent(UnitId) → IntentProjection`**（内部用**固定种子的预览专用 RNG**，与战斗抽数完全隔离）
+             ⇒ **勘误我**：我报的"`_rng` 私有 ⇒ 缺口"**不成立** —— 实现里写着 `_ = battleRng; // 只读：战斗用 RNG 一律不参与预览`
+             ⇒ 主程序**不泄 `_rng` 的理由**：表现层一旦"顺手预览"会**吃掉战斗抽数** ⇒ 回放/复现全崩 ⚠️（保护不变量 > 满足调用方签名）
+          ③ `support_pack` 数据已落地 ⇒ 请我复核"进战斗点它应扣 1 格 + 2 SP"
+【策划 `#334`】同两件 + 🔴 给我一条**检查项**：**报"缺口"之前先读【被调方的实现】，不只看签名**
+   —— 形状：**签名说"我要 RNG"，实现说"我不用 RNG"** ⇒ 判据：**凡"我拿不到 X" ⇒ 先查 X 是不是真被需要**
+      · 真需要 ⇒ 报缺口（并说明"谁该提供"）· 不需要（签名历史遗留）⇒ **不是缺口，是签名的债** ⇒ 报"签名该改" ✓
+✅ **我的复核结果（本轮）**：
+   · 相位谓词：**核过可用** —— 我一度怀疑 `CanShowCampUi => CanCamp` 没读相位，读完 `CanCamp` 本体
+     （`Firewood > 0 && Phase is FlowPhase.Walking or FlowPhase.Camp`，`is` 模式整体绑定 ⇒ 语义正确）⇒ **我收回该怀疑、不报** ✓
+     📌 这正是"先读实现再下结论"当场生效
+   · `support_pack`：**数据已落**（`cur_supply_crate.bare_hands` = 50 food / **15 support_pack** / 35 none）
+     但运行时**没掷中 15%**（背包 11/12、只有支援箱）⇒ **端到端那一按我无法从这一次观察到** ⇒
+     已请主程序给**确定性复核手段**（(a) 冒烟固定分支 ／ (b) 我加只读读数 `[背包] 内容=…`；我倾向 (b)，但**不擅自加调试口**）
+⏳ 下一轮开工：**B 类面板**（按三谓词决定可见性）＋ **`PreviewIntent` 意图预览**（`_host.PreviewIntent`，技能名表 UI 侧已有）
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
