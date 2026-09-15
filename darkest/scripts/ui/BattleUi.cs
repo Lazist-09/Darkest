@@ -201,6 +201,57 @@ public partial class BattleUi : CanvasLayer
         GD.Print($"[UI 片2] 【扎营】面板：Phase={flow.Session.Phase} ⇒ **显示**（可用 {usable.Length} 个技能）✓");
     }
 
+    /// <summary>🔴 行走模式 HUD（`#327` 层②④）：下一跳 / 到终点距离 / 已揭示 / 光照档 —— **全部只读内核读数** ✓</summary>
+    private Label? _walkHud;
+    private string _lastWalkHud = string.Empty;
+
+    /// <summary>
+    /// 🔴 **行走模式 HUD**（DD 式层②④ 的最小可用版）：**只读**内核读数，不新增机制、不自己算规则：
+    /// `flow.CurrentRoomId` / `Map.Rooms`（Id/Depth/Type）· `flow.NextRoomToward(GoalId)` + `MapTraversal.IsAdjacent`
+    /// · `MapTraversal.ShortestPathLength`（**内核算，不是我算**）· `flow.RevealedRoomIds` · `flow.Meter.Value/.Tier` ✓
+    /// ⚠️ 非地图模式 / 无地图 ⇒ **如实空态**（红线 21：不留不可解释的空）；内容变化时**打印一行自证** ✓
+    /// </summary>
+    private void HostDungeonWalkHud(Darkest.Gameplay.Sim.Run.ExpeditionFlow flow)
+    {
+        if (_walkHud is null || !GodotObject.IsInstanceValid(_walkHud))
+        {
+            _walkHud = new Label
+            {
+                Name = "MapModeWalkHud",
+                AutowrapMode = TextServer.AutowrapMode.WordSmart,
+                CustomMinimumSize = new Vector2(0, 24),
+                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            };
+            _walkHud.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
+            DungeonHost().AddChild(_walkHud);
+        }
+
+        var map = flow.Map;
+        if (!flow.IsTopologyMode || map is null)
+        {
+            _walkHud.Text = "行走 HUD：非地图模式（`IsTopologyMode=false` 或无 Map）⇒ 不适用";
+        }
+        else
+        {
+            int cur = flow.CurrentRoomId;
+            string curType = map.Rooms.FirstOrDefault(r => r.Id == cur)?.Type ?? "?";
+            int next = flow.NextRoomToward(map.GoalId); // -1 = 不可达 / 已到终点
+            string nextText = next < 0
+                ? "（不可达 / 已到终点）"
+                : $"→ 房间 {next}（{map.Rooms.FirstOrDefault(r => r.Id == next)?.Type ?? "?"}" +
+                  $"／相邻={Darkest.Gameplay.Sim.Run.MapTraversal.IsAdjacent(map, cur, next)}）";
+            int remain = cur == map.GoalId ? 0 : Darkest.Gameplay.Sim.Run.MapTraversal.ShortestPathLength(map, cur, map.GoalId);
+            _walkHud.Text = $"[行走] 当前 房间 {cur}（{curType}）　下一跳 {nextText}　到终点 {remain} 间" +
+                            $"　已揭示 {flow.RevealedRoomIds.Count}/{map.Rooms.Count}　光照 {flow.Meter.Value}（{flow.Meter.Tier}）";
+        }
+
+        if (_walkHud.Text != _lastWalkHud)
+        {
+            _lastWalkHud = _walkHud.Text;
+            GD.Print($"[UI 行走HUD] {_walkHud.Text}");
+        }
+    }
+
     /// <summary>面板状态读数：**显示/隐藏 + 子控件数**（隐藏 = 门禁生效的**自证**，不是"没接上"）✓</summary>
     private static string PanelState(string name, Control? panel)
         => panel is not null && GodotObject.IsInstanceValid(panel)
@@ -304,6 +355,9 @@ public partial class BattleUi : CanvasLayer
 
             // 🔴 片 2 #6：**扎营**面板（B 类）—— 门禁**只读谓词**（UI 绝不推断相位）✓
             HostDungeonCampPanel(flow);
+
+            // 🔴 行走模式 HUD（层②④）：只读内核读数（下一跳 / 到终点 / 已揭示 / 光照档）✓
+            HostDungeonWalkHud(flow);
 
             if (!ReferenceEquals(_mapModeInventoryBag, flow.Bag))
             {
