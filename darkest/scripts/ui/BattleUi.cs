@@ -543,6 +543,7 @@ public partial class BattleUi : CanvasLayer
         _mode = SceneMode.Battle;
         SetMultiFunctionPage(0);
         DungeonHost().Visible = false; // 🔴 地牢内层随模式收起（**不销毁、不重建**；骨架始终存活）✓
+        if (_eAreaTitle is not null) { _eAreaTitle.Visible = true; }   // 🔴 回到战斗模式 ⇒ 恢复分区标题 ✓
         GD.Print($"[UI 模式] 回到【战斗模式】　{ModeAudit()}");
         GD.Print($"[UI S1] {SkeletonVerdict()}"); // 🔴 退出方向**也要**断言（两向都验，才算"往返不重建"）✓
     }
