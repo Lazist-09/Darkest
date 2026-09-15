@@ -1313,11 +1313,11 @@ public partial class ExpeditionRoot : Node
                 CustomMinimumSize = new Vector2(360, 30),
                 Disabled = !afford,
             };
-            string effect = skill.Effect;
+            // 🔴 主程序新签名（数字从 data 取：`skill.EffectNumber` + `camp.PepTalkBattles`）⇒ 旧参数 `skill.Id/Cost/effect` 全部去掉 ✓
             string target = heroByArchetype[skill.OwnerUnit];
             b.Pressed += () =>
             {
-                bool used = Session.UseCampSkill(Log, skill.Id, skill.Cost, Darkest.Core.Contracts.UnitId.Of(target), effect);
+                bool used = Session.UseCampSkill(Log, skill, Darkest.Core.Contracts.UnitId.Of(target), Tuning!.Camp!);
                 GD.Print($"[拓扑UI] 扎营技能 {skill.Name}：{(used ? "已使用" : "拒绝")}　剩余 Respite {Session.RespiteLeft}");
                 BuildCampSkillPanel(); // 刷新（点数/可用性变化）
             };
