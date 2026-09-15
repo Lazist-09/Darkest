@@ -92,6 +92,12 @@ public partial class BattleRoot : Node2D
             ExpeditionContext.Flow!.Session.EnterPhase(Darkest.Gameplay.Sim.Run.FlowPhase.Battle);
         }
 
+        // 🔴 片 3 冒烟触发器：`--battle-piece3-exp` ⇒ 由宿主**在场景内**起流程战斗（验证"不再切场景"这条路）✓
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-piece3-exp"))
+        {
+            StartExpeditionBattleInScene();
+        }
+
         NewGame();
         GD.Print("[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算；R 重开（新 seed）。");
 
@@ -278,6 +284,57 @@ public partial class BattleRoot : Node2D
         }
     }
 
+    /// <summary>把 UI 绑到当前 `Director`（`NewGame` 与"场景内起远征战斗"共用同一条绑定 ⇒ 不会两处各写一份）✓</summary>
+    private void BindUi()
+    {
+        if (_ui is null)
+        {
+            _ui = GetNode<BattleUi>("BattleUi");
+        }
+
+        _ui.Bind(host: this, useSkill: (actor, skillId) => DoUseSkill(actor, skillId),
+            reinforce: () => OnReinforceClicked(),
+            move: () => OnMoveClicked(),
+            retreat: () => DoRetreat(),
+            pass: () => OnPassClicked());
+    }
+
+    /// <summary>
+    /// 🔴🔴 **`#327` 片 3 主体：宿主在【本场景内】起一场【远征战斗】**
+    ///    —— 这是"不再切场景"的核心一步：director 由**流程**给（`BeginExpeditionBattle` ⇒ 难度/光照/夜袭全按流程），
+    ///    projector 用**同一套 data** 现造（不能借用单场那套 ⇒ 否则投影与 director 不匹配 ⚠️）。
+    ///    返回 false = 无远征流程（单场战斗模式）⇒ **不改任何东西** ✓
+    /// </summary>
+    public bool StartExpeditionBattleInScene()
+    {
+        Darkest.Gameplay.Sim.Run.ExpeditionFlow? flow = ExpeditionFlowOrNull;
+        if (flow is null)
+        {
+            GD.Print("[片3] 无远征流程 ⇒ 不起远征战斗（单场战斗模式，行为不变）✓");
+            return false;
+        }
+
+        DirectorBridge.DirectorHandle support = DirectorBridge.BuildFromRes(this); // 取与远征同源的 balance/skills ✓
+        Darkest.Core.Events.CombatLog log = ExpeditionContext.Log ?? new Darkest.Core.Events.CombatLog();
+        int index = flow.Session.BattlesPlayed + 1;
+
+        Director = flow.Session.BeginExpeditionBattle(index, log, flow.Tuning.Expedition.DifficultyTiers);
+        Projector = new Darkest.Gameplay.Sim.Director.BattleProjector(
+            Director, support.Balance, support.Skills, new Darkest.Gameplay.Sim.Skill.SkillRuntimeState());
+        _skills = support.Skills;
+        _rng = new RngProvider(++_seed);
+        _awaitingPlayer = false;
+        _gameOver = false;
+        _activeActor = new("-");
+        _pendingSkill = null;
+        _reinforcePhase = 0;
+        BindUi();
+        _ui!.ExitMapMode(); // 进战斗 ⇒ 离开地图模式（片 4 会在战斗结束回地图模式）✓
+        flow.Session.EnterPhase(Darkest.Gameplay.Sim.Run.FlowPhase.Battle);
+        GD.Print($"[片3] ✅ **场景内起远征战斗**：第 {index} 场　Phase={flow.Session.Phase}　" +
+                 $"CanShowCampUi={flow.Session.CanShowCampUi}（应为 False）✓");
+        return true;
+    }
     private void NewGame()
     {
         var handle = DirectorBridge.BuildFromRes(this);
@@ -296,11 +353,7 @@ public partial class BattleRoot : Node2D
             _ui = GetNode<BattleUi>("BattleUi");
         }
 
-        _ui.Bind(host: this, useSkill: (actor, skillId) => DoUseSkill(actor, skillId),
-            reinforce: () => OnReinforceClicked(),
-            move: () => OnMoveClicked(),
-            retreat: () => DoRetreat(),
-            pass: () => OnPassClicked());
+        BindUi();
     }
 
     /// <summary>S5.2 待命：显式结束该单位本次行动（不消耗 SP、不算技能、不结算任何效果）。</summary>

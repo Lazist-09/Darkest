@@ -18,6 +18,9 @@ public static class DirectorBridge
     {
         public BattleDirector Core { get; init; } = null!;
         public BattleProjector Projector { get; init; } = null!;
+
+        /// <summary>🔴 片 3：把 `BalanceTable` 也带出来（宿主在**场景内**给流程的 director 造 projector 时需要它）✓</summary>
+        public BalanceTable Balance { get; init; } = null!;
         public SkillsConfig Skills { get; init; } = null!;
 
         /// <summary>M7.5：远征场景复用同一桥（避免第二套 res:// 读取路径）。</summary>
@@ -110,6 +113,7 @@ public static class DirectorBridge
         {
             Core = director,
             Projector = projector,
+            Balance = balance,
             Skills = skillsCfg,
             Tuning = tuning,
             Nodes = ExpeditionNodesConfig.Parse(Read("expedition_nodes.json")),
