@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -127,8 +127,11 @@ public partial class WalkMapView : PanelContainer
             maxY = Math.Max(maxY, p.Y + RoomSize);
         }
 
-        _canvas.CustomMinimumSize = new Vector2(maxX + Pad, maxY + Pad);
-        CustomMinimumSize = _canvas.CustomMinimumSize;
+        // 🔴 相机 1280 口径（规则①）：**地图画布不得用自身尺寸撑父容器** ——
+        //    实测它（几百像素宽）把战斗底栏整行撑爆 ⇒ 与右侧 6 号位长条框**重叠** ⚠️
+        //    ⇒ 画布尺寸**夹在预算内**（超出部分由画布裁剪），本视图自身最小尺寸设为 0 ✓
+        _canvas.CustomMinimumSize = new Vector2(System.Math.Min(maxX + Pad, 260), System.Math.Min(maxY + Pad, 150));
+        CustomMinimumSize = new Vector2(0, 0);
         _lastSketch = Sketch(map, currentRoomId, revealedSet, pos);
     }
 
