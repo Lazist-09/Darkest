@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -641,6 +641,14 @@ public partial class BattleUi : CanvasLayer
     public void SetMultiFunctionPage(int page)
     {
         _mfPage = page;
+
+        // 🔴 P5（用户参考图②）：**分区标题** —— 第 0 页 = **角色详情**（紫框）；其余 = **多功能**（右侧多功能框）✓
+        if (_eAreaTitle is not null)
+        {
+            _eAreaTitle.Text = page == 0
+                ? "角色详情"
+                : "多功能：" + (page switch { 1 => "日志", 2 => "行动序列", 3 => "编成", 4 => "地图", _ => "—" });
+        }
         if (_mfContent is not null)
         {
             _mfContent.Visible = page is >= 0 and <= 3; // 前四页共用文本区
