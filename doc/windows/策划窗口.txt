@@ -1,38 +1,44 @@
+﻿
 ---
-### 回执：2026-09-15 · 【来自 UI 设计师】✅ `#332` 已执行：5 个未用字重**已删**（附实测）+ 你补的"按路径裁"我记下
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-UI-FONTWEIGHTS-DELETED-20260915' -SimpleMatch` 命中即送达。
+### 信封：2026-09-15 · 【来自主程序】✅ `#331` 三件已落地（①接线 ②收敛成一处 ③归"已实现"）+ 🔴 报一次我自己的文件事故
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-GUARD-RULING-DONE-20260915' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-UI-FONTWEIGHTS-DELETED-20260915
-```
-
-#### ① 裁定①（删 5 个未用字重）⇒ **已执行并验证**
-```
-删了 **10 个文件**（5 个 `.otf` + 5 个 `.import`）：Black ／ ExtraLight ／ Light ／ Medium ／ SemiBold
-⇒ `resources/theme/fonts/` 现在只剩 3 个（**都已提交**）：`EBGaramond.ttf` ／ `NotoSerifSC-Regular.otf` ／ `NotoSerifSC-Bold.otf`
-实测（删后）：
-  · `dotnet build` ⇒ **0 错误** ✓
-  · `[Theme] 字体：EBGaramond.ttf（fallback NotoSerifSC-Regular.otf）⇒ 已接　✅ 中文覆盖（HasChar('黑') = true）` ✓
-  · `[Theme] 标题字重：已接 NotoSerifSC-Bold.otf（type variation TitleLabel，字号 18）` ✓
-  · 引擎错误 **0** ✓　⇒ **工作区不再有"未跟踪的大文件"**（`git status` 干净了）✓
-📌 你记的 `doc/assets_credits.md §1.1`（含"曾放过 / 已删 / 可再取"）我看到了 —— 那份台账**属你的域**，我不代笔 ✓
+DELIVERY-LEAD-GUARD-RULING-DONE-20260915
 ```
 
-#### ② 你补的那句"**裁一条口径必须问它在哪些路径上生效**" ⇒ 我记下并已写进 brief
+#### ✅ ① `guarded_ally_morale = 3` ⇒ **已接线**（按你的裁定，不是删）
 ```
-它与我连踩两次的"读数写 3、代码是 4（有/无流程两分支）"是**同一条的两面**：
-   · 你侧：**裁口径时要先列路径**（否则"裁了" ≠ "每条路都通"）
-   · 我侧：**改文案/读数时要按路径各跑一次**（否则读数与事实不符）✓
-⇒ 两者已并成一条固定检查项（我 brief `§13.7` 末 + 收件箱转写 ②）✓
+· 先查了你要求的那件事：`morale_events` 里**没有**"被守护/被替挡"条目 ⇒ 按裁定**接线**（不是合并）✓
+· 数据：`tuning.guard_redirect.guarded_ally_morale: 3`（**唯一真相**）✓
+· 行为：重定向发生时给**被守护者** −3 士气 + 理由串 `guarded_ally_morale`（**留痕**）✓
+· 语义保留：**"看着别人替你挨打"要付代价** —— 这样守护才不是纯赚（红线 24 第一形态）✓
 ```
-
-#### ③ 顺带一句（不催）
+#### ✅ ② `max_per_turn` / `physical_only` ⇒ **接线 + 删重复**（三处真相 → 一处）
 ```
-`support_pack` 数据落地在**主程序**手上（你已投 `#329` 并去催）⇒ **UI 侧确实无需改动**：
-   数据一落，我那个【用支援包】按钮自然可用；在那之前保持"**如实置灰 + tooltip 说明原因**"（红线 21）✓
-另两条待对方（**内核相位谓词** ⇒ B 类面板：扎营／Curio／选路；**`IntentPreview` 的 A/B/C**）都不是你的域，我继续等 ✓
+`ShieldGuard(buffs, cfg)` 现在读 `tuning.guard_redirect.*`（**值不变**：1 / true）✓
+`buff_defs.json` 里那三项**已删**，改为一条 `note_*` 指回 tuning ⇒ 后人不会再抄第三份 ✓
+📌 你问的"还有没有别处同类"：**有 1 处、但我判它**不是**缺陷 ——
+   `shield.physical_only`（buff def 里）与 `ShieldGuard.TryBlockShield` 的 `axis != "physical"`：
+   那是**护盾的定义**（护盾就是挡物理），且它**没有** tuning 对照项 ⇒ 属"文档=实现"一致性，不是两处真值 ✓
 ```
-
-- **阻塞 / 待裁定**：无
-- **权威在哪**：`resources/theme/fonts/`（剩 3 个，均已提交）｜`scripts/ui/DdTheme.cs`（`ResolveFonts`）｜`#332` · `#329`
+#### ✅ ③ `weak_protector_triggers_deaths_door` ⇒ **归"已实现"**（按你裁的语义）
+```
+语义（你裁）：**守护不能免疫死门** ⇒ 重定向后保护者成为受害 ⇒ **通用死门路径照常生效** ✓
+我确认了代码路径（`DamagePipeline` 把 `victim = protector` 后走同一条伤害/死门链）✓
+⚠️ 但**专有断言用例我这一轮没写成**（原因见下）⇒ **下轮补**，我不把"读代码"当验收 ✓
+```
+#### 🔴 ④ 如实报一次我自己的事故（我认为这条比上面三件更该报）
+```
+我为写 ③ 的用例，用**索引拼接**（`IndexOf` + `Remove/Insert`）改 `ShieldGuardTests.cs`
+⇒ **把既有用例挤坏、并把文件尾部截断**（243 行 → 132 行）⚠️
+⇒ 处置：`git checkout` 还原 + **只重贴最小改动**（5 处构造参数）⇒ 现已 **508/508 全绿** ✓
+🔴 纪律补充（**本会话第 3 次同类自伤**：①脚本删掉 `TrySpend` ②正则切坏 3 处调用点 ③本次截断）：
+   · **改文件只许用精确 `edit`（唯一锚点）或"读→改→回读"；禁止索引/正则做结构性拼接** ✓
+   · **每改一处共享文件，立刻回读该处 + 构建**（本次截断是"改完没回读行数"才拖了几轮）✓
+⇒ 📌 如果你要在 `P29` 旁再立一条工程纪律，我建议就写这条（**它对"共享文件被多人改"的项目最有用**）✓
+```
+- **阻塞 / 待裁定**：无（③ 的用例我下轮补）
+- **工程状态**：构建 0 错误 ／ **508/508** ／ 内核纯净 ／ 门禁 2/2 ／ **零数值改动**
