@@ -71,6 +71,10 @@ public partial class BattleUi : CanvasLayer
     private HBoxContainer? _topLeftGroup;         // 🔴 P5：左上"任务与撤退"组 ✓
     private Label? _missionLabel;                 // 🔴 P5：任务文案（只读内核进度）✓
     private string _lastEnemyTipLogged = string.Empty; // 🔴 P5：悬停敌人信息读数（变化才打，避免刷屏）✓
+    private Label? _eAreaTitle;           // 🔴 P5：E 区显式标题（第0页=角色详情／其余=多功能）✓
+    private HBoxContainer? _actorRow;     // 🔴 P5：橙框"当前角色"行（头像 + 名字）✓
+    private ColorRect? _actorPortrait;    // 🔴 P5：当前角色头像留框里的色块占位 ✓
+    private Label? _actorName;
     private PanelContainer? _slotRight;   // 🔴 P5：右长条框 = 6 号位（向右靠齐）✓
     private Label _mfContent = null!;
     private Darkest.Ui.BattleMiniMap? _mfMap;
@@ -561,11 +565,19 @@ public partial class BattleUi : CanvasLayer
         //    （容器负责尺寸 ⇒ 不再写 `BottomRight` 锚点与负偏移）
         _mfPanel = new Panel { Name = "MultiFunctionBox" };
         _mfPanel.Modulate = Darkest.Ui.DdTheme.PanelBgRaised;
+        _eArea.Modulate = Darkest.Ui.DdTheme.Mental; // 🔴 P5：**紫框分区**（DD 图②"右侧紫框=多功能/详情"）✓
         _eArea.AddChild(_mfPanel);
 
         var column = new VBoxContainer { Name = "MfColumn" };
         column.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         column.AddThemeConstantOverride("separation", 4);
+        // 🔴 P5（用户参考图②）：**紫框显式标题** —— 加在 E 区的**内层 VBox** 里（不是外层 Panel 上）
+        //    ⚠️ 教训：加在 `_eArea` 上会与既有手工尺寸内容重叠 ⇒ 必须进**容器**才会自动排布 ✓
+        _eAreaTitle = new Label { Name = "EAreaTitle", VerticalAlignment = VerticalAlignment.Center };
+        _eAreaTitle.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        _eAreaTitle.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextAccent);
+        column.AddChild(_eAreaTitle);
+
         _mfPanel.AddChild(column);
 
         // 🔴 P5：右侧 6 号位长条框（**向右靠齐**）—— 加在底栏最后 ✓
@@ -631,6 +643,14 @@ public partial class BattleUi : CanvasLayer
     public void SetMultiFunctionPage(int page)
     {
         _mfPage = page;
+
+        // 🔴 P5：紫框显式标题（第 0 页 = 角色详情；其余 = 多功能：…）✓
+        if (_eAreaTitle is not null)
+        {
+            _eAreaTitle.Text = page == 0
+                ? "角色详情"
+                : "多功能：" + (page switch { 1 => "日志", 2 => "行动序列", 3 => "编成", 4 => "地图", _ => "—" });
+        }
         if (_mfContent is not null)
         {
             _mfContent.Visible = page is >= 0 and <= 3; // 前四页共用文本区
@@ -1070,6 +1090,18 @@ public partial class BattleUi : CanvasLayer
         _bottomRow.AddChild(_slotLeft);      // 先加左条 ⇒ 它在最左
         _bottomRow.MoveChild(_slotLeft, 0);
 
+        _cArea.Modulate = Darkest.Ui.DdTheme.Gold;   // 🔴 P5：**橙框分区**（DD 图②"橙框=当前角色+技能选择"）✓
+
+        // 🔴 P5：**橙框 = 当前角色头像 + 技能选择**（头像留框+色块占位+名字；技能栏在其下）✓
+        _actorRow = new HBoxContainer { Name = "CurrentActorRow" };
+        _actorRow.AddThemeConstantOverride("separation", 6);
+        cCol.AddChild(_actorRow);
+        var actorFrame = new PanelContainer { Name = "CurrentActorFrame", CustomMinimumSize = new Vector2(36, 36) };
+        _actorRow.AddChild(actorFrame);
+        _actorPortrait = new ColorRect { Name = "CurrentActorPlaceholder", Color = Darkest.Ui.DdTheme.PanelBgRaised };
+        actorFrame.AddChild(_actorPortrait);
+        _actorName = new Label { Name = "CurrentActorName", VerticalAlignment = VerticalAlignment.Center };
+        _actorRow.AddChild(_actorName);
         _bottomRow.AddChild(_cArea);
 
         _skillTitle = new Label { Text = "技能栏（轮到行动者时可用）", AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -1431,6 +1463,28 @@ public partial class BattleUi : CanvasLayer
                 ? "任务：单场战斗（无本趟进度）"
                 : $"任务：本趟 第 {mFlow.StepsDone} 步　已胜 {mFlow.Wins}" +
                   (mFlow.IsFinished ? "　（本趟已结束）" : string.Empty);
+        }
+
+        // 🔴 P5：橙框"当前角色"（只读内核 `IsAwaitingPlayer` / `ActiveActor`）✓
+        if (_actorName is not null && _host is not null)
+        {
+            if (_host.IsAwaitingPlayer)
+            {
+                UnitProjection? actor = _host.Projector.Units(player: true)
+                    .FirstOrDefault(x => x.UnitId == _host.ActiveActor.Value);
+                string actorName = actor is null ? _host.ActiveActor.Value
+                    : NameOf(actor.Archetype.Length > 0 ? actor.Archetype : actor.UnitId);
+                _actorName.Text = $"当前角色：{actorName}（请选技能）";
+                if (_actorPortrait is not null && actor is not null)
+                {
+                    _actorPortrait.Color = Darkest.Ui.DdTheme.ArchetypeColor(
+                        actor.Archetype.Length > 0 ? actor.Archetype : actor.UnitId, isPlayer: true);
+                }
+            }
+            else
+            {
+                _actorName.Text = "当前角色：等待中（敌方行动）";
+            }
         }
 
         RefreshBackSlots();    // 🔴 P5：左右长条框（5／6 号位）✓
