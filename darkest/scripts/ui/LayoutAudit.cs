@@ -83,7 +83,12 @@ public static class LayoutAudit
         // 🆕 🔴 用户规则 ①（2026-09-15）：**一切 UI 都要考虑【相机大小】** ⇒ 任何可见控件的外接矩形
         //    必须落在**相机矩形**内。**越界 = 用户说的"UI 看不全"** ⇒ 做成可读读数（首个越界控件带 pos/size）✓
         //    ⚠️ 本轮先作**独立读数**（不并入 `ok`）：并入后全屏立刻红，而"全屏重新按 1280×720 收敛"是下一轮的工作 ✓
-        Vector2 cam = root.GetViewport().GetVisibleRect().Size;
+        // 🔴 **相机口径校准**（用户规则①）：必须用【项目设置的真实视口】——
+        //    headless 下 `GetViewport().GetVisibleRect()` 会给**方形 1280×1280**，那不是玩家的相机 ⚠️
+        //    项目：`display/window/size/viewport_width=1280 / viewport_height=720`（stretch=canvas_items ⇒ UI 坐标即此尺寸）✓
+        int camW = (int)ProjectSettings.GetSetting("display/window/size/viewport_width", 1280);
+        int camH = (int)ProjectSettings.GetSetting("display/window/size/viewport_height", 720);
+        Vector2 cam = new Vector2(camW, camH);
         var outsideList = new System.Collections.Generic.List<string>();
         foreach (Node n in Walk(root))
         {
