@@ -533,6 +533,10 @@ public partial class BattleUi : CanvasLayer
         SetMultiFunctionPage(MapPageIndex);
         // 🔴 片 2 第一步：把**地牢面板 #1（光照条）**挂进地图模式（宿主可见性随模式；骨架不动）✓
         DungeonHost().Visible = true;
+
+        // 🔴 主程序 (A)：进地图模式即切到【地图页】⇒ 格子主画面成为主视图 ✓
+        SetMultiFunctionPage(MapPageIndex);
+        GD.Print("[UI 模式] 进地图模式 ⇒ 已切到地图页（拓扑模式下为【格子主画面】）✓");
         HostDungeonPanels();
         GD.Print($"[UI 模式] 进入【地图模式】　{ModeAudit()}");
         GD.Print($"[UI S1] {SkeletonVerdict()}"); // 🔴 切模式后**立即**断言（不是只打印 id）✓
