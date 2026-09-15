@@ -596,7 +596,7 @@ public partial class BattleUi : CanvasLayer
 
         // 🔴 P5：右侧 6 号位长条框（**向右靠齐**）—— 加在底栏最后 ✓
         // 🔴 用户要求（2026-09-16）：**底部最右框撤掉** ⇒ 6 号位集成进紫色多功能框（`BackSlot6InE`）✓
-        _bottomRow.AddChild(_slotRight);
+        // 🔴 已撤：6 号位不再挂底栏（集成在紫色多功能框内）✓
 
         var tabsRow = new HBoxContainer { Name = "MfTabs" };
         tabsRow.AddThemeConstantOverride("separation", 4);
