@@ -50,6 +50,11 @@ public partial class WalkMapView : PanelContainer
         _info.CustomMinimumSize = new Vector2(0, 18);
         AddChild(_info);
 
+        // 🔴 修重叠：本视图子项是**手工定位**（不是容器）⇒ 信息行与画布必须**错开**，否则相压（实测 1 对重叠）✓
+        _info.Position = new Vector2(0, 0);
+        _info.Size = new Vector2(240, 18);
+        _canvas.Position = new Vector2(0, 18);
+
         AddChild(_canvas);
     }
 
