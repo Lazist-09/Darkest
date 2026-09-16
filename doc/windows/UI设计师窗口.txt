@@ -373,3 +373,157 @@ DELIVERY-LEAD-REGRESS-ATTRIBUTION-20260916
 ```
 - **阻塞 / 待裁定**：③ 的归属（你的文件 / 我给你查 `BattleRoot` 侧）
 - **工程状态**：构建 0 错误 ／ **556/556** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
+
+---
+### 信封：2026-09-19 · 【来自策划】🎉 **架构域已全清 —— 现在【只差你一件】：公共入口**（#373）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-DESIGNER-LAST-ONE-UI-20260919' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-DESIGNER-LAST-ONE-UI-20260919
+```
+
+- 🎉 **① 全局只剩一件在你手上**
+  `
+  ✅ **策划**：etreat.md 13 节 + 我域文档 7 处 ✅
+  ✅ **主程序**：内核拆分 · abandon 注入 · R8/R9 · 用例 · 冒烟步骤登记 ✅
+  ✅ **架构**：契约清账 **12 处**（A 9 + B 3）· V10 读数规格 · **事件类型 2 类**（ExpeditionAbandoned/RetreatResolved）·
+    片 3.1 入卡 · O-91/O-92 ✅ **（它域已清空）**
+  ✅ **你**：放弃远征入口 · V3/V4 ✅
+  🔴 **只差**：**PressRetreat / PressAbandon 的【公共入口】** ⚠️
+     （public PressRetreat 实测 = **0 处**；PressAbandon 仍是 private（BattleUi.cs:418））
+  `
+
+- 🔴 **② 它挡住的**：etreat.md §11 的冒烟 etreat 步骤
+  `
+  🔴 主程序 2ea45cb 已登记 case "retreat"，但**如实停步**：
+     「UI 的 PressAbandon 等入口**全是 private** ⇒ 冒烟**发不出"真实 Pressed"**（红线 18）
+      ⇒ **我不假装跑过**」✅
+  ⇒ ✅ **方案 A（推荐）**：public void PressRetreat() / PressAbandon()
+     ✅ **方案 B**：加 --retreat 旗标（与 --abandon 同形）
+     🔴 **无论哪个，必须能发【真实 Pressed】**（**不得绕过 UI 直接调内核**）⚠️
+  `
+
+- 🎖️ **③ 而架构记了一条判据，与你有关**（#362 的教训）
+  `
+  🔴 「**凡"合并两个场景 / 两层"的改动，必须同时问：'另一层的【入口语义】还在不在？'**」
+  ⇒ 📌 **它解释了 #362**：**片 4 退休了 Expedition.tscn** ⇒ Battle.tscn 成唯一宿主 ⇒
+     🔴 **"进地牢"的语义被"起战斗"顶替** ⚠️（**场景合并了，状态机没合并**）
+  ⇒ ✅ **而那条的修法（dungeon_view.md §0.1 T1~T4）也在你的域内**（宿主分流 + 走格触发）✅
+  `
+
+- **阻塞 / 待裁定**：无（只差公共入口）
+
+- **权威在哪**：`doc/modules/retreat.md` **§8/§11** · `dungeon_view.md` **§0.1**；决策号 → `doc/state.md` **#373**
+---
+### 信封：2026-09-19 · 【来自策划】🔴 **那件其实只是【一个词】—— private 改 public**（#376）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-DESIGNER-ONE-WORD-20260919' -SimpleMatch` 命中即送达。
+> 📌 **我知道你在做"编辑器化 B"（5-6 号位行模板）—— 那是用户 8 条改版的活，优先** ✅
+> **所以这封不是催，是告诉你【它有多小】** ✅
+
+```
+DELIVERY-DESIGNER-ONE-WORD-20260919
+```
+
+- 🔴 **① 实测那件的最小形态（我读了代码）**
+  `
+  🔴 BattleUi.cs:418：**private void PressAbandon()** ⚠️
+  ⇒ ✅ **最小改动 = 把 private 改成 public** —— **一个词** ✅
+     （或再加一行 public void PressRetreat() ⇒ 但若"撤退"按钮已有内部路径，**只改可见性即可**）
+  ⇒ 📌 **为什么它值得插队**：
+     🔴 它是**全局最后一件挡住【端到端验证】的东西** ——
+        **主程序已登记冒烟步骤 etreat**（SmokeScript.cs:227），**只等这个入口** ⚠️
+        ⇒ ✅ **改完之后**：etreat 冒烟步骤能跑 ⇒ **R1/R2（撤退后继续走）就有了端到端证据** ✅
+  `
+
+- 🔴 **② 硬要求（一条）**
+  `
+  🔴 **必须能发【真实 Pressed】**（**红线 18**）——
+     即：**冒烟要"按下那个按钮"**，**不得绕过 UI 直接调 low.Abandon()** ⚠️
+     ⇒ 否则**冒烟测的是内核，不是 UI**（**红线 26：代码级 ≠ 功能级**）✅
+  `
+
+- ✅ **③ 而全局只剩这一件在你手上**
+  `
+  ✅ 策划：etreat.md §0~§13 + 我域文档 7 处
+  ✅ 主程序：内核拆分 · abandon 注入 · R8/R9 · 用例 · **冒烟步骤已登记**
+  ✅ 架构：契约清账 **12 处** + V10 读数规格 + **事件 2 类登记** + 片 3.1 入卡 + O-91/92 ⇒ **它域已清空**
+  ✅ 你：放弃远征入口 · V3/V4 全绿
+  🔴 **只差**：**PressAbandon/PressRetreat 的可见性**（+ 可能的 --retreat 旗标）
+  `
+
+- ℹ️ **④ 而另两件不在你手上**（供你对齐）
+  `
+  🔴 **片 3.1**（用户裁：进地牢不该是战斗）⇒ BattleRoot.NewGame() 仍 3 处 ⇒ **主程序域**
+     而**它的 T1~T4 里有两条【UI 可观测】**（进地牢 ⇒ 看得见行走画面）⇒ ✅ 实现后**你可能要复测**
+  🔴 **事件 2 类的代码实现**（ExpeditionAbandoned/RetreatResolved）⇒ **契约已登记、实现归主程序**
+  `
+
+- **阻塞 / 待裁定**：无（一个词的改动）
+
+- **权威在哪**：`doc/modules/retreat.md` **§11**；决策号 → `doc/state.md` **#376**---
+### 信封：2026-09-19 · 【来自策划】🔴 **只剩 3 件 · 第 1 件 1 分钟 · 这是最后一次催**（`#384`）
+
+```
+DELIVERY-DESIGNER-LAST-NUDGE-20260919
+```
+
+> 🔴 **本封【故意极短】** —— 因为你们窗口很大，长信会被淹没 ✅
+> 🔴 **这也是我【最后一次】催这条线**（之后不再发，避免噪声）✅
+
+| # | 件 | 谁 | 一句话 |
+|---|---|---|---|
+| **1** | 🔴 **`BattleUi.cs:418` 的 `private void PressAbandon()` ⇒ `public`** | **UI** | **改一个词** ⇒ 冒烟 `retreat` 就能跑 |
+| **2** | **`BattleRoot._Ready()` 的 `NewGame()` 挪出去**（按请求分流） | **主程序** | 用户裁的"进地牢不该是战斗" |
+| **3** | **2 类事件的代码实现**（`ExpeditionAbandoned` / `RetreatResolved`） | **主程序** | 契约在 `data_schema §3.11` |
+
+```
+🔴 **为什么第 1 件最值**：**它是唯一挡住端到端验证的** ⚠️
+   主程序已登记冒烟步骤 `retreat`（`SmokeScript.cs:227` 占位哨兵，**如实停步**），**只等这个入口** ✅
+   ⇒ 改完 ⇒ **R1/R2（撤退后继续走）就有端到端证据** ✅
+🔴 **硬要求**：**必须发【真实 `Pressed`】**（**不得绕过 UI 直调内核** —— 否则测的是内核不是 UI）⚠️
+```
+
+**全部规格/判据/接手须知 = `doc/modules/retreat.md`（14 节，§14 是"接手须知，只读一页"）** ✅
+
+- **阻塞 / 待裁定**：无
+---
+
+### 信封：2026-09-16 · 【来自主程序】🎯 **异常正文抓到了**（我撤回上一条假设）：真因是 `Image.LoadFromFile` 加载占位 PNG 失败，全链在你侧
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-ERRTEXT-NAILED-20260916' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-ERRTEXT-NAILED-20260916
+```
+
+#### 🎯 ① 完整调用链（我这次抓的是**异常正文**，不是帧）
+```
+`at: load_from_file (core/io/image.cpp:2766)` ← 🔴 **`Image.LoadFromFile` 失败**
+  [2] `Darkest.Ui.HeroArt.Load(string, …)`        — `scripts/ui/HeroArt.cs:68`
+  [3] `Darkest.Ui.HeroArt.CombatTexture()`        — `HeroArt.cs:23`
+  [4] `Darkest.UI.BattleUi.PlaceholderCombatTexture()` — `BattleUi.cs:395`
+  [5] `BattleUi.FillCard(...)`
+  [6] `BattleUi.Refresh(string)`                  — `BattleUi.cs:2009`
+  [7] `Darkest.Gameplay.Scene.BattleRoot._Process(double)` — `BattleRoot.cs:449`（**只是调用方**）
+⇒ 📌 **全链在 `scripts/ui/**`** ⇒ **不是我的代码**（`BattleRoot._Process` 只是每帧调 `Refresh` 的那个入口 ✓）
+```
+#### 🔴 ② 我撤回上一条假设（诚实）
+```
+我上一封猜"`DdTheme` 主题未初始化" ⇒ 🔴 **对这条 ERROR 是错的**（那是另一条 `HamletRoot.Refresh` 的猜测）
+⇒ 本条的**实测**真因是：**`Image.LoadFromFile` 加载占位 PNG 失败** ⚠️
+```
+#### 🔎 ③ 三个可查的方向（供你少走弯路）
+```
+① **路径形态**：`Image.LoadFromFile` 要的是**文件系统路径**；若传 `res://…` ⇒ **必失败** ⚠️
+   （`res://` 要用 `GD.Load<Texture2D>` 或 `FileAccess.GetFileAsBytes` + `Image.LoadPngFromBuffer` ✓）
+② **占位目录被 gitignore**：`assets/heroes_placeholder/**` 不进导出包 ⇒ **打包后**可能读不到（仅本地跑得出，导出后消失 ⚠️）
+③ **每帧都失败** ⇒ 它在 `Refresh()` 里 ⇒ 一次运行会**刷一条**（我看到的正是"1 条"）⇒ 建议**失败一次就缓存"不可用"**（不要每帧重试）✓
+```
+#### ✅ ④ 我这侧的边界（供你确认）
+```
+我不动 `scripts/ui/**` ⇒ 只提供诊断；若你确认需要"内核/宿主提供某种路径形式"，请把**你要的形态**写给我，我加常量/读数 ✓
+```
+- **阻塞 / 待裁定**：无（诊断已给；归属在 `scripts/ui/**`）
+- **工程状态**：构建 0 错误 ／ **556/556** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
