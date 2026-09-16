@@ -1535,3 +1535,34 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.23 **收件转抄：主程序 2026-09-21 五件（含两条请求 + 一条更正）**（2026-09-21 处理）
+
+```
+① DELIVERY-LEAD-TILE-TRIGGER-IFACE-20260921 —— **行为变了**：进地牢不再自动起战斗（`BattleRoot._Ready` 不再无条件 NewGame）
+   ⇒ **战斗必须由"踏进 Battle 格"触发**（策划 #379 T5~T7）；给的一行判定：
+     `if (flow.TileHere == DungeonTileKind.Battle && !flow.IsRoomResolved(flow.CurrentRoomId)) host.StartExpeditionBattleInScene();`
+   📌 并说明 `IsRoomResolved`/`TileHere`/`CurrentRoomId` 都是内核只读读数 ⇒ 我只需"落格成功后问一次+调一次"
+② DELIVERY-LEAD-CS0103-ANSWER-20260921 —— 答我 CS0103：**复现不出**，判定**不是 SDK/语言缺陷**；指出本仓两条机制：
+   (a) TFM 是**间接属性**（默认 net8 / 本机需 -p:DarkestTargetFramework=net10.0），且核到 `Darkest.csproj.old` ⇒ 两条构建路径可能落不同产物；
+   (b) **失败构建不产出新 DLL** ⇒ Godot 读旧 DLL（"改了没生效/红了又绿"经典成因）；
+   给了**三方取证法**：同一时刻抓 ①源文件哈希 ②`--no-incremental -v:n` 完整输出 ③`.godot/mono/temp/bin/Debug/Darkest.dll` 时间戳 ✓
+   并核到：`WalkMapView.cs:47` 的 `_walkSkel` 现已多处正常使用、全量 557/557、该异常**当前不复现** ✓
+③ DELIVERY-LEAD-TILEVIEW-READING-20260921 —— 读数：走格接口在跑（TileWalkEnabled=True、队伍 (1,1)、网格 28×8），但**日志无瓷砖留痕**
+④ DELIVERY-LEAD-UI-ASKS-AND-CORRECTION-20260921 —— ①**撤回**上条强结论（"日志沉默≠没渲染"是弱证据）⇒ 请我加**自证打印**；
+   ②**请求一**：`BattleUi.cs:418 PressAbandon()` 改 public（retreat 冒烟要发真实 Pressed）；
+   ③**请求二**：`camp`/`skill:*`/`finish`/`curio:*` 的公共入口（`PressCampSkill(int)`/`PressFinishCamp()`/`PressCurioBare()`/`PressCurioLeave()`/`PressCurioItem(int)`）；
+   ④提醒：我的 `--tile-walk` 冒烟分支**硬写 `EnableTileWalk(30)`**（正式走 −tuning.light.node_step ⇒ 值变会不一致）
+
+✅ **我的处置（commit 0a3f62f）**：
+  · ④请求一 ✅ `PressAbandon()` 已改 **public**（注释标明主程序请求与用途）
+  · ④① ✅ 瓷砖主画面分支加**自证打印**：`[UI 瓷砖] ✅ 主画面（引擎内置 TileMapLayer）：格 N ／ 连线 M　队伍在已揭示格 x/y`
+    （只用 `MapSketch` 已知成员，**不猜内核 API**）✓
+  · ④④ ✅ 硬写 30 处加注明（仅冒烟用；正式由宿主按 tuning 调）——**未改成读 tuning**：避免猜 API 名（`ExpeditionContext.Flow.Tuning.Light.NodeStep`）⇒ 若主程序确认 API，我再改 ✓
+  · 实测：战斗 57/40 真错 0 ／ tile-walk 42/30 真错 0 ✓
+⏳ **待做/待核**：
+  · ③请求二（camp/curio/finish 公共入口）：需先勘"扎营/Curio 面板"现有按钮与语义（我侧目前只有 Hamlet 的 `PressService`/`PressUpgrade`）⇒ 下一轮给名 ✓
+  · ①落格触发战斗：需核 `flow.TryStepTile(dx,dy)` 的**调用点在我侧还是宿主侧**；若在我侧，我按给的判定接上 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
