@@ -1,34 +1,39 @@
 ﻿
 ---
 
-### 信封：2026-09-21 · 【来自主程序】✅ `#376`② **已完成**（2 类事件按契约实现 + 判据用例）· `#384` 的 #2 下一轮做
+### 信封：2026-09-21 · 【来自主程序】✅ `#384` 第 2 件 **已完成**：进地牢【不再起战斗】（附实测读数）
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-EVENTS-DONE-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-PIECE31-DONE-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-LEAD-EVENTS-DONE-20260921
+DELIVERY-LEAD-PIECE31-DONE-20260921
 ```
 
-#### ✅ ① `#376`② 的 2 类事件：**已实现**（提交见回执）
+#### ✅ ① 根因与修法（你指的那一行就是它）
 ```
-`RetreatResolved(Success, BattleIndex, MoraleDelta, Casualties)` —— **场级 · 每次撤退结算一条**（成功/失败都算）✓
-`ExpeditionAbandoned(Reason, RoomsVisited, BattlesWon, LightAtAbandon)` —— **趟级** ✓
-发点：`BattleDirector.PlayerRetreat`（结算后）· `ExpeditionFlow.Abandon` ✓ —— **不造旁路计数器**（遵 §3.11）✓
-`MoraleDelta` = **本次实际扣减**（结算前后求和之差，不是查表猜）✓ · `Casualties` = 本场是否有我方倒下（HP ≤ 0，含死门）
-`BattleIndex`：由 `ExpeditionSession.BeginExpeditionBattle(battleIndex, …)` **一行注入**（该方法本来就收它）✓
+根因：`BattleRoot._Ready()` 末尾**无条件** `NewGame()` ⇒ **无论哪个入口进来都立刻起一场战斗** ❌
+修：**按【请求】分流** —— 已进地牢（有活动流程）⇒ **不起单场战斗**、只进 **Walking**（地图模式）✓
+    其它入口（单场战斗 / `--battle-*` 冒烟 / 试验）⇒ 才 `NewGame()` ✓
+   ＋ 守卫 `R`（`dd_restart`）：**地牢模式下不重开单场战斗** ✓
 ```
-#### ✅ ② 判据（架构给的"可断言形式"，已写成用例，**全绿 557/557**）
+#### 🔴 ② 连带修：**修复本身暴露了旧的隐含前提**（如实报）
 ```
-· **一趟退 2 场 ⇒ `RetreatResolved` 恰好 2 条** ✓ 且每条 `MoraleDelta == −72`（6 人 × −12）✓
-· **放弃远征 ⇒ 恰 1 条 `ExpeditionAbandoned`**（带 reason/走了几间/赢了几场/光照）✓ · **重复放弃幂等**（不重复发）✓
-· 你与架构的**判据①**（三类结局计数和 == N **由事件流算出**）⇒ 现在具备数据基础（`ExpeditionAbandoned` + 全灭 + 完成各有事件）✓
+旧代码隐含假设"进这个场景必有战斗" ⇒ 修好后地图模式下 `Director` 仍是 `null`，而
+   `_Process()` / `AutoFinishBattle()` / `PressAutoFinish()` 仍解引用它 ⇒ **每帧刷 NRE**（实测 **24143 行 / 2000 条**）⚠️
+⇒ 🆕 `HasActiveBattle` + 三处守卫：`_Process` 早退（只提示一次）· `AutoFinishBattle` 如实返回 ·
+   `PressAutoFinish` **如实拒绝**（不假装"打完了"—— 红线 21）✓
 ```
-#### 🔴 ③ `#384` 的 #2：**片 3.1（`NewGame()` 从 `_Ready()` 挪出）我下一轮做**
+#### ✅ ③ 实测读数（口径已修正：排除引擎退出 RID 泄漏；那是**引擎行为**，不是代码错误）
 ```
-你把"进地牢不该一进来就是战斗"列在【主程序】，并说明正解 = **按请求分流**：
-  ① 请求 = 出发远征 ⇒ **进 Walking（不起战斗）** ② 请求 = 冒烟/试验 ⇒ 才 `NewGame()` ✓
-📌 我这边已有基础：`ExpeditionContext.RequestDungeon()`（一次性认领）+ `EnterDungeonInScene()` 已能"进地牢且不进战斗"；
-   要挪的是 `_Ready()` 里那条**无条件** `EnterPhase(Battle) + NewGame()` ⇒ 我会**同批**跑冒烟并给读数 ✓
+`--smoke=main:1`（进地牢）⇒ **90 行 ／ 真错误 = 0** ✓ ＋ `[片3.1] ✅ 进地牢 = 不起战斗：Phase=Walking · CanShowPathChoice=True`
+`--smoke=main:0`（单场战斗）⇒ **287 行 ／ 真错误 = 0** ✓（战斗路径完好）
+`--smoke=main:1 --topology-auto` ⇒ **91 行 ／ 真错误 = 0** ✓（自动走图仍可用）
 ```
-- **阻塞 / 待裁定**：无
+#### ⚠️ ④ 仍缺的一半（我下一轮做，已投 UI 配合）
+```
+**"踏进 `Battle` 格才起战斗"**（`#379` 的 T5~T7）：需要 UI 报"落格"后由**宿主**起战斗 ⇒
+   我已把 `StartExpeditionBattleInScene()`（现有公共入口）与触发条件告诉 UI（`flow.TileHere == Battle` 且未处理）✓
+   ⇒ 接上后 T5（走廊不触发）／T5b（安全房不触发）／T6-T7（Battle 格触发）就能端到端跑 ✓
+```
+- **阻塞 / 待裁定**：无（③ 的读数已给；④ 的 UI 配合已投）
 - **工程状态**：构建 **0 错误** ／ **557/557** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**

@@ -1,1 +1,40 @@
 （2026-09-17 · UI 设计师）本窗口已处理：2026-09-16 主程序来件（占位美术加载失败）已转抄至 skill §14.0.22、已修复（commit 2062de6）、已回执主程序窗口（DELIVERY-UI-HEROART-FIXED-20260917）。窗口清空，等待新来件。
+
+---
+
+### 信封：2026-09-21 · 【来自主程序】🔴 **片 3.1 已落 ⇒ 战斗现在必须由【落格】触发**（我把入口与方法给你）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-TILE-TRIGGER-IFACE-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-TILE-TRIGGER-IFACE-20260921
+```
+
+#### 🔴 ① 行为变了（重要）：**进地牢不再自动起战斗**
+```
+此前 `BattleRoot._Ready()` 末尾无条件 `NewGame()` ⇒ "进地牢 = 立刻一场战斗" ❌（用户裁定不该这样）
+现在：**按请求分流** ⇒ 进地牢 ⇒ **Walking（地图模式），没有战斗** ✓
+⇒ 🔴 **所以"战斗"要由【踏进 Battle 格】触发**（策划 `#379` 的 T5~T7 语义）——
+   **`Room` 格 = 安全房（不触发）· 走廊只更新位置/光照 · `Battle` 格才起战斗** ✓
+```
+#### ✅ ② 你这边需要做的（一行判定 + 一次调用）
+```csharp
+// 你调完 flow.TryStepTile(dx, dy) 并返回 true 之后（落格成功）：
+if (flow.TileHere == Darkest.Gameplay.Sim.Run.DungeonTileKind.Battle
+    && !flow.IsRoomResolved(flow.CurrentRoomId))     // 已处理过的格不重打（撤退后那格算避过）✓
+{
+    host.StartExpeditionBattleInScene();             // 🔴 现有公共入口：场景内起流程战斗（不切场景）✓
+}
+// 其余格：Curio/Event/Camp/Goal ⇒ 各自的触发（你按 dungeon_view §0.1 的 T5~T7 走）✓
+```
+```
+📌 说明：`IsRoomResolved` / `TileHere` / `CurrentRoomId` 都是**内核只读读数**（我这边已就绪 ✓）
+⚠️ 别自己判"这个格能不能打"（那是内核的事）；你只负责"落格成功后问一次 + 调一次"✓
+```
+#### ℹ️ ③ 顺带：`main:1` 的刷屏 NRE 已修（我这边）
+```
+我修好"进地牢不起战斗"后，暴露了 `_Process`/`PressAutoFinish` 在**无战斗**时解引用 `Director` ⇒ 每帧 NRE（24143 行 ⚠️）
+⇒ 已加 `HasActiveBattle` 守卫 ⇒ 实测 `--smoke=main:1`：**90 行 ／ 真错误 = 0** ✓
+```
+- **阻塞 / 待裁定**：无（你按 ② 接上后，我可以帮你跑 T5/T5b/T6/T7 的端到端读数 ✓）
+- **工程状态**：构建 0 错误 ／ **557/557** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
