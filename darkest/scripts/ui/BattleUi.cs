@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -351,26 +351,13 @@ public partial class BattleUi : CanvasLayer
 
         foreach (int slot in slots)
         {
-            // 🔴 用户要求（2026-09-17）：**重复元素抽模板** ⇒ 5/6 号位行（2 处同构）实例化 `scenes/ui/slot_row.tscn`
-            //    ⚠️ 场景缺失/类型不符 ⇒ **回落代码构建**（不崩、不静默）
-            //    🔴 节点名保持 `BackSlot{slot}Row / Title / Frame / Name`（验收读数与既有代码按名取）✓
-            Darkest.Ui.SlotRowTemplate? slotRow = Darkest.Ui.SlotRowTemplate.TryCreate(slot);
-            VBoxContainer row = slotRow ?? new VBoxContainer { Name = $"BackSlot{slot}Row" };
-            if (slotRow is null)
-            {
-                row.AddThemeConstantOverride("separation", 2);
-            }
-
+            var row = new VBoxContainer { Name = $"BackSlot{slot}Row" };
+            row.AddThemeConstantOverride("separation", 2);
             col.AddChild(row);
 
-            Label title = slotRow?.TitleLabel ?? new Label { Name = $"BackSlot{slot}Title" };
-            if (title.GetParent() is null)
-            {
-                row.AddChild(title);
-            }
-
-            title.Text = $"{slot} 号位";
+            var title = new Label { Name = $"BackSlot{slot}Title", Text = $"{slot} 号位" };
             title.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+            row.AddChild(title);
 
             UnitProjection? u = players.FirstOrDefault(x => x.Slot == slot);
             if (u is null || u.UnitId == "-")
@@ -379,30 +366,18 @@ public partial class BattleUi : CanvasLayer
                 continue;
             }
 
-            string display = NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId);
-            PanelContainer frame = slotRow?.Frame ?? new PanelContainer { Name = $"BackSlot{slot}Frame", CustomMinimumSize = new Vector2(26, 26) };
-            if (frame.GetParent() is null)
-            {
-                row.AddChild(frame);
-            }
-
-            ColorRect slotPh = slotRow?.Placeholder ?? new ColorRect { Name = "Placeholder" };
-            if (slotPh.GetParent() is null)
-            {
-                frame.AddChild(slotPh);
-            }
-
-            slotPh.Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, isPlayer: true));   // 🔴 规则②：α 取调色板
-
-            Label nameLabel = slotRow?.NameLabel ?? new Label { Name = $"BackSlot{slot}Name", AutowrapMode = TextServer.AutowrapMode.WordSmart };
-            if (nameLabel.GetParent() is null)
-            {
-                row.AddChild(nameLabel);
-            }
-
-            nameLabel.Text = display;
-            nameLabel.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
-            box.TooltipText = $"{slot} 号位：{display}　HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
+        string display = NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId);
+        var frame = new PanelContainer { Name = $"BackSlot{slot}Frame", CustomMinimumSize = new Vector2(26, 26) };
+        row.AddChild(frame);
+        frame.AddChild(new ColorRect
+        {
+            Name = "Placeholder",
+            Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, isPlayer: true)),   // 🔴 规则②：α 取调色板
+        });
+        var nameLabel = new Label { Name = $"BackSlot{slot}Name", Text = display, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        nameLabel.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        row.AddChild(nameLabel);
+        box.TooltipText = $"{slot} 号位：{display}　HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
         }
     }
 
