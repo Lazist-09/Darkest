@@ -147,7 +147,8 @@ public sealed class BattleDirector
         {
             if (_buffs.Has(holder.Id, "virtue_inspired"))
             {
-                _pipeline.Morale.ApplyTeamOnce(_player.UnitsInSlotOrder(), "virtue_inspired_round", _log, overrideDelta: inspired);
+                int moraleBefore = _player.UnitsInSlotOrder().Sum(u => u.Morale);
+        _pipeline.Morale.ApplyTeamOnce(_player.UnitsInSlotOrder(), "virtue_inspired_round", _log, overrideDelta: inspired);
             }
         }
 
@@ -630,10 +631,19 @@ public sealed class BattleDirector
         bool success = verdictRoll < rate;
 
         _log.Append(new RetreatEvent(success, rate));
+        int moraleBefore = _player.UnitsInSlotOrder().Sum(u => u.Morale);
         _pipeline.Morale.ApplyTeamOnce(_player.UnitsInSlotOrder(),
             success ? "retreat_success" : "retreat_fail", _log); // 🔴 现值：成功 **−12** ／ 失败 −5（各全队）—— ⚠️ 原注释写"−10 / −5"是**过期值**（`#357`② 同族：名字/注释与实现不符 ⇒ 已按 tuning 改 ✓）
+        // 🔴 `#376`②：**场级结算事件**（架构 `data_schema §3.11` v1.68 登记）
+        int moraleAfter = _player.UnitsInSlotOrder().Sum(u => u.Morale);
+        bool playerDown = _player.UnitsInSlotOrder().Any(u => u.CurrentHp <= 0); // "有无阵亡"口径：本场有我方倒下（含死门）✓
+        _log.Append(new RetreatResolved(success, BattleIndex, moraleAfter - moraleBefore, playerDown));
+
         return success;
     }
+
+    /// <summary>🔴 本趟第几场（1 起）—— 由**流程**在起战斗时注入 ⇒ 导演仍是单场纯 ✓（`#376`② 的 `battleIndex` 字段）</summary>
+    public int BattleIndex { get; set; } = 1;
 
     /// <summary>撤退可点状态投影（UI 用）：失败当回合 disabled。</summary>
     public bool CanRetreatThisRound => !_retreatDisabledThisRound && !IsBattleOver;

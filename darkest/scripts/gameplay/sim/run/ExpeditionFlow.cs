@@ -77,9 +77,8 @@ public sealed class ExpeditionFlow
 
         Outcome = ExpeditionOutcome.Abandoned;
         IsFinished = true;
-        // ⚠️ 事件流留痕：本项目**没有**"放弃远征"的事件类型 ⇒ 我**不新造**（新事件类型属契约 ⇒ 需架构登记）
-        //    当前留痕方式 = 结局状态本身（`Outcome = Abandoned` + `IsFinished`），并可读 `CombatLog` 里既有事件 ✓
-        _ = reason;
+        // 🔴 `#376`②：架构已在 `data_schema §3.11`（v1.68）登记 **`ExpeditionAbandoned`** ⇒ 现在**按契约发事件**（不再只靠结局状态留痕）✓
+        _log.Append(new ExpeditionAbandoned(reason, StepsDone, Wins, _meter.Value));
     }
     private int _currentRoomId = -1;
 

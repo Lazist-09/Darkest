@@ -248,6 +248,7 @@ public sealed class ExpeditionSession : RunSession, IExpeditionSession
     {
         EnterPhase(FlowPhase.Battle); // 🔴 进战斗 ⇒ Battle 相位（此后扎营/选路/Curio 一律不可用）✓
         BattleDirector director = BeginBattle(battleIndex, log);
+        director.BattleIndex = battleIndex; // 🔴 `#376`②：把"本趟第几场"注入导演（它仍是单场纯，只多一个只读字段）✓
         Darkest.Data.TuningDifficultyTier? tier = tiers?.FirstOrDefault(
             t => battleIndex >= t.BattleFrom && battleIndex <= t.BattleTo);
         if (tier is not null && tier.Target == "enemy_hp" && Math.Abs(tier.Multiplier - 1.0) > 1e-9)

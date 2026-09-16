@@ -33,6 +33,28 @@ public sealed class ExpeditionFlowStateMachineTests
         throw new FileNotFoundException($"data/{name} 未找到。");
     }
 
+    /// <summary>
+    /// 🔴 **`#376`② 的判据**：**放弃远征**（地图层的【一趟】选择）⇒ 必须发 **`ExpeditionAbandoned`** 事件
+    /// （架构 `data_schema §3.11` v1.68 登记；策划 `#361`① 裁"需要"：它是玩家动作 ⇒ 应有可检索的痕迹）✓
+    /// </summary>
+    [TestMethod]
+    public void Flow_Abandon_EmitsExpeditionAbandoned()
+    {
+        (ExpeditionFlow flow, _, CombatLog log) = NewFlow();
+        Assert.AreEqual(0, log.Events.OfType<ExpeditionAbandoned>().Count(), "放弃前：无此事件 ✓");
+
+        flow.Abandon("player_map_action");
+
+        ExpeditionAbandoned e = log.Events.OfType<ExpeditionAbandoned>().Single();
+        Assert.AreEqual("player_map_action", e.Reason, "理由如实带上（可检索）✓");
+        Assert.IsTrue(e.RoomsVisited >= 0 && e.BattlesWon >= 0, "带进度读数（走了几间 / 赢了几场）✓");
+        Assert.IsTrue(e.LightAtAbandon >= 0, "带放弃时的光照 ✓");
+        Assert.IsTrue(flow.IsFinished, "放弃 ⇒ 结束本趟 ✓");
+        Assert.AreEqual(ExpeditionOutcome.Abandoned, flow.Outcome, "结局 = 放弃远征 ✓");
+
+        flow.Abandon("again");
+        Assert.AreEqual(1, log.Events.OfType<ExpeditionAbandoned>().Count(), "重复放弃 ⇒ **幂等**（不重复发事件）✓");
+    }
     /// <summary>拓扑模式的流程（开局即在起点房间 ⇒ `CurrentRoomId` 有效 ⇒ "该格是否已处理"可观察）✓</summary>
     private static ExpeditionFlow NewTopologyFlow()
     {

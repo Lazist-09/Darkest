@@ -164,6 +164,13 @@ public sealed class DirectorMilestoneTests
         Assert.AreEqual(-12 * 6, delta2, "第 2 场：**再扣一次**（不是因为「本趟已撤过」就免掉）✓");
         Assert.AreEqual(2, log.Events.OfType<RetreatEvent>().Count(), "两场 ⇒ 共 2 次撤退判定（不重不漏）✓");
         // ⚠️ `ApplyTeamOnce` **每单位发一条** `MoraleEvent` ⇒ 6 人 × 2 场 = **12 条**（我第一版写 2，是我漏看"按单位发"✓）
+        // 🔴 `#376`② 的判据：**场级事件** `RetreatResolved` 一趟退 2 场 ⇒ **恰好 2 条**（架构给的可断言形式）✓
+        var resolved = log.Events.OfType<RetreatResolved>().ToArray();
+        Assert.AreEqual(2, resolved.Length, "两场各一条 `RetreatResolved` ✓");
+        Assert.IsTrue(resolved.All(r => r.Success), "两场都是成功撤退 ✓");
+        Assert.IsTrue(resolved.All(r => r.MoraleDelta == -72), "每条都记录**本次实际扣减**（−72 = 6 人 × −12）✓");
+        Assert.IsTrue(resolved.All(r => r.BattleIndex >= 1), "带本趟场次号 ✓");
+
         Assert.AreEqual(12, log.Events.OfType<MoraleEvent>().Count(m => m.Source == "retreat_success"),
             "两场 ⇒ 12 条单位级士气事件（= 6 人 × 2 场 ⇒ **每场都结算了**）✓");
     }

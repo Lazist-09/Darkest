@@ -56,6 +56,24 @@ public sealed record ReinforcementEvent(string Kind, UnitId? Unit, int? Slot) : 
 /// <summary>撤退结算事件（M5-04；Rate=当回合成功率数字）。</summary>
 public sealed record RetreatEvent(bool Success, double Rate) : BattleEvent;
 
+/// <summary>
+/// 🔴 **`RetreatResolved`（场级 · `data_schema §3.11` · v1.68 架构登记 · `#376`②）**：
+/// **每一次撤退【结算】各一条**（成功/失败都算 ⇒ R8 判据：一趟退 2 场 ⇒ **恰好 2 条**）✓
+/// 📌 为什么需要它：撤退改成【场级】后，光看"结局"无法知道"退过几次、代价多大"（红线 25：动作 ≠ 意义）✓
+/// </summary>
+/// <param name="Success">本次撤退判定是否成功 ✓</param>
+/// <param name="BattleIndex">本趟第几场（1 起；由流程在起战斗时注入 ⇒ 导演单场纯）✓</param>
+/// <param name="MoraleDelta">**本次实际扣减**的士气总量（全队求和；负值 = 扣）✓</param>
+/// <param name="Casualties">本场是否**有我方倒下**（HP ≤ 0，含死门；"有无阵亡"的口径见注释）✓</param>
+public sealed record RetreatResolved(bool Success, int BattleIndex, int MoraleDelta, bool Casualties) : BattleEvent;
+
+/// <summary>
+/// 🔴 **`ExpeditionAbandoned`（趟级 · `data_schema §3.11` · v1.68 架构登记 · `#376`②）**：
+/// **放弃远征**（地图层的【一趟】选择）⇒ 结束本趟、回城（未完成）✓
+/// 📌 与 `RetreatResolved` 的区别：**撤退是【一场】的动作，放弃远征是【一趟】的动作**（`#352`）✓
+/// </summary>
+public sealed record ExpeditionAbandoned(string Reason, int RoomsVisited, int BattlesWon, int LightAtAbandon) : BattleEvent;
+
 /// <summary>换位/增援事件（#41a：战斗位角色发起，消耗其本次行动；交换链结算）。</summary>
 public sealed record SwapEvent(UnitId? Actor, int FromPos, int ToPos, UnitId? MovedUnit = null, string Kind = "swap") : BattleEvent;
 
