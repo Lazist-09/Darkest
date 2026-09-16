@@ -1252,6 +1252,30 @@ P5 **战斗（②）**：5/6 号位长条框左右靠齐 + 橙框/紫框/右侧�
    ② **逐处替换 + 每处立刻构建**（红就整段回退）⇒ 落错立刻暴露，不会多处一起错 ✓
 ```
 
+### 🔴 14.0.13 **战斗底栏接线清单**（2026-09-17 · 照此执行即可，无需再侦察）
+
+```
+目标：把 `scenes/ui/battle_bottombar.tscn` **整体**接进 `BattleUi.BuildBottomRow()`（**全有或全无**，见 §14.0.12）
+🔴 顺序即布局 ⇒ 必须 `MoveChild` 固化成：**BackSlot5 → LeftStack → EArea → DungeonHost**（LeftStack 内含 CArea → ActorDetailBox）
+
+① 字段（`BattleUi` 字段区，紧挨 `_topBarSkel`）：
+   `private Darkest.Ui.BattleBottomBarSkeleton? _bottomBarSkel;`
+② 在 `_bottomRow = bottomRow;` 之后：`_bottomBarSkel = Darkest.Ui.BattleBottomBarSkeleton.TryInstantiate();`
+   若非空 ⇒ **`bottomPanel.AddChild(_bottomBarSkel)`**（整个骨架入树）
+③ 六处容器创建，全部改为"骨架优先、缺失回落"（**只用字段**，避免作用域问题）：
+   · `_slotLeft`      ← `_bottomBarSkel?.BackSlot5`   ／回落：PanelContainer `BackSlot5` 72×112 ShrinkBegin
+   · `leftStack`      ← `_bottomBarSkel?.LeftStack`   ／回落：VBoxContainer `LeftStack` ExpandFill
+   · `_cArea`         ← `_bottomBarSkel?.CArea`       ／回落：PanelContainer `CArea` 最小宽 260
+   · `_actorDetailBox`← `_bottomBarSkel?.ActorDetailBox`／回落：PanelContainer 最小高 84
+   · `_eArea`         ← `_bottomBarSkel?.EArea`       ／回落：PanelContainer `EArea` 双向 ExpandFill
+   · `_dungeonHost`   ← `_bottomBarSkel?.DungeonHost` ／回落：VBoxContainer 240×72 ShrinkEnd
+   ⚠️ 每处都要 `if (x.GetParent() is null) { 挂到 _bottomRow / leftStack }`（骨架已挂则不重复挂）
+④ 内容仍由代码填：技能栏→`CArea`（经 `cCol`）· 角色详情→`ActorDetailBox` · 多功能→`EArea` · 地牢面板→`DungeonHost`
+⑤ **逐处替换 + 每处立刻构建**（红即整段 `git checkout --` 回退）⇒ 六入口复测 + **成功留痕**（`[UI 骨架] ✅ 战斗底栏采用骨架`）⇒ 通过才提交
+📌 判据：**Label/Panel 计数应与 57/40 一致或可解释**；越界/重叠/透明 0；真错=0（排除 certificate store 与 leaked at exit）
+📌 若仍失败：**回退**并记录现象（不要连续硬试 —— 两次同现象就换假设，见 §14.0.11③）✓
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
