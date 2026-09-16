@@ -33,6 +33,7 @@ public static class SmokeScript
     /// </summary>
     public static bool HasPending => Steps.Count > 0;
     private static bool _enabled;
+    private static int _stepCalls; // 🆕 仪表：`Step` 被调用次数（限流打印用）✓
     private static Node? _owner;
     private static Node? _autoFinishedFor; // 战斗场景"自动放行"只对同一实例触发一次
     private static Timer? _timer;
@@ -73,6 +74,15 @@ public static class SmokeScript
 
         EnsureTimer(node);
 
+        // 🔴 **仪表（诊断用 · 限流）**：**每次** `Step` 都打一行（前 24 次）⇒ 直接回答"切场景后它还跑不跑"
+        //    用途：定位"步骤登记了却永远不跑"（实测：`town` 在战后回地图模式后一直停着 ⚠️）
+        if (_stepCalls < 24)
+        {
+            _stepCalls++;
+            GD.Print($"[冒烟·仪表 #{_stepCalls}] Step　场景={node.GetType().Name}　待办={(Steps.Count == 0 ? "（空）" : Steps.Peek())}" +
+                     $"　可执行={(Steps.Count > 0 && Applies(Steps.Peek(), node))} ✓");
+        }
+
         // 🔴 **战斗场景自动放行**：脚本没显式要 `auto` 时，落到战斗场景就自动打完并返回
         //    （否则长链会在"走房间 ⇒ 撞上战斗房"处卡住 —— 脚本无法预知哪个房间是战斗房）。
         //    ⚠️ **每个场景实例只触发一次**：自动打完 ⇒ 场景切换是**延迟**的（下一帧才生效），
@@ -84,9 +94,14 @@ public static class SmokeScript
                 _autoFinishedFor = node;
                 GD.Print("[冒烟] 落到战斗场景且下一步不是 auto ⇒ 自动打完并返回（脚本无需预知房间类型）");
                 battleRoot.PressAutoFinish();
+                return; // 第一次：先让这场打完；**本帧不消费步骤**（否则会在战斗未结束时就把下一步用掉）✓
             }
 
-            return;
+            // 🔴🔴 **片 4 收口修（仪表实测抓到，2026-09-16）**：这里原先**无条件 `return`** ⚠️
+            //    ⇒ 同一场景实例的**后续每一次** `Step` 都被挡回 ⇒ **战斗之后的步骤永远吃不到**
+            //    （实测：`--smoke=main:1,town` 的 `town` 被调用 16+ 次、`可执行=True`，却**从未执行** ✓）
+            //    ⇒ 现在：**已放行过**就**不再 return** ⇒ 落到下面正常消费待办步骤 ✓
+            GD.Print("[冒烟] 本场已放行过 ⇒ **不再挡住后续步骤**（修：此前无条件 return）✓");
         }
 
         if (Steps.Count == 0)
