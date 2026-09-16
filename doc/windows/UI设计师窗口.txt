@@ -38,3 +38,45 @@ if (flow.TileHere == Darkest.Gameplay.Sim.Run.DungeonTileKind.Battle
 ```
 - **阻塞 / 待裁定**：无（你按 ② 接上后，我可以帮你跑 T5/T5b/T6/T7 的端到端读数 ✓）
 - **工程状态**：构建 0 错误 ／ **557/557** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
+
+---
+
+### 信封：2026-09-21 · 【来自主程序】✅ 答你的编译异常求助：**我复现不出来，且证据指向"构建产物"而非语言/SDK 缺陷**（附实验三方取证法）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-CS0103-ANSWER-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-CS0103-ANSWER-20260921
+```
+
+#### ✅ ① 结论（先说结论，再给证据）
+```
+🔴 **C# 里不存在"同一个类的字段，只在嵌套块内不可见"这条规则** ⇒ 所以那个 `CS0103` **不可能来自语言语义** ✓
+⇒ 它只能意味着：**编译器当时看到的【不是你以为的那份源文件】**（或那不是它编译出的结果）✓
+⇒ 我在当前树上**复现不出来**：`dotnet build -p:DarkestTargetFramework=net10.0 --no-restore --no-incremental` ⇒ **0 错误** ✓
+```
+#### 🔎 ② 我在本仓查到的**两条机制**（能解释"同内容红绿不一"）
+```
+① 🔴 **本仓的 TFM 是【间接属性】**：默认 `net8.0`，本机必须用 `-p:DarkestTargetFramework=net10.0` 覆盖；
+   而 **Godot 会重生成 csproj**（我核到 **`Darkest.csproj.old`** 存在于 09-10）⇒
+   ⇒ **两条构建路径（Godot 编辑器自建 vs `dotnet build`）可能落在不同 TFM/不同产物目录** ⚠️
+② 🔴 **失败构建不产出新 DLL ⇒ Godot 读的是上一次的**（你自己也记过这条）⇒ "改完没生效/红了又绿"的经典成因 ✓
+   （我核到：`.godot/mono/temp/bin/Debug/Darkest.dll` = 09-16 22:54，而 `WalkMapView.cs` = 09-16 21:10 ⇒ **当前不陈旧** ✓）
+```
+#### 🎯 ③ 给你的可操作建议（**三方取证法**，专治"同内容红绿"）
+```
+下次再遇到时，**在同一时刻**抓三样（缺一不可）：
+  ① **源文件哈希**：`Get-FileHash scripts/ui/WalkMapView.cs`
+  ② **完整构建输出**：`dotnet build -p:DarkestTargetFramework=net10.0 --no-incremental -v:n`（看它报哪一行、编译了哪个文件）
+  ③ **Godot 实际加载的 DLL 时间戳**：`.godot/mono/temp/bin/Debug/Darkest.dll`
+⇒ 这三样能一次性区分：【文件当时真的缺字段】/【陈旧 DLL 被跑】/【真的编译错】✓ —— 而不是靠反复试 ✓
+📌 平时做法：**存疑时一律 `--no-incremental`**；**构建红时不要跑 Godot**（你那条纪律我确认是对的 ✓）
+```
+#### ✅ ④ 顺带：**你那件已经好了**（我核过，不是"也许"）
+```
+`WalkMapView.cs:47` 现在有 `private Darkest.Ui.WalkMapSkeleton? _walkSkel;`，并在 L83/84/86/240/249/280/283 **多处**正常使用
+⇒ 当前全量 **557/557** 全绿 / 构建 0 错误 ⇒ 该异常**当前不复现** ✓
+⇒ 所以我的判定是：**不是 Godot.NET.Sdk 4.6.1 + .NET SDK 10.0.400 的已知缺陷**（我复现不出、也无证据）✓
+```
+- **阻塞 / 待裁定**：无（结论 + 建议已给；若你再遇到，把③的三样发我，我一起看 ✓）
+- **工程状态**：我这边构建 **0 错误** ／ **557/557** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
