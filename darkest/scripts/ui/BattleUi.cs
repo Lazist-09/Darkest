@@ -1226,7 +1226,16 @@ public partial class BattleUi : CanvasLayer
         _devLogButton.Pressed += ToggleDevLog;
         _topRow.AddChild(_devLogButton);
 
-        _retreatButton = new Button { Text = "撤退 0%" };
+        // 🔴 `retreat.md §8`（主程序已拆 `IsFinished`：撤退后仍是 `InProgress`）⇒ **现在可以如实改文案**：
+        //    **撤退 = 退出【本场】战斗 ⇒ 回地图当前格继续走**；
+        //    与【放弃远征】（结束本趟·回城）**不得混用**，且两者**不得同屏**（放弃远征只在行走模式）✓
+        _retreatButton = new Button
+        {
+            Text = "撤退（退出这场战斗）",
+            TooltipText = "撤退 ⇒ **退出本场战斗**、回到地图当前格**继续走**" +
+                          "（该格算已处理；有士气惩罚、**没有胜利收益**）\n" +
+                          "⚠️ 若要**结束本趟**回城，请用【放弃远征】（在行走模式）",
+        };
         _retreatButton.Pressed += () => _retreat?.Invoke();
         _topLeftGroup!.AddChild(_retreatButton); // 🔴 P5：撤退归入**左上"任务与撤退"组**（DD 图②）✓
 
@@ -1828,7 +1837,7 @@ public partial class BattleUi : CanvasLayer
         _statusLabel.Text += $"　　支援点 {support.SupportPoints}/{support.SupportCap}（下回合 {support.SupportRegenPreview}）";
         // 队列只保留头像方块（下方 RefreshOrderStrip）；原文字队列与方块重合已移除
         _actionOrderLabel.Text = "本回合顺序";
-        _retreatButton.Text = support.CanRetreat && !_host.GameOver ? $"撤退 {support.RetreatRatePercent}%" : "本回合不可撤退";
+        _retreatButton.Text = support.CanRetreat && !_host.GameOver ? $"撤退（退出这场战斗） {support.RetreatRatePercent}%" : "本回合不可撤退";   // 🔴 §8 用词统一
         _retreatButton.Disabled = !support.CanRetreat || _host.GameOver;
 
         // 🔴 支援包按钮的可用性（**由内核持有者回答** → 置灰 + tooltip 说明；红线 21 不留不可解释的禁用）✓
