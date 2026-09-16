@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 
 namespace Darkest.Ui;
 
@@ -58,6 +58,9 @@ public partial class HamletSkeleton : Control
             return null;
         }
 
+        // 🔴 **成功留痕**（2026-09-17）：让"骨架是否真被采用"**可验证**（此前只有失败才打印 ⇒
+        //    导致我一度误判"未采用"；教训：**启用类路径必须有正向自证**）✓
+        GD.Print($"[UI 骨架] ✅ 主城采用骨架 `{ScenePath}`（**编辑器里可编辑**）✓");
         return skel;
     }
 

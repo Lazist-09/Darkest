@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 
 namespace Darkest.Ui;
 
@@ -42,6 +42,7 @@ public partial class MainMenuSkeleton : Control
             return null;
         }
 
+        GD.Print($"[UI 骨架] ✅ 主菜单采用骨架 `{ScenePath}`（**编辑器里可编辑**）✓");
         return menu;
     }
 
