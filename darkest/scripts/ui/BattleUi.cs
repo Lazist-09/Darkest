@@ -1139,9 +1139,22 @@ public partial class BattleUi : CanvasLayer
 
         var topPanel = new PanelContainer { Name = "TopRow" };
         uiCol.AddChild(topPanel);
-        var topRow = new HBoxContainer { Name = "TopRowBox" };
-        topRow.AddThemeConstantOverride("separation", 10);
-        topPanel.AddChild(topRow);
+        // 🔴 骨架优先（2026-09-17）：战斗顶栏容器用骨架（三区位置/间距/占比可在编辑器改）✓
+        _topBarSkel = Darkest.Ui.BattleTopBarSkeleton.TryInstantiate();
+        HBoxContainer topRow;
+        if (_topBarSkel is not null)
+        {
+            _topBarSkel.Name = "TopRowBox";
+            topPanel.AddChild(_topBarSkel);
+            topRow = _topBarSkel;
+        }
+        else
+        {
+            topRow = new HBoxContainer { Name = "TopRowBox" };
+            topRow.AddThemeConstantOverride("separation", 10);
+            topPanel.AddChild(topRow);
+        }
+
         _topRow = topRow;
 
         var midPanel = new PanelContainer { Name = "MidRow", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
@@ -1197,9 +1210,12 @@ public partial class BattleUi : CanvasLayer
         _statusLabel.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
         _statusLabel.CustomMinimumSize = new Vector2(0, 22);
         // 🔴 P5（用户参考图②）：**左上 = 任务与撤退** —— 独立成组放在顶栏最左；其余项在其右 ✓
-        _topLeftGroup = new HBoxContainer { Name = "TopLeftGroup", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin, SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };
-        _topLeftGroup.AddThemeConstantOverride("separation", 8);
-        _topRow.AddChild(_topLeftGroup);
+        _topLeftGroup = _topBarSkel?.TopLeftGroup ?? new HBoxContainer { Name = "TopLeftGroup", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin, SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };
+        if (_topLeftGroup.GetParent() is null)
+        {
+            _topLeftGroup.AddThemeConstantOverride("separation", 8);
+            _topRow.AddChild(_topLeftGroup);
+        }
 
         _missionLabel = new Label { Name = "MissionLabel", VerticalAlignment = VerticalAlignment.Center };
 
@@ -1248,8 +1264,11 @@ public partial class BattleUi : CanvasLayer
         // 🔴 P5（用户参考图②）：**正上方 = 火把条**（光照既是机制、也要"看得见"）—— **居中**放置；
         //    数据只读本趟 `Flow.Meter`（无本趟 ⇒ 隐藏并留痕）✓
         //    ⚠️ 与地图模式里那条光照条是**同一个信息** ⇒ **只保留这一条**（地图模式那条收起，避免两处显示同一读数）✓
-        var torchWrap = new CenterContainer { Name = "TorchWrap", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };
-        _topRow.AddChild(torchWrap);
+        CenterContainer torchWrap = _topBarSkel?.TorchWrap ?? new CenterContainer { Name = "TorchWrap", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };
+        if (torchWrap.GetParent() is null)
+        {
+            _topRow.AddChild(torchWrap);
+        }
         _topTorch = new Darkest.Ui.LightBarPanel { Name = "TopTorchBar" };
         torchWrap.AddChild(_topTorch);
 
@@ -1517,6 +1536,7 @@ public partial class BattleUi : CanvasLayer
     //    **重建路径**（行动顺序图标 / 技能键 / 卡片刻）也必须加进这些容器，
     //    否则它们会加回 CanvasLayer（`this`）⇒ 逃出 `_uiRoot` 子树 ⇒ 判据看不到它们（实测"可见 Label 0"）⚠️
     private Container _topRow = null!;
+    private Darkest.Ui.BattleTopBarSkeleton? _topBarSkel;   // 🔴 顶栏骨架（字段承载 ⇒ 避开作用域问题）✓
     private Container _midRow = null!;
     private Container _bottomRow = null!;
 
