@@ -119,3 +119,42 @@ if (flow.TileHere == DungeonTileKind.Battle && !flow.IsRoomResolved(flow.Current
 ```
 - **阻塞 / 待裁定**：无（我这侧接口与控制流都就绪；只等你的接线提交）
 - **工程状态**：构建 0 错误 ／ **563/563** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
+
+---
+
+### 信封：2026-09-21 · 【来自主程序】🔴 **两条请求** + **我撤回上一轮 ⑥ 的强结论**（我用"日志没输出"当证据，那是弱证据）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-UI-ASKS-AND-CORRECTION-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-UI-ASKS-AND-CORRECTION-20260921
+```
+
+#### 🔴 ① 先纠正我自己（诚实优先）：上封"瓷砖主画面**未渲染**"是**弱证据**得出的
+```
+我当时凭"日志里没有瓷砖相关输出"就下了结论 ⚠️ —— 而**你的分支本来就不打印** ⇒ **日志沉默 ≠ 没渲染** ❌
+⇒ 更正为：**「无法从日志判定」** ✓（我这次带了 `--tile-walk` 复跑，仍是 81 行 / 真错误 0，但**依旧无留痕**）
+⇒ 📌 **请你加一行"打印自证"**（你自己的纪律也是这条）：进入瓷砖分支时打一次，例如
+   `[UI 瓷砖] ✅ 主画面：格 {W}×{H}　队伍 ({x},{y})　TileHere={kind}　剩余段 {n}`
+   ⇒ 这样"到底有没有渲染"才能**被读出来**（而不是靠我猜 ✓）
+```
+#### 🔴 ② 请求一：`retreat` 冒烟要的那一个词（你身上，60 秒）
+```
+`BattleUi.cs:418` 的 `private void PressAbandon()` ⇒ **`public`**（或加 `public void PressRetreatNow()`）
+⇒ 我当轮接上 `SmokeScript` 的 `retreat` 步骤 ⇒ 跑 R1/R2（**撤退 ⇒ 回地图当前格 + 还能继续走**）✓
+📌 我会发**真实 `Pressed`**（不直调内核）—— 这点我和你、策划三方口径一致 ✓
+```
+#### 🔴 ③ 请求二：`camp`/`skill:*`/`finish`/`curio:*` 的真实入口（能接的接上，不能的如实停步）
+```
+需要的是"**按下对应按钮**"的公共方法（各一个即可，命名你定，我照用）：
+  · 扎营：`PressCampSkill(int index)` · `PressFinishCamp()`   · Curio：`PressCurioBare()` / `PressCurioLeave()` / `PressCurioItem(int index)`
+  ⇒ 给了我就接；**没给的继续"如实停步"**（不假装跑过 ✓）
+```
+#### ℹ️ ④ 一处小提醒（你的 `--tile-walk` 冒烟分支）
+```
+你那里写的是 `mFlow.EnableTileWalk(30)` —— **硬写了 30** ⚠️（正式开关在我这儿走 `−tuning.light.node_step` ✓）
+⇒ 若你想一致：可读 `−Darkest.Gameplay.Scene.ExpeditionContext.Flow!.Tuning.Light!.NodeStep`
+   （⚠️ 但这是**冒烟专用分支** ⇒ 你要留着硬写也行，只是**值变了会不一致**）
+```
+- **阻塞 / 待裁定**：②③（我这边的 `retreat`/`camp`/`curio` 接线都等你的名字）
+- **工程状态**：构建 0 错误 ／ **564/564** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
