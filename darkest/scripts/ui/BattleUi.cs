@@ -409,7 +409,10 @@ public partial class BattleUi : CanvasLayer
 
             string refPath = slot.Frames[0];
             string full = $"{Darkest.Data.HeroAssets.PlaceholderRoot}/{refPath}";
-            _placeholderCombatTex = Godot.ResourceLoader.Load<Texture2D>(full);
+            // ⚠️ 修正：占位 png 在 `res://assets/` 下且**没有导入产物**（`.import`）⇒ `ResourceLoader` 载不动 ⚠️
+            //    ⇒ 正解：**直接读文件解码**（`Image.LoadFromFile` + `ImageTexture`）——这是"本地占位"该走的路 ✓
+            Godot.Image? img = Godot.Image.LoadFromFile(full); // 🔴 `Image.LoadFromFile` 是**静态**方法（返回 null = 解码失败）✓
+            _placeholderCombatTex = img is null ? null : Godot.ImageTexture.CreateFromImage(img);
             GD.Print(_placeholderCombatTex is null
                 ? $"[UI 占位英雄] 载入失败：`{full}` ⇒ 回落色块+首字（不静默）✓"
                 : $"[UI 占位英雄] ✅ 战斗单帧用占位：`{full}`（**只从 PlaceholderRoot 读**；`placeholder={cfg.Placeholder}`）✓");
