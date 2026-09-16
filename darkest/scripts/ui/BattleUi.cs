@@ -365,7 +365,7 @@ public partial class BattleUi : CanvasLayer
         frame.AddChild(new ColorRect
         {
             Name = "Placeholder",
-            Color = Darkest.Ui.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, isPlayer: true),
+            Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, isPlayer: true)),   // 🔴 规则②：α 取调色板
         });
         var nameLabel = new Label { Name = $"BackSlot{slot}Name", Text = display, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         nameLabel.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
@@ -425,6 +425,12 @@ public partial class BattleUi : CanvasLayer
         }
     }
 
+    /// <summary>🔴 用户规则②：**保留色相、只把 α 换成调色板里的占位透明度**（空闲位半透明 ⇒ 一眼看出"待填"）✓</summary>
+    private static Color WithPlaceholderAlpha(Color hue)
+    {
+        hue.A = Darkest.Ui.DdTheme.PlaceholderFill.A;
+        return hue;
+    }
     /// <summary>面板状态读数：**显示/隐藏 + 子控件数**（隐藏 = 门禁生效的**自证**，不是"没接上"）✓</summary>
     private static string PanelState(string name, Control? panel)
         => panel is not null && GodotObject.IsInstanceValid(panel)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -695,7 +695,9 @@ public partial class HamletRoot : Node2D
         var recRow = new HBoxContainer { Name = "DetailRecommendRow" };
         recRow.AddThemeConstantOverride("separation", 6);
         _detailRecommend.AddChild(recRow);
-        recRow.AddChild(new PanelContainer { Name = "RecommendPortraitFrame", CustomMinimumSize = new Vector2(36, 36) });
+        var recFrame = new PanelContainer { Name = "RecommendPortraitFrame", CustomMinimumSize = new Vector2(36, 36) };
+        recFrame.AddChild(new ColorRect { Name = "RecommendPlaceholder", Color = Darkest.Ui.DdTheme.PlaceholderFill });   // 🔴 规则②：待填位用半透明占位 ✓
+        recRow.AddChild(recFrame);
         recRow.AddChild(new Label { Name = "RecommendText", Text = "推荐位置（待定）", VerticalAlignment = VerticalAlignment.Center });
 
         _detailRight = new Label
@@ -793,7 +795,7 @@ public partial class HamletRoot : Node2D
                     slot.AddChild(new ColorRect
                     {
                         Name = "SkillIconPlaceholder",
-                        Color = Darkest.Ui.DdTheme.ArchetypeColor(hero.Archetype, isPlayer: true),
+                        Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(hero.Archetype, isPlayer: true)),   // 🔴 规则②：α 取调色板
                     });
                     _detailSkills.AddChild(slot);
                 }
@@ -1049,7 +1051,8 @@ public partial class HamletRoot : Node2D
             // 🔴 **店长位留框**（用户原话"为店长位置留一个空间"）：不透明面板样式(1px 边框) + **色块占位** ⇒ 以后只换里面那格 ✓
             var shopFrame = new PanelContainer { Name = "ShopkeeperSlot", CustomMinimumSize = new Vector2(0, 96) };
             leftCol.AddChild(shopFrame);
-            shopFrame.AddChild(new ColorRect { Name = "ShopkeeperPlaceholder", Color = Darkest.Ui.DdTheme.PanelBgRaised });
+            // 🔴 规则②：空闲位改**半透明占位**（α 来自调色板 `PlaceholderFill`）✓
+        shopFrame.AddChild(new ColorRect { Name = "ShopkeeperPlaceholder", Color = Darkest.Ui.DdTheme.PlaceholderFill });
 
             for (int k = 0; k < _buildingIds.Length; k++)
             {
@@ -1237,6 +1240,12 @@ public partial class HamletRoot : Node2D
         return true;
     }
 
+    /// <summary>🔴 用户规则②：**保留色相、只把 α 换成调色板里的占位透明度**（空闲位半透明 ⇒ 一眼看出"待填"）✓</summary>
+    private static Color WithPlaceholderAlpha(Color hue)
+    {
+        hue.A = Darkest.Ui.DdTheme.PlaceholderFill.A;
+        return hue;
+    }
     /// <summary>供冒烟：名册竖列的行数（应等于名册人数）。</summary>
     public int RosterRowCount => _heroButtons.Count;
 
@@ -1360,7 +1369,7 @@ public partial class HamletRoot : Node2D
                 frame.AddChild(new ColorRect
                 {
                     Name = "PortraitPlaceholder", // 🔴 色块占位（`§14.4` 原型色 ⇒ 不硬写字面量）✓
-                    Color = Darkest.Ui.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true),
+                    Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true)),   // 🔴 规则②：α 取调色板
                 });
 
                 // 🔴 **用户要求（2026-09-15）：角色详情 = 【右键头像】点开**（左键点行仍是"选中"，供减压用）✓
