@@ -32,7 +32,7 @@ public sealed class CampaignTests
         for (int i = 0; i < runs; i++)
         {
             RunOutcome c = HeadlessDriver.RunCampaign(seedBase + i, PolicyKind.SemiRandom, battles);
-            if (c.CompletedCountingRetreat)
+            if (c.CompletedAllBattles)
             {
                 survived++;
             }

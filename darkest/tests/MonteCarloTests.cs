@@ -128,7 +128,7 @@ public sealed class MonteCarloTests
         for (int i = 0; i < runs; i++)
         {
             Darkest.Gameplay.Sim.Run.RunOutcome c = HeadlessDriver.RunCampaign(20260909 + i, PolicyKind.SemiRandom, battles: 3);
-            if (c.CompletedCountingRetreat)
+            if (c.CompletedAllBattles)
             {
                 survived++;
             }

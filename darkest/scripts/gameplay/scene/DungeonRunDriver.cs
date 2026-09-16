@@ -74,7 +74,9 @@ public static class DungeonRunDriver
         int guard = 0;
         while (!flow.ReachedGoal && guard++ < 64)
         {
-            int next = flow.NextRoomToward(flow.Map!.GoalId);
+            // 🔴 走向**有效终点**（开走格后 = 派生终点，可能因 `#342`③ 主干 ≤3 段而**提前**）✓
+            int target = flow.TileWalk is { } tw && tw.TileRoom.TryGetValue(tw.Grid.Goal, out int derived) ? derived : flow.Map!.GoalId;
+            int next = flow.NextRoomToward(target);
             if (next < 0)
             {
                 break;

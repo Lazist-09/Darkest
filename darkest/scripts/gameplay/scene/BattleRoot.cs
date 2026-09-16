@@ -322,6 +322,14 @@ public partial class BattleRoot : Node2D
         }
 
         _dungeonHostedInScene = true; // 🔴 片 4 过渡标记（战后据此回地图模式）✓
+        // 🔴 片 4 收口：**把走格真正开起来**（UI 报"全项目无人调 `EnableTileWalk`" ⇒ 走格接口一直没人用 ⚠️）
+        //    · 段消耗**从数据取**（`tuning.light.node_step` = −30，负值 = 消耗 ⇒ 取反得 30）⇒ **代码不写死** ✓
+        //    · 幂等 + opt-in：不改变任何既有规则；表现层据此渲染"格子主画面" ✓
+        int segmentCost = -built.Flow.Tuning.Light!.NodeStep;
+        built.Flow.EnableTileWalk(segmentCost);
+        GD.Print($"[片4] ✅ 走格已开启（段消耗 = −`light.node_step` = {segmentCost}，取自已解析数据）" +
+                 $"　网格 {built.Flow.TileWalk!.Grid.Width}×{built.Flow.TileWalk.Grid.Height}" +
+                 $"　房间块 {built.Flow.TileWalk.Segments.Count} 段走廊　队伍在 ({built.Flow.TilePosition.X},{built.Flow.TilePosition.Y}) ✓");
         _ui.EnterMapMode();
         GD.Print($"[片4] ✅ **场景内进入地牢**（地图模式）：Phase={built.Flow.Session.Phase}　" +
                  $"段数={built.Flow.StepsDone}　光照={built.Flow.Meter.Value}　" +

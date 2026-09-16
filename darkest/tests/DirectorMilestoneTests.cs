@@ -112,7 +112,7 @@ public sealed class DirectorMilestoneTests
     }
 
     [TestMethod]
-    public void Retreat_SuccessCostsTeam10_AndDisabledForRound()
+    public void Retreat_SuccessCostsTeam12_AndDisabledForRound()
     {
         var log = new CombatLog();
         BattleDirector director = NewDirector(log);
