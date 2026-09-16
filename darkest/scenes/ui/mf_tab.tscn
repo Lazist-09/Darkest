@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/MfTabButtonTemplate.cs" id="1_tab"]
+
+[node name="MfTabButton" type="Button"]
+custom_minimum_size = Vector2(80, 26)
+script = ExtResource("1_tab")

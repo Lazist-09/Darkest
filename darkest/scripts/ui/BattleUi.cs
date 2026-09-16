@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -737,7 +737,10 @@ public partial class BattleUi : CanvasLayer
         {
             int idx = i;
             // 容器自动排布 ⇒ 只给"最小尺寸"，不写 Position ✓
-            var b = new Button { Text = tabs[i], CustomMinimumSize = new Vector2(80, 26) };
+            // 🔴 用户要求（2026-09-17）：**重复元素抽模板** ⇒ 多功能页签（4~5 处同构）实例化 `mf_tab.tscn`
+            //    ⚠️ 场景缺失 ⇒ 回落代码构建（不崩、不静默）✓
+            Button b = Darkest.Ui.MfTabButtonTemplate.TryCreate(tabs[i])
+                ?? new Button { Text = tabs[i], CustomMinimumSize = new Vector2(80, 26) };
             b.Pressed += () => SetMultiFunctionPage(idx);
             tabsRow.AddChild(b);
             _mfTabs.Add(b);
