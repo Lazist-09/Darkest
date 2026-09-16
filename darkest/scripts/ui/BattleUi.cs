@@ -351,19 +351,13 @@ public partial class BattleUi : CanvasLayer
 
         foreach (int slot in slots)
         {
-            // 🔴 用户要求（2026-09-17）：**重复元素抽模板** ⇒ 5/6 号位行（2 处同构）实例化 `back_slot_row.tscn`
-            //    ⚠️ 场景缺失 ⇒ 回落代码构建（不崩、不静默）；节点名 `BackSlot{slot}Title/Frame/Name` 保持不变 ✓
-            Darkest.Ui.BackSlotRowTemplate? slotRow = Darkest.Ui.BackSlotRowTemplate.TryCreate(slot);
-            VBoxContainer row = slotRow ?? new VBoxContainer { Name = $"BackSlot{slot}Row" };
-            if (slotRow is null)
-            {
-                row.AddThemeConstantOverride("separation", 2);
-                var title = new Label { Name = $"BackSlot{slot}Title", Text = $"{slot} 号位" };
-                title.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
-                row.AddChild(title);
-            }
-
+            var row = new VBoxContainer { Name = $"BackSlot{slot}Row" };
+            row.AddThemeConstantOverride("separation", 2);
             col.AddChild(row);
+
+            var title = new Label { Name = $"BackSlot{slot}Title", Text = $"{slot} 号位" };
+            title.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+            row.AddChild(title);
 
             UnitProjection? u = players.FirstOrDefault(x => x.Slot == slot);
             if (u is null || u.UnitId == "-")
