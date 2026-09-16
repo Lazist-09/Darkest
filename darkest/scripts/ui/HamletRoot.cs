@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -28,7 +28,9 @@ public partial class HamletRoot : Node2D
     private Label _resourceBar = null!;
 
     // 🔴 用户要求（2026-09-16）：以下三块**搬进【建筑详情】**（主屏不再一眼可见）✓
-    private HBoxContainer? _reliefRow;`n    private HBoxContainer? _recruitRow;`n    private HBoxContainer? _saniRow;
+    private HBoxContainer? _reliefRow;
+    private HBoxContainer? _recruitRow;
+    private HBoxContainer? _saniRow;
 
 
     /// <summary>🔴 P2：建筑**唯一入口**按钮（三栋共用；明细在二级窗口里切换）✓</summary>
