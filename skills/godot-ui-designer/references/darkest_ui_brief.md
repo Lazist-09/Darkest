@@ -1276,6 +1276,31 @@ P5 **战斗（②）**：5/6 号位长条框左右靠齐 + 橙框/紫框/右侧�
 📌 若仍失败：**回退**并记录现象（不要连续硬试 —— 两次同现象就换假设，见 §14.0.11③）✓
 ```
 
+### 🔴 14.0.14 **底栏接线的未解现象（交接给下一轮；我已经查过的都在这）**
+
+```
+现象：按 §14.0.13 逐处应用，**第 3 处**（`_slotLeft = _bottomBarSkel?.BackSlot5 ?? new PanelContainer`）后构建红：
+      `BattleUi.cs(1370,21): error CS0103: 当前上下文中不存在名称"_bottomBarSkel"`
+
+🔍 **已排除的可能**（都有实测证据，别重复查）：
+ ① **不是写盘竞态**：加了"写盘 → 回读校验（marker 必须在盘上）→ 才构建"后，**同一处仍然红** ✗
+ ② **不是类作用域**：`BattleUi.cs` **只有一个类** `BattleUi`（L24）⇒ L1172 / L1370 同属该类 ✗
+ ③ **不是字段没插进去**：单独应用"字段"后回读，字段**确实**落在 L1540 的字段区
+    （紧挨 `private Container _topRow = null!;` / `_midRow` / `_bottomRow`）✓
+ ④ **不是 static**：`BuildBottomRow()` 签名是 `private void BuildBottomRow()`（L1353，**非 static**），
+    且 `_slotLeft`(L69) / `_actorDetailBox`(L77) / `_cArea`(L1550) / `_eArea`(L1551) 都是**实例字段** ✗
+ ⑤ **只需"字段 + 第 3 处"两处时构建是绿的**（实测：单独跑这两处**无 error CS**）⚠️
+    ⇒ **红只在"字段 + 第 2 处 + 第 3 处"同时应用时出现** ⇒ 嫌疑集中在**第 2 处**的插入文本
+      （`if (_bottomBarSkel is not null) { bottomPanel.AddChild(_bottomBarSkel); }` 插在 `_bottomRow = bottomRow;` 之后）
+
+🔜 **下一轮第一步（最省时间的验证）**：只应用**第 2 处**（字段已确认 OK），再单独看构建是否绿；
+   若红 ⇒ 打印**该错误行的真实源码**（`$c[$ln-7..$ln+4]`）以确认编译器指的是哪一行（我曾试过打印，但那次没有 error 行可打印）
+   若绿 ⇒ 再单独加第 3 处，二分定位 ✓
+
+📌 备选降级方案（若上述仍无解）：**不加字段**，改为在 `BuildBottomRow()` 内用**局部变量**
+   `var skel = Darkest.Ui.BattleBottomBarSkeleton.TryInstantiate();`（局部变量无任何作用域/静态疑问）✓
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
