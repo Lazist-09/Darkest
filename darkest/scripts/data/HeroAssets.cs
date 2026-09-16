@@ -38,9 +38,20 @@ public sealed record HeroAssetsConfig(
     [property: JsonPropertyName("actions")] IReadOnlyDictionary<string, HeroActionSlot> Actions,
     // 🔴 合规三条（`§2`）：占位**必须显式标注**（临时 · 来源 · 无授权 · 不发布）✓
     [property: JsonPropertyName("placeholder")] bool Placeholder = false,
-    [property: JsonPropertyName("source")] string? Source = null)
+    [property: JsonPropertyName("source")] string? Source = null,
+    // 🆕 **名册头像**（策划 `#347`②(b)：已请架构补 `P31`；此处**先按同纪律实现** = **引用** + **允许缺失**）✓
+    //    理由：这批素材里**唯一能完整用**的就是 `*_portrait_roster.png`（85×85 独立 PNG，不依赖 Spine）✓
+    [property: JsonPropertyName("portrait")] string? Portrait = null)
 {
     public const string ResPath = "res://data/hero.json";
+
+    /// <summary>
+    /// 🔴 **根覆盖**（策划 `#347`②(a) 的"鸡生蛋"解法）：占位的 `hero.json` **不能**放 `res://data/`
+    /// （那进 git ⇒ 等于**分发**）⇒ 由**调用方显式给根**（`Load(json, root)`）⇒ 正式路径仍走 `ResPath` ✓
+    /// ⚠️ 不参与 JSON 序列化（它是**运行时注入**，不是数据字段 ✓）
+    /// </summary>
+    [JsonIgnore]
+    public string? RootOverride { get; init; }
 }
 
 /// <summary>
@@ -157,11 +168,7 @@ public static class HeroAssets
             // ③ `frames` 必须是引用（路径样式）⇒ 出现内联数据 ⇒ 拒绝
             foreach (string f in slot.Frames)
             {
-                if (string.IsNullOrWhiteSpace(f)
-                    || f.Contains("base64", StringComparison.OrdinalIgnoreCase)
-                    || f.Contains('{')
-                    || f.Length > 200
-                    || (!f.Contains('.') && !f.Contains('/')))
+                if (!IsReference(f))
                 {
                     throw new InvalidDataException(
                         $"{HeroAssetsConfig.ResPath}: 槽 \"{name}\" 的帧 \"{Trim(f)}\" **不是引用**（`P31` ②：`frames` 必须是路径/资源 id，" +
@@ -175,6 +182,13 @@ public static class HeroAssets
                 throw new InvalidDataException(
                     $"{HeroAssetsConfig.ResPath}: 槽 \"{name}\" 缺 `anchor` ⇒ 拒绝加载（`P31` ③：**锚点必须显式**，不许猜）✓");
             }
+        }
+
+        // 🆕 名册头像（若给）：与 `frames` **同纪律** —— 必须是**引用**；**允许缺失**（缺 ⇒ 不画，不造默认图）✓
+        if (cfg.Portrait is { Length: > 0 } portrait && !IsReference(portrait))
+        {
+            throw new InvalidDataException(
+                $"{HeroAssetsConfig.ResPath}: `portrait` 的 \"{Trim(portrait)}\" **不是引用**（与 `frames` 同纪律：路径/资源 id）✓");
         }
 
         // 合规：占位必须显式标注来源（临时 · 来源 · 无授权 · 不发布）✓
@@ -194,11 +208,39 @@ public static class HeroAssets
             : Array.Empty<string>();
 
     /// <summary>
-    /// 资产根：占位 ⇒ **只从 `PlaceholderRoot` 加载**（"放对地方"是唯一能跑的路径 ✓）；
+    /// 资产根：**调用方给了根** ⇒ 用它（占位/测试）✓；否则 占位 ⇒ `PlaceholderRoot`（**只从这里加载**）；
     /// 正式 ⇒ `HeroesRoot/<archetype>` ✓
     /// </summary>
     public static string RootFor(HeroAssetsConfig cfg)
-        => cfg.Placeholder ? PlaceholderRoot : $"{HeroesRoot}/{cfg.Archetype}";
+        => cfg.RootOverride ?? (cfg.Placeholder ? PlaceholderRoot : $"{HeroesRoot}/{cfg.Archetype}");
+
+    /// <summary>
+    /// 🆕 **带根加载**（策划 `#347`②(a) / 卡 `#348`①）：`Load(json)` = 正式（根由 `RootFor` 推）；
+    /// `Load(json, root)` = **由调用方给根**（占位或测试）⇒ 解决"不知道根就不知道去哪读"的鸡生蛋 ✓
+    /// </summary>
+    public static HeroAssetsConfig Load(string json, string? root = null)
+    {
+        HeroAssetsConfig cfg = Parse(json);
+        return root is null ? cfg : cfg with { RootOverride = root };
+    }
+
+    /// <summary>把**引用**解析成完整路径（表现层据此取帧/头像：`<根>/<引用>`）✓</summary>
+    public static string Resolve(HeroAssetsConfig cfg, string reference)
+        => $"{RootFor(cfg)}/{reference}";
+
+    /// <summary>名册头像引用：**允许缺失**（缺 ⇒ 空串，表现层不画；但**不静默造一个默认图**）✓</summary>
+    public static string PortraitRef(HeroAssetsConfig cfg) => cfg.Portrait ?? string.Empty;
 
     private static string Trim(string s) => s.Length <= 24 ? s : s[..24] + "…";
+
+    /// <summary>
+    /// 「**是不是引用**」的统一判据（`frames` 与 `portrait` **共用** ⇒ 两处纪律不会各自漂移）✓
+    /// 反例：内联 `base64` · 内联对象/尺寸（含 `{`）· 超长串 · 既无 `.` 又无 `/` 的裸词 ✓
+    /// </summary>
+    private static bool IsReference(string s)
+        => !string.IsNullOrWhiteSpace(s)
+           && !s.Contains("base64", StringComparison.OrdinalIgnoreCase)
+           && !s.Contains('{')
+           && s.Length <= 200
+           && (s.Contains('.') || s.Contains('/'));
 }

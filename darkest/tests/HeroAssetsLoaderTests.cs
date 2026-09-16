@@ -139,4 +139,109 @@ public sealed class HeroAssetsLoaderTests
             () => HeroAssets.Parse(Json(AllFive(), placeholder: true)),
             "`placeholder = true` 却没写 `source` ⇒ 拒绝（合规：不发布 + 显式标注）✓");
     }
+
+    /// <summary>根重载 + 引用解析 + 头像（策划 `#347`②(a)/(b)）✓</summary>
+    [TestMethod]
+    public void LoadWithRoot_OverridesRoot_AndResolveJoinsIt()
+    {
+        HeroAssetsConfig cfg = HeroAssets.Load(Json(AllFive(), placeholder: true, source: "本地占位"), "res://assets/heroes_placeholder");
+        Assert.AreEqual("res://assets/heroes_placeholder", HeroAssets.RootFor(cfg), "调用方给根 ⇒ 用它（解决鸡生蛋）✓");
+        Assert.AreEqual("res://assets/heroes_placeholder/sprite/idle.png",
+            HeroAssets.Resolve(cfg, HeroAssets.FramesOf(cfg, "idle")[0]), "根 + 引用 = 完整路径 ✓");
+
+        Dictionary<string, object?> withPortrait = AllFive();
+        string json = Json(withPortrait).Replace("\"archetype\":", "\"portrait\":\"portrait.png\",\"archetype\":");
+        Assert.AreEqual("portrait.png", HeroAssets.PortraitRef(HeroAssets.Parse(json)), "头像缺失是可选的、给了就取 ✓");
+
+        Assert.ThrowsException<InvalidDataException>(
+            () => HeroAssets.Parse(Json(withPortrait).Replace("\"archetype\":", "\"portrait\":\"data:image/png;base64,AAAA\",\"archetype\":")),
+            "头像与 `frames` 同纪律 ⇒ 内联数据拒绝 ✓");
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────────────────
+    // 🎯 卡片 `#348` **V1/V2：拿【真占位数据】跑一遍**（占位目录被 gitignore ⇒ 本机没有就**如实跳过**）✓
+    // ────────────────────────────────────────────────────────────────────────────────────────
+
+    private static string? RealPlaceholderJson()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null)
+        {
+            foreach (string rel in new[] { Path.Combine("assets", "heroes_placeholder", "hero.json"),
+                                           Path.Combine("darkest", "assets", "heroes_placeholder", "hero.json") })
+            {
+                string p = Path.Combine(dir.FullName, rel);
+                if (File.Exists(p))
+                {
+                    return p;
+                }
+            }
+
+            dir = dir.Parent;
+        }
+
+        return null;
+    }
+
+    [TestMethod]
+    public void V1_RealPlaceholderData_SevenSlots_RequiredFiveHaveLanding()
+    {
+        string? path = RealPlaceholderJson();
+        if (path is null)
+        {
+            Console.WriteLine("[V1] 本机没有占位目录（已 gitignore）⇒ 如实跳过，不假装跑过 ✓");
+            return;
+        }
+
+        HeroAssetsConfig cfg = HeroAssets.Load(File.ReadAllText(path), HeroAssets.PlaceholderRoot);
+        Assert.AreEqual(7, cfg.Actions.Count, "占位数据 7 槽 ✓");
+        foreach (string slot in HeroAssets.RequiredSlots)
+        {
+            Assert.IsTrue(cfg.Actions.ContainsKey(slot) && !cfg.Actions[slot].IsDeclaredMissing,
+                $"必需槽 {slot} 有落点 ✓");
+        }
+
+        Assert.IsTrue(cfg.Placeholder, "显式标了 placeholder ✓");
+        Assert.IsFalse(string.IsNullOrWhiteSpace(cfg.Source), "写了 source（合规）✓");
+        Assert.AreEqual("placeholder_pw/portrait.png", cfg.Portrait, "头像字段（本阶段按同纪律实现）✓");
+        Assert.AreEqual($"{HeroAssets.PlaceholderRoot}/placeholder_pw/sprite/idle.png",
+            HeroAssets.Resolve(cfg, HeroAssets.FramesOf(cfg, "idle")[0]), "根 + 引用解析 ✓");
+        Console.WriteLine($"[V1] 真数据读数：槽 {cfg.Actions.Count} ／ 必需 5 全有落点 ／ " +
+                          $"idle 帧数 {HeroAssets.FramesOf(cfg, "idle").Count}（>1 ⇒ 帧序列这一层可验）✓");
+    }
+
+    [TestMethod]
+    public void V2_RealData_ThreeRejectionPaths_EachNamed()
+    {
+        string? path = RealPlaceholderJson();
+        if (path is null)
+        {
+            Console.WriteLine("[V2] 本机没有占位目录 ⇒ 如实跳过 ✓");
+            return;
+        }
+
+        string real = File.ReadAllText(path);
+
+        // ⚠️ 我第一版用正则去删（`[^}]*` 跨不过 anchor 的 `}`）⇒ 删不准 ⇒ 改用 **JsonNode 结构化删键**（稳）✓
+        System.Text.Json.Nodes.JsonObject root = System.Text.Json.Nodes.JsonNode.Parse(real)!.AsObject();
+        System.Text.Json.Nodes.JsonObject actions = root["actions"]!.AsObject();
+
+        // ① 缺必需槽（结构化删掉 `walk`）
+        var noWalkRoot = (System.Text.Json.Nodes.JsonObject)root.DeepClone();
+        noWalkRoot["actions"]!.AsObject().Remove("walk");
+        InvalidDataException e1 = Assert.ThrowsException<InvalidDataException>(() => HeroAssets.Parse(noWalkRoot.ToJsonString()));
+        Assert.IsTrue(e1.Message.Contains("walk"), "① 缺槽 ⇒ **点名 `walk`** ✓");
+
+        // ② 缺 anchor（结构化删掉 `attack` 的 anchor）
+        var noAnchorRoot = (System.Text.Json.Nodes.JsonObject)root.DeepClone();
+        noAnchorRoot["actions"]!["attack"]!.AsObject().Remove("anchor");
+        InvalidDataException e2 = Assert.ThrowsException<InvalidDataException>(() => HeroAssets.Parse(noAnchorRoot.ToJsonString()));
+        Assert.IsTrue(e2.Message.Contains("anchor"), "② 缺锚点 ⇒ 报 `anchor` ✓");
+        _ = actions;
+
+        // ③ frames 非引用（把第一个 idle 帧换成就地内联）
+        string inlineFrame = real.Replace("placeholder_pw/sprite/idle.png", "data:image/png;base64,AAAA");
+        InvalidDataException e3 = Assert.ThrowsException<InvalidDataException>(() => HeroAssets.Parse(inlineFrame));
+        Assert.IsTrue(e3.Message.Contains("不是引用"), "③ `frames` 非引用 ⇒ 报「不是引用」 ✓");
+    }
 }
