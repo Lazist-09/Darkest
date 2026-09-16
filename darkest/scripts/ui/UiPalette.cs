@@ -30,6 +30,10 @@ public partial class UiPalette : Resource
     [Export] public Color PanelBorder { get; set; }
     [Export] public Color BgDeep { get; set; }
 
+    // ---- 🔴 **用户规则②（2026-09-16）：空闲/待填位置用【半透明占位】** ----
+    //    把系数放进调色板（`#325` D5：表现常量不写死在 `.cs`）⇒ 空槽一眼可辨（a < 1）✓
+    [Export] public Color PlaceholderFill { get; set; }
+
     // ---- `§1.4`① / `§12.3` 文字描边（引擎内置项用它）----
     [Export] public Color Outline { get; set; }
     [Export] public int OutlineSize { get; set; }
@@ -72,6 +76,9 @@ public partial class UiPalette : Resource
         ("TextPrimary", TextPrimary.ToHtml()), ("Gold", Gold.ToHtml()), ("Danger", Danger.ToHtml()),
         ("Disabled", Disabled.ToHtml()), ("TextInfo", TextInfo.ToHtml()), ("PanelBg", PanelBg.ToHtml()),
         ("PanelBgRaised", PanelBgRaised.ToHtml()), ("PanelBorder", PanelBorder.ToHtml()), ("BgDeep", BgDeep.ToHtml()),
+        // 🔴 用户规则②：半透明占位填充（**必须进这份显式清单** —— 否则审计比对不到它、
+        //    `.tres` 也不会被视为缺字段；实测"加了字段仍报 32 项"就是这个原因）✓
+        ("PlaceholderFill", PlaceholderFill.ToHtml()),
         ("Outline", Outline.ToHtml()), ("OutlineSize", OutlineSize.ToString()),
         ("FontTitle", FontTitle.ToString()), ("FontBody", FontBody.ToString()), ("FontSmall", FontSmall.ToString()),
         ("SkillBarColumns", SkillBarColumns.ToString()),
@@ -126,6 +133,10 @@ public partial class UiPalette : Resource
     /// </summary>
     public static UiPalette Default() => new()
     {
+        // 🔴 用户规则②：**空闲/待填位置的半透明占位**（中性灰 + a=0.22 ⇒ 一眼看出"这是空槽"，
+        //    又不抢已填内容的视线；放在这里 ⇒ `.tres` 与兜底值同源，不会分叉）✓
+        PlaceholderFill = new Color(0.62f, 0.60f, 0.58f, 0.22f),
+
         // `§14.4` 四色
         TextPrimary = new Color(0.93f, 0.91f, 0.86f),
         Gold = new Color(0.85f, 0.70f, 0.36f),

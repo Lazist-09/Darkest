@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 
 namespace Darkest.Ui;
 
@@ -58,7 +58,12 @@ public static class DdTheme
     public static Error DumpPalette()
     {
         DirAccess.MakeDirRecursiveAbsolute(UiPalette.ResPath.GetBaseDir());
-        return ResourceSaver.Save(Palette, UiPalette.ResPath);
+
+        // 🔴 修正（2026-09-16）：**必须写 `UiPalette.Default()`，不能写已加载的 `Palette`** ——
+        //    实测：写已加载实例时，**新增字段永远进不了 `.tres`**（加载实例没有它）⇒
+        //    审计也会因为"字段不在文件里"而漏比（当时报 32 项，加了字段仍是 32）⚠️
+        //    ⇒ dump 的语义 = **按兜底值重生成**（分叉由 `--palette-audit` 负责发现）✓
+        return ResourceSaver.Save(UiPalette.Default(), UiPalette.ResPath);
     }
 
     // ---- 字号（三档；**值来自 `.tres`**）----
@@ -333,6 +338,9 @@ public static class DdTheme
     // ---- 🔴 `§1.4`① + `§12.3` 文字描边（**引擎内置**：`font_outline_color` + `outline_size`）----
     /// <summary>描边色：近黑暖（把文字从暗底"抠"出来；`§13.2`③）</summary>
     public static Color Outline => Palette.Outline;
+
+    /// <summary>🔴 用户规则②：**空闲/待填位置的半透明占位填充**（色值在调色板里 ⇒ 不写死在 `.cs`）✓</summary>
+    public static Color PlaceholderFill => Palette.PlaceholderFill;
 
     /// <summary>描边宽度（`§1.4`① "**深色粗描边**"；2px 在 15px 正文上可读且不糊）</summary>
     public static int OutlineSize => Palette.OutlineSize;
