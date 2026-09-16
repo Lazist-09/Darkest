@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -88,25 +88,83 @@ public partial class HamletRoot : Node2D
         //    Root → MarginContainer → VBox（顶栏 ／ 主体 ／ 底栏）；**每个分区一个 `PanelContainer`**
         //    ⇒ ① 各在各的框里 ② 子项由容器堆叠 ⇒ **物理上不可能重叠** ✓
         //    ⚠️ §14.2 ④：容器必须给【最小尺寸】，否则高度塌陷 ⇒ 又重叠 ✓
-        var margin = new MarginContainer { Name = "HamletMargin" };
-        margin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        margin.AddThemeConstantOverride("margin_left", 12);
-        margin.AddThemeConstantOverride("margin_top", 10);
-        margin.AddThemeConstantOverride("margin_right", 12);
-        margin.AddThemeConstantOverride("margin_bottom", 10);
-        AddChild(margin);
-        Darkest.Ui.DdTheme.Apply(margin);
+        // 🔴 骨架优先（用户 2026-09-17「UI 要能在编辑器里直接干预」）——
+        //    `scenes/ui/hamlet_skeleton.tscn` 可用 ⇒ **用它当骨架**（边距 / 间距 / 各栏宽高与占比在编辑器里改）✓
+        //    ⚠️ 场景缺失/类型不符 ⇒ **回落代码构建**（不崩、不静默）✓
+        //    🔴 节点名保持一致：HamletMargin / HamletRootCol / TopBar / TopRow / StatusBar /
+        //       Body / LeftColumn / LeftCol / RightColumn / RightCol ✓
+        //    📌 `BottomRow`（底部资源条那一行）**当前仍由代码创建**（骨架尚未纳入它 —— 如实标注，未猜类型）✓
+        Darkest.Ui.HamletSkeleton? skel = Darkest.Ui.HamletSkeleton.TryInstantiate();
+        MarginContainer margin;
+        VBoxContainer rootCol;
+        PanelContainer topPanel;
+        HBoxContainer topRow;
+        PanelContainer statusPanel;
+        HBoxContainer body;
+        PanelContainer leftPanel;
+        VBoxContainer leftCol;
+        PanelContainer rightPanel;
+        VBoxContainer rightCol;
+        if (skel is not null)
+        {
+            skel.Name = "HamletSkeleton";
+            AddChild(skel);
+            margin = skel.HamletMargin!;
+            rootCol = skel.HamletRootCol!;
+            topPanel = skel.TopBar!;
+            topRow = skel.TopRow!;
+            statusPanel = skel.StatusBar!;
+            body = skel.Body!;
+            leftPanel = skel.LeftColumn!;
+            leftCol = skel.LeftCol!;
+            rightPanel = skel.RightColumn!;
+            rightCol = skel.RightCol!;
+            Darkest.Ui.DdTheme.Apply(margin);
+        }
+        else
+        {
+            margin = new MarginContainer { Name = "HamletMargin" };
+            margin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            margin.AddThemeConstantOverride("margin_left", 12);
+            margin.AddThemeConstantOverride("margin_top", 10);
+            margin.AddThemeConstantOverride("margin_right", 12);
+            margin.AddThemeConstantOverride("margin_bottom", 10);
+            AddChild(margin);
+            Darkest.Ui.DdTheme.Apply(margin);
 
-        var rootCol = new VBoxContainer { Name = "HamletRootCol" };
-        rootCol.AddThemeConstantOverride("separation", 8);
-        margin.AddChild(rootCol);
+            rootCol = new VBoxContainer { Name = "HamletRootCol" };
+            rootCol.AddThemeConstantOverride("separation", 8);
+            margin.AddChild(rootCol);
 
-        // ---- 顶栏：横幅（左） + 名册计数（右）----
-        var topPanel = new PanelContainer { Name = "TopBar" };
-        rootCol.AddChild(topPanel);
-        var topRow = new HBoxContainer { Name = "TopRow" };
-        topRow.AddThemeConstantOverride("separation", 12);
-        topPanel.AddChild(topRow);
+            topPanel = new PanelContainer { Name = "TopBar" };
+            rootCol.AddChild(topPanel);
+            topRow = new HBoxContainer { Name = "TopRow" };
+            topRow.AddThemeConstantOverride("separation", 12);
+            topPanel.AddChild(topRow);
+
+            statusPanel = new PanelContainer { Name = "StatusBar" };
+            rootCol.AddChild(statusPanel);
+
+            body = new HBoxContainer { Name = "Body", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+            body.AddThemeConstantOverride("separation", 8);
+            rootCol.AddChild(body);
+
+            leftPanel = new PanelContainer { Name = "LeftColumn", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+            body.AddChild(leftPanel);
+            leftCol = new VBoxContainer { Name = "LeftCol" };
+            leftCol.AddThemeConstantOverride("separation", 6);
+            leftPanel.AddChild(leftCol);
+
+            rightPanel = new PanelContainer
+            {
+                Name = "RightColumn",
+                CustomMinimumSize = new Vector2(300, 0), // 🔴 相机 1280 口径：420 → 300
+            };
+            body.AddChild(rightPanel);
+            rightCol = new VBoxContainer { Name = "RightCol" };
+            rightCol.AddThemeConstantOverride("separation", 6);
+            rightPanel.AddChild(rightCol);
+        }
 
         _banner = new Label
         {
@@ -127,8 +185,6 @@ public partial class HamletRoot : Node2D
         topRow.AddChild(_rosterCount);
 
         // ---- 状态栏（第二行，独占一条，避免与别的文字压在一起）----
-        var statusPanel = new PanelContainer { Name = "StatusBar" };
-        rootCol.AddChild(statusPanel);
         // 🔴 相机 1280 口径：状态行**不设最小宽**、允许收缩到 0（内容裁切显示）
         _status = new Label
         {
@@ -138,26 +194,7 @@ public partial class HamletRoot : Node2D
         };
         statusPanel.AddChild(_status);
 
-        // ---- 主体：左栏（操作） ／ 右栏（名册）----
-        var body = new HBoxContainer { Name = "Body", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
-        body.AddThemeConstantOverride("separation", 8);
-        rootCol.AddChild(body);
-
-        var leftPanel = new PanelContainer { Name = "LeftColumn", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        body.AddChild(leftPanel);
-        var leftCol = new VBoxContainer { Name = "LeftCol" };
-        leftCol.AddThemeConstantOverride("separation", 6);
-        leftPanel.AddChild(leftCol);
-
-        var rightPanel = new PanelContainer
-        {
-            Name = "RightColumn",
-            CustomMinimumSize = new Vector2(300, 0), // 🔴 相机 1280 口径：420 → 300（320 时实测 1297，仍超 17px）
-        };
-        body.AddChild(rightPanel);
-        var rightCol = new VBoxContainer { Name = "RightCol" };
-        rightCol.AddThemeConstantOverride("separation", 6);
-        rightPanel.AddChild(rightCol);
+        // ---- 主体：左栏（操作） ／ 右栏（名册）—— 容器已在上面（骨架或回落）就位 ✓
 
         // ---- 左栏内容（每块都是"容器里的一行"，不再写坐标）----
         _hint = new Label
