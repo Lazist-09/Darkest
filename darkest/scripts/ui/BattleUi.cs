@@ -351,8 +351,14 @@ public partial class BattleUi : CanvasLayer
 
         foreach (int slot in slots)
         {
-            var row = new VBoxContainer { Name = $"BackSlot{slot}Row" };
-            row.AddThemeConstantOverride("separation", 2);
+            // 5/6 号位行（2 处同构）实例化模板 scenes/ui/slot_row.tscn（用户 2026-09-17 复用规则）
+            Darkest.Ui.SlotRowTemplate? slotRow = Darkest.Ui.SlotRowTemplate.TryCreate(slot);
+            VBoxContainer row = slotRow ?? new VBoxContainer { Name = $"BackSlot{slot}Row" };
+            if (slotRow is null)
+            {
+                row.AddThemeConstantOverride("separation", 2);
+            }
+
             col.AddChild(row);
 
             var title = new Label { Name = $"BackSlot{slot}Title", Text = $"{slot} 号位" };
