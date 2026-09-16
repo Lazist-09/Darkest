@@ -136,6 +136,38 @@ public sealed class DirectorMilestoneTests
         Assert.AreEqual(1, log.Events.OfType<RetreatEvent>().Count(), "单回合最多一次撤退判定");
     }
 
+    /// <summary>
+    /// 🔴 **`#357` R8：一趟退 2 场 ⇒ 士气恰好扣 2 次**（不是 1 次、也不是 3 次）✓
+    ///
+    /// 📌 口径说明（避免误读）：**士气惩罚由【战斗层】在每次撤退时结算**（`PlayerRetreat` ⇒ `retreat_*` 事件），
+    ///    而"跨场累积"是**跑图/名册层**把战后士气带回下一场的结果 ⇒ 所以本用例证的是：
+    ///    ① **没有"一趟只结算一次"的全局闸**（两场各结算一次 ✓）② 每次恰好 **一次**（不重复 ✓）
+    ///    ⇒ 两条合起来 = "**可累积、且不重不漏**" ✓
+    /// </summary>
+    [TestMethod]
+    public void Retreat_TwoSeparateBattles_EachSettlesExactlyOnce()
+    {
+        var log = new CombatLog();
+        BattleDirector b1 = NewDirector(log);
+        var rng = new ScriptedRng(0.0, 0.0); // 判定 roll 0 < rate ⇒ 成功
+        int before1 = b1.Player.UnitsInSlotOrder().Sum(u => u.Morale);
+        Assert.IsTrue(b1.PlayerRetreat(rng), "第 1 场撤退成功 ✓");
+        int delta1 = b1.Player.UnitsInSlotOrder().Sum(u => u.Morale) - before1;
+
+        // 第 2 场（另一场战斗；名册层会把战后士气带进来 ⇒ 这里只验证"每场各结算一次"）
+        BattleDirector b2 = NewDirector(log);
+        int before2 = b2.Player.UnitsInSlotOrder().Sum(u => u.Morale);
+        Assert.IsTrue(b2.PlayerRetreat(rng), "第 2 场撤退成功 ✓");
+        int delta2 = b2.Player.UnitsInSlotOrder().Sum(u => u.Morale) - before2;
+
+        Assert.AreEqual(-12 * 6, delta1, "第 1 场：存活 6 人各 −12 ✓");
+        Assert.AreEqual(-12 * 6, delta2, "第 2 场：**再扣一次**（不是因为「本趟已撤过」就免掉）✓");
+        Assert.AreEqual(2, log.Events.OfType<RetreatEvent>().Count(), "两场 ⇒ 共 2 次撤退判定（不重不漏）✓");
+        // ⚠️ `ApplyTeamOnce` **每单位发一条** `MoraleEvent` ⇒ 6 人 × 2 场 = **12 条**（我第一版写 2，是我漏看"按单位发"✓）
+        Assert.AreEqual(12, log.Events.OfType<MoraleEvent>().Count(m => m.Source == "retreat_success"),
+            "两场 ⇒ 12 条单位级士气事件（= 6 人 × 2 场 ⇒ **每场都结算了**）✓");
+    }
+
     [TestMethod]
     public void Retreat_FailCostsTeam5_NextTurnRetryable()
     {

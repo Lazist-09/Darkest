@@ -215,6 +215,10 @@ public sealed class ExpeditionFlowStateMachineTests
         Assert.IsFalse(flow.IsFinished, "🔴 **撤退不再结束本趟**（#352：撤退是【一场】的选择）✓");
         Assert.AreEqual(ExpeditionOutcome.InProgress, flow.Outcome, "撤退后结局仍是「进行中」 ✓");
 
+        // 🔴 R8 的流程级形态：**再撤一次 ⇒ 本趟仍不结束**（⇒ 后续还能继续撤 ⇒ 惩罚可累积）✓
+        flow.OnBattleFinished("DrawRetreat", rounds: 5);
+        Assert.IsFalse(flow.IsFinished, "退两次 ⇒ 本趟**仍**不结束 ✓");
+
         flow.OnBattleFinished("EnemyVictory", rounds: 5);
         Assert.IsTrue(flow.IsFinished, "**全灭**才是【一趟】的结局 ✓");
         Assert.AreEqual(ExpeditionOutcome.Wiped, flow.Outcome, "结局 = 全灭 ✓");

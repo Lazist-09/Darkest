@@ -631,7 +631,7 @@ public sealed class BattleDirector
 
         _log.Append(new RetreatEvent(success, rate));
         _pipeline.Morale.ApplyTeamOnce(_player.UnitsInSlotOrder(),
-            success ? "retreat_success" : "retreat_fail", _log); // −10 / −5 全队（#126/#43）
+            success ? "retreat_success" : "retreat_fail", _log); // 🔴 现值：成功 **−12** ／ 失败 −5（各全队）—— ⚠️ 原注释写"−10 / −5"是**过期值**（`#357`② 同族：名字/注释与实现不符 ⇒ 已按 tuning 改 ✓）
         return success;
     }
 
