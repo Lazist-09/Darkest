@@ -1020,6 +1020,33 @@ P5 **战斗（②）**：5/6 号位长条框左右靠齐 + 橙框/紫框/右侧�
    交互从 `flow.StepTo(roomId)` 换成 `flow.TryStepTile(dx,dy)`；**false 时必须保持状态零变化**（我只重绘，不改状态）✓
 ```
 
+### 📥 收件箱转写 ⑧（2026-09-16 三封策划信：Spine 冲突裁定 + 浅版占位就位 + 占位接入验证卡；读毕即清空）
+```
+【策划 `#347` `…SPINE-CONFLICT…`】🔴🔴 **实测推翻乐观估计**：那批素材的动画**必须 Spine** ⇒ 与"本阶段不用 Spine"
+   冲突 ⇒ **策划裁定"单帧占位"**（已落 `hero_assets.md §7`）✓
+【策划 `#347` `…PLACEHOLDER-READY…`】✅ 浅版占位已就位：`darkest/assets/heroes_placeholder/`（**gitignore**）
+   · `hero.json` **7 槽**（idle/combat/walk/defend/attack/afflicted/camp；每槽显式 `anchor`、`placeholder:true`、
+     `source:"…无授权，仅本地占位，不发布"`）+ `placeholder_pw/portrait.png`(85×85) + `sprite/`×7 ✓
+   · 实测：JSON 合法 · 7 槽 · git 看不到 · `resources/` 下 0 个占位 ✓（并请我"跑验证 + 两个契约缺口"）
+【策划 `#348` `…PLACEHOLDER-CARD…`】📋 卡片：占位英雄接入验证（浅版）—— **三件可抄清单 + V1~V6**
+   · 🔴 **浅版定义**：验【接口能装下】+【UI 能显示】；❌ **不验**动画播放/帧序列切换（需 Spine ⇒ 裁掉）
+   · ① 主程序：加 `HeroAssets.Load(string root)` 重载（`ResPath` 固定 ⇒ 占位不能走它）+ 拿真数据跑三类拒绝路径
+   · ② 架构：`P31` 补 `portrait` 字段（**引用 + 允许缺失 + 必须显式声明**）——名册头像是这批素材里**唯一能完整用**的，
+        而**现在 UI 的"名册头像没有落点"** ⚠️
+   · ③ **我（UI）**：画单帧（战斗 `sprite/combat.png` 走 `PlaceholderRoot`；名册 `portrait.png` 等 `portrait` 字段）
+        + 报 `--ui-audit` 0 重叠/0 透明 · 引擎错误 0 · 可见 Label/Panel 计数；
+        ⚠️ **占位只从 `HeroAssets.PlaceholderRoot` 读**（拷进 `resources/` **不会被加载** = `§8` 的设计）✓
+   · 验收 V1~V6；🔴 **V6 纪律**：❌ 不许把"单帧占位通过"写成"角色接入了"；
+     ✅ 正解 =「**接口能装下 + UI 能显示**」已验／「**动画能播**」未验（需 Spine）✓
+✅ **我的执行（提交 `339c4a3`，已投策划窗口 `DELIVERY-UI-V3V4-DONE-20260916`）**：
+   · V3 ✅ 战斗单帧画出来了（自证 `[UI 占位英雄] ✅ 战斗单帧用占位：…/placeholder_pw/sprite/combat.png（只从 PlaceholderRoot 读）`）
+   · V4 ✅ 六入口 0 越界/0 重叠/0 透明/**引擎错误 0**；可见计数已报（战斗 54 Label／38 Panel+PC 等）✓
+   · 🔴 **新坑（我当场修）**：占位 png 在 `res://assets/` 且**无 `.import`** ⇒ `ResourceLoader` 报
+     `No loader found for resource`（引擎错误 4）⇒ 正解 = **`Godot.Image.LoadFromFile`（静态）+ `ImageTexture.CreateFromImage`** ✓
+     📌 一般化：**`res://` 下未导入的资源不能走 `ResourceLoader`**，要**直接解码文件** ✓
+   · 名册头像 ⏳ 等架构把 `portrait` 落进 `P31`（数据里已有 `"portrait": "placeholder_pw/portrait.png"`）✓
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
