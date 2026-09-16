@@ -33,6 +33,13 @@ public sealed class ExpeditionFlowStateMachineTests
         throw new FileNotFoundException($"data/{name} 未找到。");
     }
 
+    /// <summary>拓扑模式的流程（开局即在起点房间 ⇒ `CurrentRoomId` 有效 ⇒ "该格是否已处理"可观察）✓</summary>
+    private static ExpeditionFlow NewTopologyFlow()
+    {
+        (ExpeditionFlow flow, _, _) = NewFlow();
+        flow.BeginTopology(ExpeditionMapConfig.Parse(ReadData("expedition_map.json")));
+        return flow;
+    }
     private static (ExpeditionFlow Flow, TuningConfig Tuning, CombatLog Log) NewFlow(long seed = 20260909)
     {
         TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
@@ -200,8 +207,27 @@ public sealed class ExpeditionFlowStateMachineTests
     /// 新：**撤退 = 【一场】的选择 ⇒ 本趟【不】结束**（回地图当前格继续走）；**只有全灭 / 放弃远征才结束** ✓
     /// 📌 这正是"**既有用例依赖错误行为**是洞曾存在的最硬证据"那套方法论的现场实例 ✓
     /// </summary>
+    /// <summary>
+    /// 🔴 **策划 `#361`④ 建议的用例**：撤退后**那一格算已处理**（`retreat.md §2`）——
+    /// 否则 `IsRoomResolved` 只有定义处、**没有可断言的形式**（"撤退后不重打"就落不了地）⚠️
+    /// 📌 只在**拓扑模式**下可观察（线性模式没有"格/房间"概念 ⇒ `_currentRoomId` 为 −1，写入被有意跳过）✓
+    /// </summary>
     [TestMethod]
-    public void Flow_RetreatDoesNotEndRun_ButWipeDoes()
+    public void Flow_RetreatMarksRoomResolved_SoItWillNotRefight()
+    {
+        ExpeditionFlow flow = NewTopologyFlow();
+        int room = flow.CurrentRoomId;
+        Assert.IsTrue(room >= 0, "拓扑模式开局就有「当前房间」 ✓");
+        Assert.IsFalse(flow.IsRoomResolved(room), "开打前：该格**未**处理 ✓");
+
+        flow.OnBattleFinished("DrawRetreat", rounds: 5);
+
+        Assert.IsTrue(flow.IsRoomResolved(room), "🔴 撤退后：**该格算已处理**（§2：不会走回去重打）✓");
+        Assert.IsFalse(flow.IsFinished, "且**本趟不结束**（#352）✓");
+        Assert.AreEqual(ExpeditionOutcome.InProgress, flow.Outcome, "结局仍是进行中 ✓");
+    }
+
+    [TestMethod]    public void Flow_RetreatDoesNotEndRun_ButWipeDoes()
     {
         (ExpeditionFlow flow, _, _) = NewFlow();
         FlowStep step = flow.Advance(1); // option 1 = 战斗（确定性）

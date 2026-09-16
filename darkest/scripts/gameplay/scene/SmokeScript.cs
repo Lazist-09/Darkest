@@ -213,6 +213,13 @@ public static class SmokeScript
             case "run-full":
                 HostStepNotWired("RunFullSmokeStep");
                 break;
+            case "retreat":
+                // 🔴 §11 的冒烟步骤（`retreat.md §11`）：撤退 ⇒ **回地图当前格继续走**（不是结束本趟）
+                // ⚠️ 必须走**真实 `Pressed`**（红线 18）⇒ 但 UI 侧目前**没有公共入口**（`PressAbandon` 等都是 private）
+                //    ⇒ 该步骤**登记在案、如实停步**；已投请求给 UI：请暴露公共入口（或加 `--retreat` 旗标，与 `--abandon` 同形）✓
+                HostStepNotWired("PressRetreat（需 UI 暴露公共入口，或加 --retreat 旗标）");
+                break;
+
             case "town":
                 // 🔴 片 4 收尾：`town` = **结算回城**（纯流程 + 切场景，**不依赖 UI 面板**）⇒ 旧场景退休后已接上 ✓
                 if (node is BattleRoot townHost && Darkest.Gameplay.Scene.ExpeditionContext.Flow is { } townFlow)
