@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/RosterRowTemplate.cs" id="1_row"]
+
+[node name="RosterRow" type="Button"]
+custom_minimum_size = Vector2(232, 32)
+script = ExtResource("1_row")
+
+[node name="RosterRowBody" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/separation = 6
+
+[node name="PortraitFrame" type="PanelContainer" parent="RosterRowBody"]
+custom_minimum_size = Vector2(26, 26)
+
+[node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/PortraitFrame"]
+
+[node name="RosterInfo" type="Label" parent="RosterRowBody"]
+size_flags_horizontal = 3
+clip_text = true
+text_overrun_behavior = 3
+vertical_alignment = 1
