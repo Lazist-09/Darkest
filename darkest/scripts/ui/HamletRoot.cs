@@ -27,6 +27,7 @@ public partial class HamletRoot : Node2D
     private Label _rosterCount = null!;
     private Label _resourceBar = null!;
 
+
     /// <summary>🔴 P2：建筑**唯一入口**按钮（三栋共用；明细在二级窗口里切换）✓</summary>
     private Button? _buildingEntry;
     private Button? _menuButton;                 // 🔴 P2：底部"☰ 菜单"入口 ✓
@@ -1374,6 +1375,7 @@ public partial class HamletRoot : Node2D
                     Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true)),   // 🔴 规则②：α 取调色板
                 };
                 frame.AddChild(ph);
+
                 if (Darkest.Ui.HeroArt.PortraitTexture() is Texture2D pTex)
                 {
                     var pArt = new TextureRect
