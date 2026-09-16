@@ -86,7 +86,7 @@ public static class HeadlessDriver
 
             session.EndBattle(director, battle, result, Math.Min(round, MaxRoundsCap));
 
-            // 🔴 v0.68 撤退口径：撤退成功 = 该场判负 + **run 立即结束**（不进入下一场）
+            // 🔴 `#352` 后口径：撤退成功 = 该场判负，但 **run 【不再】立即结束**（可继续走）—— 旧 v0.68"run 立即结束"已被推翻 ✓
             if (result is "EnemyVictory" or "DrawRetreat")
             {
                 break;

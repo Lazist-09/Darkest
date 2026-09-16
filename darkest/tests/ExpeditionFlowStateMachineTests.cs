@@ -11,7 +11,7 @@ namespace Darkest.Tests;
 
 /// <summary>
 /// M7.5 **远征流程控制器状态机**（`ExpeditionFlow`，供场景层往返驱动）：
-/// 锁「步进与类型 / 光照 −15 / 侦察只揭示下一节点 / 事件二选一推进 / 战斗回灌后按档给份数掉落（不掷骰）/ 撤退即中止」。
+/// 锁「步进与类型 / 光照 −15 / 侦察只揭示下一节点 / 事件二选一推进 / 战斗回灌后按档给份数掉落（不掷骰）/ 🔴 **撤退【不】中止本趟**（`#352`）」。
 /// </summary>
 [TestClass]
 public sealed class ExpeditionFlowStateMachineTests

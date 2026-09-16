@@ -148,7 +148,7 @@ public sealed class MonteCarloTests
         double ddPerBattle = (double)r.TotalDeathDoorRolls / runs;
         string report = $"[M6] A1 单场：胜率={r.WinRate:P0} 死门={ddPerBattle:F2}/场 阵亡={deathsPerBattle:F2}/场 回合={r.AvgRounds:F2} " +
                         $"（门槛 ≥85% / ≤0.4 / ≤0.1 / 4~6）\n" +
-                        $"[M6] A2 run（v0.68 撤退=判负且 run 结束）：打满3场且未全灭={fullThree}/{runs}（{(double)fullThree / runs:P0}）" +
+                        $"[M6] A2 run（🔴 `#352` 后：撤退=判负但 **run 不结束**）：打满3场且未全灭={fullThree}/{runs}（{(double)fullThree / runs:P0}）" +
                         $"｜未全灭={survived}（{(double)survived / runs:P0}）｜3场皆胜={allWon}（{(double)allWon / runs:P0}）\n" +
                         $"[M6] 新读数：增援事件={reinforcements}（预期 ≈0）｜单一位置最高承伤占比={maxSlotSharePercent:F0}%（预期 ≤40%）" +
                         $"｜m_value 一致性=已过 P16 启动校验（m_value=7 / measured_d=22.88 / enemy_full_hp=110）\n" +

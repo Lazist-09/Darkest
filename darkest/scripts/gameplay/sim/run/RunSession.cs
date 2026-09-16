@@ -29,7 +29,7 @@ public sealed record RunOutcome(IReadOnlyList<RunBattleSnapshot> Curve, bool Sur
     public bool CompletedAllBattles => SurvivedAllBattles && Curve.Count > 0;
 
     /// <summary>口径 ②/③（v0.68 起二者应相等）：**打满 run 长度且每场皆胜**——
-    /// 撤退 = 该场判负 + run 立即结束（不再计入），故"打满 3 场且未全灭" ≡ "3 场皆胜"。</summary>
+    /// 🔴 `#352` 后口径：**撤退 = 该场判负，但 run 【不再】立即结束**（可继续走）⇒ 本属性按"打满 3 场且未全灭"判 ✓</summary>
     public bool CompletedStrict => CompletedIgnoreRetreat
                                    && Curve.Count >= 3
                                    && Curve.All(s => s.Result == "PlayerVictory");
