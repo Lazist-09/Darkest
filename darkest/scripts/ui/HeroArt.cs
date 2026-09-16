@@ -18,23 +18,26 @@ public static class HeroArt
     private static bool _probed;
     private static Texture2D? _combat;
     private static Texture2D? _portrait;
+    private static bool _combatDone;     // 🔴 成功/失败都置位 ⇒ **绝不每帧重试**（主程序 2026-09-16 报告）✓
+    private static bool _portraitDone;
 
     /// <summary>战斗单帧（`actions.combat.frames[0]`）；取不到 ⇒ null（调用方回落色块+首字，并留痕）✓</summary>
-    public static Texture2D? CombatTexture() => Load("combat", ref _combat);
+    public static Texture2D? CombatTexture() => Load("combat", ref _combat, ref _combatDone);
 
     /// <summary>名册头像（`portrait` 字段；`P31` 契约）；取不到 ⇒ null（调用方回落色块+首字）✓</summary>
-    public static Texture2D? PortraitTexture() => Load("portrait", ref _portrait);
+    public static Texture2D? PortraitTexture() => Load("portrait", ref _portrait, ref _portraitDone);
 
-    private static Texture2D? Load(string which, ref Texture2D? cache)
+    private static Texture2D? Load(string which, ref Texture2D? cache, ref bool done)
     {
-        if (cache is not null)
+        if (done)
         {
-            return cache;
+            return cache;   // 🔴 已处理过（成功或失败）⇒ **不再重试**（防止失败时每帧刷 ERROR）✓
         }
 
         string jsonPath = $"{Darkest.Data.HeroAssets.PlaceholderRoot}/hero.json";
         if (!Godot.FileAccess.FileExists(jsonPath))
         {
+            done = true;
             if (!_probed)
             {
                 _probed = true;
@@ -60,20 +63,36 @@ public static class HeroArt
 
             if (string.IsNullOrEmpty(rel))
             {
+                done = true;
                 GD.Print($"[UI 占位英雄] 占位 `hero.json` 里没有 `{which}` 引用 ⇒ 回落色块+首字（不静默）✓");
                 return null;
             }
 
             string full = $"{Darkest.Data.HeroAssets.PlaceholderRoot}/{rel}";
-            Godot.Image? img = Godot.Image.LoadFromFile(full); // 🔴 静态；绕过导入系统 ✓
+
+            // 🔴 **关键修正**（主程序 2026-09-16 抓到的异常正文）：
+            //    `Image.LoadFromFile` 只接受**文件系统路径** ⇒ 传 `res://…` **必失败**，
+            //    且旧代码失败不缓存 ⇒ **每帧重试、每帧刷一条 ERROR** ⚠️
+            //    ⇒ 正解：`FileAccess.GetFileAsBytes`（**支持 `res://`**）+ `Image.LoadPngFromBuffer` ✓
+            Godot.Image? img = null;
+            byte[] bytes = Godot.FileAccess.GetFileAsBytes(full);
+            if (bytes.Length > 0)
+            {
+                var decoded = new Godot.Image();
+                Godot.Error err = decoded.LoadPngFromBuffer(bytes);
+                img = err == Godot.Error.Ok ? decoded : null;
+            }
+
+            done = true;   // 🔴 无论成败都置位 ⇒ 不再重试 ✓
             cache = img is null ? null : Godot.ImageTexture.CreateFromImage(img);
             GD.Print(cache is null
-                ? $"[UI 占位英雄] 载入失败 `{full}` ⇒ 回落色块+首字（不静默）✓"
+                ? $"[UI 占位英雄] 载入失败 `{full}` ⇒ 回落色块+首字（**已缓存失败、不再重试**）✓"
                 : $"[UI 占位英雄] ✅ {which} 用占位：`{full}`（**只从 PlaceholderRoot 读**；`placeholder={cfg.Placeholder}`）✓");
             return cache;
         }
         catch (Exception ex)
         {
+            done = true;
             GD.Print($"[UI 占位英雄] 占位配置解析失败：{ex.Message} ⇒ 回落色块+首字（不静默）✓");
             return null;
         }
