@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/BattleTopBarSkeleton.cs" id="1_top"]
+
+[node name="BattleTopRow" type="HBoxContainer"]
+theme_override_constants/separation = 8
+script = ExtResource("1_top")
+
+[node name="TopLeftGroup" type="HBoxContainer" parent="."]
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_constants/separation = 8
+
+[node name="MissionLabel" type="Label" parent="TopLeftGroup"]
+vertical_alignment = 1
+
+[node name="TorchWrap" type="CenterContainer" parent="."]
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="RightGroup" type="HBoxContainer" parent="."]
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_constants/separation = 6
