@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 
 namespace Darkest.Ui;
 
@@ -39,21 +39,26 @@ public partial class SlotRowTemplate : VBoxContainer
             return null;
         }
 
+        // 🔴 **先取到局部变量，再改名**（我踩过的坑：先改名 ⇒ 旧路径取不到 ⇒ NRE 每帧）
+        Label? title = row.TitleLabel;
+        PanelContainer? frame = row.Frame;
+        Label? name = row.NameLabel;
+
         row.Name = $"BackSlot{slot}Row";
-        if (row.TitleLabel is not null)
+        if (title is not null)
         {
-            row.TitleLabel.Name = $"BackSlot{slot}Title";
-            row.TitleLabel.Text = $"{slot} 号位";
+            title.Name = $"BackSlot{slot}Title";
+            title.Text = $"{slot} 号位";
         }
 
-        if (row.Frame is not null)
+        if (frame is not null)
         {
-            row.Frame.Name = $"BackSlot{slot}Frame";
+            frame.Name = $"BackSlot{slot}Frame";
         }
 
-        if (row.NameLabel is not null)
+        if (name is not null)
         {
-            row.NameLabel.Name = $"BackSlot{slot}Name";
+            name.Name = $"BackSlot{slot}Name";
         }
 
         return row;
