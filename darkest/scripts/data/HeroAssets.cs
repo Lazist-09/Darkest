@@ -13,6 +13,64 @@ public sealed record HeroAnchor(
     [property: JsonPropertyName("y")] double Y);
 
 /// <summary>
+/// 🔴 `P31` ④（v1.62）：锚点可以是**对象** `{x,y}`，也可以是**字符串** `"inherit"`（= **有意的继承声明**）✓
+/// ⇒ 用**哨兵**表示继承（`NaN`）⇒ 下游用 `IsInherit` 问它，而不是靠"缺省猜" ✓
+/// </summary>
+public static class HeroAnchorKind
+{
+    /// <summary>是否为"显式继承"（`"anchor": "inherit"`）✓</summary>
+    public static bool IsInherit(HeroAnchor? a) => a is not null && double.IsNaN(a.X) && double.IsNaN(a.Y);
+}
+
+/// <summary>把 `"inherit"` 字符串收成哨兵对象（否则反序列化阶段就会失败 ⚠️）✓</summary>
+internal sealed class HeroAnchorConverter : JsonConverter<HeroAnchor?>
+{
+    public override HeroAnchor? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            string s = reader.GetString() ?? string.Empty;
+            if (string.Equals(s, "inherit", StringComparison.OrdinalIgnoreCase))
+            {
+                return new HeroAnchor(double.NaN, double.NaN); // 哨兵 = 显式继承 ✓
+            }
+
+            throw new JsonException($"`anchor` 只接受对象 {{x,y}} 或字符串 \"inherit\"（实测 \"{s}\"）✓");
+        }
+
+        if (reader.TokenType == JsonTokenType.Null)
+        {
+            return null;
+        }
+
+        double x = 0, y = 0;
+        while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                continue;
+            }
+
+            string name = reader.GetString() ?? string.Empty;
+            reader.Read();
+            if (string.Equals(name, "x", StringComparison.OrdinalIgnoreCase))
+            {
+                x = reader.GetDouble();
+            }
+            else if (string.Equals(name, "y", StringComparison.OrdinalIgnoreCase))
+            {
+                y = reader.GetDouble();
+            }
+        }
+
+        return new HeroAnchor(x, y);
+    }
+
+    public override void Write(Utf8JsonWriter writer, HeroAnchor? value, JsonSerializerOptions options)
+        => throw new NotSupportedException("只读加载器：不写回 `hero.json` ✓");
+}
+
+/// <summary>
 /// 一个**动作槽**（`hero_assets.md §3.1`：接口就定在【动作槽 → 帧序列 + 锚点】这一层 ⇒ **不绑定 Spine** ✓）
 /// 🔴 `Frames` 必须是**引用**（路径/资源 id）—— **不得**把帧数据/尺寸拷进 `hero.json`（`P31` ② · 与 `P26`/`P28` 同族）✓
 /// </summary>
@@ -41,7 +99,9 @@ public sealed record HeroAssetsConfig(
     [property: JsonPropertyName("source")] string? Source = null,
     // 🆕 **名册头像**（策划 `#347`②(b)：已请架构补 `P31`；此处**先按同纪律实现** = **引用** + **允许缺失**）✓
     //    理由：这批素材里**唯一能完整用**的就是 `*_portrait_roster.png`（85×85 独立 PNG，不依赖 Spine）✓
-    [property: JsonPropertyName("portrait")] string? Portrait = null)
+    [property: JsonPropertyName("portrait")] string? Portrait = null,
+    // 🔴 `P31` ⑧（v1.64）：**顶层字段**（不进 12 槽表）· 头像**允许缺失，但必须【显式声明】** ⇒ 缺失时根上要有 `missing_reason`（**不得静默留空**）✓
+    [property: JsonPropertyName("missing_reason")] string? PortraitMissingReason = null)
 {
     public const string ResPath = "res://data/hero.json";
 
@@ -107,6 +167,7 @@ public static class HeroAssets
             cfg = JsonSerializer.Deserialize<HeroAssetsConfig>(json, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
+                Converters = { new HeroAnchorConverter() }, // 🔴 `P31` ④：`"anchor": "inherit"` 也要能收 ✓
             }) ?? throw new InvalidDataException($"{HeroAssetsConfig.ResPath}: 反序列化得到 null。");
         }
         catch (JsonException ex)
@@ -176,19 +237,31 @@ public static class HeroAssets
                 }
             }
 
-            // ④ 锚点必须显式（不得靠默认值猜）✓
-            if (slot.Anchor is null)
+            // ④ 锚点必须显式（`P31` ④ · v1.62 裁定）：**写 `anchor` 对象** 或 **显式写 `"anchor": "inherit"`** ⇒ 二者皆可 ✓
+            //    —— "省"必须是【有意的声明】，不是【缺省的猜测】（否则锚点不一致会肉眼才发现错位/抖动）✓
+            if (slot.Anchor is null && !HeroAnchorKind.IsInherit(slot.Anchor) && !AnchorDeclaredInherit(json, name))
             {
                 throw new InvalidDataException(
-                    $"{HeroAssetsConfig.ResPath}: 槽 \"{name}\" 缺 `anchor` ⇒ 拒绝加载（`P31` ③：**锚点必须显式**，不许猜）✓");
+                    $"{HeroAssetsConfig.ResPath}: 槽 \"{name}\" **没有显式回答锚点** ⇒ 拒绝加载" +
+                    "（`P31` ④：要么写 `anchor` 对象，要么写 `\"anchor\": \"inherit\"`）✓");
             }
         }
 
-        // 🆕 名册头像（若给）：与 `frames` **同纪律** —— 必须是**引用**；**允许缺失**（缺 ⇒ 不画，不造默认图）✓
-        if (cfg.Portrait is { Length: > 0 } portrait && !IsReference(portrait))
+        // 🔴 `P31` ⑧（v1.64 · **顶层字段** ⇒ **单独一条校验**，不进 12 槽表）：
+        //    · 给了值 ⇒ 必须是**引用** ✓
+        //    · **允许缺失** ⇒ **但必须【显式声明】**（根上写 `missing_reason`）⇒ **不得静默留空** ✓
+        bool hasPortrait = cfg.Portrait is { Length: > 0 };
+        if (hasPortrait && !IsReference(cfg.Portrait!))
         {
             throw new InvalidDataException(
-                $"{HeroAssetsConfig.ResPath}: `portrait` 的 \"{Trim(portrait)}\" **不是引用**（与 `frames` 同纪律：路径/资源 id）✓");
+                $"{HeroAssetsConfig.ResPath}: `portrait` 的 \"{Trim(cfg.Portrait!)}\" **不是引用**（与 `frames` 同纪律：路径/资源 id）✓");
+        }
+
+        if (!hasPortrait && string.IsNullOrWhiteSpace(cfg.PortraitMissingReason))
+        {
+            throw new InvalidDataException(
+                $"{HeroAssetsConfig.ResPath}: `portrait` 缺失 ⇒ 🔴 **必须在根上写 `missing_reason` 显式声明**" +
+                "（`P31` ⑧：允许缺失，但**不得静默留空**）✓");
         }
 
         // 合规：占位必须显式标注来源（临时 · 来源 · 无授权 · 不发布）✓
@@ -230,6 +303,31 @@ public static class HeroAssets
 
     /// <summary>名册头像引用：**允许缺失**（缺 ⇒ 空串，表现层不画；但**不静默造一个默认图**）✓</summary>
     public static string PortraitRef(HeroAssetsConfig cfg) => cfg.Portrait ?? string.Empty;
+
+    /// <summary>
+    /// 🔴 `P31` ④（v1.62）：该槽是否**显式写了** `"anchor": "inherit"`（= **有意的继承声明**）——
+    /// 因为 `Anchor` 是对象类型，JSON 里的字符串形式反序列化不到 ⇒ 必须**回看原始 JSON** ✓
+    /// </summary>
+    public static bool AnchorDeclaredInherit(string json, string slot)
+    {
+        try
+        {
+            using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("actions", out System.Text.Json.JsonElement actions)
+                && actions.TryGetProperty(slot, out System.Text.Json.JsonElement s)
+                && s.TryGetProperty("anchor", out System.Text.Json.JsonElement a)
+                && a.ValueKind == System.Text.Json.JsonValueKind.String)
+            {
+                return string.Equals(a.GetString(), "inherit", StringComparison.OrdinalIgnoreCase);
+            }
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return false; // JSON 本身的问题由主解析路径报（这里不抢答）✓
+        }
+
+        return false;
+    }
 
     private static string Trim(string s) => s.Length <= 24 ? s : s[..24] + "…";
 

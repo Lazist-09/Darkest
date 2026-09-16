@@ -31,7 +31,9 @@ public sealed class HeroAssetsLoaderTests
         ["walk"] = Slot("sprite/walk.png"),
     };
 
-    private static string Json(Dictionary<string, object?> actions, bool placeholder = false, string? source = null)
+    /// <param name="declarePortraitMissing">🔴 `P31` ⑧：`portrait` 缺失时**必须在根上显式声明** `missing_reason`（默认给上）✓</param>
+    private static string Json(Dictionary<string, object?> actions, bool placeholder = false, string? source = null,
+        bool declarePortraitMissing = true)
     {
         var root = new Dictionary<string, object?>
         {
@@ -46,6 +48,11 @@ public sealed class HeroAssetsLoaderTests
         if (source is not null)
         {
             root["source"] = source;
+        }
+
+        if (declarePortraitMissing)
+        {
+            root["missing_reason"] = "本用例未提供名册头像（显式声明缺失，不是静默留空）";
         }
 
         return JsonSerializer.Serialize(root);
@@ -140,6 +147,56 @@ public sealed class HeroAssetsLoaderTests
             "`placeholder = true` 却没写 `source` ⇒ 拒绝（合规：不发布 + 显式标注）✓");
     }
 
+    /// <summary>
+    /// 🔴 **`P31` ⑧（v1.64）**：`portrait` 是**顶层字段**（不进 12 槽表）⇒ **单独一条校验**：
+    /// 给了值必须是**引用**；**允许缺失** ⇒ **但必须显式声明**（根上 `missing_reason`）⇒ 不得静默留空 ✓
+    /// </summary>
+    [TestMethod]
+    public void Portrait_MissingMustBeExplicitlyDeclared_AndMustBeAReferenceWhenGiven()
+    {
+        // ① 缺失 + 无声明 ⇒ 拒绝（新契约：不允许静默留空）
+        InvalidDataException ex = Assert.ThrowsException<InvalidDataException>(
+            () => HeroAssets.Parse(Json(AllFive(), declarePortraitMissing: false)),
+            "`portrait` 缺失且根上没有 `missing_reason` ⇒ 拒绝 ✓");
+        Assert.IsTrue(ex.Message.Contains("missing_reason"), "报错要点名该怎么声明 ✓");
+
+        // ② 缺失 + 显式声明 ⇒ 通过（取自默认样本）
+        HeroAssetsConfig ok = HeroAssets.Parse(Json(AllFive()));
+        Assert.AreEqual(string.Empty, HeroAssets.PortraitRef(ok), "声明缺失 ⇒ 取头像引用为空（UI 据此不画）✓");
+
+        // ③ 给了值 ⇒ 必须是【引用】
+        Dictionary<string, object?> withPortrait = AllFive();
+        string good = Json(withPortrait, declarePortraitMissing: false).Replace("\"archetype\"", "\"portrait\":\"portrait.png\",\"archetype\"");
+        Assert.AreEqual("portrait.png", HeroAssets.PortraitRef(HeroAssets.Parse(good)), "引用形式 ⇒ 通过 ✓");
+
+        string inline = Json(withPortrait, declarePortraitMissing: false).Replace("\"archetype\"", "\"portrait\":\"data:image/png;base64,AAAA\",\"archetype\"");
+        Assert.ThrowsException<InvalidDataException>(() => HeroAssets.Parse(inline), "内联数据 ⇒ 拒绝（与 `frames` 同纪律）✓");
+    }
+
+    /// <summary>
+    /// 🔴 **`P31` ④（v1.62 裁定）**：锚点问题**必须被显式回答** ——
+    /// **写 `anchor` 对象** 或 **显式写 `"anchor": "inherit"`** ⇒ 二者皆可；**两者都没有 ⇒ 拒绝并点名** ✓
+    /// </summary>
+    [TestMethod]
+    public void Anchor_MayBeObjectOrExplicitInherit_ButMustBeAnswered()
+    {
+        // "inherit" 形式：Structured 样本里 anchor 是对象 ⇒ 这里直接用 JSON 文本造（写成字符串）✓
+        string inheritJson = "{\"archetype\":\"warrior\",\"missing_reason\":\"无名册头像\",\"actions\":{"
+            + "\"idle\":{\"frames\":[\"sprite/idle.png\"],\"anchor\":\"inherit\"},"
+            + "\"combat\":{\"frames\":[\"sprite/combat.png\"],\"anchor\":{\"x\":0.5,\"y\":1.0}},"
+            + "\"attack\":{\"frames\":[\"sprite/attack.png\"],\"anchor\":{\"x\":0.5,\"y\":1.0}},"
+            + "\"defend\":{\"frames\":[\"sprite/defend.png\"],\"anchor\":{\"x\":0.5,\"y\":1.0}},"
+            + "\"walk\":{\"frames\":[\"sprite/walk.png\"],\"anchor\":{\"x\":0.5,\"y\":1.0}}}}";
+        HeroAssetsConfig cfg = HeroAssets.Parse(inheritJson);
+        Assert.AreEqual(5, cfg.Actions.Count, "`\"anchor\": \"inherit\"`（显式继承声明）⇒ **接受** ✓");
+        Assert.IsTrue(HeroAssets.AnchorDeclaredInherit(inheritJson, "idle"), "并**可被查**（供 UI 解析继承）✓");
+
+        Dictionary<string, object?> noAnchor = AllFive();
+        noAnchor["defend"] = new Dictionary<string, object?> { ["frames"] = new[] { "sprite/defend.png" } };
+        InvalidDataException ex = Assert.ThrowsException<InvalidDataException>(
+            () => HeroAssets.Parse(Json(noAnchor)), "既无 `anchor` 也无 `\"inherit\"` ⇒ 拒绝 ✓");
+        Assert.IsTrue(ex.Message.Contains("defend"), "点名槽 ✓");
+    }
     /// <summary>根重载 + 引用解析 + 头像（策划 `#347`②(a)/(b)）✓</summary>
     [TestMethod]
     public void LoadWithRoot_OverridesRoot_AndResolveJoinsIt()
