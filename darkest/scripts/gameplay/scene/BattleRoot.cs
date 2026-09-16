@@ -714,6 +714,12 @@ public partial class BattleRoot : Node2D
                     _ui.EnterMapMode();
                     GD.Print($"[片4] ✅ 战后回地图模式（同一场景）：Phase={ExpeditionContext.Flow!.Session.Phase}　" +
                              $"CanShowPathChoice={ExpeditionContext.Flow.Session.CanShowPathChoice}（应为 True）✓");
+                    // 🔴 片 4 收口修：**同场景内**的模式切换**没有新的 `_Ready`** ⇒ 冒烟待办步骤要在此**续跑**
+                    //    （实测：`--smoke=main:1,town` 的第 2 步 `town` 曾永远停着 ⚠️）
+                    if (SmokeScript.HasPending)
+                    {
+                        SmokeScript.Step(this);
+                    }
                 }
                 // 🔴 片 4 收尾：**旧场景已退休** ⇒ 两条路都回**同一场景的地图模式**（过渡分支删除 ✓）
                 _ui.EnterMapMode();

@@ -26,6 +26,12 @@ public static class SmokeScript
 {
     private static readonly Queue<string> Steps = new();
     private static int _applied;
+
+    /// <summary>
+    /// 🔴 **还有待办步骤吗**（片 4 收口新增）：**同场景内**的模式切换（如"战后回地图模式"）**不会触发新的 `_Ready`**
+    /// ⇒ 冒烟步骤会**永远停着** ⚠️（实测：`--smoke=main:1,town` 的 `town` 从未执行）⇒ 由场景侧在转换点**续跑一次** ✓
+    /// </summary>
+    public static bool HasPending => Steps.Count > 0;
     private static bool _enabled;
     private static Node? _owner;
     private static Node? _autoFinishedFor; // 战斗场景"自动放行"只对同一实例触发一次
