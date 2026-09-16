@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Run;
 using Godot;

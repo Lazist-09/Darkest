@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Run;

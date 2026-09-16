@@ -1,4 +1,4 @@
-﻿using Darkest.Gameplay.Sim.Run;
+using Darkest.Gameplay.Sim.Run;
 using Godot;
 
 namespace Darkest.Ui;
