@@ -426,7 +426,7 @@ public partial class BattleUi : CanvasLayer
     }
 
     /// <summary>按下【放弃远征】⇒ **二次确认**（不可逆；`§8` 硬要求②）✓</summary>
-    private void PressAbandon()
+    public void PressAbandon()   // 🔴 主程序 2026-09-21 请求：retreat 冒烟需公共入口（发真实 Pressed）✓
     {
         if (_abandonExpedition is null)
         {
@@ -817,6 +817,7 @@ public partial class BattleUi : CanvasLayer
         //    我加这两条只为把"瓷砖主画面 + 点格走格"**先自证到位**（红线 25：改了交互入口 ⇒ 证据链重走）✓
         if (mFlow is not null && Array.Exists(OS.GetCmdlineArgs(), x => x == "--tile-walk") && !mFlow.TileWalkEnabled)
         {
+            // 📌 主程序 2026-09-21 提醒：此处**硬写 30**（仅冒烟验证用）；正式开关由宿主按 −tuning.light.node_step 调 ⇒ 值若变会不一致 ⚠️
             mFlow.EnableTileWalk(30);
             GD.Print("[UI 走格·冒烟] 已开 `EnableTileWalk(30)`（**仅验证用**；正式开关应由宿主调）✓");
         }
@@ -837,6 +838,7 @@ public partial class BattleUi : CanvasLayer
                     Darkest.Ui.MapSketch ts = Darkest.Ui.WalkMapView.FromTileWalk(
                         mFlow.TileWalk, mFlow.TilePosition, mFlow.RevealedRoomIds,
                         mFlow.RemainingSegmentsToGoal, mFlow.TileHere);
+            GD.Print($"[UI 瓷砖] ✅ 主画面（引擎内置 TileMapLayer）：格 {ts.Cells.Count} ／ 连线 {ts.Links.Count}　队伍在已揭示格 {ts.Cells.Count(c => c.Revealed)} ／ {ts.Cells.Count}");
                     _mfMapWalk.MovableRooms = ts.Cells.Where(c => c.Movable).Select(c => c.Id).ToList();
                     _mfMapWalk.OnRoomClicked = id =>
                     {
