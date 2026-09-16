@@ -1301,6 +1301,32 @@ P5 **战斗（②）**：5/6 号位长条框左右靠齐 + 橙框/紫框/右侧�
    `var skel = Darkest.Ui.BattleBottomBarSkeleton.TryInstantiate();`（局部变量无任何作用域/静态疑问）✓
 ```
 
+### 🔴 14.0.15 **E：行走地图改 `TileMapLayer` 的施工方案**（2026-09-17 侦察结论）
+
+```
+现状（`darkest/scripts/ui/WalkMapView.cs`，336 行）：
+  · `_canvas` = `Control`（"WalkMapCanvas"，L63）承载**手绘**子节点；`ClipContents = true`（L84）保证不溢出框 ✓
+  · 滚轮缩放 `ZoomCanvas`（L111，0.5×~3×）+ 左键拖拽平移（L105）⇒ **这两条必须保留** ✓
+  · `Refresh(MapSketch sketch)`（L216）每次**清空 `_canvas` 子节点**再重建：
+      L265 走廊 `ColorRect` · L286 房间 `ColorRect` · L307 命中区 —— **这三处就是要被 `TileMapLayer` 取代的"手绘"** ✓
+  · 数据接缝 `MapSketch` / `SketchCell` / `SketchLink`（渲染无关）⇒ **只换渲染层，不换数据** ✓
+
+改造方案（分两步，各自可独立验证）：
+  ① **建 `scenes/ui/walk_map_layer.tscn`**：根 `TileMapLayer`（名 `WalkTileLayer`）+ `TileSet`（在编辑器里可换图集/瓦片）
+     ⚠️ **瓦片纹理从哪来**（本项目美术约束：不能用 DD 目录的文件；占位美术只在 `HeroAssets.PlaceholderRoot`）：
+        · 方案 A（推荐）：**运行时用引擎内置生成**（`Image.CreateEmpty` + `Fill` ⇒ `ImageTexture`）造一张 16×16 双色图集，
+          在代码里建 `TileSetAtlasSource` 后设给场景里的 `TileMapLayer` ⇒ **不引入任何美术文件** ✓
+        · 方案 B：由美术侧提供 `assets/ui/tiles.png`（16×16 图集、房间/走廊两格）⇒ 编辑器里直接选图集 ✓
+      🔴 无论 A/B：**房间/走廊的视觉差异靠"瓦片图 + 自定数据层"表达**，不再手摆 `ColorRect` ✓
+  ② **`Refresh(MapSketch)` 改为**：清 `Clear()` 瓦片 ⇒ 按 `SketchCell` 调 `SetCell(coords, sourceId, atlasCoords)`
+     （房间 = 房格，走廊 = 走廊格）⇒ 之后的**命中区/点击回调**改挂到 `TileMapLayer` 的 `InputEvent` 上 ✓
+  ③ 判据（与现在一致）：`--battle-map-mode` / `--dungeon-in-scene` 的 **越界 0 / 重叠 0 / 透明 0 / 真错 0**，
+     且**框内拖拽/缩放后仍不溢出**（`ClipContents` 保留）；房间数与走廊数与现状**逐一核对**（`--tile-walk`、`--tile-step`）
+
+📌 风险提示：`TileMapLayer` 是 `Node2D` 系 ⇒ 放进 `Control` 画布后**缩放/平移要改用它的 `position`/`scale`**（不是 `Control.Position`）；
+   `ClipContents` 对 `Node2D` 子节点**不生效** ⇒ 需要用一个 `Control` 包住 `TileMapLayer` 并保留裁切（或改用 `SubViewport`）。
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
