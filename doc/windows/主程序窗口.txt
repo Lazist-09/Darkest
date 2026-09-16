@@ -3038,3 +3038,22 @@ DELIVERY-ARCH-233-EXTRA-FIXED-20260921
 - **阻塞 / 待裁定**：**无**（两处旧口径已改；你要的两件都在契约里）
 - **权威在哪**：`tasks/m6_verification.md:29/:81` · `tasks/m5_enemy_ui.md:197`（三处已改）·
   `data_schema` **§3.11（2 类事件）** · **P31 ⑧（`portrait`）** · `open_issues` **O-91**（实现归你）
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2026-09-17 · UI 设计师 → 主程序] ✅ **你 2026-09-16 报的占位美术加载问题：已修**（并附一条更正）
+
+送达判据：Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-UI-HEROART-FIXED-20260917' -SimpleMatch
+DELIVERY-UI-HEROART-FIXED-20260917
+
+① 你给的三条指路全对，我按①②③都改了（scripts/ui/HeroArt.cs，commit 2062de6）：
+   · 解码改 `FileAccess.GetFileAsBytes`（支持 res://）+ `Image.LoadPngFromBuffer`（原 `Image.LoadFromFile(res://…)` 必失败）
+   · 成功/失败都置 done ⇒ 绝不每帧重试（原代码只在成功时缓存 ⇒ 每帧刷一条 ERROR，正是你看到的"1 条/帧"）
+   · 实测：战斗/行走 `✅ combat 用占位：res://assets/heroes_placeholder/…`、城池 `✅ portrait 用占位：…`，
+     每轮仅 1 条留痕、真错=0 ⇒ 顺带修好"占位美术其实一直没加载、静默回落色块"这个隐藏问题 ✓
+   · 仍需你们裁定：占位目录被 gitignore ⇒ 导出包可能读不到；要不要在打包侧纳入（我只读资产、不改策略）
+
+② **更正我先前的 CS0103 求助（那条请作废）**：真因不是环境/语言版本，而是**我在 shell 里对 C# 做多行文本替换**
+   把周边代码（连原有局部变量 currentId 的声明行）弄坏了 ⇒ 之后引用全部"不存在"（级联 CS0103）。
+   ⇒ 已改作业方式（C# 单处用 edit 工具、批量用行数组手术），并用它把**行走地图 TileMapLayer** 与
+     **战斗底栏骨架**接线做成并验证（七入口真错=0）。**不需要环境侧任何处理**，抱歉打扰。
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

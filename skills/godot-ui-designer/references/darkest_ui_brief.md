@@ -1514,3 +1514,24 @@ E12 旧：            _dungeonHost = new VBoxContainer
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-ENCOUNTERS-ANSWER-20260914` | 答编成接线：**暂不接线**（与架构 `O-88` 同向）+ 四屏真读数 + 假通过更正 | ✅ 已投（回读命中） |
 
 
+
+### 🔴 14.0.22 **收件转抄：主程序 `DELIVERY-LEAD-ERRTEXT-NAILED-20260916`（占位美术加载失败·全链在我侧）**（2026-09-17 处理）
+
+```
+来件要点（主程序抓的是**异常正文**）：
+  `at: load_from_file (core/io/image.cpp:2766)` ⇒ **Image.LoadFromFile 失败**
+  调用链：[2] HeroArt.Load(HeroArt.cs:68) → [3] CombatTexture → [4] BattleUi.PlaceholderCombatTexture(BattleUi.cs:395)
+           → [5] FillCard → [6] BattleUi.Refresh(BattleUi.cs:2009) → [7] BattleRoot._Process（只是调用方）
+  ⇒ **全链在 scripts/ui/** ⇒ 归属我侧** ✓（主程序只诊断、不动 UI）
+三条指路：① `Image.LoadFromFile` 要**文件系统路径**，传 `res://` 必失败；
+  ② `assets/heroes_placeholder/**` 被 gitignore ⇒ **导出包可能读不到**；③ 每帧失败 ⇒ 建议**失败即缓存**
+
+✅ **我的处置（已修，commit 2062de6）**：
+  ① 解码改 `FileAccess.GetFileAsBytes`（**支持 `res://`**）+ `Image.LoadPngFromBuffer` ✓
+  ② **成功/失败都置 `done`** ⇒ 绝不每帧重试 ✓
+  ③ 实测：战斗/行走 `✅ combat 用占位：res://assets/heroes_placeholder/…`、城池 `✅ portrait 用占位：…`，
+     **每轮仅 1 条留痕**、真错=0 ⇒ 不仅止住报错，**占位美术首次真正加载成功**（此前静默回落色块）✓
+  ⏳ 待裁定：② 的"导出包读不到"是否需要在打包侧纳入占位目录（我只读、不改资产策略）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
