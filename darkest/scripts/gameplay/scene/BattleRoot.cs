@@ -700,6 +700,14 @@ public partial class BattleRoot : Node2D
             string result = what.Contains("撤退", System.StringComparison.Ordinal)
                 ? "DrawRetreat"
                 : Director.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+
+            // 🔴 `#352` 打印自证（`retreat.md §11` 要的"撤退 ⇒ 回地图当前格"）：这一行让"撤没撤对"**可读** ✓
+            if (result == "DrawRetreat")
+            {
+                GD.Print($"[片4] ↩️ **撤退**（【一场】的选择）⇒ 回地图当前格**继续走**（本趟**不**结束）✓" +
+                         $"　IsFinished={ExpeditionContext.Flow?.IsFinished}（应为 False）" +
+                         $"　Outcome={ExpeditionContext.Flow?.Outcome}（应为 InProgress）✓");
+            }
             // 🔴 修 UI 报的 4 条：**流程层的 `OnBattleFinished` 只接受【当前步骤是战斗节点】时调用** ——
             //    冒烟的 `auto` 可能在"非战斗步骤"上触发战斗结束（宿主内进地牢的步骤对齐还没做完）⇒ 那会被流程**如实拒绝** ✓
             //    ⇒ 这里**先判**，不把非法调用递进去（红线 21：不静默、也不假装）✓
