@@ -2212,14 +2212,21 @@ public partial class BattleUi : CanvasLayer
             string skillId = poolIds[i];
             SkillProjection sp = p.Skill(skillId, actor, d.Player, d.Enemy, pool);
             string full = SkillName(skillId);
-            var b = new Button
+            // 🔴 UI 编辑器化 B（用户 2026-09-17）：技能方块改为**实例化模板场景** `scenes/ui/skill_box.tscn`
+            //    ⇒ 尺寸/字号/样式**在编辑器里改**（这就是"能在编辑器里直接干预"）；
+            //    ⚠️ 场景不可用 ⇒ **回落代码构建**（不崩、不静默）✓
+            Button b = Darkest.Ui.SkillBoxTemplate.TryInstantiate() is Darkest.Ui.SkillBoxTemplate box
+                ? box
+                : new Button { CustomMinimumSize = new Vector2(48, 48) };
+            if (b.CustomMinimumSize.X <= 0f)
             {
-                CustomMinimumSize = new Vector2(48, 48), // 🔴 用户要求：方块再缩小 ⇒ **全部展示、不滚动** ✓
-                Text = full.Length <= 2 ? full : full.Substring(0, 2),
-                Disabled = sp.Reason != AvailabilityReason.Ok,
-                TooltipText = sp.Reason == AvailabilityReason.Ok ? SkillTooltip(skillId, actor, d) : $"{full}（{sp.Tooltip}）",
-            };
-            b.AddThemeFontSizeOverride("font_size", 20);
+                b.CustomMinimumSize = new Vector2(48, 48); // 兜底尺寸（模板若没设）✓
+            }
+
+            // 数据仍由代码填（**模板只管外观**）✓
+            b.Text = full.Length <= 2 ? full : full.Substring(0, 2);
+            b.Disabled = sp.Reason != AvailabilityReason.Ok;
+            b.TooltipText = sp.Reason == AvailabilityReason.Ok ? SkillTooltip(skillId, actor, d) : $"{full}（{sp.Tooltip}）";
             string captured = skillId;
             b.Pressed += () => _useSkill?.Invoke(actor, captured);
             _skillBar.AddChild(b); // 🔴 §14：技能键进【C 区的技能栏容器】（不再手摆坐标）
