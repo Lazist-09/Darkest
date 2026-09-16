@@ -40,9 +40,7 @@ public static class DungeonRunDriver
         if (Array.Exists(args, a => a == "--hamlet-next") && ExpeditionContext.IsActive)
         {
             GD.Print("[片4-driver] --hamlet-next ⇒ 本趟结算并回城（冒烟路径：启动 → 跑图 → 回城）✓");
-            flow.ReturnToTown("completed");
-            ExpeditionContext.End();
-            host.GetTree().CallDeferred("change_scene_to_file", Darkest.Ui.MainMenuRoot.HamletScene);
+            ReturnToTown(host, flow);
             return true;
         }
 
@@ -53,6 +51,20 @@ public static class DungeonRunDriver
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// 🔴 **本趟结算并回城**（`--hamlet-next` 与冒烟步骤 `town` **共用同一实现** ⇒ 不会两处漂移）✓
+    /// 📌 这一步**不依赖任何 UI 面板**（纯流程 + 切场景）⇒ 旧场景退休后可以**立刻**在宿主侧接上 ✓
+    /// </summary>
+    public static void ReturnToTown(BattleRoot host, ExpeditionFlow flow)
+    {
+        // 🔴 **打印自证**（我自己的纪律：动作必须留下可读的痕迹 —— 否则"跑没跑过"看不出来）✓
+        GD.Print($"[片4-driver] ✅ 结算回城：走 {flow.StepsDone} 段 ／ 胜 {flow.Wins} ／ " +
+                 $"光照 {flow.Meter.Value} ⇒ 切城池（`--hamlet-next` 与冒烟 `town` 共用此实现）✓");
+        flow.ReturnToTown("completed");
+        ExpeditionContext.End();
+        host.GetTree().CallDeferred("change_scene_to_file", Darkest.Ui.MainMenuRoot.HamletScene);
     }
 
     /// <summary>自动走到终点（**真实 `StepTo`**；每一步留痕 ⇒ 可复现 ✓）</summary>

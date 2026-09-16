@@ -208,7 +208,17 @@ public static class SmokeScript
                 HostStepNotWired("RunFullSmokeStep");
                 break;
             case "town":
-                HostStepNotWired("PressReturnToTown");
+                // 🔴 片 4 收尾：`town` = **结算回城**（纯流程 + 切场景，**不依赖 UI 面板**）⇒ 旧场景退休后已接上 ✓
+                if (node is BattleRoot townHost && Darkest.Gameplay.Scene.ExpeditionContext.Flow is { } townFlow)
+                {
+                    Darkest.Gameplay.Scene.DungeonRunDriver.ReturnToTown(townHost, townFlow);
+                }
+                else
+                {
+                    HostStepNotWired("PressReturnToTown");
+                }
+
+                break;
                 break;
             // 🔴 片 4④：**宿主内的行走步骤**（`dungeon` = 进地牢；`map:N` = 选第 N 条出路 ⇒ 战斗步骤自动起战斗）✓
             case "dungeon":
