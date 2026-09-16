@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -1172,12 +1172,18 @@ public partial class HamletRoot : Node2D
         GD.Print($"[HamletRoot] 建筑弹窗内容：{label} Lv{level}　下一级 {nextText}　可升级={affordable}");
     }
 
-    private static Label PopupLine(string text) => new()
-    {
-        Text = text,
-        AutowrapMode = TextServer.AutowrapMode.WordSmart,
-        CustomMinimumSize = new Vector2(0, 20),
-    };
+    /// <summary>
+    /// 🔴 UI 编辑器化 B（用户 2026-09-17）：**弹窗内容行改为实例化模板场景** `scenes/ui/popup_line.tscn`
+    /// ⇒ 换行方式/裁切/字号/颜色**在编辑器里直接改**（改那一行 = 改所有弹窗行）✓
+    /// ⚠️ 场景缺失/类型不符 ⇒ **回落代码构建**（不崩、不静默）✓
+    /// </summary>
+    private static Label PopupLine(string text)
+        => Darkest.Ui.PopupLineTemplate.TryCreate(text) ?? new Label
+        {
+            Text = text,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(0, 20),
+        };
 
     public void ShowBuildingInfo(string building)
     {
