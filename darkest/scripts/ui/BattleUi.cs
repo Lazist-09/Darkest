@@ -388,6 +388,7 @@ public partial class BattleUi : CanvasLayer
     private Button? _abandonButton;
     private PanelContainer? _abandonConfirm;
     private bool _abandonWarned;
+    private bool _labelProofed;   // 🔴 文本级自证只打一次 ✓
 
     /// <summary>
     /// 🔴 `retreat.md §8`：宿主把【放弃远征】动作交给我（**不破 `Bind` 签名**：`Bind` 之后调一次即可）✓
@@ -552,6 +553,16 @@ public partial class BattleUi : CanvasLayer
         if (_abandonButton is not null)
         {
             _abandonButton.Visible = _mode == SceneMode.Map && _abandonExpedition is not null;
+
+            // 🔴 文本级自证（一次性）：**撤退/放弃远征两个按钮的"界面用词 + 可见性"**都留痕
+            //    （§8 要求两个词不得混用；红线 21 要求"可见/不可见"都可解释）✓
+            if (!_labelProofed)
+            {
+                _labelProofed = true;
+                GD.Print($"[UI §8 用词] 撤退按钮文案=「{_retreatButton?.Text}」　可见={_retreatButton?.Visible}" +
+                         $"　｜　放弃远征按钮文案=「{_abandonButton.Text}」　可见={_abandonButton.Visible}" +
+                         $"（模式={(_mode == SceneMode.Map ? "Map" : "Battle")}　宿主已注入放弃动作={_abandonExpedition is not null}）✓");
+            }
 
             // 🔴 红线 21（不留不可解释的状态）：**按钮为什么没出现**必须留痕一次 ✓
             if (_abandonExpedition is null && !_abandonWarned)
@@ -1796,6 +1807,16 @@ public partial class BattleUi : CanvasLayer
         if (_abandonButton is not null)
         {
             _abandonButton.Visible = _mode == SceneMode.Map && _abandonExpedition is not null;
+
+            // 🔴 文本级自证（一次性）：**撤退/放弃远征两个按钮的"界面用词 + 可见性"**都留痕
+            //    （§8 要求两个词不得混用；红线 21 要求"可见/不可见"都可解释）✓
+            if (!_labelProofed)
+            {
+                _labelProofed = true;
+                GD.Print($"[UI §8 用词] 撤退按钮文案=「{_retreatButton?.Text}」　可见={_retreatButton?.Visible}" +
+                         $"　｜　放弃远征按钮文案=「{_abandonButton.Text}」　可见={_abandonButton.Visible}" +
+                         $"（模式={(_mode == SceneMode.Map ? "Map" : "Battle")}　宿主已注入放弃动作={_abandonExpedition is not null}）✓");
+            }
 
             // 🔴 红线 21（不留不可解释的状态）：**按钮为什么没出现**必须留痕一次 ✓
             if (_abandonExpedition is null && !_abandonWarned)
