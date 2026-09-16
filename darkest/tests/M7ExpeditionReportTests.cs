@@ -25,7 +25,8 @@ public sealed class M7ExpeditionReportTests
     private sealed record ExpeditionRun(
         bool Completed, List<string> BattleResults, List<(double Hp, double Morale)> Curve,
         int Camps, List<string> Tiers, int RespiteSpent, int FirewoodLeft, int FoodLeft,
-        int Ambushes, int Retreats, int Deaths, int TownMorale, ExpeditionSession Session);
+        int Ambushes, int Retreats, int Deaths, int TownMorale, ExpeditionSession Session,
+        Darkest.Core.Events.CombatLog Log); // 🆕 V10：把该趟的**事件流**带出来（读数只认事件流）✓
 
     private static string ReadData(string name)
     {
@@ -158,7 +159,7 @@ public sealed class M7ExpeditionReportTests
 
         return new ExpeditionRun(completed, results,
             session.Curve.Select(c => (c.AvgHpPercent, c.AvgMoralePercent)).ToList(),
-            camps, tiers, 0, session.Firewood, session.Food, ambushes, retreats, deaths, townMorale, session);
+            camps, tiers, 0, session.Firewood, session.Food, ambushes, retreats, deaths, townMorale, session, log);
     }
 
     [TestMethod]
@@ -169,6 +170,7 @@ public sealed class M7ExpeditionReportTests
         TuningCamp camp = TuningConfig.Parse(ReadData("tuning.json")).Camp;
 
         int completed = 0, camps = 0, ambushes = 0, retreats = 0, deaths = 0, battleTotal = 0, wins = 0;
+        var runLogs = new List<IReadOnlyList<Darkest.Core.Events.BattleEvent>>(); // 🆕 V10：逐趟事件流 ✓
         int firewoodSpent = 0, foodSpent = 0;
         var hpByBattle = new List<double>(new double[12]);
         var moraleByBattle = new List<double>(new double[12]);
@@ -182,6 +184,7 @@ public sealed class M7ExpeditionReportTests
         for (int i = 0; i < runs; i++)
         {
             ExpeditionRun r = RunExpedition(20260909 + i, nodes, camp);
+            runLogs.Add(r.Log.Events); // 🆕 V10 ✓
             if (r.Completed)
             {
                 completed++;
@@ -240,6 +243,16 @@ public sealed class M7ExpeditionReportTests
                 .Select(b => $"#{b} {hpByBattle[b] / curveCount[b]:F0}/{moraleByBattle[b] / curveCount[b]:F0}"));
         Console.WriteLine(report);
         TestContext.WriteLine(report);
+
+        // 🆕 **V10 口径读数**（架构 `m7_6_verification §9` · 策划 `#358`③）—— **只报数不判红**（`O-82`）✓
+        //    🔴 **如实标注**：本探针的结局串仍是**旧口径**（`completed` / `retreat` / `wiped` / `incomplete`）
+        //    ⇒ 带 `retreat` 的趟会被 `V10Readings` 计为【未结束】⚠️（**不把旧的偷换成新的**）✓
+        Darkest.Gameplay.Sim.Run.V10Readings v10 = Darkest.Gameplay.Sim.Run.V10Readings.From(runLogs);
+        string v10Line = $"[M7] 🆕 V10（新口径 · 仅报数）：{v10.Describe()}" +
+                         "　⚠️ 本探针结局串含旧口径 `retreat`/`incomplete` ⇒ 计为「未结束」（见代码注释）✓";
+        Console.WriteLine(v10Line);
+        TestContext.WriteLine(v10Line);
+        Assert.IsTrue(v10.CountsClose, "V10 判据①：三类 + 未结束 **和必须闭合** == 总趟数 ✓");
 
         Assert.AreEqual(runs, townMorales.Count, "每趟都应有一次回城结算（⑯）");
         Assert.IsTrue(camps > 0, "扎营应被使用（E7 判据：扎营次数 > 0）");
