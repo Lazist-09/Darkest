@@ -82,4 +82,22 @@ public sealed class V10ReadingsTests
         Assert.IsTrue(r.CountsClose);
         Assert.IsTrue(r.Describe().Contains("完成率"), "报告行可用 ✓");
     }
+
+    /// <summary>
+    /// 🔴🔴 **策划 `#387`② 的硬规矩**：**无样本 ⇒ 必须报 `N/A（无样本：…）`，不得报 `0.0%`** ✓
+    /// 理由：`0.0%` 会被读成「撤退无效」，而真相只是「这批没有样本」（红线 17 ⑧：`0` 是最极端的读数）✓
+    /// 📌 说明：本条用例本应在上一提交里落地，但那次 `edit` 被工具拒绝（"文件已变"）⇒ **我如实补交** ✓
+    /// </summary>
+    [TestMethod]
+    public void NoSample_MustReportNA_NotZeroPercent()
+    {
+        var onlyWiped = new List<BattleEvent> { new TownReturnEvent("wiped", 50, 50, false) };
+        V10Readings r = V10Readings.From(new[] { onlyWiped });
+
+        Assert.IsFalse(r.HasCompletionSample, "没有走完的趟 ⇒ 完成率**无样本** ✓");
+        Assert.IsFalse(r.HasRetreatSample, "没有撤退场次 ⇒ 「撤而不弃」**无样本** ✓");
+        string d = r.Describe();
+        Assert.IsTrue(d.Contains("N/A（无样本"), "两项都必须显式写「无样本」✓");
+        Assert.IsFalse(d.Contains("0.0%"), "🔴 **不得**出现 `0.0%`（那会被读成「无效」，而不是「没样本」）✓");
+    }
 }
