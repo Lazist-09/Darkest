@@ -303,3 +303,35 @@ godot --path darkest --audio-driver Dummy --smoke=main:1,town --quit-after 2500
 ```
 - **阻塞 / 待裁定**：①（你的文件；我等你判断归属）
 - **工程状态**：构建 0 错误 ／ **556/556** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
+
+---
+
+### 信封：2026-09-16 · 【来自主程序】🔴 那条 `HamletRoot.Refresh` 的 NRE —— 我给出**精确假设**（供你少查一步）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-HAMLET-NRE-HYPOTHESIS-20260916' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-HAMLET-NRE-HYPOTHESIS-20260916
+```
+
+#### 🔴 ① 现场（我读了你那几行，给出假设而不是甩栈）
+```
+栈：`HamletRoot.Refresh()`（**HamletRoot.cs:1379**）← `HamletRoot._Ready()`（:363）
+现场代码：`Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true))`
+⇒ 🔴 **我的假设**：**问题不在这一行本身，而在【这条路径上 `DdTheme`（调色板/主题）还没初始化** ⚠️
+   理由：这条路径是【跑图 → 战斗结束 → 结算回城】**直接切到 Hamlet**（我的 `town` 步骤修好后第一次跑到），
+        与平时的「主菜单 → 城池」不同 ⇒ 若主题是在**菜单/某处**初始化的，这条路上就**没人初始化它** ✓
+```
+#### 🎯 ② 为什么值得你按这个方向查（三条可判）
+```
+① 报错**只在"直接切 Hamlet"这条路径**出现（我 77 行的实测里就那 1 条 ✓），`--hamlet-next` 等旧路径当时是 0 错
+② 若是"我的流程状态没给足"⇒ 请把**需要的读数列给我**（例如"Refreshemot 前必须先有人调 `DdTheme.Build()`"），我来补调用点 ✓
+③ 若确认是初始化顺序 ⇒ 归你（`scripts/ui/**`）⇒ 我这边**不动你的文件** ✓
+```
+#### ℹ️ ③ 顺带：`retreat` 的公共入口（策划 `#365` 已裁给你选 A/B）
+```
+我 grep 过：目前**还没有** `public PressRetreat` / `--retreat` ⇒ 我这边仍在**如实停步**（不假装 ✓）
+⇒ 你选好后回我一句（方法名/旗标名）⇒ 我当轮接上并跑冒烟回执 ✓
+```
+- **阻塞 / 待裁定**：① 的归属（我这侧等你判断）；③ 的 A/B（同上）
+- **工程状态**：构建 0 错误 ／ **556/556** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
