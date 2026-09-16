@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -1105,20 +1105,45 @@ public partial class HamletRoot : Node2D
             _buildingPopup = panel;
             _buildingPopupTitle = title;
 
-            // 🔴 P3（用户参考图③）：**左列切换建筑** + **店长位留框**　｜　**右侧 = 建筑内容** ✓
-            var split = new HBoxContainer { Name = "BuildingSplit", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
-            split.AddThemeConstantOverride("separation", 12);
-            body.AddChild(split);
+            // 🔴 骨架优先（2026-09-17）：建筑详情的**内容布局**从 `scenes/ui/building_popup.tscn` 取
+            //    ⇒ 左列宽 / 店长位高 / 左右间距 / 内容列占比 **在编辑器里直接改** ✓
+            //    ⚠️ 场景缺失/类型不符 ⇒ **回落代码构建**（不崩、不静默）
+            //    🔴 节点名保持一致：BuildingSplit / BuildingList / ShopkeeperSlot / BuildingContent ✓
+            Darkest.Ui.BuildingPopupSkeleton? bpSkel = Darkest.Ui.BuildingPopupSkeleton.TryInstantiate();
+            HBoxContainer split;
+            VBoxContainer leftCol;
+            VBoxContainer rightCol;
+            if (bpSkel is not null)
+            {
+                body.AddChild(bpSkel);
+                split = bpSkel.Split!;
+                leftCol = bpSkel.List!;
+                rightCol = bpSkel.Content!;
+                if (bpSkel.ShopkeeperPlaceholder is ColorRect bpPh)
+                {
+                    bpPh.Color = Darkest.Ui.DdTheme.PlaceholderFill; // 🔴 规则②：半透明占位（α 来自调色板）✓
+                }
+            }
+            else
+            {
+                split = new HBoxContainer { Name = "BuildingSplit", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+                split.AddThemeConstantOverride("separation", 12);
+                body.AddChild(split);
 
-            var leftCol = new VBoxContainer { Name = "BuildingList", CustomMinimumSize = new Vector2(230, 0) };
-            leftCol.AddThemeConstantOverride("separation", 6);
-            split.AddChild(leftCol);
+                leftCol = new VBoxContainer { Name = "BuildingList", CustomMinimumSize = new Vector2(230, 0) };
+                leftCol.AddThemeConstantOverride("separation", 6);
+                split.AddChild(leftCol);
 
-            // 🔴 **店长位留框**（用户原话"为店长位置留一个空间"）：不透明面板样式(1px 边框) + **色块占位** ⇒ 以后只换里面那格 ✓
-            var shopFrame = new PanelContainer { Name = "ShopkeeperSlot", CustomMinimumSize = new Vector2(0, 96) };
-            leftCol.AddChild(shopFrame);
-            // 🔴 规则②：空闲位改**半透明占位**（α 来自调色板 `PlaceholderFill`）✓
-        shopFrame.AddChild(new ColorRect { Name = "ShopkeeperPlaceholder", Color = Darkest.Ui.DdTheme.PlaceholderFill });
+                // 🔴 **店长位留框**（用户原话"为店长位置留一个空间"）：不透明面板样式(1px 边框) + **色块占位** ✓
+                var shopFrame = new PanelContainer { Name = "ShopkeeperSlot", CustomMinimumSize = new Vector2(0, 96) };
+                leftCol.AddChild(shopFrame);
+                // 🔴 规则②：空闲位改**半透明占位**（α 来自调色板 `PlaceholderFill`）✓
+                shopFrame.AddChild(new ColorRect { Name = "ShopkeeperPlaceholder", Color = Darkest.Ui.DdTheme.PlaceholderFill });
+
+                rightCol = new VBoxContainer { Name = "BuildingContent", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+                rightCol.AddThemeConstantOverride("separation", 6);
+                split.AddChild(rightCol);
+            }
 
             for (int k = 0; k < _buildingIds.Length; k++)
             {
@@ -1132,10 +1157,7 @@ public partial class HamletRoot : Node2D
                 leftCol.AddChild(nav);
             }
 
-            var rightCol = new VBoxContainer { Name = "BuildingContent", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-            rightCol.AddThemeConstantOverride("separation", 6);
-            split.AddChild(rightCol);
-            _buildingPopupBody = rightCol; // 右侧 = 建筑内容（原 `body` 的职责）✓
+            _buildingPopupBody = rightCol; // 右侧 = 建筑内容（骨架或回落）✓
         }
 
         _buildingPopupId = building;
