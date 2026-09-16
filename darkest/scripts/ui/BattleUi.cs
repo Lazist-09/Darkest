@@ -382,6 +382,76 @@ public partial class BattleUi : CanvasLayer
         hue.A = Darkest.Ui.DdTheme.PlaceholderFill.A;
         return hue;
     }
+    /// <summary>🔴 `retreat.md §8`：**放弃远征**（地图层·结束本趟·回城·不可逆）—— 由宿主注入（未注入 ⇒ 按钮不显示）✓</summary>
+    private Action? _abandonExpedition;
+
+    private Button? _abandonButton;
+    private PanelContainer? _abandonConfirm;
+    private bool _abandonWarned;
+
+    /// <summary>
+    /// 🔴 `retreat.md §8`：宿主把【放弃远征】动作交给我（**不破 `Bind` 签名**：`Bind` 之后调一次即可）✓
+    /// ⚠️ **未调用 ⇒ 按钮不显示**（红线 21：不留"点了没用"的控件；也避免把"结束一趟"错标成"退一场"）✓
+    /// </summary>
+    public void SetAbandonAction(Action? abandon)
+    {
+        _abandonExpedition = abandon;
+        if (_abandonButton is not null)
+        {
+            _abandonButton.Visible = abandon is not null;
+        }
+
+        GD.Print(abandon is null
+            ? "[UI 撤退/放弃] 宿主**未提供**放弃远征动作 ⇒ 按钮不显示（不假装可用，红线 21）✓"
+            : "[UI 撤退/放弃] 已接入【放弃远征】入口（行走模式可见·二次确认·tooltip 写清后果）✓");
+    }
+
+    /// <summary>按下【放弃远征】⇒ **二次确认**（不可逆；`§8` 硬要求②）✓</summary>
+    private void PressAbandon()
+    {
+        if (_abandonExpedition is null)
+        {
+            if (!_abandonWarned)
+            {
+                _abandonWarned = true;
+                GD.Print("[UI 撤退/放弃] 放弃远征：**没有动作可调**（宿主未注入）⇒ 什么也不做（不静默假装）✓");
+            }
+
+            return;
+        }
+
+        if (_abandonConfirm is null)
+        {
+            // ⚠️ 战斗屏的模态工厂是 `MakeOpaqueModal`（返回正文 Label + out 面板）；按钮挂在**正文的父容器**（col）上 ✓
+            Label abandonText = MakeOpaqueModal("AbandonConfirm", out PanelContainer abandonPanel);
+            _abandonConfirm = abandonPanel;
+            abandonText.Text = "放弃远征 = **结束本次远征、回城**（本趟未完成）。\n此操作**不可逆**；若只是想退出本场战斗，请用【撤退】。";
+            var row = new HBoxContainer { Name = "AbandonConfirmRow" };
+            row.AddThemeConstantOverride("separation", 8);
+            ((Control)abandonText).GetParent().AddChild(row);
+
+            var yes = new Button { Name = "AbandonYes", Text = "确认放弃远征", CustomMinimumSize = new Vector2(180, 34) };
+            yes.Pressed += () =>
+            {
+                GD.Print("[UI 撤退/放弃] ✅ 二次确认通过 ⇒ 调宿主【放弃远征】动作 ✓");
+                _abandonConfirm!.Visible = false;
+                _abandonExpedition?.Invoke();
+            };
+            row.AddChild(yes);
+
+            var no = new Button { Name = "AbandonNo", Text = "取消（继续走）", CustomMinimumSize = new Vector2(160, 34) };
+            no.Pressed += () =>
+            {
+                GD.Print("[UI 撤退/放弃] 取消放弃远征 ⇒ 继续走 ✓");
+                _abandonConfirm!.Visible = false;
+            };
+            row.AddChild(no);
+        }
+
+        _abandonConfirm.Visible = true;
+        GD.Print("[UI 撤退/放弃] 弹出【放弃远征】二次确认（不可逆；取消 ⇒ 继续走）✓");
+    }
+
     /// <summary>面板状态读数：**显示/隐藏 + 子控件数**（隐藏 = 门禁生效的**自证**，不是"没接上"）✓</summary>
     private static string PanelState(string name, Control? panel)
         => panel is not null && GodotObject.IsInstanceValid(panel)
@@ -476,7 +546,13 @@ public partial class BattleUi : CanvasLayer
             //    （背包/投影列表在战斗模式或经多功能框查看；扎营由相位谓词门禁控制）✓
             if (_mapModeInventory is not null) { _mapModeInventory.Visible = false; }
             if (_mapModeList is not null) { _mapModeList.Visible = false; }
-        if (_slotRight is not null) { _slotRight.Visible = _mode == SceneMode.Battle; }   // 🔴 紫框内 6 号位：地图模式让位给地牢面板（实测曾与 ScoutMark/CampStatus 相压）
+        if (_slotRight is not null) { _slotRight.Visible = _mode == SceneMode.Battle; }
+
+        // 🔴 `§8`①：**放弃远征（地图层）与撤退（战斗内）不得同屏** ⇒ 前者只在行走模式可见（且需宿主已注入动作）✓
+        if (_abandonButton is not null)
+        {
+            _abandonButton.Visible = _mode == SceneMode.Map && _abandonExpedition is not null;
+        }   // 🔴 紫框内 6 号位：地图模式让位给地牢面板（实测曾与 ScoutMark/CampStatus 相压）
 
             // 🔴 片 2 #6：**扎营**面板（B 类）—— 门禁**只读谓词**（UI 绝不推断相位）✓
             HostDungeonCampPanel(flow);
@@ -1056,6 +1132,20 @@ public partial class BattleUi : CanvasLayer
         _topRow.AddChild(_topLeftGroup);
 
         _missionLabel = new Label { Name = "MissionLabel", VerticalAlignment = VerticalAlignment.Center };
+
+        // 🔴 `retreat.md §8`（用户裁定 DD 形态）：**放弃远征** = 地图层动作（结束本趟·回城）；
+        //    与【撤退】（战斗内·只退本场）**不得同屏/同位置** ⇒ 本按钮**只在行走模式可见** ✓
+        //    ⚠️ 没拿到宿主回调（`SetAbandonAction` 未被调用）⇒ **不显示**（红线 21：不留"点了没用"的控件）✓
+        _abandonButton = new Button
+        {
+            Name = "AbandonExpedition",
+            Text = "放弃远征",
+            CustomMinimumSize = new Vector2(112, 30),
+            TooltipText = "放弃远征（结束本次远征）　⇒ 回城·本趟未完成·**不可逆**（会先二次确认）",
+        };
+        _abandonButton.Pressed += PressAbandon;
+        _abandonButton.Visible = false; // 默认隐藏，等宿主把动作交给我 ✓
+        _topLeftGroup.AddChild(_abandonButton);
         _topLeftGroup.AddChild(_missionLabel);
 
         _topRow.AddChild(_statusLabel);
@@ -1661,7 +1751,13 @@ public partial class BattleUi : CanvasLayer
         //    `Visible = true` 覆盖了）⇒ 把模式可见性**集中到这里**（唯一权威处），否则"设了又被覆盖" ⚠️
         if (_mapModeInventory is not null) { _mapModeInventory.Visible = false; }
         if (_mapModeList is not null) { _mapModeList.Visible = false; }
-        if (_slotRight is not null) { _slotRight.Visible = _mode == SceneMode.Battle; }   // 🔴 紫框内 6 号位：地图模式让位给地牢面板（实测曾与 ScoutMark/CampStatus 相压）
+        if (_slotRight is not null) { _slotRight.Visible = _mode == SceneMode.Battle; }
+
+        // 🔴 `§8`①：**放弃远征（地图层）与撤退（战斗内）不得同屏** ⇒ 前者只在行走模式可见（且需宿主已注入动作）✓
+        if (_abandonButton is not null)
+        {
+            _abandonButton.Visible = _mode == SceneMode.Map && _abandonExpedition is not null;
+        }   // 🔴 紫框内 6 号位：地图模式让位给地牢面板（实测曾与 ScoutMark/CampStatus 相压）
         _orderBox.Visible = battleMode;
         if (_intentText is not null) { _intentText.Visible = battleMode; }
         if (_progressLabel is not null) { _progressLabel.Visible = battleMode; }
