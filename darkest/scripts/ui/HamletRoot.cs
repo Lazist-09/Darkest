@@ -27,6 +27,9 @@ public partial class HamletRoot : Node2D
     private Label _rosterCount = null!;
     private Label _resourceBar = null!;
 
+    // 🔴 用户要求（2026-09-16）：以下三块**搬进【建筑详情】**（主屏不再一眼可见）✓
+    private HBoxContainer? _reliefRow;`n    private HBoxContainer? _recruitRow;`n    private HBoxContainer? _saniRow;
+
 
     /// <summary>🔴 P2：建筑**唯一入口**按钮（三栋共用；明细在二级窗口里切换）✓</summary>
     private Button? _buildingEntry;
@@ -166,7 +169,7 @@ public partial class HamletRoot : Node2D
         // 减压：两栋同价同效、风险不同（真可用，选的是"风格"）
         var reliefRow = new HBoxContainer { Name = "ReliefRow" };
         reliefRow.AddThemeConstantOverride("separation", 6);
-        leftCol.AddChild(reliefRow);
+        _reliefRow = reliefRow;   // 🔴 用户要求（2026-09-16）：**减压搬进【建筑详情】**（主屏一眼看不到）✓
         var tavern = new Button { Name = "ReliefTavern", Text = "减压·酒馆（快而不稳）", CustomMinimumSize = new Vector2(220, 34) };
         tavern.Pressed += () => DoRelief("tavern");
         reliefRow.AddChild(tavern);
@@ -177,7 +180,7 @@ public partial class HamletRoot : Node2D
         // 招募（Stage Coach）：按原型选
         var recruitRow = new HBoxContainer { Name = "RecruitRow" };
         recruitRow.AddThemeConstantOverride("separation", 6);
-        leftCol.AddChild(recruitRow);
+        _recruitRow = recruitRow;   // 🔴 同理：招募搬进建筑详情 ✓
         foreach (string a in new[] { "warrior", "tank", "medic", "commissar" })
         {
             string archetype = a;
@@ -261,7 +264,7 @@ public partial class HamletRoot : Node2D
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
             CustomMinimumSize = new Vector2(0, 22),
         };
-        leftCol.AddChild(_buildingInfo);
+        // 🔴 建筑信息行搬进建筑详情（主屏不再显示）✓
 
         _upgradeStatus = new Label
         {
@@ -269,12 +272,12 @@ public partial class HamletRoot : Node2D
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
             CustomMinimumSize = new Vector2(0, 40),
         };
-        leftCol.AddChild(_upgradeStatus);
+        // 🔴 升级状态搬进建筑详情 ✓
 
         // M8.2 Sanitarium 三项服务
         var saniRow = new HBoxContainer { Name = "SaniRow" };
         saniRow.AddThemeConstantOverride("separation", 6);
-        leftCol.AddChild(saniRow);
+        _saniRow = saniRow;   // 🔴 服务（疗养等）搬进建筑详情 ✓
         foreach (string sName in new[] { "cure_disease", "remove_negative_trait", "lock_positive_trait" })
         {
             string service = sName;
@@ -295,7 +298,7 @@ public partial class HamletRoot : Node2D
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
             CustomMinimumSize = new Vector2(0, 56),
         };
-        leftCol.AddChild(_saniStatus);
+        // 🔴 服务状态搬进建筑详情 ✓
 
         // ---- 右栏：名册标题 + 竖列（行由 `Refresh` 动态填）----
         _rosterTitle = new Label
@@ -1016,6 +1019,18 @@ public partial class HamletRoot : Node2D
         else
         {
             GD.Print("[城池菜单] 库存：**本趟无背包**（`ExpeditionContext.Flow` 为空）⇒ 不显示该项（红线 21：不假装可用）✓");
+        }
+
+        // 🔴 用户要求：**主屏的减压/招募/服务/状态文字 ⇒ 一律进【建筑详情】**（只搬一次）✓
+        if (_buildingPopupBody is not null)
+        {
+            foreach (Control? extra in new Control?[] { _reliefRow, _recruitRow, _saniRow, _buildingInfo, _upgradeStatus, _saniStatus })
+            {
+                if (extra is not null && extra.GetParent() is null)
+                {
+                    _buildingPopupBody.AddChild(extra);
+                }
+            }
         }
 
         _hamletMenu.Visible = true;
