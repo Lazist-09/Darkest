@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Data;
@@ -352,11 +352,22 @@ public partial class HamletRoot : Node2D
         rightCol.AddChild(_rosterList);
 
         // ---- 底栏：资源条 + Embark（全屏唯一大红）----
-        var bottomPanel = new PanelContainer { Name = "BottomBar" };
-        rootCol.AddChild(bottomPanel);
-        var bottomRow = new HBoxContainer { Name = "BottomRow" };
-        bottomRow.AddThemeConstantOverride("separation", 12);
-        bottomPanel.AddChild(bottomRow);
+        // 🔴 骨架优先（2026-09-17）：底栏容器也从骨架取（节点名 BottomBar / BottomRow 保持不变）✓
+        //    ⚠️ 缺失 ⇒ 回落代码构建；子项（资源条/菜单/出发）仍由代码追加 ✓
+        PanelContainer bottomPanel = skel?.GetNodeOrNull<PanelContainer>("HamletMargin/HamletRootCol/BottomBar")
+            ?? new PanelContainer { Name = "BottomBar" };
+        if (bottomPanel.GetParent() is null)
+        {
+            rootCol.AddChild(bottomPanel);
+        }
+
+        HBoxContainer bottomRow = skel?.GetNodeOrNull<HBoxContainer>("HamletMargin/HamletRootCol/BottomBar/BottomRow")
+            ?? new HBoxContainer { Name = "BottomRow" };
+        if (bottomRow.GetParent() is null)
+        {
+            bottomRow.AddThemeConstantOverride("separation", 12);
+            bottomPanel.AddChild(bottomRow);
+        }
         _resourceBar = new Label
         {
             Name = "HamletResourceBar",

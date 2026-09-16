@@ -41,3 +41,8 @@ custom_minimum_size = Vector2(300, 0)
 
 [node name="RightCol" type="VBoxContainer" parent="HamletMargin/HamletRootCol/Body/RightColumn"]
 theme_override_constants/separation = 6
+
+[node name="BottomBar" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
+
+[node name="BottomRow" type="HBoxContainer" parent="HamletMargin/HamletRootCol/BottomBar"]
+theme_override_constants/separation = 12
