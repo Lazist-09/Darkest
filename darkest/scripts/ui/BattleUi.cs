@@ -74,6 +74,8 @@ public partial class BattleUi : CanvasLayer
     private int _rowsPrinted; // 🔴 行级读数打 3 次（早/中/晚）⇒ 能看出"谁在中途长大" ✓
     private Label? _eAreaTitle;           // 🔴 P5：E 区显式标题（第0页=角色详情／其余=多功能）✓
     private HBoxContainer? _actorRow;     // 🔴 P5：橙框"当前角色"行（头像 + 名字）✓
+    private PanelContainer? _actorDetailBox;   // 🔴 技能框下方的【角色详情框】（用户 2026-09-16）✓
+    private Label? _actorDetail;
     private ColorRect? _actorPortrait;    // 🔴 P5：当前角色头像留框里的色块占位 ✓
     private Label? _actorName;
     private PanelContainer? _slotRight;   // 🔴 P5：右长条框 = 6 号位（向右靠齐）✓
@@ -1367,6 +1369,20 @@ public partial class BattleUi : CanvasLayer
         var leftStack = new VBoxContainer { Name = "LeftStack", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         leftStack.AddThemeConstantOverride("separation", 6);
         leftStack.AddChild(_cArea);
+
+        // 🔴 用户更正（2026-09-16）：**技能框下方 = 角色详情框**（紫边；多功能框回右侧原位）✓
+        _actorDetailBox = new PanelContainer { Name = "ActorDetailBox", CustomMinimumSize = new Vector2(0, 84) };
+        ((Control)_actorDetailBox).AddThemeStyleboxOverride("panel",
+            Darkest.Ui.DdTheme.MakePanelStyle(Darkest.Ui.DdTheme.PanelBgRaised.Lightened(0.22f), Darkest.Ui.DdTheme.Mental));
+        _actorDetail = new Label
+        {
+            Name = "ActorDetail",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            VerticalAlignment = VerticalAlignment.Top,
+        };
+        _actorDetail.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        _actorDetailBox.AddChild(_actorDetail);
+        leftStack.AddChild(_actorDetailBox);
         _bottomRow.AddChild(leftStack);
 
         _skillTitle = new Label { Text = "技能栏（轮到行动者时可用）", AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -1414,7 +1430,7 @@ public partial class BattleUi : CanvasLayer
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,          // 🔴 **唯一 ExpandFill**（`#321`③）
             SizeFlagsVertical = Control.SizeFlags.ExpandFill,
         };
-        leftStack.AddChild(_eArea);   // 🔴 紫框 = 英雄详情（在橙框下方）✓
+        _bottomRow.AddChild(_eArea);   // 🔴 用户更正（2026-09-16）：**紫框=多功能框回原位（右侧）** ✓
 
         BuildMultiFunctionBox(); // E 区多功能框（内部自带容器；**创建时进 `_eArea`**）
     }
@@ -1740,6 +1756,14 @@ public partial class BattleUi : CanvasLayer
                 string actorName = actor is null ? _host.ActiveActor.Value
                     : NameOf(actor.Archetype.Length > 0 ? actor.Archetype : actor.UnitId);
                 _actorName.Text = $"当前角色：{actorName}（请选技能）";
+
+                if (_actorDetail is not null && actor is not null)
+                {
+                    string buffs = actor.Buffs.Count == 0 ? "无" : string.Join("、", actor.Buffs);
+                    _actorDetail.Text = $"【角色详情】{actorName}（{actor.Archetype}）\n" +
+                                        $"HP {actor.Hp}/{actor.MaxHp}　士气 {actor.Morale}　槽位 {actor.Slot}" +
+                                        (actor.Weak ? "　**虚弱**" : string.Empty) + $"\n状态：{buffs}";
+                }
                 if (_actorPortrait is not null && actor is not null)
                 {
                     _actorPortrait.Color = Darkest.Ui.DdTheme.ArchetypeColor(
@@ -2190,7 +2214,7 @@ public partial class BattleUi : CanvasLayer
             string full = SkillName(skillId);
             var b = new Button
             {
-                CustomMinimumSize = new Vector2(56, 56), // 🔴 用户要求：**像 DD 那样只用简单小方块表示行动**（原 88×88 太大 ⇒ 被迫滚动）✓
+                CustomMinimumSize = new Vector2(48, 48), // 🔴 用户要求：方块再缩小 ⇒ **全部展示、不滚动** ✓
                 Text = full.Length <= 2 ? full : full.Substring(0, 2),
                 Disabled = sp.Reason != AvailabilityReason.Ok,
                 TooltipText = sp.Reason == AvailabilityReason.Ok ? SkillTooltip(skillId, actor, d) : $"{full}（{sp.Tooltip}）",
