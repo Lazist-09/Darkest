@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 
 namespace Darkest.Ui;
 
@@ -16,6 +16,30 @@ namespace Darkest.Ui;
 [Tool]
 public partial class RosterRowTemplate : Button
 {
+    /// <summary>模板场景路径（宿主用它实例化；改这个场景 = 改所有名册行的外观）✓</summary>
+    public const string ScenePath = "res://scenes/ui/roster_row.tscn";
+
+    /// <summary>实例化模板；**场景缺失/类型不符 ⇒ 返回 null**（宿主回落代码构建，不崩不静默）✓</summary>
+    public static RosterRowTemplate? TryInstantiate()
+    {
+        var packed = GD.Load<PackedScene>(ScenePath);
+        if (packed is null)
+        {
+            GD.Print($"[UI 模板] `{ScenePath}` 不存在 ⇒ 回落代码构建（不静默）✓");
+            return null;
+        }
+
+        RosterRowTemplate? row = packed.Instantiate<RosterRowTemplate>();
+        if (row is null)
+        {
+            GD.Print($"[UI 模板] `{ScenePath}` 根节点不是 `RosterRowTemplate` ⇒ 回落代码构建（不静默）✓");
+            return null;
+        }
+
+        GD.Print("[UI 模板] 名册行使用模板场景（**编辑器里可编辑**）✓");
+        return row;
+    }
+
     /// <summary>编辑器预览用文案（运行时会被真实数据覆盖）✓</summary>
     [Export]
     public string PreviewInfo { get; set; } = "Lv2　●●●●○○○○○○　防10　·可减压";

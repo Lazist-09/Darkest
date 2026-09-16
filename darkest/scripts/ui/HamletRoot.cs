@@ -1372,26 +1372,38 @@ public partial class HamletRoot : Node2D
                 // 🔴 DD 式紧凑行（用户参考图①）：**立绘留框（色块占位） + 等级 + 压力点阵 + 防御** ✓
                 //    框 = `PanelContainer`（主题不透明面板样式 ⇒ 自带 1px 边框）⇒ 以后放立绘只换里面那格 ✓
                 //    文字走**子 Label**（按钮自身 `Text` 置空，避免与子控件叠字）✓
-                var b = new Button
+                // 🔴 用户要求（2026-09-17）：「UI 要能在编辑器里直接干预」⇒ 名册行改为
+                //    **实例化模板场景** `scenes/ui/roster_row.tscn`（含 `[Tool]` 预览 ⇒ 编辑器里改外观即生效）✓
+                //    ⚠️ 场景不可用 ⇒ **回落代码构建**（不崩、不空、留痕）✓
+                //    🔴 节点名保持 `RosterRowBody` / `PortraitFrame` / `PortraitPlaceholder` / `RosterInfo`（验收锚点）✓
+                Button b;
+                HBoxContainer rowBody;
+                PanelContainer frame;
+                ColorRect ph;
+                if (Darkest.Ui.RosterRowTemplate.TryInstantiate() is Darkest.Ui.RosterRowTemplate tpl)
                 {
-                    Name = $"RosterRow_{id}",
-                    CustomMinimumSize = new Vector2(232, 32),   // 🔴 相机 1280 口径收窄（原 300）
-                    TooltipText = $"{h.Name}　Lv{lv}　士气 {morale}　防御 {dodge}{(canRelief ? "　·可减压" : string.Empty)}",
-                };
-                var rowBody = new HBoxContainer { Name = "RosterRowBody" };
-                rowBody.AddThemeConstantOverride("separation", 6);
-                rowBody.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-                b.AddChild(rowBody);
-                var frame = new PanelContainer { Name = "PortraitFrame", CustomMinimumSize = new Vector2(26, 26) };
-                rowBody.AddChild(frame);
-                // 🔴 策划 `#348`③：名册头像 —— **能用占位 `portrait.png` 就画**（`P31` 契约字段已在代码里）✓
-                //    取不到 ⇒ 保留【半透明原型色块】（规则②），不空着、不静默 ✓
-                var ph = new ColorRect
+                    b = tpl;
+                    rowBody = tpl.GetNode<HBoxContainer>("RosterRowBody");
+                    frame = tpl.GetNode<PanelContainer>("RosterRowBody/PortraitFrame");
+                    ph = tpl.GetNode<ColorRect>("RosterRowBody/PortraitFrame/PortraitPlaceholder");
+                }
+                else
                 {
-                    Name = "PortraitPlaceholder", // 🔴 色块占位（`§14.4` 原型色 ⇒ 不硬写字面量）✓
-                    Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true)),   // 🔴 规则②：α 取调色板
-                };
-                frame.AddChild(ph);
+                    b = new Button();
+                    rowBody = new HBoxContainer { Name = "RosterRowBody" };
+                    rowBody.AddThemeConstantOverride("separation", 6);
+                    rowBody.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+                    b.AddChild(rowBody);
+                    frame = new PanelContainer { Name = "PortraitFrame", CustomMinimumSize = new Vector2(26, 26) };
+                    rowBody.AddChild(frame);
+                    ph = new ColorRect { Name = "PortraitPlaceholder" };
+                    frame.AddChild(ph);
+                }
+
+                b.Name = $"RosterRow_{id}";
+                b.CustomMinimumSize = new Vector2(232, 32);   // 🔴 相机 1280 口径收窄（原 300）
+                b.TooltipText = $"{h.Name}　Lv{lv}　士气 {morale}　防御 {dodge}{(canRelief ? "　·可减压" : string.Empty)}";
+                ph.Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true));   // 🔴 规则②：α 取调色板
 
                 if (Darkest.Ui.HeroArt.PortraitTexture() is Texture2D pTex)
                 {
@@ -1418,19 +1430,20 @@ public partial class HamletRoot : Node2D
                         OpenHeroDetail(id);
                     }
                 };
-                var info = new Label
+                // 🔴 信息行：**模板里已有 `RosterInfo`** ⇒ 复用它（只填数据）；回落路径才新建 ✓
+                Label info = rowBody.GetNodeOrNull<Label>("RosterInfo") ?? new Label { Name = "RosterInfo" };
+                if (info.GetParent() is null)
                 {
-                    Name = "RosterInfo",
-                    Text = $"Lv{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压" : string.Empty)}",
-                    VerticalAlignment = VerticalAlignment.Center,
-                    // 🔴 相机 1280 口径（规则①）：行内文本**可收缩 + 裁切**（否则长文本把整行撑宽 ⇒ 实测长文本下 4 处越界）✓
-                    SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-                    ClipText = true,
-                    TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
-                    CustomMinimumSize = new Vector2(0, 0),
-                };
+                    rowBody.AddChild(info);
+                }
+
+                info.Text = $"Lv{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压" : string.Empty)}";
+                info.VerticalAlignment = VerticalAlignment.Center;
+                // 🔴 相机 1280 口径（规则①）：行内文本**可收缩 + 裁切**（否则长文本把整行撑宽 ⇒ 实测长文本下 4 处越界）✓
+                info.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+                info.ClipText = true;
+                info.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
                 info.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
-                rowBody.AddChild(info);
                 b.Pressed += () =>
                 {
                     SelectHero(id);          // 左键 = **选中**（减压按人选）
