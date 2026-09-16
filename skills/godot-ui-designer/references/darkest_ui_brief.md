@@ -1429,6 +1429,66 @@ P5 **战斗（②）**：5/6 号位长条框左右靠齐 + 橙框/紫框/右侧�
 📌 已向【主程序窗口】追加**更正条**：上一条 CS0103 求助**作废**（不需要环境侧处理）✓
 ```
 
+### 🔴 14.0.21 **战斗底栏接线：12 处 old→new 照抄清单（用 `edit` 工具，逐处）**（2026-09-17）
+
+```
+🔴 全部用 `edit` 工具（§14.0.20）；全部改完**只构建一次**（全量）⇒ 六入口 ⇒ 通过才提交 ✓
+📌 E（行走地图）已用同一套流程一次成功（commit `f1188ed`）⇒ 本清单同样可行 ✓
+
+E1  旧：    private Darkest.Ui.BattleTopBarSkeleton? _topBarSkel;   // 🔴 顶栏骨架（字段承载 ⇒ 避开作用域问题）✓
+    新：    同上一行 + 换行 + `    private Darkest.Ui.BattleBottomBarSkeleton? _bottomBarSkel;`
+
+E2  旧：        _bottomRow = bottomRow;
+    新：        同上 + 空行 + `_bottomBarSkel = Darkest.Ui.BattleBottomBarSkeleton.TryInstantiate();`
+                + `if (_bottomBarSkel is not null) { bottomPanel.AddChild(_bottomBarSkel); }`
+
+E3  旧：        _cArea = new PanelContainer
+    新：        _cArea = _bottomBarSkel?.CArea ?? new PanelContainer
+
+E4  旧：        _slotLeft = new PanelContainer
+    新：        _slotLeft = _bottomBarSkel?.BackSlot5 ?? new PanelContainer
+
+E5  旧：        _bottomRow.AddChild(_slotLeft);      // 先加左条 ⇒ 它在最左
+                _bottomRow.MoveChild(_slotLeft, 0);
+    新：        if (_slotLeft.GetParent() is null)
+                {
+                    _bottomRow.AddChild(_slotLeft);      // 先加左条 ⇒ 它在最左（骨架已挂 ⇒ 跳过）✓
+                    _bottomRow.MoveChild(_slotLeft, 0);
+                }
+
+E6  旧：        var leftStack = new VBoxContainer { Name = "LeftStack", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+    新：        VBoxContainer leftStack = _bottomBarSkel?.LeftStack ?? new VBoxContainer { Name = "LeftStack", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+
+E7  旧：        leftStack.AddChild(_cArea);
+    新：        if (_cArea.GetParent() is null) { leftStack.AddChild(_cArea); }
+
+E8  旧：        _actorDetailBox = new PanelContainer { Name = "ActorDetailBox", CustomMinimumSize = new Vector2(0, 84) };
+    新：        _actorDetailBox = _bottomBarSkel?.ActorDetailBox ?? new PanelContainer { Name = "ActorDetailBox", CustomMinimumSize = new Vector2(0, 84) };
+
+E9  旧：        leftStack.AddChild(_actorDetailBox);
+                _bottomRow.AddChild(leftStack);
+    新：        if (_actorDetailBox.GetParent() is null) { leftStack.AddChild(_actorDetailBox); }
+                if (leftStack.GetParent() is null)
+                {
+                    leftStack.AddThemeConstantOverride("separation", 6);
+                    _bottomRow.AddChild(leftStack);
+                }
+
+E10 旧：        _eArea = new PanelContainer
+    新：        _eArea = _bottomBarSkel?.EArea ?? new PanelContainer
+
+E11 旧：        _bottomRow.AddChild(_eArea);   // 🔴 用户更正（2026-09-16）：**紫框=多功能框回原位（右侧）** ✓
+    新：        if (_eArea.GetParent() is null) { _bottomRow.AddChild(_eArea); }   // 紫框（骨架已挂 ⇒ 跳过）✓
+
+E12 旧：            _dungeonHost = new VBoxContainer
+    新：            _dungeonHost = _bottomBarSkel?.DungeonHost ?? new VBoxContainer
+
+📌 判据：六入口（战斗／战斗长文本／地图页／地图模式／行走／城池）越界/重叠/透明 0 + 真错 0；
+   计数应与 **57/40**（战斗）一致或可解释；日志应出现 `[UI 骨架] ✅ 战斗底栏采用骨架` ✓
+📌 关键坑（都踩过）：① 挂载重复 ⇒ `already has a parent` ② 重排 ⇒ `Child is not a child of this node`
+   ⇒ **E5/E7/E9/E11 的守卫一个都不能少** ✓
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
