@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/BuildingPopupSkeleton.cs" id="1_bp"]
+
+[node name="BuildingPopupBody" type="VBoxContainer"]
+script = ExtResource("1_bp")
+
+[node name="BuildingSplit" type="HBoxContainer" parent="."]
+theme_override_constants/separation = 12
+size_flags_vertical = 3
+
+[node name="BuildingList" type="VBoxContainer" parent="BuildingSplit"]
+custom_minimum_size = Vector2(220, 0)
+theme_override_constants/separation = 6
+
+[node name="ShopkeeperSlot" type="PanelContainer" parent="BuildingSplit/BuildingList"]
+custom_minimum_size = Vector2(0, 96)
+
+[node name="ShopkeeperPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingList/ShopkeeperSlot"]
+
+[node name="BuildingContent" type="VBoxContainer" parent="BuildingSplit"]
+theme_override_constants/separation = 6
+size_flags_horizontal = 3
