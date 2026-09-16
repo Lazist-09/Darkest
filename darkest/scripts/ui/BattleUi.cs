@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -1613,54 +1613,78 @@ public partial class BattleUi : CanvasLayer
         // 🔴 `§14.2`：卡片**自己也是容器**（`PanelContainer` + 内部 `VBox`/`HBox`）——
         //    原来卡片内部全是**手写坐标的 Label**（实测 `name`(y 8..32) 与 `stats`(y 30..50) 就压 2px ⇒ 4 张卡各 1 对重叠）⚠️
         //    容器堆叠 ⇒ 卡片内部**物理上不可能重叠** ✓（并给最小尺寸：`#14.2`④）
-        var card = new PanelContainer
+        // 🔴 用户要求（2026-09-17）：「重复的 UI 元素记得能复用就建成能复用的」⇒ **战斗卡牌（10 张同构）抽模板**
+        //    改为实例化 `scenes/ui/unit_card.tscn`（`[Tool]` ⇒ **编辑器里改一处 = 10 张卡一起变**）✓
+        //    ⚠️ 场景缺失/类型不符 ⇒ **回落代码构建**（不崩、不静默）；🔴 节点名保持一致（`FillCard` 按名取）✓
+        PanelContainer card;
+        Label name;
+        Label stats;
+        ProgressBar hp;
+        ProgressBar morale;
+        Label tag;
+        Label glyph;
+        if (Darkest.Ui.UnitCardTemplate.TryInstantiate() is Darkest.Ui.UnitCardTemplate unitCard)
         {
-            CustomMinimumSize = new Vector2(w, h),
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, // 均分宽 ⇒ 位置编号稳定映射横坐标（`#321`③）
-        };
-        var col = new VBoxContainer { Name = "CardCol" };
-        col.AddThemeConstantOverride("separation", 2);
-        card.AddChild(col);
-
-        var head = new HBoxContainer { Name = "CardHead" };
-        head.AddThemeConstantOverride("separation", 4);
-        col.AddChild(head);
-
-        // ② 立绘占位框（色块 + 首字）—— 🔴 **必须是 `PanelContainer`**：`Panel` 不是容器 ⇒ Label 变宽会溢出压邻居（同上）
-        var portraitBox = new PanelContainer { CustomMinimumSize = new Vector2(44, 44) };
-        head.AddChild(portraitBox);
-        var glyph = new Label
+            card = unitCard;
+            name = unitCard.NameLabel!;
+            stats = unitCard.StatsLabel!;
+            glyph = unitCard.GlyphLabel!;
+            hp = unitCard.HpBar!;
+            morale = unitCard.MoraleBar!;
+            tag = unitCard.TagLabel!;
+            glyph.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
+        }
+        else
         {
-            Text = "—",
-            CustomMinimumSize = new Vector2(44, 30),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            ClipText = true, // 🔴 长文本裁切（`§14.6`）
-        };
-        glyph.AddThemeFontSizeOverride("font_size", 20);
-        glyph.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
-        portraitBox.AddChild(glyph);
+            card = new PanelContainer();
+            var col = new VBoxContainer { Name = "CardCol" };
+            col.AddThemeConstantOverride("separation", 2);
+            card.AddChild(col);
 
-        var nameCol = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        nameCol.AddThemeConstantOverride("separation", 2);
-        head.AddChild(nameCol);
+            var head = new HBoxContainer { Name = "CardHead" };
+            head.AddThemeConstantOverride("separation", 4);
+            col.AddChild(head);
 
-        var name = new Label { Text = "[-]", AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        name.AddThemeFontSizeOverride("font_size", 15);
-        nameCol.AddChild(name);
+            // ② 立绘占位框（色块 + 首字）—— 🔴 **必须是 `PanelContainer`**：`Panel` 不是容器 ⇒ Label 变宽会溢出压邻居（同上）
+            var portraitBox = new PanelContainer { Name = "portraitBox", CustomMinimumSize = new Vector2(44, 44) };
+            head.AddChild(portraitBox);
+            glyph = new Label
+            {
+                Name = "glyph",
+                Text = "—",
+                CustomMinimumSize = new Vector2(44, 30),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                ClipText = true, // 🔴 长文本裁切（`§14.6`）
+            };
+            glyph.AddThemeFontSizeOverride("font_size", 20);
+            glyph.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
+            portraitBox.AddChild(glyph);
 
-        var stats = new Label { Text = "", AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        stats.AddThemeFontSizeOverride("font_size", 12);
-        nameCol.AddChild(stats);
+            var nameCol = new VBoxContainer { Name = "nameCol", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+            nameCol.AddThemeConstantOverride("separation", 2);
+            head.AddChild(nameCol);
 
-        var hp = new ProgressBar { MinValue = 0, MaxValue = 100, ShowPercentage = false, CustomMinimumSize = new Vector2(0, 14) };
-        col.AddChild(hp);
-        var morale = new ProgressBar { MinValue = 0, MaxValue = 100, ShowPercentage = false, CustomMinimumSize = new Vector2(0, 12) };
-        col.AddChild(morale);
+            name = new Label { Name = "name", Text = "[-]", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+            name.AddThemeFontSizeOverride("font_size", 15);
+            nameCol.AddChild(name);
 
-        var tag = new Label { Text = "", AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        tag.AddThemeFontSizeOverride("font_size", 12);
-        col.AddChild(tag);
+            stats = new Label { Name = "stats", Text = "", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+            stats.AddThemeFontSizeOverride("font_size", 12);
+            nameCol.AddChild(stats);
+
+            hp = new ProgressBar { Name = "hp", MinValue = 0, MaxValue = 100, ShowPercentage = false, CustomMinimumSize = new Vector2(0, 14) };
+            col.AddChild(hp);
+            morale = new ProgressBar { Name = "morale", MinValue = 0, MaxValue = 100, ShowPercentage = false, CustomMinimumSize = new Vector2(0, 12) };
+            col.AddChild(morale);
+
+            tag = new Label { Name = "tag", Text = "", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+            tag.AddThemeFontSizeOverride("font_size", 12);
+            col.AddChild(tag);
+        }
+
+        card.CustomMinimumSize = new Vector2(w, h);
+        card.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; // 均分宽 ⇒ 位置编号稳定映射横坐标（`#321`③）
         _portraits.Add(glyph);
 
         int slot = _cards.Count < 4 ? 4 - _cards.Count

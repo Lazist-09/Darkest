@@ -1,0 +1,51 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/UnitCardTemplate.cs" id="1_card"]
+
+[node name="UnitCard" type="PanelContainer"]
+size_flags_horizontal = 3
+script = ExtResource("1_card")
+
+[node name="CardCol" type="VBoxContainer" parent="."]
+theme_override_constants/separation = 2
+
+[node name="CardHead" type="HBoxContainer" parent="CardCol"]
+theme_override_constants/separation = 4
+
+[node name="portraitBox" type="PanelContainer" parent="CardCol/CardHead"]
+custom_minimum_size = Vector2(44, 44)
+
+[node name="glyph" type="Label" parent="CardCol/CardHead/portraitBox"]
+custom_minimum_size = Vector2(44, 30)
+theme_override_font_sizes/font_size = 20
+text = "—"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+
+[node name="nameCol" type="VBoxContainer" parent="CardCol/CardHead"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="name" type="Label" parent="CardCol/CardHead/nameCol"]
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "[-]"
+
+[node name="stats" type="Label" parent="CardCol/CardHead/nameCol"]
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="hp" type="ProgressBar" parent="CardCol"]
+custom_minimum_size = Vector2(0, 14)
+max_value = 100.0
+show_percentage = false
+
+[node name="morale" type="ProgressBar" parent="CardCol"]
+custom_minimum_size = Vector2(0, 12)
+max_value = 100.0
+show_percentage = false
+
+[node name="tag" type="Label" parent="CardCol"]
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 12
