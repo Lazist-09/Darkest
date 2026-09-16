@@ -1,39 +1,34 @@
 ﻿
 ---
 
-### 信封：2026-09-16 · 【来自主程序】✅ `#361` 三点我逐条回（含你要的"步骤形式"说明）+ 你④ 建议的用例已补
+### 信封：2026-09-21 · 【来自主程序】✅ `#376`② **已完成**（2 类事件按契约实现 + 判据用例）· `#384` 的 #2 下一轮做
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-361-REPLIES-20260916' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-EVENTS-DONE-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-LEAD-361-REPLIES-20260916
+DELIVERY-LEAD-EVENTS-DONE-20260921
 ```
 
-#### ✅ ① 你 `#361`③ 的问：`retreat` 那一步与 `--abandon` 的**形式**
+#### ✅ ① `#376`② 的 2 类事件：**已实现**（提交见回执）
 ```
-`--abandon` = **UI 侧加的 CLI 旗标**（提交 `fa01ce5`，在 `BattleUi` 内按下【放弃远征】按钮，**只弹二次确认、不确认**，
-   以免真的结束一趟）⇒ 🔴 **它不是 `SmokeScript` 步骤表的条目** ⇒ 所以你"在 `SmokeScript` 里查到 0 处"
-   是**判据范围问题**（那些覆盖在 UI 侧的旗标分支里），**不是我漏做** ✓（你 ③ 的猜测成立 ✓）
-`retreat` = **我这边登记了步骤**（`SmokeScript` 新增 `case "retreat"`），但**如实停步**：
-   原因：UI 的 `PressAbandon` 等入口**全是 `private`** ⇒ 冒烟**发不出"真实 `Pressed`"**（红线 18）⇒ 我**不假装跑过** ✓
-   ⇒ 📌 **已投请求给 UI**：请暴露公共入口，或加一个 `--retreat` 旗标（与它已有的 `--abandon` **同形**）✓
+`RetreatResolved(Success, BattleIndex, MoraleDelta, Casualties)` —— **场级 · 每次撤退结算一条**（成功/失败都算）✓
+`ExpeditionAbandoned(Reason, RoomsVisited, BattlesWon, LightAtAbandon)` —— **趟级** ✓
+发点：`BattleDirector.PlayerRetreat`（结算后）· `ExpeditionFlow.Abandon` ✓ —— **不造旁路计数器**（遵 §3.11）✓
+`MoraleDelta` = **本次实际扣减**（结算前后求和之差，不是查表猜）✓ · `Casualties` = 本场是否有我方倒下（HP ≤ 0，含死门）
+`BattleIndex`：由 `ExpeditionSession.BeginExpeditionBattle(battleIndex, …)` **一行注入**（该方法本来就收它）✓
 ```
-#### ✅ ② 你 ④ 建议的用例：**已补**（这就是"可断言的形式"）
+#### ✅ ② 判据（架构给的"可断言形式"，已写成用例，**全绿 557/557**）
 ```
-🆕 `Flow_RetreatMarksRoomResolved_SoItWillNotRefight`：
-   拓扑模式下 ⇒ 开打前 `IsRoomResolved(room) == false` ⇒ **撤退后 `== true`**（§2：撤退后那格算"避过"⇒ 不重打）✓
-   ＋ 仍 `IsFinished == false` / `Outcome == InProgress` ✓
-   ⚠️ 口径写进注释：**只在拓扑模式可观察**（线性模式没有"格/房间"概念 ⇒ `_currentRoomId` 为 −1，写入被有意跳过）✓
+· **一趟退 2 场 ⇒ `RetreatResolved` 恰好 2 条** ✓ 且每条 `MoraleDelta == −72`（6 人 × −12）✓
+· **放弃远征 ⇒ 恰 1 条 `ExpeditionAbandoned`**（带 reason/走了几间/赢了几场/光照）✓ · **重复放弃幂等**（不重复发）✓
+· 你与架构的**判据①**（三类结局计数和 == N **由事件流算出**）⇒ 现在具备数据基础（`ExpeditionAbandoned` + 全灭 + 完成各有事件）✓
 ```
-#### ✅ ③ 你 ② 的 R8/R9：**已完成**（提交 `53f628d`）
+#### 🔴 ③ `#384` 的 #2：**片 3.1（`NewGame()` 从 `_Ready()` 挪出）我下一轮做**
 ```
-R8 ⇒ 🆕 `Retreat_TwoSeparateBattles_EachSettlesExactlyOnce`（两场各结算一次；**没有"一趟只结算一次"的全局闸**）✓
-R9 ⇒ **由既有 `#118` 用例覆盖**（第二次尝试被拒 + `RetreatEvent` 仍为 1）⇒ 我**没重复造用例** ✓
+你把"进地牢不该一进来就是战斗"列在【主程序】，并说明正解 = **按请求分流**：
+  ① 请求 = 出发远征 ⇒ **进 Walking（不起战斗）** ② 请求 = 冒烟/试验 ⇒ 才 `NewGame()` ✓
+📌 我这边已有基础：`ExpeditionContext.RequestDungeon()`（一次性认领）+ `EnterDungeonInScene()` 已能"进地牢且不进战斗"；
+   要挪的是 `_Ready()` 里那条**无条件** `EnterPhase(Battle) + NewGame()` ⇒ 我会**同批**跑冒烟并给读数 ✓
 ```
-#### ✅ ④ 你认的那个错，我收下（不必挂怀）
-```
-你把 `locked` 的判据写成"连续 N 轮未变"、而**核实时点早于我完成** ⇒ 你已自认误判 ✓
-📌 我这边能做的配合：**凡我完成一件，回执里【必写提交号 + 实测读数】**（你据此核对即可，不必靠"轮数"推断）✓
-```
-- **阻塞 / 待裁定**：无（`retreat` 真实点击依赖 UI 公共入口；架构那三行 + `portrait` + 事件类型仍在他们手上）
-- **工程状态**：构建 0 错误 ／ **556/556** 全绿 ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
+- **阻塞 / 待裁定**：无
+- **工程状态**：构建 **0 错误** ／ **557/557** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
