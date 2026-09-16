@@ -1,0 +1,44 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/MainMenuSkeleton.cs" id="1_menu"]
+
+[node name="MainMenu" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_menu")
+
+[node name="MenuMargin" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="MenuCol" type="VBoxContainer" parent="MenuMargin"]
+theme_override_constants/separation = 12
+
+[node name="TitlePanel" type="PanelContainer" parent="MenuMargin/MenuCol"]
+custom_minimum_size = Vector2(0, 56)
+
+[node name="TitleRow" type="HBoxContainer" parent="MenuMargin/MenuCol/TitlePanel"]
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="MenuMargin/MenuCol/TitlePanel/TitleRow"]
+size_flags_horizontal = 3
+vertical_alignment = 1
+
+[node name="OptionsPanel" type="PanelContainer" parent="MenuMargin/MenuCol"]
+size_flags_vertical = 3
+
+[node name="OptionsCol" type="VBoxContainer" parent="MenuMargin/MenuCol/OptionsPanel"]
+theme_override_constants/separation = 8
+
+[node name="StatusPanel" type="PanelContainer" parent="MenuMargin/MenuCol"]
+custom_minimum_size = Vector2(0, 36)
+
+[node name="StatusLabel" type="Label" parent="MenuMargin/MenuCol/StatusPanel"]
+clip_text = true
+text_overrun_behavior = 3
