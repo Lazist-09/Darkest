@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -524,7 +524,7 @@ public partial class BattleUi : CanvasLayer
 
         if (flow is not null)
         {
-            _mapModeScoutMark.Refresh(flow.LastScout);   // 🔴 单一数据源：本趟侦察结果（null ⇒ 面板自己走空态）✓
+            // 🔴 用户要求（2026-09-16）：**侦察标记面板已从底栏删除** ⇒ 连**使用点**一起删（我这条教训吃过三次）✓
 
             // ④ 本趟投影列表（面板 #4）：**行文只来自内核投影**（`ExpeditionProjector`），UI 不自己拼数字 ✓
             Darkest.Core.Events.CombatLog? expeditionLog = Darkest.Gameplay.Scene.ExpeditionContext.Log;
