@@ -1384,6 +1384,34 @@ P5 **战斗（②）**：5/6 号位长条框左右靠齐 + 橙框/紫框/右侧�
    等主程序答复后再决定是"继续用字段承载"还是"改用局部变量 + 参数传递"✓
 ```
 
+### 🔴 14.0.19 **编辑器可直接干预清单（交付版）**（2026-09-17 · 均在生效）
+
+```
+🔴 通用规则：引擎里打开 `darkest/scenes/ui/*.tscn` → 改动 → **别改节点名**（判据/S1/冒烟锚点）→
+   保存后直接跑游戏即生效；验收跑：`--ui-audit`（越界/重叠/透明）+ 行首 `^ERROR:` 计数（排除 certificate store / leaked at exit）
+
+| # | 场景文件 | 改什么 | 影响哪里 | 验证入口 |
+|---|---|---|---|---|
+| 1 | `main_menu.tscn` | MenuMargin 边距 · MenuCol 间距 · TitlePanel/OptionsPanel/StatusPanel 尺寸 | **主菜单整屏** | 直接跑（Label 2／Panel 3） |
+| 2 | `hamlet_skeleton.tscn` | HamletMargin 边距 · HamletRootCol 间距 · Body 左右栏占比 · RightColumn 最小宽 · BottomBar/BottomRow 间距 | **主城整屏** | `--hamlet`（16／13） |
+| 3 | `building_popup.tscn` | BuildingSplit 间距 · BuildingList 宽 · ShopkeeperSlot 高 · BuildingContent 占比 | **建筑详情弹窗** | `--hamlet --hamlet-building=tavern`（21／15） |
+| 4 | `battle_topbar.tscn` | BattleTopRow 间距 · TopLeftGroup/TorchWrap/RightGroup 三区占比 | **战斗顶栏三区** | `--click-menu=0`（57／40） |
+| 5 | `roster_row.tscn` | RosterRowBody 间距 · PortraitFrame 尺寸 · RosterInfo 裁切/字号 | **名册 8 行** | `--hamlet` |
+| 6 | `skill_box.tscn` | **方块尺寸（现 48×48）/字号/主题覆盖** | **战斗技能栏** | `--click-menu=0` |
+| 7 | `unit_card.tscn` | CardCol 间距 · portraitBox 尺寸 · name/stats/hp/morale/tag 字号 | **战斗 10 张卡牌** | `--click-menu=0` |
+| 8 | `popup_line.tscn` | 换行方式/裁切/字号/颜色 | **所有二级·三级弹窗内容行** | `--hamlet-menu` / `--hamlet-building=…` |
+| 9 | `building_nav_button.tscn` | 尺寸/字号/主题 | **建筑切换 3 处** | `--hamlet --hamlet-building=tavern` |
+| 10 | `mf_tab.tscn` | 尺寸/字号/主题 | **多功能页签 4~5 处** | `--click-menu=0 --battle-tab=4` |
+| 11 | `slot_row.tscn` | 行间距 · Frame 尺寸 · Name 字号 | **5/6 号位两行** | `--click-menu=0`（57／40，比手绘 +2 Label/+2 Panel 属**可解释**） |
+| 12 | `battle_bottombar.tscn` | （骨架已备）BottomRowBox 间距 · 五区宽高与对齐 | **战斗底栏** | ⚠️ **未接线**（待主程序答复后启用，见 §14.0.17/18） |
+| 13 | `walk_map_layer.tscn` | （骨架已备）WalkCorridorLayer 5×5 / WalkRoomLayer 14×14 图集与图层属性 | **行走地图瓷砖** | ⚠️ **未接线**（同上） |
+
+📌 `[Tool]` 脚本（`RosterRowTemplate` / `SkillBoxTemplate` / `UnitCardTemplate` / `PopupLineTemplate` /
+   `BuildingNavButtonTemplate` / `MfTabButtonTemplate` / `SlotRowTemplate` / `MainMenuSkeleton` /
+   `HamletSkeleton` / `BuildingPopupSkeleton` / `BattleTopBarSkeleton` / `BattleBottomBarSkeleton` / `WalkMapSkeleton`）
+   ⇒ 编辑器里可见**结构/尺寸/占位文案**；**编辑器逻辑一律 `Engine.IsEditorHint()` 守卫** ✓
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
