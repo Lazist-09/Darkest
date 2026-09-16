@@ -117,8 +117,22 @@ public partial class BattleRoot : Node2D
             StartExpeditionBattleInScene();
         }
 
-        NewGame();
-        GD.Print("[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算；R 重开（新 seed）。");
+        // 🔴🔴 **片 3.1（用户裁定"进地牢不该一进来就是战斗" · 策划 `#384` 第 2 件）**：
+        //    旧行为：无论从哪个入口进来，`_Ready` 末尾都**无条件** `NewGame()` ⇒ **进地牢 = 立刻起一场战斗** ❌
+        //    新行为：**按【请求】分流** —— 已经进了地牢（有活动流程）⇒ **不起单场战斗**，只进 Walking（地图模式）✓
+        //    其它入口（单场战斗 / `--battle-*` 冒烟 / 试验）⇒ 才 `NewGame()` ✓
+        bool hostedInDungeon = _dungeonHostedInScene && ExpeditionContext.IsActive;
+        if (hostedInDungeon)
+        {
+            GD.Print($"[片3.1] ✅ **进地牢 = 不起战斗**（按请求分流）：Phase={ExpeditionContext.Flow!.Session.Phase}（应为 Walking）" +
+                     $"　CanShowPathChoice={ExpeditionContext.Flow.Session.CanShowPathChoice}（应为 True）" +
+                     $"　战斗触发改为【踏进 Battle 格】（策划 #379）✓");
+        }
+        else
+        {
+            NewGame();
+            GD.Print("[BattleRoot] 战斗就绪：轮到行动者时技能栏/换位可操作；敌方阶段自动结算；R 重开（新 seed）。");
+        }
 
         // 🔴 O-74（阻塞级，`#279/#280`）：**地牢层的入口** ——
         // 此前 `Expedition.tscn` 不可达（`project.godot` 的 main_scene = Battle.tscn，
@@ -207,9 +221,21 @@ public partial class BattleRoot : Node2D
     /// </summary>
     public void PressAutoFinish()
     {
+        // 🔴 片 3.1：**地图模式没有战斗** ⇒ 冒烟/脚本的"自动打完"必须**如实拒绝**（否则刷屏 NRE ⚠️）✓
+        if (!HasActiveBattle)
+        {
+            GD.Print("[片3.1] 无活动战斗 ⇒ 拒绝「自动打完」（这是地图模式，不是战斗）✓");
+            return;
+        }
+
         _autoContinue = true; // 🔴 让 `EndGame` 里的"点继续"也生效（不再依赖命令行旗标）
         CallDeferred(nameof(AutoFinishBattle));
     }
+
+    /// <summary>🔴 片 3.1：**是否正在进行一场战斗**（`Director` 只在 `NewGame()` 后非空）⇒ 战斗专用路径必须先问它 ✓</summary>
+    public bool HasActiveBattle => Director is not null;
+
+    private bool _noBattleNoticeShown; // 只提示一次（防刷屏）✓
 
     /// <summary>本实例是否要"自动点继续"（由 `PressAutoFinish` 置位；命令行旗标仍并行生效）。</summary>
     private bool _autoContinue;
@@ -267,6 +293,11 @@ public partial class BattleRoot : Node2D
     /// <summary>冒烟用：用**小型自动玩家**把本场**真的打完**（走真实战斗规则）⇒ 再走既有 `EndGame` 路径。</summary>
     private void AutoFinishBattle()
     {
+        if (!HasActiveBattle)
+        {
+            GD.Print("[片3.1] 无活动战斗 ⇒ 不自动打完（地图模式）✓");
+            return;
+        }
         DirectorBridge.DirectorHandle handle = DirectorBridge.BuildFromRes(this);
         var auto = new Darkest.Gameplay.Sim.Run.SimplePlayerAuto(handle.Skills);
         var rng = new Darkest.Core.Rng.RngProvider(20260909);
@@ -287,6 +318,13 @@ public partial class BattleRoot : Node2D
         // 🔴 动作化（附 B ①）：`dd_restart` 见 `project.godot [input]`（玩家可重映射）
         if (e.IsAction("dd_restart"))
         {
+            if (_dungeonHostedInScene)
+            {
+                // 🔴 片 3.1：**地牢模式**下 `R` **不重开单场战斗**（否则又会"进地牢就起战斗"）
+                GD.Print("[片3.1] 地牢模式：`R` 不重开单场战斗（要重开请退出本趟）✓");
+                return;
+            }
+
             NewGame();
             GD.Print($"[BattleRoot] 重开（seed={_seed}）");
             return;
@@ -444,6 +482,19 @@ public partial class BattleRoot : Node2D
     public override void _Process(double delta)
     {
         _ = delta;
+
+        // 🔴🔴 **片 3.1 连带修**（实测抓到刷屏：24143 行 / 2000 条 NRE ⚠️）：
+        //    **没有活动战斗时**（= 地牢/地图模式）`Director` 仍是 `null` ⇒ 战斗专用路径**不得**在此解引用 ✓
+        if (!HasActiveBattle)
+        {
+            if (!_noBattleNoticeShown)
+            {
+                _noBattleNoticeShown = true;
+                GD.Print("[片3.1] 无活动战斗 ⇒ `_Process` 早退（地图模式由地图/UI 驱动）✓");
+            }
+
+            return;
+        }
         if (_gameOver)
         {
             _ui.Refresh(status: "按 R 重开（新 seed）");
