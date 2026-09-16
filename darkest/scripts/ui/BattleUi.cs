@@ -373,6 +373,55 @@ public partial class BattleUi : CanvasLayer
         box.TooltipText = $"{slot} 号位：{display}　HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
     }
 
+    private static Texture2D? _placeholderCombatTex;
+    private static bool _placeholderProbed;
+
+    /// <summary>
+    /// 🔴 策划 `#348`③：**战斗单帧占位渲染** —— 只从 `HeroAssets.PlaceholderRoot` 读（拷进 `resources/` **不会**被加载，`§8` 的设计）✓
+    /// 引用形态由数据给：`hero.json` 的 `actions.combat.frames[0]` 是**相对 PlaceholderRoot** 的路径 ✓
+    /// ⚠️ 取不到 ⇒ 返回 null 并**一次性留痕**（回落到"原型色块 + 首字"，不静默、不假装）✓
+    /// 🔴 **V6 纪律**：这只证明"**接口能装下 + UI 能显示**"，**不证明**"动画能播"（那需 Spine，本阶段裁掉）✓
+    /// </summary>
+    private static Texture2D? PlaceholderCombatTexture()
+    {
+        if (_placeholderProbed)
+        {
+            return _placeholderCombatTex;
+        }
+
+        _placeholderProbed = true;
+        string jsonPath = $"{Darkest.Data.HeroAssets.PlaceholderRoot}/hero.json";
+        if (!Godot.FileAccess.FileExists(jsonPath))
+        {
+            GD.Print($"[UI 占位英雄] `{jsonPath}` 不存在 ⇒ 回落色块+首字（正式路径不受影响）✓");
+            return null;
+        }
+
+        try
+        {
+            Darkest.Data.HeroAssetsConfig cfg = Darkest.Data.HeroAssets.Parse(
+                Godot.FileAccess.GetFileAsString(jsonPath));
+            if (!cfg.Actions.TryGetValue("combat", out Darkest.Data.HeroActionSlot? slot) || slot.Frames.Count == 0)
+            {
+                GD.Print("[UI 占位英雄] 占位 `hero.json` 里没有 `combat` 帧 ⇒ 回落色块+首字（不静默）✓");
+                return null;
+            }
+
+            string refPath = slot.Frames[0];
+            string full = $"{Darkest.Data.HeroAssets.PlaceholderRoot}/{refPath}";
+            _placeholderCombatTex = Godot.ResourceLoader.Load<Texture2D>(full);
+            GD.Print(_placeholderCombatTex is null
+                ? $"[UI 占位英雄] 载入失败：`{full}` ⇒ 回落色块+首字（不静默）✓"
+                : $"[UI 占位英雄] ✅ 战斗单帧用占位：`{full}`（**只从 PlaceholderRoot 读**；`placeholder={cfg.Placeholder}`）✓");
+            return _placeholderCombatTex;
+        }
+        catch (Exception ex)
+        {
+            GD.Print($"[UI 占位英雄] 占位配置解析失败：{ex.Message} ⇒ 回落色块+首字（不静默）✓");
+            return null;
+        }
+    }
+
     /// <summary>面板状态读数：**显示/隐藏 + 子控件数**（隐藏 = 门禁生效的**自证**，不是"没接上"）✓</summary>
     private static string PanelState(string name, Control? panel)
         => panel is not null && GodotObject.IsInstanceValid(panel)
@@ -1904,6 +1953,24 @@ public partial class BattleUi : CanvasLayer
         c.stats.Text = empty ? "" : $"HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
         // ② 立绘占位框：首字 + 阵营/原型色块
         portrait.Text = empty ? "—" : display.Substring(0, 1);
+
+        // 🔴 策划 `#348`③：**战斗里能看见这个角色（单帧）** —— 玩家卡画占位 `sprite/combat.png` ✓
+        //    ⚠️ 只画**单帧静态**（动画需 Spine，本阶段裁掉）；取不到图 ⇒ 保留"色块+首字" ✓
+        if (c.isPlayer && !empty && portrait.GetParent() is PanelContainer artBox
+            && PlaceholderCombatTexture() is Texture2D heroTex)
+        {
+            var art = new TextureRect
+            {
+                Name = "HeroArtPlaceholder",
+                Texture = heroTex,
+                ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            };
+            art.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            art.MouseFilter = Control.MouseFilterEnum.Ignore; // 不抢卡片的悬停/点击 ✓
+            artBox.AddChild(art);
+            portrait.Visible = false; // 有立绘就不叠"首字"（否则糊成一团）✓
+        }
         if (portrait.GetParent() is PanelContainer box)
         {
             box.Modulate = empty ? Darkest.Ui.DdTheme.Muted : Darkest.Ui.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, c.isPlayer);
