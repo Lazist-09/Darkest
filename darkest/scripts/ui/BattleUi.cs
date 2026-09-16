@@ -552,6 +552,13 @@ public partial class BattleUi : CanvasLayer
         if (_abandonButton is not null)
         {
             _abandonButton.Visible = _mode == SceneMode.Map && _abandonExpedition is not null;
+
+            // 🔴 红线 21（不留不可解释的状态）：**按钮为什么没出现**必须留痕一次 ✓
+            if (_abandonExpedition is null && !_abandonWarned)
+            {
+                _abandonWarned = true;
+                GD.Print("[UI 撤退/放弃] 宿主**未注入**放弃远征动作 ⇒ 该按钮**不显示**（不假装可用，红线 21）✓");
+            }
         }   // 🔴 紫框内 6 号位：地图模式让位给地牢面板（实测曾与 ScoutMark/CampStatus 相压）
 
             // 🔴 片 2 #6：**扎营**面板（B 类）—— 门禁**只读谓词**（UI 绝不推断相位）✓
@@ -1757,6 +1764,13 @@ public partial class BattleUi : CanvasLayer
         if (_abandonButton is not null)
         {
             _abandonButton.Visible = _mode == SceneMode.Map && _abandonExpedition is not null;
+
+            // 🔴 红线 21（不留不可解释的状态）：**按钮为什么没出现**必须留痕一次 ✓
+            if (_abandonExpedition is null && !_abandonWarned)
+            {
+                _abandonWarned = true;
+                GD.Print("[UI 撤退/放弃] 宿主**未注入**放弃远征动作 ⇒ 该按钮**不显示**（不假装可用，红线 21）✓");
+            }
         }   // 🔴 紫框内 6 号位：地图模式让位给地牢面板（实测曾与 ScoutMark/CampStatus 相压）
         _orderBox.Visible = battleMode;
         if (_intentText is not null) { _intentText.Visible = battleMode; }
