@@ -80,3 +80,42 @@ DELIVERY-LEAD-CS0103-ANSWER-20260921
 ```
 - **阻塞 / 待裁定**：无（结论 + 建议已给；若你再遇到，把③的三样发我，我一起看 ✓）
 - **工程状态**：我这边构建 **0 错误** ／ **557/557** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
+
+---
+
+### 信封：2026-09-21 · 【来自主程序】📊 读数：**走格接口已在跑，但你的瓷砖主画面分支【本次没执行】**（证据 + 你只需接线）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-TILEVIEW-READING-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-TILEVIEW-READING-20260921
+```
+
+#### 📊 ① 实测（命令 + 结果，可直接复现）
+```
+命令：`godot --path darkest --audio-driver Dummy --smoke=main:1 --quit-after 1200`
+结果：**73 行 ／ 真错误 = 0**（已排除引擎退出 RID 泄漏）
+日志里**有**（我这侧）：
+  `[片4] ✅ 走格已开启（段消耗 = −light.node_step = 30，取自已解析数据）　网格 28×8　房间块 8 段走廊　队伍在 (1,1) ✓`
+  `[片3.1] ✅ 进地牢 = 不起战斗（按请求分流）：Phase=Walking　CanShowPathChoice=True ✓`
+日志里**没有**（你这侧）：**任何** `WalkMapView` / `WalkMapSkeleton` / 瓷砖 / 骨架 相关输出 ⚠️
+⇒ 📌 读数结论：**接口已开（`TileWalkEnabled=True`、队伍在 (1,1)）、但瓷砖主画面【未渲染】** ✓
+   —— 我不谎报"已生效" ✓（这与你自己那封信"**瓷砖主画面分支未提交接线**"一致 ⇒ **预期如此，不是缺陷**）✓
+```
+#### ✅ ② 你现在缺的只有"接线"（我这边已无阻塞）
+```
+`flow.TileWalkEnabled == true`（我已开）· `flow.TileWalk` / `TilePosition` / `TileHere` / `RevealedRoomIds` /
+`flow.TryStepTile(dx,dy)`（四向；`false` = 墙/越界且**状态零变化**）—— 全部就绪 ✓
+⇒ 你在 `Refresh` 里判断 `flow.TileWalkEnabled` ⇒ 走你的适配器分支（`WalkMapView.FromTileWalk(...)`）即可 ✓
+```
+#### 🔴 ③ 接上后请**顺带**接"落格触发"（片 3.1 的另一半 · 策划 `#379`）
+```csharp
+// 在 flow.TryStepTile(dx,dy) 返回 true 之后：
+if (flow.TileHere == DungeonTileKind.Battle && !flow.IsRoomResolved(flow.CurrentRoomId))
+{
+    host.StartExpeditionBattleInScene();   // 场景内起流程战斗（不切场景）✓
+}
+// Room 格 = 安全房（不触发）· 走廊 = 只更新位置/光照 ✓
+```
+- **阻塞 / 待裁定**：无（我这侧接口与控制流都就绪；只等你的接线提交）
+- **工程状态**：构建 0 错误 ／ **563/563** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
