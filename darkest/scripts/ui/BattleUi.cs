@@ -549,6 +549,10 @@ public partial class BattleUi : CanvasLayer
             if (_mapModeList is not null) { _mapModeList.Visible = false; }
         if (_slotRight is not null) { _slotRight.Visible = _mode == SceneMode.Battle; }
 
+        // 🔴 `§8`①（**文本自证抓到的**）：**撤退（战斗内）与放弃远征（地图层）必须不同屏** ⇒
+        //    实测地图模式里"撤退"仍可见 ⇒ 与放弃远征同屏（手滑 = 一趟白跑）⚠️ ⇒ 按模式裁决 ✓
+        if (_retreatButton is not null) { _retreatButton.Visible = _mode == SceneMode.Battle; }   // 🔴 用字段 _mode（两处同名代码都能编译）
+
         // 🔴 `§8`①：**放弃远征（地图层）与撤退（战斗内）不得同屏** ⇒ 前者只在行走模式可见（且需宿主已注入动作）✓
         if (_abandonButton is not null)
         {
@@ -1802,6 +1806,10 @@ public partial class BattleUi : CanvasLayer
         if (_mapModeInventory is not null) { _mapModeInventory.Visible = false; }
         if (_mapModeList is not null) { _mapModeList.Visible = false; }
         if (_slotRight is not null) { _slotRight.Visible = _mode == SceneMode.Battle; }
+
+        // 🔴 `§8`①（**文本自证抓到的**）：**撤退（战斗内）与放弃远征（地图层）必须不同屏** ⇒
+        //    实测地图模式里"撤退"仍可见 ⇒ 与放弃远征同屏（手滑 = 一趟白跑）⚠️ ⇒ 按模式裁决 ✓
+        if (_retreatButton is not null) { _retreatButton.Visible = _mode == SceneMode.Battle; }   // 🔴 用字段 _mode（两处同名代码都能编译）
 
         // 🔴 `§8`①：**放弃远征（地图层）与撤退（战斗内）不得同屏** ⇒ 前者只在行走模式可见（且需宿主已注入动作）✓
         if (_abandonButton is not null)
