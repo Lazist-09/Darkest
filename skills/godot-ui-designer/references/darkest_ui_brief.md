@@ -1327,6 +1327,29 @@ P5 **战斗（②）**：5/6 号位长条框左右靠齐 + 橙框/紫框/右侧�
    `ClipContents` 对 `Node2D` 子节点**不生效** ⇒ 需要用一个 `Control` 包住 `TileMapLayer` 并保留裁切（或改用 `SubViewport`）。
 ```
 
+### 🔴 14.0.16 **E 接线的关键几何约束（必须先定，否则会悄悄改观感）**（2026-09-17）
+
+```
+`WalkMapView.Refresh(MapSketch)` 的**完整现状**（L216-325，已逐行读）：
+  L230-234  清空 `_canvas` 全部子节点
+  L244-273  **走廊** = `ColorRect`（`Corridor_{from}_{to}_{i}`，色 `DdTheme.MapEdge`，尺寸 **CorridorSize = 5**）
+  L278-311  **房间** = `ColorRect`（`Room_{id}`，色 = Highlight/Danger/MapUnknown/MapVisited，尺寸 **RoomSize = 14**）
+            + 每房一个**扁平透明 Button 热区**（`RoomHit_{id}`，`Disabled = !Movable`，`Pressed ⇒ OnRoomClicked`）
+  L314      画布 `CustomMinimumSize` 夹紧（≤260×150）⇒ **不撑父容器** ✓
+  L324      `_lastSketch = Sketch(sketch, pos)`（数据快照，供 `S1` 自证）✓
+
+🔴 **几何冲突（必须先解决）**：`TileSet` 只有**一个** `TileSize`，而房间 14px、走廊 5px **不同尺寸**
+   ⇒ 若用一个 `TileMapLayer` 渲染两者，**走廊会被画成 14px（变粗）= 视觉变更** ⚠️（红线 19：形式变了意思就变了）
+⇒ **解法（推荐）**：**两个 `TileMapLayer` + 两个 `TileSet`**：
+     · `WalkRoomLayer`（TileSize = 14×14，瓦片=房间，按 Revealed/Current/Goal 用 **4 个瓦片**着色）
+     · `WalkCorridorLayer`（TileSize = 5×5，瓦片=走廊，单色 `MapEdge`）
+   ⇒ 几何与现状**逐像素一致**，只是渲染改由引擎瓷砖完成 ✓
+   ⇒ 同时把 `walk_map_layer.tscn` 从"1 个 TileMapLayer"扩为"2 个"（场景里可分别换图集）✓
+⚠️ 其余保留项：滚轮缩放 `ZoomCanvas`（0.5×~3×）· 左键拖拽 · `ClipContents` 不溢出 · 清空时**别把骨架节点一起删掉**
+   （L230 的清空循环要 `continue` 跳过骨架，并对两个图层调 `Clear()`）✓
+📌 热区（`RoomHit_*`）**保持代码创建**（它是扁平透明 Button、不参与"框必须不透明"判据）⇒ 只换"视觉"不换"交互" ✓
+```
+
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 |---|---|---|---|---|
 | 2026-09-14 | `doc/windows/主程序窗口.txt` | `DELIVERY-UI-TAKEOVER-20260914` | UI 接手通知：请停止并行编辑 UI 文件 + 交接战斗屏取证 | ✅ 已投（主程序已回执并清空其窗口） |
