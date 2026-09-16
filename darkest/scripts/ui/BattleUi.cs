@@ -770,6 +770,14 @@ public partial class BattleUi : CanvasLayer
         if (_mfMap is not null)
         {
             Darkest.Gameplay.Sim.Run.ExpeditionFlow? mFlow = Darkest.Gameplay.Scene.ExpeditionContext.Flow;
+        // 🔴 **冒烟专用**入口（`--tile-walk` / `--tile-step`）：**正式开关仍归宿主**（进地牢时调一次）——
+        //    我加这两条只为把"瓷砖主画面 + 点格走格"**先自证到位**（红线 25：改了交互入口 ⇒ 证据链重走）✓
+        if (mFlow is not null && Array.Exists(OS.GetCmdlineArgs(), x => x == "--tile-walk") && !mFlow.TileWalkEnabled)
+        {
+            mFlow.EnableTileWalk(30);
+            GD.Print("[UI 走格·冒烟] 已开 `EnableTileWalk(30)`（**仅验证用**；正式开关应由宿主调）✓");
+        }
+
         bool topology = mFlow?.IsTopologyMode == true && mFlow.Map is not null;
         if (_mfMapWalk is not null)
         {
@@ -802,6 +810,21 @@ public partial class BattleUi : CanvasLayer
                                  $"（现在 {mFlow.TilePosition}：{mFlow.TileHere}　已走 {mFlow.TileStepsTaken} 格）✓");
                     };
                     _mfMapWalk.Refresh(ts);
+
+                    // 🔴 冒烟自证（`--tile-step`）：**走我真实接的回调**（`OnRoomClicked` ⇒ TryStepTile）✓
+                    if (Array.Exists(OS.GetCmdlineArgs(), x => x == "--tile-step"))
+                    {
+                        Darkest.Ui.SketchCell? mv = ts.Cells.FirstOrDefault(c => c.Movable);
+                        if (mv is null)
+                        {
+                            GD.Print("[UI 走格·冒烟] 没有可移动的相邻格 ⇒ 无事可做（如实报）✓");
+                        }
+                        else
+                        {
+                            GD.Print($"[UI 走格·冒烟] 点格 ({mv.Depth},{mv.Lane})（可移动）⇒ 走真实回调");
+                            _mfMapWalk.OnRoomClicked?.Invoke(mv.Id);
+                        }
+                    }
                 }
                 else
                 {                System.Collections.Generic.List<int> movable = mFlow.AdjacentUnexplored().Select(r => r.Id).ToList();
