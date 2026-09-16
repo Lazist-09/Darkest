@@ -1075,12 +1075,11 @@ public partial class HamletRoot : Node2D
             for (int k = 0; k < _buildingIds.Length; k++)
             {
                 string bid = _buildingIds[k];
-                var nav = new Button
-                {
-                    Name = $"BuildingNav_{bid}",
-                    Text = _buildingLabels[k],
-                    CustomMinimumSize = new Vector2(220, 32),
-                };
+                // 🔴 用户要求（2026-09-17）：**重复元素抽模板** ⇒ 建筑切换按钮（3 处同构）实例化 `building_nav_button.tscn`
+                //    ⚠️ 场景缺失 ⇒ **回落代码构建**（不崩、不静默）；节点名 `BuildingNav_<id>` 保持不变 ✓
+                Button nav = Darkest.Ui.BuildingNavButtonTemplate.TryCreate(_buildingLabels[k])
+                    ?? new Button { Text = _buildingLabels[k], CustomMinimumSize = new Vector2(220, 32) };
+                nav.Name = $"BuildingNav_{bid}";
                 nav.Pressed += () => { _buildingPopupId = bid; RefreshBuildingPopup(); }; // 🔴 左列切换（只换右侧内容）✓
                 leftCol.AddChild(nav);
             }
