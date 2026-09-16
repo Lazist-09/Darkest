@@ -44,6 +44,7 @@ public partial class WalkMapView : PanelContainer
     private const int Pad = 8;
 
     private Control _canvas = null!;
+    private Darkest.Ui.WalkMapSkeleton? _walkSkel;   // 🔴 E（2026-09-17）：瓷砖渲染骨架（双层：房间 14px／走廊 5px）✓
     private int _lastKey = -1;
     private string _lastSketch = string.Empty;
     private bool _dragging;   // 🔴 拖拽平移状态 ✓
@@ -77,6 +78,13 @@ public partial class WalkMapView : PanelContainer
         _canvas.Position = new Vector2(0, 18);
 
         AddChild(_canvas);
+
+        // 🔴 E（2026-09-17）：**引擎内置瓷砖渲染**（骨架优先；缺失 ⇒ 回落手绘 ColorRect）✓
+        _walkSkel = Darkest.Ui.WalkMapSkeleton.TryInstantiate();
+        if (_walkSkel is not null)
+        {
+            _canvas.AddChild(_walkSkel);
+        }
 
         // 🔴 用户要求（2026-09-16）：**地图要像 DD 那样在框里拖拽 / 缩放，且绝不超出框** ✓
         //    · `ClipContents` ⇒ 画布超出部分被**裁掉**（不会压到别的框）✓
@@ -229,9 +237,16 @@ public partial class WalkMapView : PanelContainer
 
         foreach (Node child in _canvas.GetChildren())
         {
+            if (child == _walkSkel)
+            {
+                continue;   // 🔴 骨架是渲染层 ⇒ 不删（只清瓦片）✓
+            }
+
             _canvas.RemoveChild(child);
             child.QueueFree();
         }
+
+        _walkSkel?.ClearTiles();
 
         // 摆位：x = 深度，y = 同深度内序号（由适配器给定 ⇒ 确定性）
         var pos = new Dictionary<int, (int X, int Y)>();
@@ -262,13 +277,21 @@ public partial class WalkMapView : PanelContainer
                 float t = i / (float)(corrCount + 1);
                 int cx = (int)(a.X + (b.X - a.X) * t) + (RoomSize - CorridorSize) / 2;
                 int cy = (int)(a.Y + (b.Y - a.Y) * t) + (RoomSize - CorridorSize) / 2;
-                _canvas.AddChild(new ColorRect
+                if (_walkSkel?.CorridorLayer is TileMapLayer corrLayer)
                 {
-                    Name = $"Corridor_{link.From}_{link.To}_{i}",
-                    Color = Darkest.Ui.DdTheme.MapEdge,
-                    Position = new Vector2(cx, cy),
-                    Size = new Vector2(CorridorSize, CorridorSize),
-                });
+                    const int cp = Darkest.Ui.WalkMapSkeleton.CorridorPx;
+                    corrLayer.SetCell(new Vector2I(cx / cp, cy / cp), _walkSkel.CorridorSourceId, new Vector2I(0, 0));   // 🔴 引擎瓷砖 ✓
+                }
+                else
+                {
+                    _canvas.AddChild(new ColorRect
+                    {
+                        Name = $"Corridor_{link.From}_{link.To}_{i}",
+                        Color = Darkest.Ui.DdTheme.MapEdge,
+                        Position = new Vector2(cx, cy),
+                        Size = new Vector2(CorridorSize, CorridorSize),
+                    });
+                }
             }
         }
 
@@ -283,13 +306,25 @@ public partial class WalkMapView : PanelContainer
                 : !c.Revealed ? Darkest.Ui.DdTheme.MapUnknown
                 : Darkest.Ui.DdTheme.MapVisited;
 
-            _canvas.AddChild(new ColorRect
+            if (_walkSkel?.RoomLayer is TileMapLayer roomLayer)
             {
-                Name = $"Room_{c.Id}",
-                Color = color,
-                Position = new Vector2(p.X, p.Y),
-                Size = new Vector2(RoomSize, RoomSize),
-            });
+                const int rp = Darkest.Ui.WalkMapSkeleton.RoomPx;
+                int tile = c.IsCurrent ? Darkest.Ui.WalkMapSkeleton.TileCurrent
+                    : c.IsGoal ? Darkest.Ui.WalkMapSkeleton.TileGoal
+                    : !c.Revealed ? Darkest.Ui.WalkMapSkeleton.TileUnknown
+                    : Darkest.Ui.WalkMapSkeleton.TileVisited;
+                roomLayer.SetCell(new Vector2I(p.X / rp, p.Y / rp), _walkSkel.RoomSourceId, new Vector2I(tile, 0));   // 🔴 四态瓦片 ✓
+            }
+            else
+            {
+                _canvas.AddChild(new ColorRect
+                {
+                    Name = $"Room_{c.Id}",
+                    Color = color,
+                    Position = new Vector2(p.X, p.Y),
+                    Size = new Vector2(RoomSize, RoomSize),
+                });
+            }
 
             // 🔴 主程序 (A)：格子上叠**可点热区**（相邻未探索才可点 ⇒ 点击走一格）✓
             //    视觉仍是 `ColorRect`（不参与"框必须不透明"判据）；热区是扁平透明 Button ✓
