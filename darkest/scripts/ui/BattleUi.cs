@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -326,12 +326,11 @@ public partial class BattleUi : CanvasLayer
         }
 
         UnitProjection[] players = _host.Projector.Units(player: true).ToArray();
-        FillBackSlot(_slotLeft, players, 5);
-        FillBackSlot(_slotRight, players, 6);
+        FillBackSlots(_slotLeft, players, new[] { 5, 6 });   // 🔴 5/6 号位同框（用户要求）✓
     }
 
     /// <summary>填一个长条框：标题 + 立绘留框(色块占位) + 名字；空位 ⇒ 如实"（空）"✓</summary>
-    private void FillBackSlot(PanelContainer? box, UnitProjection[] players, int slot)
+    private void FillBackSlots(PanelContainer? box, UnitProjection[] players, int[] slots)
     {
         if (box is null || !GodotObject.IsInstanceValid(box))
         {
@@ -344,24 +343,30 @@ public partial class BattleUi : CanvasLayer
             old.QueueFree();
         }
 
-        var col = new VBoxContainer { Name = $"BackSlot{slot}Col" };
-        col.AddThemeConstantOverride("separation", 4);
+        var col = new VBoxContainer { Name = "BackSlotsCol" };
+        col.AddThemeConstantOverride("separation", 6);
         box.AddChild(col);
 
-        var title = new Label { Name = $"BackSlot{slot}Title", Text = $"{slot} 号位" };
-        title.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
-        col.AddChild(title);
-
-        UnitProjection? u = players.FirstOrDefault(x => x.Slot == slot);
-        if (u is null || u.UnitId == "-")
+        foreach (int slot in slots)
         {
-            col.AddChild(new Label { Name = $"BackSlot{slot}Empty", Text = "（空）" });
-            return;
-        }
+            var row = new VBoxContainer { Name = $"BackSlot{slot}Row" };
+            row.AddThemeConstantOverride("separation", 2);
+            col.AddChild(row);
+
+            var title = new Label { Name = $"BackSlot{slot}Title", Text = $"{slot} 号位" };
+            title.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+            row.AddChild(title);
+
+            UnitProjection? u = players.FirstOrDefault(x => x.Slot == slot);
+            if (u is null || u.UnitId == "-")
+            {
+                row.AddChild(new Label { Name = $"BackSlot{slot}Empty", Text = "（空）" });
+                continue;
+            }
 
         string display = NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId);
-        var frame = new PanelContainer { Name = $"BackSlot{slot}Frame", CustomMinimumSize = new Vector2(28, 28) };
-        col.AddChild(frame);
+        var frame = new PanelContainer { Name = $"BackSlot{slot}Frame", CustomMinimumSize = new Vector2(26, 26) };
+        row.AddChild(frame);
         frame.AddChild(new ColorRect
         {
             Name = "Placeholder",
@@ -369,8 +374,9 @@ public partial class BattleUi : CanvasLayer
         });
         var nameLabel = new Label { Name = $"BackSlot{slot}Name", Text = display, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         nameLabel.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
-        col.AddChild(nameLabel);
+        row.AddChild(nameLabel);
         box.TooltipText = $"{slot} 号位：{display}　HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
+        }
     }
 
     /// <summary>🔴 策划 `#348`③：战斗单帧占位 —— 统一走共享入口 `HeroArt.CombatTexture()`（**只从 PlaceholderRoot 读**）✓
@@ -498,13 +504,8 @@ public partial class BattleUi : CanvasLayer
 
         // ① 光照条：**已移到战斗屏【正上方】**（DD 图②）⇒ 此处不再挂第二份（同一读数只显示一处）✓
 
-        // ② 侦察标记（面板 #2）
-        if (_mapModeScoutMark is null || !GodotObject.IsInstanceValid(_mapModeScoutMark))
-        {
-            _mapModeScoutMark = new Darkest.Ui.ScoutMarkPanel { Name = "MapModeScoutMark" };
-        _mapModeScoutMark.CustomMinimumSize = new Vector2(210, 36);   // 🔴 预留宽度：内部内容 314 宽 ⇒ 不预留就溢出压邻居（实测 1 对重叠）
-            host.AddChild(_mapModeScoutMark);
-        }
+        // ② 侦察标记（面板 #2）：🔴 **用户要求（2026-09-16）"底部最右的框（侦察扎营之类）没用，删掉"** ⇒
+        //    **不再创建、不再挂载**（⚠️ 删创建块**必须同时删使用点**，否则每帧 NRE —— 我这条教训吃过两次）✓
 
         // 🔴 相机 720 口径（DD 图②）：**地图模式不内联背包/投影列表** ——
         //    实测 `MapModeInventory 需 298×312` 且可见 ⇒ 底栏 574 高 ⇒ 整屏 918 > 720 ⚠️
@@ -548,7 +549,8 @@ public partial class BattleUi : CanvasLayer
             //    （背包/投影列表在战斗模式或经多功能框查看；扎营由相位谓词门禁控制）✓
             if (_mapModeInventory is not null) { _mapModeInventory.Visible = false; }
             if (_mapModeList is not null) { _mapModeList.Visible = false; }
-        if (_slotRight is not null) { _slotRight.Visible = _mode == SceneMode.Battle; }
+        // 🔴 用户要求：5/6 号位**两种模式都显示**（原先只战斗模式 ⇒ "看不见 6 号位"）✓
+        if (_slotLeft is not null) { _slotLeft.Visible = true; }
 
         // 🔴 `§8`①（**文本自证抓到的**）：**撤退（战斗内）与放弃远征（地图层）必须不同屏** ⇒
         //    实测地图模式里"撤退"仍可见 ⇒ 与放弃远征同屏（手滑 = 一趟白跑）⚠️ ⇒ 按模式裁决 ✓
@@ -587,7 +589,8 @@ public partial class BattleUi : CanvasLayer
         }   // 🔴 紫框内 6 号位：地图模式让位给地牢面板（实测曾与 ScoutMark/CampStatus 相压）
 
             // 🔴 片 2 #6：**扎营**面板（B 类）—— 门禁**只读谓词**（UI 绝不推断相位）✓
-            HostDungeonCampPanel(flow);
+            // 🔴 用户要求（2026-09-16）：**扎营面板也从底部删除**（相位动作走弹窗，不占底栏）✓
+            // HostDungeonCampPanel(flow);
 
             // 🔴 行走模式 HUD（层②④）：只读内核读数（下一跳 / 到终点 / 已揭示 / 光照档）✓
             // 🔴 相机 720 口径：行走 HUD（75px 高）**移到地图页的格子主画面上方**（避免与主画面重复占高）
@@ -651,8 +654,8 @@ public partial class BattleUi : CanvasLayer
         DungeonHost().Visible = true;
 
         // 🔴 主程序 (A)：进地图模式即切到【地图页】⇒ 格子主画面成为主视图 ✓
-        SetMultiFunctionPage(MapPageIndex);
-        GD.Print("[UI 模式] 进地图模式 ⇒ 已切到地图页（拓扑模式下为【格子主画面】）✓");
+        // 🔴 用户要求（2026-09-16）：**进地图模式不再自动切页**（原先"上来就默认地图打开"）✓
+        GD.Print("[UI 模式] 进地图模式（**不自动切页** —— 由玩家自己选页签）✓");
         HostDungeonPanels();
         GD.Print($"[UI 模式] 进入【地图模式】　{ModeAudit()}");
         GD.Print($"[UI S1] {SkeletonVerdict()}"); // 🔴 切模式后**立即**断言（不是只打印 id）✓
@@ -691,7 +694,7 @@ public partial class BattleUi : CanvasLayer
         if (_eArea is Control eCtl)
         {
             eCtl.AddThemeStyleboxOverride("panel",
-                Darkest.Ui.DdTheme.MakePanelStyle(Darkest.Ui.DdTheme.PanelBgRaised, Darkest.Ui.DdTheme.Mental)); // 🔴 只染边框，不换暗底
+                Darkest.Ui.DdTheme.MakePanelStyle(Darkest.Ui.DdTheme.PanelBgRaised.Lightened(0.22f), Darkest.Ui.DdTheme.Mental)); // 🔴 用户：紫框太黑 ⇒ 底色提亮 22%（边框仍是紫）暗底
         }
         _eArea.CustomMinimumSize = new Vector2(0, 0); // 🔴 相机口径：E 区**可压缩到 0**（否则撑过右长条框 ⇒ 重叠）
         _eArea.AddChild(_mfPanel);
@@ -711,8 +714,9 @@ public partial class BattleUi : CanvasLayer
         column.AddChild(_eAreaTitle);
 
         // 🔴 用户要求：6 号位**集成在紫色多功能框里**（不再单占一个最右长条框）✓
-        _slotRight = new PanelContainer { Name = "BackSlot6InE", CustomMinimumSize = new Vector2(0, 52) };
-        column.AddChild(_slotRight);
+        // 🔴 用户要求（2026-09-16）：**紫框里那个"多出来的框"删掉** ——
+        //    5/6 号位**合并到左侧同一个长条框**里（两种模式都显示 ⇒ 6 号位不再看不见）✓
+        _slotRight = null;
 
         _mfPanel.AddChild(column);
 
@@ -1329,14 +1333,8 @@ public partial class BattleUi : CanvasLayer
         // 🔴 相机 720 口径：**C 区（橙框：当前角色 + 技能选择）内容会"中途长大"** ——
         //    实测 底栏/ C区 需 162 → **438**（我方回合技能填入后）⇒ 底栏整行被顶高 ⚠️
         //    ⇒ 用 `ScrollContainer` 兜住高度（技能再多也只在框内滚动，不再撑行）✓
-        var cScroll = new ScrollContainer
-        {
-            Name = "CAreaScroll",
-            SizeFlagsVertical = Control.SizeFlags.ExpandFill,
-            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
-        };
-        _cArea.AddChild(cScroll);
-        cScroll.AddChild(cCol);
+        // 🔴 用户要求（2026-09-16）：**技能区不能滚动** ⇒ 去掉滚动容器（改靠"小方块"自然装下）✓
+        _cArea.AddChild(cCol);
 
         // 🔴 P5（用户参考图②）：**左右各一个长条框放 5／6 号位，向两侧靠齐；其余部分向右靠** ✓
         _slotLeft = new PanelContainer
@@ -1365,7 +1363,11 @@ public partial class BattleUi : CanvasLayer
         actorFrame.AddChild(_actorPortrait);
         _actorName = new Label { Name = "CurrentActorName", VerticalAlignment = VerticalAlignment.Center };
         _actorRow.AddChild(_actorName);
-        _bottomRow.AddChild(_cArea);
+        // 🔴 用户要求：**下方给英雄详情留空间** ⇒ 橙框（角色+技能）在上、紫框（详情）在下 ✓
+        var leftStack = new VBoxContainer { Name = "LeftStack", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        leftStack.AddThemeConstantOverride("separation", 6);
+        leftStack.AddChild(_cArea);
+        _bottomRow.AddChild(leftStack);
 
         _skillTitle = new Label { Text = "技能栏（轮到行动者时可用）", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _skillTitle.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextSkill);
@@ -1412,7 +1414,7 @@ public partial class BattleUi : CanvasLayer
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,          // 🔴 **唯一 ExpandFill**（`#321`③）
             SizeFlagsVertical = Control.SizeFlags.ExpandFill,
         };
-        _bottomRow.AddChild(_eArea);
+        leftStack.AddChild(_eArea);   // 🔴 紫框 = 英雄详情（在橙框下方）✓
 
         BuildMultiFunctionBox(); // E 区多功能框（内部自带容器；**创建时进 `_eArea`**）
     }
@@ -1815,7 +1817,8 @@ public partial class BattleUi : CanvasLayer
         //    `Visible = true` 覆盖了）⇒ 把模式可见性**集中到这里**（唯一权威处），否则"设了又被覆盖" ⚠️
         if (_mapModeInventory is not null) { _mapModeInventory.Visible = false; }
         if (_mapModeList is not null) { _mapModeList.Visible = false; }
-        if (_slotRight is not null) { _slotRight.Visible = _mode == SceneMode.Battle; }
+        // 🔴 用户要求：5/6 号位**两种模式都显示**（原先只战斗模式 ⇒ "看不见 6 号位"）✓
+        if (_slotLeft is not null) { _slotLeft.Visible = true; }
 
         // 🔴 `§8`①（**文本自证抓到的**）：**撤退（战斗内）与放弃远征（地图层）必须不同屏** ⇒
         //    实测地图模式里"撤退"仍可见 ⇒ 与放弃远征同屏（手滑 = 一趟白跑）⚠️ ⇒ 按模式裁决 ✓
@@ -2187,7 +2190,7 @@ public partial class BattleUi : CanvasLayer
             string full = SkillName(skillId);
             var b = new Button
             {
-                CustomMinimumSize = new Vector2(88, 88), // §14.2 ④：容器排布要最小尺寸 ✓
+                CustomMinimumSize = new Vector2(56, 56), // 🔴 用户要求：**像 DD 那样只用简单小方块表示行动**（原 88×88 太大 ⇒ 被迫滚动）✓
                 Text = full.Length <= 2 ? full : full.Substring(0, 2),
                 Disabled = sp.Reason != AvailabilityReason.Ok,
                 TooltipText = sp.Reason == AvailabilityReason.Ok ? SkillTooltip(skillId, actor, d) : $"{full}（{sp.Tooltip}）",

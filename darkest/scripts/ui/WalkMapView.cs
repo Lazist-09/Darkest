@@ -46,6 +46,7 @@ public partial class WalkMapView : PanelContainer
     private Control _canvas = null!;
     private int _lastKey = -1;
     private string _lastSketch = string.Empty;
+    private bool _dragging;   // 🔴 拖拽平移状态 ✓
     private Label? _info;   // 🔴 (A)：格子视图顶部信息（当前类型/剩余段数/已揭示）✓
 
     /// <summary>🔴 主程序 (A)：**点相邻房间 ⇒ 移动一格** 的回调 ✓</summary>
@@ -76,6 +77,42 @@ public partial class WalkMapView : PanelContainer
         _canvas.Position = new Vector2(0, 18);
 
         AddChild(_canvas);
+
+        // 🔴 用户要求（2026-09-16）：**地图要像 DD 那样在框里拖拽 / 缩放，且绝不超出框** ✓
+        //    · `ClipContents` ⇒ 画布超出部分被**裁掉**（不会压到别的框）✓
+        //    · 滚轮缩放（0.5~3×）· 左键拖拽平移 ✓
+        ClipContents = true;
+        _canvas.MouseFilter = Control.MouseFilterEnum.Stop;
+        _canvas.GuiInput += (InputEvent e) =>
+        {
+            if (e is InputEventMouseButton mb)
+            {
+                if (mb.Pressed && mb.ButtonIndex == MouseButton.WheelUp)
+                {
+                    ZoomCanvas(1.15f);
+                }
+                else if (mb.Pressed && mb.ButtonIndex == MouseButton.WheelDown)
+                {
+                    ZoomCanvas(1f / 1.15f);
+                }
+                else if (mb.ButtonIndex == MouseButton.Left)
+                {
+                    _dragging = mb.Pressed;
+                }
+            }
+            else if (e is InputEventMouseMotion mm && _dragging)
+            {
+                _canvas.Position += mm.Relative;
+            }
+        };
+    }
+
+    /// <summary>框内缩放（0.5×~3×）—— 与 `ClipContents` 配合 ⇒ **永不超出框** ✓</summary>
+    private void ZoomCanvas(float factor)
+    {
+        float s = Math.Clamp(_canvas.Scale.X * factor, 0.5f, 3f);
+        _canvas.Scale = new Vector2(s, s);
+        GD.Print($"[UI 地图·框内缩放] 缩放 = {s:0.00}×（超出部分由框裁剪）✓");
     }
 
     /// <summary>
