@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Events;
@@ -54,21 +54,51 @@ public partial class MainMenuRoot : Control
         // 🔴 `ui_spec §14.2/§14.3`（`#319` 第五屏补齐）：**主菜单也是"容器 + 不透明 Panel"** ——
         //    它是玩家**第一眼**看到的一屏（此前是手摆坐标、一个 `Panel` 都没有 ⇒ 四屏审计没覆盖到它）✓
         Darkest.Ui.DdTheme.Apply(this); // 本类现在是 `Control` ⇒ 主题沿祖先链继承
-        var menuMargin = new MarginContainer { Name = "MenuMargin" };
-        menuMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        foreach (string side in new[] { "margin_left", "margin_top", "margin_right", "margin_bottom" })
+        // 🔴 骨架优先（用户 2026-09-17：「UI 要能在编辑器里直接干预」）——
+        //    `scenes/ui/main_menu.tscn` 可用 ⇒ **用它当骨架**（边距/列/间距/面板尺寸在编辑器里改）✓
+        //    ⚠️ 场景缺失/类型不符 ⇒ **回落代码构建**（不崩、不静默）✓
+        //    🔴 节点名保持 `MenuMargin` / `MenuCol` / `TitlePanel` / `OptionsPanel` / `OptionsCol` ✓
+        Darkest.Ui.MainMenuSkeleton? skeleton = Darkest.Ui.MainMenuSkeleton.TryInstantiate();
+        PanelContainer titlePanel;
+        PanelContainer optionsPanel;
+        if (skeleton is not null)
         {
-            menuMargin.AddThemeConstantOverride(side, 24);
+            skeleton.Name = "MainMenuSkeleton";
+            AddChild(skeleton);
+            _menuCol = skeleton.MenuCol!;
+            _optionsCol = skeleton.OptionsCol!;
+            titlePanel = skeleton.GetNode<PanelContainer>("MenuMargin/MenuCol/TitlePanel");
+            optionsPanel = skeleton.GetNode<PanelContainer>("MenuMargin/MenuCol/OptionsPanel");
+
+            // 骨架里的占位 Label 由代码统一填数据 ⇒ 先移除骨架自带的占位（避免重复文本）✓
+            skeleton.TitleLabel?.QueueFree();
+            skeleton.StatusLabel?.QueueFree();
+        }
+        else
+        {
+            var menuMargin = new MarginContainer { Name = "MenuMargin" };
+            menuMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            foreach (string side in new[] { "margin_left", "margin_top", "margin_right", "margin_bottom" })
+            {
+                menuMargin.AddThemeConstantOverride(side, 24);
+            }
+
+            AddChild(menuMargin);
+
+            _menuCol = new VBoxContainer { Name = "MenuCol" };
+            _menuCol.AddThemeConstantOverride("separation", 12);
+            menuMargin.AddChild(_menuCol);
+
+            titlePanel = new PanelContainer { Name = "TitlePanel" };
+            _menuCol.AddChild(titlePanel);
+
+            optionsPanel = new PanelContainer { Name = "OptionsPanel", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+            _menuCol.AddChild(optionsPanel);
+            _optionsCol = new VBoxContainer { Name = "OptionsCol" };
+            _optionsCol.AddThemeConstantOverride("separation", 8);
+            optionsPanel.AddChild(_optionsCol);
         }
 
-        AddChild(menuMargin);
-
-        _menuCol = new VBoxContainer { Name = "MenuCol" };
-        _menuCol.AddThemeConstantOverride("separation", 12);
-        menuMargin.AddChild(_menuCol);
-
-        var titlePanel = new PanelContainer { Name = "TitlePanel" };
-        _menuCol.AddChild(titlePanel);
         _title = new Label
         {
             Name = "MenuTitle",
@@ -76,12 +106,6 @@ public partial class MainMenuRoot : Control
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
         };
         titlePanel.AddChild(_title);
-
-        var optionsPanel = new PanelContainer { Name = "OptionsPanel", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
-        _menuCol.AddChild(optionsPanel);
-        _optionsCol = new VBoxContainer { Name = "OptionsCol" };
-        _optionsCol.AddThemeConstantOverride("separation", 8);
-        optionsPanel.AddChild(_optionsCol);
 
         AddMenuButton("单场战斗（A1 判定闸）", BattleScene, 0);
         AddMenuButton("出发远征（地牢层）", ExpeditionScene, 1);
@@ -109,8 +133,13 @@ public partial class MainMenuRoot : Control
                  $"起手可用上限 {unlocks.RosterBaseCap}（硬上限 {roster.Cap}）　" +
                  $"{ExpeditionContext.Progress.Audit(unlocks, roster.Cap)}");
 
-        var statusPanel = new PanelContainer { Name = "StatusPanel" };
-        _menuCol.AddChild(statusPanel);
+        // 🔴 骨架优先：状态面板也用骨架的（缺失则代码建）；节点名 `StatusPanel` 保持不变 ✓
+        PanelContainer statusPanel = skeleton?.GetNodeOrNull<PanelContainer>("MenuMargin/MenuCol/StatusPanel")
+            ?? new PanelContainer { Name = "StatusPanel" };
+        if (statusPanel.GetParent() is null)
+        {
+            _menuCol.AddChild(statusPanel);
+        }
         _status = new Label
         {
             Name = "MenuStatus",
