@@ -373,58 +373,9 @@ public partial class BattleUi : CanvasLayer
         box.TooltipText = $"{slot} 号位：{display}　HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
     }
 
-    private static Texture2D? _placeholderCombatTex;
-    private static bool _placeholderProbed;
-
-    /// <summary>
-    /// 🔴 策划 `#348`③：**战斗单帧占位渲染** —— 只从 `HeroAssets.PlaceholderRoot` 读（拷进 `resources/` **不会**被加载，`§8` 的设计）✓
-    /// 引用形态由数据给：`hero.json` 的 `actions.combat.frames[0]` 是**相对 PlaceholderRoot** 的路径 ✓
-    /// ⚠️ 取不到 ⇒ 返回 null 并**一次性留痕**（回落到"原型色块 + 首字"，不静默、不假装）✓
-    /// 🔴 **V6 纪律**：这只证明"**接口能装下 + UI 能显示**"，**不证明**"动画能播"（那需 Spine，本阶段裁掉）✓
-    /// </summary>
-    private static Texture2D? PlaceholderCombatTexture()
-    {
-        if (_placeholderProbed)
-        {
-            return _placeholderCombatTex;
-        }
-
-        _placeholderProbed = true;
-        string jsonPath = $"{Darkest.Data.HeroAssets.PlaceholderRoot}/hero.json";
-        if (!Godot.FileAccess.FileExists(jsonPath))
-        {
-            GD.Print($"[UI 占位英雄] `{jsonPath}` 不存在 ⇒ 回落色块+首字（正式路径不受影响）✓");
-            return null;
-        }
-
-        try
-        {
-            Darkest.Data.HeroAssetsConfig cfg = Darkest.Data.HeroAssets.Parse(
-                Godot.FileAccess.GetFileAsString(jsonPath));
-            if (!cfg.Actions.TryGetValue("combat", out Darkest.Data.HeroActionSlot? slot) || slot.Frames.Count == 0)
-            {
-                GD.Print("[UI 占位英雄] 占位 `hero.json` 里没有 `combat` 帧 ⇒ 回落色块+首字（不静默）✓");
-                return null;
-            }
-
-            string refPath = slot.Frames[0];
-            string full = $"{Darkest.Data.HeroAssets.PlaceholderRoot}/{refPath}";
-            // ⚠️ 修正：占位 png 在 `res://assets/` 下且**没有导入产物**（`.import`）⇒ `ResourceLoader` 载不动 ⚠️
-            //    ⇒ 正解：**直接读文件解码**（`Image.LoadFromFile` + `ImageTexture`）——这是"本地占位"该走的路 ✓
-            Godot.Image? img = Godot.Image.LoadFromFile(full); // 🔴 `Image.LoadFromFile` 是**静态**方法（返回 null = 解码失败）✓
-            _placeholderCombatTex = img is null ? null : Godot.ImageTexture.CreateFromImage(img);
-            GD.Print(_placeholderCombatTex is null
-                ? $"[UI 占位英雄] 载入失败：`{full}` ⇒ 回落色块+首字（不静默）✓"
-                : $"[UI 占位英雄] ✅ 战斗单帧用占位：`{full}`（**只从 PlaceholderRoot 读**；`placeholder={cfg.Placeholder}`）✓");
-            return _placeholderCombatTex;
-        }
-        catch (Exception ex)
-        {
-            GD.Print($"[UI 占位英雄] 占位配置解析失败：{ex.Message} ⇒ 回落色块+首字（不静默）✓");
-            return null;
-        }
-    }
-
+    /// <summary>🔴 策划 `#348`③：战斗单帧占位 —— 统一走共享入口 `HeroArt.CombatTexture()`（**只从 PlaceholderRoot 读**）✓
+    /// ⚠️ V6 纪律：只证明"接口能装下 + UI 能显示"，**不证明**"动画能播"（需 Spine，本阶段裁掉）✓</summary>
+    private static Texture2D? PlaceholderCombatTexture() => Darkest.Ui.HeroArt.CombatTexture();
     /// <summary>🔴 用户规则②：**保留色相、只把 α 换成调色板里的占位透明度**（空闲位半透明 ⇒ 一眼看出"待填"）✓</summary>
     private static Color WithPlaceholderAlpha(Color hue)
     {

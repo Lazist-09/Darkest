@@ -1366,11 +1366,27 @@ public partial class HamletRoot : Node2D
                 b.AddChild(rowBody);
                 var frame = new PanelContainer { Name = "PortraitFrame", CustomMinimumSize = new Vector2(26, 26) };
                 rowBody.AddChild(frame);
-                frame.AddChild(new ColorRect
+                // 🔴 策划 `#348`③：名册头像 —— **能用占位 `portrait.png` 就画**（`P31` 契约字段已在代码里）✓
+                //    取不到 ⇒ 保留【半透明原型色块】（规则②），不空着、不静默 ✓
+                var ph = new ColorRect
                 {
                     Name = "PortraitPlaceholder", // 🔴 色块占位（`§14.4` 原型色 ⇒ 不硬写字面量）✓
                     Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true)),   // 🔴 规则②：α 取调色板
-                });
+                };
+                frame.AddChild(ph);
+                if (Darkest.Ui.HeroArt.PortraitTexture() is Texture2D pTex)
+                {
+                    var pArt = new TextureRect
+                    {
+                        Name = "PortraitArt",
+                        Texture = pTex,
+                        ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                        StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+                        MouseFilter = Control.MouseFilterEnum.Ignore, // 右键头像开详情 ⇒ 热区在 frame 上，别被抢 ✓
+                    };
+                    pArt.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+                    frame.AddChild(pArt);
+                }
 
                 // 🔴 **用户要求（2026-09-15）：角色详情 = 【右键头像】点开**（左键点行仍是"选中"，供减压用）✓
                 frame.MouseFilter = Control.MouseFilterEnum.Stop; // 头像要自己收鼠标事件（否则被按钮吃掉）
