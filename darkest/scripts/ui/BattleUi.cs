@@ -389,6 +389,7 @@ public partial class BattleUi : CanvasLayer
     private PanelContainer? _abandonConfirm;
     private bool _abandonWarned;
     private bool _labelProofed;   // 🔴 文本级自证只打一次 ✓
+    private bool _abandonSmoked;  // 🔴 冒烟 --abandon 只按一次 ✓
 
     /// <summary>
     /// 🔴 `retreat.md §8`：宿主把【放弃远征】动作交给我（**不破 `Bind` 签名**：`Bind` 之后调一次即可）✓
@@ -554,6 +555,15 @@ public partial class BattleUi : CanvasLayer
         if (_retreatButton is not null) { _retreatButton.Visible = _mode == SceneMode.Battle; }   // 🔴 用字段 _mode（两处同名代码都能编译）
 
         // 🔴 `§8`①：**放弃远征（地图层）与撤退（战斗内）不得同屏** ⇒ 前者只在行走模式可见（且需宿主已注入动作）✓
+        // 🔴 冒烟：`--abandon` ⇒ 按下【放弃远征】（**只弹出二次确认，不确认**，避免真结束一趟）✓
+        if (_abandonButton is not null && _abandonExpedition is not null
+            && _mode == SceneMode.Map && !_abandonSmoked
+            && Array.Exists(OS.GetCmdlineArgs(), x => x == "--abandon"))
+        {
+            _abandonSmoked = true;
+            PressAbandon();
+        }
+
         if (_abandonButton is not null)
         {
             _abandonButton.Visible = _mode == SceneMode.Map && _abandonExpedition is not null;
@@ -1812,6 +1822,15 @@ public partial class BattleUi : CanvasLayer
         if (_retreatButton is not null) { _retreatButton.Visible = _mode == SceneMode.Battle; }   // 🔴 用字段 _mode（两处同名代码都能编译）
 
         // 🔴 `§8`①：**放弃远征（地图层）与撤退（战斗内）不得同屏** ⇒ 前者只在行走模式可见（且需宿主已注入动作）✓
+        // 🔴 冒烟：`--abandon` ⇒ 按下【放弃远征】（**只弹出二次确认，不确认**，避免真结束一趟）✓
+        if (_abandonButton is not null && _abandonExpedition is not null
+            && _mode == SceneMode.Map && !_abandonSmoked
+            && Array.Exists(OS.GetCmdlineArgs(), x => x == "--abandon"))
+        {
+            _abandonSmoked = true;
+            PressAbandon();
+        }
+
         if (_abandonButton is not null)
         {
             _abandonButton.Visible = _mode == SceneMode.Map && _abandonExpedition is not null;
