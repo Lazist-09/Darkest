@@ -194,8 +194,14 @@ public sealed class ExpeditionFlowStateMachineTests
             "金钱变更必写事件（数字必须来自事件流）");
     }
 
+    /// <summary>
+    /// 🔴🔴 **`#352` 语义拆分**（策划 `retreat.md §1/§3`）—— 本条用例**原先断言的正是被推翻的旧契约**：
+    /// 旧：`撤退 ⇒ 本趟结束（#233）` ⚠️（= "撤退 = 结局"）
+    /// 新：**撤退 = 【一场】的选择 ⇒ 本趟【不】结束**（回地图当前格继续走）；**只有全灭 / 放弃远征才结束** ✓
+    /// 📌 这正是"**既有用例依赖错误行为**是洞曾存在的最硬证据"那套方法论的现场实例 ✓
+    /// </summary>
     [TestMethod]
-    public void Flow_NonVictory_EndsRun()
+    public void Flow_RetreatDoesNotEndRun_ButWipeDoes()
     {
         (ExpeditionFlow flow, _, _) = NewFlow();
         FlowStep step = flow.Advance(1); // option 1 = 战斗（确定性）
@@ -206,6 +212,11 @@ public sealed class ExpeditionFlowStateMachineTests
         }
 
         flow.OnBattleFinished("DrawRetreat", rounds: 5);
-        Assert.IsTrue(flow.IsFinished, "撤退 ⇒ 本趟结束（#233：该场判负 + 中止 run）");
+        Assert.IsFalse(flow.IsFinished, "🔴 **撤退不再结束本趟**（#352：撤退是【一场】的选择）✓");
+        Assert.AreEqual(ExpeditionOutcome.InProgress, flow.Outcome, "撤退后结局仍是「进行中」 ✓");
+
+        flow.OnBattleFinished("EnemyVictory", rounds: 5);
+        Assert.IsTrue(flow.IsFinished, "**全灭**才是【一趟】的结局 ✓");
+        Assert.AreEqual(ExpeditionOutcome.Wiped, flow.Outcome, "结局 = 全灭 ✓");
     }
 }

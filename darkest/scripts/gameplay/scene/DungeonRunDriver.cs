@@ -57,12 +57,12 @@ public static class DungeonRunDriver
     /// 🔴 **本趟结算并回城**（`--hamlet-next` 与冒烟步骤 `town` **共用同一实现** ⇒ 不会两处漂移）✓
     /// 📌 这一步**不依赖任何 UI 面板**（纯流程 + 切场景）⇒ 旧场景退休后可以**立刻**在宿主侧接上 ✓
     /// </summary>
-    public static void ReturnToTown(BattleRoot host, ExpeditionFlow flow)
+    public static void ReturnToTown(BattleRoot host, ExpeditionFlow flow, string result = "completed")
     {
         // 🔴 **打印自证**（我自己的纪律：动作必须留下可读的痕迹 —— 否则"跑没跑过"看不出来）✓
         GD.Print($"[片4-driver] ✅ 结算回城：走 {flow.StepsDone} 段 ／ 胜 {flow.Wins} ／ " +
                  $"光照 {flow.Meter.Value} ⇒ 切城池（`--hamlet-next` 与冒烟 `town` 共用此实现）✓");
-        flow.ReturnToTown("completed");
+        flow.ReturnToTown(result); // 🔴 `#352`：completed = 走完 ／ abandoned = 放弃远征 ✓
         ExpeditionContext.End();
         host.GetTree().CallDeferred("change_scene_to_file", Darkest.Ui.MainMenuRoot.HamletScene);
     }
@@ -116,7 +116,7 @@ public static class DungeonRunDriver
             GD.Print($"[E2E] 阶段0 跑图：四场胜利 ⇒ 金钱 {ExpeditionContext.Gold?.Gold ?? 0}" +
                      $"　传家宝 {(hs is null ? "未接入" : string.Join("/", hs.Kinds.Select(k => $"{k}×{hs.Count(k)}")))} ✓");
 
-            flow.ReturnToTown("completed");
+            flow.ReturnToTown("completed"); // 阶段0 结算 = 走完 ✓（`#352` 的 `result` 参数只给 `ReturnToTown` 本体用）
             ExpeditionContext.Roster?.ApplyReturnFromRun(log, flow.Session.Roster().Select(r => (r.Id, r.Morale)));
             ExpeditionContext.End();
             ExpeditionContext.E2EStage = 1;

@@ -330,6 +330,20 @@ public partial class BattleRoot : Node2D
         GD.Print($"[片4] ✅ 走格已开启（段消耗 = −`light.node_step` = {segmentCost}，取自已解析数据）" +
                  $"　网格 {built.Flow.TileWalk!.Grid.Width}×{built.Flow.TileWalk.Grid.Height}" +
                  $"　房间块 {built.Flow.TileWalk.Segments.Count} 段走廊　队伍在 ({built.Flow.TilePosition.X},{built.Flow.TilePosition.Y}) ✓");
+
+        // 🔴 `#352`：**把【放弃远征】入口注入 UI**（UI 已实现 `SetAbandonAction` + 二次确认，**但无人调用 ⇒ 按钮永不显示** ⚠️）
+        //    · 语义：**放弃远征 = 【一趟】的选择**（结束本趟 ⇒ 回城·未完成）
+        //    · 与"撤退"（【一场】的选择）**分开**（红线 19：措辞不得混淆）✓
+        _ui.SetAbandonAction(() =>
+        {
+            if (ExpeditionContext.Flow is { } abandonFlow)
+            {
+                GD.Print("[片4] 🚪 **放弃远征**（地图层动作：结束本趟 ⇒ 回城·未完成）✓");
+                abandonFlow.Abandon("player_map_action");
+                DungeonRunDriver.ReturnToTown(this, abandonFlow, result: "abandoned");
+            }
+        });
+        GD.Print("[片4] ✅ 【放弃远征】入口已注入 UI（`SetAbandonAction`）⇒ 按钮现在会显示 ✓");
         _ui.EnterMapMode();
         GD.Print($"[片4] ✅ **场景内进入地牢**（地图模式）：Phase={built.Flow.Session.Phase}　" +
                  $"段数={built.Flow.StepsDone}　光照={built.Flow.Meter.Value}　" +

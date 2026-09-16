@@ -54,6 +54,33 @@ public sealed class ExpeditionFlow
     private ExpeditionMapConfig? _mapCfg;
     private ExpeditionMap? _map;
     private HashSet<int>? _visitedRooms;
+
+    /// <summary>🔴 `#352`：**已处理过的格**（战斗撤退后该格算"避过" ⇒ 不会走回去重打 ✓）</summary>
+    private readonly HashSet<int> _resolvedRooms = new();
+
+    /// <summary>🔴 一趟的结局（**三类**：走完 / 放弃 / 全灭 ⇒ `RunOutcome`）—— **撤退后仍是 `InProgress`** ✓</summary>
+    public ExpeditionOutcome Outcome { get; private set; } = ExpeditionOutcome.InProgress;
+
+    /// <summary>该格是否已处理（表现层据此**不再触发**那格的遭遇/战斗 ✓）</summary>
+    public bool IsRoomResolved(int roomId) => _resolvedRooms.Contains(roomId);
+
+    /// <summary>
+    /// 🔴 **放弃远征**（`retreat.md §1②`：**地图层的【一趟】选择**）⇒ 结束本趟（回城 · 未完成）✓
+    /// ⚠️ 与"撤退"**必须分开**（撤退是【一场】的选择 ⇒ 见 `OnBattleFinished` 的 `DrawRetreat` 分支）✓
+    /// </summary>
+    public void Abandon(string reason)
+    {
+        if (IsFinished)
+        {
+            return; // 已收口 ⇒ 幂等 ✓
+        }
+
+        Outcome = ExpeditionOutcome.Abandoned;
+        IsFinished = true;
+        // ⚠️ 事件流留痕：本项目**没有**"放弃远征"的事件类型 ⇒ 我**不新造**（新事件类型属契约 ⇒ 需架构登记）
+        //    当前留痕方式 = 结局状态本身（`Outcome = Abandoned` + `IsFinished`），并可读 `CombatLog` 里既有事件 ✓
+        _ = reason;
+    }
     private int _currentRoomId = -1;
 
     /// <summary>是否拓扑模式（地图驱动）。</summary>
@@ -317,7 +344,8 @@ public sealed class ExpeditionFlow
     /// <summary>上一次侦察结果（供 UI 必显 13）。</summary>
     public ScoutOutcome? LastScout { get; private set; }
 
-    /// <summary>本趟是否已结束（走完 6 步 / 撤退 / 全灭）。</summary>
+    /// <summary>🔴 本趟是否已结束（**走完主干到终点 / 放弃远征 / 全灭**）—— **撤退不在其中**（`#352` 语义拆分）。
+/// 结局细分见 `Outcome`（`RunOutcome`）；**`IsFinished` 只是"是否已收口"的粗判** ✓</summary>
     public bool IsFinished { get; private set; }
 
     /// <summary>
@@ -382,6 +410,26 @@ public sealed class ExpeditionFlow
 
         if (result != "PlayerVictory")
         {
+            // 🔴🔴 `#352` **语义拆分**（策划 `retreat.md §1/§2/§3`）：
+            //    · **撤退**（`DrawRetreat`）= **【一场】的选择** ⇒ **不再结束本趟** ⚠️（旧实现是"撤退=结束"）
+            //      且把**当前格标记为已处理**（§2：撤退后那格算"避过" ⇒ 不会走回去重打 ✓）
+            //    · **全灭**（`EnemyVictory`）= **【一趟】的结局** ⇒ 结束本趟，结局 = `Wiped` ✓
+            if (result == "DrawRetreat")
+            {
+                if (_currentRoomId >= 0)
+                {
+                    _resolvedRooms.Add(_currentRoomId);
+                }
+
+                if (!IsTopologyMode)
+                {
+                    StepsDone++; // 线性模式（历史路径）才计步；**拓扑模式下 `StepTo` 已计过** ⇒ 不重复 ✓
+                }
+
+                return; // ⚠️ **不置 `IsFinished`、不改结局** —— 这正是本次拆分的要点 ✓
+            }
+
+            Outcome = ExpeditionOutcome.Wiped;
             IsFinished = true;
             StepsDone++;
             return;
@@ -831,6 +879,13 @@ public sealed class ExpeditionFlow
     public int ReturnToTown(string outcome)
     {
         IsFinished = true;
+        // 🔴 `#352`：把"为什么回城"写进**结局**（completed / abandoned；全灭已在战斗层置 `Wiped`）✓
+        Outcome = outcome switch
+        {
+            "completed" => ExpeditionOutcome.Completed,
+            "abandoned" => ExpeditionOutcome.Abandoned,
+            _ => Outcome,
+        };
 
         // 🔴 `next_round` ③：**记"一趟结束"到跨趟进度** —— 这里是**所有路径的唯一咽喉**
         //    （UI 有 `FinishRunToTown` ／线性 e2e 直接调本方法 ⇒ 只挂在 UI 上会**漏计**：我实测踩到，
