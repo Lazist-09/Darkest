@@ -85,6 +85,16 @@ public static class SmokeScript
 
         if (Steps.Count == 0)
         {
+            // 🔴 片 4 收口修（实测抓到）：`--e2e` / `--hamlet-next` / `--topology-auto` **有自己的生命周期**
+            //    （`--e2e` 要跨"地牢 → 回城 → 再出发"三个阶段）⇒ 冒烟步骤走完**不得自动退出**
+            //    ⚠️ 原行为：走完即 `Quit()` ⇒ **阶段2 的切场景被退出抢先**（实测：阶段2 永远跑不到）✓
+            string[] selfManaged = { "--e2e", "--hamlet-next", "--topology-auto" };
+            if (System.Array.Exists(OS.GetCmdlineArgs(), a => System.Array.IndexOf(selfManaged, a) >= 0))
+            {
+                GD.Print($"[冒烟] ✅ 全部 {_applied} 步已执行完 ⇒ **不自退**（该 CLI 有自己的生命周期，交给它）✓");
+                return;
+            }
+
             GD.Print($"[冒烟] ✅ 全部 {_applied} 步已执行完 ⇒ 退出");
             node.GetTree().Quit();
             return;

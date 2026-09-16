@@ -325,7 +325,12 @@ public partial class BattleRoot : Node2D
         _ui.EnterMapMode();
         GD.Print($"[片4] ✅ **场景内进入地牢**（地图模式）：Phase={built.Flow.Session.Phase}　" +
                  $"段数={built.Flow.StepsDone}　光照={built.Flow.Meter.Value}　" +
-                 $"CanShowPathChoice={built.Flow.Session.CanShowPathChoice}（应为 True）✓");
+                 // 🔴 修正一句"会撒谎的打印"（实测抓到）：**复用一趟时可能停在 `Battle` 相位**（战斗还没打完）
+                 //    ⇒ 那时 `CanShowPathChoice=False` **本来就是对的**，而原句却硬写"应为 True" ⚠️
+                 //    ⇒ 改成按相位给期望：`Walking/Camp` 才期望 True ✓（不再用一句固定期望覆盖两种真相）
+                 $"CanShowPathChoice={built.Flow.Session.CanShowPathChoice}" +
+                 $"（相位 {built.Flow.Session.Phase} ⇒ 期望 {(built.Flow.Session.Phase is Darkest.Gameplay.Sim.Run.FlowPhase.Walking
+                     or Darkest.Gameplay.Sim.Run.FlowPhase.Camp ? "True" : "False")}）✓");
         return true;
     }
     private void BindUi()
