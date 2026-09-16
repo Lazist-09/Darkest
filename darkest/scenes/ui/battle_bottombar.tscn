@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/BattleBottomBarSkeleton.cs" id="1_bot"]
+
+[node name="BottomRowBox" type="HBoxContainer"]
+theme_override_constants/separation = 10
+size_flags_vertical = 3
+script = ExtResource("1_bot")
+
+[node name="BackSlot5" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(72, 112)
+size_flags_horizontal = 0
+
+[node name="LeftStack" type="VBoxContainer" parent="."]
+theme_override_constants/separation = 6
+size_flags_horizontal = 3
+
+[node name="CArea" type="PanelContainer" parent="LeftStack"]
+custom_minimum_size = Vector2(260, 0)
+
+[node name="ActorDetailBox" type="PanelContainer" parent="LeftStack"]
+custom_minimum_size = Vector2(0, 84)
+
+[node name="EArea" type="PanelContainer" parent="."]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DungeonHost" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(240, 72)
+size_flags_horizontal = 8
