@@ -29,15 +29,24 @@ public sealed record V10Readings(
     double RetreatWithoutAbandonRate,
     IReadOnlyList<int> RetreatCountsPerRun)
 {
+    /// <summary>🆕 策划 `#387`②：**有走完的趟吗**（完成率的**样本存在性**）—— 没有 ⇒ 完成率**无样本** ✓</summary>
+    public bool HasCompletionSample => Completed > 0;
+
+    /// <summary>🆕 策划 `#387`②：**有撤退场次吗** ⇒ 没有 ⇒ 「撤而不弃」**无样本**（**不是 0%**）✓</summary>
+    public bool HasRetreatSample => RetreatResolvedTotal > 0;
+
     /// <summary>🔴 **判据①**：三类结局计数 + 未结束 == 总趟数（**和必须闭合**，否则说明事件流缺读数 ✓）</summary>
     public bool CountsClose => Completed + Abandoned + Wiped + Unfinished == Runs;
 
     /// <summary>结局分布（供报告打印）✓</summary>
     public string Describe()
+        // 🔴🔴 策划 `#387`② **硬规矩**：**凡"该读数无样本" ⇒ 报 `N/A（无样本：…）`，【不报 `0.0%`】** ✓
+        //    —— 理由：`0.0%` 会被读成"撤退无效"，而真相只是"这批没有样本"（红线 17 ⑧：`0` 是最极端的读数 ⇒ 先怀疑口径）✓
         => $"趟 {Runs}：走完 {Completed} ／ 放弃 {Abandoned} ／ 全灭 {Wiped} ／ 未结束 {Unfinished}" +
-           $"　完成率 {(CompletionRate * 100):F1}%　撤退场次 {RetreatResolvedTotal}（退过的趟 {RunsWithAnyRetreat}，" +
+           $"　完成率 {(HasCompletionSample ? $"{(CompletionRate * 100):F1}%" : "N/A（无样本：0 趟走完）")}" +
+           $"　撤退场次 {RetreatResolvedTotal}（退过的趟 {RunsWithAnyRetreat}，" +
            $"0/1/≥2 = {RetreatCountsPerRun.Count(c => c == 0)}/{RetreatCountsPerRun.Count(c => c == 1)}/{RetreatCountsPerRun.Count(c => c >= 2)}）" +
-           $"　撤而不弃 {(RetreatWithoutAbandonRate * 100):F1}% ✓";
+           $"　撤而不弃 {(HasRetreatSample ? $"{(RetreatWithoutAbandonRate * 100):F1}%" : "N/A（无样本：0 趟撤退）")} ✓";
 
     /// <summary>从"每趟一份事件流"计算 ✓（`null`/空日志 ⇒ 该趟记为 `Unfinished`，**不静默当成走完**）✓</summary>
     public static V10Readings From(IEnumerable<IReadOnlyList<BattleEvent>> runEventStreams)
