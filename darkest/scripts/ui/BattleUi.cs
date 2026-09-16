@@ -141,14 +141,17 @@ public partial class BattleUi : CanvasLayer
     {
         if (_dungeonHost is null || !GodotObject.IsInstanceValid(_dungeonHost))
         {
-            _dungeonHost = new VBoxContainer
+            _dungeonHost = _bottomBarSkel?.DungeonHost ?? new VBoxContainer
             {
                 // 🔴 消重叠（宽度预算）：宿主不再与 E 区都 ExpandFill 争宽 ⇒ 固定 240 宽 + 靠右，E 区吃剩余宽
                     Name = "DungeonHost",
                 CustomMinimumSize = new Vector2(240, 72),    // 🔴 相机 720 口径：104→72
                 SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd,
             };
-            _bottomRow.AddChild(_dungeonHost);
+            if (_dungeonHost.GetParent() is null)
+            {
+                _bottomRow.AddChild(_dungeonHost);
+            }
         }
 
         return _dungeonHost;
@@ -1171,6 +1174,12 @@ public partial class BattleUi : CanvasLayer
         bottomPanel.AddChild(bottomRow);
         _bottomRow = bottomRow;
 
+        _bottomBarSkel = Darkest.Ui.BattleBottomBarSkeleton.TryInstantiate();
+        if (_bottomBarSkel is not null)
+        {
+            bottomPanel.AddChild(_bottomBarSkel);
+        }
+
         BuildTopRow();
         BuildBattlefield();
         BuildBottomRow();
@@ -1352,7 +1361,7 @@ public partial class BattleUi : CanvasLayer
     /// <summary>底栏：C 区（固定宽，**技能栏在 C 区内**）＋ E 区（多功能框，**唯一 ExpandFill**）。</summary>
     private void BuildBottomRow()
     {
-        _cArea = new PanelContainer
+        _cArea = _bottomBarSkel?.CArea ?? new PanelContainer
         {
             Name = "CArea",
             CustomMinimumSize = new Vector2(260, 0),   // 🔴 再收（相机 1280 口径：底栏多项最小宽之和曾超额）                    // 固定宽 ≈ 30%（`#321`③）
@@ -1367,14 +1376,17 @@ public partial class BattleUi : CanvasLayer
         _cArea.AddChild(cCol);
 
         // 🔴 P5（用户参考图②）：**左右各一个长条框放 5／6 号位，向两侧靠齐；其余部分向右靠** ✓
-        _slotLeft = new PanelContainer
+        _slotLeft = _bottomBarSkel?.BackSlot5 ?? new PanelContainer
         {
             Name = "BackSlot5",
             CustomMinimumSize = new Vector2(72, 112),   // 🔴 再收（相机 1280 口径）
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,   // 左条：**向左靠齐**
         };
-        _bottomRow.AddChild(_slotLeft);      // 先加左条 ⇒ 它在最左
-        _bottomRow.MoveChild(_slotLeft, 0);
+        if (_slotLeft.GetParent() is null)
+        {
+            _bottomRow.AddChild(_slotLeft);      // 先加左条 ⇒ 它在最左
+            _bottomRow.MoveChild(_slotLeft, 0);
+        }
 
         // 🔴 P5：**橙框分区** —— ⚠️ 只能用【只染边框】的手段：`Modulate` 是**乘法**，会把整个子树（含文字）压暗
         //    （实测教训：一度用 `Modulate` 上色 ⇒ "战斗 UI 啥也看不见"）⇒ 正解 = `panel` 样式覆盖，仅换边框色 ✓
@@ -1394,12 +1406,15 @@ public partial class BattleUi : CanvasLayer
         _actorName = new Label { Name = "CurrentActorName", VerticalAlignment = VerticalAlignment.Center };
         _actorRow.AddChild(_actorName);
         // 🔴 用户要求：**下方给英雄详情留空间** ⇒ 橙框（角色+技能）在上、紫框（详情）在下 ✓
-        var leftStack = new VBoxContainer { Name = "LeftStack", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        VBoxContainer leftStack = _bottomBarSkel?.LeftStack ?? new VBoxContainer { Name = "LeftStack", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         leftStack.AddThemeConstantOverride("separation", 6);
-        leftStack.AddChild(_cArea);
+        if (_cArea.GetParent() is null)
+        {
+            leftStack.AddChild(_cArea);
+        }
 
         // 🔴 用户更正（2026-09-16）：**技能框下方 = 角色详情框**（紫边；多功能框回右侧原位）✓
-        _actorDetailBox = new PanelContainer { Name = "ActorDetailBox", CustomMinimumSize = new Vector2(0, 84) };
+        _actorDetailBox = _bottomBarSkel?.ActorDetailBox ?? new PanelContainer { Name = "ActorDetailBox", CustomMinimumSize = new Vector2(0, 84) };
         ((Control)_actorDetailBox).AddThemeStyleboxOverride("panel",
             Darkest.Ui.DdTheme.MakePanelStyle(Darkest.Ui.DdTheme.PanelBgRaised.Lightened(0.22f), Darkest.Ui.DdTheme.Mental));
         _actorDetail = new Label
@@ -1410,8 +1425,15 @@ public partial class BattleUi : CanvasLayer
         };
         _actorDetail.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
         _actorDetailBox.AddChild(_actorDetail);
-        leftStack.AddChild(_actorDetailBox);
-        _bottomRow.AddChild(leftStack);
+        if (_actorDetailBox.GetParent() is null)
+        {
+            leftStack.AddChild(_actorDetailBox);
+        }
+        if (leftStack.GetParent() is null)
+        {
+            leftStack.AddThemeConstantOverride("separation", 6);
+            _bottomRow.AddChild(leftStack);
+        }
 
         _skillTitle = new Label { Text = "技能栏（轮到行动者时可用）", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _skillTitle.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextSkill);
@@ -1452,13 +1474,13 @@ public partial class BattleUi : CanvasLayer
         _supportButton.Pressed += () => PressSupportPack();
         _actionButtons.AddChild(_supportButton);
 
-        _eArea = new PanelContainer
+        _eArea = _bottomBarSkel?.EArea ?? new PanelContainer
         {
             Name = "EArea",
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,          // 🔴 **唯一 ExpandFill**（`#321`③）
             SizeFlagsVertical = Control.SizeFlags.ExpandFill,
         };
-        _bottomRow.AddChild(_eArea);   // 🔴 用户更正（2026-09-16）：**紫框=多功能框回原位（右侧）** ✓
+        if (_eArea.GetParent() is null) { _bottomRow.AddChild(_eArea); }
 
         BuildMultiFunctionBox(); // E 区多功能框（内部自带容器；**创建时进 `_eArea`**）
     }
@@ -1537,6 +1559,7 @@ public partial class BattleUi : CanvasLayer
     //    否则它们会加回 CanvasLayer（`this`）⇒ 逃出 `_uiRoot` 子树 ⇒ 判据看不到它们（实测"可见 Label 0"）⚠️
     private Container _topRow = null!;
     private Darkest.Ui.BattleTopBarSkeleton? _topBarSkel;   // 🔴 顶栏骨架（字段承载 ⇒ 避开作用域问题）✓
+    private Darkest.Ui.BattleBottomBarSkeleton? _bottomBarSkel;
     private Container _midRow = null!;
     private Container _bottomRow = null!;
 
