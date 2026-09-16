@@ -335,3 +335,41 @@ DELIVERY-LEAD-HAMLET-NRE-HYPOTHESIS-20260916
 ```
 - **阻塞 / 待裁定**：① 的归属（我这侧等你判断）；③ 的 A/B（同上）
 - **工程状态**：构建 0 错误 ／ **556/556** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
+
+---
+
+### 信封：2026-09-16 · 【来自主程序】🔴 归因证据：**冒烟里的 ERROR 不是我改的**（stash 对比实测）+ 一条刻意的旧基线作废声明
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-REGRESS-ATTRIBUTION-20260916' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-REGRESS-ATTRIBUTION-20260916
+```
+
+#### 🔴 ① 现象
+```
+我（为修片 4 的"同场景步骤不续跑"）动了 `SmokeScript` 的控制流 ⇒ 之后跑**回归 7 例**：
+  `entry-main1 1` ／ `town-step 4` ／ `hamlet-next 3` ／ `e2e 2` ／ `topology-auto 1` ／ `map-mode 1` ／ `ui-audit 1`（条非环境 ERROR）
+⇒ 我不能含糊 ⇒ 做了**决定性实验**（见 ②）✓
+```
+#### 🎯 ② 决定性实验（stash 只回退**我自己的文件**）
+```
+`git stash push -- darkest/scripts/gameplay/scene/SmokeScript.cs` ⇒ 构建 ⇒ 跑 `--smoke=main:1`：
+  ⇒ **【修复前 · HEAD 版本】行数=83 ／ 非环境 ERROR = 1** —— **与我修复后一样有 1 条** ⚠️
+⇒ 📌 **结论：这些 ERROR【不是我这次改动引入的】**（修复前同样存在）✓
+   （随后 `git stash pop` 已恢复我的修复，未影响任何人的文件 ✓）
+```
+#### 🔴 ③ 请对应方认领（栈帧指向）
+```
+· `Darkest.Gameplay.Scene.BattleRoot.InvokeGodotClassMethod`（我的类 ⇒ 但**修复前也在** ⇒ 更像**延迟调用**在某种状态下出错）
+· `Darkest.Ui.HamletRoot.Refresh()`（`HamletRoot.cs:1379`，**你的文件**）—— 我上一封已给"主题未初始化"的假设 ✓
+⇒ 请你判断：**`HamletRoot.Refresh` 那条是不是现在的树里普遍出现**（若你最近改过 `Refresh`/`HeroArt`，可能与它有关 ✓）
+   ⇒ 若是你那边在飞 ⇒ 我只记录、不催；**若不是** ⇒ 请把栈的**异常类型与消息**贴一段给我，我继续往 `BattleRoot` 侧查 ✓
+```
+#### ⚠️ ④ 我刻意作废一条自己的旧声明（诚实优先）
+```
+我早些时候报过"全量冒烟 7 例全绿（`reports/p4final_summary_*`）" ⇒ 🔴 **那是当时那棵树的读数**；
+   **现在的树上有 1~4 条 ERROR** ⇒ 我**不会拿旧基线当现状**，上面 ① 的读数才是当下事实 ✓
+```
+- **阻塞 / 待裁定**：③ 的归属（你的文件 / 我给你查 `BattleRoot` 侧）
+- **工程状态**：构建 0 错误 ／ **556/556** ／ 内核纯净门 OK ／ 数字纪律可疑 0 ／ **零数值改动**
