@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/UnitCardTemplate.cs" id="1_card"]
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="9_theme"]
 
 [node name="UnitCard" type="PanelContainer"]
+theme = ExtResource("9_theme")
 size_flags_horizontal = 3
 script = ExtResource("1_card")
 

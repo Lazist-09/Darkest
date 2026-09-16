@@ -1,8 +1,10 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/RosterRowTemplate.cs" id="1_row"]
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="9_theme"]
 
 [node name="RosterRow" type="Button"]
+theme = ExtResource("9_theme")
 custom_minimum_size = Vector2(232, 32)
 script = ExtResource("1_row")
 
