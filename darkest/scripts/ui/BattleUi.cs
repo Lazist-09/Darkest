@@ -1162,7 +1162,7 @@ public partial class BattleUi : CanvasLayer
         else
         {
             topRow = new HBoxContainer { Name = "TopRowBox" };
-            topRow.AddThemeConstantOverride("separation", 6);
+            topRow.AddThemeConstantOverride("separation", 4);
             topPanel.AddChild(topRow);
         }
 
@@ -1235,6 +1235,11 @@ public partial class BattleUi : CanvasLayer
         }
 
         _missionLabel = new Label { Name = "MissionLabel", VerticalAlignment = VerticalAlignment.Center };
+        // 🔴 2026-09-21 相机纠偏：任务标签允许收缩 + 裁切（顶栏横向预算 ≤1280）✓
+        _missionLabel.ClipText = true;
+        _missionLabel.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        _missionLabel.CustomMinimumSize = Vector2.Zero;
+        _missionLabel.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
 
         // 🔴 `retreat.md §8`（用户裁定 DD 形态）：**放弃远征** = 地图层动作（结束本趟·回城）；
         //    与【撤退】（战斗内·只退本场）**不得同屏/同位置** ⇒ 本按钮**只在行走模式可见** ✓
