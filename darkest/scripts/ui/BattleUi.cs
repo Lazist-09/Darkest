@@ -1258,6 +1258,11 @@ public partial class BattleUi : CanvasLayer
         _topRow.AddChild(orderLabel);
 
         _orderBox = new HBoxContainer { Name = "OrderBox", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
+
+        // 🔴 2026-09-21 相机纠偏：顶栏右上组（OrderBox 576 宽）把整行顶到 1372 ⇒ 允许收缩 + 裁切 ✓
+        _orderBox.CustomMinimumSize = Vector2.Zero;
+        _orderBox.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+        _orderBox.ClipContents = true;
         _orderBox.AddThemeConstantOverride("separation", 4);
         _topRow.AddChild(_orderBox);
 
@@ -1275,6 +1280,11 @@ public partial class BattleUi : CanvasLayer
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ShrinkBegin,
         };
+
+        // 🔴 2026-09-21 相机纠偏：顶栏右侧需求 1388 > 相机 1280（实测"内容需求超出相机 4"）⇒ 允许收缩 + 裁切 ✓
+        _intentText.ClipText = true;
+        _intentText.CustomMinimumSize = Vector2.Zero;
+        _intentText.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
         _intentText.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextInfo);
         _topRow.AddChild(_intentText);
 
