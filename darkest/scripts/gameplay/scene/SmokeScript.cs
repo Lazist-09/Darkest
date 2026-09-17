@@ -34,6 +34,7 @@ public static class SmokeScript
     public static bool HasPending => Steps.Count > 0;
     private static bool _enabled;
     private static int _stepCalls; // 🆕 仪表：`Step` 被调用次数（限流打印用）✓
+    private static bool _releasedNoticeShown; // 🆕 防刷屏：放行提示只打一次 ✓
     private static Node? _owner;
     private static Node? _autoFinishedFor; // 战斗场景"自动放行"只对同一实例触发一次
     private static Timer? _timer;
@@ -101,7 +102,12 @@ public static class SmokeScript
             //    ⇒ 同一场景实例的**后续每一次** `Step` 都被挡回 ⇒ **战斗之后的步骤永远吃不到**
             //    （实测：`--smoke=main:1,town` 的 `town` 被调用 16+ 次、`可执行=True`，却**从未执行** ✓）
             //    ⇒ 现在：**已放行过**就**不再 return** ⇒ 落到下面正常消费待办步骤 ✓
-            GD.Print("[冒烟] 本场已放行过 ⇒ **不再挡住后续步骤**（修：此前无条件 return）✓");
+            // 🔴 主程序 2026-09-21 修**刷屏**：这行原先每 0.2 秒打一次（实测刷了 20+ 行 ⚠️）⇒ **只提示一次** ✓
+            if (!_releasedNoticeShown)
+            {
+                _releasedNoticeShown = true;
+                GD.Print("[冒烟] 本场已放行过 ⇒ **不再挡住后续步骤**（修：此前无条件 return）✓");
+            }
 
             // 🔴 **回归修复（实测抓到）**：**只在"确实有待办、且下一步能在本场景执行"时才继续往下** ——
             //    · 有待办（如 `town`/`camp`）⇒ 往下走 ⇒ 步骤真的会被消费 ✓（这就是我修的那条）

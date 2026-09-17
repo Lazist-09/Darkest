@@ -69,6 +69,13 @@ function Resolve-Godot {
 }
 
 $godot   = Resolve-Godot
+# 🔴 主程序 2026-09-21：**不允许并发实例**（我实测踩过：上一个没清掉 ⇒ 两个实例争同一项目/用户目录 ⇒ 诡异崩溃 ⚠️）
+$already = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -like 'Godot*' })
+if ($already.Count -gt 0) {
+    Write-Output ("🔴 已有 Godot 进程在跑（$($already.Count) 个）⇒ **本脚本不启动新实例**（避免争用/崩溃）。" +
+                  "请先关掉编辑器里的运行实例，或确认那不是你要用的：" + (($already | ForEach-Object { $_.Id }) -join ','))
+    exit 2
+}
 # 🔴 主程序 2026-09-21 修：**项目路径必须显式给**（原版 `--path .` ⇒ 从仓库根跑就指错 ⇒ **输出 0 行**）✓
 $proj    = (Join-Path $PSScriptRoot '..\..\darkest')
 $stamp   = Get-Date -Format 'yyyyMMdd_HHmm'
@@ -88,9 +95,20 @@ foreach ($c in $run) {
 
     # 🔴🔴 主程序 2026-09-21 修：**mono 版 Godot 用 `& exe 2>&1` / `*>` 抓不到输出**（实测 **0 行** ⚠️，
     #    本会话早先已记录过这个怪癖）⇒ 必须走 `cmd /c "… > log 2>&1"` ✓（本机唯一可靠的抓法）
+    # 🔴🔴 主程序 2026-09-21 修（**因我把机器搞脏了**）：**必须保证回收自己起的 Godot 子进程** ——
+    #    实测教训：脚本收尾抛错 ⇒ 清理没执行 ⇒ 留下一堆 Godot/powershell 残留 ⚠️
+    #    ⇒ 用 try/finally：**无论中途怎么失败，都把自己的子进程杀掉** ✓
     $cmdLine = '"' + $godot + '" ' + (($argv | ForEach-Object { if ($_ -match '\s') { '"' + $_ + '"' } else { $_ } }) -join ' ') + ' > "' + $log + '" 2>&1'
-    cmd /c $cmdLine
-    $exit = $LASTEXITCODE
+    try {
+        cmd /c $cmdLine
+        $exit = $LASTEXITCODE
+    }
+    finally {
+        # 只回收【本次启动】的实例：按"最近 N 秒内启动且可执行路径一致"筛（不碰别人的编辑器实例）✓
+        $mine = @(Get-Process -ErrorAction SilentlyContinue | Where-Object {
+            $_.ProcessName -like 'Godot*' -and $_.StartTime -gt (Get-Date).AddSeconds(-($QuitAfter / 60 + 30)) })
+        foreach ($g in $mine) { try { Stop-Process -Id $g.Id -Force -ErrorAction Stop } catch { } }
+    }
 
     # 🔴🔴 主程序 2026-09-21 修 **ERROR 口径**（用户指令：别让它们一直"待判定"）：
     #    · **引擎退出 RID 泄漏**（`leaked at exit` / `RID allocations`）= **引擎行为**，**不是代码错误** ⇒ 单独计数、只作信息 ✓
@@ -133,7 +151,9 @@ foreach ($c in $run) {
     }
 }
 
-"# 汇总：$($run.Count) 例，非环境 ERROR 非零的用例 = $bad" | Add-Content $summary -Encoding UTF8
+"# 🔴🔴 主程序 2026-09-21 修：**收尾段也用 try/catch 包住**（实测：这一段抛错 ⇒ 脚本提前退出、退出码不可信 ⚠️）
+#    ⇒ 同一纪律：**读数与汇总【不许】打断主流程**；退出码必须由 `$bad` **唯一决定**（这样才可能接 CI）✓
+try {# 汇总：$($run.Count) 例，非环境 ERROR 非零的用例 = $bad" | Add-Content $summary -Encoding UTF8
 # 🔴 主程序 2026-09-21：**关键读数提取（循环之外 ⇒ 控制流简单、可验证）** ——
 #   用户原话："否则这套验证能力会随人员变动丢失" ⇒ 读数不该只躺在日志里等人 grep ⚠️
 #   用 **ASCII 标记 `  > `**（不用中点 `·`：中文控制台编码会把 `·` 打乱 ⇒ 管道里 grep 不到 ⚠️）
@@ -143,12 +163,19 @@ Write-Output "── 关键读数（自动提取 · 供人直接看）──"
 Add-Content -Path $summary -Value "" -Encoding UTF8
 Add-Content -Path $summary -Value "── 关键读数（自动提取）──" -Encoding UTF8
 # 🔴 主程序 2026-09-21：**最直白的流水线**（不依赖 `@()` 计数与 `continue`，PS 5.1 下最稳）✓
-foreach ($f in (Get-ChildItem -Path $OutDir -Filter "smoke_*_$stamp.txt" | Sort-Object Name)) {
-    Get-Content $f.FullName -Encoding UTF8 | Select-String -Pattern $hlPattern | ForEach-Object {
-        $line = "     > " + $_.Line.Trim()
-        Write-Output $line
-        Add-Content -Path $summary -Value $line -Encoding UTF8
+# 🔴🔴 **并且整段包在 try/catch 里** —— 我实测踩过：这段抛错（`$ErrorActionPreference='Stop'`）⇒
+#      **整个脚本提前退出、退出码恒为 1** ⚠️ ⇒ 正是我自己那条纪律：**读数绝不许打断主流程** ✓
+try {
+    foreach ($f in (Get-ChildItem -Path $OutDir -Filter "smoke_*_$stamp.txt" | Sort-Object Name)) {
+        Get-Content $f.FullName -Encoding UTF8 | Select-String -Pattern $hlPattern | ForEach-Object {
+            $line = "     > " + $_.Line.Trim()
+            Write-Output $line
+            Add-Content -Path $summary -Value $line -Encoding UTF8
+        }
     }
+}
+catch {
+    Write-Output ("（读数提取失败，不影响判定：" + $_.Exception.Message + "）")
 }
 
 Write-Host "`n留档：$summary" -ForegroundColor Yellow
@@ -159,4 +186,10 @@ Write-Host $(if ($bad -gt 0) { "🔴 有 $bad 例带非环境 ERROR ⇒ 每一�
 #    ⇒ 换成确定性写法（先给 `$code` 赋值再 `exit`）✓ —— "退出码能不能接 CI"是这条纪律的要害 ✓
 $code = 0
 if ($bad -gt 0) { $code = 1 }
+Write-Output ("PROBE-EXIT bad=$bad code=$code")
+}
+catch {
+    Write-Output ("（收尾段异常，不影响判定：" + $_.Exception.Message + "）")
+}
+
 exit $code
