@@ -1162,7 +1162,7 @@ public partial class BattleUi : CanvasLayer
         else
         {
             topRow = new HBoxContainer { Name = "TopRowBox" };
-            topRow.AddThemeConstantOverride("separation", 10);
+            topRow.AddThemeConstantOverride("separation", 6);
             topPanel.AddChild(topRow);
         }
 
@@ -2196,10 +2196,10 @@ public partial class BattleUi : CanvasLayer
             // 🔴 `§14.2`：面板必须是 **`PanelContainer`**（`Panel` **不是容器** ⇒ 内部 Label 一旦变宽就**溢出并压住邻居**）
             //    实测（`--ui-longtext` 长文本压力，`§12.4`）：`Panel` + 宽 Label ⇒ **10 对重叠**；
             //    改 `PanelContainer` + `ClipText` ⇒ 文本被**裁在框内**、不再溢出 ✓
-            var panel = new PanelContainer { CustomMinimumSize = new Vector2(42, 34) };
+            var panel = new PanelContainer { CustomMinimumSize = new Vector2(34, 34) };   // 🔴 2026-09-21 相机纠偏：54/42→34 ✓
             var glyph = new Label
             {
-                CustomMinimumSize = new Vector2(42, 26),
+                CustomMinimumSize = new Vector2(34, 26),
                 Text = NameOf(archetype).Substring(0, 1),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
