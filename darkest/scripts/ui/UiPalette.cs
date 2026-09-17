@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 **表现层调色板 = 数据资产**（`#325` 的两层裁定 + D5/D6 在我这层的落法）：

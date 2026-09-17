@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 **主菜单骨架**（用户 2026-09-17：「修改目前所有 UI ⇒ 能在编辑器里直接干预」）✓

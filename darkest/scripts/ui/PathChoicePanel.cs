@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Darkest.Gameplay.Sim.Run;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// M7.5 **选路界面**（M7 E1 的界面端；每步**恰 2 个可选项**，二选一）。

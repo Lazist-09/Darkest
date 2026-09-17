@@ -3,7 +3,7 @@ using Darkest.Data;
 using Darkest.Gameplay.Sim.Run;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// M7.5 **光照条**（`ui_spec` 必显 **11 光照条 / 火把条**）。
@@ -121,7 +121,7 @@ public partial class LightBarPanel : PanelContainer
             var mark = new ColorRect
             {
                 Name = $"LightMark{boundary}",
-                Color = new Color(Darkest.Ui.DdTheme.Gold, 0.9f), // `§14.4`：边界刻度 = 强调金
+                Color = new Color(Darkest.UI.DdTheme.Gold, 0.9f), // `§14.4`：边界刻度 = 强调金
                 Position = new Vector2((int)(360 * boundary / 100.0) - 1, 0),
                 Size = new Vector2(2, 32),
             };

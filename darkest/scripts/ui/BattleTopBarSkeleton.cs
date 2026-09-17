@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 **战斗屏顶栏骨架**（用户 2026-09-17：「能在编辑器里直接干预」+「重复元素抽模板」）✓

@@ -1,7 +1,7 @@
 using Darkest.Gameplay.Sim.Run;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// M7.5 **侦察结果标记**（`ui_spec` 必显 **13 侦察结果标记**）。
@@ -23,7 +23,7 @@ public partial class ScoutMarkPanel : PanelContainer
 
     public override void _Ready()
     {
-        Darkest.Ui.DdTheme.Apply(this); // 自己就是面板 ⇒ 挂 Theme（不透明样式来自 §14.4）
+        Darkest.UI.DdTheme.Apply(this); // 自己就是面板 ⇒ 挂 Theme（不透明样式来自 §14.4）
         var col = new VBoxContainer { Name = "ScoutMarkCol" };
         col.AddThemeConstantOverride("separation", 4);
         AddChild(col);
@@ -43,8 +43,8 @@ public partial class ScoutMarkPanel : PanelContainer
         _label.Text = Describe(outcome);
         // 两态在**视觉上也不同**（文字前缀 + 颜色），不只靠措辞
         _label.Modulate = outcome is { Success: true }
-            ? Darkest.Ui.DdTheme.Positive  // 已揭示：偏绿
-            : Darkest.Ui.DdTheme.TextHint; // 未知：偏黄
+            ? Darkest.UI.DdTheme.Positive  // 已揭示：偏绿
+            : Darkest.UI.DdTheme.TextHint; // 未知：偏黄
     }
 
     /// <summary>两态文本（**必须可区分**：未知时不带任何类型信息）。</summary>

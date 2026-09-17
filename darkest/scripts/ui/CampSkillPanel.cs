@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Darkest.Data;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 `#327` **片 2 #6：扎营技能面板的【内容】独立化**（从 `ExpeditionRoot` 的内联模态里抽出来）。

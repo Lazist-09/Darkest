@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 **技能方块模板**（用户 2026-09-17：「像 DD 那样只用简单小方块表示行动」+「UI 要能在编辑器里直接干预」）✓

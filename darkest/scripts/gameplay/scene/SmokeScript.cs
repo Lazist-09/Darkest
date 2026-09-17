@@ -156,7 +156,7 @@ public static class SmokeScript
     private static bool Applies(string step, Node node) => step switch
     {
         "quit" => true,
-        "main:0" or "main:1" or "main:2" => node is Darkest.Ui.MainMenuRoot,
+        "main:0" or "main:1" or "main:2" => node is Darkest.UI.MainMenuRoot,
         "map:0" or "map:1" or "map:2" or "camp" or "skill:0" or "skill:1" or "skill:2" or "finish"
             or "run-full" or "town" or "curio:bare" or "curio:leave" or "curio:item:0" or "curio:item:1"
             // 🔴 片 4 收尾：旧远征场景已退休 ⇒ 这些步骤现在落在**宿主**（`map:*` 已接宿主；
@@ -164,7 +164,7 @@ public static class SmokeScript
             => node is BattleRoot,
         "auto" => node is BattleRoot,
         "hover:tavern" or "hover:abbey" or "hover:stagecoach" or "row:0" or "row:1" or "row:2"
-            or "back" or "embark" => node is Darkest.Ui.HamletRoot,
+            or "back" or "embark" => node is Darkest.UI.HamletRoot,
         _ => true, // 未知步骤 ⇒ 交给 Apply 报错退出
     };
 
@@ -297,7 +297,7 @@ public static class SmokeScript
 
     private static void PressMainMenu(Node node, int index)
     {
-        if (node is Darkest.Ui.MainMenuRoot root)
+        if (node is Darkest.UI.MainMenuRoot root)
         {
             root.PressMenu(index);
             return;
@@ -314,9 +314,9 @@ public static class SmokeScript
     private static void HostStepNotWired(string step)
         => GD.Print($"[冒烟] 🔴 步骤「{step}」尚未在宿主侧接线（属片 2 尾部：扎营/Curio/选路面板）⇒ 如实停下 ✓");
 
-    private static void PressHamlet(Node node, Action<Darkest.Ui.HamletRoot> act)
+    private static void PressHamlet(Node node, Action<Darkest.UI.HamletRoot> act)
     {
-        if (node is Darkest.Ui.HamletRoot root)
+        if (node is Darkest.UI.HamletRoot root)
         {
             act(root);
             return;

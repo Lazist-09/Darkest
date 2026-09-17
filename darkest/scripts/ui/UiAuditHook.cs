@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 `#319`⑤ / `ui_spec §14.5` 布局判据的【跨场景取证钩子】（`--ui-audit`）。

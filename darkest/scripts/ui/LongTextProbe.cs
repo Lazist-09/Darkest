@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 `ui_spec §12.4` **i18n 的"布局先对"验收**（策划 `#315`⑩ / `#321` 口径）：

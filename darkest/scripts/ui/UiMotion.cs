@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 `ui_spec §12.1` **动效四个** —— 参数来自策划 `#321`⑤（**可测常量，一处定义**，不在调用点散写）：

@@ -10,7 +10,7 @@ using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
-using UiMotion = Darkest.Ui.UiMotion; // ⚠️ 本文件命名空间是 `Darkest.UI`（大写）≠ `Darkest.Ui` ⇒ 用别名（最小改动）
+using UiMotion = Darkest.UI.UiMotion; // ⚠️ 本文件命名空间是 `Darkest.UI`（大写）≠ `Darkest.Ui` ⇒ 用别名（最小改动）
 
 namespace Darkest.UI;
 
@@ -67,7 +67,7 @@ public partial class BattleUi : CanvasLayer
     private Label _progressLabel = null!;
     private Panel _mfPanel = null!;
     private PanelContainer? _slotLeft;    // 🔴 P5：左长条框 = 5 号位（向左靠齐）✓
-    private Darkest.Ui.LightBarPanel? _topTorch;  // 🔴 P5：正上方火把条（光照，居中）✓
+    private Darkest.UI.LightBarPanel? _topTorch;  // 🔴 P5：正上方火把条（光照，居中）✓
     private HBoxContainer? _topLeftGroup;         // 🔴 P5：左上"任务与撤退"组 ✓
     private Label? _missionLabel;                 // 🔴 P5：任务文案（只读内核进度）✓
     private string _lastEnemyTipLogged = string.Empty; // 🔴 P5：悬停敌人信息读数（变化才打，避免刷屏）✓
@@ -80,8 +80,8 @@ public partial class BattleUi : CanvasLayer
     private Label? _actorName;
     private PanelContainer? _slotRight;   // 🔴 P5：右长条框 = 6 号位（向右靠齐）✓
     private Label _mfContent = null!;
-    private Darkest.Ui.BattleMiniMap? _mfMap;
-    private Darkest.Ui.WalkMapView? _mfMapWalk;      // 🔴 主程序 (A)：地图页的【格子主画面】（拓扑模式）✓
+    private Darkest.UI.BattleMiniMap? _mfMap;
+    private Darkest.UI.WalkMapView? _mfMapWalk;      // 🔴 主程序 (A)：地图页的【格子主画面】（拓扑模式）✓
     private string _lastMapPageSketch = string.Empty;
     private int _mfPage;
     private readonly List<Button> _mfTabs = new();
@@ -167,7 +167,7 @@ public partial class BattleUi : CanvasLayer
     {
         if (_mapModeCamp is null || !GodotObject.IsInstanceValid(_mapModeCamp))
         {
-            _mapModeCamp = new Darkest.Ui.CampSkillPanel { Name = "MapModeCamp", CustomMinimumSize = new Vector2(210, 96) }; // 🔴 预留宽度+按 720 收高  // 🔴 相机 720 口径：96→64
+            _mapModeCamp = new Darkest.UI.CampSkillPanel { Name = "MapModeCamp", CustomMinimumSize = new Vector2(210, 96) }; // 🔴 预留宽度+按 720 收高  // 🔴 相机 720 口径：96→64
             DungeonHost().AddChild(_mapModeCamp);
         }
 
@@ -238,7 +238,7 @@ public partial class BattleUi : CanvasLayer
     private string _lastWalkHud = string.Empty;
 
     /// <summary>🔴 层④：**DD 式示意地图**（大方块=房间 / 小方块=走廊）—— 数据全只读内核 ✓</summary>
-    private Darkest.Ui.WalkMapView? _walkMap;
+    private Darkest.UI.WalkMapView? _walkMap;
     private string _lastWalkMapSketch = string.Empty;
 
     /// <summary>层④：把示意地图挂进地图模式（非地图模式 ⇒ 不建/隐藏，如实空态）✓</summary>
@@ -257,7 +257,7 @@ public partial class BattleUi : CanvasLayer
 
         if (_walkMap is null || !GodotObject.IsInstanceValid(_walkMap))
         {
-            _walkMap = new Darkest.Ui.WalkMapView { Name = "MapModeWalkMap" };
+            _walkMap = new Darkest.UI.WalkMapView { Name = "MapModeWalkMap" };
             DungeonHost().AddChild(_walkMap);
         }
 
@@ -289,7 +289,7 @@ public partial class BattleUi : CanvasLayer
                 CustomMinimumSize = new Vector2(0, 24),
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             };
-            _walkHud.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
+            _walkHud.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextInfo);
             DungeonHost().AddChild(_walkHud);
         }
 
@@ -355,7 +355,7 @@ public partial class BattleUi : CanvasLayer
         foreach (int slot in slots)
         {
             // 5/6 号位行（2 处同构）实例化模板 scenes/ui/slot_row.tscn（用户 2026-09-17 复用规则）
-            Darkest.Ui.SlotRowTemplate? slotRow = Darkest.Ui.SlotRowTemplate.TryCreate(slot);
+            Darkest.UI.SlotRowTemplate? slotRow = Darkest.UI.SlotRowTemplate.TryCreate(slot);
             VBoxContainer row = slotRow ?? new VBoxContainer { Name = $"BackSlot{slot}Row" };
             if (slotRow is null)
             {
@@ -365,7 +365,7 @@ public partial class BattleUi : CanvasLayer
             col.AddChild(row);
 
             var title = new Label { Name = $"BackSlot{slot}Title", Text = $"{slot} 号位" };
-            title.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+            title.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontSmall);
             row.AddChild(title);
 
             UnitProjection? u = players.FirstOrDefault(x => x.Slot == slot);
@@ -381,10 +381,10 @@ public partial class BattleUi : CanvasLayer
         frame.AddChild(new ColorRect
         {
             Name = "Placeholder",
-            Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, isPlayer: true)),   // 🔴 规则②：α 取调色板
+            Color = WithPlaceholderAlpha(Darkest.UI.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, isPlayer: true)),   // 🔴 规则②：α 取调色板
         });
         var nameLabel = new Label { Name = $"BackSlot{slot}Name", Text = display, AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        nameLabel.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        nameLabel.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontSmall);
         row.AddChild(nameLabel);
         box.TooltipText = $"{slot} 号位：{display}　HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
         }
@@ -392,11 +392,11 @@ public partial class BattleUi : CanvasLayer
 
     /// <summary>🔴 策划 `#348`③：战斗单帧占位 —— 统一走共享入口 `HeroArt.CombatTexture()`（**只从 PlaceholderRoot 读**）✓
     /// ⚠️ V6 纪律：只证明"接口能装下 + UI 能显示"，**不证明**"动画能播"（需 Spine，本阶段裁掉）✓</summary>
-    private static Texture2D? PlaceholderCombatTexture() => Darkest.Ui.HeroArt.CombatTexture();
+    private static Texture2D? PlaceholderCombatTexture() => Darkest.UI.HeroArt.CombatTexture();
     /// <summary>🔴 用户规则②：**保留色相、只把 α 换成调色板里的占位透明度**（空闲位半透明 ⇒ 一眼看出"待填"）✓</summary>
     private static Color WithPlaceholderAlpha(Color hue)
     {
-        hue.A = Darkest.Ui.DdTheme.PlaceholderFill.A;
+        hue.A = Darkest.UI.DdTheme.PlaceholderFill.A;
         return hue;
     }
     /// <summary>🔴 `retreat.md §8`：**放弃远征**（地图层·结束本趟·回城·不可逆）—— 由宿主注入（未注入 ⇒ 按钮不显示）✓</summary>
@@ -478,26 +478,26 @@ public partial class BattleUi : CanvasLayer
             : $"{name}=未建";
 
     /// <summary>地牢面板 #1：**光照条**（`LightBarPanel`）。数据**不新造**：走 `ExpeditionContext.Flow.Meter`（与 `BattleMiniMap` 同法）✓</summary>
-    private Darkest.Ui.LightBarPanel? _mapModeLightBar;
+    private Darkest.UI.LightBarPanel? _mapModeLightBar;
 
     /// <summary>🔴 主程序清单第 3 条：**敌方意图预览**那一行（`_host.PreviewIntent` ⇒ 只渲染，不推断）✓</summary>
     private Label _intentText = null!;
     private bool _pendingMapMode;   // 🔴 宿主在 Build 之前请求进地图模式 ⇒ 延后到 Bind 之后（修 NRE）
 
     /// <summary>地牢面板 #2：**侦察标记**（`ScoutMarkPanel`，两态可区分）。数据：`ExpeditionContext.Flow.LastScout` ✓</summary>
-    private Darkest.Ui.ScoutMarkPanel? _mapModeScoutMark;
+    private Darkest.UI.ScoutMarkPanel? _mapModeScoutMark;
 
     /// <summary>地牢面板 #3：**背包**（`InventoryPanel`，含"满则选择丢弃"流程）。数据：`ExpeditionContext.Flow.Bag` ✓</summary>
-    private Darkest.Ui.InventoryPanel? _mapModeInventory;
+    private Darkest.UI.InventoryPanel? _mapModeInventory;
 
     /// <summary>已注入的背包实例（判断是否需要重新 `Initialize`，避免每次进模式都清掉面板内部状态）✓</summary>
     private Darkest.Gameplay.Sim.Run.Inventory? _mapModeInventoryBag;
 
     /// <summary>地牢面板 #4：**本趟投影列表**（`ExpeditionListPanel`）。数据：`ExpeditionProjector.Project/RenderList`（内核投影）✓</summary>
-    private Darkest.Ui.ExpeditionListPanel? _mapModeList;
+    private Darkest.UI.ExpeditionListPanel? _mapModeList;
 
     /// <summary>🔴 `#327` 片 2 #6：**扎营**面板（B 类）—— 内容已独立化（`CampSkillPanel`），可见性**只读** `Session.CanShowCampUi` ✓</summary>
-    private Darkest.Ui.CampSkillPanel? _mapModeCamp;
+    private Darkest.UI.CampSkillPanel? _mapModeCamp;
     private Darkest.Data.CampSkillsConfig? _campSkillsCfgForMap;   // 懒解析（与 `ExpeditionRoot` 同一数据源）
     private Darkest.Data.RosterConfig? _rosterCfgForMap;           // 懒解析（英雄 id → 原型）
 
@@ -525,7 +525,7 @@ public partial class BattleUi : CanvasLayer
         // ④ 本趟投影列表（面板 #4）：建一次即可（内容由 `Refresh(lines)` 更新）✓
         if (_mapModeList is null || !GodotObject.IsInstanceValid(_mapModeList))
         {
-            _mapModeList = new Darkest.Ui.ExpeditionListPanel
+            _mapModeList = new Darkest.UI.ExpeditionListPanel
             {
                 Name = "MapModeList",
                 CustomMinimumSize = new Vector2(0, 96),    // 🔴 相机 720 口径：140→96
@@ -700,12 +700,12 @@ public partial class BattleUi : CanvasLayer
         // 🔴 `#321`③：E 区 = 底栏**唯一 ExpandFill** 的分区 ⇒ 多功能框**创建时进 `_eArea`**
         //    （容器负责尺寸 ⇒ 不再写 `BottomRight` 锚点与负偏移）
         _mfPanel = new Panel { Name = "MultiFunctionBox" };
-        _mfPanel.Modulate = Darkest.Ui.DdTheme.PanelBgRaised;
+        _mfPanel.Modulate = Darkest.UI.DdTheme.PanelBgRaised;
         // 🔴 P5：**紫框分区** —— 同上一律只染边框（不 `Modulate`）✓
         if (_eArea is Control eCtl)
         {
             eCtl.AddThemeStyleboxOverride("panel",
-                Darkest.Ui.DdTheme.MakePanelStyle(Darkest.Ui.DdTheme.PanelBgRaised.Lightened(0.22f), Darkest.Ui.DdTheme.Mental)); // 🔴 用户：紫框太黑 ⇒ 底色提亮 22%（边框仍是紫）暗底
+                Darkest.UI.DdTheme.MakePanelStyle(Darkest.UI.DdTheme.PanelBgRaised.Lightened(0.22f), Darkest.UI.DdTheme.Mental)); // 🔴 用户：紫框太黑 ⇒ 底色提亮 22%（边框仍是紫）暗底
         }
         _eArea.CustomMinimumSize = new Vector2(0, 0); // 🔴 相机口径：E 区**可压缩到 0**（否则撑过右长条框 ⇒ 重叠）
         _eArea.AddChild(_mfPanel);
@@ -716,8 +716,8 @@ public partial class BattleUi : CanvasLayer
         // 🔴 P5（用户参考图②）：**紫框显式标题** —— 加在 E 区的**内层 VBox** 里（不是外层 Panel 上）
         //    ⚠️ 教训：加在 `_eArea` 上会与既有手工尺寸内容重叠 ⇒ 必须进**容器**才会自动排布 ✓
         _eAreaTitle = new Label { Name = "EAreaTitle", VerticalAlignment = VerticalAlignment.Center };
-        _eAreaTitle.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
-        _eAreaTitle.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextAccent);
+        _eAreaTitle.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontSmall);
+        _eAreaTitle.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextAccent);
         _eAreaTitle.AutowrapMode = TextServer.AutowrapMode.Off;   // 🔴 标题不换行、裁切（不撑宽 E 区）✓
         _eAreaTitle.ClipText = true;
         _eAreaTitle.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
@@ -748,7 +748,7 @@ public partial class BattleUi : CanvasLayer
             // 容器自动排布 ⇒ 只给"最小尺寸"，不写 Position ✓
             // 🔴 用户要求（2026-09-17）：**重复元素抽模板** ⇒ 多功能页签（4~5 处同构）实例化 `mf_tab.tscn`
             //    ⚠️ 场景缺失 ⇒ 回落代码构建（不崩、不静默）✓
-            Button b = Darkest.Ui.MfTabButtonTemplate.TryCreate(tabs[i])
+            Button b = Darkest.UI.MfTabButtonTemplate.TryCreate(tabs[i])
                 ?? new Button { Text = tabs[i], CustomMinimumSize = new Vector2(80, 26) };
             b.Pressed += () => SetMultiFunctionPage(idx);
             tabsRow.AddChild(b);
@@ -761,11 +761,11 @@ public partial class BattleUi : CanvasLayer
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill, // 容器里"占满剩余高度"（不再写死 110）✓
         };
-        _mfContent.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        _mfContent.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontSmall);
         column.AddChild(_mfContent);
 
         // 地图页与文本页**共占同一内容区**（同一容器位置 ⇒ 切换时不需要各自算坐标）✓
-        _mfMap = new Darkest.Ui.BattleMiniMap
+        _mfMap = new Darkest.UI.BattleMiniMap
         {
             Name = "MfMap",
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
@@ -773,7 +773,7 @@ public partial class BattleUi : CanvasLayer
         };
         // 🔴 主程序 `DUNGEON-IS-GRID` 的 (A)：**把"地图页"升级成【格子主画面】** ——
         //    拓扑模式（行走地牢）用 `WalkMapView`（房=大方块／廊=小方块，DD 式），线性远征仍用原迷你图 ✓
-        _mfMapWalk = new Darkest.Ui.WalkMapView { Name = "MapPageWalkMap", Visible = false };
+        _mfMapWalk = new Darkest.UI.WalkMapView { Name = "MapPageWalkMap", Visible = false };
         column.AddChild(_mfMapWalk);
 
         _mfMap.Visible = false;
@@ -835,14 +835,14 @@ public partial class BattleUi : CanvasLayer
                 //    （**返回 false = 墙/越界 ⇒ 内核状态零变化**：我只重绘，不改状态）✓
                 if (mFlow.TileWalkEnabled && mFlow.TileWalk is not null)
                 {
-                    Darkest.Ui.MapSketch ts = Darkest.Ui.WalkMapView.FromTileWalk(
+                    Darkest.UI.MapSketch ts = Darkest.UI.WalkMapView.FromTileWalk(
                         mFlow.TileWalk, mFlow.TilePosition, mFlow.RevealedRoomIds,
                         mFlow.RemainingSegmentsToGoal, mFlow.TileHere);
             GD.Print($"[UI 瓷砖] ✅ 主画面（引擎内置 TileMapLayer）：格 {ts.Cells.Count} ／ 连线 {ts.Links.Count}　队伍在已揭示格 {ts.Cells.Count(c => c.Revealed)} ／ {ts.Cells.Count}");
                     _mfMapWalk.MovableRooms = ts.Cells.Where(c => c.Movable).Select(c => c.Id).ToList();
                     _mfMapWalk.OnRoomClicked = id =>
                     {
-                        Darkest.Ui.SketchCell? cell = ts.Cells.FirstOrDefault(c => c.Id == id);
+                        Darkest.UI.SketchCell? cell = ts.Cells.FirstOrDefault(c => c.Id == id);
                         if (cell is null)
                         {
                             return;
@@ -859,7 +859,7 @@ public partial class BattleUi : CanvasLayer
                     // 🔴 冒烟自证（`--tile-step`）：**走我真实接的回调**（`OnRoomClicked` ⇒ TryStepTile）✓
                     if (Array.Exists(OS.GetCmdlineArgs(), x => x == "--tile-step"))
                     {
-                        Darkest.Ui.SketchCell? mv = ts.Cells.FirstOrDefault(c => c.Movable);
+                        Darkest.UI.SketchCell? mv = ts.Cells.FirstOrDefault(c => c.Movable);
                         if (mv is null)
                         {
                             GD.Print("[UI 走格·冒烟] 没有可移动的相邻格 ⇒ 无事可做（如实报）✓");
@@ -903,7 +903,7 @@ public partial class BattleUi : CanvasLayer
         // 页签高亮（当前页亮、其余暗）
         for (int i = 0; i < _mfTabs.Count; i++)
         {
-            _mfTabs[i].Modulate = i == page ? Darkest.Ui.DdTheme.Highlight : Darkest.Ui.DdTheme.Disabled;
+            _mfTabs[i].Modulate = i == page ? Darkest.UI.DdTheme.Highlight : Darkest.UI.DdTheme.Disabled;
         }
 
         GD.Print($"[片③] E 区多功能框 ⇒ 切到【{_mfTabs.ElementAtOrDefault(page)?.Text ?? "?"}】页");
@@ -1120,14 +1120,14 @@ public partial class BattleUi : CanvasLayer
         //       在"边遍历边搬"时触发引擎断言 `Condition "p_child->data.parent != this" is true` ⇒ 树状态不一致。
         _uiRoot = new Control { Name = "UiRoot" };
         _uiRoot.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        Darkest.Ui.DdTheme.Apply(_uiRoot);
+        Darkest.UI.DdTheme.Apply(_uiRoot);
         AddChild(_uiRoot);
 
         // 背景：**刻意不让它成为"满屏不透明 Panel"**（锚点不是 0/0/1/1）——
         //   否则判据会把它当成**模态覆盖层**，只审它自己的子树（= 空）⇒ 报 ✅ 却是**假通过** ⚠️（实测踩过两次）
         var bg = new Panel { Name = "BattleBg", Size = GetViewport().GetVisibleRect().Size };
         _bg = bg; // 🔴 `#327` S1：背景属于【必须存活的骨架】（其 id 在进战斗前后应不变）
-        bg.Modulate = Darkest.Ui.DdTheme.BgDeep;
+        bg.Modulate = Darkest.UI.DdTheme.BgDeep;
         _uiRoot.AddChild(bg);
 
         var uiMargin = new MarginContainer { Name = "BattleMargin" };
@@ -1145,7 +1145,7 @@ public partial class BattleUi : CanvasLayer
         var topPanel = new PanelContainer { Name = "TopRow" };
         uiCol.AddChild(topPanel);
         // 🔴 骨架优先（2026-09-17）：战斗顶栏容器用骨架（三区位置/间距/占比可在编辑器改）✓
-        _topBarSkel = Darkest.Ui.BattleTopBarSkeleton.TryInstantiate();
+        _topBarSkel = Darkest.UI.BattleTopBarSkeleton.TryInstantiate();
         HBoxContainer topRow;
         if (_topBarSkel is not null)
         {
@@ -1176,7 +1176,7 @@ public partial class BattleUi : CanvasLayer
         bottomPanel.AddChild(bottomRow);
         _bottomRow = bottomRow;
 
-        _bottomBarSkel = Darkest.Ui.BattleBottomBarSkeleton.TryInstantiate();
+        _bottomBarSkel = Darkest.UI.BattleBottomBarSkeleton.TryInstantiate();
         if (_bottomBarSkel is not null)
         {
             bottomPanel.AddChild(_bottomBarSkel);
@@ -1203,7 +1203,7 @@ public partial class BattleUi : CanvasLayer
         _vignette.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
 
         // 🔴 `ui_spec §12.2` **音效**：注入播放宿主（占位音为程序生成 ⇒ **音源缺失也能跑**）✓
-        Darkest.Ui.UiSfx.Attach(_uiRoot);
+        Darkest.UI.UiSfx.Attach(_uiRoot);
 
         GD.Print("[BattleUi] 容器树就绪：顶栏／主体（我方 4+2 ←→ 敌方 4）／底栏（C 区含技能栏 ＋ E 区多功能框）" +
                  " ⇒ 控件**创建时进容器** ✓");
@@ -1213,7 +1213,7 @@ public partial class BattleUi : CanvasLayer
     private void BuildTopRow()
     {
         _statusLabel = new Label { Text = "" };
-        _statusLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
+        _statusLabel.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextPrimary);
         _statusLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; // 占满剩余宽度
         // 🔴 相机 1280 口径（规则①）：**长文本 Label 的最小宽 = 文本宽** ⇒ 会把整行撑宽 ⇒ 必须**裁切**（不换行、超出省略）✓
         _statusLabel.AutowrapMode = TextServer.AutowrapMode.Off;
@@ -1248,7 +1248,7 @@ public partial class BattleUi : CanvasLayer
         _topRow.AddChild(_statusLabel);
 
         var orderLabel = new Label { Text = "本回合顺序", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
-        orderLabel.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        orderLabel.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontSmall);
         _topRow.AddChild(orderLabel);
 
         _orderBox = new HBoxContainer { Name = "OrderBox", SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
@@ -1269,7 +1269,7 @@ public partial class BattleUi : CanvasLayer
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ShrinkBegin,
         };
-        _intentText.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
+        _intentText.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextInfo);
         _topRow.AddChild(_intentText);
 
         // 🔴 P5（用户参考图②）：**正上方 = 火把条**（光照既是机制、也要"看得见"）—— **居中**放置；
@@ -1280,12 +1280,12 @@ public partial class BattleUi : CanvasLayer
         {
             _topRow.AddChild(torchWrap);
         }
-        _topTorch = new Darkest.Ui.LightBarPanel { Name = "TopTorchBar" };
+        _topTorch = new Darkest.UI.LightBarPanel { Name = "TopTorchBar" };
         torchWrap.AddChild(_topTorch);
 
         _progressLabel = new Label { Text = "" };
         _progressLabel.AddThemeFontSizeOverride("font_size", 13);
-        _progressLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextInfo);
+        _progressLabel.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextInfo);
         _progressLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         _progressLabel.AutowrapMode = TextServer.AutowrapMode.Off;   // 🔴 同上：长文本裁切，不撑宽整行 ✓
         _progressLabel.ClipText = true;
@@ -1331,7 +1331,7 @@ public partial class BattleUi : CanvasLayer
         playerArea.AddChild(_playerSupport);
 
         var vs = new Label { Text = "VS", CustomMinimumSize = new Vector2(24, 24), VerticalAlignment = VerticalAlignment.Center };
-        vs.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.Danger);
+        vs.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.Danger);
         _midRow.AddChild(vs);
 
         var enemyArea = new VBoxContainer { Name = "EnemyArea", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
@@ -1395,7 +1395,7 @@ public partial class BattleUi : CanvasLayer
         // ⚠️ 教训：`MakePanelStyle(null, color)` 的 `null` 会落到**更暗的** `PanelBg` ⇒ 整块发黑（用户实测："紫色框为什么这么黑"）
         //    ⇒ 正解：**底色保持 raised（与其它面板一致），只换边框色** ✓
         ((Control)_cArea).AddThemeStyleboxOverride("panel",
-            Darkest.Ui.DdTheme.MakePanelStyle(Darkest.Ui.DdTheme.PanelBgRaised, Darkest.Ui.DdTheme.Gold));
+            Darkest.UI.DdTheme.MakePanelStyle(Darkest.UI.DdTheme.PanelBgRaised, Darkest.UI.DdTheme.Gold));
 
         // 🔴 P5：**橙框 = 当前角色头像 + 技能选择**（头像留框+色块占位+名字；技能栏在其下）✓
         _actorRow = new HBoxContainer { Name = "CurrentActorRow" };
@@ -1403,7 +1403,7 @@ public partial class BattleUi : CanvasLayer
         cCol.AddChild(_actorRow);
         var actorFrame = new PanelContainer { Name = "CurrentActorFrame", CustomMinimumSize = new Vector2(36, 36) };
         _actorRow.AddChild(actorFrame);
-        _actorPortrait = new ColorRect { Name = "CurrentActorPlaceholder", Color = Darkest.Ui.DdTheme.PanelBgRaised };
+        _actorPortrait = new ColorRect { Name = "CurrentActorPlaceholder", Color = Darkest.UI.DdTheme.PanelBgRaised };
         actorFrame.AddChild(_actorPortrait);
         _actorName = new Label { Name = "CurrentActorName", VerticalAlignment = VerticalAlignment.Center };
         _actorRow.AddChild(_actorName);
@@ -1418,14 +1418,14 @@ public partial class BattleUi : CanvasLayer
         // 🔴 用户更正（2026-09-16）：**技能框下方 = 角色详情框**（紫边；多功能框回右侧原位）✓
         _actorDetailBox = _bottomBarSkel?.ActorDetailBox ?? new PanelContainer { Name = "ActorDetailBox", CustomMinimumSize = new Vector2(0, 84) };
         ((Control)_actorDetailBox).AddThemeStyleboxOverride("panel",
-            Darkest.Ui.DdTheme.MakePanelStyle(Darkest.Ui.DdTheme.PanelBgRaised.Lightened(0.22f), Darkest.Ui.DdTheme.Mental));
+            Darkest.UI.DdTheme.MakePanelStyle(Darkest.UI.DdTheme.PanelBgRaised.Lightened(0.22f), Darkest.UI.DdTheme.Mental));
         _actorDetail = new Label
         {
             Name = "ActorDetail",
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
             VerticalAlignment = VerticalAlignment.Top,
         };
-        _actorDetail.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        _actorDetail.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontSmall);
         _actorDetailBox.AddChild(_actorDetail);
         if (_actorDetailBox.GetParent() is null)
         {
@@ -1438,20 +1438,20 @@ public partial class BattleUi : CanvasLayer
         }
 
         _skillTitle = new Label { Text = "技能栏（轮到行动者时可用）", AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        _skillTitle.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextSkill);
+        _skillTitle.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextSkill);
         cCol.AddChild(_skillTitle);
 
         _skillBar = new GridContainer
         {
             Name = "SkillBar",
-            Columns = Darkest.Ui.DdTheme.SkillBarColumns,               // 🔴 `#325` D5：常量集中在 DdTheme（不是局部 const）
+            Columns = Darkest.UI.DdTheme.SkillBarColumns,               // 🔴 `#325` D5：常量集中在 DdTheme（不是局部 const）
         };
         _skillBar.AddThemeConstantOverride("h_separation", 6);
         _skillBar.AddThemeConstantOverride("v_separation", 6);
         cCol.AddChild(_skillBar);
 
         _hintLabel = new Label { Text = "", AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        _hintLabel.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextHint);
+        _hintLabel.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextHint);
         cCol.AddChild(_hintLabel);
 
         _actionButtons = new HBoxContainer { Name = "ActionButtons" };
@@ -1491,8 +1491,8 @@ public partial class BattleUi : CanvasLayer
     private static Label TitleLabel(string text)
     {
         var label = new Label { Text = text };
-        label.ThemeTypeVariation = Darkest.Ui.DdTheme.TitleVariation; // 🔴 架构裁定②：分区标题用 Bold
-        label.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextAccent);
+        label.ThemeTypeVariation = Darkest.UI.DdTheme.TitleVariation; // 🔴 架构裁定②：分区标题用 Bold
+        label.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextAccent);
         return label;
     }
 
@@ -1560,8 +1560,8 @@ public partial class BattleUi : CanvasLayer
     //    **重建路径**（行动顺序图标 / 技能键 / 卡片刻）也必须加进这些容器，
     //    否则它们会加回 CanvasLayer（`this`）⇒ 逃出 `_uiRoot` 子树 ⇒ 判据看不到它们（实测"可见 Label 0"）⚠️
     private Container _topRow = null!;
-    private Darkest.Ui.BattleTopBarSkeleton? _topBarSkel;   // 🔴 顶栏骨架（字段承载 ⇒ 避开作用域问题）✓
-    private Darkest.Ui.BattleBottomBarSkeleton? _bottomBarSkel;
+    private Darkest.UI.BattleTopBarSkeleton? _topBarSkel;   // 🔴 顶栏骨架（字段承载 ⇒ 避开作用域问题）✓
+    private Darkest.UI.BattleBottomBarSkeleton? _bottomBarSkel;
     private Container _midRow = null!;
     private Container _bottomRow = null!;
 
@@ -1585,9 +1585,9 @@ public partial class BattleUi : CanvasLayer
 
         // 🔴 从**真实控件**读出生效字号 ⇒ 这才是"Theme 继承成功"的证据（不是"我挂了 Theme"）
         int effective = _statusLabel.GetThemeFontSize("font_size");
-        string inherited = effective == Darkest.Ui.DdTheme.FontBody
+        string inherited = effective == Darkest.UI.DdTheme.FontBody
             ? $"✅ Theme 继承生效（生效字号 {effective} = 中央 Theme）"
-            : $"🔴 Theme 未生效（生效字号 {effective} ≠ 中央 {Darkest.Ui.DdTheme.FontBody}）";
+            : $"🔴 Theme 未生效（生效字号 {effective} ≠ 中央 {Darkest.UI.DdTheme.FontBody}）";
 
         // ⚠️ 尺寸**不作为判据**：headless 下视口尺寸会在运行间波动（实测见过 1280×1280 与 2560×2000）
         //    ⇒ 只判"是否**跟随视口**"（锚点生效的正确含义），而不是把某个具体数当结论（红线 17⑧：极端/波动读数先怀疑口径）✓
@@ -1677,7 +1677,7 @@ public partial class BattleUi : CanvasLayer
         ProgressBar morale;
         Label tag;
         Label glyph;
-        if (Darkest.Ui.UnitCardTemplate.TryInstantiate() is Darkest.Ui.UnitCardTemplate unitCard)
+        if (Darkest.UI.UnitCardTemplate.TryInstantiate() is Darkest.UI.UnitCardTemplate unitCard)
         {
             card = unitCard;
             name = unitCard.NameLabel!;
@@ -1686,7 +1686,7 @@ public partial class BattleUi : CanvasLayer
             hp = unitCard.HpBar!;
             morale = unitCard.MoraleBar!;
             tag = unitCard.TagLabel!;
-            glyph.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
+            glyph.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextPrimary);
         }
         else
         {
@@ -1712,7 +1712,7 @@ public partial class BattleUi : CanvasLayer
                 ClipText = true, // 🔴 长文本裁切（`§14.6`）
             };
             glyph.AddThemeFontSizeOverride("font_size", 20);
-            glyph.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.TextPrimary);
+            glyph.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextPrimary);
             portraitBox.AddChild(glyph);
 
             var nameCol = new VBoxContainer { Name = "nameCol", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
@@ -1844,7 +1844,7 @@ public partial class BattleUi : CanvasLayer
                 }
                 if (_actorPortrait is not null && actor is not null)
                 {
-                    _actorPortrait.Color = Darkest.Ui.DdTheme.ArchetypeColor(
+                    _actorPortrait.Color = Darkest.UI.DdTheme.ArchetypeColor(
                         actor.Archetype.Length > 0 ? actor.Archetype : actor.UnitId, isPlayer: true);
                 }
             }
@@ -2063,9 +2063,9 @@ public partial class BattleUi : CanvasLayer
         if (_host.GameOver && !_motionAuditPrinted)
         {
             _motionAuditPrinted = true;
-            Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.Settle); // ③ 结算（胜/败）
+            Darkest.UI.UiSfx.Play(Darkest.UI.UiSfx.Kind.Settle); // ③ 结算（胜/败）
             GD.Print($"[UI 动效] {MotionAudit()}");
-            GD.Print($"[UI 音效] {Darkest.Ui.UiSfx.Audit()}");
+            GD.Print($"[UI 音效] {Darkest.UI.UiSfx.Audit()}");
             GD.Print($"[UI S1] {SkeletonAudit()}"); // 🔴 `#327` S1：骨架 id 读数（无缝的可测定义）
         }
 
@@ -2091,8 +2091,8 @@ public partial class BattleUi : CanvasLayer
             }
 
             c.card.Modulate = isActive
-                ? Darkest.Ui.DdTheme.Highlight
-                : hl ? Darkest.Ui.DdTheme.Ally : Darkest.Ui.DdTheme.TextPrimary;
+                ? Darkest.UI.DdTheme.Highlight
+                : hl ? Darkest.UI.DdTheme.Ally : Darkest.UI.DdTheme.TextPrimary;
 
             // G3（O-56）：悬停单位卡 → 详情（属性/士气/buff/技能表；敌方同样全暴露）
             c.card.TooltipText = DetailTooltip(c.isPlayer, c.slot);
@@ -2108,7 +2108,7 @@ public partial class BattleUi : CanvasLayer
             if (tagOverride is not null)
             {
                 c.tag.Text = tagOverride;
-                c.tag.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.Shock);
+                c.tag.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.Shock);
             }
         }
 
@@ -2192,8 +2192,8 @@ public partial class BattleUi : CanvasLayer
             panel.AddChild(glyph);
             bool isActive = _host.IsAwaitingPlayer && id == _host.ActiveActor.Value;
             panel.Modulate = isActive
-                ? Darkest.Ui.DdTheme.Highlight
-                : isPlayer ? Darkest.Ui.DdTheme.Ally : Darkest.Ui.DdTheme.Danger;
+                ? Darkest.UI.DdTheme.Highlight
+                : isPlayer ? Darkest.UI.DdTheme.Ally : Darkest.UI.DdTheme.Danger;
             _orderBox.AddChild(panel); // 🔴 §14：行动顺序头像进【顶栏的顺序容器】（不再加回 CanvasLayer）
             _orderIcons.Add((panel, glyph));
             x += 40f;
@@ -2228,21 +2228,21 @@ public partial class BattleUi : CanvasLayer
         }
         if (portrait.GetParent() is PanelContainer box)
         {
-            box.Modulate = empty ? Darkest.Ui.DdTheme.Muted : Darkest.Ui.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, c.isPlayer);
+            box.Modulate = empty ? Darkest.UI.DdTheme.Muted : Darkest.UI.DdTheme.ArchetypeColor(u.Archetype.Length > 0 ? u.Archetype : u.UnitId, c.isPlayer);
         }
 
         c.hp.MaxValue = u.MaxHp > 0 ? u.MaxHp : 1;
         c.hp.Value = u.Hp;
-        c.hp.Modulate = u.Weak ? Darkest.Ui.DdTheme.HpWeak : Darkest.Ui.DdTheme.Hp;
+        c.hp.Modulate = u.Weak ? Darkest.UI.DdTheme.HpWeak : Darkest.UI.DdTheme.Hp;
         c.morale.MaxValue = 100;
         c.morale.Value = u.Morale;
-        c.morale.Modulate = c.isPlayer ? Darkest.Ui.DdTheme.Morale : Darkest.Ui.DdTheme.MoraleEnemy;
+        c.morale.Modulate = c.isPlayer ? Darkest.UI.DdTheme.Morale : Darkest.UI.DdTheme.MoraleEnemy;
         c.tag.Text = empty ? "" : (u.Weak ? "虚弱" : (c.isPlayer ? "我方" : "敌方"));
         // D4（#206）：死门后遗症必须显著标注（橙字）
         if (!empty && _host?.Director is { } dir && dir.Buffs.Has(new UnitId(u.UnitId), "deaths_door_recovery"))
         {
             c.tag.Text = "死门后遗症（伤+10% 命中−5 速−1）";
-            c.tag.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.Shock);
+            c.tag.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.Shock);
         }
     }
 
@@ -2293,7 +2293,7 @@ public partial class BattleUi : CanvasLayer
             // 🔴 UI 编辑器化 B（用户 2026-09-17）：技能方块改为**实例化模板场景** `scenes/ui/skill_box.tscn`
             //    ⇒ 尺寸/字号/样式**在编辑器里改**（这就是"能在编辑器里直接干预"）；
             //    ⚠️ 场景不可用 ⇒ **回落代码构建**（不崩、不静默）✓
-            Button b = Darkest.Ui.SkillBoxTemplate.TryInstantiate() is Darkest.Ui.SkillBoxTemplate box
+            Button b = Darkest.UI.SkillBoxTemplate.TryInstantiate() is Darkest.UI.SkillBoxTemplate box
                 ? box
                 : new Button { CustomMinimumSize = new Vector2(48, 48) };
             if (b.CustomMinimumSize.X <= 0f)
@@ -2337,32 +2337,32 @@ public partial class BattleUi : CanvasLayer
                 case DamageEvent { Target: { } dt, Amount: > 0 } dmg:
                     bool targetIsPlayer = IsPlayerUnit(dt, p);
                     PlayHitMotion(dt, $"-{dmg.Amount}",
-                        dmg.Axis == "mental" ? Darkest.Ui.DdTheme.Mental : Darkest.Ui.DdTheme.Danger, p);
+                        dmg.Axis == "mental" ? Darkest.UI.DdTheme.Mental : Darkest.UI.DdTheme.Danger, p);
                     // 🔴 `§12.2` ① 命中（**区分我/敌**）+ ② 受击：
                     //    打敌人 ⇒ 我方命中音（高音方波）；**敌方打出** ⇒ 敌方命中音（低音方波）**＋** 我方受击音（噪声）
                     //    ⚠️ 这让 `HitEnemy` 有真实触发点（红线 21：**枚举项没有触发点 = 死声明**）；
                     //       若策划认为"敌方打出"只该有一种音，删掉其中一条即可（口径待确认，已投窗口）
                     if (targetIsPlayer)
                     {
-                        Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.HitEnemy);
-                        Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.Hurt);
+                        Darkest.UI.UiSfx.Play(Darkest.UI.UiSfx.Kind.HitEnemy);
+                        Darkest.UI.UiSfx.Play(Darkest.UI.UiSfx.Kind.Hurt);
                     }
                     else
                     {
-                        Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.HitAlly);
+                        Darkest.UI.UiSfx.Play(Darkest.UI.UiSfx.Kind.HitAlly);
                     }
 
                     break;
                 case HealEvent { Target: { } ht, Amount: > 0 } heal:
-                    PlayHitMotion(ht, $"+{heal.Amount}", Darkest.Ui.DdTheme.Hp, p);
+                    PlayHitMotion(ht, $"+{heal.Amount}", Darkest.UI.DdTheme.Hp, p);
                     break;
                 case DeathDoorEvent { Unit: { } dd }:
                     PlayMoraleCrashMotion(dd, p);
-                    Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.DeathDoor); // ② 死门
+                    Darkest.UI.UiSfx.Play(Darkest.UI.UiSfx.Kind.DeathDoor); // ② 死门
                     break;
                 case DeathEvent { Unit: { } dead }:
-                    Darkest.Ui.UiSfx.Play(Darkest.Ui.UiSfx.Kind.Death);     // ② 阵亡
-                    UiMotion.ScreenFlash(_vignette, Darkest.Ui.UiMotion.DeathFlash, Darkest.Ui.UiMotion.MoraleSeconds); // 🔴 §12.3 闪白（整屏）
+                    Darkest.UI.UiSfx.Play(Darkest.UI.UiSfx.Kind.Death);     // ② 阵亡
+                    UiMotion.ScreenFlash(_vignette, Darkest.UI.UiMotion.DeathFlash, Darkest.UI.UiMotion.MoraleSeconds); // 🔴 §12.3 闪白（整屏）
                     PlayMoraleCrashMotion(dead, p);
                     break;
             }
@@ -2535,10 +2535,10 @@ public partial class BattleUi : CanvasLayer
 
         if (shock)
         {
-            return (Darkest.Ui.DdTheme.Shock, "震慑");
+            return (Darkest.UI.DdTheme.Shock, "震慑");
         }
 
-        return mental ? (Darkest.Ui.DdTheme.Mental, null) : (default, null);
+        return mental ? (Darkest.UI.DdTheme.Mental, null) : (default, null);
     }
 
     /// <summary>G3（O-56）：单位详情文本（含敌方全暴露：物防/速度/四抗/死门/buff/技能表）。</summary>

@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 策划 `#348`③ / `#347`：**占位英雄美术的读取入口**（战斗单帧 + 名册头像）——**只从

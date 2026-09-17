@@ -6,7 +6,7 @@ using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Run;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// M8.0 ③（`#283`）：**回城场景 Hamlet**（局外养成层的入口）。
@@ -94,7 +94,7 @@ public partial class HamletRoot : Node2D
         //    🔴 节点名保持一致：HamletMargin / HamletRootCol / TopBar / TopRow / StatusBar /
         //       Body / LeftColumn / LeftCol / RightColumn / RightCol ✓
         //    📌 `BottomRow`（底部资源条那一行）**当前仍由代码创建**（骨架尚未纳入它 —— 如实标注，未猜类型）✓
-        Darkest.Ui.HamletSkeleton? skel = Darkest.Ui.HamletSkeleton.TryInstantiate();
+        Darkest.UI.HamletSkeleton? skel = Darkest.UI.HamletSkeleton.TryInstantiate();
         MarginContainer margin;
         VBoxContainer rootCol;
         PanelContainer topPanel;
@@ -119,7 +119,7 @@ public partial class HamletRoot : Node2D
             leftCol = skel.LeftCol!;
             rightPanel = skel.RightColumn!;
             rightCol = skel.RightCol!;
-            Darkest.Ui.DdTheme.Apply(margin);
+            Darkest.UI.DdTheme.Apply(margin);
         }
         else
         {
@@ -130,7 +130,7 @@ public partial class HamletRoot : Node2D
             margin.AddThemeConstantOverride("margin_right", 12);
             margin.AddThemeConstantOverride("margin_bottom", 10);
             AddChild(margin);
-            Darkest.Ui.DdTheme.Apply(margin);
+            Darkest.UI.DdTheme.Apply(margin);
 
             rootCol = new VBoxContainer { Name = "HamletRootCol" };
             rootCol.AddThemeConstantOverride("separation", 8);
@@ -173,7 +173,7 @@ public partial class HamletRoot : Node2D
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             VerticalAlignment = VerticalAlignment.Center,
         };
-        _banner.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontTitle);
+        _banner.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontTitle);
         topRow.AddChild(_banner);
 
         _rosterCount = new Label
@@ -268,7 +268,7 @@ public partial class HamletRoot : Node2D
                     CustomMinimumSize = new Vector2(180, 32),
                     VerticalAlignment = VerticalAlignment.Center,
                 };
-                locked.AddThemeColorOverride("font_color", Darkest.Ui.DdTheme.Disabled);
+                locked.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.Disabled);
                 buildingRow.AddChild(locked);
                 continue;
             }
@@ -400,12 +400,12 @@ public partial class HamletRoot : Node2D
             Name = "Embark",
             Text = "再出发（远征）· EMBARK",
             CustomMinimumSize = new Vector2(280, 44),
-            Modulate = Darkest.Ui.DdTheme.Danger, // 🔴 `§14.4`：颜色不得在节点上硬写 ⇒ 走语义色（Embark = 危险红：出发是要付代价的）
+            Modulate = Darkest.UI.DdTheme.Danger, // 🔴 `§14.4`：颜色不得在节点上硬写 ⇒ 走语义色（Embark = 危险红：出发是要付代价的）
         };
         embark.Pressed += () =>
         {
             Darkest.Gameplay.Scene.ExpeditionContext.RequestDungeon(); // 🔴 片 4①：再出发 ⇒ 宿主进地牢 ✓
-            GetTree().ChangeSceneToFile(Darkest.Ui.MainMenuRoot.BattleScene);
+            GetTree().ChangeSceneToFile(Darkest.UI.MainMenuRoot.BattleScene);
         };
         bottomRow.AddChild(embark);
         _embark = embark;
@@ -523,7 +523,7 @@ public partial class HamletRoot : Node2D
 
             ExpeditionContext.E2EStage = 2;
             Darkest.Gameplay.Scene.ExpeditionContext.RequestDungeon(); // 🔴 片 4：再出发 ⇒ 宿主进地牢（旧场景已退休）✓
-                GetTree().CallDeferred("change_scene_to_file", Darkest.Ui.MainMenuRoot.BattleScene);
+                GetTree().CallDeferred("change_scene_to_file", Darkest.UI.MainMenuRoot.BattleScene);
         }
     }
 
@@ -674,7 +674,7 @@ public partial class HamletRoot : Node2D
             detailRoot.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
             // ⚠️ **必须显式挂 Theme**：本节点是 `HamletRoot`(Node2D) 的子节点，**不在带 Theme 的 `margin` 之下**
             //    ⇒ 否则它用**引擎默认面板样式**（实测 `a=0.6` ⇒ 判据 2 直接抓到"框透明"）✓
-            Darkest.Ui.DdTheme.Apply(detailRoot);
+            Darkest.UI.DdTheme.Apply(detailRoot);
             AddChild(detailRoot);
             _detailPanel = detailRoot;
 
@@ -695,7 +695,7 @@ public partial class HamletRoot : Node2D
                 Text = "【角色详情】",
                 CustomMinimumSize = new Vector2(0, 28),
             };
-            dTitle.ThemeTypeVariation = Darkest.Ui.DdTheme.TitleVariation; // 🔴 架构裁定②：标题用 Bold
+            dTitle.ThemeTypeVariation = Darkest.UI.DdTheme.TitleVariation; // 🔴 架构裁定②：标题用 Bold
             dCol.AddChild(dTitle);
 
             // 🔴 用户规则③（§14.0.2）：**二级弹窗必须有显式【退出】按钮**（`Esc` 只作附加出口）✓
@@ -750,7 +750,7 @@ public partial class HamletRoot : Node2D
         recRow.AddThemeConstantOverride("separation", 6);
         _detailRecommend.AddChild(recRow);
         var recFrame = new PanelContainer { Name = "RecommendPortraitFrame", CustomMinimumSize = new Vector2(36, 36) };
-        recFrame.AddChild(new ColorRect { Name = "RecommendPlaceholder", Color = Darkest.Ui.DdTheme.PlaceholderFill });   // 🔴 规则②：待填位用半透明占位 ✓
+        recFrame.AddChild(new ColorRect { Name = "RecommendPlaceholder", Color = Darkest.UI.DdTheme.PlaceholderFill });   // 🔴 规则②：待填位用半透明占位 ✓
         recRow.AddChild(recFrame);
         recRow.AddChild(new Label { Name = "RecommendText", Text = "推荐位置（待定）", VerticalAlignment = VerticalAlignment.Center });
 
@@ -849,7 +849,7 @@ public partial class HamletRoot : Node2D
                     slot.AddChild(new ColorRect
                     {
                         Name = "SkillIconPlaceholder",
-                        Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(hero.Archetype, isPlayer: true)),   // 🔴 规则②：α 取调色板
+                        Color = WithPlaceholderAlpha(Darkest.UI.DdTheme.ArchetypeColor(hero.Archetype, isPlayer: true)),   // 🔴 规则②：α 取调色板
                     });
                     _detailSkills.AddChild(slot);
                 }
@@ -936,7 +936,7 @@ public partial class HamletRoot : Node2D
     {
         var panel = new PanelContainer { Name = name, Visible = false };
         panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        Darkest.Ui.DdTheme.Apply(panel);
+        Darkest.UI.DdTheme.Apply(panel);
         AddChild(panel);
 
         var margin = new MarginContainer();
@@ -961,7 +961,7 @@ public partial class HamletRoot : Node2D
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             VerticalAlignment = VerticalAlignment.Center,
         };
-        title.ThemeTypeVariation = Darkest.Ui.DdTheme.TitleVariation; // 🔴 架构裁定②：标题用 Bold（不再逐处写字号）
+        title.ThemeTypeVariation = Darkest.UI.DdTheme.TitleVariation; // 🔴 架构裁定②：标题用 Bold（不再逐处写字号）
         head.AddChild(title);
 
         // 🔴 关闭按钮（弹窗的"出口"必须显式可见 —— 红线 21：不留不可解释的状态）
@@ -1109,7 +1109,7 @@ public partial class HamletRoot : Node2D
             //    ⇒ 左列宽 / 店长位高 / 左右间距 / 内容列占比 **在编辑器里直接改** ✓
             //    ⚠️ 场景缺失/类型不符 ⇒ **回落代码构建**（不崩、不静默）
             //    🔴 节点名保持一致：BuildingSplit / BuildingList / ShopkeeperSlot / BuildingContent ✓
-            Darkest.Ui.BuildingPopupSkeleton? bpSkel = Darkest.Ui.BuildingPopupSkeleton.TryInstantiate();
+            Darkest.UI.BuildingPopupSkeleton? bpSkel = Darkest.UI.BuildingPopupSkeleton.TryInstantiate();
             HBoxContainer split;
             VBoxContainer leftCol;
             VBoxContainer rightCol;
@@ -1121,7 +1121,7 @@ public partial class HamletRoot : Node2D
                 rightCol = bpSkel.Content!;
                 if (bpSkel.ShopkeeperPlaceholder is ColorRect bpPh)
                 {
-                    bpPh.Color = Darkest.Ui.DdTheme.PlaceholderFill; // 🔴 规则②：半透明占位（α 来自调色板）✓
+                    bpPh.Color = Darkest.UI.DdTheme.PlaceholderFill; // 🔴 规则②：半透明占位（α 来自调色板）✓
                 }
             }
             else
@@ -1138,7 +1138,7 @@ public partial class HamletRoot : Node2D
                 var shopFrame = new PanelContainer { Name = "ShopkeeperSlot", CustomMinimumSize = new Vector2(0, 96) };
                 leftCol.AddChild(shopFrame);
                 // 🔴 规则②：空闲位改**半透明占位**（α 来自调色板 `PlaceholderFill`）✓
-                shopFrame.AddChild(new ColorRect { Name = "ShopkeeperPlaceholder", Color = Darkest.Ui.DdTheme.PlaceholderFill });
+                shopFrame.AddChild(new ColorRect { Name = "ShopkeeperPlaceholder", Color = Darkest.UI.DdTheme.PlaceholderFill });
 
                 rightCol = new VBoxContainer { Name = "BuildingContent", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
                 rightCol.AddThemeConstantOverride("separation", 6);
@@ -1150,7 +1150,7 @@ public partial class HamletRoot : Node2D
                 string bid = _buildingIds[k];
                 // 🔴 用户要求（2026-09-17）：**重复元素抽模板** ⇒ 建筑切换按钮（3 处同构）实例化 `building_nav_button.tscn`
                 //    ⚠️ 场景缺失 ⇒ **回落代码构建**（不崩、不静默）；节点名 `BuildingNav_<id>` 保持不变 ✓
-                Button nav = Darkest.Ui.BuildingNavButtonTemplate.TryCreate(_buildingLabels[k])
+                Button nav = Darkest.UI.BuildingNavButtonTemplate.TryCreate(_buildingLabels[k])
                     ?? new Button { Text = _buildingLabels[k], CustomMinimumSize = new Vector2(220, 32) };
                 nav.Name = $"BuildingNav_{bid}";
                 nav.Pressed += () => { _buildingPopupId = bid; RefreshBuildingPopup(); }; // 🔴 左列切换（只换右侧内容）✓
@@ -1247,7 +1247,7 @@ public partial class HamletRoot : Node2D
     /// ⚠️ 场景缺失/类型不符 ⇒ **回落代码构建**（不崩、不静默）✓
     /// </summary>
     private static Label PopupLine(string text)
-        => Darkest.Ui.PopupLineTemplate.TryCreate(text) ?? new Label
+        => Darkest.UI.PopupLineTemplate.TryCreate(text) ?? new Label
         {
             Text = text,
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
@@ -1336,7 +1336,7 @@ public partial class HamletRoot : Node2D
     /// <summary>🔴 用户规则②：**保留色相、只把 α 换成调色板里的占位透明度**（空闲位半透明 ⇒ 一眼看出"待填"）✓</summary>
     private static Color WithPlaceholderAlpha(Color hue)
     {
-        hue.A = Darkest.Ui.DdTheme.PlaceholderFill.A;
+        hue.A = Darkest.UI.DdTheme.PlaceholderFill.A;
         return hue;
     }
     /// <summary>供冒烟：名册竖列的行数（应等于名册人数）。</summary>
@@ -1455,7 +1455,7 @@ public partial class HamletRoot : Node2D
                 HBoxContainer rowBody;
                 PanelContainer frame;
                 ColorRect ph;
-                if (Darkest.Ui.RosterRowTemplate.TryInstantiate() is Darkest.Ui.RosterRowTemplate tpl)
+                if (Darkest.UI.RosterRowTemplate.TryInstantiate() is Darkest.UI.RosterRowTemplate tpl)
                 {
                     b = tpl;
                     rowBody = tpl.GetNode<HBoxContainer>("RosterRowBody");
@@ -1478,9 +1478,9 @@ public partial class HamletRoot : Node2D
                 b.Name = $"RosterRow_{id}";
                 b.CustomMinimumSize = new Vector2(232, 32);   // 🔴 相机 1280 口径收窄（原 300）
                 b.TooltipText = $"{h.Name}　Lv{lv}　士气 {morale}　防御 {dodge}{(canRelief ? "　·可减压" : string.Empty)}";
-                ph.Color = WithPlaceholderAlpha(Darkest.Ui.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true));   // 🔴 规则②：α 取调色板
+                ph.Color = WithPlaceholderAlpha(Darkest.UI.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true));   // 🔴 规则②：α 取调色板
 
-                if (Darkest.Ui.HeroArt.PortraitTexture() is Texture2D pTex)
+                if (Darkest.UI.HeroArt.PortraitTexture() is Texture2D pTex)
                 {
                     var pArt = new TextureRect
                     {
@@ -1518,7 +1518,7 @@ public partial class HamletRoot : Node2D
                 info.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
                 info.ClipText = true;
                 info.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-                info.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+                info.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontSmall);
                 b.Pressed += () =>
                 {
                     SelectHero(id);          // 左键 = **选中**（减压按人选）

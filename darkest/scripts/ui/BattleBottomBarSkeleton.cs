@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 **战斗屏底栏骨架**（用户 2026-09-17：「能在编辑器里直接干预」+ 参考图②的五区布局）✓

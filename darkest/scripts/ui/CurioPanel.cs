@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 `#327` **片 2 #5：Curio（事件房）面板的【内容】独立化**（从 `ExpeditionRoot` 的内联模态里抽出来）。

@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 **行走地图瓷砖渲染骨架**（用户 2026-09-17：「E —— 行走地图改用引擎内置 `TileMapLayer`」）✓
@@ -77,10 +77,10 @@ public partial class WalkMapSkeleton : Control
             var img = Image.CreateEmpty(RoomPx * 4, RoomPx, false, Image.Format.Rgba8);
             Color[] colors =
             {
-                Opaque(Darkest.Ui.DdTheme.MapUnknown),
-                Opaque(Darkest.Ui.DdTheme.MapVisited),
-                Opaque(Darkest.Ui.DdTheme.Highlight),
-                Opaque(Darkest.Ui.DdTheme.Danger),
+                Opaque(Darkest.UI.DdTheme.MapUnknown),
+                Opaque(Darkest.UI.DdTheme.MapVisited),
+                Opaque(Darkest.UI.DdTheme.Highlight),
+                Opaque(Darkest.UI.DdTheme.Danger),
             };
             for (int i = 0; i < colors.Length; i++)
             {
@@ -106,7 +106,7 @@ public partial class WalkMapSkeleton : Control
         if (CorridorLayer is TileMapLayer corridor && (corridor.TileSet is null || corridor.TileSet.GetSourceCount() == 0))
         {
             var img = Image.CreateEmpty(CorridorPx, CorridorPx, false, Image.Format.Rgba8);
-            img.FillRect(new Rect2I(0, 0, CorridorPx, CorridorPx), Opaque(Darkest.Ui.DdTheme.MapEdge));
+            img.FillRect(new Rect2I(0, 0, CorridorPx, CorridorPx), Opaque(Darkest.UI.DdTheme.MapEdge));
             var src = new TileSetAtlasSource
             {
                 Texture = ImageTexture.CreateFromImage(img),

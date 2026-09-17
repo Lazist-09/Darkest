@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Gameplay.Sim.Run;
-using Darkest.Ui; // ⚠️ UI 根是 `Darkest.Ui`（小写 i），而 `BattleUi` 是 `Darkest.UI` —— 两者并存，别混 ✓
+using Darkest.UI; // ⚠️ UI 根是 `Darkest.Ui`（小写 i），而 `BattleUi` 是 `Darkest.UI` —— 两者并存，别混 ✓
 using Godot;
 
 namespace Darkest.Gameplay.Scene;
@@ -64,7 +64,7 @@ public static class DungeonRunDriver
                  $"光照 {flow.Meter.Value} ⇒ 切城池（`--hamlet-next` 与冒烟 `town` 共用此实现）✓");
         flow.ReturnToTown(result); // 🔴 `#352`：completed = 走完 ／ abandoned = 放弃远征 ✓
         ExpeditionContext.End();
-        host.GetTree().CallDeferred("change_scene_to_file", Darkest.Ui.MainMenuRoot.HamletScene);
+        host.GetTree().CallDeferred("change_scene_to_file", Darkest.UI.MainMenuRoot.HamletScene);
     }
 
     /// <summary>自动走到终点（**真实 `StepTo`**；每一步留痕 ⇒ 可复现 ✓）</summary>
@@ -120,7 +120,7 @@ public static class DungeonRunDriver
             ExpeditionContext.Roster?.ApplyReturnFromRun(log, flow.Session.Roster().Select(r => (r.Id, r.Morale)));
             ExpeditionContext.End();
             ExpeditionContext.E2EStage = 1;
-            host.GetTree().CallDeferred("change_scene_to_file", Darkest.Ui.MainMenuRoot.HamletScene);
+            host.GetTree().CallDeferred("change_scene_to_file", Darkest.UI.MainMenuRoot.HamletScene);
             return;
         }
 

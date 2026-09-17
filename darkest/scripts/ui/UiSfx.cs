@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 `ui_spec §12.2` **最小音效三类**（策划 `#321`⑥ 定的触发点 + 占位音类型）：

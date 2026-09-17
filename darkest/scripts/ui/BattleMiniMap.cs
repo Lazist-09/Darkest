@@ -4,7 +4,7 @@ using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Run;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 **战斗界面的小地图**（`tasks/ui_three_screens.md` §3）—— 放在 **E 区多功能框**的【地图】分页里。
@@ -48,7 +48,7 @@ public partial class BattleMiniMap : Control
             //    "隐藏" ⇒ 玩家看到"本该有东西却空着"的位置，无法解释（红线 21 不留不可解释的状态）✓
             //    🔴 措辞按裁定用**首选短句**；颜色用**弱化灰**（`§14.4` 四色之一）—— 那是"提示"，不是"告警" ✓
             DrawString(ThemeDB.FallbackFont, new Vector2(8, 20), "线性远征：无地图",
-                HorizontalAlignment.Left, -1, 12, Darkest.Ui.DdTheme.Disabled);
+                HorizontalAlignment.Left, -1, 12, Darkest.UI.DdTheme.Disabled);
             return;
         }
 
@@ -66,7 +66,7 @@ public partial class BattleMiniMap : Control
         {
             if (pos.TryGetValue(e.From, out Vector2 a) && pos.TryGetValue(e.To, out Vector2 b))
             {
-                DrawLine(a + new Vector2(5, 5), b + new Vector2(5, 5), Darkest.Ui.DdTheme.MapEdge, 1.5f);
+                DrawLine(a + new Vector2(5, 5), b + new Vector2(5, 5), Darkest.UI.DdTheme.MapEdge, 1.5f);
             }
         }
 
@@ -77,17 +77,17 @@ public partial class BattleMiniMap : Control
             Vector2 p = pos[r.Id];
             bool visited = flow.HasVisited(r.Id);
             bool here = r.Id == current;
-            Color fill = here ? Darkest.Ui.DdTheme.MapCurrent                 // 当前房间（队伍位置）
-                : reachable.Contains(r.Id) ? Darkest.Ui.DdTheme.MapReachable // 可走高亮
-                : visited ? Darkest.Ui.DdTheme.MapVisited                   // 已探索变暗
-                : Darkest.Ui.DdTheme.MapUnknown;                           // 未探索
+            Color fill = here ? Darkest.UI.DdTheme.MapCurrent                 // 当前房间（队伍位置）
+                : reachable.Contains(r.Id) ? Darkest.UI.DdTheme.MapReachable // 可走高亮
+                : visited ? Darkest.UI.DdTheme.MapVisited                   // 已探索变暗
+                : Darkest.UI.DdTheme.MapUnknown;                           // 未探索
             DrawRect(new Rect2(p, new Vector2(11, 11)), fill, filled: true);
-            DrawRect(new Rect2(p, new Vector2(11, 11)), Darkest.Ui.DdTheme.MapFrame, filled: false, width: 1f);
+            DrawRect(new Rect2(p, new Vector2(11, 11)), Darkest.UI.DdTheme.MapFrame, filled: false, width: 1f);
 
             if (here)
             {
                 // 🔴 队伍位置：火把（小黄点 + 「▶」）
-                DrawCircle(p + new Vector2(5.5f, -4f), 2.5f, Darkest.Ui.DdTheme.TeamDot);
+                DrawCircle(p + new Vector2(5.5f, -4f), 2.5f, Darkest.UI.DdTheme.TeamDot);
                 DrawString(ThemeDB.FallbackFont, p + new Vector2(1f, 9f), "▶", HorizontalAlignment.Left, -1, 9);
             }
 

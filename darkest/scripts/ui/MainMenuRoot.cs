@@ -7,7 +7,7 @@ using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Run;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// M8.0 收尾 ①（`#288` / V8）：**主菜单 = 启动入口的正解**。
@@ -53,12 +53,12 @@ public partial class MainMenuRoot : Control
 
         // 🔴 `ui_spec §14.2/§14.3`（`#319` 第五屏补齐）：**主菜单也是"容器 + 不透明 Panel"** ——
         //    它是玩家**第一眼**看到的一屏（此前是手摆坐标、一个 `Panel` 都没有 ⇒ 四屏审计没覆盖到它）✓
-        Darkest.Ui.DdTheme.Apply(this); // 本类现在是 `Control` ⇒ 主题沿祖先链继承
+        Darkest.UI.DdTheme.Apply(this); // 本类现在是 `Control` ⇒ 主题沿祖先链继承
         // 🔴 骨架优先（用户 2026-09-17：「UI 要能在编辑器里直接干预」）——
         //    `scenes/ui/main_menu.tscn` 可用 ⇒ **用它当骨架**（边距/列/间距/面板尺寸在编辑器里改）✓
         //    ⚠️ 场景缺失/类型不符 ⇒ **回落代码构建**（不崩、不静默）✓
         //    🔴 节点名保持 `MenuMargin` / `MenuCol` / `TitlePanel` / `OptionsPanel` / `OptionsCol` ✓
-        Darkest.Ui.MainMenuSkeleton? skeleton = Darkest.Ui.MainMenuSkeleton.TryInstantiate();
+        Darkest.UI.MainMenuSkeleton? skeleton = Darkest.UI.MainMenuSkeleton.TryInstantiate();
         PanelContainer titlePanel;
         PanelContainer optionsPanel;
         if (skeleton is not null)
@@ -151,9 +151,9 @@ public partial class MainMenuRoot : Control
 
         // 🔴 Godot 内置清单 ②（本轮轴：**字体/颜色集中**）：**中央 Theme 挂到引擎根 Window**
         //    ⇒ 之后所有场景的控件**自动继承**（Theme 沿 Control/Window 祖先链传播）✓ 不必逐屏设置 ✓
-        GetTree().Root.Theme = Darkest.Ui.DdTheme.Shared;
+        GetTree().Root.Theme = Darkest.UI.DdTheme.Shared;
         _title.Theme = null; // （保持可读性：显式声明"标题不另设 Theme"，样式来自中央 Theme + 语义色 override）
-        _title.ThemeTypeVariation = Darkest.Ui.DdTheme.TitleVariation; // 🔴 架构裁定②：标题用 Bold（字号 × 字重双轴）
+        _title.ThemeTypeVariation = Darkest.UI.DdTheme.TitleVariation; // 🔴 架构裁定②：标题用 Bold（字号 × 字重双轴）
 
         // 🔴 架构裁定（`DELIVERY-ARCH-UI-RULINGS2-20260915` ①）：**调色板两视图一致性检查挪到【必经路径】**
         //    —— `UiPalette.Default()`（C# 兜底）与 `resources/theme/ui_palette.tres`（数据源）**不得分叉**（`#325` D6）。
@@ -161,7 +161,7 @@ public partial class MainMenuRoot : Control
         //    （`O-84` 导出崩溃 / `O-82` 光照六字段 / `AvailableCurios` 从未被生产调用）⇒ 检查放进启动路径 ✓
         //    ⚠️ 差异时**打印显著警告、不崩**（保红线 21：缺文件不崩），但**不允许静默分叉** ✓
         {
-            (bool paletteOk, string paletteRep) = Darkest.Ui.UiPalette.AuditFile();
+            (bool paletteOk, string paletteRep) = Darkest.UI.UiPalette.AuditFile();
             if (!paletteOk)
             {
                 GD.PrintErr($"[启动自检·调色板] {paletteRep}");
@@ -177,14 +177,14 @@ public partial class MainMenuRoot : Control
         //    并把 Theme 存一份 `.tres` 到契约的落点目录 `resources/theme/`（编辑器里可见；后续可改成资源加载）
         if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--theme-audit"))
         {
-            Error err = Darkest.Ui.DdTheme.DumpTo();
-            GD.Print($"[Theme审计] {Darkest.Ui.DdTheme.Audit()}");
+            Error err = Darkest.UI.DdTheme.DumpTo();
+            GD.Print($"[Theme审计] {Darkest.UI.DdTheme.Audit()}");
             GD.Print($"[Theme审计] 落点：res://resources/theme/dd_theme.tres ⇒ {err}");
 
             // 🔴 `#325` D6 + 架构裁定（第 5 条）：**兜底值不得与 `.tres` 分叉** ⇒ `--palette-audit` 逐字段比对
             if (Array.Exists(OS.GetCmdlineArgs(), a => a == "--palette-audit"))
             {
-                (bool pOk, string pRep) = Darkest.Ui.UiPalette.AuditFile();
+                (bool pOk, string pRep) = Darkest.UI.UiPalette.AuditFile();
                 GD.Print($"[调色板审计] {pRep}");
                 GD.Print($"[调色板审计] 结论：{(pOk ? "✅ 通过" : "🔴 未通过（两视图分叉）")}");
             }
@@ -192,8 +192,8 @@ public partial class MainMenuRoot : Control
             string[] dumpArgs = OS.GetCmdlineArgs();
             if (Array.Exists(dumpArgs, a => a == "--dump-palette"))
             {
-                Error perr = Darkest.Ui.DdTheme.DumpPalette();
-                GD.Print($"[Theme审计] 调色板导出：{Darkest.Ui.UiPalette.ResPath} ⇒ {perr}" +
+                Error perr = Darkest.UI.DdTheme.DumpPalette();
+                GD.Print($"[Theme审计] 调色板导出：{Darkest.UI.UiPalette.ResPath} ⇒ {perr}" +
                          "（**之后改它即生效**，不必改代码 —— `#325` D5）");
             }
 
@@ -203,15 +203,15 @@ public partial class MainMenuRoot : Control
             //    ⇒ 📌 **下一轮（架构清单② 的"容器+锚点"）就是修这个**：给每屏加一个满屏根 `Control` 并挂 Theme ✓
             int effective = _title.GetThemeFontSize("font_size");
             GD.Print($"[Theme审计] 生效值（从 _title 读出）：font_size = {effective}　" +
-                     $"中央 Theme 期望 = {Darkest.Ui.DdTheme.FontBody}　" +
-                     $"=> {(effective == Darkest.Ui.DdTheme.FontBody ? "✅ 继承生效" : "🔴 未生效（根不是 Control ⇒ 主题链断）")}");
+                     $"中央 Theme 期望 = {Darkest.UI.DdTheme.FontBody}　" +
+                     $"=> {(effective == Darkest.UI.DdTheme.FontBody ? "✅ 继承生效" : "🔴 未生效（根不是 Control ⇒ 主题链断）")}");
 
             // 🔴 `§1.4`① / `§12.3` 取证：**文字描边**也必须是**引擎内置项**的生效值（不是自研 shader、不是逐节点 override）
             int outline = _title.GetThemeConstant("outline_size");
             Color outlineColor = _title.GetThemeColor("font_outline_color");
-            GD.Print($"[Theme审计] 生效值（从 _title 读出）：outline_size = {outline}（期望 {Darkest.Ui.DdTheme.OutlineSize}）　" +
-                     $"描边色 = {outlineColor.ToHtml()}（期望 {Darkest.Ui.DdTheme.Outline.ToHtml()}）　" +
-                     $"=> {(outline == Darkest.Ui.DdTheme.OutlineSize ? "✅ 文字描边（深色粗描边）继承生效" : "🔴 描边未生效")}");
+            GD.Print($"[Theme审计] 生效值（从 _title 读出）：outline_size = {outline}（期望 {Darkest.UI.DdTheme.OutlineSize}）　" +
+                     $"描边色 = {outlineColor.ToHtml()}（期望 {Darkest.UI.DdTheme.Outline.ToHtml()}）　" +
+                     $"=> {(outline == Darkest.UI.DdTheme.OutlineSize ? "✅ 文字描边（深色粗描边）继承生效" : "🔴 描边未生效")}");
         }
 
         // 🔴 跨场景步进冒烟：**先解析步骤**（只解析一次）—— 解析后本场景也要消费一步

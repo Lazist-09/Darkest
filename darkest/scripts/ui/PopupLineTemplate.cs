@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 **弹窗内容行模板**（用户 2026-09-17：「UI 要能在编辑器里直接干预」）✓

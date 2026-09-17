@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 **中央 Theme**（Godot 内置清单 ② / 架构 `godot_builtins_audit.md` §4：Theme + 容器 + 锚点）。

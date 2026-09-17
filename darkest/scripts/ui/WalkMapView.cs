@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>🔴 行走层【渲染快照】的一格（表现层自己的输入格式，**不含任何内核类型**）✓</summary>
 public sealed record SketchCell(int Id, int Depth, int Lane, string Type, bool Revealed, bool IsCurrent, bool IsGoal, bool Movable);
@@ -44,7 +44,7 @@ public partial class WalkMapView : PanelContainer
     private const int Pad = 8;
 
     private Control _canvas = null!;
-    private Darkest.Ui.WalkMapSkeleton? _walkSkel;   // 🔴 E（2026-09-17）：瓷砖渲染骨架（双层：房间 14px／走廊 5px）✓
+    private Darkest.UI.WalkMapSkeleton? _walkSkel;   // 🔴 E（2026-09-17）：瓷砖渲染骨架（双层：房间 14px／走廊 5px）✓
     private int _lastKey = -1;
     private string _lastSketch = string.Empty;
     private bool _dragging;   // 🔴 拖拽平移状态 ✓
@@ -65,7 +65,7 @@ public partial class WalkMapView : PanelContainer
 
         // 🔴 主程序 (A)：**把"当前房间类型 + 剩余段数"画在格子上方**（提示不该只活在 log 里）✓
         _info = new Label { Name = "WalkInfo", VerticalAlignment = VerticalAlignment.Center };
-        _info.AddThemeFontSizeOverride("font_size", Darkest.Ui.DdTheme.FontSmall);
+        _info.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontSmall);
         _info.AutowrapMode = TextServer.AutowrapMode.Off;
         _info.ClipText = true;
         _info.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
@@ -80,7 +80,7 @@ public partial class WalkMapView : PanelContainer
         AddChild(_canvas);
 
         // 🔴 E（2026-09-17）：**引擎内置瓷砖渲染**（骨架优先；缺失 ⇒ 回落手绘 ColorRect）✓
-        _walkSkel = Darkest.Ui.WalkMapSkeleton.TryInstantiate();
+        _walkSkel = Darkest.UI.WalkMapSkeleton.TryInstantiate();
         if (_walkSkel is not null)
         {
             _canvas.AddChild(_walkSkel);
@@ -279,7 +279,7 @@ public partial class WalkMapView : PanelContainer
                 int cy = (int)(a.Y + (b.Y - a.Y) * t) + (RoomSize - CorridorSize) / 2;
                 if (_walkSkel?.CorridorLayer is TileMapLayer corrLayer)
                 {
-                    const int cp = Darkest.Ui.WalkMapSkeleton.CorridorPx;
+                    const int cp = Darkest.UI.WalkMapSkeleton.CorridorPx;
                     corrLayer.SetCell(new Vector2I(cx / cp, cy / cp), _walkSkel.CorridorSourceId, new Vector2I(0, 0));   // 🔴 引擎瓷砖 ✓
                 }
                 else
@@ -287,7 +287,7 @@ public partial class WalkMapView : PanelContainer
                     _canvas.AddChild(new ColorRect
                     {
                         Name = $"Corridor_{link.From}_{link.To}_{i}",
-                        Color = Darkest.Ui.DdTheme.MapEdge,
+                        Color = Darkest.UI.DdTheme.MapEdge,
                         Position = new Vector2(cx, cy),
                         Size = new Vector2(CorridorSize, CorridorSize),
                     });
@@ -301,18 +301,18 @@ public partial class WalkMapView : PanelContainer
         foreach (SketchCell c in sketch.Cells)
         {
             (int X, int Y) p = pos[c.Id];
-            Color color = c.IsCurrent ? Darkest.Ui.DdTheme.Highlight
-                : c.IsGoal ? Darkest.Ui.DdTheme.Danger
-                : !c.Revealed ? Darkest.Ui.DdTheme.MapUnknown
-                : Darkest.Ui.DdTheme.MapVisited;
+            Color color = c.IsCurrent ? Darkest.UI.DdTheme.Highlight
+                : c.IsGoal ? Darkest.UI.DdTheme.Danger
+                : !c.Revealed ? Darkest.UI.DdTheme.MapUnknown
+                : Darkest.UI.DdTheme.MapVisited;
 
             if (_walkSkel?.RoomLayer is TileMapLayer roomLayer)
             {
-                const int rp = Darkest.Ui.WalkMapSkeleton.RoomPx;
-                int tile = c.IsCurrent ? Darkest.Ui.WalkMapSkeleton.TileCurrent
-                    : c.IsGoal ? Darkest.Ui.WalkMapSkeleton.TileGoal
-                    : !c.Revealed ? Darkest.Ui.WalkMapSkeleton.TileUnknown
-                    : Darkest.Ui.WalkMapSkeleton.TileVisited;
+                const int rp = Darkest.UI.WalkMapSkeleton.RoomPx;
+                int tile = c.IsCurrent ? Darkest.UI.WalkMapSkeleton.TileCurrent
+                    : c.IsGoal ? Darkest.UI.WalkMapSkeleton.TileGoal
+                    : !c.Revealed ? Darkest.UI.WalkMapSkeleton.TileUnknown
+                    : Darkest.UI.WalkMapSkeleton.TileVisited;
                 roomLayer.SetCell(new Vector2I(p.X / rp, p.Y / rp), _walkSkel.RoomSourceId, new Vector2I(tile, 0));   // 🔴 四态瓦片 ✓
             }
             else

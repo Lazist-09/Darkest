@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 **5/6 号位行模板**（用户 2026-09-17：「重复的 UI 元素记得能复用就建成能复用的」）✓

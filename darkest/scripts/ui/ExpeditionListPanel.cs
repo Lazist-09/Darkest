@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// M7.5 远征层**最小列表式界面**（`ui_spec` §2 必显 **11 光照条 / 12 背包格子 / 13 侦察结果标记**，

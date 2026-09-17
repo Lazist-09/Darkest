@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// 🔴 架构审计清单 **⑨ 帧预算基线**（`godot_builtins_audit.md` §4；"不需要规格"的一项）——

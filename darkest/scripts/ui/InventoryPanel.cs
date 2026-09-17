@@ -4,7 +4,7 @@ using System.Linq;
 using Darkest.Gameplay.Sim.Run;
 using Godot;
 
-namespace Darkest.Ui;
+namespace Darkest.UI;
 
 /// <summary>
 /// M7.5 **背包格子交互界面**（`ui_spec` 必显 **12 背包格子** + P21 ⑬「**包满禁止静默丢弃**」的界面端）。
