@@ -1489,7 +1489,9 @@ public partial class HamletRoot : Node2D
                 }
 
                 b.Name = $"RosterRow_{id}";
-                b.CustomMinimumSize = new Vector2(232, 32);   // 🔴 相机 1280 口径收窄（原 300）
+                // 🔴 2026-09-21：宽度仍按相机 1280 口径收窄到 232；**高度改为按行内实际需求算**
+                //    （用户在编辑器里把名册行改成**两行结构** ⇒ 写死 32px 会把上下两行压叠：实测 6~7 对重叠）✓
+                b.CustomMinimumSize = new Vector2(232, Math.Max(32, (int)rowBody.GetCombinedMinimumSize().Y));
                 b.TooltipText = $"{h.Name}　Lv{lv}　士气 {morale}　防御 {dodge}{(canRelief ? "　·可减压" : string.Empty)}";
                 ph.Color = WithPlaceholderAlpha(Darkest.UI.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true));   // 🔴 规则②：α 取调色板
 
