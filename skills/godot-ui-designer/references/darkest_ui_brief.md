@@ -1609,3 +1609,37 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.26 **交付总结：2026-09-21 五条评审指令收口（UI 侧）**
+
+```
+最终双重门（2026-09-21 实测）：
+  ① 命名空间门 `tools/dsh/check_ui_namespace.ps1`（PS 5.1）⇒ OK / 退出码 0 ✓
+  ② 构建 ⇒ 我域内 **0 错误** ✓
+  ③ 全量 14 入口 `tools/dsh/ui_sweep.ps1` ⇒ **entries=14 failed=0** / 退出码 0 ✓
+  ④ 我域工作树 ⇒ 无未提交（其余为他人 SKILL/生成物）✓
+
+评审五条的收口对照：
+  ① 命名空间并存 ⇒ **统一为 Darkest.UI（全大写）**：自有 35 文件 185 处 + **越域 2 文件**（DungeonRunDriver.cs / SmokeScript.cs，已明说）
+     + 防再生门（PS 5.1 可跑，并修了它自身的 -CaseSensitive 误报）✓
+  ② 两套 UI 构造策略 ⇒ **事实澄清**：骨架/模板**早已接线生效**（13 处 TryInstantiate/TryCreate）；`Battle.tscn` 只挂 BattleUi.cs 是对的
+     （骨架由代码运行时实例化）⇒ 6 处过时注释"接线状态：未接线"已改为"已接线 + 生效留痕证据"✓
+  ③ 重心转 Hamlet/养成 ⇒ 五入口（含**长文本**）全绿；可用性盘点：可见按钮全有真实回调、减压/招募/服务/升级都在建筑详情内、
+     二三级窗口都有 ✕；并把"推荐位置（待定）"改为"（开发中·预留）"（红线 21）✓
+  ④ 冒烟固定入口 ⇒ 新增 `tools/dsh/ui_sweep.ps1`（14 入口一键 + 表 + 空日志判 FAIL + 退出码可接 CI）并写进 skill；
+     ⚠️ 未改 smoke.ps1（edit 报"文件已被改动"⇒ 判定并发编辑 ⇒ 按纪律停手）✓
+  ⑤ reports/ 沉积 ERROR ⇒ 主程序 reclassification 档**自身已收口**且**无我域条目**；我域侧 14 入口 realERROR=0，唯一 ERROR 类=引擎退出噪声 ✓
+  ⑧ borrow/ 授权核对 ⇒ **不在我域** ⇒ 本总结明确标注："**发布前需由美术/策划核对 borrow/ 授权**"（我不越域改动）✓
+
+本轮同时修掉的 4 个真 bug（都经复测）：
+  · 城池 NRE（用户编辑器改动 hamlet_skeleton 少 5 节点 + 我代码不容错）⇒ skelOk 必需节点判定 + 整段回落
+  · 名册行 Node not found（用户重排两行结构）⇒ 按名递归查找 + 缺失即补；行高量 RosterRowBody2 ⇒ **重叠 7→0**
+  · abandon NRE（主程序冒烟抓到）⇒ _uiRoot 未就绪守卫（留痕 + 不执行放弃）
+  · 战斗顶栏相机超出 4→0（任务标签可裁切 / 间距 10→6→4 / 头像 42→34 / OrderBox+EnemyIntent 可收缩）
+  🆕 另记录一条硬教训：**headless 必须设 APPDATA**（否则 user://logs 打不开 ⇒ signal 11 段错误 ⇒ Windows 弹"该内存不能 read"）
+
+用户改动的保留：6 个场景（battle_bottombar / battle_topbar / hamlet_skeleton / roster_row / skill_box）+ dd_theme.tres
+  ⇒ 全部**原样入库**（uid/unique_id/尺寸/文本等编辑器改动），我通过**代码容错**适配（未覆盖任何用户文件）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
