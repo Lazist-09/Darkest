@@ -23,6 +23,8 @@ public sealed record RunStartSnapshot(
     int RosterCount,
     int RosterCap,
     int MoraleAvg,
+    int LevelAvg,
+    int LevelMax,
     int Diseases,
     int TraitsPositive,
     int TraitsNegative,
@@ -56,6 +58,9 @@ public sealed record RunStartSnapshot(
         var heroes = roster.Heroes;
         int count = heroes.Count;
         int moraleAvg = count == 0 ? 0 : (int)Math.Round(heroes.Average(h => roster.MoraleOf(h.Id)));
+        // 🆕 英雄**等级**（用户重心＝养成 ⇒ 这是"队伍在长"的最直接一面；我第一版漏了 ⚠️）✓
+        int levelAvg = count == 0 ? 0 : (int)Math.Round(heroes.Average(h => h.Level));
+        int levelMax = count == 0 ? 0 : heroes.Max(h => h.Level);
 
         int diseases = 0;
         int pos = 0;
@@ -111,13 +116,13 @@ public sealed record RunStartSnapshot(
             }
         }
 
-        return new RunStartSnapshot(runIndex, economy?.Gold ?? 0, count, roster.CurrentCap, moraleAvg,
+        return new RunStartSnapshot(runIndex, economy?.Gold ?? 0, count, roster.CurrentCap, moraleAvg, levelAvg, levelMax,
             diseases, pos, neg, locked, heirloomCounts, levels);
     }
 
     /// <summary>一行读数（存档/日志用）✓</summary>
     public string Describe()
-        => $"第 {RunIndex} 趟出发前：金钱 {Gold}　名册 {RosterCount}/{RosterCap}　平均士气 {MoraleAvg}　" +
+        => $"第 {RunIndex} 趟出发前：金钱 {Gold}　名册 {RosterCount}/{RosterCap}　平均士气 {MoraleAvg}　等级均 {LevelAvg}（最高 {LevelMax}）　" +
            $"疾病 {Diseases}　特质 正 {TraitsPositive}／负 {TraitsNegative}（锁定 {TraitsLocked}）　" +
            $"传家宝 [{string.Join(" ", Heirlooms.OrderBy(k => k.Key).Select(k => $"{k.Key}:{k.Value}"))}]　" +
            $"建筑 [{string.Join(" ", BuildingLevels.OrderBy(k => k.Key).Select(k => $"{k.Key}:Lv{k.Value}"))}]　" +
@@ -147,6 +152,7 @@ public sealed record RunStartSnapshot(
         Cmp("名册", RosterCount, prev.RosterCount);
         Cmp("名册上限", RosterCap, prev.RosterCap);
         Cmp("平均士气", MoraleAvg, prev.MoraleAvg);
+        Cmp("平均等级", LevelAvg, prev.LevelAvg);
         Cmp("疾病", Diseases, prev.Diseases);
         Cmp("正面特质", TraitsPositive, prev.TraitsPositive);
         Cmp("负面特质", TraitsNegative, prev.TraitsNegative);
@@ -164,9 +170,19 @@ public sealed record RunStartSnapshot(
 
         if (diffs.Count == 0)
         {
-            return new[] { $"[养成] 第 {RunIndex} 趟 vs 第 {prev.RunIndex} 趟：**十项全同**（这趟与上趟起点一致 ⇒ 无成长/无损耗）✓" };
+            // 🔴 策划 `#394` 的 **A4**（「第二次去，队伍不一样」）在这里落到实处：起点没变 ⇒ A4 **不成立** ⚠️
+            return new[]
+            {
+                $"[养成] 第 {RunIndex} 趟 vs 第 {prev.RunIndex} 趟：**起点未变**（无成长也无损耗）",
+                $"[A4] ❌ **不成立**：本趟与上趟起点一致 ⇒ 「第二次去，队伍不一样」没有落点" +
+                "（若这是第 5 趟之后，需按 `#394` 给解释；若是首几趟，属正常）✓",
+            };
         }
 
-        return new[] { $"[养成] 第 {RunIndex} 趟 vs 第 {prev.RunIndex} 趟（变了 {diffs.Count} 项）：{string.Join("　", diffs)} ✓" };
+        return new[]
+        {
+            $"[养成] 第 {RunIndex} 趟 vs 第 {prev.RunIndex} 趟（变了 {diffs.Count} 项）：{string.Join("　", diffs)} ✓",
+            $"[A4] ✅ **成立**：起点确实变了（{diffs.Count} 项）⇒ 「第二次去，队伍不一样」有落点 ✓",
+        };
     }
 }
