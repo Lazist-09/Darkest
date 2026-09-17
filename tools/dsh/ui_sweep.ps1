@@ -71,6 +71,7 @@ $stamp = Get-Date -Format 'yyyyMMdd_HHmm'
 if (-not (Test-Path $OutDir)) { New-Item -ItemType Directory -Path $OutDir | Out-Null }
 if (-not (Test-Path $proj)) { throw "project path not found: $proj" }
 
+$run = $Entries   # 默认跑全表 ✓
 $onlyList = @(); foreach ($o in $Only) { foreach ($x in ($o -split ',')) { if ($x.Trim() -ne '') { $onlyList += $x.Trim() } } }   # PS 5.1: -Only a,b arrives as one string ✓
 if ($onlyList.Count -gt 0) { $run = @($Entries | Where-Object { $onlyList -contains $_.N }) }
 if ($run.Count -eq 0) { throw 'no entries selected' }

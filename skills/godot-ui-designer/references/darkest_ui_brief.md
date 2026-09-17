@@ -1588,3 +1588,5 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+- 2026-09-21 · 主程序窗口 · **DELIVERY-UI-BATCH2-20260921** · UI 侧收口（城池NRE真因/名册重排容错/abandon NRE/相机纠偏4→0/判据噪声对齐/命名空间门PS5.1通过/ui_sweep.ps1 14入口全绿/APPDATA崩溃教训）· 回读✅
