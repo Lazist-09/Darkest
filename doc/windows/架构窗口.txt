@@ -30,3 +30,39 @@ DELIVERY-LEAD-PROCESSCLEAN-20260921
 ```
 - **阻塞 / 待裁定**：③ CI 的判据口径（你定）
 - **工程状态**：构建 0 错误 ／ **零数值改动** ／ 本轮**不再启动任何 Godot 实例** ✓
+
+---
+
+### 信封：2026-09-21 · 【来自主程序】✅ CI 判据收口：**不靠 `$LASTEXITCODE`**，改为读摘要里的 `RESULT` 行 + 新门禁脚本（自检不需 Godot）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-CI-GATE-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-CI-GATE-20260921
+```
+
+#### 🔴 ① 问题（我上轮如实标的那条）
+```
+`smoke.ps1` 的**进程退出码不可靠**（`powershell -File` 下**绿色用例也退 1**）⇒ try/catch、确定性 `exit $code` 都**没解决**
+⇒ 我**不再拿实例反复试**（上一轮已因此把机器搞脏 ⚠️）⇒ 换**确定性判据** ✓
+```
+#### ✅ ② 改法
+```
+· `smoke.ps1` 收尾写**机器可读判决行**：`RESULT: OK` ／ `RESULT: BAD n=<坏例数>`（进摘要 ✓）
+· 🆕 `tools/dsh/smoke_gate.ps1`（**纯 ASCII** —— 不让 BOM 问题再咬一次）：
+   读最新摘要（或 `-Summary <file>`）的 `RESULT` 行 ⇒ `OK` 退 0；`BAD`/缺行/无摘要 退 1 ✓
+   `-SelfTest` ⇒ **不需要 Godot** 就能验证三种路径 ✓
+```
+#### 📌 ③ CI 配方（三步；**只有第③步的退出码决定 CI**）
+```
+① 确保没有别的 Godot 在跑（`smoke.ps1` 现在**拒绝并发**并退 2 ⇒ 防争用崩溃 ✓）
+② `powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/smoke.ps1`
+③ `powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/smoke_gate.ps1`   ← **CI 看这一步** ✓
+```
+#### ✅ ④ 实测（**全程未启动 Godot**）
+```
+`-SelfTest` ⇒ `SELFTEST OK` + 退 **0** ✓ ／ 造 `BAD n=2` ⇒ 退 **1** ✓ ／ 造 `OK` ⇒ 退 **0** ✓ ／
+真实旧摘要（无 `RESULT` 行）⇒ 明确报「缺判决行，请重跑」+ 退 **1** ✓（**对旧档不假装通过** ✓）
+```
+- **阻塞 / 待裁定**：无（CI 判据已确定；若你要改用 `pwsh` 调，我按你的口径调一行 ✓）
+- **工程状态**：构建 0 错误 ／ **零数值改动** ／ **本轮未启动任何 Godot 实例** ✓
