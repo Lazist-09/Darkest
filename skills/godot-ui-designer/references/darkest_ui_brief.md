@@ -1590,3 +1590,22 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
 
 - 2026-09-21 · 主程序窗口 · **DELIVERY-UI-BATCH2-20260921** · UI 侧收口（城池NRE真因/名册重排容错/abandon NRE/相机纠偏4→0/判据噪声对齐/命名空间门PS5.1通过/ui_sweep.ps1 14入口全绿/APPDATA崩溃教训）· 回读✅
+
+### 🔴 14.0.25 **目标⑤/⑦ 收口记录**（2026-09-21）
+
+```
+⑤ Hamlet/养成 UI（本轮）：
+  · 复审五入口（含**长文本**压力）：hamlet 53 ／ hamlet-longtext 54 ／ hamlet-menu 55 ／ hamlet-building 56 ／ hero-detail 54
+    ⇒ **全部 demandOverCamera=0 ／ overlap=0 ／ transparent=0 ／ realERROR=0**（`tools/dsh/ui_sweep.ps1`，PS 5.1，退出码 0）✓
+  · 可用性盘点（代码实证）：主城可见按钮**全部有真实回调**；减压/招募/服务/升级入口**都收在建筑详情内**；
+    二级/三级窗口都有 ✕ 退出 ✓
+  · 已修：「推荐位置（待定）」→「推荐位置（开发中·预留）」+ 注释（保框不改结构；红线 21）✓
+
+⑦ reports/ 沉积"非环境 ERROR"：
+  · 主程序 `reports/smoke_error_reclassification_20260921.md` **自身已收口**（原文："没有待判定项了：每份要么干净、要么已定性+已修+留证"）
+    ⇒ 且该表**无一条属于 `scripts/ui/**`** ⇒ **我域侧无需再标 N/A** ✓（如后续出现我域条目，我按同样口径处理）
+  · 我域侧自证：14 入口 `realERROR=0`；唯一 ERROR 类别=**引擎退出噪声**（`certificate store` / `leaked at exit` /
+    `RID allocations` / `resources still in use at exit`）⇒ 已在 §14.0.24 记录并与 smoke.ps1 口径一致 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
