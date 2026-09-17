@@ -762,7 +762,9 @@ public partial class HamletRoot : Node2D
         var recFrame = new PanelContainer { Name = "RecommendPortraitFrame", CustomMinimumSize = new Vector2(36, 36) };
         recFrame.AddChild(new ColorRect { Name = "RecommendPlaceholder", Color = Darkest.UI.DdTheme.PlaceholderFill });   // 🔴 规则②：待填位用半透明占位 ✓
         recRow.AddChild(recFrame);
-        recRow.AddChild(new Label { Name = "RecommendText", Text = "推荐位置（待定）", VerticalAlignment = VerticalAlignment.Center });
+        // 🔴 2026-09-21：文案从开发者口气「待定」改为**玩家可理解的诚实标注**「开发中·预留」
+        //    （框本身是用户明确要保留的预留框 ⇒ 保框、不改结构；红线 21：不留不可解释状态）✓
+        recRow.AddChild(new Label { Name = "RecommendText", Text = "推荐位置（开发中·预留）", VerticalAlignment = VerticalAlignment.Center });
 
         _detailRight = new Label
             {
