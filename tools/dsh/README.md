@@ -10,7 +10,7 @@
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/selfcheck.ps1
 ```
 
-跑四项，**任一项非 0 ⇒ 整条非 0**：
+跑五项，**任一项非 0 ⇒ 整条非 0**：
 
 | # | 检查 | 判据 |
 |---|---|---|
@@ -18,6 +18,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/selfcheck.ps1
 | 2 | `tools/check_data_discipline.py` | 数字纪律（**可疑数字 = 0**）· 死函数/死数据清单 |
 | 3 | `tools/dsh/check_ui_namespace.ps1` | UI 命名空间统一为 `Darkest.UI`（**含小写限定引用**） |
 | 4 | `tools/dsh/smoke_gate.ps1 -SelfTest` | CI 判据脚本自身可用（收 `OK` / 拒 `BAD` / 缺行报错） |
+| 5 | `tools/dsh/selfcheck.ps1` 内联 **占位合规** | `borrow/` 与 `assets/heroes_placeholder/` **不入 git**、**有 gitignore 规则**、**未泄漏进 `resources/`**（`assets_credits.md` A1 家族 · **合规不变量**） |
 
 ## 2. 一键冒烟（**需要 Godot**）
 

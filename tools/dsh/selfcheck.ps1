@@ -32,27 +32,66 @@ function Run-Step([string]$title, [scriptblock]$body) {
     }
 }
 
-Run-Step '1/4 kernel stays Godot-free (check_godot_refs.py)' {
+Run-Step '1/5 kernel stays Godot-free (check_godot_refs.py)' {
     python tools/check_godot_refs.py
 }
 
-Run-Step '2/4 number discipline (check_data_discipline.py)' {
+Run-Step '2/5 number discipline (check_data_discipline.py)' {
     python tools/check_data_discipline.py --numbers
 }
 
-Run-Step '3/4 UI namespace unified (check_ui_namespace.ps1)' {
+Run-Step '3/5 UI namespace unified (check_ui_namespace.ps1)' {
     & powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/check_ui_namespace.ps1
 }
 
-Run-Step '4/4 CI gate script works (smoke_gate.ps1 -SelfTest)' {
+Run-Step '4/5 CI gate script works (smoke_gate.ps1 -SelfTest)' {
     & powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/smoke_gate.ps1 -SelfTest
+}
+
+# ---- 5/5 placeholder compliance (ASCII-only; no Godot needed) -------------------
+# WHY: borrowed art (borrow/) and the placeholder heroes must never enter git, the
+#   build products, or resources/ (assets_credits.md A1 family). This is a LEGAL
+#   invariant, so it belongs in the one-command self check.
+Write-Output ""
+Write-Output "=== 5/5 placeholder compliance ==="
+$compliance = 0
+$tracked = @(git ls-files)
+if (@($tracked | Select-String -Pattern 'borrow/').Count -gt 0) {
+    Write-Output "[selfcheck] VIOLATION: borrowed files are tracked by git"
+    $compliance = 1
+}
+if (@($tracked | Select-String -Pattern 'assets/heroes_placeholder/').Count -gt 0) {
+    Write-Output "[selfcheck] VIOLATION: placeholder hero files are tracked by git"
+    $compliance = 1
+}
+$gi = @(Get-Content .gitignore -ErrorAction SilentlyContinue)
+if (@($gi | Where-Object { $_ -match '^borrow/' }).Count -eq 0) {
+    Write-Output "[selfcheck] VIOLATION: .gitignore has no 'borrow/' rule"
+    $compliance = 1
+}
+if (@($gi | Where-Object { $_ -match 'heroes_placeholder' }).Count -eq 0) {
+    Write-Output "[selfcheck] VIOLATION: .gitignore has no 'heroes_placeholder' rule"
+    $compliance = 1
+}
+$leak = @(Get-ChildItem resources -Recurse -File -ErrorAction SilentlyContinue |
+    Select-String -Pattern 'placeholder|playwright' -List)
+if ($leak.Count -gt 0) {
+    Write-Output "[selfcheck] VIOLATION: placeholder/borrowed assets leaked into resources/"
+    $compliance = 1
+}
+if ($compliance -ne 0) {
+    Write-Output "[selfcheck] FAIL (5/5 placeholder compliance)"
+    $failed++
+}
+else {
+    Write-Output "[selfcheck] ok   (5/5 placeholder compliance: not tracked, gitignored, not in resources/)"
 }
 
 Write-Output ""
 if ($failed -gt 0) {
-    Write-Output ("[selfcheck] RESULT: FAIL (" + $failed + " of 4 checks failed)")
+    Write-Output ("[selfcheck] RESULT: FAIL (" + $failed + " of 5 checks failed)")
     exit 1
 }
 
-Write-Output "[selfcheck] RESULT: OK (all 4 checks passed)"
+Write-Output "[selfcheck] RESULT: OK (all 5 checks passed)"
 exit 0
