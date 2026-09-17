@@ -124,6 +124,89 @@ public sealed class HamletLoopTrajectoryTests
         Assert.IsTrue(lines.Any(l => l.Contains("变了")), "10 趟里必须至少有一次起点变化（否则城镇动作没接线）✓");
     }
 
+    /// <summary>
+    /// 🔴 **含损耗的轨迹**（策划 `#394` 的 caveat：上面那条"简化循环"没模拟损耗）——
+    /// 本用例每趟**注入疾病**（`Roster.Infect` ✓），且**不治病**（钱优先升级）⇒ 看"疾病累积"会不会压住成长 ✓
+    /// ⚠️ **诚实标注**：**阵亡这一面我模拟不了** —— `Roster` **没有** `Remove`/`Die` 这类 API（只有 `Infect` /
+    ///    `ApplyRelief` / `ApplyReturnFromRun`）⇒ **阵亡在名册侧没有表示** ⚠️ ⇒ 这本身是一条**缺口**（已投策划）✓
+    /// </summary>
+    [TestMethod]
+    public void TenRuns_WithDiseaseLoss_ShowWhetherLossOutpacesGrowth()
+    {
+        TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
+        RosterConfig rosterCfg = RosterConfig.Parse(ReadData("roster.json"));
+        HeirloomConfig heirCfg = HeirloomConfig.Parse(ReadData("heirlooms.json"));
+        EconomyConfig ecoCfg = EconomyConfig.Parse(ReadData("economy.json"));
+
+        var log = new CombatLog();
+        var roster = new Roster(rosterCfg);
+        var stock = new HeirloomStock(heirCfg);
+        var economy = new Economy(ecoCfg);
+
+        var lines = new List<string>();
+        RunStartSnapshot? prev = null;
+        string diseaseId = SanitariumConfig.Parse(ReadData("sanitarium.json")).Diseases.FirstOrDefault()?.Id ?? "disease_unknown";
+
+        for (int run = 1; run <= Runs; run++)
+        {
+            RunStartSnapshot snap = RunStartSnapshot.Capture(run, roster, stock, economy);
+            foreach (string l in snap.DiffLines(prev))
+            {
+                lines.Add(l);
+            }
+
+            prev = snap;
+
+            // 收益（确定性）✓
+            foreach (string tier in new[] { "dim", "shadowy", "dark" })
+            {
+                stock.AwardForTier(log, tier, "trajectory_loss");
+            }
+
+            economy.AwardBattle(log, "dark", "trajectory_loss");
+
+            // 🔴 **损耗**：每趟让**一名**英雄患病（不治病 ⇒ 累积）✓
+            HeroConfig? victim = roster.Heroes.OrderBy(h => roster.DiseasesOf(h.Id).Count).ThenBy(h => h.Id).FirstOrDefault();
+            if (victim is not null)
+            {
+                roster.Infect(log, victim.Id, diseaseId, "trajectory_loss");
+            }
+
+            // 城镇动作：能升级就升级；余钱减压 ✓（**不治病** —— 让损耗面显形）
+            foreach (UpgradePath path in heirCfg.UpgradePaths)
+            {
+                if (stock.CanUpgrade(path.Building))
+                {
+                    stock.TryUpgrade(log, path.Building);
+                }
+            }
+
+            int reliefCost = stock.EffectiveReliefCost(ecoCfg.StressReliefCost);
+            while (economy.Gold >= reliefCost)
+            {
+                HeroConfig? worst = roster.Heroes.OrderBy(h => roster.MoraleOf(h.Id)).FirstOrDefault();
+                if (worst is null || !economy.TrySpend(log, reliefCost, "trajectory_loss_relief"))
+                {
+                    break;
+                }
+
+                roster.ApplyRelief(log, worst.Id, stock.EffectiveMoraleRestore("tavern", ecoCfg.Building("tavern").MoraleRestore), "tavern");
+                reliefCost = stock.EffectiveReliefCost(ecoCfg.StressReliefCost);
+            }
+        }
+
+        lines.Add($"[P0·损耗轨迹] 共 {Runs} 趟（每趟 +1 疾病、不治病）：疾病最终 = {roster.Heroes.Sum(h => roster.DiseasesOf(h.Id).Count)}" +
+                  $"　⚠️ 阵亡面**无法模拟**（`Roster` 无 `Remove`/`Die`）⇒ 名册侧损耗只有 士气/疾病/虚弱 ✓");
+
+        foreach (string l in lines)
+        {
+            Console.WriteLine(l);
+            TestContext.WriteLine(l);
+        }
+
+        Assert.IsTrue(lines.Any(l => l.Contains("疾病")), "损耗轨迹必须能看到疾病项 ✓");
+    }
+
     /// <summary>MSTest 注入（本仓其它用例同写法）✓</summary>
     public TestContext TestContext { get; set; } = null!;
 }
