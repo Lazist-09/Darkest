@@ -235,6 +235,9 @@ public partial class BattleRoot : Node2D
     /// <summary>🔴 片 3.1：**是否正在进行一场战斗**（`Director` 只在 `NewGame()` 后非空）⇒ 战斗专用路径必须先问它 ✓</summary>
     public bool HasActiveBattle => Director is not null;
 
+    /// <summary>🔴 冒烟用：把"按下【放弃远征】"透到 UI（**真实 `Pressed`** ⇒ 走玩家路径，红线 18）✓</summary>
+    public void PressAbandonUi() => _ui?.PressAbandon();
+
     private bool _noBattleNoticeShown; // 只提示一次（防刷屏）✓
 
     /// <summary>本实例是否要"自动点继续"（由 `PressAutoFinish` 置位；命令行旗标仍并行生效）。</summary>

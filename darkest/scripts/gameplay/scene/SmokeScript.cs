@@ -244,6 +244,20 @@ public static class SmokeScript
                 HostStepNotWired("PressRetreat（需 UI 暴露公共入口，或加 --retreat 旗标）");
                 break;
 
+            case "abandon":
+                // 🔴 `retreat.md §11` 的冒烟步骤：行走模式按【放弃远征】⇒ 断言"结束本趟 + 回城"
+                //    ✅ UI 已把 `PressAbandon()` 改 public（`0a3f62f`）⇒ 这里发**真实 `Pressed`**（红线 18）✓
+                if (node is BattleRoot abHost)
+                {
+                    abHost.PressAbandonUi();
+                }
+                else
+                {
+                    HostStepNotWired("PressAbandon");
+                }
+
+                break;
+
             case "town":
                 // 🔴 片 4 收尾：`town` = **结算回城**（纯流程 + 切场景，**不依赖 UI 面板**）⇒ 旧场景退休后已接上 ✓
                 if (node is BattleRoot townHost && Darkest.Gameplay.Scene.ExpeditionContext.Flow is { } townFlow)
