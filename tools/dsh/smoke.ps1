@@ -109,6 +109,22 @@ foreach ($c in $run) {
     if ($lines.Count -eq 0) { $n = -1; $bad++ }
 
     $row = "{0,-16} | 行数={1,-6} | 真错误={2} | 引擎退出泄漏={3} | exit={4}" -f $c.Name, $lines.Count, $n, $leaks.Count, $exit
+
+    # 🆕 主程序 2026-09-21：**把关键读数行直接提出来**（一键跑就能看到"养成/相位/走格/瓷砖"读数）
+    #    用户原话："否则这套验证能力会随人员变动丢失" ⇒ 读数不该只存在于日志里、要人来 grep ⚠️
+    $hlPattern = '\[养成\]|\[片3\.1\]|\[片4\] ✅|\[UI 瓷砖\]|\[UI 相位\]|\[M7\] 🆕 V10|\[P2\]'
+    $hl = @($lines | Select-String -Pattern $hlPattern | ForEach-Object { $_.Line.Trim() })
+    # 🔴 主程序 2026-09-21 修：**必须走 `Write-Output`（成功流）而不是 `Write-Host`（information 流）** ——
+    #    否则 `smoke.ps1 | Select-String` / 写日志时**抓不到这些读数**（我实测踩过：grep `·` 行无结果 ⚠️）✓
+    # 🔴 主程序 2026-09-21 修：**用 ASCII 标记**（`  > `）而不是中点 `·` ——
+    #    中文控制台编码会把 `·` 打乱 ⇒ 管道/日志里 grep `·` **抓不到**（我实测踩过 ⚠️）✓
+    foreach ($h in $hl) { Write-Output ("           > " + $h) }
+    # 并把读数**写进留档摘要**（读数不该只存在于控制台）——显式写法，不用 `if {} | Add-Content`（PS 5.1 下不保险）✓
+    if ($hl.Count -gt 0) {
+        Add-Content -Path $summary -Value "" -Encoding UTF8
+        Add-Content -Path $summary -Value "── 关键读数（$($c.Name)）──" -Encoding UTF8
+        foreach ($h in $hl) { Add-Content -Path $summary -Value ("  > " + $h) -Encoding UTF8 }
+    }
     Write-Host "         $row" -ForegroundColor $(if ($n -gt 0) { 'Red' } else { 'Green' })
     $row | Add-Content $summary -Encoding UTF8
     if ($n -gt 0) {
@@ -118,8 +134,29 @@ foreach ($c in $run) {
 }
 
 "# 汇总：$($run.Count) 例，非环境 ERROR 非零的用例 = $bad" | Add-Content $summary -Encoding UTF8
+# 🔴 主程序 2026-09-21：**关键读数提取（循环之外 ⇒ 控制流简单、可验证）** ——
+#   用户原话："否则这套验证能力会随人员变动丢失" ⇒ 读数不该只躺在日志里等人 grep ⚠️
+#   用 **ASCII 标记 `  > `**（不用中点 `·`：中文控制台编码会把 `·` 打乱 ⇒ 管道里 grep 不到 ⚠️）
+$hlPattern = '\[养成\]|\[片3\.1\]|\[片4\] ✅|\[UI 瓷砖\]|\[UI 相位\]|\[M7\] 🆕 V10|\[P2\]'
+Write-Output ""
+Write-Output "── 关键读数（自动提取 · 供人直接看）──"
+Add-Content -Path $summary -Value "" -Encoding UTF8
+Add-Content -Path $summary -Value "── 关键读数（自动提取）──" -Encoding UTF8
+# 🔴 主程序 2026-09-21：**最直白的流水线**（不依赖 `@()` 计数与 `continue`，PS 5.1 下最稳）✓
+foreach ($f in (Get-ChildItem -Path $OutDir -Filter "smoke_*_$stamp.txt" | Sort-Object Name)) {
+    Get-Content $f.FullName -Encoding UTF8 | Select-String -Pattern $hlPattern | ForEach-Object {
+        $line = "     > " + $_.Line.Trim()
+        Write-Output $line
+        Add-Content -Path $summary -Value $line -Encoding UTF8
+    }
+}
+
 Write-Host "`n留档：$summary" -ForegroundColor Yellow
 Write-Host $(if ($bad -gt 0) { "🔴 有 $bad 例带非环境 ERROR ⇒ 每一条都要【修】或【标 N/A + 理由】" }
              else { "✅ 全部 0 非环境 ERROR" }) -ForegroundColor $(if ($bad -gt 0) { 'Red' } else { 'Green' })
 
-exit $(if ($bad -gt 0) { 1 } else { 0 })
+# 🔴 主程序 2026-09-21 修：**`exit $(if …)` 在 PS 5.1 下不可靠**（实测：`$bad=0` 却退 1 ⚠️）
+#    ⇒ 换成确定性写法（先给 `$code` 赋值再 `exit`）✓ —— "退出码能不能接 CI"是这条纪律的要害 ✓
+$code = 0
+if ($bad -gt 0) { $code = 1 }
+exit $code
