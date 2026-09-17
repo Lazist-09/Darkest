@@ -372,6 +372,16 @@ public partial class BattleRoot : Node2D
                  $"　网格 {built.Flow.TileWalk!.Grid.Width}×{built.Flow.TileWalk.Grid.Height}" +
                  $"　房间块 {built.Flow.TileWalk.Segments.Count} 段走廊　队伍在 ({built.Flow.TilePosition.X},{built.Flow.TilePosition.Y}) ✓");
 
+        // 🔴🆕 **P0 养成闭环**（用户指令：把重心转到 Hamlet/养成）：进地牢时抓一份"出发前快照"并打印
+        //    **本次 vs 上次** ⇒ 让"这趟比上趟强在哪"变成**可读**（不碰任何数值，纯只读）✓
+        if (ExpeditionContext.Roster is { } snapRoster)
+        {
+            foreach (string line in ExpeditionContext.CaptureRunStartAndDiff(
+                snapRoster, ExpeditionContext.Heirlooms, ExpeditionContext.Gold))
+            {
+                GD.Print(line);
+            }
+        }
         // 🔴 `#352`：**把【放弃远征】入口注入 UI**（UI 已实现 `SetAbandonAction` + 二次确认，**但无人调用 ⇒ 按钮永不显示** ⚠️）
         //    · 语义：**放弃远征 = 【一趟】的选择**（结束本趟 ⇒ 回城·未完成）
         //    · 与"撤退"（【一场】的选择）**分开**（红线 19：措辞不得混淆）✓

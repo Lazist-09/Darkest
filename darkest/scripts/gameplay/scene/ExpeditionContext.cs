@@ -2,6 +2,8 @@ using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Run;
 
+using System.Collections.Generic;
+
 namespace Darkest.Gameplay.Scene;
 
 /// <summary>
@@ -47,6 +49,24 @@ public static class ExpeditionContext
     public static Darkest.Data.CuriosConfig? Curios { get; private set; }
 
     /// <summary>🆕 片 4：由组合根（`ExpeditionComposition`）放入面板配置 ✓</summary>
+    /// <summary>🆕 P0 养成闭环：**上一趟出发前的快照**（用于"本次 vs 上次"对比 ⇒ 让成长可读）✓</summary>
+    public static Darkest.Gameplay.Sim.Run.RunStartSnapshot? LastRunStart { get; private set; }
+
+    /// <summary>🆕 P0：当前是第几趟（从 1 起；每次进地牢 +1）✓</summary>
+    public static int RunIndex { get; private set; }
+
+    /// <summary>🆕 P0：记一次"出发"（返回"本次 vs 上次"的对比行；首次 ⇒ 只报基线）✓</summary>
+    public static IReadOnlyList<string> CaptureRunStartAndDiff(
+        Darkest.Gameplay.Sim.Run.Roster roster,
+        Darkest.Gameplay.Sim.Run.HeirloomStock? heirlooms,
+        Darkest.Gameplay.Sim.Run.Economy? economy)
+    {
+        Darkest.Gameplay.Sim.Run.RunStartSnapshot? prev = LastRunStart;
+        RunIndex++;
+        LastRunStart = Darkest.Gameplay.Sim.Run.RunStartSnapshot.Capture(RunIndex, roster, heirlooms, economy);
+        return LastRunStart.DiffLines(prev);
+    }
+
     public static void BindConfigs(Darkest.Data.CampSkillsConfig campSkills,
         Darkest.Data.RoomContentsConfig roomContents, Darkest.Data.CuriosConfig curios)
     {
