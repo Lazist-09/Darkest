@@ -1,7 +1,7 @@
-[gd_resource type="Theme" format=3]
+[gd_resource type="Theme" format=3 uid="uid://chllcwagtr3iw"]
 
-[ext_resource type="FontFile" path="res://resources/theme/fonts/NotoSerifSC-Bold.otf" id="1_xi2rt"]
-[ext_resource type="FontFile" path="res://resources/theme/fonts/EBGaramond.ttf" id="2_1pubw"]
+[ext_resource type="FontFile" uid="uid://dhivxksa4nwgy" path="res://resources/theme/fonts/NotoSerifSC-Bold.otf" id="1_xi2rt"]
+[ext_resource type="FontFile" uid="uid://slgjxkho54ij" path="res://resources/theme/fonts/EBGaramond.ttf" id="2_1pubw"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vxrqq"]
 content_margin_left = 6.0

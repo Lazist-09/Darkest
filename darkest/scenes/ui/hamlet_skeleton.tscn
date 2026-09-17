@@ -1,17 +1,18 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://by4w7prcy1a2q"]
 
-[ext_resource type="Script" path="res://scripts/ui/HamletSkeleton.cs" id="1_hamlet"]
-[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="9_theme"]
+[ext_resource type="Script" uid="uid://cfj56v05v1c0a" path="res://scripts/ui/HamletSkeleton.cs" id="1_hamlet"]
+[ext_resource type="Theme" uid="uid://chllcwagtr3iw" path="res://resources/theme/dd_theme.tres" id="9_theme"]
 
-[node name="HamletSkeleton" type="Control"]
-theme = ExtResource("9_theme")
+[node name="HamletSkeleton" type="Control" unique_id=572621052]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource("9_theme")
 script = ExtResource("1_hamlet")
 
-[node name="HamletMargin" type="MarginContainer" parent="."]
-anchors_preset = 15
+[node name="HamletMargin" type="MarginContainer" parent="." unique_id=1929542710]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_constants/margin_left = 12
@@ -19,32 +20,26 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 10
 
-[node name="HamletRootCol" type="VBoxContainer" parent="HamletMargin"]
+[node name="HamletRootCol" type="VBoxContainer" parent="HamletMargin" unique_id=550514646]
+layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TopBar" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
-
-[node name="TopRow" type="HBoxContainer" parent="HamletMargin/HamletRootCol/TopBar"]
-theme_override_constants/separation = 8
-
-[node name="StatusBar" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
-
-[node name="Body" type="HBoxContainer" parent="HamletMargin/HamletRootCol"]
+[node name="Body" type="HBoxContainer" parent="HamletMargin/HamletRootCol" unique_id=753073968]
+layout_mode = 2
 size_flags_vertical = 3
 
-[node name="LeftColumn" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body"]
-size_flags_horizontal = 3
-
-[node name="LeftCol" type="VBoxContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn"]
-theme_override_constants/separation = 6
-
-[node name="RightColumn" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body"]
+[node name="RightColumn" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body" unique_id=333327316]
 custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_horizontal = 8
 
-[node name="RightCol" type="VBoxContainer" parent="HamletMargin/HamletRootCol/Body/RightColumn"]
+[node name="RightCol" type="VBoxContainer" parent="HamletMargin/HamletRootCol/Body/RightColumn" unique_id=1426203026]
+layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BottomBar" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
+[node name="BottomBar" type="PanelContainer" parent="HamletMargin/HamletRootCol" unique_id=1347405082]
+layout_mode = 2
 
-[node name="BottomRow" type="HBoxContainer" parent="HamletMargin/HamletRootCol/BottomBar"]
+[node name="BottomRow" type="HBoxContainer" parent="HamletMargin/HamletRootCol/BottomBar" unique_id=211117775]
+layout_mode = 2
 theme_override_constants/separation = 12

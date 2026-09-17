@@ -439,6 +439,12 @@ public partial class BattleUi : CanvasLayer
             return;
         }
 
+        if (_uiRoot is null || !GodotObject.IsInstanceValid(_uiRoot))
+        {
+            GD.Print("[UI 撤退/放弃] ⚠️ _uiRoot 未就绪（未 Build）⇒ 不执行放弃（不静默、不半执行）✓");
+            return;
+        }
+
         if (_abandonConfirm is null)
         {
             // ⚠️ 战斗屏的模态工厂是 `MakeOpaqueModal`（返回正文 Label + out 面板）；按钮挂在**正文的父容器**（col）上 ✓
@@ -1501,6 +1507,7 @@ public partial class BattleUi : CanvasLayer
     /// · 满屏 + 不透明 ⇒ 判据把它识别为**模态**（只审它内部）⇒ 不会把"被它盖住的 Label"算成重叠 ✓
     /// · `ExpandFill` + `autowrap` ⇒ 长文本不溢出（`§14.2`④ / `§14.6`）✓
     /// </summary>
+        // （体首守卫在下方 if 内；此处仅占位不改语义）
     private Label MakeOpaqueModal(string name, out PanelContainer panel)
     {
         panel = new PanelContainer { Name = name, Visible = false };

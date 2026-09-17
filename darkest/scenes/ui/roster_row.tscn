@@ -1,26 +1,54 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bq4dtfx6wvaet"]
 
-[ext_resource type="Script" path="res://scripts/ui/RosterRowTemplate.cs" id="1_row"]
-[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="9_theme"]
+[ext_resource type="Script" uid="uid://brfq6750jghwd" path="res://scripts/ui/RosterRowTemplate.cs" id="1_row"]
+[ext_resource type="Theme" uid="uid://chllcwagtr3iw" path="res://resources/theme/dd_theme.tres" id="9_theme"]
 
-[node name="RosterRow" type="Button"]
-theme = ExtResource("9_theme")
+[node name="RosterRow" type="Button" unique_id=954326763]
 custom_minimum_size = Vector2(232, 32)
+offset_right = 232.0
+offset_bottom = 51.0
+theme = ExtResource("9_theme")
 script = ExtResource("1_row")
 
-[node name="RosterRowBody" type="HBoxContainer" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="RosterRowBody" type="HBoxContainer" parent="." unique_id=1212591559]
+layout_mode = 0
+offset_right = 231.0
+offset_bottom = 51.0
+
+[node name="RosterRowBody2" type="VBoxContainer" parent="RosterRowBody" unique_id=1518103725]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RosterUpRow" type="HBoxContainer" parent="RosterRowBody/RosterRowBody2" unique_id=1905712270]
+layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="PortraitFrame" type="PanelContainer" parent="RosterRowBody"]
+[node name="PortraitFrame" type="PanelContainer" parent="RosterRowBody/RosterRowBody2/RosterUpRow" unique_id=760509520]
 custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
 
-[node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/PortraitFrame"]
+[node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/RosterUpRow/PortraitFrame" unique_id=1959592058]
+layout_mode = 2
 
-[node name="RosterInfo" type="Label" parent="RosterRowBody"]
+[node name="PressureBar" type="Label" parent="RosterRowBody/RosterRowBody2/RosterUpRow" unique_id=2016220736]
+layout_mode = 2
+text = "●●●●○○○○○○　"
+
+[node name="RosterDownRow" type="HBoxContainer" parent="RosterRowBody/RosterRowBody2" unique_id=1223030150]
+layout_mode = 2
+
+[node name="RosterInfo" type="Label" parent="RosterRowBody/RosterRowBody2/RosterDownRow" unique_id=1305470552]
+layout_mode = 2
 size_flags_horizontal = 3
+text = "攻10  防10"
+vertical_alignment = 1
 clip_text = true
 text_overrun_behavior = 3
-vertical_alignment = 1
+
+[node name="HeroLevel" type="PanelContainer" parent="RosterRowBody" unique_id=2006654285]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+
+[node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/HeroLevel" unique_id=96436621]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2

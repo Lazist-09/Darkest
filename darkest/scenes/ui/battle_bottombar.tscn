@@ -1,32 +1,35 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://cauyjtb8fe0aa"]
 
-[ext_resource type="Script" path="res://scripts/ui/BattleBottomBarSkeleton.cs" id="1_bot"]
-[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="9_theme"]
+[ext_resource type="Script" uid="uid://ca2wsdeer4tw5" path="res://scripts/ui/BattleBottomBarSkeleton.cs" id="1_bot"]
+[ext_resource type="Theme" uid="uid://chllcwagtr3iw" path="res://resources/theme/dd_theme.tres" id="9_theme"]
 
-[node name="BottomRowBox" type="HBoxContainer"]
+[node name="BottomRowBox" type="HBoxContainer" unique_id=989091214]
+size_flags_vertical = 3
 theme = ExtResource("9_theme")
 theme_override_constants/separation = 10
-size_flags_vertical = 3
 script = ExtResource("1_bot")
 
-[node name="BackSlot5" type="PanelContainer" parent="."]
+[node name="BackSlot5" type="PanelContainer" parent="." unique_id=808110364]
 custom_minimum_size = Vector2(72, 112)
+layout_mode = 2
 size_flags_horizontal = 0
 
-[node name="LeftStack" type="VBoxContainer" parent="."]
+[node name="LeftStack" type="VBoxContainer" parent="." unique_id=817874597]
+layout_mode = 2
+size_flags_horizontal = 10
 theme_override_constants/separation = 6
-size_flags_horizontal = 3
 
-[node name="CArea" type="PanelContainer" parent="LeftStack"]
+[node name="CArea" type="PanelContainer" parent="LeftStack" unique_id=1386074771]
 custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+size_flags_vertical = 0
 
-[node name="ActorDetailBox" type="PanelContainer" parent="LeftStack"]
+[node name="ActorDetailBox" type="PanelContainer" parent="LeftStack" unique_id=8414236]
 custom_minimum_size = Vector2(0, 84)
+layout_mode = 2
+size_flags_vertical = 8
 
-[node name="EArea" type="PanelContainer" parent="."]
+[node name="EArea" type="PanelContainer" parent="." unique_id=420180478]
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-
-[node name="DungeonHost" type="VBoxContainer" parent="."]
-custom_minimum_size = Vector2(240, 72)
-size_flags_horizontal = 8

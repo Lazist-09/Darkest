@@ -1,10 +1,13 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://ctgm0mpl7iq0l"]
 
-[ext_resource type="Script" path="res://scripts/ui/SkillBoxTemplate.cs" id="1_skill"]
-[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="9_theme"]
+[ext_resource type="Script" uid="uid://d52c5050nbye" path="res://scripts/ui/SkillBoxTemplate.cs" id="1_skill"]
+[ext_resource type="Theme" uid="uid://chllcwagtr3iw" path="res://resources/theme/dd_theme.tres" id="9_theme"]
 
-[node name="SkillBox" type="Button"]
+[node name="SkillBox" type="Button" unique_id=461602877]
+custom_minimum_size = Vector2(12, 12)
+offset_right = 52.0
+offset_bottom = 40.0
 theme = ExtResource("9_theme")
-custom_minimum_size = Vector2(48, 48)
 theme_override_font_sizes/font_size = 20
+text = "重劈"
 script = ExtResource("1_skill")

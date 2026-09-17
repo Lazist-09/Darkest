@@ -105,7 +105,17 @@ public partial class HamletRoot : Node2D
         VBoxContainer leftCol;
         PanelContainer rightPanel;
         VBoxContainer rightCol;
-        if (skel is not null)
+        bool skelOk = skel is not null
+            && skel.HamletMargin is not null && skel.HamletRootCol is not null
+            && skel.TopBar is not null && skel.TopRow is not null && skel.StatusBar is not null
+            && skel.Body is not null && skel.LeftColumn is not null && skel.LeftCol is not null
+            && skel.RightColumn is not null && skel.RightCol is not null;
+        if (skel is not null && !skelOk)
+        {
+            GD.Print("[UI 骨架] ⚠️ 主城骨架缺少必需节点（编辑器改动所致）⇒ 回落代码构建（不崩、不静默）✓");
+        }
+
+        if (skelOk)
         {
             skel.Name = "HamletSkeleton";
             AddChild(skel);
@@ -1458,9 +1468,12 @@ public partial class HamletRoot : Node2D
                 if (Darkest.UI.RosterRowTemplate.TryInstantiate() is Darkest.UI.RosterRowTemplate tpl)
                 {
                     b = tpl;
-                    rowBody = tpl.GetNode<HBoxContainer>("RosterRowBody");
-                    frame = tpl.GetNode<PanelContainer>("RosterRowBody/PortraitFrame");
-                    ph = tpl.GetNode<ColorRect>("RosterRowBody/PortraitFrame/PortraitPlaceholder");
+                    rowBody = tpl.FindChild("RosterRowBody", true, false) as HBoxContainer ?? new HBoxContainer { Name = "RosterRowBody" };
+                    if (rowBody.GetParent() is null) { tpl.AddChild(rowBody); }
+                    frame = tpl.FindChild("PortraitFrame", true, false) as PanelContainer ?? new PanelContainer { Name = "PortraitFrame", CustomMinimumSize = new Vector2(26, 26) };
+                    if (frame.GetParent() is null) { rowBody.AddChild(frame); }
+                    ph = frame.FindChild("PortraitPlaceholder", true, false) as ColorRect ?? new ColorRect { Name = "PortraitPlaceholder" };
+                    if (ph.GetParent() is null) { frame.AddChild(ph); }
                 }
                 else
                 {
@@ -1506,7 +1519,7 @@ public partial class HamletRoot : Node2D
                     }
                 };
                 // 🔴 信息行：**模板里已有 `RosterInfo`** ⇒ 复用它（只填数据）；回落路径才新建 ✓
-                Label info = rowBody.GetNodeOrNull<Label>("RosterInfo") ?? new Label { Name = "RosterInfo" };
+                Label info = b.FindChild("RosterInfo", true, false) as Label ?? new Label { Name = "RosterInfo" };
                 if (info.GetParent() is null)
                 {
                     rowBody.AddChild(info);
