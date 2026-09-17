@@ -1566,3 +1566,25 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.24 **UI 一键审计入口（目标⑥达成）+ 硬教训：headless 必须设 APPDATA**（2026-09-21）
+
+```
+✅ 新增 `tools/dsh/ui_sweep.ps1`（自包含、**PS 5.1 可跑**、ASCII 输出）：
+     · 14 个 UI 入口一次跑全（hamlet/长文本/菜单/建筑/详情/main-menu/battle/长文本/tab4/map-mode/tile-walk/dungeon-in-scene/settle/abandon）
+     · 每例一张表：lines ／ demandOverCamera ／ overlap ／ transparent ／ realERROR ／ ok|FAIL
+     · 判据：需求超出相机 0 · 重叠 0 · 透明 0 · 真错 0 · **日志行数>0**（空日志=FAIL，绝不算通过）
+     · 退出码 0/1 ⇒ 可接 CI；用法 `powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/ui_sweep.ps1 [-Only a,b] [-QuitAfter N] [-OutDir dir]`
+     配套 `tools/dsh/check_ui_namespace.ps1`（命名空间门）✓
+     ⚠️ 未改 smoke.ps1：edit 报"文件自上次读取后已被改动" ⇒ 判定**正被其他角色编辑** ⇒ 按纪律停手（§14.0.11④）✓
+
+🔴🔴 **硬教训（实测崩溃；用户看到 Windows"该内存不能 read"弹窗）**：
+   headless 跑 Godot 必须把 **APPDATA 指到可写目录**，否则：
+     `ERROR: Failed to open user://logs/godot….log` ⇒ **CrashHandlerException: Program crashed with signal 11**（段错误）⚠️
+   · 首跑 sweep 漏设 ⇒ **14 入口全部 24 行 + signal 11** ⇒ 用户侧弹内存错误框
+   · 正解：`$env:APPDATA = <仓库内可写目录>`（隔离到 `<proj>\.tmp_appdata`）✓
+   · 症状辨识：**"每个入口行数相同且很小（24）+ signal 11"** ⇒ 先查 APPDATA/user:// 可写性，别怀疑内存硬件 ✗
+   · 另：`-Only a,b` 在 **PS 5.1 下作为单个字符串**传入数组参数 ⇒ 必须自行按逗号拆分 ✓（已修）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
