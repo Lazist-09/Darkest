@@ -153,7 +153,8 @@ foreach ($c in $run) {
 
 "# 🔴🔴 主程序 2026-09-21 修：**收尾段也用 try/catch 包住**（实测：这一段抛错 ⇒ 脚本提前退出、退出码不可信 ⚠️）
 #    ⇒ 同一纪律：**读数与汇总【不许】打断主流程**；退出码必须由 `$bad` **唯一决定**（这样才可能接 CI）✓
-try {# 汇总：$($run.Count) 例，非环境 ERROR 非零的用例 = $bad" | Add-Content $summary -Encoding UTF8
+try {# 汇总（人读）+ 判决（机读 · 给 CI 用）：**RESULT 行是 CI 判据的唯一来源**（不靠 $LASTEXITCODE）✓
+# 汇总：$($run.Count) 例，非环境 ERROR 非零的用例 = $bad" | Add-Content $summary -Encoding UTF8
 # 🔴 主程序 2026-09-21：**关键读数提取（循环之外 ⇒ 控制流简单、可验证）** ——
 #   用户原话："否则这套验证能力会随人员变动丢失" ⇒ 读数不该只躺在日志里等人 grep ⚠️
 #   用 **ASCII 标记 `  > `**（不用中点 `·`：中文控制台编码会把 `·` 打乱 ⇒ 管道里 grep 不到 ⚠️）
@@ -178,6 +179,7 @@ catch {
     Write-Output ("（读数提取失败，不影响判定：" + $_.Exception.Message + "）")
 }
 
+if ($bad -gt 0) { Add-Content -Path $summary -Value "RESULT: BAD n=$bad" -Encoding UTF8 } else { Add-Content -Path $summary -Value "RESULT: OK" -Encoding UTF8 }
 Write-Host "`n留档：$summary" -ForegroundColor Yellow
 Write-Host $(if ($bad -gt 0) { "🔴 有 $bad 例带非环境 ERROR ⇒ 每一条都要【修】或【标 N/A + 理由】" }
              else { "✅ 全部 0 非环境 ERROR" }) -ForegroundColor $(if ($bad -gt 0) { 'Red' } else { 'Green' })
