@@ -10,7 +10,7 @@
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/selfcheck.ps1
 ```
 
-跑五项，**任一项非 0 ⇒ 整条非 0**：
+跑**六项**，**任一项非 0 ⇒ 整条非 0**：
 
 | # | 检查 | 判据 |
 |---|---|---|
@@ -19,6 +19,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/selfcheck.ps1
 | 3 | `tools/dsh/check_ui_namespace.ps1` | UI 命名空间统一为 `Darkest.UI`（**含小写限定引用**） |
 | 4 | `tools/dsh/smoke_gate.ps1 -SelfTest` | CI 判据脚本自身可用（收 `OK` / 拒 `BAD` / 缺行报错） |
 | 5 | `tools/dsh/selfcheck.ps1` 内联 **占位合规** | `borrow/` 与 `assets/heroes_placeholder/` **不入 git**、**有 gitignore 规则**、**未泄漏进 `resources/`**（`assets_credits.md` A1 家族 · **合规不变量**） |
+| 6 | `tools/dsh/selfcheck.ps1` 内联 **PowerShell 语法** | `tools/**/*.ps1` 全部能被 PowerShell 解析器解析（**我 2026-09-21 就因括号没配平让 `smoke.ps1` 静默跑不起来 4 轮** ⚠️ ⇒ 这条护栏就是那次教训） |
 
 ## 2. 一键冒烟（**需要 Godot**）
 
@@ -76,6 +77,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/smoke_gate.ps1
 | **中点 `·` 当输出标记** | 中文控制台编码会打乱 ⇒ 管道里 `grep ·` **抓不到** | 用 **ASCII 标记**（本仓用 `  > `） |
 | **空日志当通过** | 启动失败被读成"0 错误" | **行数 = 0 ⇒ 判红** |
 | **`exit $(if …)`** | 退出码不可靠 | 先 `$code = …` 再 `exit $code` |
+| **`git commit -m "…"` 里写 ASCII 引号** | shell 把消息拆断 ⇒ **提交静默失败**（我 2026-09-21 连踩两次 ⚠️） | 消息写进临时文件用 `git commit -F <file>`（本仓投递都这么做 ✓） |
 | **Godot 进程残留** | 反复 Force-kill / 实例重叠 ⇒ 争用（甚至原生崩溃） | 脚本 **try/finally 回收自己起的子进程** + **并发保护** |
 
 ## 6. 读数提取（**不必人肉 grep**）
