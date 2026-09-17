@@ -153,7 +153,7 @@ foreach ($c in $run) {
 
 "# 🔴🔴 主程序 2026-09-21 修：**收尾段也用 try/catch 包住**（实测：这一段抛错 ⇒ 脚本提前退出、退出码不可信 ⚠️）
 #    ⇒ 同一纪律：**读数与汇总【不许】打断主流程**；退出码必须由 `$bad` **唯一决定**（这样才可能接 CI）✓
-try {# 汇总（人读）+ 判决（机读 · 给 CI 用）：**RESULT 行是 CI 判据的唯一来源**（不靠 $LASTEXITCODE）✓
+# 汇总（人读）+ 判决（机读 · 给 CI 用）：**RESULT 行是 CI 判据的唯一来源**（不靠 $LASTEXITCODE）✓
 # 汇总：$($run.Count) 例，非环境 ERROR 非零的用例 = $bad" | Add-Content $summary -Encoding UTF8
 # 🔴 主程序 2026-09-21：**关键读数提取（循环之外 ⇒ 控制流简单、可验证）** ——
 #   用户原话："否则这套验证能力会随人员变动丢失" ⇒ 读数不该只躺在日志里等人 grep ⚠️
@@ -189,9 +189,4 @@ Write-Host $(if ($bad -gt 0) { "🔴 有 $bad 例带非环境 ERROR ⇒ 每一�
 $code = 0
 if ($bad -gt 0) { $code = 1 }
 Write-Output ("PROBE-EXIT bad=$bad code=$code")
-}
-catch {
-    Write-Output ("（收尾段异常，不影响判定：" + $_.Exception.Message + "）")
-}
-
 exit $code
