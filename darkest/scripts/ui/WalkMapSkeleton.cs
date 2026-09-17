@@ -15,7 +15,7 @@ namespace Darkest.UI;
 /// 🔴 **瓦片纹理不引入任何美术文件**：运行时用**引擎内置**生成图集（`Image.CreateEmpty` → `FillRect` → `ImageTexture` → `TileSetAtlasSource`）✓
 ///    · 房间 4 格：**未知 / 已访 / 当前 / 终点**（颜色取自 `DdTheme`，不写死字面量，红线 19）✓
 ///    · 走廊 1 格：`DdTheme.MapEdge` ✓
-/// ⚠️ **接线状态：未接线**（`WalkMapView.Refresh` 仍手绘 `ColorRect`；接线单独一轮，见 skill `§14.0.16`）✓
+/// ✅ **接线状态：已接线**（`WalkMapView.Refresh` 采用之；2026-09-21 验证：`[UI 骨架] ✅ 行走地图采用双层瓷砖` + 真错 0）✓
 /// ⚠️ 节点名保持：`WalkCorridorLayer` / `WalkRoomLayer` ✓
 /// </summary>
 [Tool]

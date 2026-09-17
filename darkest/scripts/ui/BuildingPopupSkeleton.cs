@@ -16,7 +16,7 @@ namespace Darkest.UI;
 /// ```
 /// ⇒ **左列宽 220 / 店长位高 96 / 左右间距 12** 等全部可在编辑器里改 ✓
 ///
-/// ⚠️ **接线状态：未接线**（宿主 `OpenBuildingPopup` 仍在代码里建这些容器；接线单独一轮做）✓
+/// ✅ **接线状态：已接线**（`HamletRoot.OpenBuildingPopup` 采用之；2026-09-21 验证：`[UI 骨架] ✅ 建筑详情采用骨架`）✓
 /// 🔴 `[Tool]` ⇒ 编辑器里可见结构；编辑器逻辑必须 `Engine.IsEditorHint()` 守卫 ✓
 /// ⚠️ 节点名保持：`BuildingSplit` / `BuildingList` / `ShopkeeperSlot` / `ShopkeeperPlaceholder` / `BuildingContent` ✓
 /// </summary>

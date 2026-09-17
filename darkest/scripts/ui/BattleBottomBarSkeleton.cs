@@ -17,7 +17,7 @@ namespace Darkest.UI;
 /// ```
 /// ⇒ **各区的宽度/最小尺寸/间距/对齐方式** 全部可在编辑器里改 ✓
 ///
-/// ⚠️ **接线状态：未接线**（`BattleUi.BuildBottomRow()` 仍在代码里建这些容器；接线单独一轮做）✓
+/// ✅ **接线状态：已接线**（`BattleUi.BuildBottomRow()` 采用之；2026-09-21 验证：`[UI 骨架] ✅ 战斗底栏采用骨架` + 七入口真错 0）✓
 /// 🔴 `[Tool]` ⇒ 编辑器里可见结构；编辑器逻辑必须 `Engine.IsEditorHint()` 守卫 ✓
 /// ⚠️ 节点名保持：`BottomRowBox` / `BackSlot5` / `LeftStack` / `CArea` / `ActorDetailBox` / `EArea` / `DungeonHost` ✓
 /// </summary>

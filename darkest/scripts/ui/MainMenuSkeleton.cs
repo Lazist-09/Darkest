@@ -11,7 +11,7 @@ namespace Darkest.UI;
 /// 🔴 `[Tool]` ⇒ 编辑器里可见结构；⚠️ 编辑器逻辑必须 `Engine.IsEditorHint()` 守卫（运行时绝不走编辑器分支）✓
 /// ⚠️ 节点名保持：`MenuMargin` / `MenuCol` / `TitlePanel` / `TitleLabel` / `OptionsPanel` / `OptionsCol` / `StatusPanel` / `StatusLabel`
 ///    （宿主与验收读数按名取；改名会断线）✓
-/// ⚠️ **接线状态：未接线**（本轮只建骨架；接线要同时改 `MainMenuRoot` 的建树与刷新路径，单独一轮做）✓
+/// ✅ **接线状态：已接线**（`MainMenuRoot._Ready` 采用之；2026-09-21 验证：`[UI 骨架] ✅ 主菜单采用骨架`）✓
 /// </summary>
 [Tool]
 public partial class MainMenuSkeleton : Control
