@@ -94,9 +94,11 @@ public partial class HamletRoot : Control
             dScroll.AddChild(dBody);   // 🔴 正文进滚动容器 ✓
 
             var dLeftCol = new VBoxContainer { Name = "DetailLeftCol", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        dLeftCol.SizeFlagsStretchRatio = 0.38f;   // 🔴 DD 1:1 #2：左状态块 ≈0-230/600 ⇒ 比例 **38%**（DD panel.hero：HP 红 130,11 / 压力灰 130,40 / 属性列 60,72）✓
             dLeftCol.AddThemeConstantOverride("separation", 6);
             dBody.AddChild(dLeftCol);
             var dRightCol = new VBoxContainer { Name = "DetailRightCol", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        dRightCol.SizeFlagsStretchRatio = 0.62f;   // 🔴 DD 1:1 #2：右装备块 ≈230-600/600 ⇒ 比例 **62%**（DD panel.hero：装备 238,0 / 饰品 453,0）✓
             dRightCol.AddThemeConstantOverride("separation", 6);
             dBody.AddChild(dRightCol);
 
