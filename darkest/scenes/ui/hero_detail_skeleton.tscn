@@ -41,3 +41,30 @@ columns = 2
 theme_override_constants/h_separation = 133
 theme_override_constants/v_separation = 15
 
+
+; P2.1（DD `panel.hero`）：装备区 238,0 与饰品区 453,0 —— 按用户指令"不显示独立武器槽" ⇒
+; 这里**只放色块占位**（不换不删，§14.0.68），不建任何武器/护甲槽控件
+; ⚠️ DD 值属 panel.hero 的**面板内偏移**（非屏幕绝对）⇒ 精确折算需读 `panel.hero.darkest` 的基准尺寸（下一步补）
+[node name="HeroEquipArea" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.38
+anchor_top = 0.0
+anchor_right = 0.55
+anchor_bottom = 0.2
+mouse_filter = 2
+tooltip_text = "装备区（DD panel.hero equipment 238,0 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="EquipPlaceholder" type="ColorRect" parent="HeroEquipArea"]
+layout_mode = 2
+
+[node name="HeroTrinketArea" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.59
+anchor_top = 0.0
+anchor_right = 0.76
+anchor_bottom = 0.2
+mouse_filter = 2
+tooltip_text = "饰品区（DD panel.hero trinket 453,0 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="TrinketPlaceholder" type="ColorRect" parent="HeroTrinketArea"]
+layout_mode = 2
