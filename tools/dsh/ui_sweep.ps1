@@ -34,6 +34,7 @@ $Entries = @(
     @{ N = 'hero-detail';     A = @('--hamlet', '--hamlet-hero-detail=0') }
     @{ N = 'hamlet-hover';     A = @('--hamlet', '--hamlet-hover=tavern') }
     @{ N = 'hamlet-hover-abbey';      A = @('--hamlet', '--hamlet-hover=abbey') }        # Track 4(a)：逐栋悬停读数（修道院）`n    @{ N = 'hamlet-hover-stagecoach'; A = @('--hamlet', '--hamlet-hover=stagecoach') }   # Track 4(a)：逐栋悬停读数（驿站）   # Track 4(a)：建筑悬停信息（名称/功能/等级/下级所需）正向留痕 ✓
+    @{ N = 'hamlet-hover-stagecoach'; A = @('--hamlet', '--hamlet-hover=stagecoach') }   # Track 4(a)：逐栋悬停读数（驿站）
     @{ N = 'main-menu';       A = @() }
     @{ N = 'battle';          A = @('--click-menu=0') }
     @{ N = 'battle-longtext'; A = @('--click-menu=0', '--ui-longtext') }
