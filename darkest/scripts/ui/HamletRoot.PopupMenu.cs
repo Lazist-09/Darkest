@@ -182,6 +182,10 @@ public partial class HamletRoot : Control
                 GD.Print($"[城池菜单] 库存：本趟背包 {bag.Slots.Count}/{bag.SlotCap}（详情面板在远征层；此处先只报读数）");
             };
             _hamletMenuBody.AddChild(bBag);
+
+        var bProvision = new Button { Name = "Menu_Provision", Text = "🛒 供应", CustomMinimumSize = new Vector2(220, 32) };   // DD 1:1 ②：供应屏入口
+        bProvision.Pressed += () => OpenProvision();
+        _hamletMenuBody.AddChild(bProvision);
         }
         else
         {

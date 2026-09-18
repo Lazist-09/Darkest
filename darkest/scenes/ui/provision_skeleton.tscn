@@ -1,0 +1,69 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/ui/ProvisionSkeleton.cs" id="2_prov"]
+
+; DD 1:1 provision（供应）：左=队伍格 / 右=商店格 / 右上信息区；比例来自 provision.layout.darkest（x0.667）
+[node name="ProvisionSkeleton" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_prov")
+
+[node name="ProvisionCol" type="VBoxContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/separation = 8
+
+[node name="TitleRow" type="HBoxContainer" parent="ProvisionCol"]
+layout_mode = 2
+
+[node name="ProvisionTitle" type="Label" parent="ProvisionCol/TitleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🛒 供应"
+
+[node name="ProvisionClose" type="Button" parent="ProvisionCol/TitleRow"]
+layout_mode = 2
+text = "✕ 关闭"
+
+[node name="BodyRow" type="HBoxContainer" parent="ProvisionCol"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="PartyGrid" type="GridContainer" parent="ProvisionCol/BodyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="StoreGrid" type="GridContainer" parent="ProvisionCol/BodyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="InfoCol" type="VBoxContainer" parent="ProvisionCol/BodyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(180, 0)
+theme_override_constants/separation = 6
+
+[node name="QuestInfo" type="Label" parent="ProvisionCol/BodyRow/InfoCol"]
+layout_mode = 2
+autowrap_mode = 2
+text = "任务信息"
+
+[node name="ScoutingStat" type="Label" parent="ProvisionCol/BodyRow/InfoCol"]
+layout_mode = 2
+text = "侦察数值"
+
+[node name="SellBackInfo" type="Label" parent="ProvisionCol/BodyRow/InfoCol"]
+layout_mode = 2
+autowrap_mode = 2
+text = "售回信息"

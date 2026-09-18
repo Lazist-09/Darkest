@@ -30,6 +30,7 @@ $Entries = @(
     @{ N = 'hamlet';          A = @('--hamlet') }
     @{ N = 'hamlet-longtext'; A = @('--hamlet', '--ui-longtext') }
     @{ N = 'hamlet-menu';     A = @('--hamlet', '--hamlet-menu') }
+    @{ N = 'hamlet-provision'; A = @('--hamlet', '--hamlet-provision') }   # DD 1:1 供应屏（骨架采用留痕）
     @{ N = 'hamlet-building'; A = @('--hamlet', '--hamlet-building=tavern') }
     @{ N = 'hero-detail';     A = @('--hamlet', '--hamlet-hero-detail=0') }
     @{ N = 'hamlet-hover';     A = @('--hamlet', '--hamlet-hover=tavern') }
