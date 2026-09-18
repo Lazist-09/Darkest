@@ -515,3 +515,4 @@ public sealed partial class ExpeditionSession : RunSession, IExpeditionSession
         }
     }
 }
+//    【依赖主类私有状态/方法】(partial 使封装在文件级失效 => 必须声明)：_curioDamageBlessingPct x7

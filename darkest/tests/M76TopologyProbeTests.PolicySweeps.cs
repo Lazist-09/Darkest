@@ -311,3 +311,4 @@ public sealed partial class M76TopologyProbeTests
 
     public TestContext TestContext { get; set; } = null!;
 }
+//    【依赖主类私有成员】(partial 使封装在文件级失效 => 必须声明)：MapCfg x2 · ReadData x2 · Tuning x2

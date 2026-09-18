@@ -397,3 +397,4 @@ public sealed partial class BattleDirector
 
     
 }
+//    【依赖主类私有状态/方法】(partial 使封装在文件级失效 => 必须声明)：_ai x3 · _balance x10 · _buffs x3 · _elasticBonus x3 · _enemy x19 · _enemyRoster x1 · _executor x2 · _lastRng x1 · _lastWaveRound x4 · _log x14 · _outputUsersThisRound x1 · _pipeline x2 · _player x16 · _recentNotFull x5 · _reinforcementCount x2 · _reinforcePool x2 · _retreatDisabledThisRound x3 · _round x10 · _sequencer x1 · _skills x2 · _units x2

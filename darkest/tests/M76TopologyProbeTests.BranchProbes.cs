@@ -432,3 +432,4 @@ public sealed partial class M76TopologyProbeTests
         Assert.AreEqual(4, lines.Count);
     }
 }
+//    【依赖主类私有成员】(partial 使封装在文件级失效 => 必须声明)：MapCfg x3 · ReadData x3 · Tuning x3

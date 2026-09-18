@@ -344,3 +344,4 @@ public partial class BattleRoot : Node2D
     }
 
 }
+//    【依赖主类私有状态/方法】(partial 使封装在文件级失效 => 必须声明)：_activeActor x14 · _awaitingPlayer x13 · _gameOver x4 · _noBattleNoticeShown x2 · _pendingSkill x16 · _reinforceB x3 · _reinforcePhase x13 · _rng x7 · _seed x2 · _skills x7 · _ui x25

@@ -370,3 +370,4 @@ public sealed partial class ExpeditionFlow
     public bool LastCampAmbushed { get; private set; }
 
 }
+//    【依赖主类私有状态/方法】(partial 使封装在文件级失效 => 必须声明)：_bag x1 · _log x30 · _lootSeq x2 · _meter x3 · _pendingLoot x4 · _rng x9 · _scout x1 · _session x13 · _tuning x5
