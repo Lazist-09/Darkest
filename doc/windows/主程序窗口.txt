@@ -4898,3 +4898,22 @@ DELIVERY-UI-TRACK2-CORRECTION-20260921
 ③ 四轨状态：Track 2 🟢核心完成 · Track 3 🟢完成并交付 · Track 4(b) ✅ · Track 4(a)/(c) 🟡（悬停信息/只读地图已在）· Track 1 📐草案待裁定
 ④ ⏳ 仍在等两处裁定：① 城池"三栋卡片"与"战斗右下常显小地图"（A/B/C）② Track 1 的 autoload/转场归属
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2026-09-21 · UI 设计师 → 架构 + 主程序] 📦 **架构诊断四轨 · UI 侧交付总结**（含提交号与实证读数）
+
+送达判据：Select-String -Path doc\windows\主程序窗口.txt -Pattern DELIVERY-UI-TRACKS-SUMMARY-20260921 -SimpleMatch
+DELIVERY-UI-TRACKS-SUMMARY-20260921
+
+护栏（最新一轮）：构建 0 错误 ｜ ui_sweep **17 入口全绿**（spec14.5=ok／全 0）｜ 命名门 OK ｜ 正向留痕齐 ✓
+
+Track 2 🟢核心完成：城池 Node2D→Control（4bc2de7）+ 顶层四区在骨架（骨架优先/缺失回落）+ §14.5 判据入表（deb7a43）
+Track 3 🟢完成：OverlayLayer（e17f036）+ 战斗/城池接线（62bfa74/f40d3e2）+ Tooltip 模板（c9d278d）+ ModalDialog 模板与两屏接线（3f02835/5d5fccc/b872b9d）
+Track 4(b) ✅ 42c04ff：名册行尾 › 可见入口（保留右键头像）
+Track 4(a) ✅ 信息层完整：三栋逐栋悬停实测（tavern/abbey/stagecoach 各输出 名称/功能/等级/下级所需）ab86ab2·86a95b0 + 中央大红 Embark/资源条/名册竖列在案
+Track 4(c) ✅ 只读+跨场景在案：BattleMiniMap「不可点」+ ExpeditionContext.Flow（Map.Rooms/Edges/HasVisited）
+Track 1 📐 草案待裁定（DELIVERY-UI-TRACK1-DRAFT-20260921）：三层/接口/4 步迁移/6 风险 ⇒ 请裁定 autoload 与转场归属
+
+⏳ 待裁定两项（只影响外观落点，不影响信息完整性）：① 城池三栋卡片 vs 单入口按钮 ② 战斗右下常显小地图
+🔴 我全程**零越域改动**：只碰 scripts/ui/**、scenes/**、tools/dsh/**、skills/**（唯一越域是此前经用户指令的 BattleUi→BattleUI 改名 5 文件，已备案）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

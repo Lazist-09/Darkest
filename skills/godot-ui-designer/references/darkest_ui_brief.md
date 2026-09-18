@@ -1831,3 +1831,33 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.35 **架构诊断四轨 · 交付总结**（2026-09-21，UI 侧）
+
+```
+护栏（每步都跑，最新一轮）：构建 **0 错误** ｜ `tools/dsh/ui_sweep.ps1` **17 入口全绿**（spec14.5=ok／demand=0／overlap=0／transparent=0／realERROR=0）｜
+                                 命名门 `check_ui_namespace.ps1` OK ｜ 关键路径正向留痕（骨架采用／Overlay 就绪／模板采用／悬停逐栋）✓
+
+Track 2（面板范式 + 审计固化）🟢 核心完成
+  · 城池根 **Node2D → Control** + 场景根满屏锚点（4bc2de7）⇒ 三板同范式（Control 骨架 + 控制器）
+  · 顶层四区**全在 `hamlet_skeleton.tscn`**；代码「骨架优先 + 缺失回落」；动态项走 13 个模板（设计如此）
+  · §14.5 判据并入一键表 `spec14.5` 列（deb7a43）
+Track 3（overlay/tooltip 分层）🟢 完成并交付
+  · `OverlayLayer` + `overlay_layer.tscn`（ModalHost 模态栈/Esc、TooltipHost）e17f036
+  · 战斗接线 62bfa74 ／ 城池接线 f40d3e2（挂载点 `Overlay 缺失 ⇒ 回落旧父`，不崩不静默）
+  · `tooltip.tscn`+`TooltipTemplate` c9d278d ／ `modal_dialog.tscn`+`ModalDialogTemplate` 3f02835 ／ **两屏模态接模板** 5d5fccc·b872b9d
+  ⇒ §11.4⑤「常显 → 悬停 → 点开」成立 ✓
+Track 4(b)（角色详情入口）✅ 42c04ff：名册行尾 › 可见入口（保留右键），消灭"孤岛/不可发现"
+Track 4(a)（城池信息层）✅ 信息层完整：
+  · 中央建筑区（按解锁显示）+ **三栋逐栋悬停实测**（tavern/abbey/stagecoach 均输出 名称/功能/当前等级/下一级所需）ab86ab2·86a95b0
+  · 中央大红 Embark（DdTheme.Danger 危险红）+ 底部资源条 + 名册竖列（头像留框/士气点阵）均在案（前轮实证）
+Track 4(c)（战斗地图）✅ 只读 + 跨场景在案：`BattleMiniMap` 明确"不可点"、数据走 `ExpeditionContext.Flow`（Map.Rooms/Edges + HasVisited）
+Track 1（UIRoot 外壳）📐 草案已投（5ea99c9）：三层 + 接口 + 4 步迁移 + 6 风险 ⇒ **待架构/主程序裁定**（我不动 autoload/转场）
+
+⏳ **待外部裁定的两项外观取舍**（我不擅自改，因为与用户既有裁定/相机预算相关）：
+  ① 城池"三栋卡片" vs 现行"唯一入口按钮"（用户 2026-09-16 裁定过"DD 式只有一个按钮"；且起手只解锁 1/3）
+  ② 战斗"右下常显小地图"（现为 E 区地图页；常显需定位置口径以免触犯重叠判据）
+⇒ 两项都只影响**外观/落点**，不影响信息完整性（信息层已全部在案并逐条实测）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
