@@ -2177,3 +2177,51 @@ y = 698/1080 = **64.6%**（托盘顶）；血条高 10/1080 = **0.93%**；血条
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.47 **DD 英雄面板布局原文（`shared\hero\hero.layout.darkest`）**（2026-09-21）
+
+```
+直读原游戏（只读数值坐标，1920×1080 基准 ⇒ 本项目 ×0.667）：
+  hero_trinket_grid_layout:
+  .start_pos 32 52 .offset 92 160
+  hero_equipment_layout:
+  .weapon_pos 4 0
+  .highlight_pos_offset -20 -20
+  .armour_pos 95 0
+  .icon_offset 29 52
+  .level_offset 90 12
+  .tooltip_hotspot_offset 32 52
+  .tooltip_hotspot_size 72 144
+  .tooltip_offset 120 52
+  hero_base_stats_layout:
+  .icon_offset -26 2
+  .name_offset 0 0
+  .value_offset 115 0
+  .controller_selected_icon_offset -28 0
+  .tooltip_hotspot_offset 0 0
+  .tooltip_hotspot_size 160 20
+  .tooltip_offset 168 0
+  hero_stats_layout:
+  .icon_offset -26 2
+  .name_offset 0 0
+  .value_offset 112 0
+  .controller_selected_icon_offset -28 -2
+  .tooltip_hotspot_offset 0 0
+  .tooltip_hotspot_size 160 20
+  .tooltip_offset -500 0
+  hero_scouting_stat_layout:
+  .text_offset 0 0
+  .tooltip_hotspot_offset 0 0
+  .tooltip_hotspot_size 300 40
+  .tooltip_offset 0 30
+  hero_campaign_status_layout:
+  .resolve_level_bar_offset 6 4
+  .stress_bar_offset -14 100
+  .affliction_offset 36 112
+  .selected_overlay_offset -31 4
+  hero_portrait_icon_layout:
+  .disease_icon_offset 61 61
+  .frame_offset 0 0
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
