@@ -1,34 +1,33 @@
 ﻿
 ---
 
-### 信封：2026-09-18 · 【来自主程序】🔎 普查（消费面）续集：**buff 定义有 6 个字段"被解析但不被消费"** —— 判"预留"还是"缺口"归你
+### 回执：2026-09-18 · 【来自主程序】✅ `#408`/执行项**已办**：删 `class`+`timing` · 改那一处校验 · 加四分类标注（583/583）
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-BUFF-FIELDS-CENSUS' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-BUFF-EXEC-DONE' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-LEAD-BUFF-FIELDS-CENSUS
+DELIVERY-LEAD-BUFF-EXEC-DONE
 ```
 
-#### 🔎 ① 实测（方法：我这两轮在用的「消费面普查」 —— 策划 `#404` 认可的那套）
+#### ✅ ① 逐条对上你的执行项
 ```
-buff 引擎（`BuffLedger` **确实消费**了 `Duration.Type` / `Stack.Rule` / `def` 其余字段 ✓）但下列字段：
-  · 🔴 `.Hooks` / `.Timing` / `.ExtraRules` ⇒ **引用 0 处**（连 `Validate` 都没读）
-  · 🔴 `.Polarity` / `.Class` / `.Dispellable` ⇒ **只在 `BuffDefsConfig.Validate`（L189-190）里被读** ⇒ 不参与行为
-数据实况：`buff_defs.json` 每条都**显式**写了 `class` / `polarity` / `duration` / `stack` ✓
+· 🔴 **`class` 删**：字段 ✓ · **`BuffClass` 枚举删**（核过：**只在本文件用** ⇒ 一起删 ✓）· 小写转换器删 ✓
+· 🔴 **那一处校验已改**：`polarityOk` 去掉 `class` 维度 ⇒ `(polarity==Negative) ? dispellable : !dispellable`
+  ⇒ **原意不变**（"能不能驱散" == 负面 ✓）· ⚠️ **`dispellable` 一个字没动**（等策划 A/B ✓）
+· 🔴 **`timing` 删**：**只删顶层字段**；⚠️ **`hooks` 里的 `timing`（11 处）保留**（那是说明字段的一部分 ✓）
+  ＋ `BuffHookTiming` 枚举**保留**（`hooks` 的 spec 在用 ✓）
+· 数据：`"class"` 键删 **21 处**；顶层 `"timing"` 键 **0 处**（与你实测一致 ✓）
 ```
-#### 🔴 ② 请你裁（**我不擅自给 buff 引擎加行为** —— 属你的 schema/语义域）
+#### ✅ ② 类标注（你的执行项 ① · 采纳我 ②(a) 的做法，**不用"预留"一词** ✓）
 ```
-(a) **预留**（将来用）⇒ 我建议在 `data/buff_defs.json` 的 `_note` 里**显式标注"预留：本期不参与行为"**（避免后人误以为它在生效 ✓）
-(b) **应被消费**（本期缺口）⇒ 请给**行为规格**（例：`polarity` 决定"能否被驱散/能否被 AI 选中"· `hooks` 决定"何时触发"· `extra_rules` 的形态）
-    ⇒ 我按规格实现并用例 + 读数 ✓
-(c) **应删除**（本就不该有）⇒ 我删字段 + 同步校验 ✓（**需你点头**，因为它已在数据里 ✓）
-⇒ 📌 与 A13/A14 那类不同：**这些不是"展示给玩家的假数"**（玩家看不到它们）⇒ **优先级由你定** ✓
+· `BuffDefsConfig` 类注释：**四分类定义** + `hooks`/`extra_rules`=**说明字段**（**仅说明 · 不参与行为 · 不得写实现里没有的行为** ✓）
+  + `polarity`=**约束字段**（参与校验、不参与行为 ✓）+ `dispellable`=**派生 + 预留（待裁）** ✓
+· `data/buff_defs.json` 加 **`_field_classes`** 一条（数据侧读者可见同一条规矩 ✓）
 ```
-#### ✅ ③ 顺带报两件本轮已收口的
+#### 🔴 ③ 两处**我自己的坑**（当场抓到，如实记）
 ```
-· **UI 已把四项消费全部接上**：`EffectiveRosterCap`(A12) · `EffectiveReliefCost`/`EffectiveMoraleRestore`(A13/A14)
-  ＋ `EffectiveRookieLevel`（他们两处已传 ✓）⇒ 📌 **生效值普查在本期【无剩余未消费项】** ✓
-· `branch_special_light_gain` 存疑**解除**：数据里 `branch_special_weight: 0` ⇒ 特殊分支**权重为 0、不会出现** ⇒ 无需应用点 ✓
+① 我给校验段用的**静态锚点缩进写错**（8 空格 vs 实际 12）⇒ 那段没改到 ⇒ **构建红了** ⚠️ ⇒ 读真实原文后精确改 ✓
+② 我统计 `"timing":` 时**把 `hooks` 里的 11 处误当顶层键**（差点删掉说明字段 ⚠️）⇒ 核实后**只删顶层** ✓
 ```
-- **阻塞 / 待裁定**：② 的 (a)/(b)/(c)
-- **工程状态**：构建 0 错误 ／ 全量 **583/583** ／ 内核纯净门 OK ／ 本轮零数值改动 ✓
+- **阻塞 / 待裁定**：`dispellable` 的 A/B（**等策划** ⇒ 我未动 ✓）
+- **工程状态**：构建 0 错误 ／ 全量 **583/583**（数不变 ⇒ 无用例依赖 `class` ✓）· 内核纯净门 OK
