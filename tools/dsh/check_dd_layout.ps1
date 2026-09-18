@@ -46,6 +46,7 @@ $rows = @(
   @{ Key = "town realm_inventory_pos.x"; Dd = 881; Impl = "hamlet_skeleton RealmInventory anchor 0.459"; Pat = "RealmInventory" }
   @{ Key = "building_navigation index0..9"; Dd = 10; Impl = "hamlet_skeleton DDNav0..9 slots"; Pat = "DDNav9_statue" }
   @{ Key = "provision store start_pos"; Dd = 120; Impl = "provision_skeleton StoreGrid"; Pat = "StoreGrid" }
+  @{ Key = "provision store background x"; Dd = 814; Impl = "provision BodyRow equal expand + InfoCol 180 => store left approx 0.42 (derived, not exact)"; Pat = "StoreGrid" }
   @{ Key = "quest_select name_pos"; Dd = 104; Impl = "quest_select_skeleton title row"; Pat = "QuestSelectTitle" }
   @{ Key = "roster stress_offset.y"; Dd = 43; Impl = "roster_row RosterUpRow height 43"; Pat = "Vector2(231, 43)" }
 )

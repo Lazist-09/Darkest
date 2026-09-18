@@ -2994,3 +2994,16 @@ DD `screen.raid.overlays.hero_start_pos/monster_start_pos` 的 **y 680** ⇒ 屏
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.77 **P5 余项结论：provision 商店左缘已 ≈ DD 0.424（推导等价，非精确锚点）**（2026-09-21）
+
+```
+DD：`provision_store_background_layout` 商店背景起于 **x 814** ⇒ 屏幕比例 **814/1920 = 0.424**
+我域：`provision_skeleton.tscn` 的 `BodyRow`(HBox) = [ `PartyGrid`(expand) ｜ `StoreGrid`(expand) ｜ `InfoCol`(min 180) ]
+推导（按 1280 宽估算）：InfoCol ≈ 180/1280 = 0.141 ⇒ 可分配宽 ≈ 0.859；两格等分 ⇒ 每格 0.4295，
+  ⇒ StoreGrid 左缘 ≈ **0.43**（与 DD 的 **0.424** 差 ≈0.006 ⇒ **已等价**，无需插空档）✓
+🔴 **诚实标注**：这是**推导等价**，不是"显式锚点命中"⇒ 门禁里该行 Impl 文本写明 **"(derived, not exact)"** ✓，
+   Pat 指向 `StoreGrid`（证明该块存在，不证明精确位置）⇒ **不谎称精确** ✗
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
