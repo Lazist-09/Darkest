@@ -70,12 +70,13 @@ public partial class BattleUI : CanvasLayer
         };
         col.AddChild(label);
 
-        _uiRoot.AddChild(panel);
+        (_overlay?.ModalHost ?? _uiRoot).AddChild(panel);   // 🔴 Track 3：**统一走 Overlay**（缺失回落 _uiRoot）✓
         panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect); // 父是真 Control ⇒ 锚点算得出满屏 ✓
         return label;
     }
 
     private Control _uiRoot = null!;
+    private Darkest.UI.OverlayLayer? _overlay;   // 🔴 Track 3：Overlay 层（模态/悬停统一住这里；缺失回落 _uiRoot）✓
 
     // 🔴 `#327` S1（**无缝的可测定义**）：**必须存活的骨架** —— 背景 + 队伍区宿主 + E 区宿主 + 右下角地图宿主。
     //    "进战斗前后这些节点的 `GetInstanceId()` 不变" ⇒ 无缝；反例：走了场景切换/整体重建 ⇒ id 必变 ✓

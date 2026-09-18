@@ -36,6 +36,13 @@ public partial class BattleUI : CanvasLayer
         Darkest.UI.DdTheme.Apply(_uiRoot);
         AddChild(_uiRoot);
 
+        // 🔴 Track 3（DD `fe_flow/overlays`）：**Overlay 层压在最后**，一切模态/悬停都住这里 ✓
+        _overlay = Darkest.UI.OverlayLayer.TryInstantiate();
+        if (_overlay is not null)
+        {
+            _uiRoot.AddChild(_overlay);
+        }
+
         // 背景：**刻意不让它成为"满屏不透明 Panel"**（锚点不是 0/0/1/1）——
         //   否则判据会把它当成**模态覆盖层**，只审它自己的子树（= 空）⇒ 报 ✅ 却是**假通过** ⚠️（实测踩过两次）
         var bg = new Panel { Name = "BattleBg", Size = GetViewport().GetVisibleRect().Size };
