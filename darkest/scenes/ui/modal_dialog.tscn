@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+
+; 🔴 ModalDialog 模板（Track 3 · 对齐 DD shared/modal_dialog）
+; 纪律（ui_spec §14）：容器化 + 零手写坐标 + 显式挂 Theme + 框不透明（BgColor.a==1）
+[node name="ModalDialog" type="PanelContainer"]
+theme = ExtResource("1_theme")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 0
+
+[node name="DialogCol" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="DialogTitleRow" type="HBoxContainer" parent="DialogCol"]
+layout_mode = 2
+
+[node name="DialogTitle" type="Label" parent="DialogCol/DialogTitleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "标题"
+
+[node name="DialogClose" type="Button" parent="DialogCol/DialogTitleRow"]
+layout_mode = 2
+text = "✕ 关闭"
+
+[node name="DialogBody" type="VBoxContainer" parent="DialogCol"]
+layout_mode = 2
+size_flags_vertical = 3
