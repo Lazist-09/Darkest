@@ -138,6 +138,23 @@ public partial class HamletRoot : Node2D
                 info.ClipText = true;
                 info.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
                 info.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontSmall);
+
+                // 🔴 Track 4(b)（架构诊断：消灭"角色详情孤岛"）：**名册行上给【可见入口】**（右键头像仍保留）✓
+                var detailBtn = new Button
+                {
+                    Name = $"RosterDetail_{id}",
+                    Text = "›",
+                    CustomMinimumSize = new Vector2(22, 22),
+                    TooltipText = "打开角色详情（提示：左键点行=选中，供减压用）",
+                    FocusMode = Control.FocusModeEnum.None,
+                };
+                detailBtn.AddThemeFontSizeOverride("font_size", 16);
+                detailBtn.Pressed += () =>
+                {
+                    GD.Print($"[HamletRoot] **可见入口**（行尾 ›）⇒ 打开角色详情：{id}");
+                    OpenHeroDetail(id);
+                };
+                rowBody.AddChild(detailBtn);
                 b.Pressed += () =>
                 {
                     SelectHero(id);          // 左键 = **选中**（减压按人选）
