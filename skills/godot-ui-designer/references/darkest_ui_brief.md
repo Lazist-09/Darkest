@@ -1725,3 +1725,32 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.31 **架构诊断（DD 同构差距）逐条核实 + 四轨计划**（2026-09-21）
+
+```
+诊断原文四条：① 信息排布（intent 已对齐 DD，缺口在执行）② UI 架构（DD=fe_flow 单外壳+三层 panel；我们是 ChangeSceneToFile 硬替换）
+  ③ 缺失：常显 HUD / 中央导航 / overlay 转场 / HamletRoot 是 Node2D 异类 ④ 该改 4 条（Track 1~4）
+
+🔍 **我的核实（代码实证，2026-09-21）**：
+  ①「城池屏现在还是一排文字按钮」⇒ **前提已过时（部分）**：代码里**已有**
+      · `HamletRoot.Build.cs:199` **中央建筑区**（注释明确"M8.1 建筑区 = 片① 的中央建筑区"，按解锁显示）
+      · `HamletRoot.Build.cs:361-368` **中央大红 Embark**（`Text="再出发（远征）· EMBARK"`、`Modulate=DdTheme.Danger` 危险红 ✓）
+      · `HamletRoot.Build.cs:334` **底部资源条** ✓ ／ 名册竖列（`Refresh.cs` 头像留框+士气点阵+右键详情）✓
+      ⇒ 结论：**"该摆什么"已在**，缺口是**排布是否与 DD 同构**（居中/卡片化/悬停）——诊断应改写为"排布打磨"而非"从无到有"✓
+  ②「角色详情没有入口（孤岛/红线 18）」⇒ **前提已过时**：`HamletRoot.PopupMenu.cs:138` 有可见入口
+      `Menu_HeroDetail`「👤 角色详情」＋ `Refresh.cs:116-124` **右键头像**开详情 ✓
+      ⇒ 真实缺口 = **可发现性**（入口藏在 ☰ 菜单里、右键无提示）⇒ 应做"**直接在名册行加可见详情入口**"✓
+  ③「战斗右下地图没接」⇒ **部分成立**：`BattleUI.MultiFunction.cs:99` 已在 **E 区地图页**建 `BattleMiniMap`✓、
+      `BattleUI.Dungeon.cs` 有行走 HUD；但**战斗相位下"右下常显 minimap"**未确认 ⇒ 列入 Track 4(c) ✓
+  ④「HamletRoot 是 Node2D 异类」⇒ **准确** ✓（8 个 partial 全 `: Node2D`，与 BattleUI/MainMenu 的 Control+骨架范式不一致）⇒ Track 2 ✓
+
+📋 四轨（已立目标 goal-046495e8，25 轮）：
+  Track 4（先做，最直观）：(a) 城池排布与 DD 对齐（中央建筑区居中卡片化+悬停、名册竖列、底部资源条、中央大红 Embark）
+                          (b) 角色详情**可见入口**（名册行加按钮/图标，右键保留）(c) 战斗右下常显地图（跨场景只读）
+  Track 2：HamletRoot : Node2D → **HamletPanel : Control**（布局全入 hamlet_skeleton.tscn）+ UiAuditHook 固化 §14.5 判据
+  Track 3：OverlayLayer + ModalDialog / Tooltip 两模板；所有弹窗走 OpenModal、悬停走 TooltipLayer.Show
+  Track 1：UIRoot 三层外壳（Base/Screen/Overlay）⇒ **先出接口草案请架构/主程序裁定**（涉 autoload 注册与 SmokeScript 断言，跨域）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
