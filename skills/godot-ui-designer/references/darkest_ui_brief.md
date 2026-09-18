@@ -3046,3 +3046,31 @@ DD `shared\character\character.layout.darkest`（原样入库，供后续判断"
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴🔴 14.0.79 **DD 贴合度报告（一页版 · P1~P5 终态）**（2026-09-21）
+
+```
+依据：直读原游戏 `E:\SteamLibrary\steamapps\common\DarkestDungeon\**\*.layout.darkest`（1920×1080 ⇒ ×0.667；容器+锚点/比例，不写像素）
+护栏（每步都跑）：构建 0 错误 ｜ `ui_sweep.ps1` **20 入口全绿**（spec14.5=ok／demand／overlap／transparent／realERROR 全 0 ／**每入口 ASCII 留痕断言**；摘要与 exit 同看）
+                 ｜ `check_ui_namespace.ps1` OK ｜ `check_dd_layout.ps1` **39 条 DD 键全命中**（退出码 0）｜ 关键路径正向留痕
+
+P1 城池 Hub  ✅（1.2 待裁）：nav 128×1000/间距 68/**index 0-9**（7 位色块占位）· 底栏 左空 0.177 + 中空 0.2157
+                （embark 754/1920 = 0.3927 · heirloom 340/1920 = 0.1771）· estate_summary 0,975 · realm_inventory 881,128 ·
+                building_popup 6 区（Name/Desc/HeroSlot×4/Cost/Confirm/UpgradeTree；缺数据全色块占位）
+P2 英雄面板 🚧 组件级 9 处已落（装备 4,0/95,0 · 饰品 32,52/92,160 · 属性 115 · 状态条 6,4/-14,100/10 · 疾病 61,61 ·
+                侦察 300×40 · 装备高亮 −20,−20 · 等级位 90,12 · 属性图标 −26,2）；**面板级数字待用户给文件路径**
+P3 主菜单   ✅：选项区 400×288（DD 600×432）· 热区 466×48 · 行距 56 · 起点 340/160（DD 510,240）
+P4 战斗     🚧：a 地图右下（只读 + 色块占位）✅ · b 托盘 8 槽（y 0.646 = DD 698 · 条高 0.0093 · 压力条紧贴血条下方）+
+                图标位 9 个色块 ✅ · c(A) 中段纵向 **0.6297 精确**（门禁 `MidPadTop` 实证）✅ · **c(B)/c(C) 待裁**
+P5 子流程   ✅：provision（名 104,126 / 商店背景 x 814 ⇒ 推导等价 0.43≈0.424）· quest_select（名 104,122 / 队名 756,834）·
+                heirloom_exchange（标题 215,24 / from 79,110 间距 44 / to 256,75）——**三屏均为新增屏**，缺数据全色块占位
+
+🔴 **有意偏差（如实登记，非漏做）**：① 名册横向偏移（结构为你指定的两行式，DD 为绝对偏移）② 中部卡的**文字仍在**（DD 立绘层无文字；
+   未经授权不"换" ✗）③ 面板级坐标不可得（`panel.hero`/`panel.monster` 文件在本机不存在）④ provision 商店位为**推导等价**（已标 derived）
+⏳ **待用户裁决三项**：① P1.2 名册 A/B ② P2 面板文件路径 ③ P4-c B/C
+⏳ **待外部**：P0 外壳通电（autoload + ShowPanel 接管，归主程序）· 冒烟 10 例读数（PID 38316 占用 ⇒ **读数待取得**，不编造）
+
+工具：`tools/dsh/ui_sweep.ps1`（20 入口 + 留痕断言）· `tools/dsh/check_dd_layout.ps1`（39 条 DD 键 vs 实现锚点）· `tools/dsh/check_ui_namespace.ps1`（命名门）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
