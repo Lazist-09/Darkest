@@ -133,7 +133,16 @@ public sealed record UnlocksConfig(
                             $"{ResPath}: 解锁引用了不存在的 Curio \"{id}\"（须在 `curios.json` 里）（P27 ④）。");
                     }
                 }
-                else if (target.StartsWith("roster_cap:", StringComparison.Ordinal))
+                else if (target.StartsWith("roster_cap_delta:", StringComparison.Ordinal))
+            {
+                // 🆕 策划 `#403`：**增量语义**（与马车同语法 ✓）—— 值 = 增量（1..硬上限）
+                if (!int.TryParse(target["roster_cap_delta:".Length..], out int delta) || delta <= 0 || delta > rosterHardCap)
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: `roster_cap_delta:` 的值必须是 1..{rosterHardCap}（增量）—— 实际 \"{target}\"。");
+                }
+            }
+            else if (target.StartsWith("roster_cap:", StringComparison.Ordinal))
                 {
                     if (!int.TryParse(target["roster_cap:".Length..], out int cap) || cap <= 0 || cap > rosterHardCap)
                     {

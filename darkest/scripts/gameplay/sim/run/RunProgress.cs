@@ -74,22 +74,32 @@ public sealed class RunProgress
             .Select(s => s["building:".Length..]).ToHashSet(StringComparer.Ordinal);
 
     /// <summary>
-    /// 🔴 **名册当前可用上限**（C1）：起手 = `cfg.RosterBaseCap`（8）；
-    /// 已解锁的 `roster_cap:N` 里取**最大**；并**不得超硬上限**（`hardCap`，= `roster.cap` 12）。
+    /// 🔴 **名册当前可用上限**（策划 `#403` 裁定 **(b) 相加 + 封顶** · **统一增量语义**）：
+    ///   `min(硬上限, 起手 8 + 解锁增量 + 马车增量)` ✓
+    ///   理由（他给的）：两条来源是**两种投入**（**玩得久** / **花传家宝**）⇒
+    ///   **取最大会让其中一条在某个时点变成纯浪费** ⚠️ ⇒ 相加让两条路线**都值钱**（A9 ✓）。
+    /// ⚠️ 兼容：旧语法 `roster_cap:N`（**绝对值**）仍接受 ⇒ 按旧的"取最大"口径处理，
+    ///    以免**改写历史读数**（归档纪律 ✓）。
     /// </summary>
-    public int CurrentRosterCap(UnlocksConfig cfg, int hardCap)
+    public int CurrentRosterCap(UnlocksConfig cfg, int hardCap, int heirloomDelta = 0)
     {
         int cap = cfg.RosterBaseCap;
         foreach (string s in UnlockedIds(cfg))
         {
-            if (s.StartsWith("roster_cap:", StringComparison.Ordinal)
-                && int.TryParse(s["roster_cap:".Length..], out int n))
+            if (s.StartsWith("roster_cap_delta:", StringComparison.Ordinal)
+                && int.TryParse(s["roster_cap_delta:".Length..], out int d))
             {
-                cap = Math.Max(cap, n);
+                cap += d; // 🆕 增量语义（与马车同语法 · `#403` ✓）
+            }
+            else if (s.StartsWith("roster_cap:", StringComparison.Ordinal)
+                     && int.TryParse(s["roster_cap:".Length..], out int n))
+            {
+                cap = Math.Max(cap, n); // 旧语法：绝对值取最大（历史口径不变 ✓）
             }
         }
 
-        return Math.Min(cap, hardCap);
+        cap += Math.Max(0, heirloomDelta); // 🆕 **马车增量**（`EffectiveRosterCap` 的差值 ⇒ 真的被消费 ✓）
+        return Math.Min(cap, hardCap);     // 封顶 ✓
     }
 
     /// <summary>🟩 取证：一行摘要（解锁进度 / 三个消费点的当前值）。</summary>
