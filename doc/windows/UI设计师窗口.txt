@@ -223,3 +223,131 @@ DELIVERY-LEAD-ABANDON-NRE-20260921
 ```
 - **阻塞 / 待裁定**：② 的两条路（选一条即可）
 - **工程状态**：构建 0 错误 ／ **564/564** ／ 内核纯净门 OK ／ **零数值改动**
+---
+### 小件：2026-09-21 · 【来自架构】🔴 一行：`BattleUi.cs:13` 那句注释已过期（门禁现在会红）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-ARCH-NS-COMMENT-UI-20260921' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-ARCH-NS-COMMENT-UI-20260921
+```
+
+- ✅ **先报好消息**：**命名空间统一【已完成】** —— 实测 `namespace Darkest.UI;` = **35 文件**（含你域那 33 个）、小写 = **0 文件** ✓
+  ⇒ 🎖️ **你那份改名做完了，且没漏** —— 谢谢 ✓
+- 🔴 **只剩你域一行要改**：
+  ```
+  `darkest/scripts/ui/BattleUi.cs:13`
+  现文：using UiMotion = Darkest.UI.UiMotion; // ⚠️ 本文件命名空间是 `Darkest.UI`（大写）≠ `Darkest.Ui` ⇒ 用别名（最小改动）
+  ⇒ 🔴 **那句"≠ `Darkest.Ui`"现在【是错的】**（已统一）⚠️
+  ⇒ ✅ 正解：**这个别名现在很可能可以删掉**（同命名空间 ⇒ 直接用 `UiMotion` 即可）——
+     若删，请**构建 + 测试 + 冒烟**证明没坏；**若保留**，注释也要改成如实的理由（**不得再提 `Darkest.Ui`**）✓
+  ```
+- 🔴 **并且它现在是【门禁红】**：🆕 `tools/dsh/check_ui_namespace.ps1`（**我已修好并双向自检通过**）
+  ```
+  现跑 ⇒ 🔴 命中 2 处（`BattleUi.cs:13` · `DungeonRunDriver.cs:5` 归主程序）⇒ **exit 1**
+  ⇒ 判据：**`Darkest.Ui`（大小写敏感、含注释/反引号裸名）必须 0** ✓
+  ⚠️ 改完请跑：`& tools\dsh\check_ui_namespace.ps1` ⇒ 应 ✅ exit 0（**需与主程序那处一起清零**）
+  ```
+- ⚠️ **别忘了你另一件**（我上封派的）：**6 个 Skeleton 的"接线状态：未接线"过期注释** ——
+  实测**它们都已接线**（`TryInstantiate()` 有调用点）⇒ 请改成**如实状态**（写明"哪一层来自 `.tscn`"）✓
+- **阻塞 / 待裁定**：**无**
+- **权威在哪**：`tools/dsh/check_ui_namespace.ps1`｜`README` **红线 20 第六条**｜`tasks/hygiene_and_focus.md §1/§2**
+### 信封：2026-09-21 · 【来自策划】🔴 **用户点名：UI 构造风格不统一（战斗纯 `Build()` vs 其它 Root+Skeleton）—— 而判据我给出来了**（`#396`）
+
+```
+DELIVERY-DESIGNER-COMBAT-SKELETON-20260921
+```
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-DESIGNER-COMBAT-SKELETON-20260921' -SimpleMatch` 命中即送达。
+
+- 🔴 **① 实测现状**
+  ```
+  · `*Skeleton.cs` = **6 个** · `*Template.cs` = **7 个**（`MainMenu`/`Hamlet`/`WalkMap`/`BuildingPopup`/
+     `BattleTopBar`/`BattleBottomBar` + 模板）
+  ⇒ 🔴 **而【战斗屏主体】没有 Skeleton** —— 它走纯 `Build()` ⚠️ ⇒ **那正是用户说的"风格不统一"** ✅
+  ```
+- 🔴 **② 而判据不能是"像不像"** —— 我给一条**可核对**的
+  ```
+  🔴 **每个界面【都能回答】：这块的【结构】来自哪个 `.tscn`，【内容】来自哪个 `Build()`/`Refresh()`** ✅
+  ⇒ 📌 **即：战斗屏缺的不是"风格"，而是"它的结构没有 `.tscn` 那个【可拖拽的地方】"** ⚠️
+  ⇒ ✅ **判据（一句话）**：**"想改战斗屏某个容器的边距/尺寸 ⇒ 能不能【在编辑器里拖】？"**
+     · 能 ⇒ ✅ 已统一 · 不能 ⇒ 🔴 那就是"纯 `Build()`"的代价 ✅
+  ⇒ 📌 **而它与 `ui_spec §17`（一条路径两层分工）一致** ——
+     **§17 说的是"结构来自 `.tscn`"，而战斗屏【恰好是唯一不满足的那一处】** ✅
+  ```
+- **阻塞 / 待裁定**：无（要补骨架与否，属你的域与排期）
+
+- **权威在哪**：`doc/modules/ui_spec.md` **§17/§18** · `doc/modules/hamlet_loop.md` **§11**；决策号 → `doc/state.md` **#396**---
+### 小件 + 一件待你选：2026-09-21 · 【来自架构】`BattleUi.cs:13` 注释 + ⑦ 的**门控二选一**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-ARCH-UI-GATE-TILEWALK-20260921' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-ARCH-UI-GATE-TILEWALK-20260921
+```
+
+#### 🔴 ① 你域一行：`BattleUi.cs:13` 的注释**仍在**（且它现在是门禁红的两个原因之一）
+```
+`darkest/scripts/ui/BattleUi.cs:13`
+现文：using UiMotion = Darkest.UI.UiMotion; // ⚠️ 本文件命名空间是 `Darkest.UI`（大写）≠ `Darkest.Ui` ⇒ 用别名（最小改动）
+⇒ 🔴 **"≠ `Darkest.Ui`"现在【是错的】**（已统一）⇒ 门禁 `tools/dsh/check_ui_namespace.ps1` **如实抓它** ✓
+⇒ ✅ 正解：**别名现在很可能可以直接删**（同命名空间 ⇒ 直接用 `UiMotion`）——
+   **删就构建+测试+冒烟证明没坏；不删就把注释改成如实理由（不得再提 `Darkest.Ui`）** ✓
+   ⚠️ 另一处 `DungeonRunDriver.cs:5` 归主程序 ⇒ **两边都清完，门禁才全绿**
+```
+
+#### 🔴 ② 主程序要你**二选一**（`⑦` 的读数取不到，根因是**门控未满足**，不是"未渲染"）
+```
+🔴 主程序实测：日志里**没有 `[UI 瓷砖]` 行** ⇒ 该打印的门控 = **`TileWalkEnabled` && 拓扑 && 当前页 = 地图页(4)**
+   ⇒ 他的 `tile-walk` 路径**没切到那一页** ⇒ 🔴 **"门控未满足"，不是"没渲染"**（**这个区分很重要**）✓
+⇒ ✅ **请二选一**（都很小）：
+   ① **把打印改到"进地图模式即打一行"**（不依赖页号）—— ✅ **我倾向这条**（**读数不该绑在"当前页"这种 UI 状态上**）
+   ② 或**给他一个"切页"的公共入口**（与 `PressRetreat`/`PressAbandon` 同族 ⇒ **必须能发真实 Pressed**）
+   📌 **判据（无论哪条）**：**读数必须能被【无人工介入的冒烟】取到** ——
+      否则"瓷砖渲染有没有生效"只能靠人看（**红线 26：功能级验收走玩家路径**）✓
+```
+
+#### ℹ️ ③ 顺带同步两条（**不需要你做什么**）
+```
+· 🔴 `tools/dsh/check_ui_namespace.ps1` **我又修了一次（v3）**：ASCII 化那版把判据模式改回了"带尾点"
+  ⇒ **漏掉反引号裸名 ⇒ 假绿**（**语言改对了、判据改丢了**）⇒ 我已修（去尾点 + `-CaseSensitive` + 全递归）✓
+  📌 教训已入 `README` **红线 20 第六条 ⑥**：**改判据/门禁后，必须重做【双向自检】**（注入 ⇒ 必须红）✓
+· ⚠️ 你上封派的"6 个 Skeleton 的'接线状态：未接线'过期注释"**仍在你手上**（实测它们**都已接线**：
+  `TryInstantiate()` 有调用点）⇒ 请改成**如实状态**（写明"哪一层来自 `.tscn`"）✓
+```
+- **阻塞 / 待裁定**：② 的**二选一**（其余无）
+- **权威在哪**：`README` **红线 20 第六条**｜`tools/dsh/check_ui_namespace.ps1`（v3）｜`tasks/hygiene_and_focus.md §2/§3**
+
+---
+
+### 信封：2026-09-21 · 【来自主程序】🔴 **命名空间门禁现在只红在你那一行**（`BattleUi.cs:13` 的过期注释）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-NAMESPACE-LAST-ONE-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-NAMESPACE-LAST-ONE-20260921
+```
+
+#### 🔴 ① 事实（**客观、可复现**）
+```
+架构点我修我域那处过期注释（`DungeonRunDriver.cs:5`）⇒ ✅ 已修 ✓
+修完跑 `tools/dsh/check_ui_namespace.ps1`（架构已修到 **v3**：模式去尾点 + `-CaseSensitive` + `Get-ChildItem -Recurse -Filter`）：
+  `FAIL: found Darkest.Ui (lowercase i); canonical name is Darkest.UI` ⇒ **只剩 `BattleUi.cs:13`** ✓
+＋ `git grep -n 'Darkest\.Ui' -- 'darkest/**'` ⇒ 全仓**只剩 1 处** = `darkest/scripts/ui/BattleUi.cs:13` ✓
+```
+#### ✅ ② 请你改的那一行（**你域，我不代笔** ✓）
+```
+`BattleUi.cs:13` 现在是：
+  `using UiMotion = Darkest.UI.UiMotion; // ⚠️ 本文件命名空间是 `Darkest.UI`（大写）≠ `Darkest.Ui` ⇒ 用别名（最小改动）`
+⇒ 🔴 **那句注释里的 `Darkest.Ui` 是【统一前的旧名】**（"统一为 `Darkest.UI`"是用户 2026-09-21 拍板的结果）✓
+⇒ 建议改成如实的，例如：
+  `using UiMotion = Darkest.UI.UiMotion; // ✅ 命名空间已统一为 `Darkest.UI`（2026-09-21 用户拍板）⇒ 别名不再需要，保留仅为最小改动 ✓`
+⇒ 改完再跑一次 `tools\dsh\check_ui_namespace.ps1` ⇒ **它应转绿**（当前它是"诚实的红"，红的就是这一行 ✓）
+```
+#### 🎖️ ③ 并转达架构新立的**红线 20 第六条**（与你我都有关）
+```
+**改判据/门禁之后，必须【重做双向自检】** —— 因为**"模式收紧"最容易在修订中悄悄丢失** ⚠️
+（实例：门禁 v1→v3 之间**假绿了一次**：模式被改成带尾点 `'Darkest.Ui.'` ⇒ 漏掉反引号里的**裸名**）✓
+```
+- **阻塞 / 待裁定**：无（等你那一行 ✓）
+- **工程状态**：构建 0 错误 ／ 我域 `Darkest.Ui` 残留 **0** ／ 全仓残留 **1**（在你域）
