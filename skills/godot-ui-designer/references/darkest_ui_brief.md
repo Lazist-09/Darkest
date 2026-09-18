@@ -2791,3 +2791,27 @@ DD 有独立面板：`campaign\town\provision\provision.layout.darkest`（出征
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.67 **DD roster 元素偏移原文 + 与你两行式设计的语义映射（更正我方清单 B2 建议）**（2026-09-21）
+
+```
+DD `campaign\town\roster\roster.layout.darkest`（本次读全）：
+  town_roster_list_layout: .element_pos 0 132 · **.element_spacing 0 97**（= 行距 97 ✓ 我"行高 97"取自此）·
+    .top_frame_offset 20 -50 · .scroll_up/down_button_offset …
+  town_roster_element_layout: **.portrait_icon_offset 21 9** · **.name_offset 116 4** · **.stress_offset 116 43** ·
+    **.weapon_level_offset 156 65** · **.armour_level_offset 228 65** · **.resolve_level_bar_offset 258 4** ·
+    .building_icon_offset 20 10 · .new_info_icon_offset 0 0 · .stress_halo_position 55 50
+
+⇒ **语义映射（你的两行式设计 ↔ DD 键）**：
+  · `PortraitFrame`(+PortraitPlaceholder) ⇔ DD `portrait_icon_offset 21,9` ✓
+  · `PressureBar`（士气/压力点阵）⇔ DD `stress_offset 116,43`（压力）+ `resolve_level_bar_offset 258,4`（决心）
+    —— 按你先前裁定：**决心条位 → 现有士气条** ✓
+  · `RosterInfo`（装备 攻N 防N）⇔ DD `weapon_level_offset 156,65` + `armour_level_offset 228,65`
+    —— 按你本次裁定：**攻/防即装备等级** ✓（不再设独立武器槽 ✓）
+  · `HeroLevel` ⇔ DD 的 weapon/armour **等级框**语义（DD 有对应键 ⇒ **此前清单 B2"建议删"是错的**）
+
+🔴 **更正**：§14.0.66 的 B2（`HeroLevel` 建议删）**撤销** ⇒ 它对应 DD 的装备等级位，**应保留**（且与指令③一致）
+   同理 B1（`ShopkeeperSlot`）仍需你裁决（DD `building.layout` 确实无 shopkeeper 键）；B3（同名 `PortraitPlaceholder`）仍是命名问题 ⇒ 建议清理
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
