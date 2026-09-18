@@ -2528,3 +2528,20 @@ DD 原文（`screen.raid.darkest`）：`overlays.hero_start_pos 788 680` · `her
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.56 **⑥-1 建筑弹窗对照 DD：分区已对应（差异在"升级树"的表现形态）**（2026-09-21）
+
+```
+DD `building.layout.darkest` 四区：name(104,126) · body_base(596,102) · upgrade_base(172,259) · upgrade_trees(0,195) · close(1496,144 右上)
+
+我域现状（`HamletRoot.BuildingPopup.cs` 实测）：
+  · `MakePopup("BuildingPopup","🏛 【建筑】")` ⇒ **名字区** ✓（对应 DD name）
+  · `body` → `bpSkel` → **`BuildingSplit`(HBox)** = [`BuildingList`(左：nav + 店主位) ｜ `BuildingContent`(右：ExpandFill)] ⇒ **主体区** ✓（对应 DD body_base）
+  · `RefreshBuildingPopup` 往 `_buildingPopupBody` 加 `PopupLine`（功能/当前等级/下一级所需）+ **`PopupUpgrade` 按钮** ⇒ **升级区** ✓（对应 DD upgrade_base）
+  · ✕ 在 `MakePopup` 标题行**右对齐** ⇒ 对应 DD close(1496,144 **右上**) ✓
+⇒ **四区已对应**；唯一差异：DD 的 `upgrade_trees(0,195)` 是**升级树/路径图**，我们是"当前等级/下一级所需"**文本行**
+   ⇒ 这属**表现形态差异**（不是缺区、不是位置错）；要 1:1 需**新增树形控件** ⇒ 而用户明确"先不做改良" ⇒
+   **我记结论、不擅自新增** ✓（若日后要做，按 DD `upgrade_trees_offset 0 195` ×0.667 落位）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
