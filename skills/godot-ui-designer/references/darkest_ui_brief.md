@@ -2019,3 +2019,75 @@ y = 698/1080 = **64.6%**（托盘顶）；血条高 10/1080 = **0.93%**；血条
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.43 **DD 原文坐标（直读 `E:\SteamLibrary\steamapps\common\DarkestDungeon`）**（2026-09-21）
+
+```
+来源：DD 真机 `*.layout.darkest`（只读原游戏，取数值坐标；这些是布局事实数据，非美术资源）
+判读规则（DD 格式）：`键 值…`；`.xxx_pos` / `_pos` = 位置；`_size` = 尺寸；`_offset` = 偏移；1920×1080 基准
+
+── campaign\town\roster\roster.layout.darkest ──
+  town_roster_list_layout:
+  .element_pos 0 132
+  .top_frame_offset 20 -50
+  .bottom_frame_offset 20 -10
+  .scroll_up_button_offset 0 -38
+  .scroll_down_button_offset 0 -12
+  .show_hide_pos 0 0
+  .hide_offset 384 0
+  .roster_message_offset 60 78
+  .roster_live_top_offset 35 90
+  .roster_live_bottom_offset 35 -30
+  .roster_sort_start_position 148 80
+  .roster_sort_tooltip_offset 16 -8
+  .roster_sort_current_ascending_overlay_offset -8 -8
+  .roster_sort_current_descending_overlay_offset -8 24
+  .focus_controller_button_pos 366 26
+  .sort_controller_buttons_pos 294 26
+  town_roster_element_layout:
+  .portrait_icon_offset 21 9
+  .building_icon_offset 20 10
+  .building_icon_tooltip_offset 0 0
+  .non_building_icon_offset 14 10
+  .non_building_icon_tooltip_offset 0 0
+  .new_info_icon_offset 0 0
+  .name_offset 116 4
+  .stress_offset 116 43
+  .weapon_level_offset 156 65
+  .armour_level_offset 228 65
+  .resolve_level_bar_offset 258 4
+  .resolve_level_bar_tooltip_offset -170 4
+  .character_slide_splat_offset -80 -70
+  .stress_halo_position 55.0 50.0
+  .stress_halo_extra_size 10.0 10.0
+  .completed_darkest_dungeon_quest_icon_offset 220 15
+
+── shared\hero.layout.darkest ──
+  （文件不存在）
+
+── shared\menu.layout.darkest ──
+  （文件不存在）
+
+── campaign\town\building_navigation\building_navigation.layout.darkest ──
+  building_navigation_layout:
+  .base_size 128 1000
+  .button_start_position 0 0
+  .exclamation_point_offset 28 32
+  .locked_overlay_offset 14 14
+  .selected_hop_offset 0 -5
+  .quick_nav_title_offset 0 0
+  .quick_nav_desc_offset 0 0
+  building_navigation_building_layout_stage_coach:
+  building_navigation_building_layout_blacksmith:
+  building_navigation_building_layout_guild:
+  building_navigation_building_layout_camping_trainer:
+  building_navigation_building_layout_tavern:
+  building_navigation_building_layout_abbey:
+  building_navigation_building_layout_sanitarium:
+  building_navigation_building_layout_nomad_wagon:
+  building_navigation_building_layout_graveyard:
+  building_navigation_building_layout_statue:
+
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
