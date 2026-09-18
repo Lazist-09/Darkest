@@ -141,3 +141,18 @@ tooltip_text = "DD realm_inventory_pos 881,128（领域库存 · 数据未接入
 
 [node name="RealmInventoryPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/RealmInventory"]
 layout_mode = 2
+
+; P1.1：DD building_navigation index 0 = stage_coach（已接入 ⇒ 空槽，运行时由代码填入真实按钮）
+[node name="DDNav0_stage_coach" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+
+; P1.1：DD building_navigation index 4 = tavern（已接入 ⇒ 空槽，运行时由代码填入真实按钮）
+[node name="DDNav4_tavern" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+
+; P1.1：DD building_navigation index 5 = abbey（已接入 ⇒ 空槽，运行时由代码填入真实按钮）
+[node name="DDNav5_abbey" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)

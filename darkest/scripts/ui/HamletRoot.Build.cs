@@ -248,7 +248,7 @@ public partial class HamletRoot : Control
             };
             ub.Pressed += () => OpenBuildingPopup(bId);
             ub.MouseEntered += () => ShowBuildingInfo(bId); // 悬停仍给一行摘要（低成本、不占版面）
-            buildingRow.AddChild(ub);
+            // P1.1：DD index 槽优先（编辑器里可见的位）；缺失则回落直接加到 nav（不崩不静默）             int ddIdx = bId switch { "stage_coach" => 0, "tavern" => 4, "abbey" => 5, _ => -1 };             PanelContainer? ubSlot = ddIdx >= 0 ? buildingRow.GetNodeOrNull<PanelContainer>($"DDNav{ddIdx}_{bId}") : null;             (ubSlot is not null ? (Node)ubSlot : buildingRow).AddChild(ub);
             _upgradeButtons[bId] = ub; // ⚠️ 明细按钮在弹窗里（`RefreshBuildingPopup` 重建）；这里三栋都登记到**同一个入口**（`PressUpgrade` 两步路径仍成立）✓
             if (i == 0)
             {
