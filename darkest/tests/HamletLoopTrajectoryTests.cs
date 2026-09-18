@@ -79,6 +79,8 @@ public sealed class HamletLoopTrajectoryTests
 
         var lines = new List<string>();
         RunStartSnapshot? prev = null;
+        int a8ChangedRuns = 0;   // A8：本趟有变化的趟数 ✓
+        int a8NoChangeRuns = 0;  // A8：本趟无变化的趟数（必须能归因）✓
 
         for (int run = 1; run <= Runs; run++)
         {
@@ -87,6 +89,22 @@ public sealed class HamletLoopTrajectoryTests
             foreach (string l in snap.DiffLines(prev))
             {
                 lines.Add(l);
+            }
+
+            // 🔴🆕 **A8**（`hamlet_loop.md §7.4`）：**每趟至少【一项】可核对的变化**（成长或损耗）——
+            //    "无变化"必须能**归因**（例："刚好没花钱"）⇒ 本轨迹逐趟给结论 + 末尾给合计 ✓
+            if (prev is not null)
+            {
+                int changed = snap.DiffLines(prev).Count(l => l.StartsWith("[养成]"));
+                if (changed <= 0)
+                {
+                    a8NoChangeRuns++;
+                    lines.Add($"[A8] 第 {run} 趟：⚠️ **本趟无变化** ⇒ **必须能归因**（否则违反 A8）");
+                }
+                else
+                {
+                    a8ChangedRuns++;
+                }
             }
 
             // 🔴🆕 **A9**（策划 `#396`）：**任一条轴到顶时，其余轴至少一条仍在动** ——
@@ -148,6 +166,9 @@ public sealed class HamletLoopTrajectoryTests
 
         // ④ **轨迹汇总**（策划要看的就是"哪一段开始平"）✓
         var equalRuns = lines.Where(l => l.Contains("十项全同")).Count();
+        lines.Add($"[A8] 合计：有变化的趟 **{a8ChangedRuns}** ／ 无变化的趟 **{a8NoChangeRuns}**" +
+                  $"（`hamlet_loop.md §7.4`：每趟至少一项可核对的变化；无变化须能归因）" +
+                  $"{(a8NoChangeRuns == 0 ? " ⇒ ✅ **A8 成立**（无一趟为空）" : " ⇒ ⚠️ 需逐趟给出归因")}");
         lines.Add($"[P0·轨迹] 共 {Runs} 趟：**全同的趟数 = {equalRuns}**（若从第 5 趟起连续全同 ⇒ 倾向 (b) 早期饱和 ⚠️）" +
                   $"　建筑与传家宝轨迹见上（`O-82`：只报数不判红）✓");
 
@@ -182,6 +203,8 @@ public sealed class HamletLoopTrajectoryTests
 
         var lines = new List<string>();
         RunStartSnapshot? prev = null;
+        int a8ChangedRuns = 0;   // A8：本趟有变化的趟数 ✓
+        int a8NoChangeRuns = 0;  // A8：本趟无变化的趟数（必须能归因）✓
         string diseaseId = SanitariumConfig.Parse(ReadData("sanitarium.json")).Diseases.FirstOrDefault()?.Id ?? "disease_unknown";
 
         for (int run = 1; run <= Runs; run++)
@@ -190,6 +213,22 @@ public sealed class HamletLoopTrajectoryTests
             foreach (string l in snap.DiffLines(prev))
             {
                 lines.Add(l);
+            }
+
+            // 🔴🆕 **A8**（`hamlet_loop.md §7.4`）：**每趟至少【一项】可核对的变化**（成长或损耗）——
+            //    "无变化"必须能**归因**（例："刚好没花钱"）⇒ 本轨迹逐趟给结论 + 末尾给合计 ✓
+            if (prev is not null)
+            {
+                int changed = snap.DiffLines(prev).Count(l => l.StartsWith("[养成]"));
+                if (changed <= 0)
+                {
+                    a8NoChangeRuns++;
+                    lines.Add($"[A8] 第 {run} 趟：⚠️ **本趟无变化** ⇒ **必须能归因**（否则违反 A8）");
+                }
+                else
+                {
+                    a8ChangedRuns++;
+                }
             }
 
             // 🔴🆕 **A9**（策划 `#396`）：**任一条轴到顶时，其余轴至少一条仍在动** ——
