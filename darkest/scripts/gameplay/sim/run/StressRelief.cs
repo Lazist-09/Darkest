@@ -19,8 +19,13 @@ public sealed record StressReliefOutcome(bool Paid, int NewMorale, bool PenaltyT
 /// </summary>
 public static class StressRelief
 {
+    /// <param name="heirlooms">
+    /// 🔴 **生效值来源**（策划 `#404` **纪律 V**：**凡既被展示、又被消费的值 ⇒ 必须同一个来源**）：
+    ///   给了它 ⇒ **实际收费/恢复走 `Effective*`**（与 UI 展示**同源** ✓）；不给 ⇒ 退回原始值（旧行为 ✓）。
+    ///   背景：此前实际收费走 `b.Cost`、UI 展示走 `EffectiveReliefCost` ⇒ **UI 写着"减压价 3→2"而玩家被扣 3** ❗
+    /// </param>
     public static StressReliefOutcome Apply(EconomyConfig config, Economy economy, IRngProvider rng,
-        CombatLog log, string buildingId, string heroId, int currentMorale)
+        CombatLog log, string buildingId, string heroId, int currentMorale, HeirloomStock? heirlooms = null)
     {
         if (config is null || economy is null || rng is null || log is null)
         {
@@ -29,13 +34,17 @@ public static class StressRelief
 
         StressReliefBuildingConfig b = config.Building(buildingId);
 
+        // 🔴 **展示值 == 消费值**（纪律 V）：价格与恢复量都从**同一个生效口**取 ✓
+        int cost = heirlooms?.EffectiveReliefCost(b.Cost) ?? b.Cost;
+        int restoreAmount = heirlooms?.EffectiveMoraleRestore(buildingId, b.MoraleRestore) ?? b.MoraleRestore;
+
         // 钱不够 ⇒ 拒绝（**不掷骰、不扣钱、不写结算事件** —— 不给"白掷"的机会）
-        if (!economy.TrySpend(log, b.Cost, "stress_relief"))
+        if (!economy.TrySpend(log, cost, "stress_relief"))
         {
             return new StressReliefOutcome(false, currentMorale, false, 0);
         }
 
-        int restored = Math.Clamp(currentMorale + b.MoraleRestore, 0, 100);
+        int restored = Math.Clamp(currentMorale + restoreAmount, 0, 100);
 
         // 🔴 掷骰约定（IRngProvider 契约）：`NextPercent()` ∈ [0,100)，**roll 小于阈值 = 触发**
         double roll = rng.NextPercent();
@@ -43,7 +52,7 @@ public static class StressRelief
 
         bool triggered = roll < (b.PenaltyChance * 100.0);
         int penalty = triggered ? b.NextRunPenalty : 0;
-        log.Append(new StressReliefEvent(b.Id, heroId, b.Cost, b.MoraleRestore, roll, triggered, penalty));
+        log.Append(new StressReliefEvent(b.Id, heroId, cost, restoreAmount, roll, triggered, penalty));
 
         return new StressReliefOutcome(true, restored, triggered, penalty);
     }
