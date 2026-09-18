@@ -193,3 +193,9 @@ public sealed record HeroExperienceGainedEvent(string HeroId, int Amount, int To
 /// 用途：名册侧"队伍在长"的可审计证据；UI/读数**只读事件**，不另记账 ✓
 /// </summary>
 public sealed record HeroLevelUpEvent(string HeroId, int FromLevel, int ToLevel) : BattleEvent;
+
+/// <summary>
+/// 🆕 **阵亡留档**（策划 `#400` 裁定 (a)+ / **A11**：阵亡必须**可读 + 可追溯**）——
+/// 移出名册 + 释放上限 + **进 Graveyard 列表**（M8.3 再做界面；**列表现在就有** ✓）
+/// </summary>
+public sealed record HeroDiedEvent(string HeroId, string Name, int Level, string Cause, int RosterCountAfter) : BattleEvent;

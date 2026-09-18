@@ -130,6 +130,11 @@ public static class DungeonRunDriver
 
             flow.ReturnToTown("completed"); // 阶段0 结算 = 走完 ✓（`#352` 的 `result` 参数只给 `ReturnToTown` 本体用）
             ExpeditionContext.Roster?.ApplyReturnFromRun(log, flow.Session.Roster().Select(r => (r.Id, r.Morale)));
+
+            // 🆕 **阵亡消费**（策划 `#400` 裁定 (a)+ / A11）：**移出名册 + 释放名额 + 进 Graveyard** ✓
+            //    口径：**只认内核事件流**（`DeathEvent(IsPlayer: true)` ✓）；无阵亡 ⇒ 返回 0（不假装 ✓）
+            int deaths = ExpeditionContext.Roster?.ConsumePlayerDeaths(log) ?? 0;
+            GD.Print($"[阵亡] 本趟我方阵亡 **{deaths}** 名 ⇒ 已移出名册并留档（Graveyard 现有 " + "{(ExpeditionContext.Roster?.Graveyard.Count ?? 0)} 名）✓");
             ExpeditionContext.End();
             ExpeditionContext.E2EStage = 1;
             host.GetTree().CallDeferred("change_scene_to_file", Darkest.UI.MainMenuRoot.HamletScene);

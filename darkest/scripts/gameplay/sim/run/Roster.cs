@@ -23,6 +23,7 @@ public sealed class Roster
     private readonly RosterConfig _cfg;
     private readonly Dictionary<string, int> _morale;
     private readonly Dictionary<string, int> _xp = new();   // 🆕 升级通道：累计经验（缺省不接线）✓
+    private readonly List<(string HeroId, string Name, int Level, string Cause)> _graveyard = new(); // 🆕 阵亡留档 ✓
     private readonly List<HeroConfig> _heroes;
     private int _recruitSeq;
 
@@ -39,6 +40,40 @@ public sealed class Roster
     /// <summary>🆕 **升级通道是否接线**（`roster.json` 有 `experience` ⇒ true）——
     /// 🔴 未接线时 `AwardExperience*` **显式不生效**（返回 false、不写事件）⇒ **不假装** ✓</summary>
     public bool ExperienceWired => _cfg.Experience is not null;
+
+    /// <summary>🆕 **阵亡留档**（Graveyard 列表 · 策划 `#400` (a)+ / A11）——只读口，UI/读数**只读它** ✓</summary>
+    public IReadOnlyList<(string HeroId, string Name, int Level, string Cause)> Graveyard => _graveyard;
+
+    /// <summary>
+    /// 🆕 **消费本趟的阵亡**（`DeathEvent(IsPlayer: true)`）：**移出名册**（⇒ **名额自然释放** ✓）
+    /// ＋ **进 Graveyard 留档** ＋ **写 `HeroDiedEvent`**（A11：可读 + 可追溯 ✓）。
+    /// 纪律：**只认事件流**（不另记账 ✓）· **幂等**（同一趟重复调用不会重复移除 ✓）· 不抛异常打断主流程 ✓
+    /// </summary>
+    public int ConsumePlayerDeaths(CombatLog runLog, string cause = "battle_death")
+    {
+        int removed = 0;
+        // 🔴 必须先**物化**：本方法会**往同一个 log 追加** `HeroDiedEvent` ⇒ 边遍历边改会抛
+        //    `InvalidOperationException: Collection was modified`（实测被用例当场抓到 ✓）
+        foreach (DeathEvent death in runLog.Events.OfType<DeathEvent>().Where(d => d.IsPlayer).ToList())
+        {
+            string heroId = death.Unit?.ToString() ?? string.Empty;
+            int idx = _heroes.FindIndex(h => h.Id == heroId);
+            if (idx < 0)
+            {
+                continue; // 已移除 / 不是名册成员（如敌人或槽位 id）⇒ 跳过（幂等 ✓）
+            }
+
+            HeroConfig gone = _heroes[idx];
+            _heroes.RemoveAt(idx);
+            _xp.Remove(gone.Id);
+            _morale.Remove(gone.Id);
+            _graveyard.Add((gone.Id, gone.Name, gone.Level, string.IsNullOrEmpty(death.Cause) ? cause : death.Cause));
+            runLog.Append(new HeroDiedEvent(gone.Id, gone.Name, gone.Level, cause, _heroes.Count));
+            removed++;
+        }
+
+        return removed;
+    }
 
     /// <summary>🆕 某英雄的累计经验（读数口）✓</summary>
     /// <summary>🆕 某英雄**当前这一级的累计经验**（攒够 `level_costs[级-1]` 就升 ✓）</summary>

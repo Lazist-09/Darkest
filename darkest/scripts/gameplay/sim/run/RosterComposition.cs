@@ -50,6 +50,11 @@ public static class RosterComposition
             : $"{heroes.Count}/{roster.Cap}（硬上限；当前可用上限**未设置**=0 ⇒ 不装作已解锁）";
         return $"[名册构成] 在册 {capText}　等级分布 [{string.Join(" ", byLevel)}]　" +
                $"特质 正 {pos}／负 {neg}（锁定 {locked}）　疾病 {diseases}　" +
-               $"经验通道 {(roster.ExperienceWired ? "已接线" : "未接线（不假装生效）")} ✓";
+               $"经验通道 {(roster.ExperienceWired ? "已接线" : "未接线（不假装生效）")}　" +
+               // 🆕 **A11**（策划 `#400`）：阵亡必须**可读 + 可追溯** ⇒ 留档人数与最近一名都列出来 ✓
+               $"阵亡留档 {roster.Graveyard.Count} 名" +
+               (roster.Graveyard.Count > 0
+                   ? $"（最近：{roster.Graveyard[^1].Name} Lv{roster.Graveyard[^1].Level}／{roster.Graveyard[^1].Cause}）"
+                   : "") + " ✓";
     }
 }
