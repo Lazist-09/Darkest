@@ -2100,3 +2100,39 @@ y = 698/1080 = **64.6%**（托盘顶）；血条高 10/1080 = **0.93%**；血条
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.44b **更正：上一节 14.0.44 是空读（路径写错）**（2026-09-21）
+
+```
+🔴 我上一条提交把 `shared\menu.layout.darkest` 当成真路径 ⇒ **实际不存在**（`shared` 下有子目录）⇒ 该节内容为**空**，
+   属**不实记录**，特此更正。真路径与内容如下（重新直读）✓
+来源：\shared\menu\menu.layout.darkest
+  menu_layout:
+  .base_pos 450 150
+  .back_button_pos 859 103
+  .back_controller_button_pos 856 100
+  .build_number_pos 866 664
+  .accept_ctrl_offset 240 -22
+  base_layout:
+  .element_start_pos 510 240
+  .element_hot_area_size 466 48
+  options_layout:
+  .element_start_pos 510 260
+  .element_hot_area_size 466 60
+  options_category_layout:
+  .visible_area_offset 240 220
+  .visible_area_size 600 432
+  .elements_start_offset 0 0
+  .element_name_start_offset 240 240
+  .element_name_child_offset 16 0
+  .element_name_tooltip_hot_area_offset 0 0
+  .element_name_tooltip_hot_area_size 360 50
+  .element_name_tooltip_offset 520 -10
+  .element_control_start_offset 600 218
+  .element_control_check_box_offset 85 20
+  .element_control_check_mark_offset 85 20
+  .element_control_check_box_controller_hotspot_offset -200 16
+  .element_control_check_box_controller_hotspot_size 600 36
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
