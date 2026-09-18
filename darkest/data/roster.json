@@ -3,6 +3,8 @@
   "level_min": 1,
   "level_max": 6,
   "level_growth": { "hp_per_level": 2, "attack_per_level": 1 },
+  "experience": { "placeholder": true, "xp_per_win": 1, "xp_per_loss": 0, "level_costs": [2, 3, 4, 5, 6],
+    "_note": "占位数值（策划 #399 裁定）：每场胜利 +1 / 失败 +0；每级费用 1→2:2 · 2→3:3 · 3→4:4 · 4→5:5 · 5→6:6（递增 1 ⇒ 到 Lv6 累计 20 场胜利）。唯一用途 = 让升级机制可跑 + 让 A10『多少场胜利升 1 级』可读；真值等解冻（按一趟约 3~4 场反推）" },
   "note": "M8.0 ①（#283~#285）：名册 12 = 出征 6 + 替补 6（轮换休息成为策略）；等级 1~6 只给属性小幅度（HP+2/攻击+1），**不升技能**（技能升级留 M8.1）；每人 2~3 条小幅特质（正负都有）；招募免费且新兵 level=1（照抄 DD）",
   "heroes": [
     { "id": "hero_warrior_1", "name": "老铁", "archetype": "warrior", "level": 2, "morale": 45,

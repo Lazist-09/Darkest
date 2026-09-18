@@ -23,6 +23,7 @@ public partial class BattleRoot : Node2D
     public BattleDirector Director { get; private set; } = null!;
     public BattleProjector Projector { get; private set; } = null!;
 
+    private Darkest.Core.Events.CombatLog? _xpLog;   // 🆕 升级通道：常驻经验日志（事件可审计 ✓）
     private RngProvider _rng = null!;
 
     /// <summary>
@@ -764,6 +765,19 @@ public partial class BattleRoot : Node2D
             string result = what.Contains("撤退", System.StringComparison.Ordinal)
                 ? "DrawRetreat"
                 : Director.Enemy.OccupiedPositions(false).Count == 0 ? "PlayerVictory" : "EnemyVictory";
+
+            // 🔴🆕 **升级通道接线**（契约 `hamlet.md` §7.2/§7.6「**战斗给经验 ⇒ 等级成长**」·
+            //    策划 `#399` 给了**占位数值**）⇒ 战斗结算就给全队发经验 ✓
+            //    纪律：**数值全部来自 `roster.json`**（缺省 ⇒ 显式不生效 ✓ 不假装）· **事件留在常驻日志里**（可审计 ✓）
+            if (ExpeditionContext.Roster is { } xpRoster && xpRoster.ExperienceWired)
+            {
+                bool won = result == "PlayerVictory";
+                _xpLog ??= new Darkest.Core.Events.CombatLog();
+                xpRoster.AwardExperienceForBattle(_xpLog, won, "battle");
+                GD.Print("[升级通道] 本场" + (won ? "胜" : "负") + " ⇒ 发经验：" +
+                         string.Join("、", System.Linq.Enumerable.Select(xpRoster.Heroes,
+                             h => $"{h.Name} Lv{h.Level}(XP{xpRoster.ExperienceOf(h.Id)})")) + " ✓");
+            }
 
             // 🔴 `#352` 打印自证（`retreat.md §11` 要的"撤退 ⇒ 回地图当前格"）：这一行让"撤没撤对"**可读** ✓
             if (result == "DrawRetreat")

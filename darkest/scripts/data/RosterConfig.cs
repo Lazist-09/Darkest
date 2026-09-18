@@ -40,7 +40,39 @@ public sealed record HeroConfig(
 public sealed record RosterExperience(
     [property: JsonPropertyName("xp_per_win")] int XpPerWin,
     [property: JsonPropertyName("xp_per_loss")] int XpPerLoss,
-    [property: JsonPropertyName("level_thresholds")] IReadOnlyList<int> LevelThresholds);
+    // 🔴 **语义（策划 `#399` 裁定）**：**每级固定经验**（相对）—— `level_costs[0]` = **1→2 级所需**，
+    //    `level_costs[1]` = 2→3 … ⇒ 与"绝对累计"的区别只在**起手等级 > 1** 时显现 ✓
+    [property: JsonPropertyName("level_costs")] IReadOnlyList<int> LevelCosts,
+    // 🔴 占位标注（`placeholder: true` 是本项目既有纪律）：**值是真值之前的临时值** ✓
+    [property: JsonPropertyName("placeholder")] bool Placeholder = false)
+{
+    /// <summary>升到 `level + 1` 需要多少经验（`null` = 已到顶 / 无该级）✓</summary>
+    public int? CostToNextLevel(int level, int levelMin, int levelMax)
+    {
+        int idx = level - levelMin;
+        if (level >= levelMax || idx < 0 || idx >= LevelCosts.Count)
+        {
+            return null;
+        }
+
+        return LevelCosts[idx];
+    }
+
+    /// <summary>
+    /// 🔴 **A10 读数口**（策划 `#399`）：「**多少场胜利升 1 级**」必须**可读** ——
+    /// 玩家感受到的是"我打了 N 场，升了 1 级" ⇒ 这就是升级通道**有没有意义**的判据（同 A4）✓
+    /// </summary>
+    public int? BattlesToNextLevel(int level, int levelMin, int levelMax)
+    {
+        int? cost = CostToNextLevel(level, levelMin, levelMax);
+        if (cost is null || XpPerWin <= 0)
+        {
+            return null;
+        }
+
+        return (int)Math.Ceiling(cost.Value / (double)XpPerWin);
+    }
+}
 
 public sealed record RosterLevelGrowth(
     [property: JsonPropertyName("hp_per_level")] int HpPerLevel,

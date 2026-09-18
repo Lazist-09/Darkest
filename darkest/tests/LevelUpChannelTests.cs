@@ -44,7 +44,11 @@ public sealed class LevelUpChannelTests
     [TestMethod]
     public void WithoutExperienceData_TheChannelExplicitlyDoesNothing()
     {
-        RosterConfig cfg = RosterConfig.Parse(ReadData("roster.json"));
+        RosterConfig parsed = RosterConfig.Parse(ReadData("roster.json"));
+        Assert.IsTrue(parsed.Experience is not null, "占位数值已落盘（策划 `#399`）⇒ 真实数据是**已接线** ✓");
+
+        // 🔴 用**内存内**去掉 `experience` 来验证"未接线 ⇒ 显式不生效"这条纪律本身 ✓
+        RosterConfig cfg = parsed with { Experience = null };
         var log = new CombatLog();
         var roster = new Roster(cfg);
 
@@ -64,7 +68,7 @@ public sealed class LevelUpChannelTests
     public void WithExperienceData_XpCrossesThreshold_LevelsUp_AndTheUnitGetsStronger()
     {
         RosterConfig baseCfg = RosterConfig.Parse(ReadData("roster.json"));
-        RosterConfig cfg = baseCfg with { Experience = new RosterExperience(XpPerWin: 2, XpPerLoss: 0, LevelThresholds: new[] { 2, 4, 6, 8, 10 }) };
+        RosterConfig cfg = baseCfg with { Experience = new RosterExperience(XpPerWin: 2, XpPerLoss: 0, LevelCosts: new[] { 2, 3, 4, 5, 6 }) };
         var log = new CombatLog();
         var roster = new Roster(cfg);
         // 🔴 取【最低等级】的英雄（`roster.json` 里有人起手就是 2 级 ⇒ 用 1 级的才验得准）✓
@@ -75,7 +79,7 @@ public sealed class LevelUpChannelTests
         Assert.IsTrue(roster.ExperienceWired, "给了 `experience` ⇒ **已接线** ✓");
         Assert.IsTrue(roster.AwardExperienceForBattle(log, win: true), "首胜应发放经验（2 点 = 跨过第 0 个阈值）✓");
 
-        Assert.AreEqual(2, roster.ExperienceOf(heroId), "经验必须**只从事件/累积口径**读，且等于发放值 ✓");
+        Assert.AreEqual(0, roster.ExperienceOf(heroId), "升 1 级扣掉 2 点 ⇒ 余 0（**每级固定经验**语义 ✓）");
         Assert.AreEqual(levelBefore + 1, roster.LevelOf(heroId), "跨过阈值 ⇒ **升 1 级** ✓");
 
         var gained = log.Events.OfType<HeroExperienceGainedEvent>().ToList();
@@ -111,6 +115,36 @@ public sealed class LevelUpChannelTests
 
         Assert.IsTrue(roster.LevelOf(heroId) <= cfg.LevelMax, $"等级不得超过 `level_max` = {cfg.LevelMax} ✓");
         Assert.IsTrue(log.Events.OfType<HeroLevelUpEvent>().All(e => e.ToLevel <= cfg.LevelMax), "升级事件也不得超过上限 ✓");
+    }
+
+    /// <summary>
+    /// 🔴 **A10 读数**（策划 `#399`）：「**多少场胜利升 1 级**」必须**可读** ——
+    /// 按占位值：**Lv1→2 = 2 场 · Lv2→3 = 3 场 … Lv5→6 = 6 场**（**递增 1**）⇒ **升到 Lv6 累计 20 场胜利** ⚠️
+    /// ⇒ 📌 这条曲线让"**升级是不是太慢**"变成**可读**；**真值等解冻**（策划已登记按"一趟约 3~4 场"反推）✓
+    /// </summary>
+    [TestMethod]
+    public void A10_HowManyWinsPerLevel_MustBeReadable()
+    {
+        RosterConfig cfg = RosterConfig.Parse(ReadData("roster.json"));
+        Assert.IsTrue(cfg.Experience is not null, "占位数值已落进 roster.json（策划 `#399`）✓");
+        RosterExperience exp = cfg.Experience!;
+
+        var curve = new List<string>();
+        int cumulative = 0;
+        for (int lv = cfg.LevelMin; lv < cfg.LevelMax; lv++)
+        {
+            int? wins = exp.BattlesToNextLevel(lv, cfg.LevelMin, cfg.LevelMax);
+            cumulative += wins ?? 0;
+            curve.Add($"Lv{lv}→{lv + 1}：**{wins} 场胜利**（累计 {cumulative} 场）");
+        }
+
+        string line = $"[A10] 升级曲线（占位值 · `placeholder: {exp.Placeholder}`）：{string.Join("　·　", curve)}" +
+                      $"　⇒ **升到 Lv{cfg.LevelMax} 累计 {cumulative} 场胜利** ⚠️（20 场明显偏长 ⇒ 真值等解冻）";
+        Console.WriteLine(line);
+        TestContext.WriteLine(line);
+
+        Assert.AreEqual(cfg.LevelMax - cfg.LevelMin, curve.Count, "曲线必须覆盖每一级 ✓");
+        Assert.IsTrue(curve.All(c => c.Contains("场胜利")), "每一级都必须给出『多少场』✓");
     }
 
     /// <summary>MSTest 注入（本仓其它用例同写法）✓</summary>

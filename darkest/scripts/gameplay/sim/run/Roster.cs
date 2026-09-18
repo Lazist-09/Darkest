@@ -41,6 +41,7 @@ public sealed class Roster
     public bool ExperienceWired => _cfg.Experience is not null;
 
     /// <summary>🆕 某英雄的累计经验（读数口）✓</summary>
+    /// <summary>🆕 某英雄**当前这一级的累计经验**（攒够 `level_costs[级-1]` 就升 ✓）</summary>
     public int ExperienceOf(string heroId) => _xp.GetValueOrDefault(heroId);
 
     /// <summary>🆕 某英雄的当前**等级**（可直接被 `HeroProjection.ApplyLevel` 投影 ✓）</summary>
@@ -70,23 +71,21 @@ public sealed class Roster
             _xp[h.Id] = total;
             log.Append(new HeroExperienceGainedEvent(h.Id, amount, total, reason));
 
-            int target = h.Level;
-            for (int i = 0; i < exp.LevelThresholds.Count; i++)
+            // 🔴 **语义 = 每级固定经验**（策划 `#399` 裁定：`1→2: 2 · 2→3: 3 · 3→4: 4 · 4→5: 5 · 5→6: 6`
+            //    递增 1 ⇒ **升到 Lv6 累计 20 场胜利**）✓ —— 实现 = **攒够当前级费用 ⇒ 扣掉、升 1 级** ✓
+            int level = h.Level;
+            while (level < _cfg.LevelMax)
             {
-                if (total >= exp.LevelThresholds[i])
+                int? cost = exp.CostToNextLevel(level, _cfg.LevelMin, _cfg.LevelMax);
+                if (cost is null || _xp[h.Id] < cost.Value)
                 {
-                    // 🔴 **语义口径（请策划裁）**：阈值 = 【**绝对累计经验**】⇒ 阈值 i ⇒ 达到 (i+2) 级 ✓
-                    //    ⇒ 因此**起手等级高的老手反而需要更多经验**才升（例：起手 2 级 ⇒ 需跨到阈值 1 才到 3 级）✓
-                    //    ⚠️ 另一读法是"每级固定经验"（相对）⇒ 两者只在**起手等级 > 1** 时不同；数值到手前一并请裁 ✓
-                    target = i + 2;
+                    break;
                 }
-            }
 
-            int capped = Math.Clamp(target, h.Level, _cfg.LevelMax);
-            if (capped > h.Level)
-            {
-                ReplaceLevel(h.Id, capped);
-                log.Append(new HeroLevelUpEvent(h.Id, h.Level, capped));
+                _xp[h.Id] -= cost.Value;
+                level++;
+                ReplaceLevel(h.Id, level);
+                log.Append(new HeroLevelUpEvent(h.Id, level - 1, level));
             }
         }
 
