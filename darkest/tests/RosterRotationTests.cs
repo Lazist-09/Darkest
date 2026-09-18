@@ -140,6 +140,57 @@ public sealed class RosterRotationTests
         Assert.IsTrue(changed > 0, "🔴 给定『最休息者优先』策略，10 趟里**必须发生过轮换**（否则机制没通）✓");
     }
 
+    /// <summary>
+    /// 🆕 **把等级分布 / 轮换也接进"本次 vs 上次"**（让 `RunStartSnapshot` 一行同时显示成长与轮换）——
+    /// 实测要看的：`等级分布 … → …` 与 `出征名单换人 N 名` 是否**真的出现** ✓
+    /// </summary>
+    [TestMethod]
+    public void SnapshotDiff_ShowsLevelHistogramAndRotation()
+    {
+        (RosterConfig baseCfg, FormationConfig tpl) = Load();
+        RosterConfig cfg = baseCfg with
+        {
+            Experience = new RosterExperience(XpPerWin: 1, XpPerLoss: 0, LevelCosts: new[] { 2, 3, 4, 5, 6 }),
+        };
+        var log = new CombatLog();
+        var roster = new Roster(cfg);
+        var stock = new HeirloomStock(HeirloomConfig.Parse(ReadData("heirlooms.json")));
+        var economy = new Economy(EconomyConfig.Parse(ReadData("economy.json")));
+        int need = tpl.InitialRoster.Player.Count;
+
+        RunStartSnapshot? prev = null;
+        var lines = new List<string>();
+        for (int run = 1; run <= 6; run++)
+        {
+            var picked = roster.Heroes.OrderByDescending(h => roster.MoraleOf(h.Id)).ThenBy(h => h.Id)
+                .Take(need).Select(h => h.Id).ToList();
+            RunStartSnapshot snap = RunStartSnapshot.Capture(run, roster, stock, economy, sortieIds: picked);
+            foreach (string l in snap.DiffLines(prev))
+            {
+                lines.Add(l);
+            }
+
+            prev = snap;
+            roster.AwardExperienceForBattle(log, win: true, reason: "snapshot_diff");
+            foreach (var id in picked)
+            {
+                roster.ApplyRelief(log, id, -4, "snapshot_diff");
+            }
+        }
+
+        string hasHist = lines.Any(l => l.Contains("等级分布")) ? "✅ 出现" : "⚠️ 未出现";
+        string hasRot = lines.Any(l => l.Contains("换人")) ? "✅ 出现" : "⚠️ 未出现";
+        Console.WriteLine($"[快照·新增读数] 等级分布变化：{hasHist}　轮换（换人）：{hasRot}");
+        Console.WriteLine($"[快照·基线] {lines.FirstOrDefault()}");
+        foreach (string l in lines.Skip(1).Take(4))
+        {
+            Console.WriteLine($"[快照·对比] {l}");
+        }
+
+        Assert.IsTrue(lines.Any(l => l.Contains("等级分布")), "等级分布变化必须可见 ✓");
+        Assert.IsTrue(lines.Any(l => l.Contains("换人")), "轮换（换人 N 名）必须可见 ✓");
+    }
+
     /// <summary>MSTest 注入（本仓其它用例同写法）✓</summary>
     public TestContext TestContext { get; set; } = null!;
 }

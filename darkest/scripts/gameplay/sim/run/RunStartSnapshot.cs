@@ -30,6 +30,8 @@ public sealed record RunStartSnapshot(
     int TraitsNegative,
     int TraitsLocked,
     IReadOnlyDictionary<string, int> Heirlooms,
+    IReadOnlyDictionary<int, int> LevelHistogram,   // 🆕 等级分布（Lv → 人数）：让"队伍在长"看得见形状 ✓
+    IReadOnlyList<string> SortieIds,               // 🆕 本趟出征名单（为 null/空 ⇒ 未提供）：轮换读数的基础 ✓
     IReadOnlyDictionary<string, int> BuildingLevels)
 {
     /// <summary>
@@ -48,7 +50,8 @@ public sealed record RunStartSnapshot(
         Roster roster,
         HeirloomStock? heirlooms = null,
         Economy? economy = null,
-        IReadOnlyList<string>? buildings = null)
+        IReadOnlyList<string>? buildings = null,
+        IReadOnlyList<string>? sortieIds = null)   // 🆕 出征名单（可选；给了才能看"换人"）✓
     {
         if (roster is null)
         {
@@ -116,13 +119,26 @@ public sealed record RunStartSnapshot(
             }
         }
 
+        var levelHist = new Dictionary<int, int>();
+        foreach (var h in heroes)
+        {
+            levelHist[h.Level] = levelHist.GetValueOrDefault(h.Level) + 1;
+        }
+
+        // 🔴 参数顺序必须与 record 声明一致（我第一版插错位置 ⇒ 编译当场抓到 ✓）
         return new RunStartSnapshot(runIndex, economy?.Gold ?? 0, count, roster.CurrentCap, moraleAvg, levelAvg, levelMax,
-            diseases, pos, neg, locked, heirloomCounts, levels);
+            diseases, pos, neg, locked, heirloomCounts, levelHist,
+            sortieIds?.ToList() ?? new List<string>(), levels);
     }
 
     /// <summary>一行读数（存档/日志用）✓</summary>
+    /// <summary>等级分布的可读形式（`[Lv1×3 Lv2×5]`）✓</summary>
+    private static string Hist(IReadOnlyDictionary<int, int> h)
+        => "[" + string.Join(" ", h.OrderBy(k => k.Key).Select(k => $"Lv{k.Key}×{k.Value}")) + "]";
+
     public string Describe()
         => $"第 {RunIndex} 趟出发前：金钱 {Gold}　名册 {RosterCount}/{RosterCap}　平均士气 {MoraleAvg}　等级均 {LevelAvg}（最高 {LevelMax}）　" +
+           $"等级分布 {Hist(LevelHistogram)}　{(SortieIds.Count > 0 ? $"出征 {string.Join("/", SortieIds)}　" : "")}" +
            $"疾病 {Diseases}　特质 正 {TraitsPositive}／负 {TraitsNegative}（锁定 {TraitsLocked}）　" +
            $"传家宝 [{string.Join(" ", Heirlooms.OrderBy(k => k.Key).Select(k => $"{k.Key}:{k.Value}"))}]　" +
            $"建筑 [{string.Join(" ", BuildingLevels.OrderBy(k => k.Key).Select(k => $"{k.Key}:Lv{k.Value}"))}]　" +
@@ -153,6 +169,25 @@ public sealed record RunStartSnapshot(
         Cmp("名册上限", RosterCap, prev.RosterCap);
         Cmp("平均士气", MoraleAvg, prev.MoraleAvg);
         Cmp("平均等级", LevelAvg, prev.LevelAvg);
+
+        // 🆕 **等级分布**（形状变化也要看得见：例 `[Lv1×3 Lv2×5] → [Lv1×1 Lv2×6 Lv3×1]`）✓
+        string nowHist = Hist(LevelHistogram);
+        string prevHist = Hist(prev.LevelHistogram);
+        if (nowHist != prevHist)
+        {
+            diffs.Add($"等级分布 {prevHist} → {nowHist}");
+        }
+
+        // 🆕 **轮换**（换了几个人；两边都没给名单 ⇒ 如实不报，不假装 0 ✓）✓
+        if (SortieIds.Count > 0 && prev.SortieIds.Count > 0)
+        {
+            int kept = SortieIds.Count(id => prev.SortieIds.Contains(id));
+            int swapped = SortieIds.Count - kept;
+            if (swapped > 0)
+            {
+                diffs.Add($"出征名单**换人 {swapped} 名**（留 {kept}）");
+            }
+        }
         Cmp("疾病", Diseases, prev.Diseases);
         Cmp("正面特质", TraitsPositive, prev.TraitsPositive);
         Cmp("负面特质", TraitsNegative, prev.TraitsNegative);
