@@ -3125,3 +3125,42 @@ screen.raid.darkest 顶栏/信息类键（原样）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴🔴 14.0.82 **DD `scripts\layout\panel.hero.darkest` / `panel.monster.darkest` 原文（P2 真源）**（2026-09-21）
+
+```
+── panel.hero.darkest ──
+  health_layout: .pos 130 11 .colour #c00000
+  stress_layout: .pos 130 40 .colour 150 150 150 255
+  stat_layout:	.pos 60 72 .number_of_columns 1
+  hero_equipment:	.pos 238 0
+  hero_trinket:	.pos 453 0
+
+── panel.monster.darkest ──
+  m_MonsterInfoLayout:
+  .name_pos 65 58
+  .type_pos 65 112
+  .type_spacing 0 22
+  .hp_pos 520 61
+  .stats_pos 235 112
+  .stats_spacing 0 22
+  .hero_stats_pos 435 111
+  .hero_stats_spacing 0 22
+  .resistances_title_pos 154 186
+  .resistances_pos 100 220
+  .resistances_spacing 0 22
+  .resistances_entry_icon_pos -10 8
+  .resistances_entry_title_pos 20 6
+  .resistances_entry_value_pos 206 6
+  .skills_title_pos 480 186
+  .skills_pos 370 230
+  .skills_text_offset 50 0
+  .skills_icon_offset -22 4
+  .skills_icon_spacing 22 0
+  .skills_spacing 0 26
+  .indicator_y_offset -8
+  .indicator_controller_button_offset -22 16
+
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
