@@ -2919,3 +2919,27 @@ DD 值（town.layout）：`.embark_party_pos 754 871` ⇒ 比例 **x 754/1920 = 
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.73 **DD `screen.raid.status_bars.darkest` 全键（P4-b 依据）+ 可落性分类**（2026-09-21）
+
+```
+原文（本次逐行读全，非记忆）：
+  status_bars: .char_x_offset **-50** · .y_pos **698**
+  .health_bar_offset **50 0** · .health_bar_height **10** · .health_bar_widths **100 200 300 400** · .health_bar_share…
+  .stress_offset **-1 12** · .stress_spacing **10**
+  .status_bar_tooltip_hot_area_offset 50 -10 · .status_bar_tooltip_hot_area_height 35 · .status_bar_tooltip_offset 50 -12
+  .tray_icon_hot_spot_size **20 24** · .tray_icon_left_offset **58 -38** · .tray_icon_left_spacing **20**
+  .tray_icon_right_offset **62 -38** · .tray_icon_right_spacing **20** · .tray_controller_button_offset 0 -60
+  .icon_offset **50 30** · .icon_world_y_offset 149 · .icon_tooltip_offset 0 30 ·（tooltip 文本宽度 150/200/200）
+  .round_indicator_icon_offset **10 -4** · .round_indicator_icon_spacing **8 0** · .multiple_hit_plus_y_offset -38
+
+**可落性分类**：
+  ✅ 已落：`.y_pos 698`（我域 y 0.646）· `.health_bar_height 10`（0.0093）· 血条宽档 100~400（按 HP 分档的**比例**可表达）
+  🟡 可落待做：`.char_x_offset -50`（每单位 x 偏移 −50/1920 = −0.026 ⇒ 槽左移）· `.health_bar_offset 50 0`（条相对单位 +50 ⇒ 槽内右移比例）·
+     `.stress_offset -1 12`（压力条在血条**下方 12px** ⇒ 我域现为"下半 50%"应改为"紧贴血条下方"）· `.stress_spacing 10`
+  🟨 需美术图标 ⇒ **按色块占位**（不换不删）：`.tray_icon_left/right_offset 58/62,-38`（回合/阵营小图标位）· `.icon_offset 50 30` ·
+     `.round_indicator_icon_offset 10,-4` + `.round_indicator_icon_spacing 8,0`（回合指示器）· `.tray_icon_hot_spot_size 20×24`
+  ⛔ 无法表达（需运行时数据/世界坐标）：`.icon_world_y_offset 149` · `.multiple_hit_plus_y_offset -38`（多段命中飘字）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
