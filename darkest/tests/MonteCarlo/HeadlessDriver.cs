@@ -99,10 +99,22 @@ public static class HeadlessDriver
     public static (GameOutcome outcome, CombatLog log) Run(long seed, PolicyKind policy,
         Func<TuningConfig, TuningConfig>? tweak = null,
         Func<UnitsConfig, UnitsConfig>? unitsTweak = null,
-        Func<SkillsConfig, SkillsConfig>? skillsTweak = null)
+        Func<SkillsConfig, SkillsConfig>? skillsTweak = null,
+        int? openingMorale = null)
     {
         CombatLog log = new();
         BattleDirector director = DirectorBuilders.Build(log, tweak, unitsTweak, skillsTweak);
+
+        // 🆕 P2 ③（`hamlet_loop.md §9.2` 裁定"战斗层必须补"）：**可选注入开局士气** ——
+        //    用来做"**同 seed**、**士气 低→高** ⇒ 战斗是否更不容易崩"的对照（只报数不判红）✓
+        //    （口径：与 `HeroProjection.ApplyOpeningMorale` 同款 —— 只改运行时投影，**不动 data** ✓）
+        if (openingMorale is int om)
+        {
+            foreach (UnitRuntime u in director.Player.UnitsInSlotOrder())
+            {
+                u.ApplyOpeningMorale(om);
+            }
+        }
         var rng = new RngProvider(seed);
         var skillUses = new Dictionary<string, int>();
         var moraleHistogram = new Dictionary<int, int>();
