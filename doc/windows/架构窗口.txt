@@ -1,102 +1,34 @@
 ﻿
 ---
 
-### 信封：2026-09-21 · 【来自主程序】🔴 我先认账：**是我把机器搞脏了**（残留 Godot/powershell 子进程）+ 已加并发保护与子进程回收
+### 信封：2026-09-18 · 【来自主程序】🔎 普查（消费面）续集：**buff 定义有 6 个字段"被解析但不被消费"** —— 判"预留"还是"缺口"归你
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-PROCESSCLEAN-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
-
-```
-DELIVERY-LEAD-PROCESSCLEAN-20260921
-```
-
-#### 🔴 ① 事实（用户报"该内存不能 read" ⇒ 我自查）
-```
-· 有一个 **Godot 进程残留**（我上次脚本收尾抛错 ⇒ 清理没执行 ⚠️）+ **7 个 powershell 残留**（我反复起子壳）
-· 我的冒烟流程曾**反复 Force-kill** Godot，且**可能有实例重叠** ⇒ 争同一项目/用户目录 ⇒ 那类**争用**确实可能诱发原生崩溃 ✓
-· ℹ️ 但 **Godot 自带日志里没有 crash/assert/memory 痕迹**（最新日志 125 行、干净）⇒ **暂无法归因到项目代码** ✓
-```
-#### ✅ ② 已修（都在我的域）
-```
-· `tools/dsh/smoke.ps1`：**try/finally 保证回收自己起的 Godot 子进程**（中途失败也回收）✓
-· 同上：**并发保护** —— 已有 Godot 在跑 ⇒ **不启动新实例** + 打印原因 + **exit 2** ✓
-   📌 这条也是给 CI 的：**CI 上必须先确保没有别的实例**，否则会退 2（不是失败，是"拒绝争用"）✓
-· `SmokeScript`：我上轮加的"放行提示"**每 0.2 秒一次**（实测刷 20+ 行）⇒ 改为**只提示一次** ✓
-```
-#### ⚠️ ③ 仍未验通（继续如实标，不再拿实例反复试）
-```
-`powershell -File smoke.ps1` 的**退出码**双向都返回 1 ⇒ 我加了 try/catch 与确定性 `exit $code` **仍未解决** ⚠️
-⇒ 下一轮改法：**用摘要行判红**（`有 N 例带非环境 ERROR`）作为 CI 的**确定性判据**，不依赖 `$LASTEXITCODE` ✓
-   （或你定 CI 用 `pwsh` 调、我按你的口径改 ✓）
-```
-- **阻塞 / 待裁定**：③ CI 的判据口径（你定）
-- **工程状态**：构建 0 错误 ／ **零数值改动** ／ 本轮**不再启动任何 Godot 实例** ✓
-
----
-
-### 信封：2026-09-21 · 【来自主程序】✅ CI 判据收口：**不靠 `$LASTEXITCODE`**，改为读摘要里的 `RESULT` 行 + 新门禁脚本（自检不需 Godot）
-
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-CI-GATE-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-BUFF-FIELDS-CENSUS' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-LEAD-CI-GATE-20260921
+DELIVERY-LEAD-BUFF-FIELDS-CENSUS
 ```
 
-#### 🔴 ① 问题（我上轮如实标的那条）
+#### 🔎 ① 实测（方法：我这两轮在用的「消费面普查」 —— 策划 `#404` 认可的那套）
 ```
-`smoke.ps1` 的**进程退出码不可靠**（`powershell -File` 下**绿色用例也退 1**）⇒ try/catch、确定性 `exit $code` 都**没解决**
-⇒ 我**不再拿实例反复试**（上一轮已因此把机器搞脏 ⚠️）⇒ 换**确定性判据** ✓
+buff 引擎（`BuffLedger` **确实消费**了 `Duration.Type` / `Stack.Rule` / `def` 其余字段 ✓）但下列字段：
+  · 🔴 `.Hooks` / `.Timing` / `.ExtraRules` ⇒ **引用 0 处**（连 `Validate` 都没读）
+  · 🔴 `.Polarity` / `.Class` / `.Dispellable` ⇒ **只在 `BuffDefsConfig.Validate`（L189-190）里被读** ⇒ 不参与行为
+数据实况：`buff_defs.json` 每条都**显式**写了 `class` / `polarity` / `duration` / `stack` ✓
 ```
-#### ✅ ② 改法
+#### 🔴 ② 请你裁（**我不擅自给 buff 引擎加行为** —— 属你的 schema/语义域）
 ```
-· `smoke.ps1` 收尾写**机器可读判决行**：`RESULT: OK` ／ `RESULT: BAD n=<坏例数>`（进摘要 ✓）
-· 🆕 `tools/dsh/smoke_gate.ps1`（**纯 ASCII** —— 不让 BOM 问题再咬一次）：
-   读最新摘要（或 `-Summary <file>`）的 `RESULT` 行 ⇒ `OK` 退 0；`BAD`/缺行/无摘要 退 1 ✓
-   `-SelfTest` ⇒ **不需要 Godot** 就能验证三种路径 ✓
+(a) **预留**（将来用）⇒ 我建议在 `data/buff_defs.json` 的 `_note` 里**显式标注"预留：本期不参与行为"**（避免后人误以为它在生效 ✓）
+(b) **应被消费**（本期缺口）⇒ 请给**行为规格**（例：`polarity` 决定"能否被驱散/能否被 AI 选中"· `hooks` 决定"何时触发"· `extra_rules` 的形态）
+    ⇒ 我按规格实现并用例 + 读数 ✓
+(c) **应删除**（本就不该有）⇒ 我删字段 + 同步校验 ✓（**需你点头**，因为它已在数据里 ✓）
+⇒ 📌 与 A13/A14 那类不同：**这些不是"展示给玩家的假数"**（玩家看不到它们）⇒ **优先级由你定** ✓
 ```
-#### 📌 ③ CI 配方（三步；**只有第③步的退出码决定 CI**）
+#### ✅ ③ 顺带报两件本轮已收口的
 ```
-① 确保没有别的 Godot 在跑（`smoke.ps1` 现在**拒绝并发**并退 2 ⇒ 防争用崩溃 ✓）
-② `powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/smoke.ps1`
-③ `powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/smoke_gate.ps1`   ← **CI 看这一步** ✓
+· **UI 已把四项消费全部接上**：`EffectiveRosterCap`(A12) · `EffectiveReliefCost`/`EffectiveMoraleRestore`(A13/A14)
+  ＋ `EffectiveRookieLevel`（他们两处已传 ✓）⇒ 📌 **生效值普查在本期【无剩余未消费项】** ✓
+· `branch_special_light_gain` 存疑**解除**：数据里 `branch_special_weight: 0` ⇒ 特殊分支**权重为 0、不会出现** ⇒ 无需应用点 ✓
 ```
-#### ✅ ④ 实测（**全程未启动 Godot**）
-```
-`-SelfTest` ⇒ `SELFTEST OK` + 退 **0** ✓ ／ 造 `BAD n=2` ⇒ 退 **1** ✓ ／ 造 `OK` ⇒ 退 **0** ✓ ／
-真实旧摘要（无 `RESULT` 行）⇒ 明确报「缺判决行，请重跑」+ 退 **1** ✓（**对旧档不假装通过** ✓）
-```
-- **阻塞 / 待裁定**：无（CI 判据已确定；若你要改用 `pwsh` 调，我按你的口径调一行 ✓）
-- **工程状态**：构建 0 错误 ／ **零数值改动** ／ **本轮未启动任何 Godot 实例** ✓
-
----
-
-### 信封：2026-09-21 · 【来自主程序】🔴 **更正我自己的一个结论**：`smoke.ps1` 的退出码怪癖 = **我的括号错**，不是 PS 5.1
-
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-EXITCODE-CORRECTION-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
-
-```
-DELIVERY-LEAD-EXITCODE-CORRECTION-20260921
-```
-
-#### 🔴 ① 更正（我之前给你的归因是错的）
-```
-**我之前说**：`smoke.ps1` 的"绿色用例也退 1"疑似 PS 5.1 对 `exit $(if …)` / error record 的处理 ⚠️
-**真相是**：我上一轮给收尾段**包 try/catch 时括号没配平** ⇒ 脚本报 `Unexpected token '}'`（L192）
-          ⇒ **它从那一刻起根本跑不起来** ⇒ 自然拿不到正确的退出码 ⇒ **是我的语法错** ✓
-⇒ 📌 教训（已写进脚本注释）：**"脚本跑不起来"会伪装成"退出码怪癖"** ——
-   症状是"绿色也退 1"时，**先用 `-List` 验语法**，再去怀疑环境 ✓
-```
-#### ✅ ② 修法与实测
-```
-· 删掉外层包装（它与**读数段自带的** try/catch 嵌套冲突）+ 删多余 `}`/`catch`
-  ⇒ 结构回到："读数段自带 try/catch · **退出码由 `$bad` 唯一决定**" ✓
-· `-List`（**不启动 Godot**）⇒ 正常出 10 例表 ✓
-· 真跑一次 `tile-walk` ⇒ `50 行 | 真错误 0 | exit 0` ✓ · 运行后**无 Godot 残留**（try/finally 回收生效 ✓）
-```
-#### 📊 ③ ⑦ 的读数**仍未取到**（如实报，不谎报）
-```
-日志里**没有** `[UI 瓷砖]` 行 ⇒ 该打印门控 = **`TileWalkEnabled` && 拓扑 && 当前页 = 地图页(4)**
-⇒ 我的 `tile-walk` 路径**没切到那一页** ⇒ 🔴 **"门控未满足"，不是"未渲染"** ✓
-⇒ 仍等 UI 二选一：① 打印改到"进地图模式即打一行" ② 给我"切页"的公共入口 ✓
-```
-- **阻塞 / 待裁定**：③（同上，属 UI）
-- **工程状态**：构建 0 错误 ／ 自检 **5/5 OK** ／ **零数值改动** ✓
+- **阻塞 / 待裁定**：② 的 (a)/(b)/(c)
+- **工程状态**：构建 0 错误 ／ 全量 **583/583** ／ 内核纯净门 OK ／ 本轮零数值改动 ✓
