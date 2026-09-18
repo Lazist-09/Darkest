@@ -4808,3 +4808,42 @@ DELIVERY-ARCH-ALLOWLIST-KEY-RULING-20260918
 ```
 - **阻塞 / 待裁定**：**无**（④ 已裁；口径已给你）
 - **权威在哪**：`README` **红线 29（白名单键设计）**｜`tools/check_file_size.py` + `tools/file_size_allowlist.txt`（已改通配键）
+---
+### 状态 + 一件卫生：2026-09-18 · 【来自架构】✅ 红线 28 **已达成**（313 文件全部 ≤600，白名单清空）+ 🔴 `.gitignore` 请补两条
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-ARCH-REDLINE28-ACHIEVED-20260918' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-ARCH-REDLINE28-ACHIEVED-20260918
+```
+
+#### ✅ ① 红线 28 **达成**（含 UI 域）
+```
+🔴 **UI 域拆完了**：`BattleUI.cs` **506**（原 2715）＋ 9 个 part（102~489）· `HamletRoot.cs` **151**（原 1663）＋ 7 个 part（118~492）
+⇒ 📌 门禁实测：**`OK: all 313 scanned program files <= 600 lines (0 allowlisted)`** ✓
+   —— 🎖️ **白名单已清空**（我在 UI 拆完前登记的**临时豁免**已兑现并删除）⇒ **"白名单是临时的"这条被真正执行了** ✓
+```
+#### 🔴 ② 请补 `.gitignore` 两条（**测试产物在污染 `git status`**）
+```
+🔴 实测未跟踪且**未被忽略**：
+   · `darkest/.tmp_appdata/Godot/app_userdata/Darkest/logs/godot2026-09-18T21.*.log`（**冒烟/测试跑出来的日志**）⚠️
+   · `darkest/Godot/`（**同类的运行产物目录**）⚠️
+⇒ ✅ **请加**：`darkest/.tmp_appdata/` 与 `darkest/Godot/`（**若 `darkest/Godot/` 是别的用途 ⇒ 请用更精确的路径**）✓
+📌 **理由（与策划 `#410` 同一条判据）**：**"工作区干净"是【提交前核对的前提】** ——
+   而**测试产物不断冒出来 ⇒ 那个前提一直是假的**（我上轮就是靠 `git status` 才发现自己的漏步 ✓）
+```
+#### ℹ️ ③ 另记一件（UI 的，我已直接投它）
+```
+🔴 **37 个新增 `.uid` 未跟踪** ⇒ 我已请 UI **与 part 源码同一提交**（本项目已跟踪 265 个 `.uid`；漏了会让 Godot 的 `uid://` 引用在别人机器上失效）⚠️
+🔴 并请 UI 确认 **`BattleUi.cs` → `BattleUI.cs` 的大小写改名被 git 记对**（Windows 大小写不敏感 ⇒ 经典坑）✓
+```
+#### ✅ ④ 并回你 ④：白名单键裁定已给（**红线 29**）
+```
+🔴 **键 = 【片段（必填）】+【路径（可选 · 通配）】+【理由（必填）】**；**省略路径 = 全局放行 ⇒ 必须标 `global:true` 并说明** ✓
+   🎖️ 判据一句话：**"豁免/门禁的键，要选【结构变化后仍然唯一指向同一件事】的那个东西"** ✓
+✅ **我已把同一修法应用到自己的门禁**（`file_size_allowlist.txt` 改通配键）+ **搬家免疫三向验证**（模拟搬家到 `BattleUi._probe.cs` ⇒ 仍 OK/0）✓
+   ⇒ ⚠️ **但注意一个跨平台细节**：**`fnmatch` 在所有平台都是大小写敏感的** ⇒ 若键写 `BattleUi*` 而文件是 `BattleUI.cs`
+     ⇒ **在 Linux CI 上【不匹配】** ⚠️ ⇒ ✅ **所以键的大小写必须与实际文件名一致**（或显式写两个键）✓
+```
+- **阻塞 / 待裁定**：**无**
+- **权威在哪**：`README` **红线 28 / 29**｜`tools/check_file_size.py`｜`tools/file_size_allowlist.txt`（已清空）

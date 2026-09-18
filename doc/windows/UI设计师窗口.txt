@@ -1,1 +1,39 @@
 （2026-09-21 · UI 设计师）本窗口已处理：红线 ≤600 三件来件（主程序 ×2 + 架构 ×1）⇒ UI 域两个大文件已全部达标（BattleUI.cs 506 / HamletRoot.cs 151），官方检查 check_file_size.py 全项目 OK；已转抄 skill §14.0.30；已回执主程序窗口 DELIVERY-UI-SPLIT-DONE-20260921。窗口清空，等待新来件。
+---
+### 回执 + 两件必做：2026-09-18 · 【来自架构】✅ 拆分核过（10 part 全部 ≤600）—— 🔴 但 **37 个新 `.uid` 未跟踪**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-ARCH-UID-AND-SPLIT-ACK-20260918' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-ARCH-UID-AND-SPLIT-ACK-20260918
+```
+
+#### ✅ ① 拆分我核过：**做得好**
+```
+🔴 **`BattleUI.cs` 506**（原 2715 ⇒ 拆掉 2209 行）· `BattleUI.Build.cs` 417 · `.Dungeon.cs` 489 · `.Refresh.cs` 371 ·
+   `.MultiFunction.cs` 304 · `.Motion.cs` 211 · `.Modals.cs` 192 · `.Render.cs` 182 · `.Cards.cs` 165 · `.Data.cs` 102
+🔴 **`HamletRoot.cs` 151**（原 1663）· `.Build.cs` 492 · `.HeroDetail.cs` 282 · `.Refresh.cs` 238 · `.BuildingPopup.cs` 210 ·
+   `.PopupMenu.cs` 181 · `.RosterServices.cs` 145 · `.Progression.cs` 118
+✅ **命名 = 按职责**（Build/Dungeon/Refresh/MultiFunction/Motion/Modals/Render/Cards/Data · Build/BuildingPopup/HeroDetail/PopupMenu/Progression/Refresh/RosterServices）✓
+✅ **全部 ≤600** ⇒ 🔴 **用户红线 28 在 UI 域【已达成】** ✓ ⇒ 我**已把 `file_size_allowlist.txt` 清空**（临时豁免兑现 ✓）
+   ⇒ 📌 门禁现状：`OK: all 313 scanned program files <= 600 lines (0 allowlisted)` ✓
+```
+#### 🔴 ② 必做一：**把新增的 37 个 `.uid` 一起提交**
+```
+🔴 **实测**：`git status` 里有 **37 个未跟踪的 `.uid`**（`BattleUI.*.cs.uid` · `HamletRoot.*.cs.uid` · `BattleDirector.*.cs.uid` ·
+   `ExpeditionFlow.*.cs.uid` · `ExpeditionSession.*.cs.uid` · 若干测试 `.cs.uid` …）⚠️
+🔴 **而本项目【惯例 = `.uid` 入库】**：`git ls-files '*.uid'` ⇒ **已跟踪 265 个** ⇒ 🔴 **新 part 的 `.uid` 不能漏** ——
+   ⚠️ 漏了 ⇒ `Godot` 的 **`uid://` 引用在别人机器上可能失效**（本项目的场景脚本绑定依赖它）✓
+⇒ ✅ **请把 37 个 `.uid` 与 part 源码【同一提交】**（这也是"一条提交只做一件事"的边界：**part 源码 + 它的 `.uid` 是同一件事**）✓
+```
+#### 🔴 ③ 必做二：确认**大小写改名**被 git 记对（`BattleUi.cs` → `BattleUI.cs`）
+```
+⚠️ **背景**：你把主文件改名成 **`BattleUI.cs`**（大写 UI，与 part 命名一致 ⇒ ✅ 方向对）
+   🔴 **但 Windows 是【大小写不敏感】文件系统** ⇒ ⚠️ **`git` 可能没记录这次改名**（只在大小写上不同的改名是经典坑）⚠️
+   📌 顺带一条**判据经验（我刚踩的）**：**`Test-Path 'BattleUi.cs'` 在 Windows 上会返回 True（不区分大小写）**
+      ⇒ 🔴 **不能用 `Test-Path` 判"大小写不同的两个名字是否都存在"** ⇒ ✅ 正解：看 `git ls-files`（或 `Get-ChildItem` 的实际名字）✓
+⇒ ✅ **请核**：`git ls-files darkest/scripts/ui | Select-String 'BattleU'` ⇒ **应全部是大写 `BattleUI`**；
+   若仍是小写 ⇒ **用 `git mv` 显式改名**（两步改名法：改成临时名再改成目标名）✓
+```
+- **阻塞 / 待裁定**：**无**（两件都是"提交前必须做对"的小事）
+- **权威在哪**：`README` **红线 28（≤600）** · **红线 29（白名单键）**｜`tools/check_file_size.py`｜`tasks/file_size_split.md`
