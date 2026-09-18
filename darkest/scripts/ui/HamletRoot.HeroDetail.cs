@@ -130,6 +130,20 @@ public partial class HamletRoot : Control
         //    图标 = 立绘留框同款（不透明面板样式 1px 边框 + 色块占位）；讲解走 `TooltipText` ✓
         _detailSkills = new HBoxContainer { Name = "DetailSkillIcons" };
         _detailSkills.AddThemeConstantOverride("separation", 6);
+        // 🔴 DD 1:1 ②-3【右栏装备位】照 `shared\hero\hero.layout.darkest` 的 `hero_equipment_layout`：
+        //    .weapon_pos **4 0**（左）· .armour_pos **95 0**（右）· icon_offset 29 52 · level_offset 90 12
+        //    ⚠️ 装备/护甲属**装备系统**（用户裁定：留接口）⇒ 只做**空框占位 + TooltipText**，MouseFilter=Ignore（不留"点了没用"的控件·红线21）✓
+        var equipRow = new HBoxContainer { Name = "HeroEquipmentRow" };
+        equipRow.AddThemeConstantOverride("separation", 15);   // DD 95-4=91 的间距感 ×0.667 ≈ 61 → 取容器可读间距 15（两格自适应）✓
+        var wSlot = new PanelContainer { Name = "HeroWeaponSlot", CustomMinimumSize = new Vector2(48, 48), MouseFilter = Control.MouseFilterEnum.Ignore, TooltipText = "武器（装备系统接口 · 暂不可用）" };
+        wSlot.AddChild(new ColorRect { Name = "WeaponPlaceholder", Color = Darkest.UI.DdTheme.PlaceholderFill });
+        equipRow.AddChild(wSlot);
+        var aSlot = new PanelContainer { Name = "HeroArmourSlot", CustomMinimumSize = new Vector2(48, 48), MouseFilter = Control.MouseFilterEnum.Ignore, TooltipText = "护甲（装备系统接口 · 暂不可用）" };
+        aSlot.AddChild(new ColorRect { Name = "ArmourPlaceholder", Color = Darkest.UI.DdTheme.PlaceholderFill });
+        equipRow.AddChild(aSlot);
+        dRightCol.AddChild(equipRow);
+        dRightCol.MoveChild(equipRow, 0);   // DD：装备位在右栏**最上**（先于技能/抗性）✓
+        GD.Print("[UI 英雄面板] ✅ DD 装备位就位（weapon/armour 空框占位 · TooltipText 已标 · 属装备系统接口）✓");
         dRightCol.AddChild(_detailSkills);
 
         // 🔴 P4：**右上角"推荐位置"留框**（用户原话"这个留一个框后面做都可以"）✓
