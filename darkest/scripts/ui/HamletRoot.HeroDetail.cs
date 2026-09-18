@@ -124,6 +124,33 @@ public partial class HamletRoot : Control
         dLeftCol.AddChild(statusBars);
         dLeftCol.MoveChild(statusBars, 0);
         GD.Print($"[UI 英雄面板] ✅ DD 状态条就位：士气条={moraleNow}（真数据）／HP 条=占位接口（已标 TooltipText）✓");
+
+        // 🔴 DD 1:1 ②-2【六属性列】照 `shared\hero\hero.layout.darkest` 的 `hero_base_stats_layout`：
+        //    .name_offset 0 0 · .value_offset **115 0** · .spacing **200 22** ⇒ 两列（名/值）+ 行距 ⇒ 用 GridContainer 表达 ✓
+        //    数据源：`_unitsCfg.Units` 按原型取（与右栏文本同源，不新造数字）✓ 只依赖字段 + heroId 参数（作用域安全）
+        string archeForStats = _rosterCfgForDetail?.Heroes.FirstOrDefault(h => h.Id == heroId)?.Archetype ?? string.Empty;
+        UnitConfig? statsUnit = _unitsCfg?.Units.FirstOrDefault(u => u.Id == archeForStats);
+        var statsGrid = new GridContainer { Name = "HeroStatsGrid", Columns = 2 };
+        statsGrid.AddThemeConstantOverride("h_separation", 133);   // DD spacing 200 ×0.667 ≈ 133（名→值间距）✓
+        statsGrid.AddThemeConstantOverride("v_separation", 15);    // DD spacing 22 ×0.667 ≈ 15（行距）✓
+        string[][] statPairs = statsUnit is null
+            ? new[] { new[] { "攻击", "—" }, new[] { "物防", "—" }, new[] { "速度", "—" }, new[] { "闪避", "—" }, new[] { "暴击", "—" }, new[] { "韧性", "—" } }
+            : new[]
+            {
+                new[] { "攻击", statsUnit.Attack.ToString() },
+                new[] { "物防", statsUnit.PhysDef.ToString() },
+                new[] { "速度", statsUnit.Speed.ToString() },
+                new[] { "闪避", statsUnit.Dodge.ToString() },
+                new[] { "暴击", $"{statsUnit.Crit}%" },
+                new[] { "韧性", statsUnit.Resilience.ToString() },
+            };
+        foreach (string[] row in statPairs)
+        {
+            statsGrid.AddChild(new Label { Text = row[0], VerticalAlignment = VerticalAlignment.Center });
+            statsGrid.AddChild(new Label { Text = row[1], VerticalAlignment = VerticalAlignment.Center });
+        }
+        dLeftCol.AddChild(statsGrid);
+        GD.Print($"[UI 英雄面板] ✅ DD 六属性列就位（原型 {archeForStats} · 有数据={statsUnit is not null} · 间距 133/15 = DD 200/22 ×0.667）✓");
             dLeftCol.AddChild(_detailLeft);
 
             // 🔴 P4（用户参考图④）：**技能 = 图标 + 悬停 tooltip 讲解**（不再是大段文字行）——
