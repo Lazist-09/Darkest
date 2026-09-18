@@ -2708,3 +2708,44 @@ DD 有独立面板：`campaign\town\provision\provision.layout.darkest`（出征
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.64 **DD 1:1 还原 · 交接清单（一页版）**（2026-09-21）
+
+```
+依据一律**直读原游戏** `E:\SteamLibrary\steamapps\common\DarkestDungeon\**\*.layout.darkest`（1920×1080 ⇒ ×0.667，不猜）
+护栏：构建 0 错误 ｜ `tools/dsh/ui_sweep.ps1` **19 入口全绿**（spec14.5=ok／demand／overlap／transparent／realERROR 全 0）｜ 命名门 OK ｜ 每入口有 ASCII 留痕断言（exit=0 与摘要同看）
+
+① 主城 Town：DD `campaign\town\town.layout.darkest`（roster_list_pos 1550,0 · heirloom_exchange_pos 340,708 ·
+   button_navigation_pos 70,230 · embark_party_pos 754,871）⇒ 实现：`scenes/ui/hamlet_skeleton.tscn`（RightColumn 370/BottomRow）·
+   `HamletRoot.Build`（建筑 nav 128×667 · Embark 底中 · 资源左下）⇒ 提交 56e009f/d0ba1fe/69c8060/680f757
+② 名册 Roster：DD `roster.layout`（行高 97 · 六元素 头像21,9 / 名116,4 / 压力条116,43 / 武器156,65 / 护甲228,65 / 决心258,4）
+   ⇒ 实现：`scenes/ui/roster_row.tscn`（Control+比例锚点；**武器/护甲 = 空占位接口**；**决心条位 → 现有士气条**，用户裁定）·
+   `HamletRoot.Refresh`（行高下限 97）⇒ 提交 935970b/92edd21/b6e1812；行尾 `›` 详情入口 42c04ff
+③ 英雄面板：DD `shared\hero\hero.layout.darkest`（campaign_status：HP 130,11 / 压力 130,40 · base_stats 间距 200,22 ·
+   equipment weapon 4,0 / armour 95,0 · trinket 2 列 92,160）⇒ 实现：`scenes/ui/hero_detail_skeleton.tscn`（四块，编辑器可见）+
+   `HamletRoot.HeroDetail`（骨架优先 + Reparent + `if(!usedSkel)` 回落）⇒ 提交 4199346/3614ea9/61f7196/3908c9e/23cfd63/5e7d0c9
+④ 战斗：DD `scripts\layout\screen.raid.darkest`（overlays hero 788,680 / monster 1050,680 · hero_spacing −168 / monster_spacing 168 ·
+   tile_width 720 / actor_spacing 154）+ `screen.raid.status_bars.darkest`（y_pos 698 · 条高 10 · 宽 100~400 · char_x_offset −50）
+   ⇒ 实现：`scenes/ui/battle_bottombar.tscn`（StatusTray+8 槽，编辑器可见）· `BattleUI.StatusTray`（骨架优先 + 绑定同源投影）·
+   `BattleUI.cs`（CardW 84 / GapX 9 = DD 间隙 14×0.667）· `BattleUI.Build`（五段带宽 0.148/0.262/0.137/0.262/0.191 · 纵向 ShrinkEnd=DD y 63%）
+   ⇒ 提交 094b112/ba5bcb7/9dc58e8/ce0367c/733406f/5e76ce8/de20f5a
+⑤ 地图：DD `scripts\layout\panel.map.darkest` **全文无角落迷你图** ⇒ 按用户规则不新增；`BattleMiniMap`（E 区地图页·只读·跨场景）对应 DD 整面板角色 ⇒ 6363b80
+⑥ 建筑弹窗/升级树：DD `campaign\town\buildings\building.layout.darkest`（name 104,126 · body_base 596,102 · upgrade_base 172,259 ·
+   upgrade_trees 0,195 · close 1496,144）⇒ 实现：`scenes/ui/building_popup.tscn`（UpgradeTree 入骨架）+ `HamletRoot.BuildingPopup`
+   （等级链三态 · 数据同源 HeirloomStock）⇒ 提交 878317e/e7a5b0a
+⑦ 供应屏（新增）：DD `provision.layout.darkest`（party grid 60,28 格 80×160 · store grid 120,20 格 80×170 ·
+   quest_info 1300,96 · scouting 1380,96 · sell_back 1164,510）⇒ `scenes/ui/provision_skeleton.tscn` + `ProvisionSkeleton` +
+   `HamletRoot.Provision`（菜单 `Menu_Provision` · 旗标 `--hamlet-provision` · 空态+接口声明）⇒ 8c4f3e5/83564f6
+⑧ 任务选择（新增）：DD `quest_select.layout.darkest`（name 104,122 · party_name 756,834 · 四地牢各一套 map/all/overlay 坐标）
+   ⇒ `scenes/ui/quest_select_skeleton.tscn` + `QuestSelectSkeleton` + `HamletRoot.QuestSelect`（按地牢切坐标；列表待接口）⇒ a505f94
+⑨ 主菜单：DD `shared\menu\menu.layout.darkest`（base 450,150 · element_start 510,240 · 热区 466×48 · 行距 56）
+   ⇒ `MainMenuRoot`（IUiPanel + 尺寸/边距）⇒ 24ad148/bc16313/0ce081b
+
+🔴 已知偏差（有意，非漏做）：① 立绘不重叠（DD 168 间距 ⇒ 间隙 ~14；我们 84+9，§14.5 零重叠硬门）② 供应/任务列表**空态**（内核未提供接口）
+                           ③ DD 的 provision/quest_select 面板**此前我域不存在** ⇒ 本轮新增（不是"照抄"而是"按 DD 新建"）
+⏳ 待内核接口：`ProvisionParty` / `ProvisionStore` / `ProvisionQuestInfo` / `ProvisionScouting` / `ProvisionSellBack` / 任务列表
+⏳ 待裁定/外部：① autoload 注册与转场接管（主程序）② 冒烟 10 例读数（PID 38316 占用，**读数待取得**，不编造）
+📌 工具：`tools/dsh/ui_sweep.ps1`（19 入口 + ASCII 留痕断言 + 退出码）· `tools/dsh/check_ui_namespace.ps1`（命名门）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
