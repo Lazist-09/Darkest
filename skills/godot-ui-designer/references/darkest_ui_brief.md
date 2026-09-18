@@ -2633,3 +2633,63 @@ DD 有独立面板：`campaign\town\provision\provision.layout.darkest`（出征
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.62 **DD provision / quest_select 布局原文**（2026-09-21）
+
+```
+直读原游戏（只读数值；1920×1080 ⇒ 本项目 ×0.667）
+── campaign\town\provision\provision.layout.darkest ──
+  provision_layout:
+  .name_pos 104 126
+  .provision_sell_back_info_pos 1164 510
+  .quest_info_pos 1300 96
+  .quest_specs_offset 20 -5
+  .scouting_stat_pos 1380 96
+  provision_store_background_layout:
+  provision_store_grid_layout:
+  .start_pos 120 20		.offset 80 170
+  provision_party_background_layout:
+  provision_party_grid_layout:
+  .start_pos 60 28		.offset 80 160
+
+── campaign\town\quest_select\quest_select.layout.darkest ──
+  town_quest_select_layout:
+  .name_pos 104 122
+  .party_name_pos 756 834
+  quest_select_dungeon_layout_cove:
+  .quest_map_pos 1260 400
+  .all_quest_map_pos 850 380
+  .dungeon_effect_overlay_pos 1270 480
+  quest_select_dungeon_layout_crypts:
+  .quest_map_pos 940 220
+  .all_quest_map_pos 850 80
+  .dungeon_effect_overlay_pos 1050 260
+  quest_select_dungeon_layout_darkestdungeon:
+  .quest_map_pos 1260 100
+  .all_quest_map_pos 850 540
+  .dungeon_effect_overlay_pos 1230 70
+  quest_select_dungeon_layout_town:
+  .quest_map_pos 1260 750
+  .all_quest_map_pos 850 700
+  .dungeon_effect_overlay_pos 630 728
+  quest_select_dungeon_layout_warrens:
+  .quest_map_pos 815 400
+  .all_quest_map_pos 850 220
+  .dungeon_effect_overlay_pos 720 460
+  quest_select_dungeon_layout_weald:
+  .quest_map_pos 1000 525
+  .all_quest_map_pos 850 700
+  .dungeon_effect_overlay_pos 1000 560
+  town_quest_select_dungeon_layout:
+  .background_offset -5 -10
+  .dungeon_name_offset 190 -8
+  .dungeon_heirloom_start_offset 160 -14
+  .dungeon_heirloom_spacing 38 0
+  .dungeon_level_offset 219 20
+  .dungeon_xp_bar_offset 14 32
+  .dungeon_xp_bar_size 194 8
+  .dungeon_xp_bar_fx_offset 0 4
+
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
