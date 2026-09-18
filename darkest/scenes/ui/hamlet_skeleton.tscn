@@ -43,3 +43,9 @@ layout_mode = 2
 [node name="BottomRow" type="HBoxContainer" parent="HamletMargin/HamletRootCol/BottomBar" unique_id=211117775]
 layout_mode = 2
 theme_override_constants/separation = 12
+
+; DD 1:1 3-3：建筑 nav 进骨架（编辑器可见可改）；DD building_navigation.base_size 128x1000 与 button_navigation_pos 70,230
+[node name="BuildingNav" type="VBoxContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 667)
+theme_override_constants/separation = 12

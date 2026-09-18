@@ -43,6 +43,9 @@ public partial class HamletSkeleton : Control
 
     public VBoxContainer? LeftCol => GetNodeOrNull<VBoxContainer>("HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol");
 
+    /// <summary>DD 1:1 3-3：建筑 nav 窄左列（骨架里可见；缺失时由 HamletRoot.Build 代码建）</summary>
+    public VBoxContainer? BuildingNav => GetNodeOrNull<VBoxContainer>("HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav");
+
     public PanelContainer? RightColumn => GetNodeOrNull<PanelContainer>("HamletMargin/HamletRootCol/Body/RightColumn");
 
     public VBoxContainer? RightCol => GetNodeOrNull<VBoxContainer>("HamletMargin/HamletRootCol/Body/RightColumn/RightCol");
