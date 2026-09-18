@@ -1984,3 +1984,16 @@ F. UIRoot 接线：autoload 注册 + `ChangeSceneToFile`→`ShowPanel` **归主�
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.41 **战斗顶薄条已天然符合 DD（实测）**（2026-09-21）
+
+```
+`battle_topbar.tscn` 实测结构 = DD 的三段式 ✓：
+  · `TopLeftGroup`(size_flags_horizontal=0 靠左) 内含 **MissionLabel**（= DD quest_info 左上）＋ AbandonButton ✓
+  · `TorchWrap`(CenterContainer · size_flags_horizontal=3 **ExpandFill**) = **顶中** ⇒ 与 DD「火把+回合顶中」一致 ✓
+  · `RightGroup`(靠右) ⇒ DD「击杀 (1530,35) 右上」的位置**已留**（击杀计数节点是否存在待查；若无则属"新增节点"类缺口）
+⇒ **#5 的顶薄条无需改造**（DD 已满足）；#5 真正要做的是 **中段（舞台：去整卡/立绘定位）** 与 **底部紧凑状态托盘**（788/−168 · 1050/+168 · y=698 · 血条 10×100~400）——
+   这两项是**视觉重做**（改结构 + 改绑定），按用户计划属"高风险 · 单独一轮"，需完整余量执行 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
