@@ -10,7 +10,6 @@ using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
-using UiMotion = Darkest.UI.UiMotion; // ⚠️ 本文件命名空间是 `Darkest.UI`（大写）≠ `Darkest.Ui` ⇒ 用别名（最小改动）
 
 namespace Darkest.UI;
 
