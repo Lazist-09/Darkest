@@ -131,6 +131,10 @@ public sealed class HamletLoopTrajectoryTests
                 heirloomGainPerTier += stock.AwardForTier(log, tier, "trajectory");
             }
 
+            // 🔴🆕 **让等级轴真的动**（占位数值是策划 `#399` 明示的 ⇒ 用起来 ✓）：
+            //    战斗胜利 ⇒ 全队 +经验（与宿主同一条通道 `AwardExperienceForBattle` ✓）
+            roster.AwardExperienceForBattle(log, win: true, reason: "trajectory");
+
             int goldGain = economy.AwardBattle(log, "dark", "trajectory");
             _ = heirloomGainPerTier;
             _ = goldGain;
@@ -253,6 +257,9 @@ public sealed class HamletLoopTrajectoryTests
             {
                 stock.AwardForTier(log, tier, "trajectory_loss");
             }
+
+            // 🔴🆕 同上：**让等级轴在损耗版里也真的动** ⇒ A9 的"其余轴仍在动"才有实料 ✓
+            roster.AwardExperienceForBattle(log, win: true, reason: "trajectory_loss");
 
             economy.AwardBattle(log, "dark", "trajectory_loss");
 
