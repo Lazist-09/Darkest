@@ -91,3 +91,32 @@ tooltip_text = "侦察数值（DD hero_scouting_stat_layout · 数据未接入 �
 
 [node name="ScoutingPlaceholder" type="ColorRect" parent="HeroScoutingStat"]
 layout_mode = 2
+
+; P2 细化(续)：DD hero_equipment_layout 的 highlight_pos_offset -20,-20 / level_offset 90,12 与
+; hero_base_stats_layout 的 icon_offset -26,2 —— 数据/美术未接入 ⇒ 一律 ColorRect 色块占位（不换不删）
+[node name="HeroEquipHighlight" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.36
+anchor_top = 0.0
+anchor_right = 0.57
+anchor_bottom = 0.21
+mouse_filter = 2
+tooltip_text = "装备高亮框（DD hero_equipment_layout.highlight_pos_offset -20,-20 · 需美术 ⇒ 色块占位，不换不删）"
+
+[node name="HeroEquipLevelText" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.455   ; DD level_offset 90,12（装备等级文字位）
+anchor_top = 0.055
+anchor_right = 0.52
+anchor_bottom = 0.095
+mouse_filter = 2
+tooltip_text = "装备等级位（DD hero_equipment_layout.level_offset 90,12 · 对应攻/防=装备等级口径 · 色块占位，不换不删）"
+
+[node name="HeroStatsIcon" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.145   ; 属性列左侧（DD hero_base_stats_layout.icon_offset -26,2）
+anchor_right = 0.022
+anchor_bottom = 0.175
+mouse_filter = 2
+tooltip_text = "属性图标位（DD hero_base_stats_layout.icon_offset -26,2 · 需美术 ⇒ 色块占位，不换不删）"
