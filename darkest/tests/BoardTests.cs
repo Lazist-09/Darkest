@@ -13,6 +13,7 @@ namespace Darkest.Tests;
 /// 🔴 **棋盘/阵型用例**（`board.md` / M3）—— **本文件只用例**；**夹具与助手在 `BoardTests.Fixtures.cs`**
 /// （用户 2026-09-18 红线：程序文件 ≤600 行 ⇒ 按**职责**拆：**测试** 与 **夹具** 分开 ⇒ 打开这个文件就是"看用例" ✓）
 /// </summary>
+[TestClass]   // 🔴 **必须有**：MSTest 靠它发现测试类 ⇒ 我第一版漏了它 ⇒ **静默丢了 25 个用例**（583→558）⚠️
 public sealed partial class BoardTests
 {
     [TestMethod]
