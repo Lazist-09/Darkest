@@ -32,19 +32,19 @@ function Run-Step([string]$title, [scriptblock]$body) {
     }
 }
 
-Run-Step '1/6 kernel stays Godot-free (check_godot_refs.py)' {
+Run-Step '1/7 kernel stays Godot-free (check_godot_refs.py)' {
     python tools/check_godot_refs.py
 }
 
-Run-Step '2/6 number discipline (check_data_discipline.py)' {
+Run-Step '2/7 number discipline (check_data_discipline.py)' {
     python tools/check_data_discipline.py --numbers
 }
 
-Run-Step '3/6 UI namespace unified (check_ui_namespace.ps1)' {
+Run-Step '3/7 UI namespace unified (check_ui_namespace.ps1)' {
     & powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/check_ui_namespace.ps1
 }
 
-Run-Step '4/6 CI gate script works (smoke_gate.ps1 -SelfTest)' {
+Run-Step '4/7 CI gate script works (smoke_gate.ps1 -SelfTest)' {
     & powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/smoke_gate.ps1 -SelfTest
 }
 
