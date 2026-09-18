@@ -21,7 +21,7 @@ public partial class HeroDetailSkeleton : Control
     public static HeroDetailSkeleton? TryInstantiate()
     {
         PackedScene? packed = GD.Load<PackedScene>(ScenePath);
-        HeroDetailSkeleton? skel = packed?.Instantiate<HeroDetailSkeleton>();
+        HeroDetailSkeleton? skel = packed?.Instantiate() as HeroDetailSkeleton;   // 用 as 不抛异常（Instantiate<T> 在类型不符时会抛 InvalidCastException）
         if (skel is null)
         {
             GD.Print($"[UI 英雄面板] `{ScenePath}` 不可用 ⇒ 回落代码构建（不静默）");
