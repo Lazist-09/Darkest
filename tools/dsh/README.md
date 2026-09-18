@@ -85,3 +85,18 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/smoke_gate.ps1
 `smoke.ps1` 跑完会**自动提取关键读数**（控制台 + 摘要都写），覆盖：
 `[养成]`（P0 养成对比）· `[片3.1]`（进地牢不起战斗）· `[片4] ✅`（走格开启/回地图）·
 `[UI 瓷砖]` · `[UI 相位]` · `[M7] 🆕 V10` · `[P2]`（升级对照）
+
+## 7. 入口清单（**全部脚本** —— 策划 `#396` 点名：写进这里才算"不随人失传"）
+
+| 脚本 | 用途 | 需要 Godot？ | 退出码 |
+|---|---|---|---|
+| `tools/dsh/selfcheck.ps1` | **一条命令跑 6 项检查**（内核零Godot · 数字纪律 · 命名空间 · CI门禁自检 · 占位合规 · PS语法） | ❌ 不需要 | 0 = 全过；1 = 有失败 |
+| `tools/dsh/smoke.ps1` | **一键冒烟 10 例**（`-List` 看表 · `-Case <名>` 单跑 · 结果写 `reports/`） | ✅ 需要 | 0/1（**CI 不要用它**，见下）· **2 = 拒绝并发**（已有 Godot 在跑）|
+| `tools/dsh/smoke_gate.ps1` | **CI 判据**：读摘要里的 `RESULT: OK / BAD n=N` 行 | ❌ 不需要 | 0 = OK；1 = BAD/缺判决/无摘要 |
+| `tools/dsh/check_ui_namespace.ps1` | UI 命名空间统一为 `Darkest.UI`（含小写限定引用） | ❌ | 0 = 统一；1 = 命中 |
+| `tools/dsh/watch_inbox.ps1` | （**同伴的**）窗口轮询/提醒脚本 | ❌ | 见其自带说明 |
+| `tools/dsh/ui_sweep.ps1` | （**同伴的**）UI 扫描/自证脚本 | 视用法 | 见其自带说明 |
+
+> 🔴 **CI 只信 `smoke_gate.ps1`**：`smoke.ps1` 的**进程退出码**在本机不可靠（**根因是 2026-09-21 我自己的括号错**，
+> 现已修，但**判据仍走摘要行**更稳）✓
+> 🔴 **先跑 `selfcheck.ps1` 再跑冒烟**：前者不需要 Godot、秒级，能挡住"脚本压根不解析""数字纪律/命名空间退化"✓
