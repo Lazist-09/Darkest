@@ -46,56 +46,56 @@ layout_mode = 0
 anchor_left = 0.41
 anchor_top = 0.646
 anchor_right = 0.514
-anchor_bottom = 0.6553
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="EnemyTray1" type="Control" parent="StatusTray"]
 layout_mode = 0
 anchor_left = 0.547
 anchor_top = 0.646
 anchor_right = 0.651
-anchor_bottom = 0.6553
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="HeroTray2" type="Control" parent="StatusTray"]
 layout_mode = 0
 anchor_left = 0.323
 anchor_top = 0.646
 anchor_right = 0.427
-anchor_bottom = 0.6553
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="EnemyTray2" type="Control" parent="StatusTray"]
 layout_mode = 0
 anchor_left = 0.634
 anchor_top = 0.646
 anchor_right = 0.738
-anchor_bottom = 0.6553
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="HeroTray3" type="Control" parent="StatusTray"]
 layout_mode = 0
 anchor_left = 0.235
 anchor_top = 0.646
 anchor_right = 0.339
-anchor_bottom = 0.6553
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="EnemyTray3" type="Control" parent="StatusTray"]
 layout_mode = 0
 anchor_left = 0.722
 anchor_top = 0.646
 anchor_right = 0.826
-anchor_bottom = 0.6553
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="HeroTray4" type="Control" parent="StatusTray"]
 layout_mode = 0
 anchor_left = 0.148
 anchor_top = 0.646
 anchor_right = 0.252
-anchor_bottom = 0.6553
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="EnemyTray4" type="Control" parent="StatusTray"]
 layout_mode = 0
 anchor_left = 0.809
 anchor_top = 0.646
 anchor_right = 0.913
-anchor_bottom = 0.6553
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 ; P4-a（DD 严格贴合）：`panel.map` 接**右下**（用户计划 P4）；只读不可点（mouse_filter=2）
 ; 数据未接入 ⇒ 按硬规矩 §14.0.68 用 ColorRect **色块占位**（不换不删）；DD panel.map: pos 4,40 · clip 16 665 19 340 · 可视区 720x360

@@ -103,7 +103,7 @@ public partial class BattleUI : Control
             hp.AnchorLeft = 0f;
             hp.AnchorRight = 1f;
             hp.AnchorTop = 0f;
-            hp.AnchorBottom = 0.5f;
+            hp.AnchorBottom = 0.35f;   // P4-b: DD health_bar_height 10 (upper band)
             slot.AddChild(hp);
         }
 
@@ -113,8 +113,8 @@ public partial class BattleUI : Control
             stress = new ProgressBar { Name = "Stress", MinValue = 0, MaxValue = 100, ShowPercentage = false, MouseFilter = Control.MouseFilterEnum.Ignore };
             stress.AnchorLeft = 0f;
             stress.AnchorRight = 1f;
-            stress.AnchorTop = 0.5f;
-            stress.AnchorBottom = 1f;
+            stress.AnchorTop = 0.60f;   // P4-b: DD stress_offset -1,12 -> stress bar just below hp bar
+            stress.AnchorBottom = 0.95f;
             stress.Modulate = Darkest.UI.DdTheme.TextInfo;
             slot.AddChild(stress);
         }
