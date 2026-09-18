@@ -148,6 +148,27 @@ public partial class HamletRoot : Control
         // 🔴 升级 = 弹窗里的**显式动作**（不再是"点建筑就升级"）；
         //    可用性**复用内核的同一入口** `HeirloomStock.CanUpgrade`（红线 21 (b)：由内核回答，UI 不在本地重算）✓
         bool affordable = next is not null && h.CanUpgrade(building);
+        // 🔴 DD 1:1 ①【升级树】照 `building.layout.darkest` 的 `.upgrade_trees_offset 0 195`：等级链三态（已达成/下一级/未达成）
+        //    数据全部用**已有** `HeirloomStock.LevelOf` 与 `NextLevel().Cost`（不新造数字）✓
+        var tree = new HBoxContainer { Name = "UpgradeTree" };
+        tree.AddThemeConstantOverride("separation", 6);
+        int curLv = h.LevelOf(building);
+        int shownLv = curLv + 2;   // 展示 0..当前+2（保守：不虚构更高上限）
+        for (int lv = 0; lv <= shownLv; lv++)
+        {
+            string tip = lv <= curLv
+                ? $"Lv{lv}：已达成"
+                : (lv == curLv + 1 ? $"Lv{lv}：下一级（所需 {nextText}）" : $"Lv{lv}：尚未可达（先升到 Lv{lv - 1}）");
+            var node = new PanelContainer { Name = $"UpgradeNode{lv}", CustomMinimumSize = new Vector2(26, 26), TooltipText = tip };
+            node.Modulate = lv <= curLv
+                ? Darkest.UI.DdTheme.Highlight
+                : (lv == curLv + 1 ? Darkest.UI.DdTheme.Danger : Darkest.UI.DdTheme.Disabled);
+            node.AddChild(new ColorRect { Name = "NodeFill", Color = Darkest.UI.DdTheme.PlaceholderFill });
+            tree.AddChild(node);
+        }
+        _buildingPopupBody.AddChild(tree);
+        GD.Print($"[UI 建筑弹窗] OK DD 升级树就位：{building} 当前 Lv{curLv} · 节点 {shownLv + 1} 个（DD upgrade_trees，数据同源）");
+
         var upgrade = new Button
         {
             Name = "PopupUpgrade",
