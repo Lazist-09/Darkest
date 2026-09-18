@@ -2859,3 +2859,22 @@ DD 真机补充坐标（本次新读，入库备用）：town 全局（roster 15
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.70 **P2 依据核查：DD 安装目录**没有** `panel.hero` / `panel.monster` 的 layout 文件（记"未取得"，不猜）**（2026-09-21）
+
+```
+本次全目录搜索 `E:\SteamLibrary\steamapps\common\DarkestDungeon\**\*.layout.darkest` 中名字含 hero/monster/character 的文件，命中仅：
+  · `campaign\town\buildings\hero_action\hero_action.layout.darkest`（base_pos 220,44 · base_size 100,100 · body_pos 240,121 ·
+    name_offset 105,45 · close_button_offset 680,0 · hero_slot_offset -230,-100 …）
+  · `campaign\town\hero_slot\hero_slot.layout.darkest`
+  · `shared\hero\hero.layout.darkest`  ← **我已用于状态条/属性列**（campaign_status 与 base_stats 等）✓
+  · `shared\character\character.layout.darkest` · `dlc\...\arena.character.layout.darkest`
+⇒ **未找到** `panel.hero.layout.darkest` / `panel.monster.layout.darkest` ⇒ 记 **"未取得"**（纪律：不写猜测数字）✗
+
+⇒ 结论：P2.1/P2.2 里"HP 130,11 / 压力 130,40 / 属性 60,72 / 装备 238,0 / 饰品 453,0"与"怪 65,58 / 520,61 / 235,112 …"
+   这些值**来自用户**（用户读取过对应文件）⇒ **以用户提供的数字为准** ✓（我不另行猜测）
+   · 若用户能给出这两个文件的实际路径（可能不在 `.layout.darkest` 命名下，或在打包内），我即可直读并 1:1 折算 ✓
+   · 在此之前：装备/饰品区已按用户给的 238,0 / 453,0 放**色块占位** ✓，精确折算**待文件路径**（不猜）✗
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
