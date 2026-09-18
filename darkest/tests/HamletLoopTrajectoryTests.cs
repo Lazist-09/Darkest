@@ -24,6 +24,28 @@ public sealed class HamletLoopTrajectoryTests
 {
     private const int Runs = 10; // 策划要的 8~10 ✓
 
+    /// <summary>士气契约上限（`#245`/`#396` 的"封顶"指它；写在这里是为了让 A9 判据**显式** ✓）</summary>
+    private const int MoraleCap = 100;
+
+    /// <summary>字典相等（A9 要比 传家宝/建筑 两组字典 ✓）</summary>
+    private static bool SameDict(IReadOnlyDictionary<string, int> a, IReadOnlyDictionary<string, int> b)
+    {
+        if (a.Count != b.Count)
+        {
+            return false;
+        }
+
+        foreach (var kv in a)
+        {
+            if (!b.TryGetValue(kv.Key, out int v) || v != kv.Value)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static string ReadData(string name)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
@@ -65,6 +87,21 @@ public sealed class HamletLoopTrajectoryTests
             foreach (string l in snap.DiffLines(prev))
             {
                 lines.Add(l);
+            }
+
+            // 🔴🆕 **A9**（策划 `#396`）：**任一条轴到顶时，其余轴至少一条仍在动** ——
+            //    本轨迹里最可能先到顶的轴 = **士气（100 封顶）** ⇒ 到顶后检查"别的轴还在不在动" ✓
+            //    （P3 装备/训练就是被登记为「士气到顶后的解法」⇒ 这条读数给那个判断做依据 ✓）
+            if (prev is not null && snap.MoraleAvg >= MoraleCap)
+            {
+                bool othersMoved = snap.Gold != prev.Gold
+                    || snap.LevelAvg != prev.LevelAvg || snap.LevelMax != prev.LevelMax
+                    || snap.RosterCap != prev.RosterCap || snap.TraitsPositive != prev.TraitsPositive
+                    || snap.TraitsNegative != prev.TraitsNegative || snap.TraitsLocked != prev.TraitsLocked
+                    || snap.Diseases != prev.Diseases
+                    || !SameDict(snap.Heirlooms, prev.Heirlooms) || !SameDict(snap.BuildingLevels, prev.BuildingLevels);
+                lines.Add($"[A9] 第 {run} 趟：士气已到顶（{snap.MoraleAvg}/{MoraleCap}）⇒ 其余轴仍在动？" +
+                          $"{(othersMoved ? "**是** ✅（A9 成立）" : "**否** ⚠️（**A9 被违反**：全轴到顶 ⇒ 应显式设计终局）")}");
             }
 
             prev = snap;
@@ -153,6 +190,21 @@ public sealed class HamletLoopTrajectoryTests
             foreach (string l in snap.DiffLines(prev))
             {
                 lines.Add(l);
+            }
+
+            // 🔴🆕 **A9**（策划 `#396`）：**任一条轴到顶时，其余轴至少一条仍在动** ——
+            //    本轨迹里最可能先到顶的轴 = **士气（100 封顶）** ⇒ 到顶后检查"别的轴还在不在动" ✓
+            //    （P3 装备/训练就是被登记为「士气到顶后的解法」⇒ 这条读数给那个判断做依据 ✓）
+            if (prev is not null && snap.MoraleAvg >= MoraleCap)
+            {
+                bool othersMoved = snap.Gold != prev.Gold
+                    || snap.LevelAvg != prev.LevelAvg || snap.LevelMax != prev.LevelMax
+                    || snap.RosterCap != prev.RosterCap || snap.TraitsPositive != prev.TraitsPositive
+                    || snap.TraitsNegative != prev.TraitsNegative || snap.TraitsLocked != prev.TraitsLocked
+                    || snap.Diseases != prev.Diseases
+                    || !SameDict(snap.Heirlooms, prev.Heirlooms) || !SameDict(snap.BuildingLevels, prev.BuildingLevels);
+                lines.Add($"[A9] 第 {run} 趟：士气已到顶（{snap.MoraleAvg}/{MoraleCap}）⇒ 其余轴仍在动？" +
+                          $"{(othersMoved ? "**是** ✅（A9 成立）" : "**否** ⚠️（**A9 被违反**：全轴到顶 ⇒ 应显式设计终局）")}");
             }
 
             prev = snap;
