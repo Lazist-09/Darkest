@@ -77,6 +77,29 @@ $stamp = Get-Date -Format 'yyyyMMdd_HHmm'
 if (-not (Test-Path $OutDir)) { New-Item -ItemType Directory -Path $OutDir | Out-Null }
 if (-not (Test-Path $proj)) { throw "project path not found: $proj" }
 
+# --- 每入口期望留痕（治本：入口"空跑"不得判绿；缺留痕即 FAIL）---
+$TraceExpect = @{
+    'hamlet'                  = '采用骨架'
+    'hamlet-longtext'         = '采用骨架'
+    'hamlet-menu'             = ''   # TODO：定义期望留痕（当前菜单开启不打印可断言串）
+    'hamlet-building'         = 'UI 建筑弹窗'
+    'hamlet-hover'            = '悬停建筑'
+    'hamlet-hover-abbey'      = '悬停建筑'
+    'hamlet-hover-stagecoach' = '悬停建筑'
+    'hamlet-provision'        = 'UI 供应'
+    'hamlet-quest-select'     = 'UI 任务选择'
+    'hero-detail'             = 'UI 英雄面板'
+    'main-menu'               = 'UI 骨架'
+    'battle'                  = 'UI 战斗'
+    'battle-longtext'         = 'UI 战斗'
+    'battle-tab4'             = 'UI 战斗'
+    'map-mode'                = 'UI 战斗'
+    'tile-walk'               = ''   # TODO：瓷砖自证行仅在瓷砖分支进入时打印 ⇒ 待定断言
+    'dungeon-in-scene'        = ''   # TODO：该入口走宿主内进地牢，未建战斗 UI ⇒ 待定断言
+    'settle'                  = 'StatusTray'
+    'abandon'                 = '放弃'
+}
+
 $run = $Entries   # 默认跑全表 ✓
 $onlyList = @(); foreach ($o in $Only) { foreach ($x in ($o -split ',')) { if ($x.Trim() -ne '') { $onlyList += $x.Trim() } } }   # PS 5.1: -Only a,b arrives as one string ✓
 if ($onlyList.Count -gt 0) { $run = @($Entries | Where-Object { $onlyList -contains $_.N }) }
@@ -125,12 +148,14 @@ foreach ($e in $run) {
     $noisePat = 'certificate store|leaked at exit|RID allocations|resources still in use at exit'
     $real = @($all | Where-Object { $_.Line -notmatch $noisePat })
 
-    $fail = ($empty -or $demand -gt 0 -or $ov -gt 0 -or $tr -gt 0 -or $real.Count -gt 0)
+    $expect = if ($TraceExpect.ContainsKey($e.N)) { [string]$TraceExpect[$e.N] } else { '' }
+    $traceOk = ($expect -eq '') -or (@($lines | Select-String -Pattern $expect -SimpleMatch).Count -gt 0)   # 期望留痕必须出现
+    $fail = ($empty -or $demand -gt 0 -or $ov -gt 0 -or $tr -gt 0 -or $real.Count -gt 0 -or (-not $traceOk))
     if ($fail) { $bad++ }
 
     $spec145 = if ($demand -eq 0 -and $ov -eq 0 -and $tr -eq 0) { 'ok' } else { 'FAIL' }   # §14.5: 相机口径+Label不相交+Panel不透明
-    $row = "{0,-18} | lines={1,-6} | spec14.5={2} | demand={3} | overlap={4} | transparent={5} | realERROR={6} | {7}" -f `
-        $e.N, $lines.Count, $spec145, $demand, $ov, $tr, $real.Count, $(if ($empty) { 'FAIL(empty log)' } elseif ($fail) { 'FAIL' } else { 'ok' })
+    $row = "{0,-18} | lines={1,-6} | spec14.5={2} | demand={3} | overlap={4} | transparent={5} | realERROR={6} | trace={7} | {8}" -f `
+        $e.N, $lines.Count, $spec145, $demand, $ov, $tr, $real.Count, $(if ($expect -eq '') { '(none)' } elseif ($traceOk) { $expect } else { "MISSING:" + $expect }), $(if ($empty) { 'FAIL(empty log)' } elseif ($fail) { 'FAIL' } else { 'ok' })
     $rows += $row
     Write-Host ("         " + $row) -ForegroundColor $(if ($fail) { 'Red' } else { 'Green' })
     $row | Add-Content $summary -Encoding UTF8
