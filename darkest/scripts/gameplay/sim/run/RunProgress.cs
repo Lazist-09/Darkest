@@ -103,12 +103,49 @@ public sealed class RunProgress
     }
 
     /// <summary>🟩 取证：一行摘要（解锁进度 / 三个消费点的当前值）。</summary>
+    /// <summary>
+    /// 🆕 **下一个解锁**（做功能：把"还差多少"变成**可读** —— 与 A4「感受到成长」同族 ✓）。
+    /// 取**最近可达**的那条未解锁项（"两项缺口之和最小"；并列时按 `required_runs_finished` 再按 id 保序 ⇒ **确定性** ✓）。
+    /// 全部已解锁 ⇒ 返回 null（**如实报"没有下一个"，不编一个** ✓）。
+    /// </summary>
+    public (UnlockEntry Entry, int RunsRemaining, int BattlesRemaining)? NextUnlock(UnlocksConfig cfg)
+    {
+        var candidates = new List<(UnlockEntry Entry, int Runs, int Battles)>();
+        foreach (UnlockEntry e in cfg.Unlocks)
+        {
+            int runs = Math.Max(0, e.RequiredRunsFinished - RunsFinished);
+            int battles = Math.Max(0, e.RequiredBattlesWon - BattlesWon);
+            if (runs == 0 && battles == 0)
+            {
+                continue; // 已达成 ⇒ 不是"下一个" ✓
+            }
+
+            candidates.Add((e, runs, battles));
+        }
+
+        if (candidates.Count == 0)
+        {
+            return null;
+        }
+
+        var best = candidates
+            .OrderBy(c => c.Runs + c.Battles)
+            .ThenBy(c => c.Entry.RequiredRunsFinished)
+            .ThenBy(c => string.Join(",", c.Entry.Unlocks), StringComparer.Ordinal)
+            .First();
+        return (best.Entry, best.Runs, best.Battles);
+    }
+
     public string Audit(UnlocksConfig cfg, int hardCap)
     {
         IReadOnlySet<string> ids = UnlockedIds(cfg);
         return $"征途进度：已完成出征 {RunsFinished} 趟（已胜 {BattlesWon} 场）　" +
                $"已解锁 {ids.Count} 项［{string.Join(" ", ids.OrderBy(x => x, StringComparer.Ordinal))}］　" +
                $"名册当前可用上限 {CurrentRosterCap(cfg, hardCap)}（硬上限 {hardCap}）　" +
-               $"Curio 可用 {4 + UnlockedCurios(cfg).Count} 种";
+               $"Curio 可用 {4 + UnlockedCurios(cfg).Count} 种　" +
+            // 🆕 **下一个解锁**（进度可见性 · A4 同族）：报「还差多少」，全解锁就如实说没有 ✓
+            (NextUnlock(cfg) is { } next
+                ? $"下一解锁：{string.Join("/", next.Entry.Unlocks)}（还差 **{next.RunsRemaining} 趟** ／ {next.BattlesRemaining} 胜）"
+                : "下一解锁：**全部已解锁** ✓");
     }
 }
