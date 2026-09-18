@@ -25,6 +25,22 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+# ---- 0) size guard: no single report file may exceed MaxFileMB (default 90) ----
+# WHY: a runaway smoke log once reached ~100 MB (O-90 family: big files must never
+#   accumulate or enter git). A report you cannot open is not a report.
+$MaxFileMB = 90
+$oversize = @(Get-ChildItem -Path 'reports' -Recurse -File | Where-Object { $_.Length -gt ($MaxFileMB * 1MB) })
+foreach ($big in $oversize) {
+    $mb = [math]::Round($big.Length / 1MB, 1)
+    Write-Output ("[hygiene] OVERSIZE " + $mb + " MB > " + $MaxFileMB + " MB : " + $big.FullName)
+    if (-not $DryRun) {
+        $zip = $big.FullName + '.zip'
+        Compress-Archive -Path $big.FullName -DestinationPath $zip -Force
+        Remove-Item $big.FullName -Force
+        Write-Output ("[hygiene]   -> compressed to " + $zip)
+    }
+}
 $reports = 'reports'
 if (-not (Test-Path $reports)) {
     Write-Output "[hygiene] no reports/ directory -- nothing to do"
