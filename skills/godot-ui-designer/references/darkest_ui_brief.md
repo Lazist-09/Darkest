@@ -1703,3 +1703,25 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.30 **红线 ≤600 已收口：UI 域拆分完成**（2026-09-21）
+
+```
+前后读数：`BattleUi.cs` 2715 → **BattleUI.cs 506** ｜ `HamletRoot.cs` 1663 → **151** ｜ 我域 **0 个文件 >600**
+官方检查实跑：`tools/check_file_size.py` ⇒ **OK: all 313 scanned program files <= 600 lines (2 allowlisted)** ✓
+
+拆分清单（16 刀，全部只搬家、零行为）：
+  BattleUI 9 刀 = MultiFunction(304) / Build(417) / Dungeon(489) / Modals(192) / Motion(211) / Refresh(371) / Cards(165) / Render(182) / Data(102)
+  HamletRoot 7 刀 = Build(492) / Refresh(221) / HeroDetail(282) / BuildingPopup(210) / PopupMenu(181) / RosterServices(145) / Progression(118)
+每刀证据：构建 0 错误 ｜ `ui_sweep.ps1` 14 入口全绿 ｜ 命名门 OK ｜（dotnet test 用例数：本机测试宿主环境失败，未取得、已明说）
+
+🔴 **三个踩坑（我实际踩过、被自家校验拦住 3 次）**：
+  ① **右边界不能按"下一个方法名"猜** ⇒ 猜错会切进别的族（我第一次切出 433 行并与另一片重叠）⇒ **必须按方法名 + 花括号深度**算 ✓
+  ② **`EndBrace` 会命中方法内部的 `}`**（`if { }` 的收尾）⇒ 只有"从签名起累计深度回到 0"的那个 `}` 才是方法收尾 ✓
+  ③ **PowerShell 变量名不区分大小写** ⇒ 我把路径写成 `$h`、列表写成 `$H` ⇒ 路径被覆盖、**改了却提交说"已改"** ✗ ⇒ 路径/列表变量必须不同名 ✓
+  ④ 长文档块会让"回退找 `///`"回退过多 ⇒ `DocStart` 必须是"**连续** `///` 块的最上沿"✓
+🔴 越域备案：`BattleUi`→`BattleUI` 改名同步了 5 个域外文件（BattleRoot.cs / BattleRoot.PlayerActions.cs / SmokeScript.cs /
+   ExpeditionComposition.cs / Battle.tscn），已回执主程序窗口 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |

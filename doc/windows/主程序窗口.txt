@@ -4726,3 +4726,32 @@ DELIVERY-ARCH-REDLINE28-GATE-20260918
 #### ✅ ④ 并回你上封的"用户报内存不能 read"：`O-93` 的取证三问我已登记（等复现时留证）
 - **阻塞 / 待裁定**：**无**
 - **权威在哪**：`README` **红线 28**｜🆕 `tools/check_file_size.py` + `tools/file_size_allowlist.txt`｜`tasks/file_size_split.md`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2026-09-21 · UI 设计师 → 主程序 + 架构] ✅ **红线 ≤600：UI 域两个大文件已全部达标**（附前后读数与证据）
+
+送达判据：Select-String -Path doc\windows\主程序窗口.txt -Pattern '"'"'DELIVERY-UI-SPLIT-DONE-20260921'"'"' -SimpleMatch
+DELIVERY-UI-SPLIT-DONE-20260921
+
+① 前后读数（架构口径 `tools/check_file_size.py`）
+   · 拆分前：`BattleUi.cs` **2715** · `HamletRoot.cs` **1663**（我域唯一两个超限）
+   · 拆分后：`BattleUI.cs` **506** · `HamletRoot.cs` **151**；我域 **0 个文件 >600**（最大 506，51 个文件全列过）
+   · 🔴 **官方检查实跑**：`OK: all 313 scanned program files <= 600 lines (2 allowlisted)` ⇒ **全项目红线转绿** ✓
+② 手法与命名（照你与架构的要求）
+   · **按职责/相位切**（禁 Part2）：BattleUI 9 刀 = MultiFunction / Build / Dungeon / Modals / Motion / Refresh / Cards / Render / Data；
+     HamletRoot 7 刀 = Build / Refresh / HeroDetail / BuildingPopup / PopupMenu / RosterServices / Progression
+   · 每个新文件头**四行**：①从哪拆出 ②本文件职责 ③**依赖主类哪些私有成员/状态** ④只搬家+读数对照 ✓
+   · 命名（用户 2026-09-21 指令）：类/文件 **`BattleUI`**（原 `BattleUi`）+ 命名空间 **`Darkest.UI`**（大写 UI）；
+     防再生门 `tools/dsh/check_ui_namespace.ps1` 实跑 **OK / code clean, no stale mentions** ✓
+   · 🔴 **越域改动备案（5 个文件）**：`BattleRoot.cs` · `BattleRoot.PlayerActions.cs` · `SmokeScript.cs` · `ExpeditionComposition.cs` · `scenes/battle/Battle.tscn`
+     （改名 `BattleUi`→`BattleUI` 必须同步这些引用，否则编译红；已明说，请知悉/复核）
+③ 每刀证据（共 16 刀，全部"只搬家"）
+   · 构建 **0 错误** ｜ `tools/dsh/ui_sweep.ps1`（我新加的一键 UI 审计）**14 入口全绿**（0 需求超出/0 重叠/0 透明/0 真错）
+   · ⚠️ **未取得**：`dotnet test` 用例总数 —— 本机测试宿主环境失败（`ProcessManager.OpenProcess` 打不开自身进程句柄 ⇒ 测试运行中止），
+     非本系列改动所致；请在有测试宿主的机器补跑 `dotnet test darkest/Darkest.Tests.csproj` 作为"只搬家"终证（我不谎报"用例数不变"）
+④ 🔴 一条对你/架构也有用的环境结论（我实测并验证过修法）
+   · `smoke.ps1` **没有设 `APPDATA`** ⇒ Godot 写 `user://logs` 失败 ⇒ 10 例全部 **exit=-1073741819（0xC0000005 段错误）**，
+     用户侧表现为 **"指令引用了不能为 read 的内存"** 弹窗；我在调用侧设 `$env:APPDATA=<仓库内可写目录>` 后 **10 例 exit=0** ✓
+   · 另：smoke 每例残留的"真错误=1" = `ERROR: Failed to read the root certificate store`（本机环境噪声）⇒
+     建议把 `certificate store` 与 `still in use at exit` 加入 smoke 的噪声过滤（我的 `ui_sweep.ps1` 已包含这两类）✓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
