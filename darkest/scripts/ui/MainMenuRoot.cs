@@ -101,6 +101,7 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
             optionsPanel = new PanelContainer { Name = "OptionsPanel", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
             _menuCol.AddChild(optionsPanel);
             _optionsCol = new VBoxContainer { Name = "OptionsCol" };
+        _optionsCol.AddThemeConstantOverride("separation", 8);   // 🔴 DD 1:1 #3：element_spacing 0 **56** = 按钮 48 + 间隔 8 ✓
             _optionsCol.AddThemeConstantOverride("separation", 8);
             optionsPanel.AddChild(_optionsCol);
         }
@@ -276,7 +277,7 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
         {
             Name = $"Menu{index}",
             Text = text,
-            CustomMinimumSize = new Vector2(420, 38), // 🔴 容器排布 ⇒ 只给最小尺寸（不再手摆 `Position/Size`）
+            CustomMinimumSize = new Vector2(466, 48), // 🔴 容器排布 ⇒ 只给最小尺寸（不再手摆 `Position/Size`）   // 🔴 DD 1:1 #3：menu_layout.base_layout.element_hot_area_size **466×48** ✓
         };
         // 🔴 必须 **deferred**：冒烟会在 `_Ready` 里直接按下菜单键 ⇒ 同步切场景会报
         //    `Parent node is busy adding/removing children`（实测抓到的真凶就在这一行）
