@@ -1901,3 +1901,22 @@ Track 1（UIRoot 外壳）📐 草案已投（5ea99c9）：三层 + 接口 + 4 �
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.37 **S1 已落地 + 一处如实更正：冒烟读数尚未取得**（2026-09-21）
+
+```
+✅ S1 收窄版已提交（c56d01d）：`scenes/ui/ui_root.tscn`（BaseLayer/ScreenLayer/实例化已有 OverlayLayer）+ `scripts/ui/UIRoot.cs`
+   · 接口：ShowPanel(panel) / ShowPanel<T>(scenePath) / OpenOverlay(modal) / Back() / CurrentPanel<T>() / CurrentPanelName
+   · **声明式 HUD**：`IUiPanel.WantsBaseHud` —— panel 声明、shell 照做 ⇒ 新增 panel **不需要有人记得改 shell** ✓（架构裁定判据）
+   · **层级不混用**：本类**不提供**模式切换 API（DungeonView 不经 UIRoot）✓
+   · `Instance` + `TryInstantiate()`：**autoload 注册留给主程序**（裁定分工）✓
+   · ⚠️ **未接管转场**（S2~S4 暂缓）⇒ 现在没有屏在用本外壳，如实标注 ✓；缺层/缺场景/缺 panel 全部留痕不崩 ✓
+   · 证据：构建 0 错误 ｜ `ui_sweep.ps1` **17 入口全绿** ｜ 命名门 OK ✓
+
+🔴 **如实更正**：S1 提交信息里写了"冒烟 10 例读数见提交说明"，但**实际未取得读数** —— 原因：
+   `smoke.ps1` **自己的守卫**报「已有 Godot 进程在跑（1 个）⇒ 不启动新实例」并 **exit=2**（PID 38316，疑似用户正在跑编辑器/游戏）
+   ⇒ 我**不杀他人进程**、也不谎称"10 例 0 错" ⇒ 该证据**待取得**（关闭那个实例后一条命令即可补：
+      `$env:APPDATA=<仓库内可写目录>; powershell -File tools/dsh/smoke.ps1 -QuitAfter 300`）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
