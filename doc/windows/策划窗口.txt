@@ -72,3 +72,43 @@ $ Get-ChildItem doc\windows -Filter '_arch_out*' -File
 ```
 - **阻塞 / 待裁定**：**无**
 - **权威在哪**：`README` **红线 28**｜`tools/check_file_size.py` + `tools/file_size_allowlist.txt`｜`tasks/file_size_split.md`
+---
+### 请裁：2026-09-21 · 【来自架构】🔴 **UI 的 `UIRoot` 单外壳草案与"战斗=唯一宿主"的裁定冲突** —— 形态 (i)/(ii) 请你定
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-ARCH-UISHELL-FORM-CONFLICT-20260921' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-ARCH-UISHELL-FORM-CONFLICT-20260921
+```
+
+#### 🔴 ① 冲突在哪（一句话）
+```
+UI 设计师提了 **Track 1：`UIRoot` 三层外壳**（Base 常驻 HUD / Screen 当前 panel / Overlay 覆盖层），
+目标是「**以 `UIRoot` 换 panel 取代 `ChangeSceneToFile`**」，迁移 4 步：**S1 骨架+autoload → S2 主菜单 → S3 城池 → S4 战斗**
+🔴 **而 S4「战斗面板化」= 把战斗从【场景】降为【panel】**
+🔴 **与你/用户 2026-09-15 的裁定冲突**：`blueprint §9.17` = 「**宿主 = 战斗场景**（地牢是它的地图模式）」
+   ⇒ **"战斗是场景" 与 "战斗是 panel" 不能同时成立** ⚠️
+```
+#### 🔴 ② 请你裁（两选一）
+```
+**(i) 保留"战斗 = 唯一场景"** ⇒ ✅ **S1 只做外壳的 Base+Overlay（形态 A）**，**S4 不做**
+   ⇒ 收益仍拿到：**常显 HUD + overlay 转场 + 少重建**；场景切换仍发生（只是常驻部分不重建）✓
+**(ii) 改裁定：`UIRoot` 是唯一外壳、战斗也是 panel（形态 B）** ⇒ ⚠️ **那么 `§9.17` 的 `S1~S6` 判据要一起重述**
+   （**S1「进战斗前后节点 id 不变」在"战斗也是 panel"下含义变了**；`红线 18 可达性`、`--smoke` 的**场景类型导航**也要改）
+   ⇒ 📌 **改动面明显更大**（且与"闭环收口期、不加新机制"的方向相反）⚠️
+⇒ 🔴 **架构建议：先 (i)（形态 A）**，把 S1 收窄成"**只建 shell 骨架 + autoload**"现在就做；
+   **(ii) 留到闭环收口之后**再评估 —— 📌 **判据**：**"哪些屏之间需要共享常驻状态？"** 只有 HUD ⇒ **A 够**
+```
+#### ✅ ③ 我已做的（不等你的部分）
+```
+✅ **已落卡**：🆕 `tasks/ui_shell_uproot.md`（ARCH-T-UI-SHELL-01）—— §2 裁定一 · §3 六风险逐条 ·
+   §4 两处接口/纪律修正 · §5 一处自相矛盾澄清 · §6 验收 U1~U8
+✅ **已批准 S1 收窄版**（`UIRoot.cs` 归 UI；**`project.godot` 的 autoload 注册归主程序**——已投它，并要求**写清 autoload 顺序**）
+✅ **已加严两条**：**R1**（S1 同一提交必须附全量冒烟读数 —— 红线 25：改了交互入口 ⇒ 证据链重走）·
+   **R3**（**审计换根为 `ScreenLayer` 子树 ⇒ 必须同时打印「全场景计数 + 范围外控件数」** —— 否则就是 `§4.1.1①` 的"缩范围假绿"）
+✅ **已改一处接口形状**：`SetBaseHud(bool)` ⇒ **改成声明式**（panels 声明需求、shell 决定默认）——
+   理由：**"新加一个 panel 需要有人【记得】做某件事" ⇒ 接口形状不对**（元准则：动作型 > 禁止型）✓
+✅ **已要求写清层级**：`UIRoot`（外壳）与 `DungeonView`（场景内模式）**不得混用一个 API**（否则又一处两处真值）✓
+```
+- **阻塞 / 待裁定**：🔴 **(i) / (ii)**（不阻塞 S1 收窄版）
+- **权威在哪**：🆕 `tasks/ui_shell_uproot.md`｜`blueprint` **§9.17**（既有裁定）｜`next_round` **§4.1.1**（审计口径）
