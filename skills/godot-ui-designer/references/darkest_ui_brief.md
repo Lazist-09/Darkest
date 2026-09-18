@@ -2815,3 +2815,47 @@ DD `campaign\town\roster\roster.layout.darkest`（本次读全）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴🔴 14.0.68 **硬规矩（用户 2026-09-21 直接指令）：占位一律用【色块占位】，不换不删**
+
+```
+用户原话：「**需要占位的地方采用色块占位，不换不删**」⇒ 本角色**自此遵守**，优先级高于我的任何"清理/美化"倾向：
+
+① **占位 = 色块占位**：凡"该处迟早有内容、但现在没有数据/未实现"的位置，一律用 **`ColorRect` 色块**（颜色取
+   `DdTheme.PlaceholderFill` / `WithPlaceholderAlpha(语义色)`，α/色值**走调色板**，不硬写）⇒ 一眼可辨"这是占位"✓
+② **不换**：**不得**把色块占位替换成别的东西（不得换成贴图/文字/按钮/自绘形状，也不得"临时塞个看起来更好的"）✗
+③ **不删**：**不得**删除色块占位（**即使**我在 DD 目录里找不到对应键、或觉得"DD 没有这个"）✗
+   ⇒ 换句话说：**"DD 对照"只用于【新增/对齐】，不用于【删占位】**；删占位必须先经用户逐项点头 ✓
+④ 与既有纪律的关系：这条**覆盖**我此前"删除 DD 中没有的 UI"的执行细则（§14.0.66 的 B 组"候选删"）——
+   B 组里凡属**色块占位**的项（如 `ShopkeeperPlaceholder`/`RecommendPlaceholder`/`PortraitPlaceholder`）⇒ **保留，不删** ✓
+   非占位的**死控件/重复命名**仍可按用户点头处理（如 B3 同名节点改名）✓
+⑤ 留痕：占位色块的存在就是"未实现"的**可视标记** ⇒ 我**不得**把它伪装成已完成（也不得用 `Visible=false` 藏掉）✗
+```
+
+### 🔴 14.0.69 **用户 P0~P5 计划（DD 严格贴合 · 已立为目标）**（2026-09-21）
+
+```
+P0 外壳通电（**归主程序**，我不动 project.godot）：UIRoot 注册 autoload + 三屏 ShowPanel 接管 ChangeSceneToFile
+P1 城池 Hub 摆放（纯布局·低风险·可立即开工）：
+   1.1 building_navigation → 左窄列 **128×1000** / 按钮间距 **68** / index 0-9 对齐（stage_coach0 … statue9）
+   1.2 roster → 右锚 **x=1550** / 行高 **97** / 内偏移逐一对（头像 21,9 · 名 116,4 · 压力条 116,43 · 武器等级 156,65 ·
+       护甲 228,65 · 决心条 258,4）—— ⚠️ 按用户指令①**保持两行式结构**，仅"内偏移/尺寸"向 DD 靠
+   1.3 embark 754,871 · heirloom 340,708 · estate_summary 0,975 · realm_inventory 881,128
+   1.4 building_popup → 按 DD 建筑范本补 hero_slot/activity/cost/confirm/tooltip（缺数据处**色块占位**）
+P2 英雄/怪物面板：2.1 hero → 左状态(HP 130,11 / 压力 130,40 / 属性 60,72) 右装备(238,0 / 饰品 453,0)；
+   2.2 monster → 名 65,58 / 类型 65,112 / HP 520,61 / 属性 235,112 / 抗性 154,186 / 技能 480,186
+P3 主菜单：MainMenuRoot 补 IUiPanel（已做 ✓）+ 对齐 DD 分区（base 450,150 · 元素起 510,240 · 间距 0,56 · 选项区 600×432）
+P4 战斗重做（高风险·单独一轮）：中部整卡 → **舞台**（英雄左/怪物右立绘定位）· 底部 → **紧凑状态托盘**（±168 排 · y≈698）·
+   panel.map 接右下 + overlays（popuptext/health_pip/announcement）定位
+P5 子流程精细化：provision（名 104,126 / 商店 814,144）· quest_select（名 104,122 / 队名 756,834）·
+   heirloom_exchange（标题 215,24 / from 79,110 间距 44 / to 256,75）
+
+DD 真机补充坐标（本次新读，入库备用）：town 全局（roster 1550,0 · nav 70,230 · embark 754,871 · heirloom 340,708 ·
+  estate_summary 0,975 · realm_inventory 881,128）；建筑场景位（tavern 550,10 · stage_coach 315,-5 · blacksmith 1460,-30 ·
+  guild 1282,100 · abbey 1070,220 · camping_trainer 185,315 · nomad_wagon 1130,-40 · sanitarium 790,110 · graveyard 965,230 ·
+  statue 940,-15 · circus 1282,0）；panel.monster 如上；modal_dialog（标题 y190 / 内容 y260 / 按钮 y600 / 关闭 658,115）；
+  tooltip（offset 12,-12 / text 4,0）；menu（base 450,150 / 元素起 510,240 / 间距 0,56 / 选项区 600×432）；
+  heirloom_exchange（标题 215,24 / from 79,110 间距 44 / to 256,75）；hero_slot（icon 0,0 / 名 45,-70 / next 76,4 / prev -15,4）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
