@@ -39,6 +39,11 @@ $rows = @(
   @{ Key = "hero equipment armour_pos"; Dd = 95;  Impl = "hero_detail_skeleton equip area (DD armour 95,0)"; Pat = "EquipPlaceholder" }
   @{ Key = "hero trinket grid offset.x"; Dd = 92;  Impl = "hero skeleton trinket area (DD 32,52/92,160)"; Pat = "HeroTrinketArea" }
   @{ Key = "hero base_stats value_offset"; Dd = 115; Impl = "HeroStatsGrid value column"; Pat = "HeroStatsGrid" }
+  @{ Key = "hero portrait disease_icon_offset"; Dd = 61; Impl = "hero_detail_skeleton HeroDiseaseIcon block"; Pat = "HeroDiseaseIcon" }
+  @{ Key = "hero scouting_stat hotspot width"; Dd = 300; Impl = "hero_detail_skeleton HeroScoutingStat block"; Pat = "HeroScoutingStat" }
+  @{ Key = "hero equipment highlight_pos_offset"; Dd = -20; Impl = "hero_detail_skeleton HeroEquipHighlight block"; Pat = "HeroEquipHighlight" }
+  @{ Key = "hero equipment level_offset"; Dd = 90; Impl = "hero_detail_skeleton HeroEquipLevelText block"; Pat = "HeroEquipLevelText" }
+  @{ Key = "hero base_stats icon_offset"; Dd = -26; Impl = "hero_detail_skeleton HeroStatsIcon block"; Pat = "HeroStatsIcon" }
   @{ Key = "hero status resolve offset.y"; Dd = 4; Impl = "HeroStatusBars first bar"; Pat = "HeroHpBar" }
   @{ Key = "hero status stress offset.y"; Dd = 100; Impl = "HeroStatusBars second bar"; Pat = "HeroMoraleBar" }
   @{ Key = "building upgrade_trees offset.y"; Dd = 195; Impl = "building_popup UpgradeTree"; Pat = "UpgradeTree" }
