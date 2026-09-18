@@ -191,6 +191,10 @@ public partial class HamletRoot : Control
         var bQuest = new Button { Name = "Menu_QuestSelect", Text = "📜 任务选择", CustomMinimumSize = new Vector2(220, 32) };   // DD 1:1 ②：任务选择入口
         bQuest.Pressed += () => OpenQuestSelect();
         _hamletMenuBody.AddChild(bQuest);
+
+        var bExchange = new Button { Name = "Menu_HeirloomExchange", Text = "💎 传家宝兑换", CustomMinimumSize = new Vector2(220, 32) };   // DD 1:1 P5：传家宝兑换入口
+        bExchange.Pressed += () => OpenHeirloomExchange();
+        _hamletMenuBody.AddChild(bExchange);
         }
         else
         {

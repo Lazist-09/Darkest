@@ -1,0 +1,102 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/ui/HeirloomExchangeSkeleton.cs" id="2_hx"]
+
+; DD 1:1 heirloom_exchange（传家宝兑换）：标题 215,24 · from 起 79,110 间距 44 · to 起 256,75（1920x1080 基准）
+[node name="HeirloomExchangeSkeleton" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_hx")
+
+[node name="ExchangeCol" type="VBoxContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.112   ; DD 标题 215/1920
+anchor_top = 0.022    ; DD 标题 24/1080
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/separation = 8
+
+[node name="HeaderRow" type="HBoxContainer" parent="ExchangeCol"]
+layout_mode = 2
+
+[node name="ExchangeTitle" type="Label" parent="ExchangeCol/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💎 传家宝兑换"
+
+[node name="ExchangeClose" type="Button" parent="ExchangeCol/HeaderRow"]
+layout_mode = 2
+text = "✕ 关闭"
+
+[node name="BodyRow" type="HBoxContainer" parent="ExchangeCol"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="FromCol" type="VBoxContainer" parent="ExchangeCol/BodyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 29   ; DD from 间距 44 x0.667
+
+[node name="ToCol" type="VBoxContainer" parent="ExchangeCol/BodyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 29
+
+[node name="FromSlot1" type="PanelContainer" parent="ExchangeCol/BodyRow/FromCol"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 40)
+mouse_filter = 2
+tooltip_text = "FROM 1（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="FromPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/FromCol/FromSlot1"]
+layout_mode = 2
+
+[node name="ToSlot1" type="PanelContainer" parent="ExchangeCol/BodyRow/ToCol"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 40)
+mouse_filter = 2
+tooltip_text = "TO 1（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="ToPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/ToCol/ToSlot1"]
+layout_mode = 2
+
+[node name="FromSlot2" type="PanelContainer" parent="ExchangeCol/BodyRow/FromCol"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 40)
+mouse_filter = 2
+tooltip_text = "FROM 2（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="FromPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/FromCol/FromSlot2"]
+layout_mode = 2
+
+[node name="ToSlot2" type="PanelContainer" parent="ExchangeCol/BodyRow/ToCol"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 40)
+mouse_filter = 2
+tooltip_text = "TO 2（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="ToPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/ToCol/ToSlot2"]
+layout_mode = 2
+
+[node name="FromSlot3" type="PanelContainer" parent="ExchangeCol/BodyRow/FromCol"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 40)
+mouse_filter = 2
+tooltip_text = "FROM 3（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="FromPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/FromCol/FromSlot3"]
+layout_mode = 2
+
+[node name="ToSlot3" type="PanelContainer" parent="ExchangeCol/BodyRow/ToCol"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 40)
+mouse_filter = 2
+tooltip_text = "TO 3（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="ToPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/ToCol/ToSlot3"]
+layout_mode = 2

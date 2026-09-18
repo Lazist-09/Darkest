@@ -409,6 +409,10 @@ public partial class HamletRoot : Control
             OpenBuildingPopup(bArg["--hamlet-building=".Length..]);
         }
 
+        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-heirloom"))   // DD 1:1 P5：传家宝兑换（可复验）
+        {
+            OpenHeirloomExchange();
+        }
         if (System.Array.Exists(hamletArgs, a => a == "--hamlet-quest-select"))   // DD 1:1 ②：任务选择屏（可复验）
         {
             OpenQuestSelect();

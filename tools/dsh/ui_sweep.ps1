@@ -32,6 +32,7 @@ $Entries = @(
     @{ N = 'hamlet-menu';     A = @('--hamlet', '--hamlet-menu') }
     @{ N = 'hamlet-provision'; A = @('--hamlet', '--hamlet-provision') }   # DD 1:1 供应屏（骨架采用留痕）
     @{ N = 'hamlet-quest-select'; A = @('--hamlet', '--hamlet-quest-select') }   # DD 1:1 任务选择屏
+    @{ N = 'hamlet-heirloom'; A = @('--hamlet', '--hamlet-heirloom') }   # DD 1:1 P5 传家宝兑换屏
     @{ N = 'hamlet-building'; A = @('--hamlet', '--hamlet-building=tavern') }
     @{ N = 'hero-detail';     A = @('--hamlet', '--hamlet-hero-detail=0') }
     @{ N = 'hamlet-hover';     A = @('--hamlet', '--hamlet-hover=tavern') }
@@ -88,6 +89,7 @@ $TraceExpect = @{
     'hamlet-hover-stagecoach' = 'hamlet-hover'
     'hamlet-provision'        = 'provision_skeleton.tscn'
     'hamlet-quest-select'     = 'quest_select_skeleton.tscn'
+    'hamlet-heirloom'         = 'heirloom_exchange_skeleton.tscn'
     'hero-detail'             = 'hero_detail_skeleton.tscn'
     'main-menu'               = 'main_menu.tscn'
     'battle'                  = 'StatusTray'
