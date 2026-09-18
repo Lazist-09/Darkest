@@ -29,7 +29,7 @@ public partial class BattleUI : Control, IUiPanel
 
     private const float CardW = 84f;    // 🔴 DD 1:1 ④-3b：132 → **84**（DD 英雄组 284→788 = 504px@1920 ⇒ ×0.667 ÷ 4 人 ≈ 84）⇒ 让两组能落进 DD 的 26.2% 带宽 ✓
     private const float CardH = 112f;   // 🔴 相机 720 口径：170→146→140→112（topology 路径仍超 62px）
-    private const float GapX = 4f;       // 🔴 DD 1:1 ④-3b：10 → **4**（DD actor_spacing 154 的紧凑感）✓
+    private const float GapX = 9f;        // 🔴 DD 1:1：DD hero_spacing 168 − 立绘宽 ≈154 = **间隙 14** ⇒ ×0.667 ≈ **9** ✓（更正：DD 立绘**并不重叠**，是我先前算错）
     private const float HeroX0 = 13f;
     private const float EnemyX0 = 653f;
     private const float StageY = 96f;
