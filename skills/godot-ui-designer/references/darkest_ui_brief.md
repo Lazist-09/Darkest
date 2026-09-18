@@ -3074,3 +3074,38 @@ P5 子流程   ✅：provision（名 104,126 / 商店背景 x 814 ⇒ 推导等�
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.80 **DD `scripts\layout\` 清单 + `screen.raid` 顶栏类键（只读增量）**（2026-09-21）
+
+```
+scripts\layout\ 下共 14 个 *.darkest：
+actor_scale.raid.darkest · base.popup_text.layout.darkest · overlay.loot.darkest · panel.banner.darkest · panel.hero.darkest · panel.map.darkest · panel.monster.darkest · panel.tab.darkest · pannel.inventory.darkest · screen.raid.act_out.darkest · screen.raid.battle.darkest · screen.raid.darkest · screen.raid.status_bars.darkest · screen.raid_animation.darkest
+
+screen.raid.darkest 顶栏/信息类键（原样）：
+  .foreground_in_time 0.4
+  .foreground_out_time 0.2
+  .foreground_post_battle_fade_time 0.4
+  .foreground_pre_battle_fade_time 0.2
+  status_bar_round_indicator_pulse:
+  torch_layout: .pos_y 28 .gauge_offset 26 89 .gauge_size 400 4 .fade_amount 0.05 .flamepos 960 100
+  round_display: .pos_y 120 .sprite_offset 0 0 .text_offset 0 -25
+  kill_count_display:
+  .wave_kill_count_offset 80 78
+  .wave_kill_count_text_offset 137 110
+  .input_preview_button_active_party_position 1000.0
+  .round 0.5
+  torch_info:	.titleIdFormat "str_darkness_title_%d"
+  .reduce_torch_input_preview_offset 846 64 .reduce_torch_input_preview_text_offset -6 8
+  .use_torch_input_preview_offset 1028 64 .use_torch_input_preview_text_offset 52 8
+  monster_info:	.textWidth 180
+  quest_info:
+  .info_glow_offset -14 0
+  .info_button_offset 65 58
+  .info_text_name_offset 110 26
+  .info_text_goals_start_offset 110 58
+  .info_text_goals_spacing 0 30
+
+⇒ 用途：供 P4 后续（顶栏火把/回合/击杀数/任务信息）与其它屏的落位使用；**本次未改任何代码**（纯只读入库）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
