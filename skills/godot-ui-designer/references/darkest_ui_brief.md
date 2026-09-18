@@ -2964,3 +2964,20 @@ DD 值（town.layout）：`.embark_party_pos 754 871` ⇒ 比例 **x 754/1920 = 
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.75 **P4-c(A 路线) 现状与偏差：中部纵向仍是 ShrinkEnd 近似**（2026-09-21）
+
+```
+DD `screen.raid.overlays.hero_start_pos/monster_start_pos` 的 **y 680** ⇒ 屏幕比例 **680/1080 = 0.6297**
+我域现状：中段 `MidRowBox` 在 `MidRow`(PanelContainer) 里用 `SizeFlagsVertical = ShrinkEnd`（≈ 面板底沿）
+⇒ **偏差**：ShrinkEnd 是"贴在面板底"，不等于 DD 的 **0.6297**（差多少取决于顶/底栏高度）✗
+⇒ 精确落法（需稍改结构，属授权内）：把 `MidRow` 内容改为 `VBox[ PadTop(ExpandFill, ratio ≈0.63), MidRowBox ]`
+   或用 `Control` 包一层 + 顶部空档比例 ⇒ 使中段内容顶端落在 0.6297 ✓（比例表达，不写像素）
+   —— 列为 P4-c(A) 的下一步（预计低-中风险，可回退）✓
+
+本轮同时把 DD 的 raid/status_bars 6 条键纳入门禁（hero/monster y 680 · tile_width 720 · actor_spacing 154 ·
+  panel.map clip · tray_icon_left 58 · round_indicator 10）⇒ 门禁现 **33 条**，其中 `hero_start_pos.y` 一条**明确标注为近似**（Pat=ShrinkEnd）
+  ⇒ **不谎报**：门禁能命中"有实现锚点"，但近似与精确的差别我在此写清 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
