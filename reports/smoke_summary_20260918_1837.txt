@@ -1,0 +1,39 @@
+﻿# 一键冒烟（20260918_1837）· 用例 3 个 · 每例 --quit-after 3600
+e2e              | 行数=221    | 真错误=0 | 引擎退出泄漏=4 | exit=0
+# 🔴🔴 主程序 2026-09-21 修：**收尾段也用 try/catch 包住**（实测：这一段抛错 ⇒ 脚本提前退出、退出码不可信 ⚠️）
+#    ⇒ 同一纪律：**读数与汇总【不许】打断主流程**；退出码必须由 $bad **唯一决定**（这样才可能接 CI）✓
+# 汇总（人读）+ 判决（机读 · 给 CI 用）：**RESULT 行是 CI 判据的唯一来源**（不靠 0）✓
+# 汇总：3 例，非环境 ERROR 非零的用例 = 0
+
+── 关键读数（自动提取）──
+     > [片4] ✅ 走格已开启（段消耗 = −`light.node_step` = 30，取自已解析数据）　网格 28×8　房间块 8 段走廊　队伍在 (1,1) ✓
+     > [养成] 首趟基线：第 1 趟出发前：金钱 0　名册 8/8　平均士气 48　等级均 2（最高 2）　等级分布 [Lv1×4 Lv2×4]　疾病 0　特质 正 8／负 8（锁定 0）　传家宝 [busts:0 crests:0 deeds:0 portraits:0]　建筑 [abbey:Lv0 stagecoach:Lv0 tavern:Lv0]　（HP：契约每场满血开局 `#245` ⇒ 不记）✓
+     > [名册构成] 在册 8/8（硬上限 12）　等级分布 [Lv1×4 Lv2×4]　特质 正 8／负 8（锁定 0）　疾病 0　经验通道 已接线　阵亡留档 0 名 ✓
+     > [下一解锁] （读数不可用，不影响流程：InvalidDataException）✓
+     > [片4] ✅ 【放弃远征】入口已注入 UI（`SetAbandonAction`）⇒ 按钮现在会显示 ✓
+     > [片4] ✅ **场景内进入地牢**（地图模式）：Phase=Walking　段数=0　光照=100　CanShowPathChoice=True（相位 Walking ⇒ 期望 True）✓
+     > [片4] ✅ 走格已开启（段消耗 = −`light.node_step` = 30，取自已解析数据）　网格 28×8　房间块 8 段走廊　队伍在 (1,1) ✓
+     > [养成] 第 2 趟 vs 第 1 趟（变了 5 项）：金钱 0 → 10（+10）　传家宝[busts] 0 → 2（+2）　传家宝[crests] 0 → 7（+7）　传家宝[deeds] 0 → 4（+4）　传家宝[portraits] 0 → 3（+3） ✓
+     > [名册构成] 在册 8/8（硬上限 12）　等级分布 [Lv1×4 Lv2×4]　特质 正 8／负 8（锁定 0）　疾病 0　经验通道 已接线　阵亡留档 0 名 ✓
+     > [下一解锁] （读数不可用，不影响流程：InvalidDataException）✓
+     > [片4] ✅ 【放弃远征】入口已注入 UI（`SetAbandonAction`）⇒ 按钮现在会显示 ✓
+     > [UI 瓷砖] ✅ 主画面（引擎内置 TileMapLayer）：格 89 ／ 连线 124　队伍在已揭示格 9 ／ 89
+     > [UI 相位] Phase=Walking　CanShowCampUi=True　CanShowPathChoice=True　CanShowCurioUi=True　（B 类面板：扎营／选路／Curio 按此三者显示；战斗相位下应全假）
+     > [片4] ✅ **场景内进入地牢**（地图模式）：Phase=Walking　段数=0　光照=100　CanShowPathChoice=True（相位 Walking ⇒ 期望 True）✓
+     > [升级通道] 本场胜 ⇒ 发经验：老铁 Lv2(XP5)、灰手 Lv1(XP5)、石墙 Lv2(XP5)、铁砧 Lv1(XP5)、白手 Lv2(XP5)、麻布 Lv1(XP5)、血徽 Lv2(XP5)、冷眼 Lv1(XP5) ✓
+     > [UI 瓷砖] ✅ 主画面（引擎内置 TileMapLayer）：格 89 ／ 连线 124　队伍在已揭示格 9 ／ 89
+     > [UI 相位] Phase=Walking　CanShowCampUi=True　CanShowPathChoice=True　CanShowCurioUi=True　（B 类面板：扎营／选路／Curio 按此三者显示；战斗相位下应全假）
+     > [片4] ✅ 战后回地图模式（同一场景）：Phase=Walking　CanShowPathChoice=True（应为 True）✓
+     > [UI 瓷砖] ✅ 主画面（引擎内置 TileMapLayer）：格 89 ／ 连线 124　队伍在已揭示格 9 ／ 89
+     > [UI 相位] Phase=Walking　CanShowCampUi=True　CanShowPathChoice=True　CanShowCurioUi=True　（B 类面板：扎营／选路／Curio 按此三者显示；战斗相位下应全假）
+     > [片4] ✅ 走格已开启（段消耗 = −`light.node_step` = 30，取自已解析数据）　网格 28×8　房间块 8 段走廊　队伍在 (1,1) ✓
+     > [养成] 第 3 趟 vs 第 2 趟（变了 7 项）：金钱 10 → 6（-4）　平均士气 48 → 52（+4）　疾病 0 → 2（+2）　传家宝[busts] 2 → 0（-2）　传家宝[crests] 7 → 4（-3）　传家宝[portraits] 3 → 1（-2）　建筑[tavern]等级 0 → 1（+1） ✓
+     > [名册构成] 在册 8/8（硬上限 12）　等级分布 [Lv1×4 Lv2×4]　特质 正 8／负 8（锁定 0）　疾病 2　经验通道 已接线　阵亡留档 0 名 ✓
+     > [下一解锁] （读数不可用，不影响流程：InvalidDataException）✓
+     > [片4] ✅ 【放弃远征】入口已注入 UI（`SetAbandonAction`）⇒ 按钮现在会显示 ✓
+     > [片4] ✅ **场景内进入地牢**（地图模式）：Phase=Battle　段数=1　光照=100　CanShowPathChoice=False（相位 Battle ⇒ 期望 False）✓
+     > [片3.1] ✅ **进地牢 = 不起战斗**（按请求分流）：Phase=Battle（应为 Walking）　CanShowPathChoice=False（应为 True）　战斗触发改为【踏进 Battle 格】（策划 #379）✓
+     > [片4] ✅ 走格已开启（段消耗 = −`light.node_step` = 30，取自已解析数据）　网格 28×8　房间块 8 段走廊　队伍在 (1,1) ✓
+     > [养成] 第 4 趟 vs 第 3 趟：**起点未变**（无成长也无损耗）
+     > [名册构成] 在册 8/8（硬上限 12）　等级分布 [Lv1×4 Lv2×4]　特质 正 8／负 8（锁定 0）　疾病 2　经验通道 已接线　阵亡留档 0 名 ✓
+     > [下一解锁] （读数不可用，不影响流程：InvalidDataException）✓
