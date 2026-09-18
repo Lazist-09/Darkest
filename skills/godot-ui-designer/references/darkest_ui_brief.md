@@ -2901,3 +2901,21 @@ DD `shared\hero\hero.layout.darkest`（本次读全，**全部为组件级偏移
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.72 **P1.3 复核：embark / heirloom 现有实现与 DD 位置**（2026-09-21）
+
+```
+DD 值（town.layout）：`.embark_party_pos 754 871` ⇒ 比例 **x 754/1920 = 0.3927 · y 871/1080 = 0.8065**；
+                    `.heirloom_exchange_pos 340 708` ⇒ **x 0.1771 · y 0.6556**
+
+我域现状（实测 `HamletRoot.Build.cs` L319-343）：
+  · 底栏 = `BottomRow`(HBox)：`_resourceBar`(Label · **ShrinkBegin** ⇒ 贴最左 ⇒ x≈0) ＋ `Control{ExpandFill}`（弹性空隙）＋ Embark …
+  ⇒ **偏差**：① heirloom/资源条在 x≈0，DD 是 **x 0.177** ✗ ② Embark 因"左标签 + 弹性空隙"落在**右半**，DD 是 **x 0.3927** ✗
+    （我前几轮说的"两弹性空隙夹 Embark 居中"实际是**靠右**，不是 DD 的 0.3927 ⇒ 记为**待改**）
+
+⇒ 下一步做法（比例表达、不写像素）：底栏改为 **三段弹性空隙 + 两个内容块**：
+   [左空 0.177] [资源条(自然宽)] [中空 (0.3927−0.177−资源条宽)] [Embark] [右空 余量]
+   用 `SizeFlagsStretchRatio` + ExpandFill 实现（同 §14.0.52 战斗带宽的做法）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
