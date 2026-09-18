@@ -555,7 +555,10 @@ public partial class HamletRoot : Node2D
         StressReliefOutcome o = StressRelief.Apply(_cfg, economy, _rng, _log, buildingId, heroId, roster.MoraleOf(heroId));
         if (o.Paid)
         {
-            roster.ApplyRelief(_log, heroId, _cfg.Building(buildingId).MoraleRestore, buildingId);
+            // 🔴 主程序 2026-09-21（策划 #404 纪律 V：展示值 == 消费值）：恢复量走**生效值**（与 UI 展示同源）✓
+            int restore = Darkest.Gameplay.Scene.ExpeditionContext.Heirlooms?.EffectiveMoraleRestore(buildingId, _cfg.Building(buildingId).MoraleRestore)
+                ?? _cfg.Building(buildingId).MoraleRestore;
+            roster.ApplyRelief(_log, heroId, restore, buildingId);
         }
 
         GD.Print($"[HamletRoot] 减压·{buildingId}：{(o.Paid ? "成交" : "拒绝（钱不够）")}" +
