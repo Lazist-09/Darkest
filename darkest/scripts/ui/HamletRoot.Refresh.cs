@@ -100,6 +100,15 @@ public partial class HamletRoot : Control
                 b.TooltipText = $"{h.Name}　Lv{lv}　士气 {morale}　防御 {dodge}{(canRelief ? "　·可减压" : string.Empty)}";
                 ph.Color = WithPlaceholderAlpha(Darkest.UI.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true));   // 🔴 规则②：α 取调色板
 
+                // 用户指令3（攻防=装备等级）：`HeroLevel` 框此前**代码从未填数据**（空框）⇒ 用**现有装备等级**给它语义，
+                //   不加新节点：Tooltip 写清 + 语义色随等级（DD 的 weapon/armour level 位语义 ✓ 不新造数据）
+                if (b.FindChild("HeroLevel", true, false) is PanelContainer lvBox)
+                {
+                    lvBox.TooltipText = $"装备等级 Lv{lv}（DD weapon_level / armour_level 位语义）";
+                    lvBox.Modulate = lv >= 3 ? Darkest.UI.DdTheme.Highlight : Darkest.UI.DdTheme.TextInfo;
+                }
+
+
                 if (Darkest.UI.HeroArt.PortraitTexture() is Texture2D pTex)
                 {
                     var pArt = new TextureRect
