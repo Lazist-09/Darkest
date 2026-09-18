@@ -330,7 +330,8 @@ public sealed class Roster
     /// 特质从既有英雄的特质池里取**一正一负**（与 7.7「小幅、正负都有」一致）。
     /// 满员即拒绝（返回 null；**不静默顶替**）。
     /// </summary>
-    public HeroConfig? Recruit(CombatLog log, StagecoachConfig coach, string archetype, string name)
+    public HeroConfig? Recruit(CombatLog log, StagecoachConfig coach, string archetype, string name,
+        int? rookieLevel = null)   // 🆕 马车升级的"新兵起始等级"（`EffectiveRookieLevel` ⇒ **真正应用** ✓）
     {
         if (log is null || coach is null)
         {
@@ -354,7 +355,8 @@ public sealed class Roster
             $"hero_{archetype}_r{++_recruitSeq}",
             name,
             archetype,
-            coach.RookieLevel,
+            // 🔴 应用"新兵起始等级"：**马车升级真的改变新兵起点**（此前只被 UI 打印、**没被消费** ⚠️ ⇒ 已接）✓
+            rookieLevel ?? coach.RookieLevel,
             new[] { pos, neg },
             coach.RookieMorale);
 
