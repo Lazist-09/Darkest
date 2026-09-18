@@ -29,7 +29,7 @@ Example/**
 tools/__pycache__/
 
 # 🔴 借用占位素材（Steam Workshop mod，无授权）—— 绝不进仓库
-# 依据：doc/modules/hero_assets.md（英雄资产接口）· ssets_credits.md A1 · 红线 27
+# 依据：doc/modules/hero_assets.md（英雄资产接口）· assets_credits.md A1 · 红线 27
 borrow/
 # 借用占位的落点（永不用正式资产）—— 也不进仓库
 darkest/assets/heroes_placeholder/
@@ -38,3 +38,7 @@ darkest/assets/heroes_placeholder/
 reports/*.txt
 !reports/*_summary_*.txt
 reports/*.log
+
+# 🆕 reports 卫生（#405）：latest/ 与 archive/ 是【派生副本/归档】⇒ 不入库（只入库摘要与文档 ✓）
+reports/latest/
+reports/archive/
