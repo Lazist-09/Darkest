@@ -110,3 +110,87 @@ tooltip_text = "地牢地图（DD panel.map · 只读不可点 · 数据未接�
 
 [node name="MapPlaceholder" type="ColorRect" parent="MapCorner"]
 layout_mode = 2
+
+; P4-b(1b)：DD status_bars 的图标位（tray_icon_left/right_offset 58/62,-38 · round_indicator_icon_offset 10,-4）
+; 需美术图标 ⇒ 按硬规矩 §14.0.68 一律 ColorRect **色块占位**（不换不删）；y = (698-38)/1080 = 0.611
+
+[node name="HeroIcon1" type="ColorRect" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.41
+anchor_top = 0.611
+anchor_right = 0.4204
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "图标位 Hero1（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
+
+[node name="EnemyIcon1" type="ColorRect" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.547
+anchor_top = 0.611
+anchor_right = 0.5574
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "图标位 Enemy1（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
+
+[node name="HeroIcon2" type="ColorRect" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.323
+anchor_top = 0.611
+anchor_right = 0.3334
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "图标位 Hero2（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
+
+[node name="EnemyIcon2" type="ColorRect" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.634
+anchor_top = 0.611
+anchor_right = 0.6444
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "图标位 Enemy2（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
+
+[node name="HeroIcon3" type="ColorRect" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.235
+anchor_top = 0.611
+anchor_right = 0.2454
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "图标位 Hero3（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
+
+[node name="EnemyIcon3" type="ColorRect" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.722
+anchor_top = 0.611
+anchor_right = 0.7324
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "图标位 Enemy3（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
+
+[node name="HeroIcon4" type="ColorRect" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.148
+anchor_top = 0.611
+anchor_right = 0.1584
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "图标位 Hero4（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
+
+[node name="EnemyIcon4" type="ColorRect" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.809
+anchor_top = 0.611
+anchor_right = 0.8194
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "图标位 Enemy4（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
+
+[node name="RoundIndicator" type="ColorRect" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.005   ; DD round_indicator_icon_offset 10,-4
+anchor_top = 0.646
+anchor_right = 0.015
+anchor_bottom = 0.665
+mouse_filter = 2
+tooltip_text = "回合指示器（DD round_indicator_icon_offset 10,-4 · spacing 8,0 · 需美术 ⇒ 色块占位，不换不删）"
