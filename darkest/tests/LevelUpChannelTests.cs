@@ -143,6 +143,27 @@ public sealed class LevelUpChannelTests
         Console.WriteLine(line);
         TestContext.WriteLine(line);
 
+        // 🔴 **派生读数**（策划 `#399` 登记的口径："这条曲线要按一趟约 3~4 场反推"）——
+        //    纯换算：**用他给的两组既有数字**（占位阈值 + "一趟 3~4 场"）⇒ 得出"**几趟升 1 级**" ✓
+        //    ⚠️ 我不新增任何数字：4 只作**换算除数**（他的口径值），若口径改成别的值这行自动变 ✓
+        foreach (int winsPerRun in new[] { 3, 4 })
+        {
+            var perRun = new List<string>();
+            for (int lv = cfg.LevelMin; lv < cfg.LevelMax; lv++)
+            {
+                int? wins = exp.BattlesToNextLevel(lv, cfg.LevelMin, cfg.LevelMax);
+                if (wins is not null)
+                {
+                    perRun.Add($"Lv{lv}→{lv + 1}：{(double)wins.Value / winsPerRun:F1} 趟");
+                }
+            }
+
+            string derived = $"[A10·派生] 若一趟 **{winsPerRun} 场胜利**：{string.Join("　·　", perRun)}" +
+                             "　⇒ 这条让「升级要几趟」可直接对照策划的节奏目标 ✓";
+            Console.WriteLine(derived);
+            TestContext.WriteLine(derived);
+        }
+
         Assert.AreEqual(cfg.LevelMax - cfg.LevelMin, curve.Count, "曲线必须覆盖每一级 ✓");
         Assert.IsTrue(curve.All(c => c.Contains("场胜利")), "每一级都必须给出『多少场』✓");
     }

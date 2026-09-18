@@ -53,7 +53,7 @@ Run-Step '4/6 CI gate script works (smoke_gate.ps1 -SelfTest)' {
 #   build products, or resources/ (assets_credits.md A1 family). This is a LEGAL
 #   invariant, so it belongs in the one-command self check.
 Write-Output ""
-Write-Output "=== 5/6 placeholder compliance ==="
+Write-Output "=== 5/7 placeholder compliance ==="
 $compliance = 0
 $tracked = @(git ls-files)
 if (@($tracked | Select-String -Pattern 'borrow/').Count -gt 0) {
@@ -80,11 +80,11 @@ if ($leak.Count -gt 0) {
     $compliance = 1
 }
 if ($compliance -ne 0) {
-    Write-Output "[selfcheck] FAIL (5/6 placeholder compliance)"
+    Write-Output "[selfcheck] FAIL (5/7 placeholder compliance)"
     $failed++
 }
 else {
-    Write-Output "[selfcheck] ok   (5/6 placeholder compliance: not tracked, gitignored, not in resources/)"
+    Write-Output "[selfcheck] ok   (5/7 placeholder compliance: not tracked, gitignored, not in resources/)"
 }
 
 # ---- 6/6 powershell syntax (ASCII-only; no Godot needed) ------------------------
@@ -92,7 +92,7 @@ else {
 #   did not even parse -- and it stayed silent for several rounds (it LOOKED like an
 #   "exit code quirk"). A script that cannot parse must be caught by the self check.
 Write-Output ""
-Write-Output "=== 6/6 powershell syntax ==="
+Write-Output "=== 6/7 powershell syntax ==="
 $parseFail = 0
 $psFiles = @(Get-ChildItem tools -Recurse -Filter *.ps1 -ErrorAction SilentlyContinue)
 foreach ($s in $psFiles) {
@@ -105,18 +105,37 @@ foreach ($s in $psFiles) {
     }
 }
 if ($parseFail -ne 0) {
-    Write-Output "[selfcheck] FAIL (6/6 powershell syntax)"
+    Write-Output "[selfcheck] FAIL (6/7 powershell syntax)"
     $failed++
 }
 else {
-    Write-Output ("[selfcheck] ok   (6/6 powershell syntax: " + $psFiles.Count + " scripts parsed)")
+    Write-Output ("[selfcheck] ok   (6/7 powershell syntax: " + $psFiles.Count + " scripts parsed)")
+}
+
+# ---- 7/7 solution builds (ASCII-only) -------------------------------------------
+# WHY: twice on 2026-09-21 a stray ASCII quote inside a Chinese string literal broke the
+#   build, and it was only caught by an ad-hoc "dotnet build" I happened to run.
+#   A check that must be run by hand is a check that gets skipped, so it lives here.
+Write-Output ""
+Write-Output "=== 7/7 solution builds ==="
+Push-Location darkest
+dotnet build Darkest.sln -p:DarkestTargetFramework=net10.0 --no-restore -m:1 -nodeReuse:false -tl:off -v:q 2>&1 |
+    Select-String -Pattern 'error' -CaseSensitive | Select-Object -First 5 | ForEach-Object { Write-Output ("[build] " + $_.Line.Trim()) }
+$buildCode = $LASTEXITCODE
+Pop-Location
+if ($buildCode -ne 0) {
+    Write-Output "[selfcheck] FAIL (7/7 build) exit=$buildCode"
+    $failed++
+}
+else {
+    Write-Output "[selfcheck] ok   (7/7 build: 0 errors)"
 }
 
 Write-Output ""
 if ($failed -gt 0) {
-    Write-Output ("[selfcheck] RESULT: FAIL (" + $failed + " of 6 checks failed)")
+    Write-Output ("[selfcheck] RESULT: FAIL (" + $failed + " of 7 checks failed)")
     exit 1
 }
 
-Write-Output "[selfcheck] RESULT: OK (all 6 checks passed)"
+Write-Output "[selfcheck] RESULT: OK (all 7 checks passed)"
 exit 0
