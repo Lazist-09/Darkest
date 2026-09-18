@@ -66,6 +66,12 @@ public partial class BattleUI : Control
     /// <summary>④-2 填充：4v4 的 HP/压力条绑进 8 槽（与卡牌同源投影，不新造数字）✓</summary>
     private void FillStatusTray(UnitProjection[] players, UnitProjection[] enemies)
     {
+        // DD 1:1 3-1：**惰性建托盘**（此处底栏骨架已采用 ⇒ 能用骨架就用骨架；否则回落到代码建槽）
+        if (_statusTray is null || !GodotObject.IsInstanceValid(_statusTray))
+        {
+            BuildStatusTray(_uiRoot);
+        }
+
         if (_statusTray is null || !GodotObject.IsInstanceValid(_statusTray))
         {
             return;
