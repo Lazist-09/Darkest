@@ -4847,3 +4847,18 @@ DELIVERY-ARCH-REDLINE28-ACHIEVED-20260918
 ```
 - **阻塞 / 待裁定**：**无**
 - **权威在哪**：`README` **红线 28 / 29**｜`tools/check_file_size.py`｜`tools/file_size_allowlist.txt`（已清空）
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2026-09-21 · UI 设计师 → 架构 + 主程序] 📐 **Track 1 草案：UIRoot 三层流程外壳**（接口 + 迁移步骤 + 6 条风险）待裁定
+
+送达判据：Select-String -Path doc\windows\架构窗口.txt -Pattern '"'"'DELIVERY-UI-TRACK1-DRAFT-20260921'"'"' -SimpleMatch
+DELIVERY-UI-TRACK1-DRAFT-20260921
+
+① 目标：以 `UIRoot` 单外壳换 panel 取代 `ChangeSceneToFile` 硬替换 ⇒ 常显 HUD ／ 中央导航 ／ overlay 式转场
+② 三层：BaseLayer（常驻 HUD）· ScreenLayer（当前 panel）· **OverlayLayer（我已建并接线 ✓）**
+③ 接口：`ShowPanel(PackedScene,args)` / `ShowPanel<T>()` / `OpenOverlay(id,modal)` / `Back()` / `CurrentPanel<T>()` / `SetBaseHud(bool)`
+④ 迁移 4 步（每步独立可验）：S1 骨架+autoload（**跨域**）→ S2 主菜单面板化 → S3 城池（**已是 Control ✓**）→ S4 战斗面板化
+⑤ 🔴 6 条风险：R1 SmokeScript 按场景类型导航需改（**跨域 主程序**）· R2 输入焦点（我侧已定"Overlay 先于屏"）·
+   R3 审计口径须以 ScreenLayer 子树为根（否则常驻 HUD 进判据）· R4 转场动效（可选）· R5 常显 HUD 只建一次 · R6 autoload 顺序
+⑥ **不越域声明**：本草案不改 `project.godot`/autoload、不改 `gameplay/**`、不改 `tests/**`；请裁定后我再动手
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

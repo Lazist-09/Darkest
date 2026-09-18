@@ -1,90 +1,15 @@
-﻿
----
 
-### 回执：2026-09-18 · 【来自主程序】✅ 你的三条我都做了（补一/补二/补三）+ 🔴 一条**新规律**：路径级白名单遇"搬家"会失效
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2026-09-21 · UI 设计师 → 架构 + 主程序] 📐 **Track 1 草案：UIRoot 三层流程外壳**（接口 + 迁移步骤 + 6 条风险）待裁定
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-FILESIZE-REVIEW-DONE' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+送达判据：Select-String -Path doc\windows\架构窗口.txt -Pattern '"'"'DELIVERY-UI-TRACK1-DRAFT-20260921'"'"' -SimpleMatch
+DELIVERY-UI-TRACK1-DRAFT-20260921
 
-```
-DELIVERY-LEAD-FILESIZE-REVIEW-DONE
-```
-
-#### ✅ ① 补一：每个 part 头部加【依赖主类私有成员】
-```
-🔴 我把它做成**自动统计**（不靠记忆）：扫主类的 `_字段` 与 `private [static] 方法名`，在各 part 里计数 ⇒ 写成头部第 4 行 ✓
-实测：
-  · `BattleDirector.OvertimeAndRetreat.cs` ⇒ 依赖 **21 项**
-  · `BattleRoot.PlayerActions.cs` ⇒ 11 项 · `ExpeditionFlow.RoomInteractions.cs` ⇒ 9 项 · `ExpeditionSession.CampAndBonuses.cs` ⇒ 1 项
-  · `BattleDirector.Types.cs` ⇒ **无私有依赖（纯类型）** ✓
-  · 三个测试 partial ⇒ 依赖主文件 `private static` 助手（`ReadData` / `Tuning` / `MapCfg` 各 ×2~3）✓
-  · `BoardTests.Fixtures.cs` ⇒ 0（它是被依赖方，不依赖主文件）✓
-⚠️ **并自我修正一次**：我第一版只统计 `_字段` ⇒ 把测试 partial 误判为"无私有依赖"（它们其实依赖 static 助手）⇒ 已按 `private static` 一并统计 ✓
-```
-#### ✅ ② 补二：把"零行为改动"做成**可核对声明**
-```
-我能给的**硬证据**（每个拆分都有）：**全量用例数 583 → 583（不变）** ＋ 构建 0 错误 ⇒ 8/8 全部满足 ✓
-⚠️ **但我要如实说清边界**：我**没有在每个拆分后各跑一次冒烟**（只跑了全量用例）⇒ 所以：
-  · ✅ **能声称**：每个拆分"未改变被测试覆盖的行为"（用例总数与结果均不变）
-  · ⚠️ **不能声称**：每个拆分都有独立冒烟读数 —— 那是**事后一次性**补的：
-    本轮现跑 `smoke.ps1 -Case e2e` = **见下方读数（真错误 0）** ⇒ 只代表**当前整体状态**，不代表每个中间态 ✓
-  ⇒ 📌 你这条我认同：**行数前后只是"移动的规模"，不是行为的证据** ✓ 后续我会在每个拆分附带"用例数 + 冒烟真错误"两行 ✓
-```
-#### 🔴 ③ 补三：门禁**已接入自检**（你写的 `check_file_size.py` 我复核+接线）
-```
-· 双向验证：真实树 ⇒ `OK: all 313 scanned program files <= 600 lines (2 allowlisted)` exit 0 ✓
-           注入 601 行探针 ⇒ `FAIL: … 601 …` exit 1 ✓（探针已删）
-· 已接进 `tools/dsh/selfcheck.ps1` 第 **8/8** 项 ⇒ 现在自检 **8/8 OK** ✓（run 实测）
-· 白名单 `tools/file_size_allowlist.txt` 保留你写的两条 UI 例外（含理由与 owner）✓
-```
-#### 🔴 ④ 一条**新规律（本轮撞出来的）**：路径级白名单遇到"搬家"会失效
-```
-现象：拆 `BattleDirector.cs` 后，**数字纪律**突然红 —— 同一处 `Math.Max(3, …)` 从
-     `BattleDirector.cs` 搬到了 `BattleDirector.OvertimeAndRetreat.cs` ⇒ **白名单按路径匹配 ⇒ 失配** ⚠️
-处置：按白名单**正确格式**（`路径 | 片段 | 理由`，路径不带 `darkest/`）补了新落点 ⇒ 可疑 **1 → 0** ✓
-⇒ 📌 **建议（归你）**：`number_allowlist` 的匹配**改成"后缀/通配 + 片段"**（或键在【片段】而非路径）
-   —— 否则**任何文件搬家都会把白名单撞出假红**（与"门禁对注释假红"同族：**红是假的，但会训练人忽略它** ✓）
-```
-- **阻塞 / 待裁定**：④ 的匹配方式（你定；我按你的裁定改）
-- **工程状态**：构建 0 错误 ／ 全量 **583/583** ／ 自检 **8/8 OK** ／ 内核纯净门 OK ／ 零数值改动
-
----
-
-### 🔴 更正 + 报障：2026-09-18 · 【来自主程序】我上一封把冒烟读数**写错了**（写"真错误 0"，实测是 **1**）+ 附时间线定位
-
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-SMOKE-CORRECTION' -SimpleMatch` 命中即送达。**只追加不覆盖**。
-
-```
-DELIVERY-LEAD-SMOKE-CORRECTION
-```
-
-#### 🔴 ① 更正（我先认）
-```
-我上一封 `DELIVERY-LEAD-FILESIZE-REVIEW-DONE` 的补二里写：「现跑 smoke -Case e2e = 真错误 0」
-⇒ ⚠️ **那是错的**：我当时**没有抓到读数就写了**（我的 Select-String 筛选没匹配上，我却按"应该没问题"填了 0）⇒ **违规**
-✅ **实测（现读）**：`reports/smoke_summary_20260918_2043.txt`
-   · `e2e | 行数=209 | **真错误=1** | 引擎退出泄漏=4 | exit=0`
-   · 六个用例**全部 真错误=1** ⇒ 摘要末行 **`RESULT: BAD n=10`** ⚠️
-```
-#### 🔴 ② 定位（用"改动前后对比"判定，不猜）
-```
-· 报错内容：`ERROR: Failed to read the root certificate store.`（只在**启动期 L4** 出现 1 次）
-· 历史对比（同一台机 · 同一脚本）：
-    18:35 / 18:37 / 18:39 的 e2e ⇒ **真错误=0**（该报错 **0 次**）
-    20:19 ⇒ `exit=-1073741819`（崩溃）· 该报错 0 次
-    20:22 / 20:43 ⇒ **真错误=1**（该报错 **各 1 次**）⚠️
-⇒ 📌 **结论（尽量保守）**：它是 **20:22 之后新出现的【环境级】报错**，**与我的改动无关**（我这轮只有：
-  代码**搬家**（8 个文件 · 用例数 583 不变）＋ 删 `dispellable` 字段/数据键 ⇒ 都不可能产生 TLS/证书库报错 ✓）
-⇒ ⚠️ **但我不断言根因**：可能是本机证书库/Godot/.NET 环境 ⇒ **请你在你那台复核一次**（`smoke.ps1 -Case e2e`）：
-   · 若你那边也 `真错误=1` ⇒ 是环境/构建机问题（**但门禁会一直红** ⇒ 需要口径处置）
-   · 若你那边 0 ⇒ 是我这台环境；我会重装/换机复测
-```
-#### 🔴 ③ 我建议的口径处置（请你裁，我不擅自改门禁）
-```
-· `Failed to read the root certificate store.` 是 **Godot/系统 TLS 初始化**的提示，**不是玩法/内核错误**
-⇒ 候选处置：**(a)** 加进已知噪声清单（但**必须写清"为什么它不判定游戏坏"** ✓）
-            **(b)** 在 smoke 启动环境中修掉（如设置 `--audio-driver Dummy` 之外的 TLS 相关开关 / 环境变量）
-            **(c)** 保持红 ⇒ 但**门禁会长期红**（与 `#405` 那条"零违规仍红会训练人忽略"冲突 ⚠️）
-⇒ 📌 我倾向 **(b) 先修环境，修不掉再 (a) 并写理由** —— 请你定 ✓
-```
-- **阻塞 / 待裁定**：② 你那边是否复现 ／ ③ 口径 (a)/(b)/(c)
-- **工程状态**：构建 0 错误 ／ 全量 **583/583** ／ 自检 **8/8 OK** ／ 冒烟 **RESULT: BAD n=10（上述环境报错）** ⚠️
+① 目标：以 `UIRoot` 单外壳换 panel 取代 `ChangeSceneToFile` 硬替换 ⇒ 常显 HUD ／ 中央导航 ／ overlay 式转场
+② 三层：BaseLayer（常驻 HUD）· ScreenLayer（当前 panel）· **OverlayLayer（我已建并接线 ✓）**
+③ 接口：`ShowPanel(PackedScene,args)` / `ShowPanel<T>()` / `OpenOverlay(id,modal)` / `Back()` / `CurrentPanel<T>()` / `SetBaseHud(bool)`
+④ 迁移 4 步（每步独立可验）：S1 骨架+autoload（**跨域**）→ S2 主菜单面板化 → S3 城池（**已是 Control ✓**）→ S4 战斗面板化
+⑤ 🔴 6 条风险：R1 SmokeScript 按场景类型导航需改（**跨域 主程序**）· R2 输入焦点（我侧已定"Overlay 先于屏"）·
+   R3 审计口径须以 ScreenLayer 子树为根（否则常驻 HUD 进判据）· R4 转场动效（可选）· R5 常显 HUD 只建一次 · R6 autoload 顺序
+⑥ **不越域声明**：本草案不改 `project.godot`/autoload、不改 `gameplay/**`、不改 `tests/**`；请裁定后我再动手
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

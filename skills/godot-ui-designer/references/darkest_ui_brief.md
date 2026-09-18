@@ -1754,3 +1754,47 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.32 **Track 1 草案：UIRoot 流程外壳（DD `fe_flow` 对应物）** —— 待架构/主程序裁定（2026-09-21）
+
+```
+【目标】用**单一外壳换 panel**取代现在的 ChangeSceneToFile 硬替换 ⇒ 获得：常显 HUD 层 / 中央导航与流程状态 / overlay 式转场
+
+【文件】`scripts/ui/UIRoot.cs`（autoload 单例，**注册由架构/主程序执行或批准** —— 我域外，我不擅动）
+
+【三层】
+  BaseLayer   (Control) **常驻 HUD**：顶部资源条 / 名册计数 / 当前趟进度（DD 式常显；战斗可隐藏）
+  ScreenLayer (Control) **当前 panel**：MainMenu / Hamlet / Battle（各自 = Control 骨架 + 控制器）
+  OverlayLayer(Control) **已有 ✓**（`e17f036` 骨架 + `62bfa74`战斗接线 + `f40d3e2`城池接线 + `c9d278d` Tooltip 模板）
+
+【接口草案】
+  void ShowPanel(PackedScene panel, object? args = null);        // ScreenLayer 内换 panel，不换场景
+  void ShowPanel<TPanel>(object? args = null) where TPanel:Control;// 泛型便捷重载
+  void OpenOverlay(string id, Control? modal = null);            // 转发 OverlayLayer.OpenModal
+  bool Back();                                                    // 关栈顶 overlay ⇒ 否则回上一个 panel（panel 栈）
+  T? CurrentPanel<T>() / string CurrentPanelName { get; }         // 供冒烟断言
+  void SetBaseHud(bool visible);                                  // 常显 HUD 开关（主城显示 / 战斗收起）
+
+【迁移步骤（4 步，每步可独立验证；每步都必须 构建 0 错误 + 15 入口全绿 + 命名门 OK）】
+  S1 UIRoot 骨架 + autoload 注册（**跨域**：`project.godot` ⇒ 架构/主程序做或批准）；此步不接管转场 ⇒ SmokeScript 无需改
+  S2 主菜单面板化：`MainMenu.tscn` 根改 Control ⇒ 由 `ShowPanel` 装载；调用点 `ChangeSceneToFile` → `ShowPanel`（**跨域**：调用点在 gameplay/**）
+  S3 城池面板化：`Hamlet.tscn` **已是 Control ✓**（`4bc2de7`）⇒ 同上装载（跨域同 S2）
+  S4 战斗面板化：`Battle.tscn` 根改 Control + **输入焦点转移复测**（CanvasLayer → panel 的层级变化）
+
+【风险清单（6 条，逐条给出应对）】
+  R1 🔴 **SmokeScript 按场景类型导航**（`node is HamletRoot/BattleUI/MainMenuRoot`）⇒ ShowPanel 后**场景树里不再有独立场景根** ⇒ 断言必须改
+      应对：保留"类型仍可命中"（panel 的根脚本类型不变）⇒ 主程序只需把"找场景根"改成"找 ScreenLayer 的子节点"（**跨域，主程序执行**）
+  R2 🔴 **输入焦点**：`CanvasLayer` → `Control panel` 后 `_UnhandledInput` 接收顺序变化 ⇒ Overlay 的 Esc 与屏内 Esc 需定优先级
+      应对：定"**Overlay 先于屏**"（Esc 先关模态，栈空才传屏内）✓ 我侧已按此实现 `OverlayLayer._UnhandledInput`
+  R3 🔴 **审计口径**：`LayoutAudit` 按"根"遍历 ⇒ 三层后必须以 **ScreenLayer 当前 panel 为根**（否则常驻 HUD 会被算进判据 ⇒ 读数变化）
+      应对：`ui_sweep.ps1` 的口径行需同步说明"审的是 ScreenLayer 子树"（我侧可改脚本与文档）
+  R4 🟡 **转场动效**：现在换场景无转场 ⇒ ShowPanel 可做淡入（加分项，非必须；`UiMotion` 已有基础设施）
+  R5 🟡 **生命周期**：panel 卸载/重载会丢 UI 局部状态 ⇒ 常显 HUD 必须**只建一次**（放 BaseLayer）
+  R6 🟡 **autoload 顺序**：UIRoot 必须早于任何 panel ⇒ 顺序 = `project.godot` 列表顺序（**跨域**）
+
+【不越域声明】本草案**不改** `project.godot`/autoload、**不改** `gameplay/**`、**不改** `tests/**`；
+           Track 2 我只会把每个屏做到"Control 骨架 + 控制器"的可装载形状（主菜单/城池/战斗之中，城池已完成 ✓）
+⇒ 请架构裁定：① 三层划分与接口签名是否采纳 ② S1/S2 的 autoload 注册与调用点改动由谁执行 ③ R1/R3 的断言与审计口径如何定
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
