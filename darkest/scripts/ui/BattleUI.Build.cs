@@ -87,7 +87,7 @@ public partial class BattleUI : Control
 
         var midPanel = new PanelContainer { Name = "MidRow", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         uiCol.AddChild(midPanel);
-        var midRow = new HBoxContainer { Name = "MidRowBox", SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };   // 🔴 相机口径：不参与垂直拉伸
+        var midRow = new HBoxContainer { Name = "MidRowBox", SizeFlagsVertical = Control.SizeFlags.ShrinkEnd };   // 🔴 相机口径：不参与垂直拉伸   // 🔴 DD 1:1 ④-3c：中段**底对齐**（DD overlays y=680/1080 = 63.0% ⇒ 立绘站在低处；容器语义 = ShrinkEnd）✓
         midRow.AddThemeConstantOverride("separation", 8);
         midPanel.AddChild(midRow);
         _midRow = midRow;
