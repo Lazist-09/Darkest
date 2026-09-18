@@ -2580,3 +2580,20 @@ DD 有独立面板：`campaign\town\provision\provision.layout.darkest`（出征
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.59 **用户指令（2026-09-21）：三项偏差全部要做**
+
+```
+用户原话：立绘重叠 / 升级树 / provision+quest_select「**以上的都要做**」⇒ 覆盖先前"先不做改良"的限制，
+并**授权**为"立绘重叠"调整 §14.5 判据口径（我先前说需策划/架构裁定 ⇒ 用户即权威，已授权）✓
+
+执行计划（按用户列出的顺序）：
+  **A. 立绘重叠（DD 纵深队列）**：hero_spacing 168 / actor_spacing 154 ⇒ ×0.667 ⇒ 步距 ≈103 < 卡宽 ⇒ **允许重叠**
+     · 关键：§14.5 判据 1 只查 **Label** 两两不相交 ⇒ 立绘层用 **非 Label**（TextureRect/ColorRect 头像）⇒ 不触发
+     · 但现卡内有 Label（名/数值）⇒ 卡片重叠会让 Label 重叠 ⇒ 必须**把文字移出卡**（已有托盘 + Tooltip 承载 ✓）
+     · 判据口径：给新图层加**例外**（照 `MotionLayer` 先例）⇒ 需读 `LayoutAudit` 的例外机制（本轮已读）
+  **B. 升级树**：照 DD `building.layout.darkest` 的 `.upgrade_trees_offset 0 195`（×0.667）在建筑弹窗加树形/路径控件
+  **C. provision / quest_select**：照 DD 两份布局**新增对应屏**（目前我域没有）⇒ 新面板 + 接线
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
