@@ -88,3 +88,22 @@ tooltip_text = "确认（DD activity confirm · 数据未接入 ⇒ 色块占位
 [node name="ConfirmPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/ConfirmRow"]
 layout_mode = 2
 custom_minimum_size = Vector2(120, 28)
+
+; P1.4 补足：DD 建筑 activity_layout 的名称/描述行（数据未接入 ⇒ 色块占位，不换不删）
+[node name="NameRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
+layout_mode = 2
+mouse_filter = 2
+tooltip_text = "活动名称（DD activity name · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="NamePlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/NameRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 22)
+
+[node name="DescRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
+layout_mode = 2
+mouse_filter = 2
+tooltip_text = "活动描述（DD activity description · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="DescPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/DescRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(260, 40)
