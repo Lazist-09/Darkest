@@ -109,6 +109,21 @@ public partial class HamletRoot : Control
                 SizeFlagsVertical = Control.SizeFlags.ExpandFill,
                 CustomMinimumSize = new Vector2(360, 380),
             };
+        // 🔴 DD 1:1 ②【英雄状态条】照 `shared\hero\hero.layout.darkest` 的 `hero_campaign_status_layout`（次序/间距）
+        //    DD：resolve_level_bar_offset 6,4 · stress_bar_offset -14,100 · stress_bar_spacing 10,0（×0.667 ⇒ 间距≈7）
+        //    上=决心等级条 ⇒ **用户裁定：映射现有【士气条】（真数据）** · 下=压力条（同源） · HP 条=**接口占位**（TooltipText 标注）✓
+        var statusBars = new VBoxContainer { Name = "HeroStatusBars" };
+        statusBars.AddThemeConstantOverride("separation", 7);
+        int moraleNow = ExpeditionContext.Roster?.MoraleOf(heroId) ?? 0;
+        var hpBar = new ProgressBar { Name = "HeroHpBar", CustomMinimumSize = new Vector2(0, 12), TooltipText = "生命值（读数接口 · 本屏暂不可用）", MouseFilter = Control.MouseFilterEnum.Ignore };
+        hpBar.Modulate = Darkest.UI.DdTheme.Danger;
+        statusBars.AddChild(hpBar);
+        var moraleBarUi = new ProgressBar { Name = "HeroMoraleBar", MinValue = 0, MaxValue = 100, Value = moraleNow, CustomMinimumSize = new Vector2(0, 10) };
+        moraleBarUi.Modulate = Darkest.UI.DdTheme.TextInfo;
+        statusBars.AddChild(moraleBarUi);
+        dLeftCol.AddChild(statusBars);
+        dLeftCol.MoveChild(statusBars, 0);
+        GD.Print($"[UI 英雄面板] ✅ DD 状态条就位：士气条={moraleNow}（真数据）／HP 条=占位接口（已标 TooltipText）✓");
             dLeftCol.AddChild(_detailLeft);
 
             // 🔴 P4（用户参考图④）：**技能 = 图标 + 悬停 tooltip 讲解**（不再是大段文字行）——
