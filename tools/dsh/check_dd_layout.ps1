@@ -44,6 +44,9 @@ $rows = @(
   @{ Key = "hero equipment highlight_pos_offset"; Dd = -20; Impl = "hero_detail_skeleton HeroEquipHighlight block"; Pat = "HeroEquipHighlight" }
   @{ Key = "hero equipment level_offset"; Dd = 90; Impl = "hero_detail_skeleton HeroEquipLevelText block"; Pat = "HeroEquipLevelText" }
   @{ Key = "hero base_stats icon_offset"; Dd = -26; Impl = "hero_detail_skeleton HeroStatsIcon block"; Pat = "HeroStatsIcon" }
+  @{ Key = "monster type_pos"; Dd = 65; Impl = "unit_card MonsterType block (card-relative)"; Pat = "MonsterType" }
+  @{ Key = "monster resistances_pos"; Dd = 100; Impl = "unit_card MonsterResistances block"; Pat = "MonsterResistances" }
+  @{ Key = "monster skills_title_pos"; Dd = 480; Impl = "unit_card MonsterSkillsTitle block"; Pat = "MonsterSkillsTitle" }
   @{ Key = "hero status resolve offset.y"; Dd = 4; Impl = "HeroStatusBars first bar"; Pat = "HeroHpBar" }
   @{ Key = "hero status stress offset.y"; Dd = 100; Impl = "HeroStatusBars second bar"; Pat = "HeroMoraleBar" }
   @{ Key = "building upgrade_trees offset.y"; Dd = 195; Impl = "building_popup UpgradeTree"; Pat = "UpgradeTree" }

@@ -51,3 +51,32 @@ show_percentage = false
 [node name="tag" type="Label" parent="CardCol"]
 autowrap_mode = 2
 theme_override_font_sizes/font_size = 12
+
+; P2.2：DD scripts/layout/panel.monster.darkest 有而卡上缺的位（type 65,112 · resistances 100,220/标题 154,186 ·
+; skills_title 480,186）—— 面板内坐标无 base_size ⇒ 按**卡内相对位置**表达；数据未接入 ⇒ ColorRect 色块占位（不换不删）
+[node name="MonsterType" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.06
+anchor_top = 0.40
+anchor_right = 0.40
+anchor_bottom = 0.46
+mouse_filter = 2
+tooltip_text = "类型（DD panel.monster .type_pos 65,112 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="MonsterResistances" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.10
+anchor_top = 0.70
+anchor_right = 0.44
+anchor_bottom = 0.76
+mouse_filter = 2
+tooltip_text = "抗性（DD panel.monster .resistances_title_pos 154,186 / .resistances_pos 100,220 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="MonsterSkillsTitle" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.46
+anchor_top = 0.70
+anchor_right = 0.80
+anchor_bottom = 0.76
+mouse_filter = 2
+tooltip_text = "技能标题（DD panel.monster .skills_title_pos 480,186 · 数据未接入 ⇒ 色块占位，不换不删）"
