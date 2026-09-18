@@ -1861,3 +1861,43 @@ Track 1（UIRoot 外壳）📐 草案已投（5ea99c9）：三层 + 接口 + 4 �
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.36 **收件：架构裁定 UIRoot S1 收窄版可开工**（DELIVERY-ARCH-UISHELL-RULING-20260921）＋回落清单（2026-09-21）
+
+```
+✅ 裁定要点（照做）：
+  · S1 收窄版现在可做 = 只建 shell 骨架（Base + Overlay）+ autoload；**我出 `scripts/ui/UIRoot.cs`**，主程序在 project.godot 注册 autoload（它的域）
+  · S2~S4 暂缓：S4 战斗面板化 与用户 2026-09-15「战斗 = 唯一宿主」冲突 ⇒ 已提请策划两选一 (i)/(ii)；不阻塞 S1
+  · 🔴 SetBaseHud(bool) 改【声明式】——判据：新加一个 panel 需要有人【记得】做某件事吗？需要 ⇒ 接口形状不对
+  · 🔴 层级不得混用：ShowPanel 只管 Screen 层；DungeonView 的模式切换不经 UIRoot
+  · 🔴 R1/R3 加严：S1 同一提交必须附全量冒烟读数（10 例 · 真错误 0）；审计换根 ScreenLayer ⇒ 必须同时打印 全场景计数 + 范围外控件数（否则是缩范围假绿）
+  · 架构立的通用判据（因我自曝死声明）：加新入口/新访问器前先 grep 同名用途 ⇒ 有则复用或替换，不许并存
+
+📋 回落清单（= 剩余骨架化 TODO 的可核对形式；有留痕 ⇒ 记 TODO；零留痕 ⇒ 骨架完整）：
+  · BattleUI.Build.cs L144: _topLeftGroup = _topBarSkel?.TopLeftGroup ?? new HBoxContainer { Name = "TopLe
+  · BattleUI.Build.cs L301: _cArea = _bottomBarSkel?.CArea ?? new PanelContainer
+  · BattleUI.Build.cs L316: _slotLeft = _bottomBarSkel?.BackSlot5 ?? new PanelContainer
+  · BattleUI.Build.cs L346: VBoxContainer leftStack = _bottomBarSkel?.LeftStack ?? new VBoxContainer { Nam
+  · BattleUI.Build.cs L354: _actorDetailBox = _bottomBarSkel?.ActorDetailBox ?? new PanelContainer { Name 
+  · BattleUI.Build.cs L414: _eArea = _bottomBarSkel?.EArea ?? new PanelContainer
+  · BattleUI.cs L176: VBoxContainer row = slotRow ?? new VBoxContainer { Name = $"BackSlot{slot}Row"
+  · BattleUI.Dungeon.cs L31: _dungeonHost = _bottomBarSkel?.DungeonHost ?? new VBoxContainer
+  · BattleUI.MultiFunction.cs L81: //    ⚠️ 场景缺失 ⇒ 回落代码构建（不崩、不静默）✓
+  · BattleUI.MultiFunction.cs L83: ?? new Button { Text = tabs[i], CustomMinimumSize = new Vector2(80, 26) };
+  · HamletRoot.Build.cs L319: //    ⚠️ 缺失 ⇒ 回落代码构建；子项（资源条/菜单/出发）仍由代码追加 ✓
+  · HamletRoot.Build.cs L321: ?? new PanelContainer { Name = "BottomBar" };
+  · HamletRoot.Build.cs L328: ?? new HBoxContainer { Name = "BottomRow" };
+  · HamletRoot.BuildingPopup.cs L83: ?? new Button { Text = _buildingLabels[k], CustomMinimumSize = new Vector2(220
+  · HamletRoot.BuildingPopup.cs L179: => Darkest.UI.PopupLineTemplate.TryCreate(text) ?? new Label
+  · HamletRoot.Refresh.cs L72: rowBody = tpl.FindChild("RosterRowBody", true, false) as HBoxContainer ?? new 
+  · HamletRoot.Refresh.cs L74: frame = tpl.FindChild("PortraitFrame", true, false) as PanelContainer ?? new P
+  · HamletRoot.Refresh.cs L128: Label info = b.FindChild("RosterInfo", true, false) as Label ?? new Label { Na
+  · MainMenuRoot.cs L138: ?? new PanelContainer { Name = "StatusPanel" };
+  · OverlayLayer.cs L18: ///    两处挂载点均为 `Overlay 缺失 ⇒ 回落旧父容器`，不崩不静默）✓
+  · OverlayLayer.cs L44: GD.Print($"[UI Overlay] `{ScenePath}` 不可用 ⇒ 回落各屏自挂（不静默）✓");
+  · OverlayLayer.cs L118: GD.Print("[UI Overlay] `tooltip.tscn` 不可用 ⇒ 回落代码构建的悬停框（不静默）✓");
+  · TooltipTemplate.cs L9: /// ⚠️ **接线状态：已接线**（`OverlayLayer.ShowTooltip` 优先实例化本模板；缺失 ⇒ 回落代码构建，不崩不静默）✓
+  · WalkMapView.cs L82: // 🔴 E（2026-09-17）：**引擎内置瓷砖渲染**（骨架优先；缺失 ⇒ 回落手绘 ColorRect）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |

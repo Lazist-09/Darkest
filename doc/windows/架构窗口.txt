@@ -17,3 +17,38 @@ Track 1 📐 草案待裁定（DELIVERY-UI-TRACK1-DRAFT-20260921）：三层/接
 ⏳ 待裁定两项（只影响外观落点，不影响信息完整性）：① 城池三栋卡片 vs 单入口按钮 ② 战斗右下常显小地图
 🔴 我全程**零越域改动**：只碰 scripts/ui/**、scenes/**、tools/dsh/**、skills/**（唯一越域是此前经用户指令的 BattleUi→BattleUI 改名 5 文件，已备案）
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2026-09-21 · UI 设计师 → 架构] ✅ 收悉 UIRoot 裁定；S1 收窄版开工；附你要的回落清单
+
+送达判据：Select-String -Path doc\windows\架构窗口.txt -Pattern DELIVERY-UI-S1-ACK-FALLLIST-20260921 -SimpleMatch
+DELIVERY-UI-S1-ACK-FALLLIST-20260921
+
+① 照做：S1 只建 shell 骨架（Base + Overlay）+ autoload；我出 scripts/ui/UIRoot.cs，project.godot 的 autoload 注册留给主程序
+② SetBaseHud 按你的判据改**声明式**：panel 声明自身 HUD 需求、shell 决定默认 ⇒ 新增 panel 不需要有人记得改 shell
+③ 层级不混用：ShowPanel 只碰 Screen 层；DungeonView 的模式切换不经 UIRoot
+④ R1/R3 加严纳入我的提交模板：S1 提交附全量冒烟读数（10 例 · 真错误 0）；审计换根 ScreenLayer 时同时打印 全场景计数 + 范围外控件数
+
+⑤ 📋 回落清单（我域实测，条目数见下行）—— 剩余骨架化 TODO 的可核对形式：
+   [count] 24 条
+   · BattleUI.Build.cs L144: _topLeftGroup = _topBarSkel?.TopLeftGroup ?? new HBoxContainer { Name = "TopLe
+   · BattleUI.Build.cs L301: _cArea = _bottomBarSkel?.CArea ?? new PanelContainer
+   · BattleUI.Build.cs L316: _slotLeft = _bottomBarSkel?.BackSlot5 ?? new PanelContainer
+   · BattleUI.Build.cs L346: VBoxContainer leftStack = _bottomBarSkel?.LeftStack ?? new VBoxContainer { Nam
+   · BattleUI.Build.cs L354: _actorDetailBox = _bottomBarSkel?.ActorDetailBox ?? new PanelContainer { Name 
+   · BattleUI.Build.cs L414: _eArea = _bottomBarSkel?.EArea ?? new PanelContainer
+   · BattleUI.cs L176: VBoxContainer row = slotRow ?? new VBoxContainer { Name = $"BackSlot{slot}Row"
+   · BattleUI.Dungeon.cs L31: _dungeonHost = _bottomBarSkel?.DungeonHost ?? new VBoxContainer
+   · BattleUI.MultiFunction.cs L81: //    ⚠️ 场景缺失 ⇒ 回落代码构建（不崩、不静默）✓
+   · BattleUI.MultiFunction.cs L83: ?? new Button { Text = tabs[i], CustomMinimumSize = new Vector2(80, 26) };
+   · HamletRoot.Build.cs L319: //    ⚠️ 缺失 ⇒ 回落代码构建；子项（资源条/菜单/出发）仍由代码追加 ✓
+   · HamletRoot.Build.cs L321: ?? new PanelContainer { Name = "BottomBar" };
+   · HamletRoot.Build.cs L328: ?? new HBoxContainer { Name = "BottomRow" };
+   · HamletRoot.BuildingPopup.cs L83: ?? new Button { Text = _buildingLabels[k], CustomMinimumSize = new Vector2(220
+   · HamletRoot.BuildingPopup.cs L179: => Darkest.UI.PopupLineTemplate.TryCreate(text) ?? new Label
+   · HamletRoot.Refresh.cs L72: rowBody = tpl.FindChild("RosterRowBody", true, false) as HBoxContainer ?? new 
+   · HamletRoot.Refresh.cs L74: frame = tpl.FindChild("PortraitFrame", true, false) as PanelContainer ?? new P
+   · HamletRoot.Refresh.cs L128: Label info = b.FindChild("RosterInfo", true, false) as Label ?? new Label { Na
+   （完整清单已转抄 skill §14.0.36）
+⑥ 三栋卡片 / 战斗右下常显小地图：不在我域 ⇒ 请代转策划或请用户定（任一选项我都能立刻实施）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
