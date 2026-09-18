@@ -1,4 +1,4 @@
-# tools/dsh/selfcheck.ps1 -- one command, four checks, no Godot needed.
+# tools/dsh/selfcheck.ps1 -- one command, eight checks (the build step needs dotnet, no Godot).
 #
 # ASCII-ONLY ON PURPOSE: a PowerShell file with non-ASCII text must be saved as
 #   UTF-8 *with BOM*, or Windows PowerShell 5.1 decodes it as ANSI and the parser
@@ -13,6 +13,10 @@
 #   2) tools/check_data_discipline.py-- number discipline (suspicious literals must be 0)
 #   3) tools/dsh/check_ui_namespace.ps1 -- UI namespace unified as Darkest.UI
 #   4) tools/dsh/smoke_gate.ps1 -SelfTest -- the CI gate script itself works
+#   5) placeholder compliance (borrow/ and placeholder assets stay untracked)
+#   6) PowerShell syntax of every tools/dsh/*.ps1 parses
+#   7) the solution builds (0 errors)
+#   8) tools/check_file_size.py -- every program file <= 600 lines (user red line 2026-09-18)
 
 $ErrorActionPreference = 'Continue'
 $failed = 0
@@ -32,19 +36,19 @@ function Run-Step([string]$title, [scriptblock]$body) {
     }
 }
 
-Run-Step '1/7 kernel stays Godot-free (check_godot_refs.py)' {
+Run-Step '1/8 kernel stays Godot-free (check_godot_refs.py)' {
     python tools/check_godot_refs.py
 }
 
-Run-Step '2/7 number discipline (check_data_discipline.py)' {
+Run-Step '2/8 number discipline (check_data_discipline.py)' {
     python tools/check_data_discipline.py --numbers
 }
 
-Run-Step '3/7 UI namespace unified (check_ui_namespace.ps1)' {
+Run-Step '3/8 UI namespace unified (check_ui_namespace.ps1)' {
     & powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/check_ui_namespace.ps1
 }
 
-Run-Step '4/7 CI gate script works (smoke_gate.ps1 -SelfTest)' {
+Run-Step '4/8 CI gate script works (smoke_gate.ps1 -SelfTest)' {
     & powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/smoke_gate.ps1 -SelfTest
 }
 
@@ -53,7 +57,7 @@ Run-Step '4/7 CI gate script works (smoke_gate.ps1 -SelfTest)' {
 #   build products, or resources/ (assets_credits.md A1 family). This is a LEGAL
 #   invariant, so it belongs in the one-command self check.
 Write-Output ""
-Write-Output "=== 5/7 placeholder compliance ==="
+Write-Output "=== 5/8 placeholder compliance ==="
 $compliance = 0
 $tracked = @(git ls-files)
 if (@($tracked | Select-String -Pattern 'borrow/').Count -gt 0) {
@@ -80,11 +84,11 @@ if ($leak.Count -gt 0) {
     $compliance = 1
 }
 if ($compliance -ne 0) {
-    Write-Output "[selfcheck] FAIL (5/7 placeholder compliance)"
+    Write-Output "[selfcheck] FAIL (5/8 placeholder compliance)"
     $failed++
 }
 else {
-    Write-Output "[selfcheck] ok   (5/7 placeholder compliance: not tracked, gitignored, not in resources/)"
+    Write-Output "[selfcheck] ok   (5/8 placeholder compliance: not tracked, gitignored, not in resources/)"
 }
 
 # ---- 6/6 powershell syntax (ASCII-only; no Godot needed) ------------------------
@@ -92,7 +96,7 @@ else {
 #   did not even parse -- and it stayed silent for several rounds (it LOOKED like an
 #   "exit code quirk"). A script that cannot parse must be caught by the self check.
 Write-Output ""
-Write-Output "=== 6/7 powershell syntax ==="
+Write-Output "=== 6/8 powershell syntax ==="
 $parseFail = 0
 $psFiles = @(Get-ChildItem tools -Recurse -Filter *.ps1 -ErrorAction SilentlyContinue)
 foreach ($s in $psFiles) {
@@ -105,37 +109,54 @@ foreach ($s in $psFiles) {
     }
 }
 if ($parseFail -ne 0) {
-    Write-Output "[selfcheck] FAIL (6/7 powershell syntax)"
+    Write-Output "[selfcheck] FAIL (6/8 powershell syntax)"
     $failed++
 }
 else {
-    Write-Output ("[selfcheck] ok   (6/7 powershell syntax: " + $psFiles.Count + " scripts parsed)")
+    Write-Output ("[selfcheck] ok   (6/8 powershell syntax: " + $psFiles.Count + " scripts parsed)")
 }
 
-# ---- 7/7 solution builds (ASCII-only) -------------------------------------------
+# ---- 7/8 solution builds (ASCII-only) -------------------------------------------
 # WHY: twice on 2026-09-21 a stray ASCII quote inside a Chinese string literal broke the
 #   build, and it was only caught by an ad-hoc "dotnet build" I happened to run.
 #   A check that must be run by hand is a check that gets skipped, so it lives here.
 Write-Output ""
-Write-Output "=== 7/7 solution builds ==="
+Write-Output "=== 7/8 solution builds ==="
 Push-Location darkest
 dotnet build Darkest.sln -p:DarkestTargetFramework=net10.0 --no-restore -m:1 -nodeReuse:false -tl:off -v:q 2>&1 |
     Select-String -Pattern 'error' -CaseSensitive | Select-Object -First 5 | ForEach-Object { Write-Output ("[build] " + $_.Line.Trim()) }
 $buildCode = $LASTEXITCODE
 Pop-Location
 if ($buildCode -ne 0) {
-    Write-Output "[selfcheck] FAIL (7/7 build) exit=$buildCode"
+    Write-Output "[selfcheck] FAIL (7/8 build) exit=$buildCode"
     $failed++
 }
 else {
-    Write-Output "[selfcheck] ok   (7/7 build: 0 errors)"
+    Write-Output "[selfcheck] ok   (7/8 build: 0 errors)"
+}
+
+# ---- 8/8 program files <= 600 lines (ASCII-only) --------------------------------
+# WHY: the "<=600 lines" red line (user 2026-09-18) is a one-off action without a gate;
+#   files grow back. The gate was written by the architect; it is wired here so the
+#   one-command self check enforces it too. doc/**/*.md stays exempt (long tables are legal).
+Write-Output ""
+Write-Output "=== 8/8 program files <= 600 lines ==="
+python tools/check_file_size.py
+$sizeCode = $LASTEXITCODE
+if ($null -eq $sizeCode) { $sizeCode = 0 }
+if ($sizeCode -ne 0) {
+    Write-Output "[selfcheck] FAIL (8/8 file size) exit=$sizeCode"
+    $failed++
+}
+else {
+    Write-Output "[selfcheck] ok   (8/8 file size: no program file over 600 lines)"
 }
 
 Write-Output ""
 if ($failed -gt 0) {
-    Write-Output ("[selfcheck] RESULT: FAIL (" + $failed + " of 7 checks failed)")
+    Write-Output ("[selfcheck] RESULT: FAIL (" + $failed + " of 8 checks failed)")
     exit 1
 }
 
-Write-Output "[selfcheck] RESULT: OK (all 7 checks passed)"
+Write-Output "[selfcheck] RESULT: OK (all 8 checks passed)"
 exit 0

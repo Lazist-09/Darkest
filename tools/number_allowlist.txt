@@ -53,3 +53,4 @@ scripts/gameplay/sim/run/RunSession.cs | Math.Max(1, battles) | 场数下限（�
 darkest/scripts/data/HeroAssets.cs | int Fps = 8 | 动作槽的【默认】帧率：数据里每槽都显式给 fps；此默认仅在缺字段时占位，**没有任何判据读它**（本阶段不播动画 ⇒ 非平衡数字）
 darkest/scripts/data/HeroAssets.cs | s.Length <= 24 | 报错文案的**截断长度**（只影响日志可读性，非平衡）
 darkest/scripts/data/HeroAssets.cs | s.Length <= 200 | **引用长度护栏**：拒绝把内联数据塞进 frames（`P31` ② "frames 必须是引用"的守卫；不是平衡数字）
+scripts/gameplay/sim/director/BattleDirector.OvertimeAndRetreat.cs | Math.Max(3, o.MValue ?? o.WaveIntervalRounds | M 值下限（公式契约，非平衡量；可复议）—— 2026-09-18 拆分搬家后的新落点（原 BattleDirector.cs 同一条，**路径级白名单遇搬家会失效** ⚠️）
