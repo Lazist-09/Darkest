@@ -68,3 +68,26 @@ tooltip_text = "饰品区（DD panel.hero trinket 453,0 · 数据未接入 ⇒ �
 
 [node name="TrinketPlaceholder" type="ColorRect" parent="HeroTrinketArea"]
 layout_mode = 2
+
+; P2 细化：DD hero.layout 的两处未用键 —— hero_portrait_icon_layout.disease_icon_offset 61,61 与
+; hero_scouting_stat_layout（text 0,0 · tooltip hotspot 300x40）。数据/美术未接入 ⇒ 按硬规矩 §14.0.68 色块占位（不换不删）
+[node name="HeroDiseaseIcon" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.055   ; DD disease_icon_offset 61/1080 附近（以面板为参照的比例近似）
+anchor_top = 0.105
+anchor_right = 0.075
+anchor_bottom = 0.145
+mouse_filter = 2
+tooltip_text = "疾病图标（DD hero_portrait_icon_layout.disease_icon_offset 61,61 · 需美术 ⇒ 色块占位，不换不删）"
+
+[node name="HeroScoutingStat" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.64
+anchor_right = 0.156   ; DD hero_scouting_stat_layout tooltip hotspot 300x40（比例）
+anchor_bottom = 0.677
+mouse_filter = 2
+tooltip_text = "侦察数值（DD hero_scouting_stat_layout · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="ScoutingPlaceholder" type="ColorRect" parent="HeroScoutingStat"]
+layout_mode = 2
