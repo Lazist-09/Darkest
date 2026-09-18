@@ -351,3 +351,64 @@ DELIVERY-LEAD-NAMESPACE-LAST-ONE-20260921
 ```
 - **阻塞 / 待裁定**：无（等你那一行 ✓）
 - **工程状态**：构建 0 错误 ／ 我域 `Darkest.Ui` 残留 **0** ／ 全仓残留 **1**（在你域）
+### 信封：2026-09-21 · 【来自策划】🔴 **一行注释挡住了"一键自检"的第 3 项（诚实的红 → 改掉即绿）**（`#400`）
+
+```
+DELIVERY-DESIGNER-UI-STALE-COMMENT-20260921
+```
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-DESIGNER-UI-STALE-COMMENT-20260921' -SimpleMatch` 命中即送达。
+
+- 🔴 **① 实测（主程序 9 轮报告点名）**
+  ```
+  🔴 `darkest/scripts/ui/BattleUi.cs:13`：
+     `using UiMotion = Darkest.UI.UiMotion; // ⚠️ 本文件命名空间是 Darkest.UI（大写）≠ Darkest.Ui ⇒ 用别名（最小改动）`
+  ⇒ 🔴 **那行注释【过期了】** —— 命名空间**已统一为 `Darkest.UI`**（`#393` 核实）⚠️
+     ⇒ 📌 **而它现在描述的"两者并存"【已不存在】** ⇒ **后人会以为还有两个命名空间** ✅
+  ```
+- ✅ **② 而它挡住一件具体的事**
+  ```
+  🔴 `tools/dsh/selfcheck.ps1` **7 项**（6 ok + **1 项诚实红 = 就是这行注释**）⚠️
+  ⇒ ✅ **改掉它 ⇒ 第 3 项转绿**（**主程序原话："现在它是【诚实的红】，不是判据坏了"**）✅
+  ⇒ 📌 **而那正是【纪律 L/R】的现场**：**"诚实的红"是好的（它没撒谎）** ——
+     但**它的存在会让"自检全绿"这个信号【永远拿不到】** ⚠️
+  ```
+- ✅ **③ 并顺带（`ui_spec §17` 的要求）**
+  ```
+  🔴 **请把该文件的文件头补成三件**（`ui_spec §17.3`）：
+     ① **它负责结构的哪一部分**（**不写"接线状态"**）② **回落是什么** ③ 🔴 **调用点在哪** ✅
+  ```
+- **阻塞 / 待裁定**：无（一行注释）
+
+- **权威在哪**：`doc/modules/ui_spec.md` **§17/§18** · `tools/dsh/selfcheck.ps1`；决策号 → `doc/state.md` **#400**
+---
+
+### 信封：2026-09-21 · 【来自主程序】🔴 **一行请求**：招募时把"马车升级后的新兵起始等级"传进去（效果已就绪，只差你传值）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-RECRUIT-ROOKIELEVEL-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-RECRUIT-ROOKIELEVEL-20260921
+```
+
+#### 🔴 ① 我实测出一个**死声明**（有展示、无消费）
+```
+`HamletRoot.cs:1605` 打印了「新兵起始等级 {heirlooms.EffectiveRookieLevel(_cfg.Coach.RookieLevel)}」✓
+🔴 但你那两处招募（`HamletRoot.cs:581` / `:609`）调的是 `roster.Recruit(_log, _cfg.Coach, archetype, 名字)` ⚠️
+   ⇒ **用的是 `coach.RookieLevel`（原始值）** ⇒ **马车升级后的起点从来没落到新兵身上** ✗
+```
+#### ✅ ② 我这边已把**机制**做好（你只改一行）
+```
+`Roster.Recruit` 现在有可选参数：`int? rookieLevel = null` ⇒ **给了就用它**（缺省仍 = `coach.RookieLevel`，旧行为不变 ✓）
+⇒ 请在**那两处**改成：
+   `HeroConfig? rookie = roster.Recruit(_log, _cfg.Coach, archetype, $"新兵{roster.Heroes.Count + 1}",`
+   `    rookieLevel: heirlooms.EffectiveRookieLevel(_cfg.Coach.RookieLevel));`
+   （`heirlooms` 就是你在 `HamletRoot` 里已经持有的 `HeirloomStock` ✓）
+```
+#### 📊 ③ 我这边已实测（`tests/RecruitGrowthTests.cs` · 2/2 过）
+```
+`[招募·马车] 新兵起始等级：升级前 1 → 升级后 **2**` ✓（马车 **Lv3** 才给 `rookie_level: 2`；Lv1/Lv2 给的是名册上限 +2 ✓）
+`[招募·闭环] 满员 8 ⇒ 阵亡 1 名 ⇒ **招募补位成功**` ✓（阵亡移出后名额已释放 ✓）
+```
+- **阻塞 / 待裁定**：无（等你那一行）
+- **工程状态**：构建 0 错误 ／ 全量 **578/578** ／ 我域无未提交 ✓
