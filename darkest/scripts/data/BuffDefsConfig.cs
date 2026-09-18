@@ -8,7 +8,6 @@ using System.Text.Json.Serialization;
 namespace Darkest.Data;
 
 // 枚举（data_schema §3.4 词汇，JSON 小写）
-public enum BuffClass { Buff, UnitState }
 public enum BuffPolarity { Positive, Negative }
 public enum BuffDurationType { Rounds, ActionSkip, Charges, UntilMorale50, UntilBattleEndOrMoraleZero, NextAttackWithinRounds, NextBattle, UntilNextRecovery, WhileCarried }
 public enum BuffStackRule { Refresh, Stack, None }
@@ -32,14 +31,24 @@ public sealed record BuffModifierSpec(
     [property: JsonPropertyName("delta")] int? Delta);
 
 public sealed record BuffHookSpec(
-    [property: JsonPropertyName("timing")] BuffHookTiming Timing,
     [property: JsonPropertyName("effect")] string Effect);
 
-/// <summary>buff 定义（data_schema §3.4；buff=修改器+钩子+生命周期，加 buff 只加数据）。</summary>
+/// <summary>
+/// buff 定义（data_schema §3.4；buff=修改器+钩子+生命周期，加 buff 只加数据）。
+///
+/// 🔴 **字段四分类**（策划 `#408` / 架构 `data_schema §3.4`：**每个 `data/*.json` 字段必须归入四类之一**）——
+///   理由（策划原话）：**「填了却没人消费」会同时骗两种人**（填的人以为在生效；读的人以为它是行为）⚠️
+///   · **行为字段** = 引擎读它并**改变结果**（例：`duration` / `stack` / `effects`）✓
+///   · **约束字段** = **只被 `Validate` 读**（例：`polarity` ⇒ 参与"正面不可驱散"的防火墙 ✓）
+///     🔴 **必须标注"参与校验、不参与行为"**（否则改它的人以为游戏会变 ✓）
+///   · **说明字段** = **人类可读的行为说明**（真实现在别处 ⇒ 例：`hooks` / `extra_rules`）✓
+///     🔴 两条纪律：**① 标注"仅说明、不参与行为" ② 不得写实现里没有的行为**（如 `virtue_inspired` 写 `VALUE MISSING -> O-27` ✓）
+///   · **空字段** = schema 有、数据不填、无人读 ⇒ 🔴 **删**（`timing` 已按 `#408` 删除 ✓）
+///   ⚠️ **`dispellable` 暂标"派生 + 预留"**：它恒等于 `polarity == negative` ⇒ **架构已请策划二选一（删/保留）** ⇒ 未定前不动 ✓
+/// </summary>
 public sealed record BuffDefConfig(
     [property: JsonPropertyName("id")] string Id,
     [property: JsonPropertyName("name")] string Name,
-    [property: JsonPropertyName("class")] BuffClass Class,
     [property: JsonPropertyName("polarity")] BuffPolarity Polarity,
     [property: JsonPropertyName("duration")] BuffDurationSpec Duration,
     [property: JsonPropertyName("stack")] BuffStackSpec Stack,
@@ -102,8 +111,6 @@ public sealed record BuffDefsConfig(
             ReadCommentHandling = JsonCommentHandling.Skip,
             AllowTrailingCommas = false,
         };
-        o.Converters.Add(new LowerEnumJsonConverter<BuffClass>(
-            ("buff", BuffClass.Buff), ("unit_state", BuffClass.UnitState)));
         o.Converters.Add(new LowerEnumJsonConverter<BuffPolarity>(
             ("positive", BuffPolarity.Positive), ("negative", BuffPolarity.Negative)));
         o.Converters.Add(new LowerEnumJsonConverter<BuffDurationType>(
@@ -186,9 +193,10 @@ public sealed record BuffDefsConfig(
                 throw new InvalidDataException($"{ResPath}: \"{b.Id}\" duration.value 必填且 > 0。");
             }
 
-            bool polarityOk = b.Polarity == BuffPolarity.Negative ? b.Dispellable && b.Class == BuffClass.Buff
-                : !b.Dispellable && b.Class == BuffClass.Buff;
-            if (b.Class == BuffClass.Buff && !polarityOk)
+            // 🔴 策划 `#408` ③ 裁「`class` ⇒ 删」⇒ **本约束去掉 class 维度**（数据里恒 `buff` ⇒ 行为不变 ✓）：
+            //    ⚠️ 保留原意 = **"能不能驱散" 必须 == `polarity == negative`**（⚠️ `dispellable` **暂不动** ⇒ 等策划 A/B ✓）
+            bool polarityOk = b.Polarity == BuffPolarity.Negative ? b.Dispellable : !b.Dispellable;
+            if (!polarityOk)
             {
                 throw new InvalidDataException(
                     $"{ResPath}: \"{b.Id}\" polarity↔dispellable 不一致（负面可驱散/正面不可驱散，buff.md §5.1）。");
