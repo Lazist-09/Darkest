@@ -50,7 +50,9 @@ public sealed class UnlocksConfigTests
         var targets = cfg.Unlocks.SelectMany(e => e.Unlocks).ToArray();
         Assert.IsTrue(targets.Any(t => t.StartsWith("building:", StringComparison.Ordinal)), "有 building: 项");
         Assert.IsTrue(targets.Any(t => t.StartsWith("curio:", StringComparison.Ordinal)), "有 curio: 项");
-        Assert.IsTrue(targets.Any(t => t.StartsWith("roster_cap:", StringComparison.Ordinal)), "有 roster_cap: 项");
+        // 🔴 策划 `#403`：名册上限改成**增量语义**（`roster_cap_delta:N`，与马车同语法 ✓）
+        Assert.IsTrue(targets.Any(t => t.StartsWith("roster_cap_delta:", StringComparison.Ordinal)),
+            "有 roster_cap_delta: 项（增量语义 · `#403` ✓）");
 
         foreach (UnlockEntry e in cfg.Unlocks)
         {
