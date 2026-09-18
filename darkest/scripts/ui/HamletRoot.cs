@@ -578,7 +578,8 @@ public partial class HamletRoot : Node2D
             .GroupBy(h => h.Archetype)
             .OrderBy(g => g.Count())
             .First().Key;
-        HeroConfig? rookie = roster.Recruit(_log, _cfg.Coach, archetype, $"新兵{roster.Heroes.Count + 1}");
+                HeroConfig? rookie = roster.Recruit(_log, _cfg.Coach, archetype, $"新兵{roster.Heroes.Count + 1}",
+                    rookieLevel: Darkest.Gameplay.Scene.ExpeditionContext.Heirlooms?.EffectiveRookieLevel(_cfg.Coach.RookieLevel));   // 🔴 消费 HamletRoot:1605 的展示值（马车升级起点落到新兵；null ⇒ 内核缺省=旧行为）✓
 
         GD.Print(rookie is null
             ? $"[HamletRoot] 招募：**名册已满**（{roster.Heroes.Count}/{_cfg.Coach.MaxRoster}）—— 拒绝（不悄悄顶替）"
@@ -606,7 +607,8 @@ public partial class HamletRoot : Node2D
             return;
         }
 
-        HeroConfig? rookie = roster.Recruit(_log, _cfg.Coach, archetype, $"新兵{roster.Heroes.Count + 1}");
+                HeroConfig? rookie = roster.Recruit(_log, _cfg.Coach, archetype, $"新兵{roster.Heroes.Count + 1}",
+                    rookieLevel: Darkest.Gameplay.Scene.ExpeditionContext.Heirlooms?.EffectiveRookieLevel(_cfg.Coach.RookieLevel));   // 🔴 消费 HamletRoot:1605 的展示值（马车升级起点落到新兵；null ⇒ 内核缺省=旧行为）✓
         GD.Print(rookie is null
             ? $"[HamletRoot] 招募·{archetype}：**名册已满**（{roster.Heroes.Count}/{roster.Cap}）—— 拒绝（不悄悄顶替）"
             : $"[HamletRoot] 招募·{archetype}：{rookie.Name}（Lv{rookie.Level} 士气{rookie.Morale}）**免费**" +
