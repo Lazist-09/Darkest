@@ -40,6 +40,38 @@ public partial class BattleUI : CanvasLayer
         // （体首守卫在下方 if 内；此处仅占位不改语义）
     private Label MakeOpaqueModal(string name, out PanelContainer panel)
     {
+        // 🔴 Track 3：**模态优先用模板** `scenes/ui/modal_dialog.tscn`（外观在编辑器可改）；
+        //    模板缺失 ⇒ **回落下面原有的代码构建**（一字不改，不崩不静默）✓
+        //    契约保持：返回内容 `Label`（节点名仍是 `{name}Text`，调用方对它写 `.Text`）✓
+        (PanelContainer? tplPanel, VBoxContainer? tplBody) = Darkest.UI.ModalDialogTemplate.TryCreate(name);
+        if (tplPanel is not null && tplBody is not null)
+        {
+            tplPanel.Name = name;
+            tplPanel.Visible = false;
+            var tplLabel = new Label
+            {
+                Name = $"{name}Text",
+                AutowrapMode = TextServer.AutowrapMode.WordSmart,
+                SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            tplBody.AddChild(tplLabel);
+
+            // ✕ 走模板自带的 `DialogClose`（避免与下方代码构建的 ✕ 并存）✓
+            PanelContainer tplLocal = tplPanel;
+            Darkest.UI.ModalDialogTemplate.BindClose(tplPanel, () =>
+            {
+                tplLocal.Visible = false;
+                GD.Print($"[UI] {name} 关闭（模板 ✕）✓");
+            });
+
+            panel = tplPanel;
+            (_overlay?.ModalHost ?? _uiRoot).AddChild(panel);
+            panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            return tplLabel;
+        }
+
         panel = new PanelContainer { Name = name, Visible = false };
         var margin = new MarginContainer();
         margin.AddThemeConstantOverride("margin_left", 24);
