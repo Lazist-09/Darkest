@@ -2136,3 +2136,32 @@ y = 698/1080 = **64.6%**（托盘顶）；血条高 10/1080 = **0.93%**；血条
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.45 **DD 1:1 还原 · 收口交接清单（40 轮）**（2026-09-21）
+
+```
+依据：**直读原游戏** `E:\SteamLibrary\steamapps\common\DarkestDungeon\*.layout.darkest`（只读数值坐标）⇒ 已入库 §14.0.40 / 14.0.43 / 14.0.44b
+
+✅ 与 DD 原文一致【已提交】：
+  · Town：名册列(1550,0 ⇒ 右锚 81%/宽 370) 56e009f · 资源(340,708 ⇒ 靠左) + Embark(754,871 ⇒ 底中) d0ba1fe
+  · Roster：行高 97 92edd21 · 模板 370×97 b6e1812
+  · 建筑 nav：宽 128（DD base_size 128×1000）69c8060 + 680f757（高按 0.667 比例 667）· 竖距 68
+  · Main Menu：IUiPanel 24ad148 · 热区 466×48 + 行距 56（DD element_hot_area_size / element_spacing）bc16313
+  · Hero Detail：两栏 38:62（DD panel.hero 左 0-230 / 右 230-600）f63aca4
+  · 战斗顶薄条：实测已是 DD 三段式（左上 quest_info / 顶中火把+回合 / 右上位已留）ddf9551
+
+🚧 照抄未做【原因明确】：
+  · Town 剩余：nav 左边距(DD x=70 ⇒ ×0.667≈47px) 与顶端偏移(DD y=230 ⇒ ≈153px) · `estate_summary_pos 0 975` · 名册内六元素偏移
+  · Hero Detail 条/列/槽：现为两块大文本 Label ⇒ 需**新增控件+改绑定**（＝重建结构）
+  · Main Menu 起点/标题块：DD `base_pos 450 150` / `element_start_pos 510 240`（用容器比例表达即可，未做）
+  · Battle 托盘与中段舞台：DD x=788−168×4 / 1050+168×4 / y=698 / 条 10×100~400 ⇒ 需结构重做（我上一轮建的**未接线骨架已删除**，避免死代码）
+  · Map 接战斗右下：依赖 UIRoot 接管
+
+🔄 他人域在飞（我未碰/未提交/未回退）：
+  · `darkest/scripts/ui/` 内 **11 个 .cs 已被他人修改**：BattleUI.cs + 9 个 BattleUI.*.cs（`: CanvasLayer` → `: Control`）+ HamletRoot.cs（→ `Control, IUiPanel`，含 PanelName/WantsBaseHud）
+  · 构建当前 **0 错误**（其改动自洽）⇒ 请协调收口；我在此前已明确声明"不覆盖他人未提交改动"
+
+⏳ 待用户/策划一句话（阻塞我继续的部分）：① 名册内偏移 A/B/C（是否新增武器/护甲/决心三节点）② 是否"允许重建结构"（英雄面板条/列/槽、战斗托盘）③ 11 个在飞文件是否由我接手
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
