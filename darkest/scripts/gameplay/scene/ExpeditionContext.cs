@@ -68,6 +68,28 @@ public static class ExpeditionContext
         //    **本次 vs 上次对比** ＋ **名册构成**（在册/等级分布/特质/疾病）⇒ 养成读数成体系 ✓
         var lines = new List<string>(LastRunStart.DiffLines(prev));
         lines.Add(Darkest.Gameplay.Sim.Run.RosterComposition.Describe(roster));
+
+        // 🆕 **进度可见性**（A4 同族）：把"下一个解锁还差几趟/几胜"也带进"再出发"读数 ✓
+        // 🔴 **纪律 Q**：读数**不得打断主流程** ⇒ 整段包 try/catch（解析失败就只少一行，绝不影响流程 ✓）
+        try
+        {
+            Darkest.Data.UnlocksConfig? unlocksCfg = LooksUnlocks();
+            if (unlocksCfg is not null)
+            {
+                if (Progress.NextUnlock(unlocksCfg) is { } next)
+                {
+                    lines.Add($"[下一解锁] {string.Join("/", next.Entry.Unlocks)}（还差 **{next.RunsRemaining} 趟** ／ {next.BattlesRemaining} 胜）✓");
+                }
+                else
+                {
+                    lines.Add("[下一解锁] **全部已解锁** ✓");
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            lines.Add($"[下一解锁] （读数不可用，不影响流程：{ex.GetType().Name}）✓");
+        }
         return lines;
     }
 
@@ -125,6 +147,42 @@ public static class ExpeditionContext
     /// **不随 `End()` 清空** ✓（此前**不存在**任何跨趟出征计数器 ⇒ 解锁阈值表没有输入 ⚠️；本属性补上这一层）
     /// </summary>
     public static Darkest.Gameplay.Sim.Run.RunProgress Progress { get; } = new();
+
+    private static Darkest.Data.UnlocksConfig? _unlocks;
+
+    /// <summary>🆕 惰性读取解锁表（**只读**；失败就返回 null ⇒ 由调用方如实少打一行 ✓）</summary>
+    private static Darkest.Data.UnlocksConfig? LooksUnlocks()
+    {
+        if (_unlocks is not null)
+        {
+            return _unlocks;
+        }
+
+        if (!Godot.FileAccess.FileExists(Darkest.Data.UnlocksConfig.ResPath))
+        {
+            return null;
+        }
+
+        // 🔴 **必须同时给 Curio 目录**（P27 ④：解锁引用了不存在的 curio ⇒ `Parse` 会抛）——
+        //    我第一版传 `curioIds: null` ⇒ 每次读数都抛 ⚠️（**幸好纪律 Q 兜住，流程没断** ✓）
+        //    ⇒ 这里把 `curios.json` 的 id 读出来一起传 ✓
+        var curioIds = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
+        if (Godot.FileAccess.FileExists(Darkest.Data.CuriosConfig.ResPath))
+        {
+            Darkest.Data.CuriosConfig curios = Darkest.Data.CuriosConfig.Parse(
+                Godot.FileAccess.GetFileAsString(Darkest.Data.CuriosConfig.ResPath));
+            foreach (Darkest.Data.CurioConfig c in curios.RealCurios)
+            {
+                curioIds.Add(c.Id);
+            }
+        }
+
+        _unlocks = Darkest.Data.UnlocksConfig.Parse(
+            Godot.FileAccess.GetFileAsString(Darkest.Data.UnlocksConfig.ResPath),
+            new System.Collections.Generic.HashSet<string>(Darkest.Data.HeirloomConfig.AllowedBuildings, System.StringComparer.Ordinal),
+            curioIds, rosterHardCap: 12);
+        return _unlocks;
+    }
 
     /// <summary>
     /// **端到端冒烟阶段计数**（M8.0 ⑥）：`0` 未开始 ／ `1` 已跑完一趟回城 ／ `2` 已再出发。
