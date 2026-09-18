@@ -109,9 +109,22 @@ public partial class HamletRoot : Control
                 SizeFlagsVertical = Control.SizeFlags.ExpandFill,
                 CustomMinimumSize = new Vector2(360, 380),
             };
+        // DD 1:1 3-2：**英雄面板骨架优先**（`hero_detail_skeleton.tscn`，编辑器里可改）
+        //   成功 ⇒ 取骨架的 HeroStatusBars；失败 ⇒ 回落下面的代码建（不崩不静默）✓
+        Darkest.UI.HeroDetailSkeleton? hSkel = Darkest.UI.HeroDetailSkeleton.TryInstantiate();
+        bool usedSkel = hSkel is not null;
+        if (hSkel is not null && hSkel.HeroStatusBars is Control skelBars)
+        {
+            dLeftCol.AddChild(skelBars);
+            dLeftCol.MoveChild(skelBars, 0);
+            hSkel.QueueFree();   // 只取状态条；其余块随空根释放 ⇒ 不与代码建块重复
+        }
+
         // 🔴 DD 1:1 ②【英雄状态条】照 `shared\hero\hero.layout.darkest` 的 `hero_campaign_status_layout`（次序/间距）
         //    DD：resolve_level_bar_offset 6,4 · stress_bar_offset -14,100 · stress_bar_spacing 10,0（×0.667 ⇒ 间距≈7）
         //    上=决心等级条 ⇒ **用户裁定：映射现有【士气条】（真数据）** · 下=压力条（同源） · HP 条=**接口占位**（TooltipText 标注）✓
+        if (!usedSkel)
+        {
         var statusBars = new VBoxContainer { Name = "HeroStatusBars" };
         statusBars.AddThemeConstantOverride("separation", 7);
         int moraleNow = ExpeditionContext.Roster?.MoraleOf(heroId) ?? 0;
@@ -124,6 +137,7 @@ public partial class HamletRoot : Control
         dLeftCol.AddChild(statusBars);
         dLeftCol.MoveChild(statusBars, 0);
         GD.Print($"[UI 英雄面板] ✅ DD 状态条就位：士气条={moraleNow}（真数据）／HP 条=占位接口（已标 TooltipText）✓");
+        }
 
         // 🔴 DD 1:1 ②-2【六属性列】照 `shared\hero\hero.layout.darkest` 的 `hero_base_stats_layout`：
         //    .name_offset 0 0 · .value_offset **115 0** · .spacing **200 22** ⇒ 两列（名/值）+ 行距 ⇒ 用 GridContainer 表达 ✓
