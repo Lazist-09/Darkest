@@ -4,16 +4,16 @@
 [ext_resource type="Theme" uid="uid://chllcwagtr3iw" path="res://resources/theme/dd_theme.tres" id="9_theme"]
 
 [node name="RosterRow" type="Button" unique_id=954326763]
-custom_minimum_size = Vector2(232, 32)
-offset_right = 232.0
-offset_bottom = 51.0
+custom_minimum_size = Vector2(370, 97)   ; DD 1:1 #1e：名册行 **370 宽 × 97 高**（roster.layout）✓
+offset_right = 370.0
+offset_bottom = 97.0
 theme = ExtResource("9_theme")
 script = ExtResource("1_row")
 
 [node name="RosterRowBody" type="HBoxContainer" parent="." unique_id=1212591559]
 layout_mode = 0
-offset_right = 231.0
-offset_bottom = 51.0
+offset_right = 369.0
+offset_bottom = 97.0
 
 [node name="RosterRowBody2" type="VBoxContainer" parent="RosterRowBody" unique_id=1518103725]
 layout_mode = 2
