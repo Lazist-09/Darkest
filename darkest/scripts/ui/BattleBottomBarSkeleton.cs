@@ -37,6 +37,9 @@ public partial class BattleBottomBarSkeleton : HBoxContainer
 
     public PanelContainer? EArea => GetNodeOrNull<PanelContainer>("EArea");
 
+    /// <summary>DD 1:1 3-1：紧凑状态托盘（骨架里可见；缺失时由 BattleUI.StatusTray 代码建）</summary>
+    public Control? StatusTray => GetNodeOrNull<Control>("StatusTray");
+
     public VBoxContainer? DungeonHost => GetNodeOrNull<VBoxContainer>("DungeonHost");
 
     /// <summary>实例化骨架；场景缺失/类型不符 ⇒ null（宿主回落代码构建，不崩不静默）✓</summary>

@@ -25,6 +25,14 @@ public partial class BattleUI : Control
             return;
         }
 
+        // DD 1:1 3-1：骨架优先 —— 骨架里已放好 8 槽（编辑器可改）则直接用，缺失才代码建
+        if (_bottomBarSkel?.StatusTray is Control skelTray)
+        {
+            _statusTray = skelTray;
+            GD.Print("[UI 战斗] OK 托盘采用骨架 battle_bottombar.tscn/StatusTray（编辑器里可改）");
+            return;
+        }
+
         var tray = new Control { Name = "StatusTray", MouseFilter = Control.MouseFilterEnum.Ignore };
         tray.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         parent.AddChild(tray);
