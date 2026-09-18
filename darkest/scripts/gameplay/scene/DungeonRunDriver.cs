@@ -110,6 +110,18 @@ public static class DungeonRunDriver
             {
                 flow.Advance(1);                                  // 线性口径的"过一格"（拓扑下仅作推进占位）
                 flow.OnBattleFinished("PlayerVictory", rounds: 5); // 模拟胜利（冒烟专用）
+
+                // 🔴🆕 **升级通道**（`hamlet.md` §7.2/§7.6「战斗给经验 ⇒ 等级成长」· 占位数值 `#399`）：
+                //    这里虽是**驱动层模拟**胜利，但它是"**每场胜利 ⇒ 给经验**"的**真实调用点**（同一条 `Roster` 通道 ✓）
+                //    ⇒ 让 e2e 也能看到**等级成长** ✓
+                //    ⚠️ **口径**：这是**驱动模拟**，**不等于**宿主真实战斗结算路径（后者要"踏进 Battle 格"= T5~T7，卡 UI ✓）
+                if (ExpeditionContext.Roster is { } xpRoster && xpRoster.ExperienceWired)
+                {
+                    xpRoster.AwardExperienceForBattle(new Darkest.Core.Events.CombatLog(), win: true, reason: "e2e_sim");
+                    GD.Print("[升级通道·e2e] 模拟胜利 ⇒ 全队发经验：" +
+                             string.Join("、", System.Linq.Enumerable.Select(xpRoster.Heroes,
+                                 h => $"{h.Name} Lv{h.Level}(XP{xpRoster.ExperienceOf(h.Id)})")) + " ✓");
+                }
             }
 
             HeirloomStock? hs = ExpeditionContext.Heirlooms;
