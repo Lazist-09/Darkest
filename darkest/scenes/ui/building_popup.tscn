@@ -28,3 +28,63 @@ size_flags_horizontal = 3
 [node name="UpgradeTree" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
 layout_mode = 2
 theme_override_constants/separation = 6
+
+; P1.4（DD 严格贴合）：按 DD 建筑范本(activity_layout/activity_slot_layout)补三分区；
+; 数据未接入的位置一律 **ColorRect 色块占位**（用户硬规矩 §14.0.68：不换不删）
+[node name="HeroSlotRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
+layout_mode = 2
+theme_override_constants/separation = 90   ; DD activity hero_slot 间距 135 x0.667 约 90
+
+[node name="HeroSlot1" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 80)
+mouse_filter = 2
+tooltip_text = "英雄槽 1（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot1"]
+layout_mode = 2
+
+[node name="HeroSlot2" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 80)
+mouse_filter = 2
+tooltip_text = "英雄槽 2（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot2"]
+layout_mode = 2
+
+[node name="HeroSlot3" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 80)
+mouse_filter = 2
+tooltip_text = "英雄槽 3（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot3"]
+layout_mode = 2
+
+[node name="HeroSlot4" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 80)
+mouse_filter = 2
+tooltip_text = "英雄槽 4（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot4"]
+layout_mode = 2
+
+[node name="CostRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
+layout_mode = 2
+mouse_filter = 2
+tooltip_text = "花费（DD activity cost · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="CostPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/CostRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(160, 24)
+
+[node name="ConfirmRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
+layout_mode = 2
+mouse_filter = 2
+tooltip_text = "确认（DD activity confirm · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="ConfirmPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/ConfirmRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 28)
