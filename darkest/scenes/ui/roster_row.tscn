@@ -1,100 +1,54 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bq4dtfx6wvaet"]
 
 [ext_resource type="Script" uid="uid://brfq6750jghwd" path="res://scripts/ui/RosterRowTemplate.cs" id="1_row"]
 [ext_resource type="Theme" uid="uid://chllcwagtr3iw" path="res://resources/theme/dd_theme.tres" id="9_theme"]
 
-; 🔴 DD 真机 1:1 还原（2026-09-21 用户裁定：允许重建结构）
-;   DD `roster.layout` 六元素（1920×1080）×0.667 ⇒ 相机 1280×720 像素 ⇒ 折成**行内比例**（行 370×97）：
-;     头像(21,9)→(14,6)  名(116,4)→(77,3)  压力条(116,43)→(77,29)
-;     武器等级(156,65)→(104,43)【装备系统接口·占位】 护甲等级(228,65)→(152,43)【装备系统接口·占位】
-;     决心条(258,4)→(172,3) ⇒ **按用户裁定映射到现有【士气条】**（不新增"决心"概念）
-;   行内比例 = 像素/370（x）· 像素/97（y）；容器名保持代码契约（RosterRowBody / RosterRowBody2 / PortraitFrame / RosterInfo）
 [node name="RosterRow" type="Button" unique_id=954326763]
-custom_minimum_size = Vector2(370, 97)
+custom_minimum_size = Vector2(370, 97)   ; DD roster.layout：列宽 370 / 行高 97（尺寸按 DD，结构保持你的两行式）
+offset_right = 370.0
+offset_bottom = 97.0
 theme = ExtResource("9_theme")
 script = ExtResource("1_row")
 
 [node name="RosterRowBody" type="HBoxContainer" parent="." unique_id=1212591559]
 layout_mode = 0
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+offset_right = 231.0
+offset_bottom = 97.0
 
-[node name="RosterRowBody2" type="Control" parent="RosterRowBody" unique_id=1518103725]
+[node name="RosterRowBody2" type="VBoxContainer" parent="RosterRowBody" unique_id=1518103725]
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
 
-[node name="PortraitFrame" type="PanelContainer" parent="RosterRowBody/RosterRowBody2" unique_id=760509520]
+[node name="RosterUpRow" type="HBoxContainer" parent="RosterRowBody/RosterRowBody2" unique_id=1905712270]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PortraitFrame" type="PanelContainer" parent="RosterRowBody/RosterRowBody2/RosterUpRow" unique_id=760509520]
 custom_minimum_size = Vector2(26, 26)
-layout_mode = 0
-anchor_left = 0.038
-anchor_top = 0.062
-anchor_right = 0.108
-anchor_bottom = 0.33
-
-[node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/PortraitFrame" unique_id=1959592058]
 layout_mode = 2
 
-[node name="HeroName" type="Label" parent="RosterRowBody/RosterRowBody2" unique_id=1157000001]
-layout_mode = 0
-anchor_left = 0.208
-anchor_top = 0.031
-anchor_right = 0.62
-anchor_bottom = 0.28
-text = "名"
-clip_text = true
-text_overrun_behavior = 3
-
-[node name="PressureBar" type="Label" parent="RosterRowBody/RosterRowBody2" unique_id=2016220736]
-layout_mode = 0
-anchor_left = 0.208
-anchor_top = 0.299
-anchor_right = 0.62
-anchor_bottom = 0.55
-text = "●●●●○○○○○○"
-clip_text = true
-
-[node name="WeaponSlot" type="PanelContainer" parent="RosterRowBody/RosterRowBody2" unique_id=1157000002]
-layout_mode = 0
-anchor_left = 0.281
-anchor_top = 0.443
-anchor_right = 0.408
-anchor_bottom = 0.68
-mouse_filter = 2
-tooltip_text = "武器等级（装备系统接口 · 暂不可用）"
-
-[node name="WeaponSlotPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/WeaponSlot" unique_id=1157000003]
+[node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/RosterUpRow/PortraitFrame" unique_id=1959592058]
 layout_mode = 2
 
-[node name="ArmorSlot" type="PanelContainer" parent="RosterRowBody/RosterRowBody2" unique_id=1157000004]
-layout_mode = 0
-anchor_left = 0.411
-anchor_top = 0.443
-anchor_right = 0.538
-anchor_bottom = 0.68
-mouse_filter = 2
-tooltip_text = "护甲等级（装备系统接口 · 暂不可用）"
+[node name="PressureBar" type="Label" parent="RosterRowBody/RosterRowBody2/RosterUpRow" unique_id=2016220736]
+layout_mode = 2
+text = "●●●●○○○○○○　"
 
-[node name="ArmorSlotPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/ArmorSlot" unique_id=1157000005]
+[node name="RosterDownRow" type="HBoxContainer" parent="RosterRowBody/RosterRowBody2" unique_id=1223030150]
 layout_mode = 2
 
-[node name="MoraleBar" type="Label" parent="RosterRowBody/RosterRowBody2" unique_id=1157000006]
-layout_mode = 0
-anchor_left = 0.465
-anchor_top = 0.031
-anchor_right = 0.95
-anchor_bottom = 0.28
-text = "士气"
-clip_text = true
-text_overrun_behavior = 3
-
-[node name="RosterInfo" type="Label" parent="RosterRowBody/RosterRowBody2" unique_id=1305470552]
-layout_mode = 0
-anchor_left = 0.281
-anchor_top = 0.70
-anchor_right = 0.95
-anchor_bottom = 0.97
+[node name="RosterInfo" type="Label" parent="RosterRowBody/RosterRowBody2/RosterDownRow" unique_id=1305470552]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "攻10  防10"
+vertical_alignment = 1
 clip_text = true
 text_overrun_behavior = 3
+
+[node name="HeroLevel" type="PanelContainer" parent="RosterRowBody" unique_id=2006654285]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+
+[node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/HeroLevel" unique_id=96436621]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2

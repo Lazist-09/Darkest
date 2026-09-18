@@ -2749,3 +2749,20 @@ DD 有独立面板：`campaign\town\provision\provision.layout.darkest`（出征
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.65 **用户四条新指令（2026-09-21）：以"用户的设计 + DD 目录"为准**
+
+```
+① **RosterRow 采用用户之前的两行式设计**（`RosterRow` → `RosterRowBody`(HBox) → `RosterRowBody2`(VBox) →
+   `RosterUpRow`(PortraitFrame + PressureBar) / `RosterDownRow`(RosterInfo) + `HeroLevel`）
+   ⇒ 我已**恢复 `9a2c51f` 里用户手改的版本**（54 行），只把尺寸按 DD 改为 **370×97**；
+   🔴 **禁止**再用我重建的"Control + 行内比例锚点 + WeaponSlot/ArmorSlot/MoraleBar"覆盖它 ✗（我的重建偏离了用户设计）
+② **不显示 weapon**：删除武器/护甲占位（随恢复已移除）——名册与英雄面板都**不得有独立武器槽 UI**
+③ **攻防等级就是装备等级**：名册「攻/防」两值**即装备等级** ⇒ 用现有 `RosterInfo` 文案承载，**不新设控件、不新造数据**
+④ **删除 DD 中没有的 UI**：逐屏用 DD 目录 `**\*.layout.darkest` 的键做对照盘点 ⇒ **先列清单再删**；
+   对"用户此前明确要求保留"的项（如名册行尾 `›` 详情入口、`DetailRecommendSlot` 推荐位置预留框）**单独列出并请示**
+⑤ **严格按 DD 目录布局**：DD 的 `*.layout.darkest` 是唯一依据（直读/×0.667/容器+锚点/不写像素），**DD 没有的不加**（除用户点名例外）
+   🔴 也不再按我自己的"改良/审美"动布局 ✗
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
