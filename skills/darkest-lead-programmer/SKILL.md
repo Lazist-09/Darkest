@@ -431,7 +431,7 @@ agent_created: true
 2026-09-18 实测：超 600 行共 **10 个**
 · UI 域（**已投 UI，由他们拆**）：`BattleUi.cs` **2715** · `HamletRoot.cs` **1663**
 · **数据面**：~~`TuningConfig.cs` 760~~ **✅ 已拆（2026-09-18）：760 → 559 ＋ 新文件 `TuningConfig.ExpeditionAndCombat.cs` 214**
-· 主程序·内核（**2026-09-18 实测** · 拆一个划掉一个）：`ExpeditionFlow.cs` 937 · ~~`ExpeditionSession.cs` 915~~ **✅ 已拆：915 → 413 ＋ 新文件 `ExpeditionSession.CampAndBonuses.cs` 517** · ~~`BattleRoot.cs` 889~~ **✅ 已拆：889 → 562 ＋ 新文件 `BattleRoot.PlayerActions.cs` 346** · ~~`BattleDirector.cs` 832~~ **✅ 已拆：832 → 447 ＋ 新文件 28 / 399** · ~~`TuningConfig.cs` 760~~ **✅ 已拆：760 → 559 ＋ 新文件 214**
+· 主程序·内核（**2026-09-18 实测** · ✅ **主程序域已全部拆完**）：~~`ExpeditionFlow.cs` 937~~ **✅ 已拆：937 → 579 ＋ 新文件 `ExpeditionFlow.RoomInteractions.cs` 372** · ~~`ExpeditionSession.cs` 915~~ **✅ 已拆：915 → 413 ＋ 新文件 `ExpeditionSession.CampAndBonuses.cs` 517** · ~~`BattleRoot.cs` 889~~ **✅ 已拆：889 → 562 ＋ 新文件 `BattleRoot.PlayerActions.cs` 346** · ~~`BattleDirector.cs` 832~~ **✅ 已拆：832 → 447 ＋ 新文件 28 / 399** · ~~`TuningConfig.cs` 760~~ **✅ 已拆：760 → 559 ＋ 新文件 214**
 · 主程序·用例：~~`M76TopologyProbeTests.cs` 1176~~ **已拆：1176 → 463 ＋ 新文件 434 / 313** · ~~`BoardTests.cs` 702~~ **已拆：702 → 553 ＋ 新文件 165** · ~~`M75VerificationPackTests.cs` 628~~ **已拆（2026-09-18）：628 → 494 ＋ 新文件 153**
 ⇒ 📌 **拆一个就划掉一个**；**新增文件必须一开始就 ≤600 行** ✓
 ```
