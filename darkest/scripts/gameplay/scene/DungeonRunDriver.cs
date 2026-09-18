@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Gameplay.Sim.Run;
-using Darkest.UI; // ⚠️ UI 根是 `Darkest.Ui`（小写 i），而 `BattleUi` 是 `Darkest.UI` —— 两者并存，别混 ✓
+using Darkest.UI; // ✅ UI 命名空间已**统一为 `Darkest.UI`**（2026-09-21 用户拍板 · 我域 35 处 + 域外 2 处改名已完成）⇒ **不再存在大小写并存** ✓
 using Godot;
 
 namespace Darkest.Gameplay.Scene;
