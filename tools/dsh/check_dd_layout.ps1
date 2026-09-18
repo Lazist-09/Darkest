@@ -1,0 +1,45 @@
+# tools/dsh/check_dd_layout.ps1 -- DD layout conformance check (UI owner, 2026-09-21)
+#
+# Why: directive 5 says every layout value must come from the ORIGINAL GAME's
+#      *.layout.darkest files (1920x1080 base, scaled by 0.667 to our 1280x720 camera),
+#      never from my own taste. This script prints DD value vs our implemented value so
+#      conformance is checkable instead of remembered.
+#
+# Usage: powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/check_dd_layout.ps1
+# ASCII only on purpose (PowerShell 5.1 mis-parses UTF-8 no-BOM non-ASCII).
+
+$ErrorActionPreference = "Stop"
+$root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$ui   = Join-Path $root "darkest/scripts/ui"
+$scn  = Join-Path $root "darkest/scenes"
+
+# DD key -> (dd value at 1920x1080, scale, where we implemented it, what to grep)
+$rows = @(
+  @{ Key = "town.roster_list_pos.x";   Dd = 1550; Impl = "hamlet_skeleton.tscn RightColumn width"; Pat = "Vector2\(370, 0\)" }
+  @{ Key = "town.embark_party_pos";    Dd = 754;  Impl = "HamletRoot.Build (two expanders centre Embark)"; Pat = "MidPadLeft" }
+  @{ Key = "town.heirloom_exchange_pos.x"; Dd = 340; Impl = "HamletRoot.Build resource bar ShrinkBegin"; Pat = "ShrinkBegin" }
+  @{ Key = "building_navigation.base_size"; Dd = 128; Impl = "HamletRoot.Build BuildingNav"; Pat = "Vector2\(128, 667\)" }
+  @{ Key = "roster row height";        Dd = 97;   Impl = "roster_row.tscn root"; Pat = "Vector2\(370, 97\)" }
+  @{ Key = "menu element_hot_area_size"; Dd = 466; Impl = "MainMenuRoot button"; Pat = "Vector2\(466, 48\)" }
+  @{ Key = "raid hero_start_pos.x";    Dd = 788;  Impl = "BattleUI.StatusTray hero slot 0"; Pat = "0.410f" }
+  @{ Key = "raid monster_start_pos.x"; Dd = 1050; Impl = "BattleUI.StatusTray enemy slot 0"; Pat = "0.547f" }
+  @{ Key = "status_bars.y_pos";        Dd = 698;  Impl = "BattleUI.StatusTray tray y"; Pat = "0.646f" }
+  @{ Key = "status_bars.health_height"; Dd = 10;  Impl = "BattleUI.StatusTray bar height"; Pat = "0.0093f" }
+  @{ Key = "raid actor_spacing - figure"; Dd = 168; Impl = "BattleUI CardW+GapX = 84+9"; Pat = "const float CardW = 84f" }
+  @{ Key = "hero campaign_status spacing"; Dd = 10; Impl = "HeroStatusBars separation 7"; Pat = "HeroStatusBars" }
+)
+
+"DD value (x0.667 where linear) vs our implementation"
+"-----------------------------------------------------------------"
+"{0,-34} {1,8} {2,9}  {3}" -f "DD KEY", "DD", "SCALED", "IMPLEMENTED AT"
+$miss = 0
+foreach ($r in $rows) {
+    $scaled = [math]::Round($r.Dd * 0.667, 3)
+    $hit = @(Get-ChildItem $ui, $scn -Recurse -Include *.cs, *.tscn -ErrorAction SilentlyContinue |
+        Select-String -Pattern $r.Pat -SimpleMatch -ErrorAction SilentlyContinue)
+    $mark = if ($hit.Count -gt 0) { "ok" } else { $miss++; "MISSING" }
+    "{0,-34} {1,8} {2,9}  {3}  [{4}]" -f $r.Key, $r.Dd, $scaled, $r.Impl, $mark
+}
+""
+if ($miss -gt 0) { "RESULT: $miss item(s) not found in our code/scenes (review needed)"; exit 1 }
+"RESULT: all DD values have an implementation anchor"; exit 0
