@@ -25,10 +25,16 @@ public partial class HamletRoot : Control
     /// </summary>
     private (PanelContainer Panel, Label Title, VBoxContainer Body) MakePopup(string name, string titleText)
     {
+        // 🔴 Track 3（DD `fe_flow/overlays`）：**模态统一住 Overlay 层**（缺失则回落旧父容器，不崩不静默）✓
+        _overlay ??= Darkest.UI.OverlayLayer.TryInstantiate();
+        if (_overlay is not null && _overlay.GetParent() is null)
+        {
+            AddChild(_overlay);
+        }
         var panel = new PanelContainer { Name = name, Visible = false };
         panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         Darkest.UI.DdTheme.Apply(panel);
-        AddChild(panel);
+        (_overlay?.ModalHost ?? panel.GetParent()!).AddChild(panel);
 
         var margin = new MarginContainer();
         foreach (string side in new[] { "margin_left", "margin_top", "margin_right", "margin_bottom" })

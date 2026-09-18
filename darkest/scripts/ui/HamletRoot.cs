@@ -57,6 +57,7 @@ public partial class HamletRoot : Control
     private readonly Dictionary<string, Button> _upgradeButtons = new(); // M8.1：三栋升级按钮（用于置灰）
     // 🔴 **二级窗口（弹窗）**：建筑详情 —— 用户 2026-09-14 要求「弹窗要能打开也能关闭」「建筑详细使用走二级窗口」
     private PanelContainer? _buildingPopup;
+    private Darkest.UI.OverlayLayer? _overlay;   // 🔴 Track 3：Overlay 层（模态统一住这里；缺失回落到旧父容器）✓
     private Label? _buildingPopupTitle;
     private VBoxContainer? _buildingPopupBody;
     private string? _buildingPopupId;
