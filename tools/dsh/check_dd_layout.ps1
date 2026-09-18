@@ -21,6 +21,8 @@ $rows = @(
   @{ Key = "building_navigation.base_size"; Dd = 128; Impl = "HamletRoot.Build BuildingNav"; Pat = "Vector2(128, 667)" }
   @{ Key = "roster row height";        Dd = 97;   Impl = "roster_row.tscn root"; Pat = "Vector2(370, 97)" }
   @{ Key = "menu element_hot_area_size"; Dd = 466; Impl = "MainMenuRoot button"; Pat = "Vector2(466, 48)" }
+  @{ Key = "menu base_pos"; Dd = 450; Impl = "main_menu MenuMargin (element start 510,240 x0.667 = 340,160)"; Pat = "MenuMargin" }
+  @{ Key = "menu options_area_size"; Dd = 600; Impl = "main_menu OptionsPanel 400x288"; Pat = "Vector2(400, 288)" }
   @{ Key = "raid hero_start_pos.x";    Dd = 788;  Impl = "BattleUI.StatusTray hero slot 0"; Pat = "0.410f" }
   @{ Key = "raid monster_start_pos.x"; Dd = 1050; Impl = "BattleUI.StatusTray enemy slot 0"; Pat = "0.547f" }
   @{ Key = "status_bars.y_pos";        Dd = 698;  Impl = "BattleUI.StatusTray tray y"; Pat = "0.646f" }
