@@ -8,7 +8,8 @@
 #   powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/ui_sweep.ps1
 #   powershell ... -File tools/dsh/ui_sweep.ps1 -OutDir reports -QuitAfter 900
 #
-# Caliber (per entry):
+# Caliber (per entry) -- ui_spec 14.5:「相机口径内 + 可见 Label 两两不相交 + Panel/PanelContainer BgColor.a==1」
+# NOTE: 14.5 的第三项「禁手写 Position/Size」尚未做成硬门（手绘的地图/迷你地图会误伤）⇒ 待定基线后再定，未接线就明说。
 #   * content demand over camera must be 0        ("内容需求超出相机")
 #   * overlap pairs / transparent frames must be 0 ("重叠对 N ／ 透明框 M")
 #   * real ERROR (^ERROR:, excluding engine-exit noise) must be 0
@@ -122,8 +123,9 @@ foreach ($e in $run) {
     $fail = ($empty -or $demand -gt 0 -or $ov -gt 0 -or $tr -gt 0 -or $real.Count -gt 0)
     if ($fail) { $bad++ }
 
-    $row = "{0,-18} | lines={1,-6} | demandOverCamera={2} | overlap={3} | transparent={4} | realERROR={5} | {6}" -f `
-        $e.N, $lines.Count, $demand, $ov, $tr, $real.Count, $(if ($empty) { 'FAIL(empty log)' } elseif ($fail) { 'FAIL' } else { 'ok' })
+    $spec145 = if ($demand -eq 0 -and $ov -eq 0 -and $tr -eq 0) { 'ok' } else { 'FAIL' }   # §14.5: 相机口径+Label不相交+Panel不透明
+    $row = "{0,-18} | lines={1,-6} | spec14.5={2} | demand={3} | overlap={4} | transparent={5} | realERROR={6} | {7}" -f `
+        $e.N, $lines.Count, $spec145, $demand, $ov, $tr, $real.Count, $(if ($empty) { 'FAIL(empty log)' } elseif ($fail) { 'FAIL' } else { 'ok' })
     $rows += $row
     Write-Host ("         " + $row) -ForegroundColor $(if ($fail) { 'Red' } else { 'Green' })
     $row | Add-Content $summary -Encoding UTF8
