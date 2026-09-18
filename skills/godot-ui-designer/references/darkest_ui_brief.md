@@ -2274,3 +2274,100 @@ y = 698/1080 = **64.6%**（托盘顶）；血条高 10/1080 = **0.93%**；血条
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.49 **DD 战斗屏与地图面板布局原文（真文件已定位）**（2026-09-21）
+
+```
+定位方式：按键名（status_bars/quest_info/scouting）在 `*.darkest` 反查 ⇒ 真文件在 **`scripts\layout\`**（不是我先前猜的 raid\ 目录）✓
+── scripts\layout\screen.raid.darkest ──
+  screen_guide: .x_centre 960 .safe_left 240 .safe_right 1680 .panel_top 720
+  fade_controls:
+  .foreground_post_battle_fade_time 0.4
+  area: .tile_width 720 .actor_spacing 154 .actor_bottom 0 .room_position 600
+  panel_transition_bar:
+  overlays:
+  .hero_start_pos 788 680
+  .hero_spacing -168 0p
+  .monster_start_pos 1050 680
+  .monster_spacing 168 0
+  prop_interaction:
+  .curio_controller_button_offset 0 0
+  .door_controller_button_offset 0 -360
+  .obstacle_controller_button_offset 0 0
+  status_bar_tray_pulse:
+  status_bar_tray_pulse_loop:
+  status_bar_tray_icon_pulse:
+  status_bar_tray_icon_check_tooltips_pulse:
+  status_bar_round_indicator_pulse:
+  torch_layout: .pos_y 28 .gauge_offset 26 89 .gauge_size 400 4 .fade_amount 0.05 .flamepos 960 10
+  round_display: .pos_y 120 .sprite_offset 0 0 .text_offset 0 -25
+  kill_count_display:
+  .text_offset 205 64
+  shard_escrow_display:
+  .text_offset 205 64
+  wave_countdown_display:
+  .bar_offset 35 42
+  .end_img_offset 0 0
+  .bar_stencil_offset 0 0
+  .tooltip_offset 80 -10
+  .wave_count_offset 170 77
+  .wave_count_text_offset 217 110
+  .wave_kill_count_offset 80 78
+  .wave_kill_count_text_offset 137 110
+  skip_curio_display:
+  .sprite_offset -70 -63
+  .text_offset 0 75
+  .button_offset -75 -40
+  .input_preview_button_offset 0 -37
+  .input_preview_button_active_party_position 1000.0
+
+── scripts\layout\screen.raid.status_bars.darkest ──
+  status_bars: 	.char_x_offset 	-50 	.y_pos 698
+  .health_bar_offset 50 0 .health_bar_height 10 .health_bar_widths 100 200 300 400 .health_bar_sha
+  .stress_offset 	-1 12 	.stress_spacing 10
+  .status_bar_tooltip_hot_area_offset 50 -10 .status_bar_tooltip_hot_area_height 35
+  .status_bar_tooltip_offset 50 -12
+  .status_bar_controller_tooltip_offset 50 -12
+  .tray_icon_hot_spot_size 20 24
+  .tray_icon_left_offset 	58 -38 	.tray_icon_left_spacing 20
+  .tray_icon_right_offset 62 -38 	.tray_icon_right_spacing 20
+  .tray_controller_button_offset 0 -60 1000
+  .icon_offset 	50 30
+  .icon_world_y_offset  149
+  .icon_tooltip_offset			            0 30
+  .round_indicator_icon_offset	            10 -4
+  .round_indicator_icon_spacing	            8 0
+  .multiple_hit_plus_y_offset                 -38
+
+── scripts\layout\panel.map.darkest ──
+  map_layout:			.pos	 4	40	.scrollpos 0 0 .tilesize 24 .scale 1.00 .clip 16 665 19 340 .manual_to_
+  indicator_layout:	.bounce 5 .up_time 0.50 .down_time 0.50 .max_scale 1.05 .min_scale 0.95
+  tab_placement:
+  home_button_layout:
+  .button_pos 677 24
+  .tooltip_offset 1206 28
+  fog_of_war:         .maximum_total_reveal_time 2.0
+  input:              .min_zoom_scale 0.35
+  input_preview:      .base_pos 5 3
+  .visible_area_offset 0 0
+  .visible_area_size 720 360
+  .transition_offset -100 0
+  .transition_offset_time 0.3
+  .transition_offset_easing_function easeOutSine
+  .background_offset -4 8
+  .pan_offset 0 0
+  .pan_controller_button_offset 10 35
+  .pan_text_offset 20 18
+  .zoom_in_offset 0 100
+  .zoom_in_controller_button_offset 28 40
+  .zoom_in_text_offset 20 12
+  .zoom_out_offset 0 160
+  .zoom_out_controller_button_offset 28 55
+  .zoom_out_text_offset 20 28
+  .reset_offset 0 220
+  .reset_controller_button_offset 28 70
+  .reset_text_offset 20 42
+
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
