@@ -1813,3 +1813,21 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.34 **Track 2 更正：布局其实已在骨架里（附实证行号）**（2026-09-21）
+
+```
+🔴 **我此前说"剩布局全量入 hamlet_skeleton.tscn" —— 不准确，特此更正**。实测：
+  · 城池根 = **Control**（4bc2de7）⇒ 与 BattleUI/MainMenu 同范式 ✓
+  · **顶层四区全部在 `hamlet_skeleton.tscn`**：HamletMargin → HamletRootCol → {TopBar/TopRow · StatusBar · Body{LeftColumn/LeftCol · RightColumn/RightCol} · BottomBar/BottomRow}
+  · 代码 = **骨架优先 + 缺失回落**（两形态都在用：`HamletSkeleton.cs` 的 10 个访问器 + `Build.cs:320/327` 的 `skel?.GetNodeOrNull(...) ?? new …`）
+  · 动态列表项走**模板场景**（13 个模板）⇒ 这是**设计如此**，本就不该搬进骨架 ✓
+  · §14.5 判据已并入一键表（`ui_sweep.ps1` 的 `spec14.5` 列）✓
+⇒ **Track 2 核心已完成**；剩余仅是"左栏建筑区/服务行内层块是否骨架化"这类**可选细粒度优化** ✓
+
+🔴 **本轮第二次自我更正（死声明风险）**：我曾给 `HamletSkeleton.cs` 加 `BottomBar`/`BottomRow` 访问器，
+   随即发现 `Build.cs` 已用直取路径拿到它们 ⇒ 再加访问器就是**死声明** ⇒ **立即 git checkout 回退**（构建 0 错误）✓
+   教训：**加 API 前先 grep 是否已有等价路径**（否则制造第二套入口 —— 与"两条 UI 构造策略"同族病）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |

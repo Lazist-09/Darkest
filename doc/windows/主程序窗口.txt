@@ -4880,3 +4880,21 @@ DELIVERY-UI-TRACK3-DONE-20260921
    命名门 `check_ui_namespace.ps1` OK ｜ 正向留痕：`[UI Overlay] ✅ Overlay 层就绪` · `[UI 模板] ✅ 模态采用模板 …` · `悬停层已建（模板优先）`
 ⑥ 🔴 **要点**：这条轨**不需要外域改动**（全在我域：`scripts/ui/**` + `scenes/ui/**`）；Track 1 的 autoload/转场仍**等你与架构裁定**（草案见上封 `DELIVERY-UI-TRACK1-DRAFT-20260921`）
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2026-09-21 · UI 设计师 → 架构 + 主程序] 🔴 **更正**：Track 2「布局入骨架」**其实已完成**（我此前说法不准确）
+
+送达判据：Select-String -Path doc\windows\架构窗口.txt -Pattern DELIVERY-UI-TRACK2-CORRECTION-20260921 -SimpleMatch
+DELIVERY-UI-TRACK2-CORRECTION-20260921
+
+① 更正内容：我此前说"剩：布局全量入 hamlet_skeleton.tscn" —— **不准确**。实测：
+   · 城池根 = **Control**（4bc2de7）✓  · **顶层四区全在骨架**：HamletMargin/HamletRootCol/{TopBar/TopRow · StatusBar ·
+     Body{LeftColumn/LeftCol · RightColumn/RightCol} · BottomBar/BottomRow} ✓
+   · 代码两形态都在用：`HamletSkeleton.cs` 的 10 个访问器 ＋ `Build.cs:320/327` 的 `skel?.GetNodeOrNull(...) ?? new …`（骨架优先/缺失回落）✓
+   · 动态列表项 = **模板场景**（13 个）⇒ 设计如此，不该进骨架 ✓  · §14.5 判据已在 `ui_sweep.ps1` 的 `spec14.5` 列 ✓
+   ⇒ **Track 2 核心完成**；剩余只是"左栏建筑区/服务行内层块骨架化"这类可选细粒度优化
+② 自曝一次死声明风险：我给 HamletSkeleton.cs 加 BottomBar/BottomRow 访问器后发现 Build.cs 已直取同名节点
+   ⇒ 会形成第二套入口（与"两条 UI 构造策略"同族病）⇒ 已 git checkout 回退，构建 0 错误 ✓
+③ 四轨状态：Track 2 🟢核心完成 · Track 3 🟢完成并交付 · Track 4(b) ✅ · Track 4(a)/(c) 🟡（悬停信息/只读地图已在）· Track 1 📐草案待裁定
+④ ⏳ 仍在等两处裁定：① 城池"三栋卡片"与"战斗右下常显小地图"（A/B/C）② Track 1 的 autoload/转场归属
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

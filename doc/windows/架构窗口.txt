@@ -1,15 +1,18 @@
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[2026-09-21 · UI 设计师 → 架构 + 主程序] 📐 **Track 1 草案：UIRoot 三层流程外壳**（接口 + 迁移步骤 + 6 条风险）待裁定
+[2026-09-21 · UI 设计师 → 架构 + 主程序] 🔴 **更正**：Track 2「布局入骨架」**其实已完成**（我此前说法不准确）
 
-送达判据：Select-String -Path doc\windows\架构窗口.txt -Pattern '"'"'DELIVERY-UI-TRACK1-DRAFT-20260921'"'"' -SimpleMatch
-DELIVERY-UI-TRACK1-DRAFT-20260921
+送达判据：Select-String -Path doc\windows\架构窗口.txt -Pattern DELIVERY-UI-TRACK2-CORRECTION-20260921 -SimpleMatch
+DELIVERY-UI-TRACK2-CORRECTION-20260921
 
-① 目标：以 `UIRoot` 单外壳换 panel 取代 `ChangeSceneToFile` 硬替换 ⇒ 常显 HUD ／ 中央导航 ／ overlay 式转场
-② 三层：BaseLayer（常驻 HUD）· ScreenLayer（当前 panel）· **OverlayLayer（我已建并接线 ✓）**
-③ 接口：`ShowPanel(PackedScene,args)` / `ShowPanel<T>()` / `OpenOverlay(id,modal)` / `Back()` / `CurrentPanel<T>()` / `SetBaseHud(bool)`
-④ 迁移 4 步（每步独立可验）：S1 骨架+autoload（**跨域**）→ S2 主菜单面板化 → S3 城池（**已是 Control ✓**）→ S4 战斗面板化
-⑤ 🔴 6 条风险：R1 SmokeScript 按场景类型导航需改（**跨域 主程序**）· R2 输入焦点（我侧已定"Overlay 先于屏"）·
-   R3 审计口径须以 ScreenLayer 子树为根（否则常驻 HUD 进判据）· R4 转场动效（可选）· R5 常显 HUD 只建一次 · R6 autoload 顺序
-⑥ **不越域声明**：本草案不改 `project.godot`/autoload、不改 `gameplay/**`、不改 `tests/**`；请裁定后我再动手
+① 更正内容：我此前说"剩：布局全量入 hamlet_skeleton.tscn" —— **不准确**。实测：
+   · 城池根 = **Control**（4bc2de7）✓  · **顶层四区全在骨架**：HamletMargin/HamletRootCol/{TopBar/TopRow · StatusBar ·
+     Body{LeftColumn/LeftCol · RightColumn/RightCol} · BottomBar/BottomRow} ✓
+   · 代码两形态都在用：`HamletSkeleton.cs` 的 10 个访问器 ＋ `Build.cs:320/327` 的 `skel?.GetNodeOrNull(...) ?? new …`（骨架优先/缺失回落）✓
+   · 动态列表项 = **模板场景**（13 个）⇒ 设计如此，不该进骨架 ✓  · §14.5 判据已在 `ui_sweep.ps1` 的 `spec14.5` 列 ✓
+   ⇒ **Track 2 核心完成**；剩余只是"左栏建筑区/服务行内层块骨架化"这类可选细粒度优化
+② 自曝一次死声明风险：我给 HamletSkeleton.cs 加 BottomBar/BottomRow 访问器后发现 Build.cs 已直取同名节点
+   ⇒ 会形成第二套入口（与"两条 UI 构造策略"同族病）⇒ 已 git checkout 回退，构建 0 错误 ✓
+③ 四轨状态：Track 2 🟢核心完成 · Track 3 🟢完成并交付 · Track 4(b) ✅ · Track 4(a)/(c) 🟡（悬停信息/只读地图已在）· Track 1 📐草案待裁定
+④ ⏳ 仍在等两处裁定：① 城池"三栋卡片"与"战斗右下常显小地图"（A/B/C）② Track 1 的 autoload/转场归属
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
