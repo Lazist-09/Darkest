@@ -15,7 +15,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 ///    `_heroButtons`/`_upgradeStatus`/`_saniStatus`/`_saniButtons`/`_selectedHero`/`_cfg`/`_buildingIds`/`_buildingLabels` ✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
-public partial class HamletRoot : Node2D
+public partial class HamletRoot : Control
 {
     /// <summary>刷新（只读跨趟状态，不自己算账）。</summary>
     public void Refresh()

@@ -14,7 +14,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 /// ③ 🔴 依赖主类私有成员：`_embark` · `_heroButtons` · `_selectedHero` · `_saniButtons` · `_rosterList` · `_rosterCfgForDetail` · `_cfg` · `_log` · `_rng`✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
-public partial class HamletRoot : Node2D
+public partial class HamletRoot : Control
 {
     /// <summary>🔴 片① ⑥（冒烟）：**真实点击 Embark（再出发）** ⇒ 切 `Expedition.tscn`（红线 18）。</summary>
     public void PressEmbark()

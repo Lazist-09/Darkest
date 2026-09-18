@@ -14,7 +14,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 /// ③ 🔴 依赖主类字段（全部在 `HamletRoot.cs` 字段区声明）与 `Darkest.UI.HamletSkeleton`（骨架场景）✓
 /// ④ **只搬家、零行为改动**（骨架采用/回落分支一字未改）✓
 /// </summary>
-public partial class HamletRoot : Node2D
+public partial class HamletRoot : Control
 {
     public override void _Ready()
     {

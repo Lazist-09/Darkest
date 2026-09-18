@@ -14,7 +14,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 /// ③ 🔴 依赖主类私有成员：`_selectedHero` · `_cfg` · `_log` · `_rng` · `_upgradeButtons` · `_heroButtons` · `_upgradeStatus` · `Refresh()`✓
 /// ④ **只搬家、零行为改动**（含 2026-09-21 修复的 rookieLevel / EffectiveMoraleRestore，行为不变）✓
 /// </summary>
-public partial class HamletRoot : Node2D
+public partial class HamletRoot : Control
 {
     /// <summary>
     /// **减压**（M8.0 ④）：花钱 → 恢复士气（**唯一**士气出口）→ 副作用掷骰（Tavern 更不稳 / Abbey 更稳）。

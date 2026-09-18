@@ -15,7 +15,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 ///    `_buildingInfo` · `_buildingIds` · `_buildingLabels` · `_upgradeButtons` ✓
 /// ④ **只搬家、零行为改动**（读数对照见提交信息）✓
 /// </summary>
-public partial class HamletRoot : Node2D
+public partial class HamletRoot : Control
 {
     /// <summary>🔴 打开**建筑详情弹窗**（二级窗口）：功能 ／ 当前等级 ／ 下一级所需 ／ **升级按钮** ／ 关闭 ✓
     /// ⚠️ 以前"点一下就升级"（无确认）；现在点建筑 = **打开详情**，升级是弹窗里的**显式动作** ✓</summary>

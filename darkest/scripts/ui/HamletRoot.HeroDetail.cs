@@ -15,7 +15,7 @@ namespace Darkest.UI;   // 🔴 命名纪律（用户 2026-09-21）：一律 Dar
 ///    `_detailLeft` · `_detailRight` · `_detailSkills` · `_detailRecommend` · `_selectedHero`（其余走 `ExpeditionContext`）✓
 /// ④ **只搬家、零行为改动**（读数对照见提交信息）✓
 /// </summary>
-public partial class HamletRoot : Node2D
+public partial class HamletRoot : Control
 {
     /// <summary>🔴 打开某英雄的**角色详情**（片②）—— 数据全部真读（红线 26：断言"显示的是被点的人"）。</summary>
     public void OpenHeroDetail(string heroId)

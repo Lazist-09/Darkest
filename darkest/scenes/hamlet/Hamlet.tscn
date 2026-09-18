@@ -2,5 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/ui/HamletRoot.cs" id="1_root"]
 
-[node name="Hamlet" type="Node2D"]
+[node name="Hamlet" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource("1_root")

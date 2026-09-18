@@ -16,7 +16,7 @@ namespace Darkest.UI;
 /// （**不假装可用**）。
 /// 🔴 红线 18：Hamlet 必须**从启动场景可达**（`BattleRoot` 的按钮 / `--hamlet` CLI）。
 /// </summary>
-public partial class HamletRoot : Node2D
+public partial class HamletRoot : Control
 {
     private Label _status = null!;
     private Label _hint = null!;

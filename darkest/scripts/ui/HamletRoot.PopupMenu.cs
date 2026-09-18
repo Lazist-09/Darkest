@@ -15,7 +15,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 ///    `_buildingEntry` · `_buildingIds` · `_buildingLabels`（弹窗一律**不透明**、必带 ✕、`Esc` 也能关）✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
-public partial class HamletRoot : Node2D
+public partial class HamletRoot : Control
 {
     /// <summary>
     /// 🔴 **二级窗口（弹窗）工厂**（用户 2026-09-14：「弹窗要能打开、也要能关闭」）：
