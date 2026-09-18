@@ -2466,3 +2466,65 @@ DD 原文（`screen.raid.darkest`）：`overlays.hero_start_pos 788 680` · `her
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.55 **DD 建筑弹窗/英雄动作布局原文**（2026-09-21）
+
+```
+直读原游戏（只读数值坐标；1920×1080 基准 ⇒ 本项目 ×0.667）
+── campaign\town\buildings\building.layout.darkest ──
+  building_base_layout:
+  .name_pos 104 126
+  .body_base_pos 596 102
+  .upgrade_base_pos 172 259
+  .close_input_preview_pos 1484 144
+  .close_pos 1496 144
+  building_base_body_layout:
+  .info_text_offset 580 760
+  building_base_upgrade_layout:
+  .frame_offset -18 -115
+  .verbose_offset 20 30
+  .upgrade_title_offset 458 36
+  .upgrade_percent_offset 480 62
+  .upgrade_trees_offset 0 195
+  .upgrade_trees_spacing 0 160
+  building_base_upgrade_tree_layout:
+  .title_offset 20 -35
+  .icon_offset 30 0
+  .icon_locked_offset 0 0
+  .icon_cost_offset 0 0
+  .icon_tooltip_offset 30 106
+  .requirement_start_offset 0 0
+  .requirement_spacing 70 0
+  .requirement_tooltip_tree_icon_above_offset 0 0
+  .requirement_tooltip_tree_icon_below_offset 0 0
+  .divider_offset 0 118
+  building_upgrade_requirement_tooltip_layout:
+  .tooltip_offset 130 0
+  .tooltip_is_offset_from_tree_icon 0
+  building_activity_list_layout:
+  .base_pos 70 50
+  .activity_spacing 0 230
+  building_activity_layout:
+  .base_size 800 200
+
+── campaign\town\buildings\hero_action\hero_action.layout.darkest ──
+  hero_action_layout:
+  .base_pos 220 44
+  .base_size 100 100
+  .banner_pos 0 0
+  .verbose_pos 0 105
+  .body_pos 240 121
+  hero_action_banner_layout:
+  .header_offset -10 0
+  .name_offset 105 45
+  .help_offset 100 46
+  .close_button_offset 680 0
+  .hero_slot_offset -230 -100
+  hero_action_verbose_layout:
+  .frame_offset -20 0
+  .title_text_offset 5 32
+  .body_text_offset 5 74
+
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
