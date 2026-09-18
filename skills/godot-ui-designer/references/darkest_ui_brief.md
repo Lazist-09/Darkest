@@ -2545,3 +2545,14 @@ DD `building.layout.darkest` 四区：name(104,126) · body_base(596,102) · upg
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.57 **⑥-2 供应/任务选择：DD 有独立面板，我域现状判定**（2026-09-21）
+
+```
+DD 有独立面板：`campaign\town\provision\provision.layout.darkest`（出征前采购）· `quest_select\quest_select.layout.darkest`（任务选择）
+我域实测（grep scripts/ui + scenes/ui 的 Provision/Quest/Shop/供应/任务选择）：
+有部分匹配（见日志）⇒ 需逐屏对照
+⇒ 处置：若有对应屏 ⇒ 照 DD 布局落位（每步一小提交）；若无 ⇒ **不新增**（用户规则「如果没有就是原本就没有」）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
