@@ -43,6 +43,9 @@ public partial class BattleUI : Control
             _uiRoot.AddChild(_overlay);
         }
 
+        // 🔴 DD 1:1 ④-1：建**紧凑状态托盘骨架**（DD status_bars：y 698、条高 10、宽 100~400 ⇒ 已折成比例）✓
+        BuildStatusTray(_uiRoot);
+
         // 背景：**刻意不让它成为"满屏不透明 Panel"**（锚点不是 0/0/1/1）——
         //   否则判据会把它当成**模态覆盖层**，只审它自己的子树（= 空）⇒ 报 ✅ 却是**假通过** ⚠️（实测踩过两次）
         var bg = new Panel { Name = "BattleBg", Size = GetViewport().GetVisibleRect().Size };
