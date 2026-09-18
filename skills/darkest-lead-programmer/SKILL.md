@@ -431,7 +431,7 @@ agent_created: true
 2026-09-18 实测：超 600 行共 **10 个**
 · UI 域（**已投 UI，由他们拆**）：`BattleUi.cs` **2715** · `HamletRoot.cs` **1663**
 · 主程序·内核：`ExpeditionFlow.cs` 937 · `ExpeditionSession.cs` 915 · `BattleRoot.cs` 889 · `BattleDirector.cs` 832 · `TuningConfig.cs` 760
-· 主程序·用例：`M76TopologyProbeTests.cs` 1176 · ~~`BoardTests.cs` 702~~ **已拆：702 → 553 ＋ 新文件 165** · ~~`M75VerificationPackTests.cs` 628~~ **已拆（2026-09-18）：628 → 494 ＋ 新文件 153**
+· 主程序·用例：~~`M76TopologyProbeTests.cs` 1176~~ **已拆：1176 → 463 ＋ 新文件 434 / 313** · ~~`BoardTests.cs` 702~~ **已拆：702 → 553 ＋ 新文件 165** · ~~`M75VerificationPackTests.cs` 628~~ **已拆（2026-09-18）：628 → 494 ＋ 新文件 153**
 ⇒ 📌 **拆一个就划掉一个**；**新增文件必须一开始就 ≤600 行** ✓
 ```
 ### ⑤ "极端可读性"的三条可操作判据（**能争论的具体形式**）
