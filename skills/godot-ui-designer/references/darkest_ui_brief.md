@@ -2878,3 +2878,26 @@ DD 真机补充坐标（本次新读，入库备用）：town 全局（roster 15
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.71 **`shared\hero\hero.layout.darkest` 全键（组件级）+ 用户 P2 面板级数字的来源待你确认**（2026-09-21）
+
+```
+DD `shared\hero\hero.layout.darkest`（本次读全，**全部为组件级偏移，无面板 base_size**）：
+  · hero_trinket_grid_layout:      .start_pos **32 52** · .offset **92 160**   ← 饰品 2 列格（我已用于 `HeroTrinketGrid` ✓）
+  · hero_equipment_layout:         .weapon_pos **4 0** · .armour_pos **95 0** · .icon_offset 29 52 · .level_offset 90 12
+                                   · .tooltip_hotspot_offset 32 52 · .tooltip_hotspot_size 72 144 · .highlight_pos_offset -20 -20
+  · hero_base_stats_layout:        .name_offset 0 0 · .value_offset **115 0** · .icon_offset -26 2 · .tooltip_offset 168 0
+  · hero_stats_layout:             .value_offset 112 0（与 base_stats 略异）· .tooltip_offset -500 0
+  · hero_scouting_stat_layout:     .text_offset 0 0 · .tooltip_hotspot_size 300 40 · .tooltip_offset 0 30
+  · hero_campaign_status_layout:   .resolve_level_bar_offset **6 4** · .stress_bar_offset **-14 100** · .stress_bar_spacing **10 0**
+                                   · .affliction_offset 36 112 · .selected_overlay_offset -31 4
+  · hero_portrait_icon_layout:     .disease_icon_offset 61 61
+
+🔴 关键结论：用户 P2.1 给的 **HP 130,11 / 压力 130,40 / 属性 60,72 / 装备 238,0 / 饰品 453,0** 与本文件**不一致**
+   ⇒ 那些是**面板级**坐标（某个 `panel.hero` 复合面板），而该文件在本机 DD 安装目录**搜索不到**（见 §14.0.70）
+   ⇒ 我**已按本文件的组件级值**实现（装备 weapon 4,0 / armour 95,0 · 饰品 start 32,52 / offset 92,160 ·
+      属性 value_offset 115 · 状态条 resolve 6,4 / stress −14,100 / spacing 10）✓
+   ⇒ 若你要严格按**面板级**数字落位：请给我该文件的实际路径（本机若在打包内，我读不到 ⇒ 记"未取得"不猜）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
