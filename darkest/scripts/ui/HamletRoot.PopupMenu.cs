@@ -186,6 +186,10 @@ public partial class HamletRoot : Control
         var bProvision = new Button { Name = "Menu_Provision", Text = "🛒 供应", CustomMinimumSize = new Vector2(220, 32) };   // DD 1:1 ②：供应屏入口
         bProvision.Pressed += () => OpenProvision();
         _hamletMenuBody.AddChild(bProvision);
+
+        var bQuest = new Button { Name = "Menu_QuestSelect", Text = "📜 任务选择", CustomMinimumSize = new Vector2(220, 32) };   // DD 1:1 ②：任务选择入口
+        bQuest.Pressed += () => OpenQuestSelect();
+        _hamletMenuBody.AddChild(bQuest);
         }
         else
         {

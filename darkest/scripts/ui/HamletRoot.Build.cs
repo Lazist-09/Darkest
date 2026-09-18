@@ -408,6 +408,10 @@ public partial class HamletRoot : Control
             OpenBuildingPopup(bArg["--hamlet-building=".Length..]);
         }
 
+        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-quest-select"))   // DD 1:1 ②：任务选择屏（可复验）
+        {
+            OpenQuestSelect();
+        }
         if (System.Array.Exists(hamletArgs, a => a == "--hamlet-provision"))   // DD 1:1 ②：供应屏入口（可复验）
         {
             OpenProvision();

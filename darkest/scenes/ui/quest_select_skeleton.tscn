@@ -1,0 +1,73 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/ui/QuestSelectSkeleton.cs" id="2_qs"]
+
+; DD 1:1 quest_select：任务列表 + 任务地图 / 全图 / 地牢效果覆盖 / 队伍名（坐标由控制器按地牢设，DD 原文 x0.667）
+[node name="QuestSelectSkeleton" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_qs")
+
+[node name="QuestSelectCol" type="VBoxContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/separation = 8
+
+[node name="TitleRow" type="HBoxContainer" parent="QuestSelectCol"]
+layout_mode = 2
+
+[node name="QuestSelectTitle" type="Label" parent="QuestSelectCol/TitleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "📜 任务选择"
+
+[node name="QuestSelectClose" type="Button" parent="QuestSelectCol/TitleRow"]
+layout_mode = 2
+text = "✕ 关闭"
+
+[node name="BodyRow" type="HBoxContainer" parent="QuestSelectCol"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="QuestList" type="VBoxContainer" parent="QuestSelectCol/BodyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(220, 0)
+theme_override_constants/separation = 6
+
+[node name="MapArea" type="Control" parent="QuestSelectCol/BodyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="QuestMap" type="PanelContainer" parent="QuestSelectCol/BodyRow/MapArea"]
+layout_mode = 0
+anchor_right = 0.35
+anchor_bottom = 0.5
+tooltip_text = "任务地图（按地牢切换：DD quest_map_pos）"
+
+[node name="AllQuestMap" type="PanelContainer" parent="QuestSelectCol/BodyRow/MapArea"]
+layout_mode = 0
+anchor_left = 0.4
+anchor_right = 0.75
+anchor_bottom = 0.5
+tooltip_text = "全图（DD all_quest_map_pos）"
+
+[node name="DungeonEffectOverlay" type="PanelContainer" parent="QuestSelectCol/BodyRow/MapArea"]
+layout_mode = 0
+anchor_top = 0.55
+anchor_right = 0.35
+anchor_bottom = 0.9
+tooltip_text = "地牢效果覆盖（DD dungeon_effect_overlay_pos）"
+
+[node name="PartyName" type="Label" parent="QuestSelectCol/BodyRow/MapArea"]
+layout_mode = 0
+anchor_left = 0.4
+anchor_top = 0.6
+anchor_right = 0.95
+anchor_bottom = 0.7
+text = "队伍名（DD party_name_pos 756,834）"
