@@ -64,7 +64,11 @@ public static class ExpeditionContext
         Darkest.Gameplay.Sim.Run.RunStartSnapshot? prev = LastRunStart;
         RunIndex++;
         LastRunStart = Darkest.Gameplay.Sim.Run.RunStartSnapshot.Capture(RunIndex, roster, heirlooms, economy);
-        return LastRunStart.DiffLines(prev);
+        // 🆕 **名册构成读数（㉝）也一起返回** ⇒ 宿主的"再出发"一行就同时有：
+        //    **本次 vs 上次对比** ＋ **名册构成**（在册/等级分布/特质/疾病）⇒ 养成读数成体系 ✓
+        var lines = new List<string>(LastRunStart.DiffLines(prev));
+        lines.Add(Darkest.Gameplay.Sim.Run.RosterComposition.Describe(roster));
+        return lines;
     }
 
     public static void BindConfigs(Darkest.Data.CampSkillsConfig campSkills,
