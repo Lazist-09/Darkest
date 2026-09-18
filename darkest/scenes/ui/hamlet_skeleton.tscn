@@ -49,3 +49,69 @@ theme_override_constants/separation = 12
 layout_mode = 2
 custom_minimum_size = Vector2(128, 667)
 theme_override_constants/separation = 12
+
+; P1.1（DD 严格贴合）：DD building_navigation 有 index 0-9 共 10 栋；这里给**未接入**的 7 栋建位，
+; 一律**色块占位**（用户硬规矩 §14.0.68：占位用色块，不换不删）；3 栋已接入者由代码在运行时加真实按钮
+
+[node name="DDNav1_blacksmith" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+mouse_filter = 2
+tooltip_text = "DD building_navigation index 1：blacksmith（数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav1_blacksmith"]
+layout_mode = 2
+
+[node name="DDNav2_guild" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+mouse_filter = 2
+tooltip_text = "DD building_navigation index 2：guild（数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav2_guild"]
+layout_mode = 2
+
+[node name="DDNav3_camping_trainer" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+mouse_filter = 2
+tooltip_text = "DD building_navigation index 3：camping_trainer（数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav3_camping_trainer"]
+layout_mode = 2
+
+[node name="DDNav6_sanitarium" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+mouse_filter = 2
+tooltip_text = "DD building_navigation index 6：sanitarium（数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav6_sanitarium"]
+layout_mode = 2
+
+[node name="DDNav7_nomad_wagon" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+mouse_filter = 2
+tooltip_text = "DD building_navigation index 7：nomad_wagon（数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav7_nomad_wagon"]
+layout_mode = 2
+
+[node name="DDNav8_graveyard" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+mouse_filter = 2
+tooltip_text = "DD building_navigation index 8：graveyard（数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav8_graveyard"]
+layout_mode = 2
+
+[node name="DDNav9_statue" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+mouse_filter = 2
+tooltip_text = "DD building_navigation index 9：statue（数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav9_statue"]
+layout_mode = 2
