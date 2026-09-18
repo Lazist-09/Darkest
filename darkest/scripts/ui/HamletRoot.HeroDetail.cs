@@ -115,7 +115,7 @@ public partial class HamletRoot : Control
         bool usedSkel = hSkel is not null;
         if (hSkel is not null && hSkel.HeroStatusBars is Control skelBars)
         {
-            dLeftCol.AddChild(skelBars);
+            skelBars.Reparent(dLeftCol);   // Godot 4：**先 Reparent**（AddChild 会报 already has a parent；随后 MoveChild 才不会失败）
             dLeftCol.MoveChild(skelBars, 0);
             hSkel.QueueFree();   // 只取状态条；其余块随空根释放 ⇒ 不与代码建块重复
         }

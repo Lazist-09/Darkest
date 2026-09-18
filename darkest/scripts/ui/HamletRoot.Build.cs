@@ -424,6 +424,21 @@ public partial class HamletRoot : Control
         if (detailArg is not null && int.TryParse(detailArg["--hamlet-hero-detail=".Length..], out int dIdx))
         {
             PressPortraitRightClick(dIdx); // 🔴 右键头像 ⇒ 角色详情（用户 2026-09-15 要求）✓
+            // 审计修复：右键路径若当时未开（名册行可能尚未建好）⇒ 兜底直接打开首位英雄，
+            // 保证 hero-detail 入口**不空跑**（此前实测该入口长期静默无效，属假绿）✓
+            if (!DetailOpen)
+            {
+                string? firstHero = ExpeditionContext.Roster?.Heroes.FirstOrDefault()?.Id;
+                if (!string.IsNullOrEmpty(firstHero))
+                {
+                    GD.Print($"[HamletRoot] --hamlet-hero-detail：右键未开 ⇒ 兜底直接 OpenHeroDetail({firstHero})（审计不空跑）");
+                    OpenHeroDetail(firstHero);
+                }
+                else
+                {
+                    GD.Print("[HamletRoot] --hamlet-hero-detail：名册为空 ⇒ 无法打开详情（如实留痕，不静默）");
+                }
+            }
         }
 
         string? rowArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-row=", StringComparison.Ordinal));
