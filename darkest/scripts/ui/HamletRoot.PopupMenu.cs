@@ -31,6 +31,26 @@ public partial class HamletRoot : Control
         {
             AddChild(_overlay);
         }
+        // 🔴 Track 3：**模态优先用模板** `scenes/ui/modal_dialog.tscn`（外观在编辑器可改）；
+        //    模板缺失/节点缺失 ⇒ **回落下面原有的代码构建**（不崩不静默）✓ 返回契约不变（Panel/Title/Body）✓
+        (PanelContainer? tplPanel, VBoxContainer? tplBody) = Darkest.UI.ModalDialogTemplate.TryCreate(titleText);
+        if (tplPanel is not null && tplBody is not null &&
+            tplPanel.GetNodeOrNull<Label>("DialogCol/DialogTitleRow/DialogTitle") is Label tplTitle)
+        {
+            tplPanel.Name = name;
+            tplPanel.Visible = false;
+            tplPanel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            tplTitle.ThemeTypeVariation = Darkest.UI.DdTheme.TitleVariation;   // 与代码构建路径一致（标题 Bold）✓
+            PanelContainer tplLocal = tplPanel;
+            Darkest.UI.ModalDialogTemplate.BindClose(tplPanel, () =>
+            {
+                tplLocal.Visible = false;
+                GD.Print($"[HamletRoot] {name} 关闭（模板 ✕）✓");
+            });
+            (_overlay?.ModalHost ?? tplPanel.GetParent()!).AddChild(tplPanel);
+            return (tplPanel, tplTitle, tplBody);
+        }
+
         var panel = new PanelContainer { Name = name, Visible = false };
         panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         Darkest.UI.DdTheme.Apply(panel);
