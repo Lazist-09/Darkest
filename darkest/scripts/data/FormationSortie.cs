@@ -18,11 +18,41 @@ public static class FormationSortie
     /// 按**模板槽位的原型**从名册选人（每位只用一次）：槽位 1..6 的原型序列 = formation 模板的 `unit`；
     /// 找不到同原型时退化为"名册里下一个没用过的人"。⇒ **保住经典编成，同时实现个体化**（等级/特质各不相同）。
     /// </summary>
-    public static IReadOnlyList<HeroConfig> SelectForTemplate(FormationConfig template, RosterConfig roster)
+    public static IReadOnlyList<HeroConfig> SelectForTemplate(FormationConfig template, RosterConfig roster,
+        IReadOnlyList<string>? chosenIds = null)   // 🔴 轮换口子（契约：cap12=出征6+替补6 ⇒ 轮换成为策略）✓
     {
         if (template is null || roster is null)
         {
             throw new ArgumentNullException(template is null ? nameof(template) : nameof(roster));
+        }
+        // 🔴 **轮换路径**（`chosenIds` 非空）：**按给定名单取人** ⇒ **选人规则由调用方决定**（玩家点选 / 策略 / …）✓
+        //    ⚠️ **默认（null）= 行为与以前完全一致** ⇒ 不发明规则、不改变既有路径 ✓
+        //    ⚠️ 不合法**如实炸**（不在名册 / 重复 / 人数不等于槽位）⇒ 不静默兜底 ✓
+        if (chosenIds is not null)
+        {
+            var listed = new List<HeroConfig>();
+            foreach (string id in chosenIds)
+            {
+                HeroConfig? one = roster.Heroes.FirstOrDefault(h => h.Id == id);
+                if (one is null)
+                {
+                    throw new InvalidDataException($"{RosterConfig.ResPath}: 指定的出征英雄 \"{id}\" 不在名册里（轮换名单不合法）✓");
+                }
+
+                if (listed.Any(x => x.Id == id))
+                {
+                    throw new InvalidDataException($"{RosterConfig.ResPath}: 出征名单里 \"{id}\" 重复 ✓");
+                }
+
+                listed.Add(one);
+            }
+
+            if (listed.Count != template.InitialRoster.Player.Count)
+            {
+                throw new InvalidDataException($"{RosterConfig.ResPath}: 出征名单人数 {listed.Count} ≠ 阵型槽位 {template.InitialRoster.Player.Count} ✓");
+            }
+
+            return listed;
         }
 
         var used = new HashSet<string>();
