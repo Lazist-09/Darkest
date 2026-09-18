@@ -3109,3 +3109,19 @@ screen.raid.darkest 顶栏/信息类键（原样）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴🔴 14.0.81 **更正 §14.0.70：`panel.hero.darkest` / `panel.monster.darkest` 存在（在 `scripts\layout\`）**（2026-09-21）
+
+```
+🔴 **我先前 §14.0.70 的结论错了**：我说"DD 安装目录**没有** panel.hero / panel.monster 的 layout 文件" ✗
+   原因：我只搜了 `panels\` 与含 `layout` 字样的文件名（`*.layout.darkest`），而这批文件命名是 **`panel.hero.darkest`**（无 `layout` 段）
+   ⇒ 实际位置（本轮 `scripts\layout\` 清单证实，共 14 个文件）：
+     `scripts\layout\panel.hero.darkest` · `panel.monster.darkest` · `panel.map.darkest` · `panel.tab.darkest` · `panel.banner.darkest` ·
+     `pannel.inventory.darkest`（原文如此拼写）· `screen.raid.darkest` · `screen.raid.battle.darkest` · `screen.raid.status_bars.darkest` ·
+     `screen.raid.act_out.darkest` · `screen.raid_animation.darkest` · `actor_scale.raid.darkest` · `overlay.loot.darkest` · `base.popup_text.layout.darkest`
+⇒ **P2 的面板级数字从此可直读**（用户给的 HP 130,11 / 压力 130,40 / 属性 60,72 / 装备 238,0 / 饰品 453,0 等应有原文）
+   ⇒ 下一步：直读这两份文件并**按面板相对比例**落位（不再需要用户提供路径）✓
+   📌 教训：找 DD 文件**不能只按 `*.layout.darkest` 命名猜** ⇒ 应先 **列目录清单**（本轮做法）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
