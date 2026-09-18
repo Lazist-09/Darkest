@@ -335,10 +335,11 @@ public partial class HamletRoot : Control
         _resourceBar = new Label
         {
             Name = "HamletResourceBar",
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,   // 🔴 DD 1:1 #1d：资源条**靠左**（DD 340/1920 ≈ 左下）✓
             VerticalAlignment = VerticalAlignment.Center,
         };
         bottomRow.AddChild(_resourceBar);
+        bottomRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });   // 🔴 DD 1:1 #1d：左弹性空隙（把 Embark 顶到**底部居中** = DD 754/1920 ≈ 39% x）✓
 
         // 🔴 P2（用户参考图①）：**最下方资源 UI 可点开【二级菜单】** —— 库存/角色详情/建筑都从这里进 ✓
         _menuButton = new Button
@@ -372,6 +373,7 @@ public partial class HamletRoot : Control
             GetTree().ChangeSceneToFile(Darkest.UI.MainMenuRoot.BattleScene);
         };
         bottomRow.AddChild(embark);
+        bottomRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });   // 🔴 DD 1:1 #1d：右弹性空隙（两侧等权 ⇒ Embark 居中）✓
         _embark = embark;
 
         GD.Print($"[HamletRoot] 城池建筑：已解锁 {unlockedBuildings.Count + 1} ／ 3" +
