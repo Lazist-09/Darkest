@@ -256,7 +256,9 @@ public partial class BattleUI : Control
     {
         var playerArea = new VBoxContainer { Name = "PlayerArea", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         playerArea.AddThemeConstantOverride("separation", 4);
-        _midRow.AddChild(playerArea);
+        _midRow.AddChild(new Control { Name = "MidPadLeft", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.148f });   // DD 左空 284/1920 ✓
+        _midRow.AddChild(playerArea);   // 🔴 DD 1:1 ④-3a：英雄 band 284→788 = 26.2% ✓
+        playerArea.SizeFlagsStretchRatio = 0.262f;
 
         playerArea.AddChild(TitleLabel("我方　战 4 · 3 · 2 · 1　｜　辅 5 · 6"));
 
@@ -271,11 +273,14 @@ public partial class BattleUI : Control
         var vs = new Label { Text = "VS", CustomMinimumSize = new Vector2(24, 24), VerticalAlignment = VerticalAlignment.Center };
         vs.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.Danger);
         _midRow.AddChild(vs);
+        _midRow.AddChild(new Control { Name = "MidPadCenter", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.137f });   // DD 中缝 (1050-788)/1920 ✓
 
         var enemyArea = new VBoxContainer { Name = "EnemyArea", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         enemyArea.AddThemeConstantOverride("separation", 4);
-        _midRow.AddChild(enemyArea);
+        _midRow.AddChild(enemyArea);   // 🔴 DD 1:1 ④-3a：怪物 band 1050→1554 = 26.2% ✓
+        enemyArea.SizeFlagsStretchRatio = 0.262f;
         enemyArea.AddChild(TitleLabel("敌方　1 · 2 · 3 · 4"));
+        _midRow.AddChild(new Control { Name = "MidPadRight", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.191f });   // DD 右空 (1920-1554)/1920 ✓
 
         _enemyCards = new HBoxContainer { Name = "EnemyCards", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         _enemyCards.AddThemeConstantOverride("separation", 6);
