@@ -227,6 +227,9 @@ public partial class BattleUI : Control
             FillCard(_cards[i], player[3 - i], _portraits[i]); // 我方 4,3,2,1
         }
 
+        // 🔴 DD 1:1 ④-2：把 4v4 的 HP/压力条绑进 DD 托盘（与卡牌同源投影）✓
+        FillStatusTray(player, enemy);
+
         for (int i = 0; i < 4; i++)
         {
             FillCard(_cards[4 + i], enemy[i], _portraits[4 + i]); // 敌方 1,2,3,4

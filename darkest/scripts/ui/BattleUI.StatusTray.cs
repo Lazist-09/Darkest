@@ -1,21 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Darkest.Gameplay.Sim.Director;
 using Godot;
 
 namespace Darkest.UI;
 
 /// <summary>
-/// 🔴 战斗 · DD 紧凑状态托盘（DD 1:1 还原 ④-1；2026-09-21）
-/// 依据＝直读原游戏 `scripts\layout\screen.raid.status_bars.darkest` + `screen.raid.darkest`(overlays)：
+/// 🔴 战斗 · DD 紧凑状态托盘（DD 1:1 还原 ④；2026-09-21）
+/// 依据＝直读原游戏 scripts\layout\screen.raid.status_bars.darkest + screen.raid.darkest(overlays)：
 ///   overlays: hero_start_pos 788 680 · hero_spacing -168 0 · monster_start_pos 1050 680 · monster_spacing 168 0
-///   status_bars: y_pos 698 · health_bar_offset 50 0 · health_bar_height 10 · health_bar_widths 100 200 300 400 · char_x_offset -50
-/// ⇒ 两处 y 不是同一个数（680=单位/overlay 层；698=托盘层）⇒ 本文件用托盘层 698 ✓
-/// ⇒ 全部折成屏幕比例（1920×1080），不写像素坐标 ✓
-/// ⚠️ 本刀（④-1）只建 8 个空槽骨架并已接入 Build()；填充见 ④-2 ✓ 命名：namespace Darkest.UI（大写 UI）✓
+///   status_bars: y_pos 698 · health_bar_offset 50 0 · health_bar_height 10 · health_bar_widths 100 200 300 400 · stress_offset -1 12
+/// ⇒ 680=单位/overlay 层、698=托盘层（分开取）；全部折成屏幕比例，不写像素 ✓
+/// ④-1 骨架+接线（094b112）· ④-2 填充（本刀，与卡牌同源 UnitProjection）✓ namespace Darkest.UI（大写 UI）✓
 /// </summary>
 public partial class BattleUI : Control
 {
     private Control? _statusTray;
 
-    /// <summary>建 DD 紧凑状态托盘（英雄 4 + 怪物 4 空槽，比例锚点）✓</summary>
     private void BuildStatusTray(Control parent)
     {
         if (_statusTray is not null && GodotObject.IsInstanceValid(_statusTray))
@@ -40,7 +42,7 @@ public partial class BattleUI : Control
             AddTraySlot(tray, $"EnemyTray{i + 1}", enemyX[i], trayY, barW, barH);
         }
 
-        GD.Print("[UI 战斗] ✅ DD 紧凑状态托盘骨架就位（英雄 41.0%-8.75%x4 / 怪物 54.7%+8.75%x4 · y 64.6% = DD 698/1080 · 条 10.4%x0.93% = DD 200/10）仅骨架，填充见 ④-2");
+        GD.Print("[UI 战斗] ✅ DD 紧凑状态托盘骨架就位（英雄 41.0%-8.75%x4 / 怪物 54.7%+8.75%x4 · y 64.6% = DD 698/1080）");
     }
 
     private static void AddTraySlot(Control parent, string name, float x, float y, float w, float h)
@@ -53,7 +55,71 @@ public partial class BattleUI : Control
         parent.AddChild(slot);
     }
 
-    /// <summary>自检读数（槽数；未建 ⇒ 未建）✓</summary>
+    /// <summary>④-2 填充：4v4 的 HP/压力条绑进 8 槽（与卡牌同源投影，不新造数字）✓</summary>
+    private void FillStatusTray(UnitProjection[] players, UnitProjection[] enemies)
+    {
+        if (_statusTray is null || !GodotObject.IsInstanceValid(_statusTray))
+        {
+            return;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            FillTraySlot($"HeroTray{i + 1}", i < players.Length ? players[players.Length - 1 - i] : null);
+            FillTraySlot($"EnemyTray{i + 1}", i < enemies.Length ? enemies[i] : null);
+        }
+    }
+
+    private void FillTraySlot(string slotName, UnitProjection? u)
+    {
+        if (_statusTray is null || !GodotObject.IsInstanceValid(_statusTray))
+        {
+            return;
+        }
+
+        if (_statusTray.GetNodeOrNull<Control>(slotName) is not Control slot)
+        {
+            return;
+        }
+
+        ProgressBar? hp = slot.GetNodeOrNull<ProgressBar>("Hp");
+        if (hp is null)
+        {
+            hp = new ProgressBar { Name = "Hp", MinValue = 0, MaxValue = 1, ShowPercentage = false, MouseFilter = Control.MouseFilterEnum.Ignore };
+            hp.AnchorLeft = 0f;
+            hp.AnchorRight = 1f;
+            hp.AnchorTop = 0f;
+            hp.AnchorBottom = 0.5f;
+            slot.AddChild(hp);
+        }
+
+        ProgressBar? stress = slot.GetNodeOrNull<ProgressBar>("Stress");
+        if (stress is null)
+        {
+            stress = new ProgressBar { Name = "Stress", MinValue = 0, MaxValue = 100, ShowPercentage = false, MouseFilter = Control.MouseFilterEnum.Ignore };
+            stress.AnchorLeft = 0f;
+            stress.AnchorRight = 1f;
+            stress.AnchorTop = 0.5f;
+            stress.AnchorBottom = 1f;
+            stress.Modulate = Darkest.UI.DdTheme.TextInfo;
+            slot.AddChild(stress);
+        }
+
+        bool empty = u is null || u.UnitId == "-";
+        slot.Visible = !empty;
+        if (empty || u is null)
+        {
+            return;
+        }
+
+        hp.MaxValue = u.MaxHp > 0 ? u.MaxHp : 1;
+        hp.Value = u.Hp;
+        hp.Modulate = u.Weak ? Darkest.UI.DdTheme.HpWeak : Darkest.UI.DdTheme.Hp;
+        stress.MaxValue = 100;
+        stress.Value = u.Morale;
+        slot.TooltipText = $"{u.UnitId}　HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
+    }
+
     public string DescribeStatusTray()
     {
         if (_statusTray is null || !GodotObject.IsInstanceValid(_statusTray))
@@ -70,6 +136,6 @@ public partial class BattleUI : Control
             }
         }
 
-        return $"status-tray: 槽 {n} 个（DD 4v4 位置 · 比例锚点）";
+        return $"status-tray: 槽 {n} 个（DD 4v4 位置 · 比例锚点 · 已绑 HP/压力条）";
     }
 }
