@@ -171,6 +171,22 @@ public partial class HamletRoot : Control
         dRightCol.AddChild(equipRow);
         dRightCol.MoveChild(equipRow, 0);   // DD：装备位在右栏**最上**（先于技能/抗性）✓
         GD.Print("[UI 英雄面板] ✅ DD 装备位就位（weapon/armour 空框占位 · TooltipText 已标 · 属装备系统接口）✓");
+
+        // 🔴 DD 1:1 ②-4【饰品 2 列格】照 `shared\hero\hero.layout.darkest` 的 `hero_trinket_grid_layout`：
+        //    .number_of_columns **2** · .start_pos 32 52 · .offset **92 160** ⇒ 格距 ×0.667 ≈ 61×107 ⇒ 用 GridContainer 表达 ✓
+        //    ⚠️ 饰品同属**装备系统**（用户裁定：留接口）⇒ 两个**空框占位 + TooltipText**，MouseFilter=Ignore（不留"点了没用"的控件·红线21）✓
+        var trinketGrid = new GridContainer { Name = "HeroTrinketGrid", Columns = 2 };
+        trinketGrid.AddThemeConstantOverride("h_separation", 61);    // DD offset 92 ×0.667 ≈ 61 ✓
+        trinketGrid.AddThemeConstantOverride("v_separation", 107);   // DD offset 160 ×0.667 ≈ 107 ✓
+        for (int t = 0; t < 2; t++)   // DD：2 列 = 2 个饰品位（一行）✓
+        {
+            var slot = new PanelContainer { Name = $"HeroTrinketSlot{t + 1}", CustomMinimumSize = new Vector2(44, 44), MouseFilter = Control.MouseFilterEnum.Ignore, TooltipText = $"饰品位 {t + 1}（装备系统接口 · 暂不可用）" };
+            slot.AddChild(new ColorRect { Name = $"TrinketPlaceholder{t + 1}", Color = Darkest.UI.DdTheme.PlaceholderFill });
+            trinketGrid.AddChild(slot);
+        }
+        dRightCol.AddChild(trinketGrid);
+        dRightCol.MoveChild(trinketGrid, 1);   // DD：饰品格紧随装备位（装备 0 → 饰品 1）✓
+        GD.Print("[UI 英雄面板] ✅ DD 饰品 2 列格就位（2 位 · 间距 61/107 = DD 92/160 ×0.667 · 占位接口）✓");
         dRightCol.AddChild(_detailSkills);
 
         // 🔴 P4：**右上角"推荐位置"留框**（用户原话"这个留一个框后面做都可以"）✓
