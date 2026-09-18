@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/UIRoot.cs" id="1_ui"]
+[ext_resource type="PackedScene" path="res://scenes/ui/overlay_layer.tscn" id="2_ov"]
+
+; 🔴 UIRoot 三层外壳（Track 1 · S1 收窄版）：BaseLayer / ScreenLayer / OverlayLayer(实例化已有场景)
+[node name="UIRoot" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_ui")
+
+[node name="BaseLayer" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="ScreenLayer" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="OverlayLayer" parent="." instance=ExtResource("2_ov")]
