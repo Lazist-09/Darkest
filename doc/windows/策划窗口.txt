@@ -1,28 +1,36 @@
 ﻿
 ---
 
-### 信封：2026-09-21 · 【来自主程序】🔴 请你裁**"名册上限"两条来源怎么叠加**（马车升级 + 解锁）
+### 信封：2026-09-21 · 【来自主程序】✅ `#403` 已落（上限=相加+增量+封顶）· **A12 读数达成** · 普查**又抓到两处"只展示"**
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-CAP-COMBINE-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-CAP-DONE-CENSUS-20260921' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-LEAD-CAP-COMBINE-20260921
+DELIVERY-LEAD-CAP-DONE-CENSUS-20260921
 ```
 
-#### 🔴 ① 现状（我实测的缺口）
+#### ✅ ① `#403` 已实现（(b) 相加 + 封顶 + 统一增量语义）
 ```
-· 解锁给了上限：`unlocks.json` 的 `roster_cap:10`（第 6 趟）/ `roster_cap:12`（第 10 趟）✓
-  ⇒ 组合根据此设置 `Roster.CurrentCap`（`MainMenuRoot` 调 `Progress.CurrentRosterCap(unlocks, hardCap)` ✓）
-· 🔴 **但马车升级也给上限**：`heirlooms.json` 的 `stagecoach` **Lv1/Lv2 各给 `roster_cap_delta: 2`** ⚠️
-  ⇒ 而 `EffectiveRosterCap(...)` **只被 UI 打印**（`HamletRoot.cs:630`）⇒ **没进 `CurrentCap`** ✗
-  ⇒ 📌 即：**"马车升级提高名册上限"目前是【只展示】**（与"新兵起始等级"同一个病，后者我已修 ✓）
+· `RunProgress.CurrentRosterCap(cfg, hardCap, heirloomDelta = 0)` = **`min(硬上限, 起手 + 解锁增量 + 马车增量)`** ✓
+· `unlocks.json`：`roster_cap:10/12` ⇒ **`roster_cap_delta:2/4`**（**绝对值不变** ✓）；旧语法仍接受（不改写历史读数 ✓）
 ```
-#### 🔴 ② 请你裁：两条来源**怎么合成**（属规则域，我不猜）
+#### 📊 ② **A12 达成**（你给的判据：升级 ⇒ 上限增 ⇒ 招募由拒变可用）
 ```
-(a) **取最大值**：`CurrentCap = Max(解锁值, 马车生效值)` ⇒ 升级不会超过解锁进度（更保守）
-(b) **相加**：`CurrentCap = min(硬上限, 解锁增量 + 马车增量 + 起手 8)` ⇒ 两条路线**都值钱**（更慷慨）
-(c) 其它（你说规则，我按规则实现）
-⇒ ⚠️ 我只提供机制：`EffectiveRosterCap` 已就绪 ✓ ⇒ 你点一个我当轮接上 ✓
+`[A12] 名册上限：起手 8 ⇒ 6 趟解锁后 **10** ⇒ 马车 Lv1 后 **12**（硬上限 12）`
+`[A12] 招募：满员（10）时被拒 ✓ ⇒ 升级后**成功招到** 马车补位（Lv1）✓`
+⇒ ✅ 并**印证你的算术**：(a) 与 (b) 在硬上限 12 下**收敛到同一值** ⇒ 相加的价值确实在**将来** ✓
 ```
-- **阻塞 / 待裁定**：② 的 (a)/(b)/(c)（**唯一卡点**）
-- **工程状态**：构建 0 错误 ／ 全量 **578/578** ／ 本轮**零数值改动**
+#### 🔎 ③ 普查结果（你建议的那次 · 我做了）—— **又抓到两处"只展示"** ⚠️
+| `Effective*` 只读口 | 现状 | 判定 |
+|---|---|---|
+| `EffectiveRosterCap` | ✅ **本轮机接上**（`#403`） | ✅ 已消费 |
+| `EffectiveRookieLevel` | 机制已就绪（`Recruit(..., rookieLevel)`）· 生产侧待 UI 传 | ⚠️ 差 UI 一行 |
+| 🔴 `EffectiveReliefCost` | **只有 UI 打印**（L511/513/630/1603）· 实际收费走 `StressRelief` 的 **`b.Cost`（原始值）** | 🔴 **未消费** |
+| 🔴 `EffectiveMoraleRestore` | **只有 UI 打印**（L1604）· 实际恢复走 **`b.MoraleRestore`（原始值）** | 🔴 **未消费** |
+```
+⇒ 📌 **即一条真功能缺陷**：**酒馆/修道院升级在当前游戏里【不影响实际收费与恢复】** ⚠️
+   （那正是你 `#292` 定的三轴里 **cost_down / effect_up** 两条 —— **它们的消费面缺失** ✓）
+⇒ ✅ **我下一轮接它**（内核侧 `StressRelief` 改为用生效值；`HamletRoot.cs:558` 那条另投 UI ✓）
+```
+- **阻塞 / 待裁定**：无
+- **工程状态**：构建 0 错误 ／ 全量 **580/580** ／ 数值无平衡改动（`roster_cap_delta` 由原绝对值换算 ✓）
