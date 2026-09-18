@@ -2225,3 +2225,41 @@ y = 698/1080 = **64.6%**（托盘顶）；血条高 10/1080 = **0.93%**；血条
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.48 **DD 战斗屏布局原文（raid）**（2026-09-21）
+
+```
+来源：\dlc\1117860_arena_mp\raid_results\arena_raid_results.layout.darkest
+  rank_progress_layout:
+  .progress_bar_pos			450 425
+  .progress_center_pos		450 501
+  .rank_league_pos			450	430
+  .progress_size_rad			2.6179938780
+  rank_tier_layout:
+  .rank_league_pos			450 400
+  .rank_desc_pos				450 650
+  .rank_title_pos				450 745
+  .rank_continue_pos			450 850
+  prestige_layout:
+  .curtains_pos					450 1080
+  .heroes_pos						37 970
+  .enemies_pos					860 970
+  .actors_offset					0 0
+  .actors_text_offset				0 -125
+  .frame_pos						450 650
+  .frame_title_offset				-200 -15
+  .points_offset					200 -15
+  .progress_bar_pos				450 800
+  .progress_bar_tooltip_offset	0 90
+  .prestige_level_frame_offset	0 20
+  .next_level_pos					450 925
+  prestige_reward_layout:
+  .frame_pos					450 615
+  .title_offset				0 -250
+  .reward_offset				0 -125
+  .reward_glow_offset			0 0
+  .reward_tooltip_offset		-47 -72
+  .continue_pos				450 930
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
