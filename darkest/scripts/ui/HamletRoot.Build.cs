@@ -339,9 +339,10 @@ public partial class HamletRoot : Control
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,   // 🔴 DD 1:1 #1d：资源条**靠左**（DD 340/1920 ≈ 左下）✓
             VerticalAlignment = VerticalAlignment.Center,
         };
+        // P1.3（DD town.layout）：heirloom 340/1920 = **0.177** ⇒ 资源条前加左空（比例表达，不写像素）         bottomRow.AddChild(new Control { Name = "BottomPadLeft", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.177f });
         bottomRow.AddChild(_resourceBar);
         bottomRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });   // 🔴 DD 1:1 #1d：左弹性空隙（把 Embark 顶到**底部居中** = DD 754/1920 ≈ 39% x）✓
-
+        bottomRow.AddChild(new Control { Name = "BottomPadMid", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.2157f });   // P1.3：DD embark 0.3927 − heirloom 0.177 = 0.2157 ✓
         // 🔴 P2（用户参考图①）：**最下方资源 UI 可点开【二级菜单】** —— 库存/角色详情/建筑都从这里进 ✓
         _menuButton = new Button
         {
