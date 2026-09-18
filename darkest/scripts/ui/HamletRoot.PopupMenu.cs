@@ -134,6 +134,7 @@ public partial class HamletRoot : Control
     /// </summary>
     public void OpenHamletMenu()
     {
+        GD.Print("[UI-TRACE] hamlet-menu-open");   // ASCII 留痕（供 ui_sweep 断言：避免 PS5.1 读中文的编码坑）
         if (_hamletMenu is null)
         {
             (PanelContainer panel, Label title, VBoxContainer body) = MakePopup("HamletMenu", "☰ 【城池菜单】");

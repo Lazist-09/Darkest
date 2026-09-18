@@ -226,6 +226,7 @@ public partial class BattleUI : Control
     /// <summary>按下【放弃远征】⇒ **二次确认**（不可逆；`§8` 硬要求②）✓</summary>
     public void PressAbandon()   // 🔴 主程序 2026-09-21 请求：retreat 冒烟需公共入口（发真实 Pressed）✓
     {
+        GD.Print("[UI-TRACE] abandon");   // ASCII 留痕（供 ui_sweep 断言：避免 PS5.1 读中文的编码坑）
         if (_abandonExpedition is null)
         {
             if (!_abandonWarned)
@@ -453,6 +454,7 @@ public partial class BattleUI : Control
 
     public void EnterMapMode()
     {
+        GD.Print("[UI-TRACE] dungeon-in-scene-entered");   // ASCII 留痕（供 ui_sweep 断言：避免 PS5.1 读中文的编码坑）
         // 🔴 修 NRE（片 4 宿主内进地牢实测：`BattleRoot._Ready` 会在 `Build()` 之前就调本方法）：
         //    此时 `_bottomRow`（骨架三行之一）**还没建** ⇒ `DungeonHost()` 会每帧抛 NRE ⚠️
         //    ⇒ 正解：**延后到 `Bind()` 之后再进地图模式**（不猜、不半建），并**如实留痕** ✓

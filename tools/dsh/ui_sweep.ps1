@@ -79,25 +79,25 @@ if (-not (Test-Path $proj)) { throw "project path not found: $proj" }
 
 # --- 每入口期望留痕（治本：入口"空跑"不得判绿；缺留痕即 FAIL）---
 $TraceExpect = @{
-    'hamlet'                  = '采用骨架'
-    'hamlet-longtext'         = '采用骨架'
-    'hamlet-menu'             = ''   # TODO：定义期望留痕（当前菜单开启不打印可断言串）
-    'hamlet-building'         = 'UI 建筑弹窗'
-    'hamlet-hover'            = '悬停建筑'
-    'hamlet-hover-abbey'      = '悬停建筑'
-    'hamlet-hover-stagecoach' = '悬停建筑'
-    'hamlet-provision'        = 'UI 供应'
-    'hamlet-quest-select'     = 'UI 任务选择'
-    'hero-detail'             = 'UI 英雄面板'
-    'main-menu'               = 'UI 骨架'
-    'battle'                  = 'UI 战斗'
-    'battle-longtext'         = 'UI 战斗'
-    'battle-tab4'             = 'UI 战斗'
-    'map-mode'                = 'UI 战斗'
-    'tile-walk'               = ''   # TODO：瓷砖自证行仅在瓷砖分支进入时打印 ⇒ 待定断言
-    'dungeon-in-scene'        = ''   # TODO：该入口走宿主内进地牢，未建战斗 UI ⇒ 待定断言
-    'settle'                  = 'StatusTray'
-    'abandon'                 = '放弃'
+    'hamlet'                  = 'hamlet_skeleton.tscn'
+    'hamlet-longtext'         = 'hamlet_skeleton.tscn'
+    'hamlet-menu'             = 'hamlet-menu-open'
+    'hamlet-building'         = 'modal_dialog.tscn'
+    'hamlet-hover'            = 'hamlet-hover'
+    'hamlet-hover-abbey'      = 'hamlet-hover'
+    'hamlet-hover-stagecoach' = 'hamlet-hover'
+    'hamlet-provision'        = 'provision_skeleton.tscn'
+    'hamlet-quest-select'     = 'quest_select_skeleton.tscn'
+    'hero-detail'             = 'hero_detail_skeleton.tscn'
+    'main-menu'               = 'main_menu.tscn'
+    'battle'                  = 'StatusTray'
+    'battle-longtext'         = 'StatusTray'
+    'battle-tab4'             = 'StatusTray'
+    'map-mode'                = 'StatusTray'
+    'tile-walk'               = 'walk_map_layer.tscn'
+    'dungeon-in-scene'        = 'dungeon-in-scene-entered'
+    'settle'                  = 'modal_dialog.tscn'
+    'abandon'                 = 'abandon'
 }
 
 $run = $Entries   # 默认跑全表 ✓

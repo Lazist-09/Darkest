@@ -206,6 +206,7 @@ public partial class HamletRoot : Control
 
     public void ShowBuildingInfo(string building)
     {
+        GD.Print("[UI-TRACE] hamlet-hover");   // ASCII 留痕（供 ui_sweep 断言：避免 PS5.1 读中文的编码坑）
         HeirloomStock? h = ExpeditionContext.Heirlooms;
         if (h is null)
         {
