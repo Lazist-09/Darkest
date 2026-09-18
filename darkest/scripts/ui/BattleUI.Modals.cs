@@ -21,7 +21,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 ///    `_devLogPanel` · `_detailText`（如存在）· `DdTheme` 样式 ✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
-public partial class BattleUI : CanvasLayer
+public partial class BattleUI : Control
 {
     /// <summary>分区小标题（进容器的 Label ⇒ 不再手摆坐标）。</summary>
     private static Label TitleLabel(string text)

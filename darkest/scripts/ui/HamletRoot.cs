@@ -16,8 +16,13 @@ namespace Darkest.UI;
 /// （**不假装可用**）。
 /// 🔴 红线 18：Hamlet 必须**从启动场景可达**（`BattleRoot` 的按钮 / `--hamlet` CLI）。
 /// </summary>
-public partial class HamletRoot : Control
+public partial class HamletRoot : Control, IUiPanel
 {
+    /// <summary>🔴 IUiPanel：声明本 panel 名（日志/断言）✓</summary>
+    public string PanelName => "Hamlet";
+    /// <summary>🔴 IUiPanel：城池屏需要常显 HUD（资源/名册计数）⇒ 开 ✓</summary>
+    public bool WantsBaseHud => true;
+
     private Label _status = null!;
     private Label _hint = null!;
     private Label _upgradeStatus = null!;

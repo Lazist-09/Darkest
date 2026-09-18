@@ -20,7 +20,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 ///    `_orderIcons`/`_cards`/`_portraits`/`_mode`/`_host` 以及 `Refresh*` 各分族方法 ✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
-public partial class BattleUI : CanvasLayer
+public partial class BattleUI : Control
 {
     public void Refresh(string status = "")
     {

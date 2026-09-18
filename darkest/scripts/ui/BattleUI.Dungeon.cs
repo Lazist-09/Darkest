@@ -21,7 +21,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 ///    `_abandonConfirm`/`_abandonWarned`/`_mode`/`_walkView`/`_host`（其余读数走内核 `ExpeditionFlow`）✓
 /// ④ **只搬家、零行为改动**（含 2026-09-21 `_uiRoot` 未就绪守卫与 map-phase 分支，一字未改）✓
 /// </summary>
-public partial class BattleUI : CanvasLayer
+public partial class BattleUI : Control
 {
     /// <summary>地牢面板宿主（惰性建一次，**不属于骨架** ⇒ 增删不影响 S1 指纹）✓</summary>
     private Control DungeonHost()

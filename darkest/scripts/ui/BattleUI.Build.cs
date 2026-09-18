@@ -20,7 +20,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 ///    `_topBarSkel`/`_bottomBarSkel`/`_playerCards`/`_enemyCards`/`_playerSupport`/`_skillBar`/`_actionButtons`/`_orderBox` 等 ✓
 /// ④ **只搬家、零行为改动**（骨架优先/回落分支一字未改）✓
 /// </summary>
-public partial class BattleUI : CanvasLayer
+public partial class BattleUI : Control
 {
     private void Build()
     {

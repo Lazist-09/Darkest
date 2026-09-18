@@ -19,7 +19,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 /// ③ 🔴 依赖主类私有成员/状态：`_motionLayer`/`_vignette`/`_seenEvents`/`_cards`/`_portraits`/`_host`/`_skeletonAtBind`/`_bindCount` ✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
-public partial class BattleUI : CanvasLayer
+public partial class BattleUI : Control
 {
     /// <summary>
     /// 🔴 `ui_spec §12.1` ① ② ③：**只对【新事件】播动效**（事件流 = 唯一事实来源，不另造状态）：

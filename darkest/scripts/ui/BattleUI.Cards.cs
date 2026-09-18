@@ -19,7 +19,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 /// ③ 🔴 依赖主类私有成员：`_playerCards`/`_enemyCards`/`_playerSupport`/`_cards`/`_portraits`/`_host`/`CardW` 等常量 ✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
-public partial class BattleUI : CanvasLayer
+public partial class BattleUI : Control
 {
     private Control BuildCard(float w, float h)
     {

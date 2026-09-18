@@ -19,7 +19,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 /// ③ 🔴 依赖主类私有成员：`_orderIcons`/`_orderBox`/`_cards`/`_portraits`/`_skillButtons`/`_skillBar`/`_skillTitle`/`_host` ✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
-public partial class BattleUI : CanvasLayer
+public partial class BattleUI : Control
 {
     /// <summary>① 顶部回合条：头像格（首字 + 阵营色，当前行动者金框），替代纯文字。</summary>
     private void RefreshOrderStrip(IReadOnlyList<string> order, BattleDirector d)

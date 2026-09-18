@@ -20,8 +20,13 @@ namespace Darkest.UI;
 /// 高亮（修复）：① 当前行动者一律高亮（含支援位 5/6）；② 仅"需选目标"时高亮候选且**按阵营匹配**
 /// （敌技亮敌卡 / 友技亮友卡；AOE·团队·自身不进入选目标 → 不会全亮）；③ 增援两步按阶段亮 5/6 → 1~4。
 /// </summary>
-public partial class BattleUI : CanvasLayer
+public partial class BattleUI : Control, IUiPanel
 {
+    /// <summary>🔴 IUiPanel：声明本 panel 名（日志/断言）✓</summary>
+    public string PanelName => "Battle";
+    /// <summary>🔴 IUiPanel：战斗屏需要常显 HUD（资源/光照/回合）⇒ 开 ✓</summary>
+    public bool WantsBaseHud => true;
+
     private const float CardW = 132f;   // 🔴 相机 1280 口径：146 → 132（4v4 横排收窄，§14.0 规则①）
     private const float CardH = 112f;   // 🔴 相机 720 口径：170→146→140→112（topology 路径仍超 62px）
     private const float GapX = 10f;

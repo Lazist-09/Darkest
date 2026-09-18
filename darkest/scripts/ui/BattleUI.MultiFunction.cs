@@ -20,7 +20,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 ///    `_bottomRow`（骨架优先/回落）· `DdTheme`（样式）；页面数据只读内核投影 ✓
 /// ④ **只搬家、零行为改动**（页签模板实例化、只读口径一字未改）✓
 /// </summary>
-public partial class BattleUI : CanvasLayer
+public partial class BattleUI : Control
 {
     /// <summary>建 E 区多功能框（三页起步；旧 F1 浮层保留为开发工具，本框的【日志】页显示事件流尾部）。</summary>
     private void BuildMultiFunctionBox()

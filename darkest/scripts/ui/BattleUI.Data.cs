@@ -19,7 +19,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 /// ③ 🔴 依赖主类静态成员：`_poolCache`/`_unitNames`/`_skillNames`/`_buffNames`/`_skillsCfg`；数据只读 `res://data/**` ✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
-public partial class BattleUI : CanvasLayer
+public partial class BattleUI : Control
 {
     private static string[] SkillPool(string archetype)
     {
