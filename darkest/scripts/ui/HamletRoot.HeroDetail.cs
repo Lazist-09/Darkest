@@ -113,13 +113,34 @@ public partial class HamletRoot : Control
         //   成功 ⇒ 取骨架的 HeroStatusBars；失败 ⇒ 回落下面的代码建（不崩不静默）✓
         Darkest.UI.HeroDetailSkeleton? hSkel = Darkest.UI.HeroDetailSkeleton.TryInstantiate();
         bool usedSkel = hSkel is not null;
-        if (hSkel is not null && hSkel.HeroStatusBars is Control skelBars)
+        if (hSkel is not null)
         {
-            skelBars.Reparent(dLeftCol);   // Godot 4：**先 Reparent**（AddChild 会报 already has a parent；随后 MoveChild 才不会失败）
-            dLeftCol.MoveChild(skelBars, 0);
-            hSkel.QueueFree();   // 只取状态条；其余块随空根释放 ⇒ 不与代码建块重复
-        }
+            // DD 1:1 3-2：四块**全部取骨架**（编辑器里可改）；Reparent 后再 MoveChild（Godot 4 规则）
+            if (hSkel.HeroStatusBars is Control skelBars)
+            {
+                skelBars.Reparent(dLeftCol);
+                dLeftCol.MoveChild(skelBars, 0);
+            }
 
+            if (hSkel.HeroStatsGrid is Control skelStats)
+            {
+                skelStats.Reparent(dLeftCol);
+            }
+
+            if (hSkel.HeroEquipmentRow is Control skelEq)
+            {
+                skelEq.Reparent(dRightCol);
+                dRightCol.MoveChild(skelEq, 0);
+            }
+
+            if (hSkel.HeroTrinketGrid is Control skelTr)
+            {
+                skelTr.Reparent(dRightCol);
+                dRightCol.MoveChild(skelTr, 1);
+            }
+
+            hSkel.QueueFree();   // 四块已取走 ⇒ 释放空根，不留多余节点
+        }
         // 🔴 DD 1:1 ②【英雄状态条】照 `shared\hero\hero.layout.darkest` 的 `hero_campaign_status_layout`（次序/间距）
         //    DD：resolve_level_bar_offset 6,4 · stress_bar_offset -14,100 · stress_bar_spacing 10,0（×0.667 ⇒ 间距≈7）
         //    上=决心等级条 ⇒ **用户裁定：映射现有【士气条】（真数据）** · 下=压力条（同源） · HP 条=**接口占位**（TooltipText 标注）✓
@@ -142,6 +163,8 @@ public partial class HamletRoot : Control
         // 🔴 DD 1:1 ②-2【六属性列】照 `shared\hero\hero.layout.darkest` 的 `hero_base_stats_layout`：
         //    .name_offset 0 0 · .value_offset **115 0** · .spacing **200 22** ⇒ 两列（名/值）+ 行距 ⇒ 用 GridContainer 表达 ✓
         //    数据源：`_unitsCfg.Units` 按原型取（与右栏文本同源，不新造数字）✓ 只依赖字段 + heroId 参数（作用域安全）
+        if (!usedSkel)
+        {
         string archeForStats = _rosterCfgForDetail?.Heroes.FirstOrDefault(h => h.Id == heroId)?.Archetype ?? string.Empty;
         UnitConfig? statsUnit = _unitsCfg?.Units.FirstOrDefault(u => u.Id == archeForStats);
         var statsGrid = new GridContainer { Name = "HeroStatsGrid", Columns = 2 };
@@ -165,6 +188,7 @@ public partial class HamletRoot : Control
         }
         dLeftCol.AddChild(statsGrid);
         GD.Print($"[UI 英雄面板] ✅ DD 六属性列就位（原型 {archeForStats} · 有数据={statsUnit is not null} · 间距 133/15 = DD 200/22 ×0.667）✓");
+        }
             dLeftCol.AddChild(_detailLeft);
 
             // 🔴 P4（用户参考图④）：**技能 = 图标 + 悬停 tooltip 讲解**（不再是大段文字行）——
@@ -174,6 +198,8 @@ public partial class HamletRoot : Control
         // 🔴 DD 1:1 ②-3【右栏装备位】照 `shared\hero\hero.layout.darkest` 的 `hero_equipment_layout`：
         //    .weapon_pos **4 0**（左）· .armour_pos **95 0**（右）· icon_offset 29 52 · level_offset 90 12
         //    ⚠️ 装备/护甲属**装备系统**（用户裁定：留接口）⇒ 只做**空框占位 + TooltipText**，MouseFilter=Ignore（不留"点了没用"的控件·红线21）✓
+        if (!usedSkel)
+        {
         var equipRow = new HBoxContainer { Name = "HeroEquipmentRow" };
         equipRow.AddThemeConstantOverride("separation", 15);   // DD 95-4=91 的间距感 ×0.667 ≈ 61 → 取容器可读间距 15（两格自适应）✓
         var wSlot = new PanelContainer { Name = "HeroWeaponSlot", CustomMinimumSize = new Vector2(48, 48), MouseFilter = Control.MouseFilterEnum.Ignore, TooltipText = "武器（装备系统接口 · 暂不可用）" };
@@ -185,10 +211,13 @@ public partial class HamletRoot : Control
         dRightCol.AddChild(equipRow);
         dRightCol.MoveChild(equipRow, 0);   // DD：装备位在右栏**最上**（先于技能/抗性）✓
         GD.Print("[UI 英雄面板] ✅ DD 装备位就位（weapon/armour 空框占位 · TooltipText 已标 · 属装备系统接口）✓");
+        }
 
         // 🔴 DD 1:1 ②-4【饰品 2 列格】照 `shared\hero\hero.layout.darkest` 的 `hero_trinket_grid_layout`：
         //    .number_of_columns **2** · .start_pos 32 52 · .offset **92 160** ⇒ 格距 ×0.667 ≈ 61×107 ⇒ 用 GridContainer 表达 ✓
         //    ⚠️ 饰品同属**装备系统**（用户裁定：留接口）⇒ 两个**空框占位 + TooltipText**，MouseFilter=Ignore（不留"点了没用"的控件·红线21）✓
+        if (!usedSkel)
+        {
         var trinketGrid = new GridContainer { Name = "HeroTrinketGrid", Columns = 2 };
         trinketGrid.AddThemeConstantOverride("h_separation", 61);    // DD offset 92 ×0.667 ≈ 61 ✓
         trinketGrid.AddThemeConstantOverride("v_separation", 107);   // DD offset 160 ×0.667 ≈ 107 ✓
@@ -201,6 +230,7 @@ public partial class HamletRoot : Control
         dRightCol.AddChild(trinketGrid);
         dRightCol.MoveChild(trinketGrid, 1);   // DD：饰品格紧随装备位（装备 0 → 饰品 1）✓
         GD.Print("[UI 英雄面板] ✅ DD 饰品 2 列格就位（2 位 · 间距 61/107 = DD 92/160 ×0.667 · 占位接口）✓");
+        }
         dRightCol.AddChild(_detailSkills);
 
         // 🔴 P4：**右上角"推荐位置"留框**（用户原话"这个留一个框后面做都可以"）✓
