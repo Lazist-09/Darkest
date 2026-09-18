@@ -2766,3 +2766,28 @@ DD 有独立面板：`campaign\town\provision\provision.layout.darkest`（出征
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.66 **DD 对照清单（④ 待用户裁决：先报告后删）**（2026-09-21）
+
+```
+盘点方法：我域全部场景节点（`scenes/ui/*.tscn`）+ 代码建显著控件名（Hamlet/Battle/英雄面板）逐项对照 DD `**\*.layout.darkest` 的键
+
+【A】DD 有、我域缺（候选补）：
+  · `estate_summary`（DD town.layout `.estate_summary_pos 0 975`）⇒ 我域无对应块
+  · `realm_inventory`（DD `.realm_inventory_pos 881 128`）⇒ 我域无
+【B】DD 没有、我域有（**候选删除**，逐项给出处）：
+  1. `ShopkeeperSlot` / `ShopkeeperPlaceholder`（`building_popup.tscn`）—— DD `building.layout` 只有 name/body_base/upgrade_base/upgrade_trees/close
+  2. `HeroLevel`（`roster_row.tscn`，你手改版里的节点；DD `roster.layout` 无对应键）
+  3. `roster_row.tscn` 里**两个同名 `PortraitPlaceholder`**（第二个在 `HeroLevel` 下）⇒ 命名重复，建议清理（删其一或改名）
+  4. `RecommendPortraitFrame` / `RecommendPlaceholder`（代码建，属"推荐位置预留框"内部件）
+  5. `DetailSkillIcons` / `DetailCampSkills`（代码建）—— ⚠️ DD `shared\hero\hero.layout` 有 skills/camping 相关 ⇒ **待你确认是否算 DD 有**
+  6. `AbandonConfirmRow` / `AbandonExpedition` / `AbandonYes` / `AbandonNo` —— DD 有撤退/放弃相关 ⇒ **待确认**
+【C】你此前点名保留（**请示是否也删**）：
+  · 名册行尾 `›` 详情入口（`RosterDetail_<id>`，我加的可见入口；DD 无此键）
+  · `DetailRecommendSlot` 推荐位置预留框（你说过"留一个框后面做都可以"；DD 无此键）
+
+⇒ 我的建议：**B1/B2/B3/B4 删**（DD 无且无功能）· B5/B6 **保留**（疑似 DD 有，待核实）· C **保留**（你点名过）
+   请裁决：① B1~B4 是否删 ② B5/B6 是否算 DD 有 ③ C 是否保留 ④ A 是否补
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
