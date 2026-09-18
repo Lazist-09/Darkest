@@ -1643,3 +1643,18 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.27 **收件 3 件已办（2026-09-21）**
+
+```
+· 主程序 `DELIVERY-LEAD-RECRUIT-ROOKIELEVEL` / `-VARNAME-FIX`：两处招募没把 `EffectiveRookieLevel` 传进 `Recruit`
+  ⇒ **死声明（有展示、无消费）** ⇒ 已补 `rookieLevel: ExpeditionContext.Heirlooms?.EffectiveRookieLevel(...)`（9732a36）✓
+  ⚠️ 我踩的坑：**PowerShell 变量名不区分大小写** ⇒ `$h`（路径）被 `$H`（列表）覆盖 ⇒ 第一轮实际没改却提交了
+     "已补"的信息 ⇒ **第二条提交里明确更正**（诚实优先；教训：路径/列表变量命名必须不同名）✓
+· 主程序/策划 #405：`BattleUi.cs:13` 的 `using UiMotion = Darkest.UI.UiMotion;` **冗余**，且注释里的小写 `Darkest.Ui`
+  **撞我自己的命名空间门**（护栏惩罚"写清为什么的人"）⇒ 已删 ⇒ 干净树上门禁转绿（d97888f）✓
+· 策划 #404 纪律 V（展示值==消费值）：`HamletRoot.cs:558` 的 `ApplyRelief` 恢复量**直调原始值** ⇒ 已改走
+  `ExpeditionContext.Heirlooms?.EffectiveMoraleRestore(...) ?? 原值`；收费侧由内核 `StressRelief.Apply` 生效值负责（不重复扣）✓ b7a7c69
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
