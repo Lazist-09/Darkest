@@ -9,13 +9,13 @@ namespace Darkest.UI;
 /// ```
 /// OverlayLayer (Control · mouse_filter=Ignore ⇒ 空层不吃鼠标)
 /// ├ ModalHost   （模态：不透明 PanelContainer + ✕；同一时刻只保留栈顶可交互）
-/// └ TooltipHost （悬停说明：每个 stat/skill 都能有）
+/// └ TooltipHost （悬停说明：**优先用 `scenes/ui/tooltip.tscn` 模板** ⇒ 外观在编辑器可改 ✓）
 /// ```
 /// ⇒ 实现 `ui_spec §11.4⑤` 的**信息分层**：**常显（面板）→ 悬停（tooltip）→ 点开（modal）** ✓
 ///
 /// 🔴 命名纪律（用户 2026-09-21）：命名空间一律 **`Darkest.UI`**（大写 UI），类/文件用大写缩写风格 ✓
-/// ⚠️ **接线状态：未接线**（本轮只建骨架；接线 = 把 `BattleUI.Modals.MakeOpaqueModal` 与
-///    `HamletRoot.PopupMenu.MakePopup` 的挂载点由各自 `_uiRoot` 改到 `ModalHost`，缺失则回落旧路径）✓
+/// ⚠️ **接线状态：已接线**（战斗侧 `BattleUI.Build + Modals.MakeOpaqueModal` ✓ · 城池侧 `HamletRoot.PopupMenu.MakePopup` ✓；
+///    两处挂载点均为 `Overlay 缺失 ⇒ 回落旧父容器`，不崩不静默）✓
 /// 🔴 `[Tool]` ⇒ 编辑器里可见结构；编辑器逻辑必须 `Engine.IsEditorHint()` 守卫 ✓
 /// </summary>
 [Tool]
@@ -87,7 +87,7 @@ public partial class OverlayLayer : Control
         return false;
     }
 
-    /// <summary>悬停说明（§11.4⑤ 的中间层）：只读、不接管点击 ✓</summary>
+    /// <summary>悬停说明（§11.4⑤ 的中间层）：只读、不接管点击；**优先用模板场景** ✓</summary>
     public void ShowTooltip(string text, Vector2 at)
     {
         if (string.IsNullOrEmpty(text))
@@ -98,21 +98,25 @@ public partial class OverlayLayer : Control
 
         if (_tooltip is null || !GodotObject.IsInstanceValid(_tooltip))
         {
-            var box = new PanelContainer { Name = "OverlayTooltip", MouseFilter = MouseFilterEnum.Ignore };
-            var label = new Label { Name = "OverlayTooltipText", AutowrapMode = TextServer.AutowrapMode.WordSmart };
-            label.AddThemeFontSizeOverride("font_size", DdTheme.FontSmall);
-            box.AddChild(label);
-            _tooltip = box;
-            (TooltipHost ?? this).AddChild(box);
+            _tooltip = TooltipTemplate.TryCreate(text) ?? BuildFallbackTooltip(text);
+            (TooltipHost ?? this).AddChild(_tooltip);
+            GD.Print("[UI Overlay] 悬停层已建（模板优先，缺失回落代码构建）✓");
         }
 
-        if (_tooltip.GetChild(0) is Label l)
-        {
-            l.Text = text;
-        }
-
+        TooltipTemplate.SetText(_tooltip, text);
         _tooltip.Position = at;
         _tooltip.Visible = true;
+    }
+
+    /// <summary>模板缺失时的回落（不崩、不静默）✓</summary>
+    private static Control BuildFallbackTooltip(string text)
+    {
+        var box = new PanelContainer { Name = "OverlayTooltip", MouseFilter = MouseFilterEnum.Ignore };
+        var label = new Label { Name = "TooltipText", Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        label.AddThemeFontSizeOverride("font_size", DdTheme.FontSmall);
+        box.AddChild(label);
+        GD.Print("[UI Overlay] `tooltip.tscn` 不可用 ⇒ 回落代码构建的悬停框（不静默）✓");
+        return box;
     }
 
     public void HideTooltip()

@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+
+[node name="Tooltip" type="PanelContainer"]
+theme = ExtResource("1_theme")
+mouse_filter = 2
+
+[node name="TooltipText" type="Label" parent="."]
+layout_mode = 2
+text = "提示"
+autowrap_mode = 2
