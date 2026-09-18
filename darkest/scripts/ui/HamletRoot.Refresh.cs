@@ -94,7 +94,8 @@ public partial class HamletRoot : Control
                 //    （用户在编辑器里把名册行改成**两行结构** ⇒ 写死 32px 会把上下两行压叠：实测 6~7 对重叠）✓
                 // 🔴 2026-09-21：行高**量到内层 VBox（用户两行结构的 RosterRowBody2）**，缺失则退回外层需求；宽度仍按相机 1280 口径 232 ✓
                 Control? inner = b.FindChild("RosterRowBody2", true, false) as Control;
-                float needH = Math.Max(32f, (inner ?? rowBody).GetCombinedMinimumSize().Y);
+                // 🔴 2026-09-21 DD 1:1 还原 #1（Town+Roster）：行高取 DD 的 **97** 作为下限（动态需求更大时仍取更大）✓
+                float needH = Math.Max(97f, (inner ?? rowBody).GetCombinedMinimumSize().Y);   // 🔴 DD 真机 roster.layout：**行高 97**（取下限 ⇒ 既贴 DD 又不复活旧重叠）✓
                 b.CustomMinimumSize = new Vector2(232, needH);
                 b.TooltipText = $"{h.Name}　Lv{lv}　士气 {morale}　防御 {dodge}{(canRelief ? "　·可减压" : string.Empty)}";
                 ph.Color = WithPlaceholderAlpha(Darkest.UI.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true));   // 🔴 规则②：α 取调色板
