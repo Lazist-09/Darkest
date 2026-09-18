@@ -71,7 +71,7 @@ public static class DdTheme
     public static int FontBody => Palette.FontBody;
     public static int FontSmall => Palette.FontSmall;
 
-    /// <summary>C 区技能栏列数（`#321`③；原先是 `BattleUi.cs` 里写死的 `perRow = 8` ⇒ `#325` D5 点名的反例）</summary>
+    /// <summary>C 区技能栏列数（`#321`③；原先是 `BattleUI.cs` 里写死的 `perRow = 8` ⇒ `#325` D5 点名的反例）</summary>
     public static int SkillBarColumns => Palette.SkillBarColumns;
 
     private static Theme? _shared;
@@ -332,7 +332,7 @@ public static class DdTheme
     /// <summary>面板边框（1px；暖色线条）。</summary>
     public static Color PanelBorder => Palette.PanelBorder;
 
-    /// <summary>场景底（最深；`BattleUi` 背景等）。</summary>
+    /// <summary>场景底（最深；`BattleUI` 背景等）。</summary>
     public static Color BgDeep => Palette.BgDeep;
 
     // ---- 🔴 `§1.4`① + `§12.3` 文字描边（**引擎内置**：`font_outline_color` + `outline_size`）----

@@ -67,7 +67,7 @@ public partial class BattleRoot : Node2D
 
         if (_ui is null)
         {
-            _ui = GetNode<BattleUi>("BattleUi");
+            _ui = GetNode<BattleUI>("BattleUI");
         }
 
         BindUi();

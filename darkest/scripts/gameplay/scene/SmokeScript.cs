@@ -329,7 +329,7 @@ public static class SmokeScript
     /// <summary>
     /// 🔴 **片 4 收尾：旧远征场景已退休** ⇒ 那些"只在旧场景里有实现"的冒烟步骤改为**诚实的停步**：
     /// 打印"尚未在宿主侧接线"并停下（红线 21：**不静默、也不假装跑过**）✓
-    /// 📌 宿主侧的对应步骤属**片 2 尾部**（扎营/Curio/选路面板搬进 `BattleUi` 之后）⇒ 届时在此接上 ✓
+    /// 📌 宿主侧的对应步骤属**片 2 尾部**（扎营/Curio/选路面板搬进 `BattleUI` 之后）⇒ 届时在此接上 ✓
     /// </summary>
     private static void HostStepNotWired(string step)
         => GD.Print($"[冒烟] 🔴 步骤「{step}」尚未在宿主侧接线（属片 2 尾部：扎营/Curio/选路面板）⇒ 如实停下 ✓");

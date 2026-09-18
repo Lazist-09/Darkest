@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://c8nmnufigwypv"]
 
 [ext_resource type="Script" path="res://scripts/gameplay/scene/BattleRoot.cs" id="1_root"]
-[ext_resource type="Script" path="res://scripts/ui/BattleUi.cs" id="2_ui"]
+[ext_resource type="Script" path="res://scripts/ui/BattleUI.cs" id="2_ui"]
 
 [node name="Battle" type="Node2D"]
 script = ExtResource("1_root")
@@ -9,5 +9,5 @@ script = ExtResource("1_root")
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(640, 360)
 
-[node name="BattleUi" type="CanvasLayer" parent="."]
+[node name="BattleUI" type="CanvasLayer" parent="."]
 script = ExtResource("2_ui")

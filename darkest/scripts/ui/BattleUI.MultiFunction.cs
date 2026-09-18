@@ -14,13 +14,13 @@ using Godot;
 namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）✓
 
 /// <summary>
-/// ① 从 `BattleUi.cs` 拆出（用户红线：程序文件 ≤600 行；架构要求**按相位/职责**切）✓
+/// ① 从 `BattleUI.cs` 拆出（用户红线：程序文件 ≤600 行；架构要求**按相位/职责**切）✓
 /// ② 本文件 = **战斗 · E 区多功能框族**（建三页起步 / 切页 `SetMultiFunctionPage` / 内容刷新 `RefreshMultiFunctionContent`）✓
 /// ③ 🔴 依赖主类私有成员/状态：`_eArea` · `_mfPanel` · `_mfTabs` · `_mfContent` · `_mfPage` · `_host` ·
 ///    `_bottomRow`（骨架优先/回落）· `DdTheme`（样式）；页面数据只读内核投影 ✓
 /// ④ **只搬家、零行为改动**（页签模板实例化、只读口径一字未改）✓
 /// </summary>
-public partial class BattleUi : CanvasLayer
+public partial class BattleUI : CanvasLayer
 {
     /// <summary>建 E 区多功能框（三页起步；旧 F1 浮层保留为开发工具，本框的【日志】页显示事件流尾部）。</summary>
     private void BuildMultiFunctionBox()

@@ -14,7 +14,7 @@ namespace Darkest.UI;
 /// ```
 /// ⇒ **各分区的位置/间距/宽度占比** 可在编辑器里改 ✓
 ///
-/// ✅ **接线状态：已接线**（`BattleUi.BuildTopRow()` 采用之；2026-09-21 验证：`[UI 骨架] ✅ 战斗顶栏采用骨架`）✓
+/// ✅ **接线状态：已接线**（`BattleUI.BuildTopRow()` 采用之；2026-09-21 验证：`[UI 骨架] ✅ 战斗顶栏采用骨架`）✓
 /// ⚠️ **火把条本体（`LightBarPanel`）不在骨架里**（它是 C# 类，手写 `.tscn` 放不进脚本类实例 ⇒ **不猜**，
 ///    仍由代码 `new LightBarPanel()` 建，只是**容器** `TorchWrap` 进骨架）✓
 /// 🔴 `[Tool]` ⇒ 编辑器里可见结构；编辑器逻辑必须 `Engine.IsEditorHint()` 守卫 ✓

@@ -43,7 +43,7 @@ public partial class UiPalette : Resource
     [Export] public int FontBody { get; set; }
     [Export] public int FontSmall { get; set; }
 
-    /// <summary>C 区技能栏列数（`#321`③：C 区固定宽 ≈30% ⇒ 4 列刚好；原为 `BattleUi` 里写死的 `perRow = 8`）</summary>
+    /// <summary>C 区技能栏列数（`#321`③：C 区固定宽 ≈30% ⇒ 4 列刚好；原为 `BattleUI` 里写死的 `perRow = 8`）</summary>
     [Export] public int SkillBarColumns { get; set; }
 
     // ---- 条 / 状态 ----

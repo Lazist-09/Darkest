@@ -69,7 +69,7 @@ public partial class BattleRoot : Node2D
 
     /// <summary>预览专用 RNG（固定种子；**只喂预览**，永不参与战斗抽数）✓</summary>
     private readonly RngProvider _previewRng = new(20260915);
-    private BattleUi _ui = null!;
+    private BattleUI _ui = null!;
     private SkillsConfig _skills = null!;
     private bool _awaitingPlayer;
     private UnitId _activeActor = new("-");
@@ -288,7 +288,7 @@ public partial class BattleRoot : Node2D
     /// </summary>
     private void ShowMapPage()
     {
-        const int MapPageIndex = Darkest.UI.BattleUi.MapPageIndex; // 🔴 单一出处：引用 UI 的页签表常量（原另写一份 4 ⇒ 两处真值）✓
+        const int MapPageIndex = Darkest.UI.BattleUI.MapPageIndex; // 🔴 单一出处：引用 UI 的页签表常量（原另写一份 4 ⇒ 两处真值）✓
         _ui.SetMultiFunctionPage(MapPageIndex);
         GD.Print($"[片③] 战斗界面：E 区当前页 = {_ui.MultiFunctionPage}（{MapPageIndex} = 地图）");
         GD.Print($"[片③] {_ui.DescribeMiniMap()}");
@@ -360,7 +360,7 @@ public partial class BattleRoot : Node2D
         ExpeditionComposition.Built built = ExpeditionComposition.BuildInScene(this, log);
         if (_ui is null)
         {
-            _ui = GetNode<BattleUi>("BattleUi");
+            _ui = GetNode<BattleUI>("BattleUI");
         }
 
         _dungeonHostedInScene = true; // 🔴 片 4 过渡标记（战后据此回地图模式）✓
@@ -411,7 +411,7 @@ public partial class BattleRoot : Node2D
     {
         if (_ui is null)
         {
-            _ui = GetNode<BattleUi>("BattleUi");
+            _ui = GetNode<BattleUI>("BattleUI");
         }
 
         _ui.Bind(host: this, useSkill: (actor, skillId) => DoUseSkill(actor, skillId),

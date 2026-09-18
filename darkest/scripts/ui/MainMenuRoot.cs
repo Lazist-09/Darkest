@@ -198,7 +198,7 @@ public partial class MainMenuRoot : Control
             }
 
             // 🔴 **如实报**：生效值**不等于**中央 Theme ⇒ **继承没生效**
-            //    根因：本屏根是 `Node2D`（`BattleUi` 是 `CanvasLayer`）—— **都不是 `Control`**
+            //    根因：本屏根是 `Node2D`（`BattleUI` 是 `CanvasLayer`）—— **都不是 `Control`**
             //    ⇒ Godot 的主题查找沿 **Control/Window 祖先链**走，链上没有我们的 Theme ⇒ 落到引擎默认 16
             //    ⇒ 📌 **下一轮（架构清单② 的"容器+锚点"）就是修这个**：给每屏加一个满屏根 `Control` 并挂 Theme ✓
             int effective = _title.GetThemeFontSize("font_size");

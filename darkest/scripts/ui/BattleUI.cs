@@ -14,13 +14,13 @@ using Godot;
 namespace Darkest.UI;
 
 /// <summary>
-/// BattleUi：暗黑地牢式排布（1280×720，中文）。单位**一字横排、两军对望**：
+/// BattleUI：暗黑地牢式排布（1280×720，中文）。单位**一字横排、两军对望**：
 /// 我方 4·3·2·1（左，1 位贴近中线）｜敌方 1·2·3·4（右）；支援位 5·6 为我方后排小卡；
 /// 顶部状态+回合条，底部当前行动者技能栏 + 增援/移动。
 /// 高亮（修复）：① 当前行动者一律高亮（含支援位 5/6）；② 仅"需选目标"时高亮候选且**按阵营匹配**
 /// （敌技亮敌卡 / 友技亮友卡；AOE·团队·自身不进入选目标 → 不会全亮）；③ 增援两步按阶段亮 5/6 → 1~4。
 /// </summary>
-public partial class BattleUi : CanvasLayer
+public partial class BattleUI : CanvasLayer
 {
     private const float CardW = 132f;   // 🔴 相机 1280 口径：146 → 132（4v4 横排收窄，§14.0 规则①）
     private const float CardH = 112f;   // 🔴 相机 720 口径：170→146→140→112（topology 路径仍超 62px）
@@ -764,7 +764,7 @@ public partial class BattleUi : CanvasLayer
         _skillBarFor = "";
         _skillBarWaiting = false;
         Build();
-        GD.Print("[BattleUi] 暗黑地牢式排布就绪（横排：我方 4321 ｜ 敌方 1234；支援位后排；底部技能栏）。");
+        GD.Print("[BattleUI] 暗黑地牢式排布就绪（横排：我方 4321 ｜ 敌方 1234；支援位后排；底部技能栏）。");
 
         // 🔴 审计清单③：**进场就给焦点**（否则键盘/手柄用户"没有起点"，方向键无处可动）
         if (_cards.Count > 0 && _cards[0].card is Control first)
@@ -931,7 +931,7 @@ public partial class BattleUi : CanvasLayer
         // 🔴 `ui_spec §12.2` **音效**：注入播放宿主（占位音为程序生成 ⇒ **音源缺失也能跑**）✓
         Darkest.UI.UiSfx.Attach(_uiRoot);
 
-        GD.Print("[BattleUi] 容器树就绪：顶栏／主体（我方 4+2 ←→ 敌方 4）／底栏（C 区含技能栏 ＋ E 区多功能框）" +
+        GD.Print("[BattleUI] 容器树就绪：顶栏／主体（我方 4+2 ←→ 敌方 4）／底栏（C 区含技能栏 ＋ E 区多功能框）" +
                  " ⇒ 控件**创建时进容器** ✓");
     }
 

@@ -14,7 +14,7 @@ namespace Darkest.Gameplay.Scene;
 ///
 /// 为什么要有这个文件：片 4 的终态是"**唯一场景 `Battle.tscn` + 地图模式 = 地牢**" ⇒
 /// 那么"谁来组装 `ExpeditionFlow`"就必须从**远征场景**（即将退休）搬到**宿主**这边 ✓
-/// ⚠️ 面板（扎营/Curio/选路…）的迁移是 **UI 设计师** 的片 2（他逐个挂进 `BattleUi.DungeonHost()`）✓
+/// ⚠️ 面板（扎营/Curio/选路…）的迁移是 **UI 设计师** 的片 2（他逐个挂进 `BattleUI.DungeonHost()`）✓
 /// ⚠️ 组装**只此一处**：`ExpeditionRoot` 退休后，它的那份必须删掉（否则又是"两处真值"⇒ 会各自漂移）⚠️
 ///
 /// 忠实照搬（逐行对照 `ExpeditionRoot` 304~405 行；含两处**真缺陷修复**的注入点）：
