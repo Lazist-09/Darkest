@@ -37,6 +37,9 @@ public partial class BuildingPopupSkeleton : VBoxContainer
 
     public VBoxContainer? Content => GetNodeOrNull<VBoxContainer>("BuildingSplit/BuildingContent");
 
+    /// <summary>DD 1:1：升级树（骨架里可见；缺失时由 HamletRoot.BuildingPopup 代码建）</summary>
+    public HBoxContainer? UpgradeTree => GetNodeOrNull<HBoxContainer>("BuildingSplit/BuildingContent/UpgradeTree");
+
     /// <summary>实例化骨架；场景缺失/类型不符 ⇒ null（宿主回落代码构建，不崩不静默）✓</summary>
     public static BuildingPopupSkeleton? TryInstantiate()
     {

@@ -23,3 +23,8 @@ custom_minimum_size = Vector2(0, 96)
 [node name="BuildingContent" type="VBoxContainer" parent="BuildingSplit"]
 theme_override_constants/separation = 6
 size_flags_horizontal = 3
+
+; DD 1:1 升级树进骨架（编辑器可见可改）：等级链三态；数据由 HamletRoot.BuildingPopup 填（HeirloomStock 同源）
+[node name="UpgradeTree" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
+layout_mode = 2
+theme_override_constants/separation = 6

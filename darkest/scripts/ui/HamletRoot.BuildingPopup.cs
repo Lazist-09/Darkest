@@ -150,8 +150,8 @@ public partial class HamletRoot : Control
         bool affordable = next is not null && h.CanUpgrade(building);
         // 🔴 DD 1:1 ①【升级树】照 `building.layout.darkest` 的 `.upgrade_trees_offset 0 195`：等级链三态（已达成/下一级/未达成）
         //    数据全部用**已有** `HeirloomStock.LevelOf` 与 `NextLevel().Cost`（不新造数字）✓
-        var tree = new HBoxContainer { Name = "UpgradeTree" };
-        tree.AddThemeConstantOverride("separation", 6);
+        HBoxContainer tree = _buildingPopupBody.FindChild("UpgradeTree", true, false) as HBoxContainer ?? new HBoxContainer { Name = "UpgradeTree" };   // DD 1:1：骨架优先（递归查找），缺失才代码建
+        if (tree.GetParent() is null) { tree.AddThemeConstantOverride("separation", 6); } else { foreach (Node old in tree.GetChildren()) { old.Free(); } }   // 骨架节点 ⇒ 清空重填
         int curLv = h.LevelOf(building);
         int shownLv = curLv + 2;   // 展示 0..当前+2（保守：不虚构更高上限）
         for (int lv = 0; lv <= shownLv; lv++)
@@ -166,7 +166,7 @@ public partial class HamletRoot : Control
             node.AddChild(new ColorRect { Name = "NodeFill", Color = Darkest.UI.DdTheme.PlaceholderFill });
             tree.AddChild(node);
         }
-        _buildingPopupBody.AddChild(tree);
+        if (tree.GetParent() is null) { _buildingPopupBody.AddChild(tree); }
         GD.Print($"[UI 建筑弹窗] OK DD 升级树就位：{building} 当前 Lv{curLv} · 节点 {shownLv + 1} 个（DD upgrade_trees，数据同源）");
 
         var upgrade = new Button
