@@ -28,7 +28,7 @@ $rows = @(
   @{ Key = "status_bars.y_pos";        Dd = 698;  Impl = "BattleUI.StatusTray tray y"; Pat = "0.646f" }
   @{ Key = "status_bars.health_height"; Dd = 10;  Impl = "BattleUI.StatusTray bar height"; Pat = "0.0093f" }
   @{ Key = "raid actor_spacing - figure"; Dd = 168; Impl = "BattleUI CardW+GapX = 84+9"; Pat = "const float CardW = 84f" }
-  @{ Key = "raid overlays hero_start_pos.y"; Dd = 680; Impl = "BattleUI mid row (ShrinkEnd approx; exact 0.6297 pending)"; Pat = "ShrinkEnd" }
+  @{ Key = "raid overlays hero_start_pos.y"; Dd = 680; Impl = "BattleUI MidPadTop ratio 0.6297 (exact)"; Pat = "MidPadTop" }
   @{ Key = "raid area tile_width"; Dd = 720; Impl = "BattleUI mid row band (padding ratios)"; Pat = "MidPadLeft" }
   @{ Key = "raid overlays actor_spacing"; Dd = 154; Impl = "BattleUI CardW 84 (DD band / 4)"; Pat = "const float CardW = 84f" }
   @{ Key = "panel.map clip"; Dd = 665; Impl = "battle_bottombar MapCorner (read only)"; Pat = "MapCorner" }

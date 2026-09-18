@@ -2981,3 +2981,16 @@ DD `screen.raid.overlays.hero_start_pos/monster_start_pos` 的 **y 680** ⇒ 屏
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.76 **门禁诚实性修正 + P5 余项（provision 商店位）**（2026-09-21）
+
+```
+① 门禁更正：`raid overlays hero_start_pos.y` 一条由 `Pat = "ShrinkEnd"`（近似）改为 **`Pat = "MidPadTop"`**
+   并把 Impl 文本改为 **"BattleUI MidPadTop ratio 0.6297 (exact)"** ⇒ **近似不再算命中** ✓（对应 §14.0.75 的偏差已消除）
+② P5 余项（**未做，记录待办**）：DD `provision_store_background_layout` 的商店背景起于 **x 814** ⇒ 比例 **0.424**；
+   我域 `BodyRow` 是 HBox[PartyGrid | StoreGrid | InfoCol(180)] ⇒ 商店左缘位置由 HBox 比例决定，**未显式对齐 0.424** ✗
+   ⇒ 精确落法（下一步）：在 PartyGrid 与 StoreGrid 之间插一个 `ExpandFill` 空档，并按 DD 值解出三个可用宽度比
+      （PartyGrid 右缘 → 0.424 之间为空档）⇒ 用比例和 = 1 表达 ✓（不写像素）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
