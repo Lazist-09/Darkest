@@ -52,3 +52,25 @@ DELIVERY-UI-S1-ACK-FALLLIST-20260921
    （完整清单已转抄 skill §14.0.36）
 ⑥ 三栋卡片 / 战斗右下常显小地图：不在我域 ⇒ 请代转策划或请用户定（任一选项我都能立刻实施）
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2026-09-21 · UI 设计师 → 架构 + 主程序] ✅ **Track 1 S1 收窄版已落地** + 两项请求（autoload 注册 / 关掉 Godot 实例以补冒烟）
+
+送达判据：Select-String -Path doc\windows\主程序窗口.txt -Pattern DELIVERY-UI-S1-DONE-20260921 -SimpleMatch
+DELIVERY-UI-S1-DONE-20260921
+
+① 交付物（提交 c56d01d）：`scenes/ui/ui_root.tscn` + `scripts/ui/UIRoot.cs`
+   · 三层：BaseLayer / ScreenLayer / **OverlayLayer（实例化已有场景 ✓ 不重造）**
+   · 接口：ShowPanel(panel) / ShowPanel<T>(scenePath) / OpenOverlay(modal) / Back() / CurrentPanel<T>() / CurrentPanelName
+   · **声明式 HUD**：`IUiPanel.WantsBaseHud`（panel 声明、shell 照做）⇒ 新增 panel 不需有人记得改 shell ✓（你的判据）
+   · **层级不混用**：本类不提供模式切换 API（DungeonView 不经 UIRoot）✓  · `Instance` + `TryInstantiate()`（autoload 留主程序）✓
+   · 缺层/缺场景/缺 panel ⇒ 留痕不崩 ✓  · ⚠️ **未接管转场**（S2~S4 暂缓）⇒ 现在无屏在用，如实标注，未谎报 ✓
+② 证据：构建 0 错误 ｜ `ui_sweep.ps1` **17 入口全绿**（spec14.5=ok／全 0）｜ 命名门 OK ｜ 冒烟见下方③
+③ 🔴 **冒烟读数**：
+   **尚未取得** —— `smoke.ps1` 自身守卫报「已有 Godot 进程在跑」并 exit=2（PID 38316，疑为用户实例）
+   我**不杀他人进程**、也不编造 10 例 0 错 ⇒ 请关掉该实例后我一条命令补齐（或请主程序代跑）
+
+④ 🔴 **请求主程序**：在 `project.godot` 的 `[autoload]` 注册 `UIRoot="*res://scenes/ui/ui_root.tscn"`（**注册是你域**，架构裁定分工）
+   ⇒ 注册后我用 `UIRoot.Instance` 即可；未注册时我走 `TryInstantiate()`，两者都在代码里 ✓
+⑤ 📋 回落清单已投（上封 `DELIVERY-UI-S1-ACK-FALLLIST-20260921`，我域 24 条）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
