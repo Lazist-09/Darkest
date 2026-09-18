@@ -22,6 +22,7 @@ public sealed class Roster
 {
     private readonly RosterConfig _cfg;
     private readonly Dictionary<string, int> _morale;
+    private readonly Dictionary<string, int> _xp = new();   // 🆕 升级通道：累计经验（缺省不接线）✓
     private readonly List<HeroConfig> _heroes;
     private int _recruitSeq;
 
@@ -34,6 +35,72 @@ public sealed class Roster
 
     /// <summary>名册上限与英雄清单（只读）。</summary>
     public IReadOnlyList<HeroConfig> Heroes => _heroes;
+
+    /// <summary>🆕 **升级通道是否接线**（`roster.json` 有 `experience` ⇒ true）——
+    /// 🔴 未接线时 `AwardExperience*` **显式不生效**（返回 false、不写事件）⇒ **不假装** ✓</summary>
+    public bool ExperienceWired => _cfg.Experience is not null;
+
+    /// <summary>🆕 某英雄的累计经验（读数口）✓</summary>
+    public int ExperienceOf(string heroId) => _xp.GetValueOrDefault(heroId);
+
+    /// <summary>🆕 某英雄的当前**等级**（可直接被 `HeroProjection.ApplyLevel` 投影 ✓）</summary>
+    public int LevelOf(string heroId) => _heroes.First(h => h.Id == heroId).Level;
+
+    /// <summary>
+    /// 🆕 **战斗结算 ⇒ 给经验 ⇒ 可能升级**（契约：`hamlet.md` §7.2/§7.6「战斗给经验 ⇒ 等级成长」）✓
+    /// 纪律：**数字全部来自 `_cfg.Experience`**（缺省 ⇒ 显式不生效）· **跨过阈值 ⇒ 写 `HeroLevelUpEvent`** ✓
+    /// </summary>
+    public bool AwardExperienceForBattle(CombatLog log, bool win, string reason = "battle")
+    {
+        RosterExperience? exp = _cfg.Experience;
+        if (exp is null)
+        {
+            return false; // 🔴 未接线：**不假装**（不写事件、不改等级）✓
+        }
+
+        int amount = win ? exp.XpPerWin : exp.XpPerLoss;
+        if (amount <= 0)
+        {
+            return false;
+        }
+
+        foreach (HeroConfig h in _heroes.ToList())
+        {
+            int total = _xp.GetValueOrDefault(h.Id) + amount;
+            _xp[h.Id] = total;
+            log.Append(new HeroExperienceGainedEvent(h.Id, amount, total, reason));
+
+            int target = h.Level;
+            for (int i = 0; i < exp.LevelThresholds.Count; i++)
+            {
+                if (total >= exp.LevelThresholds[i])
+                {
+                    // 🔴 **语义口径（请策划裁）**：阈值 = 【**绝对累计经验**】⇒ 阈值 i ⇒ 达到 (i+2) 级 ✓
+                    //    ⇒ 因此**起手等级高的老手反而需要更多经验**才升（例：起手 2 级 ⇒ 需跨到阈值 1 才到 3 级）✓
+                    //    ⚠️ 另一读法是"每级固定经验"（相对）⇒ 两者只在**起手等级 > 1** 时不同；数值到手前一并请裁 ✓
+                    target = i + 2;
+                }
+            }
+
+            int capped = Math.Clamp(target, h.Level, _cfg.LevelMax);
+            if (capped > h.Level)
+            {
+                ReplaceLevel(h.Id, capped);
+                log.Append(new HeroLevelUpEvent(h.Id, h.Level, capped));
+            }
+        }
+
+        return true;
+    }
+
+    private void ReplaceLevel(string heroId, int level)
+    {
+        int i = _heroes.FindIndex(h => h.Id == heroId);
+        if (i >= 0)
+        {
+            _heroes[i] = _heroes[i] with { Level = level };
+        }
+    }
 
     /// <summary>名册上限（M8.0 ⑤：出征 6 + 替补 6 = 12）。</summary>
     public int Cap => _cfg.RosterCap;

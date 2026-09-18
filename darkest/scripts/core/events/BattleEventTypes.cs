@@ -181,3 +181,15 @@ public sealed record MoraleEmberEvent(UnitId Unit, string Kind) : BattleEvent;
 
 /// <summary>靠齐（G0，级 2）：死亡后队列收拢的每个位移。</summary>
 public sealed record CloseUpEvent(IReadOnlyList<(UnitId Unit, int From, int To)> Moves) : BattleEvent;
+
+/// <summary>
+/// 🆕 **升级通道**（`hamlet.md` §7.2/§7.6）：**获得经验** —— 与士气同纪律：**数字必须来自事件流** ✓
+/// ⚠️ 未接线时（`roster.json` 无 `experience`）**不写此事件**（不假装生效）✓
+/// </summary>
+public sealed record HeroExperienceGainedEvent(string HeroId, int Amount, int Total, string Reason) : BattleEvent;
+
+/// <summary>
+/// 🆕 **升级通道**：**等级提升**（1~6 · 只给属性小幅度 · 不升技能 ✓）
+/// 用途：名册侧"队伍在长"的可审计证据；UI/读数**只读事件**，不另记账 ✓
+/// </summary>
+public sealed record HeroLevelUpEvent(string HeroId, int FromLevel, int ToLevel) : BattleEvent;

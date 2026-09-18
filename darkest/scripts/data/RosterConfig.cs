@@ -32,6 +32,16 @@ public sealed record HeroConfig(
     [property: JsonPropertyName("morale")] int Morale = RosterConfig.RookieMorale);
 
 /// <summary>等级成长（7.6：**只给属性小幅度**，HP+2 / 攻击+1；**不升技能**）。</summary>
+/// <summary>
+/// 🔴 **升级通道的数值载体**（契约：`hamlet.md` §7.2/§7.6「**战斗给经验 ⇒ 等级成长**」·
+/// **1~6 级** · **只给属性小幅度** · **不升技能** ✓）
+/// ⚠️ **字段缺省 ⇒ 未接线**（本项目纪律：**不假装已生效**）—— 数值由**策划**给（`#307`：我不动任何数值）✓
+/// </summary>
+public sealed record RosterExperience(
+    [property: JsonPropertyName("xp_per_win")] int XpPerWin,
+    [property: JsonPropertyName("xp_per_loss")] int XpPerLoss,
+    [property: JsonPropertyName("level_thresholds")] IReadOnlyList<int> LevelThresholds);
+
 public sealed record RosterLevelGrowth(
     [property: JsonPropertyName("hp_per_level")] int HpPerLevel,
     [property: JsonPropertyName("attack_per_level")] int AttackPerLevel);
@@ -48,7 +58,10 @@ public sealed record RosterConfig(
     [property: JsonPropertyName("level_min")] int LevelMin,
     [property: JsonPropertyName("level_max")] int LevelMax,
     [property: JsonPropertyName("level_growth")] RosterLevelGrowth LevelGrowth,
-    [property: JsonPropertyName("heroes")] IReadOnlyList<HeroConfig> Heroes)
+    [property: JsonPropertyName("heroes")] IReadOnlyList<HeroConfig> Heroes,
+    // 🆕 升级通道（契约 `hamlet.md` §7.2/§7.6「战斗给经验 ⇒ 等级成长」）：
+    //    🔴 **缺省 = 未接线**（不假装生效 ✓）；**数值由策划给**（`#307`：我零数值改动）✓
+    [property: JsonPropertyName("experience")] RosterExperience? Experience = null)
 {
     public const string ResPath = "res://data/roster.json";
 
