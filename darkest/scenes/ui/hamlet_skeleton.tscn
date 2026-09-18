@@ -29,7 +29,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="RightColumn" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body" unique_id=333327316]
-custom_minimum_size = Vector2(300, 0)
+custom_minimum_size = Vector2(370, 0)   ; DD roster.layout：名册列 x=1550/1920 ⇒ 右锚 81%、列宽 ≈370 ✓
 layout_mode = 2
 size_flags_horizontal = 8
 
