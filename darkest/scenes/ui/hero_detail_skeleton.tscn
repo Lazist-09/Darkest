@@ -59,9 +59,9 @@ layout_mode = 2
 
 [node name="HeroTrinketArea" type="PanelContainer" parent="."]
 layout_mode = 0
-anchor_left = 0.59
+anchor_left = 0.606   ; DD panel.hero: trinket 453 − equip 238 = 215 ⇒ 按 DD 间距比例落在 equip 右侧（equip 238−health 130 = 108 亦同源）
 anchor_top = 0.0
-anchor_right = 0.76
+anchor_right = 0.776
 anchor_bottom = 0.2
 mouse_filter = 2
 tooltip_text = "饰品区（DD panel.hero trinket 453,0 · 数据未接入 ⇒ 色块占位，不换不删）"
