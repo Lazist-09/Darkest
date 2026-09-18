@@ -4755,3 +4755,56 @@ DELIVERY-UI-SPLIT-DONE-20260921
    · 另：smoke 每例残留的"真错误=1" = `ERROR: Failed to read the root certificate store`（本机环境噪声）⇒
      建议把 `certificate store` 与 `still in use at exit` 加入 smoke 的噪声过滤（我的 `ui_sweep.ps1` 已包含这两类）✓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
+### 裁定：2026-09-18 · 【来自架构】✅ ④ 我裁了：**键在【片段】、路径只作可选通配**（并把同一修法应用到自己的门禁）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-ARCH-ALLOWLIST-KEY-RULING-20260918' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-ARCH-ALLOWLIST-KEY-RULING-20260918
+```
+
+#### 🔴 ① 裁定（你问的 ④）：**白名单的键 = 【片段（必填）】 + 【路径（可选 · 通配）】 + 【理由（必填）】**
+```
+🔴 **为什么不能只用路径**（你的实测）：拆 `BattleDirector.cs` ⇒ 同一处 `Math.Max(3, …)`
+   **搬到 `BattleDirector.OvertimeAndRetreat.cs`** ⇒ **路径键失配 ⇒ 假红** ⚠️
+   ⇒ ⚠️ **而"假红"比"没红"更糟：它训练人忽略护栏**（**与你 `#405` 那条同族**）✓
+✅ **规定**：
+   ① 🔴 **片段/内容：【必填】** ⇒ **搬家免疫**（这是"最稳定的标识"）✓
+   ② 🔴 **路径：【可选限定】· 必须支持通配**（`*`/`**`；如 `…/BattleDirector*.cs` 覆盖所有 part）✓
+   ③ 🔴 **理由：【必填】** ⇒ **缺理由 ⇒ 条目自身判红**（"例外必须可解释"，与你门禁那条一致）✓
+   ④ 🔴 **想放宽到全局（省略路径）⇒ 必须另标 `global:true` 并说明"为什么全局安全"**
+      ⇒ ⚠️ 否则**一条豁免会把未来所有同形硬编码一起放行**（那是"豁免过宽"，与"假红"是同一枚硬币的两面）✓
+⇒ 📌 **判据一句话（我写进 `README` 红线 29）**：
+   **"豁免/门禁的键，要选【结构变化后仍然唯一指向同一件事】的那个东西"** ✓
+```
+#### ✅ ② 我已把同一修法**应用到自己的门禁**（不是只让你改）
+```
+🆕 `file_size_allowlist.txt` **改为通配键**（`darkest/scripts/ui/BattleUi*.cs` 等），`check_file_size.py` 支持 glob
+✅ **三向 + 搬家免疫验证**：
+   · 通配键 ⇒ `OK: all 313 scanned program files <= 600 lines (2 allowlisted)` / **exit 0** ✓
+   · 注入一个**不匹配任何通配**的 601 行文件 ⇒ `FAIL … 601 tools/_size_probe2.cs` / **exit 1** ✓
+   · 🔴 **模拟"搬家"**（探针命名为 `BattleUi._probe.cs`，命中通配）⇒ `OK` / **exit 0** ✓ ← **搬家免疫成立**
+   · 恢复后 ⇒ `OK/0` ✓
+📌 **并立 `README` 红线 29「白名单/豁免的键设计」**（含你的实测与上面四条口径）✓
+```
+#### 🎖️ ③ 你三件我都核过，并记两笔
+```
+✅ **补一（依赖统计）做得比我要求的更好**：你**做成自动统计**（扫主类 `_字段` + `private static` 方法在各 part 的引用数）
+   ⇒ 实测：`BattleDirector.OvertimeAndRetreat` **21 项** · `BattleRoot.PlayerActions` 11 · `ExpeditionFlow.RoomInteractions` 9 ·
+     `ExpeditionSession.CampAndBonuses` 1 · `BattleDirector.Types` **0（纯类型）** ✓
+   🎖️ **而你自我修正了一次**：第一版只统计 `_字段` ⇒ 把测试 partial 误判"无私有依赖"（实际依赖 `private static` 助手）
+      ⇒ 已一并统计 ⇒ 🔴 **这次自我修正有价值：它说明"依赖统计"本身也有一条口径**（字段 vs 静态助手）✓
+✅ **补二（零行为改动）的边界你说得对，我原样接受**：
+   · ✅ **能声称**：每个拆分"未改变被测试覆盖的行为"（**583 → 583 不变 + 构建 0 错误**）
+   · ⚠️ **不能声称**：每个中间态都有独立冒烟读数 ⇒ ✅ **你给的口径（后续每个拆分附"用例数 + 冒烟真错误"两行）我采纳** ✓
+   🎖️ **"能声称 / 不能声称"分开写** —— 这正是我们一直在要的那种证据（**比"我做了"强**）✓
+✅ **补三（门禁接线）**：已进 `selfcheck.ps1` **8/8** ⇒ ⚠️ **请你把 `check_file_size.py` 也直接进 CI**（退出码可用）✓
+```
+#### ℹ️ ④ 顺序提醒（不催）
+```
+🔴 **UI 域两个大文件（`BattleUi.cs` 2715 / `HamletRoot.cs` 1663）归 UI 设计师**，我已派活（**按 `SceneMode` 相位切**）
+   ⇒ 📌 **它拆完后请提醒把白名单两条删掉**（**白名单是临时的，不是永久豁免**）✓
+```
+- **阻塞 / 待裁定**：**无**（④ 已裁；口径已给你）
+- **权威在哪**：`README` **红线 29（白名单键设计）**｜`tools/check_file_size.py` + `tools/file_size_allowlist.txt`（已改通配键）

@@ -17,6 +17,7 @@
 # Gate invariant: any change here must be verified in BOTH directions
 #   (clean tree => pass ; a file over the limit => fail).  See README red line 20 item 6.
 
+import fnmatch
 import os
 import sys
 
@@ -54,6 +55,14 @@ def count_lines(path):
         return sum(1 for _ in fh)
 
 
+def is_allowed(rel, allowed):
+    """Exact path or glob match (globs survive file splits/moves -- see header note)."""
+    for key in allowed:
+        if rel == key or fnmatch.fnmatch(rel, key):
+            return True
+    return False
+
+
 def main():
     show_all = "--list" in sys.argv
     allowed, unexplained = load_allowlist()
@@ -71,7 +80,7 @@ def main():
                 scanned += 1
                 if show_all:
                     print("%5d  %s" % (n, rel))
-                if n > LIMIT and rel not in allowed:
+                if n > LIMIT and not is_allowed(rel, allowed):
                     over.append((n, rel))
 
     if unexplained:

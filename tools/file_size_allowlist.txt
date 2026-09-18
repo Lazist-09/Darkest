@@ -1,2 +1,2 @@
-darkest/scripts/ui/BattleUi.cs	拆分进行中（UI 域；待按 SceneMode 相位切 —— 架构已派活 2026-09-18）
-darkest/scripts/ui/HamletRoot.cs	拆分进行中（UI 域；按名册/弹窗/详情/菜单段落切）
+darkest/scripts/ui/BattleUi*.cs	拆分进行中（UI 域；待按 SceneMode 相位切 —— 架构已派活 2026-09-18）
+darkest/scripts/ui/HamletRoot*.cs	拆分进行中（UI 域；按名册/弹窗/详情/菜单段落切）
