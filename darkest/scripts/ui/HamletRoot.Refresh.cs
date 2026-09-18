@@ -132,7 +132,7 @@ public partial class HamletRoot : Control
                     rowBody.AddChild(info);
                 }
 
-                info.Text = $"Lv{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压" : string.Empty)}";
+info.Text = $"装备 攻{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压" : string.Empty)}";   // 用户指令3：攻/防两值**即装备等级**（用现有 LevelOfHero 与 unit.Def，不新设控件、不新造数据）
                 info.VerticalAlignment = VerticalAlignment.Center;
                 // 🔴 相机 1280 口径（规则①）：行内文本**可收缩 + 裁切**（否则长文本把整行撑宽 ⇒ 实测长文本下 4 处越界）✓
                 info.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
