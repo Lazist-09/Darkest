@@ -3007,3 +3007,42 @@ DD：`provision_store_background_layout` 商店背景起于 **x 814** ⇒ 屏幕
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.78 **DD `character.layout` 键盘点（P2 收尾用）**（2026-09-21）
+
+```
+DD `shared\character\character.layout.darkest`（原样入库，供后续判断"我域是否有对应屏"）：
+  character_layout:
+  .header_pos 16 16
+  .frames_pos 10 10
+  .name_pos 76 26
+  .rename_icon_pos 32 38
+  .rename_icon_tt_offset 40 0
+  .dismiss_hero_icon_pos 32 78
+  .dismiss_hero_icon_tt_offset 40 0
+  .class_pos 76 80
+  .campaign_status_pos 93 117
+  .hero_pos 98 700
+  .quirks_pos 141 128
+  .base_stats_pos 141 358
+  .equipment_pos 141 516
+  .hero_pips_pos 846 145
+  .hero_pips_spacing 47.5 0
+  .target_pips_pos 1153 145
+  .position_pips_title_pos 760 98
+  .target_pips_title_pos 1370 98
+  .combat_skill_grid_pos 780 156
+  .camping_skill_grid_pos 780 320
+  .resistances_pos 780 436
+  .class_bonuses_pos 780 566
+  .close_pos 1344 18
+  .close_controller_button_offset -12 0
+  .palette_icon_pos 20 720
+
+我域现状（grep）：
+有部分匹配（见本轮日志）
+⇒ 处置规则（按用户口径）：我域**没有**的屏 ⇒ **不新增**（"如果没有就是原本就没有"）✓，本清单入库备查；
+   若日后要做 ⇒ 按上列 DD 键落位（缺数据/美术处一律**色块占位**，不换不删）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
