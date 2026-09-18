@@ -2449,3 +2449,20 @@ DD 原文（`screen.raid.darkest`）：`overlays.hero_start_pos 788 680` · `her
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.54 **⑤ 结论：DD 没有"战斗右下迷你地图"⇒ 按用户规则不新增**（2026-09-21）
+
+```
+依据＝直读 DD `scripts\layout\panel.map.darkest` **全文**：
+  · `map_layout`: .pos **4 40** · .tilesize 24 · .scale 1.00 · **.clip 16 665 19 340** · .manual_to_follow_d…
+  · `tab_placement`: .pos 672 252 / .size 48 90　　　（页签）
+  · `home_button_layout`: .button_pos 677 24 / .tooltip_offset 1206 28　（回中按钮）
+  · `fog_of_war`（迷雾揭示时序）· `input`（.min_zoom_scale 0.35 / .max_zoom_scale 1.5 / 手柄缩放）· `input_preview`（可视区 720×360）
+⇒ **全文没有任何 `mini` / `corner` / `hud` / 角落迷你图键**（已按键名反查，无命中）
+⇒ 结论：**DD 的战斗屏没有"右下常显小地图"** —— DD 的地图是**整面板形态**（可开关、带页签/回中/迷雾/缩放）✓
+   按用户原话「**如果没有就是原本就没有**」⇒ **不应新增**右下迷你图（新增反而是**偏离** DD）✓
+   我们现有的 `BattleMiniMap`（E 区地图页：**只读不可点** + 数据走 `ExpeditionContext.Flow` 跨场景）
+   **恰好对应 DD 的整面板地图角色** ⇒ ⑤ 的"只读 + 跨场景"要求**已满足**，无需再造一个 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
