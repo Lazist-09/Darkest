@@ -25,8 +25,14 @@ namespace Darkest.UI;
 /// 🔴 `#319` **改类（第五屏补齐）**：本类原来是 `Node2D` ⇒ **不是 `Control`** ⇒
 /// ① 锚点算不出父矩形（`Node2D` 没有 `get_anchorable_rect()`）⇒ 只能手摆坐标；② Theme 链不经过它。
 /// ⇒ 改成 **`Control`**（场景节点类型同步改为 `Control` + FullRect）后，才能按 `§14.2/§14.3` 用容器 + 不透明 Panel ✓
-public partial class MainMenuRoot : Control
+public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
 {
+    /// <summary>🔴 Track 1/UIRoot 装配：**声明式**（panel 说、shell 照做）✓</summary>
+    public string PanelName => "MainMenu";
+
+    /// <summary>主菜单**不需要**常显 HUD（`ui_spec`：HUD 属城池/战斗等屏）✓</summary>
+    public bool WantsBaseHud => false;
+
     public const string BattleScene = "res://scenes/battle/Battle.tscn";
     // 🔴 片 4①：远征入口**改指唯一宿主** `Battle.tscn`（原 `Expedition.tscn` 退休）⇒ 配合 `ExpeditionContext.RequestDungeon()` 进入**地图模式** ✓
     public const string ExpeditionScene = BattleScene;
