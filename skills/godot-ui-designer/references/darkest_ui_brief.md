@@ -2693,3 +2693,18 @@ DD 有独立面板：`campaign\town\provision\provision.layout.darkest`（出征
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.63 **教训：PS 5.1 + UTF8 无 BOM + 中文 的表会"哈希表未闭合"**（2026-09-21）
+
+```
+现象：我往 `ui_sweep.ps1` 的 `$TraceExpect` 表写入中文断言值后 ⇒ PS 5.1 报
+  `The hash literal was incomplete`（L99）＋ 级联 `The string is missing the terminator`（L169）⇒ **exit=1**
+  ⚠️ 而 **摘要文件却已写出且显示 entries=19 failed=0** ⇒ 只看摘要会误判"全绿"（**又一个假绿来源**）
+根因（判断）：PowerShell 5.1 读 **UTF-8 无 BOM** 文件按 ANSI 解码 ⇒ 中文多字节序列可能吞掉其后的引号/花括号 ⇒ 语法错
+处置：**回退到上一个已验证版本**（工具优先可用），3 条断言暂时留 `'` + TODO（不写错断言）
+下一轮做法（择一）：① 写脚本时**加 BOM**（PS 5.1 认 UTF-8）② 断言值改成**ASCII**（如 `adopt-skeleton` 之类英文标记，
+   由 C# 侧打印英文标记）③ 断言值用 `[char]` 拼装 ✓  —— 我倾向 ②：**C# 打印 ASCII 标记**，脚本只匹配 ASCII ✓ 最稳
+📌 教训并入"假绿家族"：**入口空跑**（hero-detail）· **只在摘要看绿**（本次）· **判据缩范围**（架构提过）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
