@@ -208,8 +208,9 @@ public partial class HamletRoot : Control
             roster.Cap);
         IReadOnlySet<string> unlockedBuildings = ExpeditionContext.Progress.UnlockedBuildings(unlockCfg);
 
-        var buildingRow = new HBoxContainer { Name = "BuildingRow" };
-        buildingRow.AddThemeConstantOverride("separation", 6);
+        // 🔴 2026-09-21 DD 1:1 还原 #1c：建筑区 = **窄左列竖排 nav**（DD: 宽 128、按钮竖距 68、贴左缘）✓
+        var buildingRow = new VBoxContainer { Name = "BuildingNav" };
+        buildingRow.AddThemeConstantOverride("separation", 12);   // DD 竖距 68 = 按钮高 56 + 12 ✓
         leftCol.AddChild(buildingRow);
         for (int i = 0; i < upgradable.Length; i++)
         {
@@ -241,8 +242,8 @@ public partial class HamletRoot : Control
             var ub = new Button
             {
                 Name = $"BuildingEntry_{bId}",
-                Text = buildingEntryText, // 入口文案 = 三栋摘要（见下，一次性算好）
-                CustomMinimumSize = new Vector2(176, 30),   // 🔴 收窄（原 220）
+                Text = $"🏛 {label} Lv{ExpeditionContext.Heirlooms?.LevelOf(bId) ?? 0}",   // 🔴 DD 1:1：nav 逐栋显示（不再合并成一行摘要）✓
+                CustomMinimumSize = new Vector2(128, 56),   // 🔴 DD 1:1：nav 按钮 **128 宽**（+ 竖距 12 = 68）✓
             };
             ub.Pressed += () => OpenBuildingPopup(bId);
             ub.MouseEntered += () => ShowBuildingInfo(bId); // 悬停仍给一行摘要（低成本、不占版面）
@@ -254,7 +255,7 @@ public partial class HamletRoot : Control
             }
             else
             {
-                buildingRow.RemoveChild(ub);
+                // 🔴 DD 1:1 #1c：**三栋 nav 都保留**（旧"只留一个按钮"已被本次 DD 还原覆盖）✓
                 ub.QueueFree();
                 continue;
             }
