@@ -1798,3 +1798,18 @@ E12 旧：            _dungeonHost = new VBoxContainer
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.33 **Track 3 完成：Overlay 层 + 两模板**（2026-09-21）
+
+```
+文件：`scripts/ui/OverlayLayer.cs` · `scenes/ui/overlay_layer.tscn` · `scripts/ui/TooltipTemplate.cs` · `scenes/ui/tooltip.tscn` ·
+      `scripts/ui/ModalDialogTemplate.cs` · `scenes/ui/modal_dialog.tscn`
+接线：战斗（Build 实例化 + MakeOpaqueModal→ModalHost）· 城池（MakePopup 惰性实例化→ModalHost）· 两屏模态与悬停**优先模板**、缺失回落 ✓
+提交：e17f036 · 62bfa74 · f40d3e2 · c9d278d · 3f02835 · 5d5fccc · b872b9d
+证据：构建 0 错误 ｜ ui_sweep 15 入口全绿 ｜ 命名门 OK ｜ 三轮正向留痕（Overlay 就绪 / 模态采用模板 / 悬停层模板优先）
+
+🔴 **本轮最大的自我纠正（写进纪律）**：第 9~10 轮我用"**行内字符串替换**"改 C# ⇒ **两次构建红**（CS0128/CS0103）
+   ⇒ 我已**废除该用法**，回到铁律：**C# 文本只用 `edit` 工具或行级数组手术**；改大段/成段逻辑用 `write` 整体重写（本轮 5d5fccc/b872b9d 均一次通过）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |

@@ -4862,3 +4862,21 @@ DELIVERY-UI-TRACK1-DRAFT-20260921
    R3 审计口径须以 ScreenLayer 子树为根（否则常驻 HUD 进判据）· R4 转场动效（可选）· R5 常显 HUD 只建一次 · R6 autoload 顺序
 ⑥ **不越域声明**：本草案不改 `project.godot`/autoload、不改 `gameplay/**`、不改 `tests/**`；请裁定后我再动手
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2026-09-21 · UI 设计师 → 主程序 + 架构] ✅ **Track 3 完成：Overlay 层 + 两个模板（DD `fe_flow/overlays` 对应物）**
+
+送达判据：Select-String -Path doc\windows\主程序窗口.txt -Pattern '"'"'DELIVERY-UI-TRACK3-DONE-20260921'"'"' -SimpleMatch
+DELIVERY-UI-TRACK3-DONE-20260921
+
+① 三层落地：BaseLayer（各屏骨架，常驻部分待 Track 1 外壳）· **ScreenLayer**（当前屏）· **OverlayLayer ✓新建**
+   `scripts/ui/OverlayLayer.cs` + `scenes/ui/overlay_layer.tscn`：ModalHost（模态栈/Esc 关栈顶/`OpenModal`）+ TooltipHost（悬停层）
+② **两屏接线**：战斗 `BattleUI.Build` 实例化 + `Modals.MakeOpaqueModal` 挂 `(_overlay?.ModalHost ?? _uiRoot)`；
+   城池 `HamletRoot.PopupMenu.MakePopup` 惰性实例化 + 挂 `(_overlay?.ModalHost ?? 旧父)` ⇒ **缺失即回落，不崩不静默** ✓
+③ **两个模板（外观在编辑器可改）**：`scenes/ui/tooltip.tscn`（悬停）+ `scenes/ui/modal_dialog.tscn`（模态：标题行含 ✕ + 内容 VBox）
+   两屏的模态与悬停都**优先用模板**、缺失回落代码构建 ✓（与 13 个既有模板同规格：容器化/零手写坐标/显式挂 theme）
+④ 提交（5 步）：`e17f036` 骨架 · `62bfa74` 战斗接线 · `f40d3e2` 城池接线 · `c9d278d` Tooltip 模板 · `3f02835`+`5d5fccc`+`b872b9d` ModalDialog 模板与两屏接线
+⑤ 证据（每步都跑）：构建 **0 错误** ｜ `tools/dsh/ui_sweep.ps1` **15 入口全绿**（spec14.5=ok／demand=0／overlap=0／transparent=0／realERROR=0）｜
+   命名门 `check_ui_namespace.ps1` OK ｜ 正向留痕：`[UI Overlay] ✅ Overlay 层就绪` · `[UI 模板] ✅ 模态采用模板 …` · `悬停层已建（模板优先）`
+⑥ 🔴 **要点**：这条轨**不需要外域改动**（全在我域：`scripts/ui/**` + `scenes/ui/**`）；Track 1 的 autoload/转场仍**等你与架构裁定**（草案见上封 `DELIVERY-UI-TRACK1-DRAFT-20260921`）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
