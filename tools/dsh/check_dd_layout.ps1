@@ -27,6 +27,19 @@ $rows = @(
   @{ Key = "status_bars.health_height"; Dd = 10;  Impl = "BattleUI.StatusTray bar height"; Pat = "0.0093f" }
   @{ Key = "raid actor_spacing - figure"; Dd = 168; Impl = "BattleUI CardW+GapX = 84+9"; Pat = "const float CardW = 84f" }
   @{ Key = "hero campaign_status spacing"; Dd = 10; Impl = "HeroStatusBars separation 7"; Pat = "HeroStatusBars" }
+  @{ Key = "hero equipment weapon_pos"; Dd = 4;   Impl = "hero_detail_skeleton equip area (DD weapon 4,0)"; Pat = "HeroEquipArea" }
+  @{ Key = "hero equipment armour_pos"; Dd = 95;  Impl = "hero_detail_skeleton equip area (DD armour 95,0)"; Pat = "EquipPlaceholder" }
+  @{ Key = "hero trinket grid offset.x"; Dd = 92;  Impl = "hero skeleton trinket area (DD 32,52/92,160)"; Pat = "HeroTrinketArea" }
+  @{ Key = "hero base_stats value_offset"; Dd = 115; Impl = "HeroStatsGrid value column"; Pat = "HeroStatsGrid" }
+  @{ Key = "hero status resolve offset.y"; Dd = 4; Impl = "HeroStatusBars first bar"; Pat = "HeroHpBar" }
+  @{ Key = "hero status stress offset.y"; Dd = 100; Impl = "HeroStatusBars second bar"; Pat = "HeroMoraleBar" }
+  @{ Key = "building upgrade_trees offset.y"; Dd = 195; Impl = "building_popup UpgradeTree"; Pat = "UpgradeTree" }
+  @{ Key = "town estate_summary_pos.y"; Dd = 975; Impl = "hamlet_skeleton EstateSummary anchor 0.903"; Pat = "EstateSummary" }
+  @{ Key = "town realm_inventory_pos.x"; Dd = 881; Impl = "hamlet_skeleton RealmInventory anchor 0.459"; Pat = "RealmInventory" }
+  @{ Key = "building_navigation index0..9"; Dd = 10; Impl = "hamlet_skeleton DDNav0..9 slots"; Pat = "DDNav9_statue" }
+  @{ Key = "provision store start_pos"; Dd = 120; Impl = "provision_skeleton StoreGrid"; Pat = "StoreGrid" }
+  @{ Key = "quest_select name_pos"; Dd = 104; Impl = "quest_select_skeleton title row"; Pat = "QuestSelectTitle" }
+  @{ Key = "roster stress_offset.y"; Dd = 43; Impl = "roster_row RosterUpRow height 43"; Pat = "Vector2(231, 43)" }
 )
 
 "DD value (x0.667 where linear) vs our implementation"
