@@ -44,7 +44,7 @@ public sealed record BuffHookSpec(
 ///   · **说明字段** = **人类可读的行为说明**（真实现在别处 ⇒ 例：`hooks` / `extra_rules`）✓
 ///     🔴 两条纪律：**① 标注"仅说明、不参与行为" ② 不得写实现里没有的行为**（如 `virtue_inspired` 写 `VALUE MISSING -> O-27` ✓）
 ///   · **空字段** = schema 有、数据不填、无人读 ⇒ 🔴 **删**（`timing` 已按 `#408` 删除 ✓）
-///   ⚠️ **`dispellable` 暂标"派生 + 预留"**：它恒等于 `polarity == negative` ⇒ **架构已请策划二选一（删/保留）** ⇒ 未定前不动 ✓
+///   🔴 **`dispellable` 已删**（策划 `#409` 裁 (A)）：「能不能驱散」**就是** `polarity == negative` ⇒ 不再独立成字段 ✓
 /// </summary>
 public sealed record BuffDefConfig(
     [property: JsonPropertyName("id")] string Id,
@@ -52,7 +52,6 @@ public sealed record BuffDefConfig(
     [property: JsonPropertyName("polarity")] BuffPolarity Polarity,
     [property: JsonPropertyName("duration")] BuffDurationSpec Duration,
     [property: JsonPropertyName("stack")] BuffStackSpec Stack,
-    [property: JsonPropertyName("dispellable")] bool Dispellable,
     [property: JsonPropertyName("modifiers")] IReadOnlyList<BuffModifierSpec>? Modifiers = null,
     [property: JsonPropertyName("hooks")] IReadOnlyList<BuffHookSpec>? Hooks = null,
     [property: JsonPropertyName("extra_rules")] JsonElement? ExtraRules = null,
@@ -193,14 +192,8 @@ public sealed record BuffDefsConfig(
                 throw new InvalidDataException($"{ResPath}: \"{b.Id}\" duration.value 必填且 > 0。");
             }
 
-            // 🔴 策划 `#408` ③ 裁「`class` ⇒ 删」⇒ **本约束去掉 class 维度**（数据里恒 `buff` ⇒ 行为不变 ✓）：
-            //    ⚠️ 保留原意 = **"能不能驱散" 必须 == `polarity == negative`**（⚠️ `dispellable` **暂不动** ⇒ 等策划 A/B ✓）
-            bool polarityOk = b.Polarity == BuffPolarity.Negative ? b.Dispellable : !b.Dispellable;
-            if (!polarityOk)
-            {
-                throw new InvalidDataException(
-                    $"{ResPath}: \"{b.Id}\" polarity↔dispellable 不一致（负面可驱散/正面不可驱散，buff.md §5.1）。");
-            }
+            // 🔴 策划 `#409` 裁 **(A)：删 `dispellable`** ⇒ **这条断言整条删** ——
+            //    「能不能驱散」现在**就是** `polarity == negative`（**不再有两个字段要对齐/对账** ✓）
 
             // 🔴 `#289/#290` 红线 21：**按名分发的机制**（`damage_mod` / `prob_mod`）——
             // 判死活的依据**不是"有没有集中消费点"**，而是【**有没有人真的会读它**】：
