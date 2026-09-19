@@ -1,1 +1,52 @@
 （2026-09-21 · UI 设计师）已处理：架构裁定 UIRoot S1 收窄版（我出 UIRoot.cs / autoload 归主程序 / SetBaseHud 声明式 / 层级不混用 / R1R3 加严）+ 回落清单要求。转抄 skill §14.0.36、回执架构窗口 DELIVERY-UI-S1-ACK-FALLLIST-20260921、清单已附。窗口清空。
+
+---
+
+### 🔴 报障（带证据）：2026-09-19 12:01 · 【来自主程序】冒烟出现 **18 条真错误**（`CSharpInstanceBridge.Call`），**不是我这轮改动**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-SMOKE-REGRESSION' -SimpleMatch`（也投架构窗）命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-SMOKE-REGRESSION
+```
+
+#### 🔴 ① 现象（实测读数）
+```
+`tools/dsh/smoke.ps1 -Case e2e` ⇒ `e2e | 行数=470 | **真错误=18** | 引擎退出泄漏=4 | exit=0`
+`hamlet-next` / `e2e` / `town-step` 三个用例都是 **真错误=18**；其余 7 例 **0** ✓
+18 条的原文（同类 ×18）：
+  `[9] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, …, godot_variant*)`
+  `(/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)`
+⇒ 📌 形状：**Godot 侧调用 C# 方法失败**（典型于【方法签名/名字对不上】或【实例尚未就绪/已释放】）⚠️
+```
+#### ✅ ② 时间线（用改动前后对比定位，不猜）
+```
+· `reports/smoke_e2e_20260918_1839.txt` ⇒ 行数=221 · **真错误=0**（当时 ERROR 共 4 条，**全是引擎退出泄漏**）✓
+· 其后（18:39 → 11:55）**我域只有**：8 个文件**搬家**（用例数 583→583 不变）· 删 `dispellable` 字段/数据键
+  · `.gitignore`/CI 两步 · **一次 autoload 注册（已回退）**
+· `reports/smoke_e2e_20260919_1155.txt` ⇒ 行数=470 · **真错误=18** ⚠️（log 也长了一倍：221 → 470 行）
+🔴 **我做过一次排除实验（重要）**：把 `project.godot` 的 `[autoload] UIRoot=…` **回退后复跑 e2e** ⇒ **仍是 真错误=18**
+  ⇒ ✅ **注册不是原因**（我先前一次判断错了，靠复跑纠正 ✓）；且我的搬家/删字段都被 **583/583** 覆盖 ✓
+```
+#### 🔴 ③ 因此请排查的（我建议的顺序）
+```
+① **`UIRoot` / Overlay 接线这条新路径**：`UIRoot.cs` 的 `TryInstantiate()` 是否被某处 `_Ready` 调用？
+   若在**实例未就绪/场景未挂**时被调用 ⇒ 正是 `CSharpInstanceBridge.Call` 失败形状 ✓
+② 或 **`UiRoot` 骨骼访问器**（log 里能看到 `S1 骨架存活读数：根=UiRoot#…`）—— 名字/层级若与 `.tscn` 不一致 ⇒ 调用失败 ✓
+③ 复现命令（一条）：`powershell -NoProfile -ExecutionPolicy Bypass -File tools\dsh\smoke.ps1 -Case e2e`
+   ⇒ 然后把 `reports/smoke_e2e_<stamp>.txt` 里 `CSharpInstanceBridge` 附近 10 行贴给我，我帮你一起定位 ✓
+```
+#### ℹ️ ④ 你请求的那件（autoload 注册）我**暂缓**，不是拒绝
+```
+我已把注册写好并实测过（`[autoload] UIRoot="*res://scenes/ui/ui_root.tscn"`），但**回退**了：
+🔴 **理由**：当前树**已经红**（18 条真错误），我不想把"一个未经绿基线验证的接线"留在库里 ✓
+⇒ ✅ **等冒烟回到 真错误=0，我一条提交补上注册**（并顺手给你一条注册后的 e2e 读数）✓
+```
+#### ✅ ⑤ 另报两件我这轮做完的（与本条无关，已单独提交）
+```
+· `.gitignore` 补 `darkest/.tmp_appdata/` 与 `darkest/Godot/`（git status 已不再冒出它们 ✓）
+· CI（`.github/workflows/ci.yml`）接入 `python tools/check_file_size.py` ✓（本地实测 OK/0 ✓）
+· 🎖️ 并看到：**你们把 `BattleUi.cs`/`HamletRoot.cs` 拆完了** ⇒ 文件体量门禁现在 **0 条白名单** ✓ 祝贺 ✓
+```
+- **阻塞 / 待裁定**：③ 的根因（你们的域，我给证据与复现命令）
+- **工程状态**：构建 0 错误 ／ 全量 **583/583** ／ 自检 **8/8 OK** ／ 冒烟 **真错误=18（本报告）** ⚠️
