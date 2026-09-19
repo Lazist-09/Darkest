@@ -3323,3 +3323,34 @@ C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.89 **"回到原值"逐项台账 + 剩余尺寸三态判定**（2026-09-21）
+
+```
+背景：用户把 `darkest/project.godot` 画布改为 **1920×1080**（`stretch=canvas_items/expand` 不变）⇒ DD layout 的 1080p 基准值**应原值直接用**；
+此前我按 ×0.667 缩过的定值现在**偏小 0.667 倍** ⇒ 本轮回原值。
+
+【已回原值（逐项）】
+  1) `BattleUI.CardW` 84 → **126**（DD hero band 504 ÷ 4）· `GapX` 9 → **14**（DD hero_spacing 168 − 立绘 154）  ⇒ `e4a991b`
+  2) `HamletRoot.Build` nav 列高 667 → **1000**（DD `building_navigation.base_size 128×1000`）
+     `HamletRoot.HeroDetail` 属性列 133/15 → **200/22**（DD `hero_base_stats_layout.spacing 200 22`）
+     饰品格 61/107 → **92/160**（DD `hero_trinket_grid_layout.offset 92 160`）  ⇒ `b000bf3`
+  3) `hamlet_skeleton` nav 列 128×667 → **128×1000** · `building_popup` 槽距 90 → **135**（DD 135）·
+     `heirloom_exchange` 29 → **44**（DD 44）· `loot_overlay` 描述宽 233 → **350**（DD `.width 350`）· 格距 49 → **74**（DD 74）·
+     `main_menu` 选项区 400×288 → **600×432**（DD 600×432）· 英雄装备行距 15 → **91**（DD weapon 4 / armour 95 语义）
+     ＋日志文案与门禁 Pat 同步 ⇒ `59af985`
+
+【剩余尺寸三态判定】（不猜：无 DD 依据的明确标注）
+  · **DD 原值 ✓（保持）**：名册列 370（`roster_list_pos 1550` 推得）· nav 按钮 128×56（DD base 宽 128）· 菜单热区 466×48（DD `element_hot_area_size`）
+  · **我自选尺寸（DD 只给位置/间距，未给尺寸）**：`building_popup` 的 HeroSlot 60×80（4 个）· Cost 160×24 · Confirm 120×28 · Name 200×22 · Desc 260×40
+    ⇒ 保留并在 tooltip/注释里标明"尺寸自选（DD 无此键）"✓
+  · **无 DD 依据（既有骨架/他人范围）**：`battle_bottombar` 的 BackSlot 72×112 · CArea 260×0 · ActorDetailBox 0×84 ·
+    `building_nav_button` 220×32 ⇒ **不动**（记"未取得 DD 依据"）✗
+  · **例外（不动）**：比例/锚点类（`0.0093` 条高 · `0.646` 托盘 y · `0.6297` 舞台 y · `anchor_*` · `SizeFlagsStretchRatio`）与分辨率无关 ✓
+
+【收尾全量读数（本轮回原值后）】
+  构建 = 0 errors｜ ui_sweep 退出码=0｜ # summary: entries=21 failed=0｜ DD 门禁 RESULT: all DD values have an implementation anchor（46 条）｜ 命名门 exit=0
+  冒烟读数：此前已取得（`reports\smoke_summary_20260919_1123.txt`；逐例日志仅见引擎退出噪声）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
