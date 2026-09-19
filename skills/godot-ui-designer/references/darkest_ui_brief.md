@@ -3354,3 +3354,19 @@ C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.90 **回原值后的冒烟读数（目标项⑨）**（2026-09-21）
+
+```
+冒烟：`tools\dsh\smoke.ps1 -QuitAfter 300`（APPDATA 指到可写目录，PID 38316 已不存在、无 Godot 占用）⇒ 退出码 1
+摘要留档：`reports\smoke_summary_20260919_1359.txt`
+
+读数解读（诚实）：
+  · 逐例日志中的 `ERROR:` 仅见**引擎退出噪声**（`Failed to read the root certificate store` · `RID allocations … leaked at exit` ·
+    `resources still in use at exit`）⇒ **未见 C# 异常 / `at Darkest.` 帧**（我曾按 `Unhandled|System.*Exception|at Darkest.` 搜过：0 命中）✓
+  · 脚本自报的 `bad=N` 与其"真错误"计数**口径偏严**（把上述退出噪声计入）⇒ 我按逐例日志复核后判定为**噪声**，
+    并在 §14.0.89/本页留档 ⇒ 若要让它变成干净信号，需给 `smoke.ps1` 补同样的噪声过滤器（我域工具，可做）✓
+  · 未取得/不编造：本页不宣称"冒烟全绿"，只记录**实际读数 + 我的判定依据** ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
