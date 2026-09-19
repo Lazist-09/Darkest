@@ -240,7 +240,9 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "升级区"
-[node name="BpTreesAnchor" type="ColorRect" parent="."]
+[node name="BpTreesAnchor" type="ColorRect" parent="BpUpgradeLayer"]
+; 归位(第2步)：父容器 = DD building_base_upgrade_layout（其容器 = building_base_layout）
+;   本块 DD 来源 = upgrade_trees_offset 0,195（offset 类）⇒ 现挂其真实父容器 ✓（数值与符号未改 ✓）
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.0
@@ -436,3 +438,11 @@ text = "驿站文本框"
 [node name="BlockPlaceholder" type="ColorRect" parent="BpStageCoachTextBox"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
+
+; 归位(第2步)：父容器 = DD building_base_upgrade_layout（其容器 = building_base_layout）
+;   本块 DD 来源 = upgrade_trees_offset 0,195（offset 类）⇒ 现挂其真实父容器 ✓（数值与符号未改 ✓）
+[node name="BpUpgradeLayer" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2

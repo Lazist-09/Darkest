@@ -634,7 +634,9 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "击杀数"
-[node name="RaidPos2" type="ColorRect" parent="."]
+[node name="RaidPos2" type="ColorRect" parent="RaidCampLayer"]
+; 归位(第2步)：父容器 = DD camp_layout（容器 = screen_guide，同族 first/second/third/fourth_pos）
+;   本块 DD 来源 = fourth_pos -255,0（offset 类；负值语义 = 父基准点在元素中心/右下 ✓ 未钳值未改符号 ✓）
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = -0.1328
@@ -720,7 +722,9 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "选择框"
-[node name="RaidPos7" type="ColorRect" parent="."]
+[node name="RaidPos7" type="ColorRect" parent="RaidQuestInfoLayer"]
+; 归位(第2步)：父容器 = DD quest_info（**30 字段**，容器 = screen_guide）
+;   ⚠️ 更正：本块 DD 出处原标 [monster_info] ✗ ⇒ 实为 [quest_info] complete_return_to_hamlet_pos -170,98（offset ✓ 未钳值未改符号 ✓）
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = -0.0885
@@ -976,3 +980,19 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "跳过"
+
+; 归位(第2步)：父容器 = DD camp_layout（容器 = screen_guide，同族 first/second/third/fourth_pos）
+;   本块 DD 来源 = fourth_pos -255,0（offset 类；负值语义 = 父基准点在元素中心/右下 ✓ 未钳值未改符号 ✓）
+[node name="RaidCampLayer" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+; 归位(第2步)：父容器 = DD quest_info（**30 字段**，容器 = screen_guide）
+;   ⚠️ 更正：本块 DD 出处原标 [monster_info] ✗ ⇒ 实为 [quest_info] complete_return_to_hamlet_pos -170,98（offset ✓ 未钳值未改符号 ✓）
+[node name="RaidQuestInfoLayer" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
