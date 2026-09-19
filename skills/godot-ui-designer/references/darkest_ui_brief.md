@@ -3832,3 +3832,45 @@ blacksmith/guild/camping_trainer/nomad_wagon）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.102 **更正 14.0.101：只统计 UI 布局文件（上次把英雄数据/特效也算进来了 ✗）**（2026-09-21）
+
+```
+🔴 更正：§14.0.101 我扫了**全部 1175 个 `.darkest`**（含 `*.info.darkest` / `*.effects.darkest` / `map_generator` ✗ 非 UI）⇒ 数字误导 ✗
+本页只保留 **UI 布局**（`*.layout.darkest` 或 `\layout\` 目录 或 `\panels\` 目录）：
+  文件 **105** ｜ section **471** ｜ 字段 **3337** ｜ 自带尺寸键 16 ｜ **多 section 文件 77**（⚠️ 多 section 是常态 ⇒ 必须按 section 读，不能只看压平视图 ✗）
+
+字段数前列（f=字段 s=section 末列=首个尺寸键）：
+   307f  33s  \dlc\1117860_arena_mp\scripts\layout\arena.screen.raid.darkest 
+   307f  33s  \scripts\layout\screen.raid.darkest                      
+   192f  19s  \campaign\town\town.layout.darkest                       panel_size=1550x1080
+   172f  43s  \scripts\layout\base.popup_text.layout.darkest           
+   170f   6s  \shared\controls\controls.layout.darkest                 
+   132f  12s  \shared\character\character.layout.darkest               
+    99f  12s  \campaign\town\quest_select\quest_select.layout.darkest  dungeon_xp_bar_size=194x8
+    95f   7s  \scripts\layout\panel.map.darkest                        visible_area_size=720x360
+    90f  16s  \dlc\1117860_arena_mp\campaign\town\arena.town.layout.darkest 
+    80f  12s  \raid_results\raid_results.layout.darkest                
+    76f   9s  \fe_flow\fe_flow.layout.darkest                          
+    73f  11s  \campaign\town\buildings\building.layout.darkest         base_size=800x200
+    51f   2s  \campaign\town\roster\roster.layout.darkest              
+    48f   3s  \campaign\town\buildings\sanitarium\sanitarium.layout.darkest base_size=800x200
+    46f   1s  \scripts\layout\screen.raid.battle.darkest               
+    44f   8s  \dlc\1117860_arena_mp\campaign\town\buildings\rankings\rankings.layout.darkest 
+    41f   6s  \shared\menu\menu.layout.darkest                         element_hot_area_size=466x48
+    40f   7s  \shared\hero\hero.layout.darkest                         
+    39f   3s  \campaign\town\realm_inventory\realm_inventory.layout.darkest text_box_size=300x200
+    37f   1s  \scripts\layout\screen.raid.status_bars.darkest          
+    37f   5s  \shared\credits\credits.layout.darkest                   
+    34f   2s  \dlc\1117860_arena_mp\campaign\town\party_builder\party_builder.layout.darkest 
+    33f   4s  \dlc\1117860_arena_mp\raid_results\arena_raid_results.layout.darkest 
+    32f   1s  \dlc\1117860_arena_mp\scripts\layout\arena.panel.monster.darkest 
+    30f   3s  \dlc\1117860_arena_mp\scripts\layout\arena.screen.raid.battle.darkest 
+    29f   2s  \fe_flow\dlc.layout.darkest                              
+    29f   3s  \dlc\1117860_arena_mp\shared\character\arena.character.layout.darkest 
+    28f   2s  \fe_flow\ugc.layout.darkest                              
+    28f   2s  \campaign\town\district\district.layout.darkest          
+    28f   3s  \dlc\1117860_arena_mp\campaign\town\buildings\dueling_grounds\dueling_grounds.layout.darkest 
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
