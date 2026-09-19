@@ -452,6 +452,17 @@ anchor_bottom = 1.0
 mouse_filter = 2
 
 ; 拆树(第3步)：DD building_base_layout 的 body 区与各栋子面板（容器名取自 v4 的 section/归属容器 ✓）
+
+[node name="LayerTitle" type="Label" parent="BpUpgradeLayer"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "二级面板 · 升级树区"
 [node name="BpBodyLayout" type="Control" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
@@ -459,33 +470,100 @@ anchor_bottom = 1.0
 mouse_filter = 2
 
 ; DD dead_hero_layout（顶层，L2）：坟场死英灵页的父层
+
+[node name="LayerTitle" type="Label" parent="BpBodyLayout"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "二级面板 · 建筑弹窗·主体"
 [node name="BpDeadHeroLayer" type="Control" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
+
+[node name="LayerTitle" type="Label" parent="BpDeadHeroLayer"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "二级面板 · 死英灵页"
 [node name="GraveyardPanel" type="Control" parent="BpBodyLayout"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
+
+[node name="LayerTitle" type="Label" parent="GraveyardPanel"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "坟场   列表"
 [node name="StatuePanel" type="Control" parent="BpBodyLayout"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
+
+[node name="LayerTitle" type="Label" parent="StatuePanel"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "雕像   列表"
 [node name="StageCoachPanel" type="Control" parent="BpBodyLayout"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
+
+[node name="LayerTitle" type="Label" parent="StageCoachPanel"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "驿站   招募商店"
 [node name="HeroActionPanel" type="Control" parent="BpBodyLayout"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+
+
+[node name="LayerTitle" type="Label" parent="HeroActionPanel"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "英雄动作"
 

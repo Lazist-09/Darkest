@@ -992,8 +992,31 @@ mouse_filter = 2
 
 ; 归位(第2步)：父容器 = DD quest_info（**30 字段**，容器 = screen_guide）
 ;   ⚠️ 更正：本块 DD 出处原标 [monster_info] ✗ ⇒ 实为 [quest_info] complete_return_to_hamlet_pos -170,98（offset ✓ 未钳值未改符号 ✓）
+
+[node name="LayerTitle" type="Label" parent="RaidCampLayer"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "L1 战斗 · 扎营界面"
 [node name="RaidQuestInfoLayer" type="Control" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="LayerTitle" type="Label" parent="RaidQuestInfoLayer"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "L1 战斗 · 任务信息面板"
 mouse_filter = 2
