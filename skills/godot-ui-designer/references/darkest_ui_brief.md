@@ -3976,3 +3976,17 @@ E 盘直读 `scripts\layout\base.popup_text.layout.darkest`：**43 section / 172
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.109 **自查纪律：核对留痕要查"用例原始日志"，不是 sweep 摘要**（2026-09-21）
+
+```
+事故（本轮我自己的误判）：我断言"`credits-skeleton` 留痕 0 命中 ⇒ 接线没生效" ✗
+  实际：我 grep 的是 **`reports\ui_sweep_*.txt`（sweep 摘要）** ✗ —— 摘要里只有入口表格与断言列，**不含游戏 stdout** ✗
+  真相（改查用例日志 `reports\ui_main-menu-feflow_*.txt`）：
+    `[UI-TRACE] fe-flow-skeleton` ✓ 与 `[UI-TRACE] credits-skeleton` ✓ **两条都在** ⇒ 接线**正常** ✓
+    审核器亦已识别：`覆盖层 CrBasePanel（PanelContainer，panel 样式 a=1，来源=主题链）` ✓
+📌 纪律：**核对留痕/异常必须看 `reports\ui_<entry>_*.txt`（逐例原始日志）**；sweep 摘要只用于"入口级判定" ✓
+   另：新留痕仍**必须**同时在 `ui_sweep` 里加断言（已补 `main-menu-credits` ⇒ 断言 `credits-skeleton` ✓）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
