@@ -72,10 +72,10 @@ public partial class BattleUI : Control
     {
         bool empty = u.UnitId == "-";
         string display = NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId);
-        c.name.Text = empty ? $"[{u.Slot}] 空位" : $"[{u.Slot}] {display}";
-        c.stats.Text = empty ? "" : $"HP {u.Hp}/{u.MaxHp}　士气 {u.Morale}";
+        c.name.Text = string.Empty;   // (B) 用户授权 A2：DD 立绘层无文字 ⇒ 卡内文字不再显示，信息改由卡 Tooltip 承载 ✓
+        c.stats.Text = string.Empty;   // (B)：同上（信息进 Tooltip）
         // ② 立绘占位框：首字 + 阵营/原型色块
-        portrait.Text = empty ? "—" : display.Substring(0, 1);
+        portrait.Text = string.Empty;   // (B)：DD 立绘上无首字 ⇒ 清空，保留色块 ✓
 
         // 🔴 策划 `#348`③：**战斗里能看见这个角色（单帧）** —— 玩家卡画占位 `sprite/combat.png` ✓
         //    ⚠️ 只画**单帧静态**（动画需 Spine，本阶段裁掉）；取不到图 ⇒ 保留"色块+首字" ✓
@@ -105,7 +105,7 @@ public partial class BattleUI : Control
         c.morale.MaxValue = 100;
         c.morale.Value = u.Morale;
         c.morale.Modulate = c.isPlayer ? Darkest.UI.DdTheme.Morale : Darkest.UI.DdTheme.MoraleEnemy;
-        c.tag.Text = empty ? "" : (u.Weak ? "虚弱" : (c.isPlayer ? "我方" : "敌方"));
+        string tagText = empty ? string.Empty : (u.Weak ? "虚弱" : (c.isPlayer ? "我方" : "敌方"));
         // D4（#206）：死门后遗症必须显著标注（橙字）
         if (!empty && _host?.Director is { } dir && dir.Buffs.Has(new UnitId(u.UnitId), "deaths_door_recovery"))
         {
