@@ -5,5 +5,5 @@
 
 [node name="BuildingNavButton" type="Button"]
 theme = ExtResource("9_theme")
-custom_minimum_size = Vector2(220, 32)
+custom_minimum_size = Vector2(128, 56)   ; DD building_navigation：base 宽 128 · 按钮间距 68 − 12 = 56（原值派生）
 script = ExtResource("1_nav")
