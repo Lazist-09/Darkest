@@ -3251,3 +3251,26 @@ screen.raid.darkest 顶栏/信息类键（原样）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴🔴 14.0.86 **终态报告（C 线完成 · 本次"最后一役"交付）**（2026-09-21）
+
+```
+**P4-c 全部完成**：B（卡内文字清空、信息进 Tooltip）· C1（卡框透明）· **C2a（中段改舞台层 + DD 锚点）** ·
+  C3（三处交互**验证无需迁移**）· C4（6 入口复测 + 留痕）
+
+C2a 落地细节：`BattleUI.Modals.cs` `_midRow` 字段 Container→**Control**；`BattleUI.Build.cs` `midRow` 由 HBox→**Control(StageLayer)**；
+  三子节点按 DD `screen.raid.overlays` 锚点：`playerArea` **0.148–0.410**（hero band 284→788）· `enemyArea` **0.547–0.809**（monster band 1050→1554）·
+  `vs` 0.41–0.547；y **0.6297–0.95**（y 680/1080）✓；卡仍在各自 HBox（间距 6）内 ⇒ 与 DD ±168 步距一致 ✓
+C3 取证：选目标 = 卡 `GuiInput` → `OnCardClicked`（Cards.cs:121）· 当前行动者 = 独立节点 `CurrentActorFrame/Name`（Build.cs:353/357）·
+  高亮 = 直接给卡/条上色（Refresh.cs:313 / Render.cs:63）⇒ **都随卡移动，无需迁移** ✓；冒烟入口 `PressCard`（Modals.cs:216）走同一路径 ✓
+C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（battle / battle-longtext / battle-tab4 / map-mode / tile-walk / settle）
+  **全部出现** ✓；六入口 spec14.5=ok／demand=0／overlap=0／transparent=0／realERROR=0 ✓
+
+终态护栏：构建 **0 错误** ｜ `ui_sweep.ps1` **21 入口全绿**（含每入口 ASCII 留痕断言）｜ `check_ui_namespace.ps1` **OK** ｜
+  `check_dd_layout.ps1` **46 条全命中** ｜ 我域工作树**干净**（仅 .uid 未跟踪）✓
+
+⏳ 仍未取得/待他方：① **P0 外壳通电**（`UIRoot` autoload + 三屏 `ShowPanel` 接管 `ChangeSceneToFile`）＝主程序 ② **冒烟 10 例读数**（`smoke.ps1` 被 PID 38316 占用 ⇒ 读数待取得，**未编造**）
+⏳ 待内核接口：供应（队伍/商店/任务信息/侦察/售回）· 任务列表 · 传家宝 from/to · 战利品条目 · 名册与英雄面板的 HP/装备/饰品 ⇒ 接入即把**色块占位**换成真控件 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
