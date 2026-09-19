@@ -276,3 +276,57 @@ tooltip_text = "英雄立绘位（DD hero_pos 98,700） · 色块占位，不换
 
 [node name="Fill" type="ColorRect" parent="HdHeroArtAnchor"]
 layout_mode = 2
+
+; 阶段2：E 盘 shared/hero/hero.layout 的 4 个自带尺寸（hotspot）=> 同尺寸色块（尺寸=DD 原值）
+
+[node name="HhEquipHotspot" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.1011
+anchor_top = 0.4778
+anchor_right = 0.1811
+anchor_bottom = 0.5178
+custom_minimum_size = Vector2(72, 144)
+mouse_filter = 2
+tooltip_text = "装备 tooltip 热区（DD hero_equipment_layout tooltip_hotspot_size 72x144 ⇒ 与库存 icon_size 72x144 一致） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HhEquipHotspot"]
+layout_mode = 2
+
+[node name="HhBaseStatHotspot" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.1011
+anchor_top = 0.3315
+anchor_right = 0.1811
+anchor_bottom = 0.3715
+custom_minimum_size = Vector2(160, 20)
+mouse_filter = 2
+tooltip_text = "基础属性热区（DD hero_base_stats_layout tooltip_hotspot_size 160x20） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HhBaseStatHotspot"]
+layout_mode = 2
+
+[node name="HhStatHotspot" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.5591
+anchor_top = 0.1444
+anchor_right = 0.6391
+anchor_bottom = 0.1844
+custom_minimum_size = Vector2(160, 20)
+mouse_filter = 2
+tooltip_text = "属性热区（DD hero_stats_layout tooltip_hotspot_size 160x20） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HhStatHotspot"]
+layout_mode = 2
+
+[node name="HhScoutingHotspot" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.626
+anchor_right = 0.08
+anchor_bottom = 0.666
+custom_minimum_size = Vector2(300, 40)
+mouse_filter = 2
+tooltip_text = "侦察数值热区（DD hero_scouting_stat_layout tooltip_hotspot_size 300x40） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HhScoutingHotspot"]
+layout_mode = 2
