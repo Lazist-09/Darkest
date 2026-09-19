@@ -74,6 +74,14 @@ internal sealed class HeroAnchorConverter : JsonConverter<HeroAnchor?>
 /// 一个**动作槽**（`hero_assets.md §3.1`：接口就定在【动作槽 → 帧序列 + 锚点】这一层 ⇒ **不绑定 Spine** ✓）
 /// 🔴 `Frames` 必须是**引用**（路径/资源 id）—— **不得**把帧数据/尺寸拷进 `hero.json`（`P31` ② · 与 `P26`/`P28` 同族）✓
 /// </summary>
+/// 🔴 **字段四分类**（策划 `#408` / 架构 `data_schema §3.4`：每个字段必须能回答"谁消费它"）：
+///   · **行为字段** `frames`（帧引用 ✓ 由 `RootFor`+`Resolve` 解析 ⇒ 表现层读它 ✓）
+///   · **行为字段** `anchor`（每槽必须显式给 `{x,y}` 或写 `"inherit"` ⇒ `P31 ④` ✓ 用例覆盖 ✓）
+///   · **约束字段** `missing_reason`（**声明缺失**必须带理由 ⇒ 加载器 `Validate` 消费它 ✓ 见 L217/L260 ✓）
+///   · **说明 / 预留字段** `fps` / `loop` ⇒ 🔴 契约 `hero_assets.md §3` 已裁：
+///     「**V6 只证明【接口能装下 + UI 能显示】，不证明【动画能播】**（Spine 本阶段裁掉）」
+///     ⇒ 本期**无人消费**（实测：`HeroAssets.cs` 之外 **0 引用**） ⇒ ✅ 保留 + 如此标注，
+///     ⚠️ **不得据此推断"动画在播"**；将来接帧动画时**由表现层消费**，接口无需改 ✓
 public sealed record HeroActionSlot(
     [property: JsonPropertyName("frames")] IReadOnlyList<string> Frames,
     [property: JsonPropertyName("fps")] int Fps = 8,
