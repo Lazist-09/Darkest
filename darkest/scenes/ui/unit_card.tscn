@@ -62,27 +62,47 @@ theme_override_font_sizes/font_size = 12
 ; skills_title 480,186）—— 面板内坐标无 base_size ⇒ 按**卡内相对位置**表达；数据未接入 ⇒ ColorRect 色块占位（不换不删）
 [node name="MonsterType" type="ColorRect" parent="."]
 layout_mode = 0
-anchor_left = 0.06
-anchor_top = 0.40
-anchor_right = 0.40
-anchor_bottom = 0.46
+anchor_left = 0.0926
+anchor_top = 0.3043
+anchor_right = 0.30
+anchor_bottom = 0.3643
 mouse_filter = 2
 tooltip_text = "类型（DD panel.monster .type_pos 65,112 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="MonsterResistances" type="ColorRect" parent="."]
 layout_mode = 0
-anchor_left = 0.10
-anchor_top = 0.70
+anchor_left = 0.1425
+anchor_top = 0.5978
 anchor_right = 0.44
-anchor_bottom = 0.76
+anchor_bottom = 0.6578
 mouse_filter = 2
 tooltip_text = "抗性（DD panel.monster .resistances_title_pos 154,186 / .resistances_pos 100,220 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="MonsterSkillsTitle" type="ColorRect" parent="."]
 layout_mode = 0
-anchor_left = 0.46
-anchor_top = 0.70
-anchor_right = 0.80
-anchor_bottom = 0.76
+anchor_left = 0.6838
+anchor_top = 0.5054
+anchor_right = 0.90
+anchor_bottom = 0.5654
 mouse_filter = 2
 tooltip_text = "技能标题（DD panel.monster .skills_title_pos 480,186 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+; 阶段2 施工②（ui_spec.json · panel.monster 702x368）：hero_stats_pos 435,111 → 0.6197/0.3016
+[node name="MonsterHeroStats" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.6197
+anchor_top = 0.3016
+anchor_right = 0.7697
+anchor_bottom = 0.3316
+mouse_filter = 2
+tooltip_text = "英雄对比属性（DD panel.monster hero_stats_pos 435,111 · 基准 702x368 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+; resistances_entry_icon_pos -10,8 ⇒ 负 x 在锚点体系按 0 处理（DD 值 -10 记此注释）
+[node name="MonsterResistEntryIcon" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0217
+anchor_right = 0.0135
+anchor_bottom = 0.0439
+mouse_filter = 2
+tooltip_text = "抗性条目图标（DD panel.monster resistances_entry_icon_pos -10,8 · 基准 702x368 · 需美术 ⇒ 色块占位，不换不删）"
