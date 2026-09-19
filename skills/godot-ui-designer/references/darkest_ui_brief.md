@@ -4132,3 +4132,26 @@ E 盘 `scripts/layout/screen.raid.darkest` 的 `[overlays]` 段给出：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.118 **占位块主题化 + 中文用途标签（规范与台账）**（2026-09-21）
+
+```
+【规范】
+  ① 占位块颜色：**`color = Color(0.62, 0.6, 0.58, 0.22)`** = 主题 `UiPalette.PlaceholderFill`（暖灰 · α0.22）
+     ⇒ 归一化脚本 `tools/dsh/normalize_placeholders.ps1`（幂等；只补"未设颜色"的块 ✓）
+     ⇒ 结果：**199/199** 个 ColorRect 均带主题半透明色（补色 142 个 / 15 个文件）✓
+     🔴 根因记录：ColorRect **不写 `color`** 时 Godot 默认**白色不透明** ⇒ 观感突兀（用户观察到的问题 ✓）
+  ② 块内中文标签：节点名 **`PurposeLabel`**（ASCII ✓）· `mouse_filter = 2`（非交互 ✓）· 居中 ✓ ·
+     `theme_override_font_sizes/font_size = 12` · `theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)`（主题文字色 α0.85）✓
+  ③ **小尺寸块不加标签**（放不下 ✗）：如 400×4 火把条本体 · 20×24 图标位 ⇒ 仅保留 tooltip ✓
+
+【台账（按批）】
+  · 批1 新屏（结算 11 · 横幅 5 · 按键提示 6 · 外壳流程 6 · 制作人员 3）= **31** ⇒ `c6262db`
+  · 批2 战斗底栏 = **34** ⇒ `7ab9d0d`
+  · 批3 城池/英雄详情/菜单/子流程（hero_detail 20 · building_popup 19 · hamlet 12 · quest_select 8 · provision 4 · heirloom 3 · loot 3 · main_menu 3）= **72** ⇒ `fa89f1a`
+  ⇒ **累计中文标签 137 个**（覆盖 13 个场景 ✓）；标签节点名已在批3 统一为 ASCII ✓
+
+【清单】`darkest_ui_asset_manifest.md` 已再生（含**中文标签列**）：A 栏 173 条 / B 栏 52 条 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
