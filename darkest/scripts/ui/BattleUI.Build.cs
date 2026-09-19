@@ -85,7 +85,7 @@ public partial class BattleUI : Control
 
         var midPanel = new PanelContainer { Name = "MidRow", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         uiCol.AddChild(midPanel);
-        var midRow = new HBoxContainer { Name = "MidRowBox", SizeFlagsVertical = Control.SizeFlags.ShrinkEnd };   // 🔴 相机口径：不参与垂直拉伸   // 🔴 DD 1:1 ④-3c：中段**底对齐**（DD overlays y=680/1080 = 63.0% ⇒ 立绘站在低处；容器语义 = ShrinkEnd）✓
+        var midRow = new Control { Name = "StageLayer", SizeFlagsVertical = Control.SizeFlags.ShrinkEnd };   // 🔴 相机口径：不参与垂直拉伸   // 🔴 DD 1:1 ④-3c：中段**底对齐**（DD overlays y=680/1080 = 63.0% ⇒ 立绘站在低处；容器语义 = ShrinkEnd）✓
         midRow.AddThemeConstantOverride("separation", 8);
         var midCol = new VBoxContainer { Name = "MidCol" };   // P4-c(A)：DD overlays y=680/1080=0.6297 ⇒ 用顶部空档比例表达（不写像素）
         midCol.AddThemeConstantOverride("separation", 0);
@@ -259,6 +259,7 @@ public partial class BattleUI : Control
         var playerArea = new VBoxContainer { Name = "PlayerArea", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         playerArea.AddThemeConstantOverride("separation", 4);
         _midRow.AddChild(new Control { Name = "MidPadLeft", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.148f });   // DD 左空 284/1920 ✓
+        playerArea.AnchorLeft = 0.148f; playerArea.AnchorRight = 0.410f; playerArea.AnchorTop = 0.6297f; playerArea.AnchorBottom = 0.95f;   // C2a：DD overlays（hero band 284-788 · y 680/1080）
         _midRow.AddChild(playerArea);   // 🔴 DD 1:1 ④-3a：英雄 band 284→788 = 26.2% ✓
         playerArea.SizeFlagsStretchRatio = 0.262f;
 
@@ -274,11 +275,13 @@ public partial class BattleUI : Control
 
         var vs = new Label { Text = "VS", CustomMinimumSize = new Vector2(24, 24), VerticalAlignment = VerticalAlignment.Center };
         vs.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.Danger);
+        vs.AnchorLeft = 0.41f; vs.AnchorRight = 0.547f; vs.AnchorTop = 0.6297f; vs.AnchorBottom = 0.95f;   // C2a：VS 分隔居中于两 band 之间
         _midRow.AddChild(vs);
         _midRow.AddChild(new Control { Name = "MidPadCenter", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.137f });   // DD 中缝 (1050-788)/1920 ✓
 
         var enemyArea = new VBoxContainer { Name = "EnemyArea", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         enemyArea.AddThemeConstantOverride("separation", 4);
+        enemyArea.AnchorLeft = 0.547f; enemyArea.AnchorRight = 0.809f; enemyArea.AnchorTop = 0.6297f; enemyArea.AnchorBottom = 0.95f;   // C2a：DD overlays（monster band 1050-1554）
         _midRow.AddChild(enemyArea);   // 🔴 DD 1:1 ④-3a：怪物 band 1050→1554 = 26.2% ✓
         enemyArea.SizeFlagsStretchRatio = 0.262f;
         enemyArea.AddChild(TitleLabel("敌方　1 · 2 · 3 · 4"));

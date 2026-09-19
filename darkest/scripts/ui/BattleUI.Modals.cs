@@ -132,7 +132,7 @@ public partial class BattleUI : Control
     private Container _topRow = null!;
     private Darkest.UI.BattleTopBarSkeleton? _topBarSkel;   // 🔴 顶栏骨架（字段承载 ⇒ 避开作用域问题）✓
     private Darkest.UI.BattleBottomBarSkeleton? _bottomBarSkel;
-    private Container _midRow = null!;
+    private Control _midRow = null!;   // C2a：中段改为"舞台层"Control ⇒ 子节点可用锚点（DD overlays y 0.6297 / band 0.148-0.410 与 0.547-0.809）
     private Container _bottomRow = null!;
 
     // 🆕 `#319`/`#321`③：**分区子容器** —— 控件一律【创建时】就加进这些容器（不再"事后搬运"，见下）
