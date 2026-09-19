@@ -3781,3 +3781,54 @@ blacksmith/guild/camping_trainer/nomad_wagon）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴🔴 14.0.101 **E 盘布局全景分析（直读原游戏，含 section/尺寸键）**（2026-09-21）
+
+```
+扫描：E 盘全部 *.darkest ⇒ **1175 个布局文件**；总 section 6602；总字段 60809
+含"尺寸键"的文件 14 个 ｜ **多 section 文件 957 个**（⇒ 这正是 spec 压平的来源 ✗ 本分析给出 section 级真相 ✓）
+
+字段数前 40（f=字段数 s=section 数；末列=首个尺寸键原文）：
+  2430f   1s  \dlc\580100_crimson_court\features\crimson_court\effects\crimson_court.effects.darkest 
+  1822f   1s  \dlc\735730_color_of_madness\effects\color_of_madness.effects.darkest 
+  1518f   1s  \dlc\580100_crimson_court\features\crimson_court\scripts\map_generator.darkest 
+  1518f   1s  \dlc\735730_color_of_madness\scripts\map_generator.darkest 
+  1178f   1s  \colours\base.colours.darkest                            
+  1166f   1s  \scripts\map_generator.darkest                           
+   732f   2s  \dlc\702540_shieldbreaker\effects\shieldbreaker.effects.darkest 
+   625f   3s  \fonts\fonts.darkest                                     
+   603f   1s  \dlc\580100_crimson_court\features\flagellant\effects\flagellant.effects.darkest 
+   537f  18s  \dlc\580100_crimson_court\features\flagellant\heroes\flagellant\flagellant.info.darkest 
+   531f  13s  \heroes\abomination\abomination.info.darkest             
+   497f  12s  \dlc\702540_shieldbreaker\heroes\shieldbreaker\shieldbreaker.info.darkest 
+   488f  13s  \heroes\man_at_arms\man_at_arms.info.darkest             
+   484f  12s  \heroes\jester\jester.info.darkest                       
+   475f  13s  \heroes\highwayman\highwayman.info.darkest               
+   474f  12s  \heroes\grave_robber\grave_robber.info.darkest           
+   471f  16s  \heroes\antiquarian\antiquarian.info.darkest             
+   464f  12s  \heroes\houndmaster\houndmaster.info.darkest             
+   463f  13s  \heroes\bounty_hunter\bounty_hunter.info.darkest         
+   459f  12s  \heroes\leper\leper.info.darkest                         
+   454f  12s  \heroes\hellion\hellion.info.darkest                     
+   449f  12s  \heroes\plague_doctor\plague_doctor.info.darkest         
+   447f  13s  \dlc\445700_musketeer\heroes\musketeer\musketeer.info.darkest 
+   444f  12s  \heroes\arbalest\arbalest.info.darkest                   
+   434f  12s  \heroes\occultist\occultist.info.darkest                 
+   424f  12s  \mods\newman\crusader.info.darkest                       
+   424f  12s  \heroes\crusader\crusader.info.darkest                   
+   409f  12s  \heroes\vestal\vestal.info.darkest                       
+   307f  33s  \dlc\1117860_arena_mp\scripts\layout\arena.screen.raid.darkest 
+   307f  33s  \scripts\layout\screen.raid.darkest                      
+   228f   1s  \dlc\580100_crimson_court\features\crimson_court\modes\bloodmoon\effects\mode.effects.darkest 
+   228f   1s  \modes\radiant\effects\mode.effects.darkest              
+   228f   1s  \effects\mode.effects.darkest                            
+   228f   1s  \modes\new_game_plus\effects\mode.effects.darkest        
+   215f   1s  \dlc\735730_color_of_madness\effects\additional.color_of_madness.effects.darkest 
+   192f  19s  \campaign\town\town.layout.darkest                       
+   181f  11s  \dlc\735730_color_of_madness\monsters\spire\spire_D\spire_D.info.darkest 
+   172f  43s  \scripts\layout\base.popup_text.layout.darkest           
+   170f   6s  \shared\controls\controls.layout.darkest                 
+   163f   5s  \dungeons\crypts\crypts.5.mash.darkest                   
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
