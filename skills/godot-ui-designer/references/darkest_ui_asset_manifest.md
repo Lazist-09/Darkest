@@ -1,10 +1,10 @@
 # 阶段3 落位清单（色块位 ↔ DD 出处 ↔ 尺寸）
 
-生成：只读扫描 `darkest/scenes/ui/*.tscn`（脚本可再生）· 2026-09-21 · A 栏 27 条 / B 栏 166 条
+2026-09-21（脚本只读生成，可随施工再生）
 
 用法：美术按「节点 + 尺寸 + DD 出处」出**同尺寸原创资产**；替换时**只换贴图、不动锚点/尺寸** ⇒ 布局零改动 ✓
 
-## A 栏：有 DD 出处的占位块（对齐 DD，优先出图）
+## A 栏：有 DD 出处的占位块（27 条，优先出图）
 
 ```
 场景 | 节点 | 锚点(left/top) | 尺寸 | DD 出处
@@ -13,7 +13,7 @@ battle_bottombar.tscn          | RaidBasicScrollBtn         | 0.30/0.055        
 battle_bottombar.tscn          | RaidSidebarSlot            | 0.30/0.09            | Vector2(80, 160)     | DD screen.raid [sidebar_scroll] item_slot_size 80x160 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删
 battle_bottombar.tscn          | RaidResultScrollBtn        | 0.30/0.125           | Vector2(384, 36)     | DD screen.raid [result_scroll] button_size 384x36 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删
 battle_bottombar.tscn          | RaidTorchInfoArea          | 0.30/0.16            | Vector2(200, 130)    | DD screen.raid [torch_info] mouseOverAreaSize 200x130 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删
-battle_bottombar.tscn          | RaidTorchStripArea         | 0.30/0.195           | Vector2(860, 24)     | DD screen.raid [torch_info] stripMouseOverAreaSize 860x24 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删
+battle_bottombar.tscn          | RaidTorchStripArea         | 0.30/0.195           | Vector2(860, 24)     | DD screen.raid [torch_info] stripMouseOverAreaSize 860x24 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，
 battle_bottombar.tscn          | RaidQuestInfoArea          | 0.30/0.23            | Vector2(300, 150)    | DD screen.raid [quest_info] size 300x150 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删
 battle_bottombar.tscn          | RaidPos1                   | 0.7969/0.0324        | -                    | DD screen.raid [kill_count_display] pos 1530,35 ⇒ 0.7969/0.0324 · 数据未接入 ⇒ 色块占位，不换不删
 battle_bottombar.tscn          | RaidPos2                   | -0.1328/0            | -                    | DD screen.raid [camp_layout] fourth_pos -255,0 ⇒ -0.1328/0 · 数据未接入 ⇒ 色块占位，不换不删
@@ -37,7 +37,7 @@ hamlet_skeleton.tscn           | EstateSummary              | 0.0/0.903         
 hamlet_skeleton.tscn           | RealmInventory             | 0.459/0.119          | -                    | DD realm_inventory_pos 881,128 (realm inventory, placeholder)
 ```
 
-## B 栏：我方自建占位块（无 DD 出处 ⇒ 由我方/美术按设计决定，不属"对齐 DD"范围）
+## B 栏：我方自建占位块（178 条，无 DD 出处 ⇒ 按现有锚点区域出图即可）
 
 ```
 场景 | 节点 | 锚点(left/top) | 尺寸
@@ -144,6 +144,18 @@ hero_detail_skeleton.tscn      | HeroScoutingStat           | 0.0/0.64          
 hero_detail_skeleton.tscn      | HeroEquipHighlight         | 0.36/0.0             | -
 hero_detail_skeleton.tscn      | HeroEquipLevelText         | 0.455                | -
 hero_detail_skeleton.tscn      | HeroStatsIcon              | 0.0/0.145            | -
+hero_detail_skeleton.tscn      | HdNameAnchor               | 0.0545/0.0241        | -
+hero_detail_skeleton.tscn      | HdClassAnchor              | 0.0545/0.0741        | -
+hero_detail_skeleton.tscn      | HdQuirksAnchor             | 0.1011/0.1185        | -
+hero_detail_skeleton.tscn      | HdHeroPipsAnchor           | 0.6065/0.1343        | -
+hero_detail_skeleton.tscn      | HdTargetPipsAnchor         | 0.8265/0.1343        | -
+hero_detail_skeleton.tscn      | HdPosTitleAnchor           | 0.5448/0.0907        | -
+hero_detail_skeleton.tscn      | HdCombatSkillAnchor        | 0.5591/0.1444        | -
+hero_detail_skeleton.tscn      | HdCampSkillAnchor          | 0.5591/0.2963        | -
+hero_detail_skeleton.tscn      | HdResistAnchor             | 0.5591/0.4037        | -
+hero_detail_skeleton.tscn      | HdClassBonusAnchor         | 0.5591/0.5241        | -
+hero_detail_skeleton.tscn      | HdCloseAnchor              | 0.9634/0.0167        | -
+hero_detail_skeleton.tscn      | HdHeroArtAnchor            | 0.0703/0.6481        | -
 loot_overlay_skeleton.tscn     | LootDescBlock              | -                    | Vector2(350, 40)
 loot_overlay_skeleton.tscn     | LootTile1                  | -                    | Vector2(53, 53)
 loot_overlay_skeleton.tscn     | LootTile2                  | -                    | Vector2(53, 53)
@@ -209,6 +221,6 @@ unit_card.tscn                 | MonsterHeroStats           | 0.6197/0.3016     
 unit_card.tscn                 | MonsterResistEntryIcon     | 0.0/0.0217           | -
 ```
 
-注：① A 栏的 DD 数字均为**度量事实**（不构成抄袭）；**DD 像素未进入工程** ✓（红线27）
-    ② B 栏为既有 UI 的占位（保留不删 ✓ §14.0.68）；出图时按现有锚点区域即可 ✓
-    ③ 本清单由脚本只读生成 ⇒ 可与代码同步再生 ✓
+注：① A 栏 DD 数字均为度量事实（不构成抄袭）；DD 像素未进入工程（红线27）
+    ② B 栏为既有 UI 占位（保留不删 §14.0.68）
+    ③ 生成脚本只用数组拼接（本环境 `List.Add` 模式两次致变量退化成 String ⇒ 已弃用 ✓）

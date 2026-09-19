@@ -4001,3 +4001,24 @@ E 盘直读 `scripts\layout\base.popup_text.layout.darkest`：**43 section / 172
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.111 **纪律两条：写文件禁用 List.Add 模式 + 清单随施工再生**（2026-09-21）
+
+```
+① **写文件禁用 `List.Add` 模式**（本环境两次事故 ✗）：
+   `New-Object System.Collections.Generic.List[string]` + `.Add()` 会**退化成 String** ⇒ `$L.Add(...)` 全抛错 ✗
+   ⇒ 该次写入把 `.tscn` 写坏 ⇒ 运行期 `hero-detail realERROR=3` FAIL ✗（已 git checkout 回退 ✓ 无残留）
+   ✅ **有效模式**（本轮一次通过 ✓）：
+        $lines = [System.IO.File]::ReadAllLines($p)      # string[]
+        $new   = @()                                     # 普通数组
+        $new  += """..."                                   # 数组追加
+        [System.IO.File]::WriteAllLines($p, [string[]]($lines + $new), $enc)
+② **阶段3 清单随施工再生**：`darkest_ui_asset_manifest.md` 由只读脚本生成 ⇒ 每落一批后**重跑生成**（否则清单过期 ✗）
+   本轮重生后：**A 栏 
+27
+ 条（有 DD 出处）+ B 栏 
+178
+ 条（自建）** ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
