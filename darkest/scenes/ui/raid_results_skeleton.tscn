@@ -92,3 +92,50 @@ anchor_right = 0.1638
 anchor_bottom = 0.3152
 mouse_filter = 2
 tooltip_text = "任务库存网格（quest_inventory_grid_offset 84,308） · 数据未接入 ⇒ 色块占位，不换不删"
+
+; 阶段2：E 盘 raid_results.layout.darkest 其余位置（屏幕级 /1920 /1080）
+
+[node name="RrMore1" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0208
+anchor_top = 0
+anchor_right = 0.0808
+anchor_bottom = 0.03
+mouse_filter = 2
+tooltip_text = "DD raid_results [raid_results_quest_inventory_system_grid_layout] start_pos 40,0 => 0.0208/0 · 色块占位，不换不删"
+
+[node name="RrMore2" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0521
+anchor_top = 0
+anchor_right = 0.1121
+anchor_bottom = 0.03
+mouse_filter = 2
+tooltip_text = "DD raid_results [raid_results_party_gold_inventory_system_grid_layout] start_pos 100,0 => 0.0521/0 · 色块占位，不换不删"
+
+[node name="RrMore3" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0521
+anchor_top = 0
+anchor_right = 0.1121
+anchor_bottom = 0.03
+mouse_filter = 2
+tooltip_text = "DD raid_results [raid_results_party_heirloom_inventory_system_grid_layout] start_pos 100,0 => 0.0521/0 · 色块占位，不换不删"
+
+[node name="RrMore4" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0521
+anchor_top = 0
+anchor_right = 0.1121
+anchor_bottom = 0.03
+mouse_filter = 2
+tooltip_text = "DD raid_results [wave_raid_results_party_gold_inventory_system_grid_layout] start_pos 100,0 => 0.0521/0 · 色块占位，不换不删"
+
+[node name="RrMore5" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0677
+anchor_top = 0.2315
+anchor_right = 0.1277
+anchor_bottom = 0.2615
+mouse_filter = 2
+tooltip_text = "DD raid_results [raid_results_heroes_state_layout] heroes_start_pos 130,250 => 0.0677/0.2315 · 色块占位，不换不删"
