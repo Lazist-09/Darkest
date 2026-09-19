@@ -3164,3 +3164,49 @@ screen.raid.darkest 顶栏/信息类键（原样）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.83 **DD 战斗相关剩余布局原文（P4 overlays 依据）**（2026-09-21）
+
+```
+── screen.raid.battle.darkest ──
+  battle:			.attack_overlay_pos 960 360
+  .intro_texture_pos 960 350
+  .monster_start_round_action_post_timescript_time 0.5
+  .monster_tooltip_offset 0 0 0
+  .monster_panel_position 946 712
+
+── screen.raid.act_out.darkest ──
+  act_out:
+  .curio_interaction_post_bark_wait_time 0.25
+
+── actor_scale.raid.darkest ──
+  actor_scale: .spawnscale 0.1 .spawnfx "monster_spawn" .turnscale 1.05 .scaleupspeed 0.1 .scaledownspeed 0.3
+
+── overlay.loot.darkest ──
+  loot_background:	.imagePath "scrolls/event_scroll_loot.png"	.pos 0 0 .dynamic_backdrop_y_offset 10 .max_items 9 .min_items 4
+  loot_title:			.textFormat "str_overlay_loot_%s_title" 		.pos 228 40
+  loot_description:	.textFormat "str_overlay_loot_%s_description" 	.pos 228 136 .width 350
+  loot_tiles:			.startPosY 195	.offset 74 0
+  loot_buttons:		.takeAllText "str_overlay_loot_take_all"
+  .take_all_pos 80 358
+  .take_all_controller_text_offset 38 2
+  .take_all_controller_button_offset 40 32
+  .close_pos 306 358
+  .close_controller_text_offset 38 2
+  .close_controller_button_offset 40 32
+  .tooltip_y_offset 0
+
+── panel.tab.darkest ──
+  reorder_party_layout:
+  .button_pos 678 90
+  .tooltip_offset 1206 90
+
+── pannel.inventory.darkest ──
+  raid_inventory_panel_background:		.imagePath "panels/panel_inventory.png"	.pos 0 0
+  wave_inventory_panel_background:		.imagePath "panels/panel_inventory_wave.png" .pos 0 0
+  raid_inventory_panel_grid_layout:		.number_of_columns 8
+  .start_pos 20 28		.offset 80 160
+
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
