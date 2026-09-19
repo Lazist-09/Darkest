@@ -100,11 +100,12 @@ anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp ba
 ; P4-a（DD 严格贴合）：`panel.map` 接**右下**（用户计划 P4）；只读不可点（mouse_filter=2）
 ; 数据未接入 ⇒ 按硬规矩 §14.0.68 用 ColorRect **色块占位**（不换不删）；DD panel.map: pos 4,40 · clip 16 665 19 340 · 可视区 720x360
 [node name="MapCorner" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(720, 360)   ; DD panel_map.png 真实尺寸 720x360（asset_sizes ✓）
 layout_mode = 0
-anchor_left = 0.74   ; 右下角区域（不含托盘 y 0.646 以下）
-anchor_top = 0.30
-anchor_right = 0.985
-anchor_bottom = 0.62
+anchor_left = 0.615   ; 屏位=右下约定（DD 的 panel.map 屏幕位未取得，如实注明）
+anchor_top = 0.6367
+anchor_right = 0.99
+anchor_bottom = 0.97
 mouse_filter = 2
 tooltip_text = "地牢地图（DD panel.map · 只读不可点 · 数据未接入 ⇒ 色块占位，不换不删）"
 
@@ -234,3 +235,28 @@ anchor_right = 0.985
 anchor_bottom = 0.62
 mouse_filter = 2
 tooltip_text = "库存网格位（DD pannel.inventory raid grid: 8 列 · start_pos 20,28 · offset 80,160 · 面板屏幕位置未在该文件给出 ⇒ 按 E 区右下占位，不换不删）"
+
+; 阶段2 施工③（ui_spec.json · panel.map，基准 720x360）：tab_placement pos 672,252 size 48,90 · home button_pos 677,24
+[node name="MapTabAnchor" type="PanelContainer" parent="MapCorner"]
+layout_mode = 0
+anchor_left = 0.9333
+anchor_top = 0.7
+anchor_right = 1.0
+anchor_bottom = 0.95
+mouse_filter = 2
+tooltip_text = "地图页签（DD panel.map tab 672,252 · size 48x90 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="TabPlaceholder" type="ColorRect" parent="MapCorner/MapTabAnchor"]
+layout_mode = 2
+
+[node name="MapHomeButton" type="PanelContainer" parent="MapCorner"]
+layout_mode = 0
+anchor_left = 0.9403
+anchor_top = 0.0667
+anchor_right = 0.99
+anchor_bottom = 0.14
+mouse_filter = 2
+tooltip_text = "地图回中按钮（DD panel.map home button_pos 677,24 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="HomePlaceholder" type="ColorRect" parent="MapCorner/MapHomeButton"]
+layout_mode = 2
