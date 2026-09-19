@@ -11,6 +11,17 @@ anchor_bottom = 1.0
 theme = ExtResource("9_theme")
 script = ExtResource("1_hamlet")
 
+
+[node name="LayerTitle" type="Label" parent="HamletSkeleton"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.16
+anchor_bottom = 0.024
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "L1 一级屏 · 主城（town_screen_layout）"
 [node name="HamletMargin" type="MarginContainer" parent="." unique_id=1929542710]
 layout_mode = 0
 anchor_right = 1.0
