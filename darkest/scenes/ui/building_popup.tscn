@@ -173,3 +173,83 @@ anchor_right = 0.1263
 anchor_bottom = 0.3375
 mouse_filter = 2
 tooltip_text = "选项列表位（DD choice_list_pos 0,250 · choice_hot_spot_size 120x20 尺寸） · 数据未接入 ⇒ 色块占位，不换不删"
+
+; 阶段2 城池批(4)：6 栋自带尺寸的块 —— 尺寸直接取 DD 原值（最可信来源①）；位置取 body 区约定（各栋 *_position 需父基准，未取得 ✗）
+
+[node name="BpGraveyardEntry" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.6274
+anchor_top = 0.1275
+anchor_right = 0.9
+anchor_bottom = 0.2075
+custom_minimum_size = Vector2(1000, 160)
+mouse_filter = 2
+tooltip_text = "坟场条目（DD graveyard .entry_size 1000x160 · 尺寸=DD 原值；该栋 *_position 偏移需父基准 ⇒ 位置取 body 区约定，未取得不猜） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="BpGraveyardEntry"]
+layout_mode = 2
+
+[node name="BpStatueList" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.6274
+anchor_top = 0.2175
+anchor_right = 0.9
+anchor_bottom = 0.2975
+custom_minimum_size = Vector2(600, 580)
+mouse_filter = 2
+tooltip_text = "雕像列表区（DD statue .list_area_size 600x580 · 同上位置口径） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="BpStatueList"]
+layout_mode = 2
+
+[node name="BpUpgradeSlot" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.6274
+anchor_top = 0.3075
+anchor_right = 0.9
+anchor_bottom = 0.3875
+custom_minimum_size = Vector2(102, 72)
+mouse_filter = 2
+tooltip_text = "升级图标位（DD upgrade .base_size 102x72 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="BpUpgradeSlot"]
+layout_mode = 2
+
+[node name="BpHeroActionBase" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.6274
+anchor_top = 0.3975
+anchor_right = 0.9
+anchor_bottom = 0.4775
+custom_minimum_size = Vector2(100, 100)
+mouse_filter = 2
+tooltip_text = "英雄动作基准（DD hero_action .base_size 100x100 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="BpHeroActionBase"]
+layout_mode = 2
+
+[node name="BpSanitariumChoice" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.6274
+anchor_top = 0.4875
+anchor_right = 0.9
+anchor_bottom = 0.5675
+custom_minimum_size = Vector2(120, 20)
+mouse_filter = 2
+tooltip_text = "疗养院选项热区（DD sanitarium .choice_hot_spot_size 120x20 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="BpSanitariumChoice"]
+layout_mode = 2
+
+[node name="BpStageCoachTextBox" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.6274
+anchor_top = 0.5775
+anchor_right = 0.9
+anchor_bottom = 0.6575
+custom_minimum_size = Vector2(350, 200)
+mouse_filter = 2
+tooltip_text = "驿站文本框（DD stage_coach .text_box_size 350x200 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="BpStageCoachTextBox"]
+layout_mode = 2
