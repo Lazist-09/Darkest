@@ -106,3 +106,41 @@ tooltip_text = "TO 3（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色
 [node name="ToPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/ToCol/ToSlot3"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
+
+; 阶段2 子流程批(3)：heirloom_exchange 屏幕级位置块（÷1920、÷1080）
+
+[node name="HxChoiceStartAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.1333
+anchor_top = 0.0694
+anchor_right = 0.2133
+anchor_bottom = 0.1094
+mouse_filter = 2
+tooltip_text = "选项起点（DD heirloom_exchange choice_start_offset 256,75） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HxChoiceStartAnchor"]
+layout_mode = 2
+
+[node name="HxIconOffsetAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0296
+anchor_right = 0.08
+anchor_bottom = 0.0696
+mouse_filter = 2
+tooltip_text = "图标位（DD icon_offset 0,32） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HxIconOffsetAnchor"]
+layout_mode = 2
+
+[node name="HxArrowAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0771
+anchor_top = 0.0741
+anchor_right = 0.1571
+anchor_bottom = 0.1141
+mouse_filter = 2
+tooltip_text = "箭头位（DD arrow_offset 148,80） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HxArrowAnchor"]
+layout_mode = 2
