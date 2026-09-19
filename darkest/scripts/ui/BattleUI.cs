@@ -27,9 +27,9 @@ public partial class BattleUI : Control, IUiPanel
     /// <summary>🔴 IUiPanel：战斗屏需要常显 HUD（资源/光照/回合）⇒ 开 ✓</summary>
     public bool WantsBaseHud => true;
 
-    private const float CardW = 84f;    // 🔴 DD 1:1 ④-3b：132 → **84**（DD 英雄组 284→788 = 504px@1920 ⇒ ×0.667 ÷ 4 人 ≈ 84）⇒ 让两组能落进 DD 的 26.2% 带宽 ✓
+    private const float CardW = 126f;    // 🔴 DD 1:1 ④-3b：132 → **84**（DD 英雄组 284→788 = 504px@1920 ⇒ ×0.667 ÷ 4 人 ≈ 84）⇒ 让两组能落进 DD 的 26.2% 带宽 ✓
     private const float CardH = 112f;   // 🔴 相机 720 口径：170→146→140→112（topology 路径仍超 62px）
-    private const float GapX = 9f;        // 🔴 DD 1:1：DD hero_spacing 168 − 立绘宽 ≈154 = **间隙 14** ⇒ ×0.667 ≈ **9** ✓（更正：DD 立绘**并不重叠**，是我先前算错）
+    private const float GapX = 14f;        // 🔴 DD 1:1：DD hero_spacing 168 − 立绘宽 ≈154 = **间隙 14** ⇒ ×0.667 ≈ **9** ✓（更正：DD 立绘**并不重叠**，是我先前算错）
     private const float HeroX0 = 13f;
     private const float EnemyX0 = 653f;
     private const float StageY = 96f;

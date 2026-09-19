@@ -27,10 +27,10 @@ $rows = @(
   @{ Key = "raid monster_start_pos.x"; Dd = 1050; Impl = "BattleUI.StatusTray enemy slot 0"; Pat = "0.547f" }
   @{ Key = "status_bars.y_pos";        Dd = 698;  Impl = "BattleUI.StatusTray tray y"; Pat = "0.646f" }
   @{ Key = "status_bars.health_height"; Dd = 10;  Impl = "BattleUI.StatusTray bar height"; Pat = "0.0093f" }
-  @{ Key = "raid actor_spacing - figure"; Dd = 168; Impl = "BattleUI CardW+GapX = 84+9"; Pat = "const float CardW = 84f" }
+  @{ Key = "raid actor_spacing - figure"; Dd = 168; Impl = "BattleUI CardW+GapX = 126+14 (DD 504/4 and 168-154)"; Pat = "const float CardW = 126f" }
   @{ Key = "raid overlays hero_start_pos.y"; Dd = 680; Impl = "BattleUI MidPadTop ratio 0.6297 (exact)"; Pat = "MidPadTop" }
   @{ Key = "raid area tile_width"; Dd = 720; Impl = "BattleUI mid row band (padding ratios)"; Pat = "MidPadLeft" }
-  @{ Key = "raid overlays actor_spacing"; Dd = 154; Impl = "BattleUI CardW 84 (DD band / 4)"; Pat = "const float CardW = 84f" }
+  @{ Key = "raid overlays actor_spacing"; Dd = 154; Impl = "BattleUI CardW 84 (DD band / 4)"; Pat = "const float CardW = 126f" }
   @{ Key = "panel.map clip"; Dd = 665; Impl = "battle_bottombar MapCorner (read only)"; Pat = "MapCorner" }
   @{ Key = "status_bars tray_icon_left_offset"; Dd = 58; Impl = "battle_bottombar HeroIcon slots (color blocks)"; Pat = "HeroIcon1" }
   @{ Key = "status_bars round_indicator_offset"; Dd = 10; Impl = "battle_bottombar RoundIndicator block"; Pat = "RoundIndicator" }
