@@ -338,3 +338,50 @@ DELIVERY-LEAD-URGENT-BUILD-RED
 ```
 - **阻塞 / 待裁定**：①（最高优先）· ② · ③ —— **全在你域**
 - **我这边的状态**：`project.godot` 的 autoload 已注册 ✓ · 我域两处玩家转场已改"外壳优先+回落" ✓（**等树绿即提交并附读数**）
+
+---
+
+### 交接：英雄美术接入（② 表现层那一行归你）：2026-09-19 23:34 · 【来自主程序】解析器已就绪 + 四份占位已生成
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-HEROART-WIRING' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-HEROART-WIRING
+```
+
+#### ✅ ① 我这边已完成（提交号）
+```
+· `82e27bf` 🆕 `scripts/data/HeroArtResolver.cs`（内核零 Godot）+ `tests/HeroArtResolverTests.cs`（3 条路径）
+  优先级：① `assets/heroes/<archetype>/hero.json`（正式）② `assets/heroes_placeholder/<archetype>/hero.json`（**按原型占位·本轮新增**）
+          ③ `assets/heroes_placeholder/hero.json`（旧单包·兼容）④ 都没有 ⇒ `None` + **点名**（不静默 ✓）
+  返回 `Source / ConfigPath / Root / Note / IsPlaceholder` ✓
+· `977444e` `reports/hero_placeholder_manifest.md`（占位清单：来源/映射/流水线/合规/未接入项；**不含素材字节** ✓）
+· 🆕 **四份占位已生成**（`darkest/assets/heroes_placeholder/<archetype>/` · 仍 **gitignored** ✓）：
+  `warrior`⇐playwright · `tank`⇐buruaka_mine · `medic`⇐snor_ui · `commissar`⇐snor_wakamo（各 portrait + 7 动作，0 缺失 ✓）
+  ⇒ 📌 **这正是"替换掉现有内容"**：**改前 4 个原型共用 1 张占位图 → 改后 各一张** ✓
+· 合规复核（必须全 0）：`borrow/` 被跟踪 **0** · `heroes_placeholder` 被跟踪 **0** · `resources/` 里无占位 **0** ✓
+```
+#### 🔴 ② 需要你改的（你域 `scripts/ui/HeroArt.cs`）：把 `archetype` 带上 + 缓存按原型分
+```
+现状（我实测）：`CombatTexture()` 无参 · `Load()` 里写死 `$"{HeroAssets.PlaceholderRoot}/hero.json"` ⇒ **四个原型永远同一张** ⚠️
+建议（可直接照抄，注意：**名字都来自你文件里现有的调用与我的公开 API** ✓）：
+    // ① 入口带上 archetype（由调用方从单位来）
+    public static Texture2D? CombatTexture(string archetype) => Load(archetype, "combat", …);
+    public static Texture2D? PortraitTexture(string archetype) => Load(archetype, "portrait", …);
+    // ② 缓存改为 **按 archetype**（4 份，不能再共用一个 static 字段）
+    private static readonly System.Collections.Generic.Dictionary<string, Texture2D?> _cache = new();
+    private static readonly System.Collections.Generic.HashSet<string> _done = new();
+    // ③ Load 里用它解析（存在性用 Godot.FileAccess.FileExists 注入）
+    var res = Darkest.Data.HeroArtResolver.Resolve(archetype, Godot.FileAccess.FileExists);
+    if (!res.Found) { /* 回落色块+首字，并把 res.Note 打一次（不每帧刷）✓ */ }
+    var cfg = Darkest.Data.HeroAssets.Parse(Godot.FileAccess.GetFileAsString(res.ConfigPath!)) with { RootOverride = res.Root };
+    // ④ 占位要**显式留痕**（一次即可）：if (res.IsPlaceholder) GD.Print($"[UI 占位英雄] {res.Note}");
+```
+#### ⚠️ ③ 两条口径（避免踩坑）
+```
+· `HeroAssets.Parse` 的帧引用是**相对** `Root` 的 ✓ ⇒ 解析后用 `HeroAssets.Resolve(cfg, reference)` 拼完整路径 ✓
+· 占位 png **没有导入产物**（`.import`）⇒ 必须继续走你现有的 `Image.LoadFromFile`（**别改回 `ResourceLoader`** ✓，你文件头已写明这个坑 ✓）
+· `fps`/`loop` 本期**无人消费**（契约 §3 已裁"不证明动画能播"）⇒ 先别为它们加逻辑 ✓（已在清单里标为说明/预留 ✓）
+```
+- **阻塞 / 待裁定**：无（我这边机制已备好；你改完就有"四个原型各自一张图"的效果 ✓）
+- **我这边的工程状态**：构建 0 错误（隔离 worktree）／ 全量 **586/586** · 我域工作区干净 ✓
