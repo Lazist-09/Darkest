@@ -4188,3 +4188,26 @@ E 盘 `scripts/layout/screen.raid.darkest` 的 `[overlays]` 段给出：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.120 **④ 门禁固化完成：占位三项判据成为硬门禁**（2026-09-21）
+
+```
+新增 `tools/dsh/check_placeholders.ps1`（包装脚本，只读）：调用 `check_offset_placement.ps1`
+  并解析其 `MUST-FIX: A=n B=n C=n` 行 ⇒ **三项必须全 0 才 exit 0** ✓（否则打印违规三节并 exit 1 ✓）
+
+【三项判据（消费 v4 spec 的 `性质`/`归属容器`/`菜单层级`）】
+  A 越出视口（根级）· B 锚点框 < DD 尺寸（根级）· C `性质=offset` 却挂在场景根
+
+【全量门禁读数（本轮实测）】
+  构建错误=0 ｜ `ui_sweep` 退出码=0（# summary: entries=24 failed=0）
+  `check_dd_layout` 46 条 ｜ `check_ui_namespace` exit=0 ｜ **`check_placeholders` exit=0**
+  ⇒ 当前 **A=0 · B=0 · C=0** ✓
+
+【本目标已完成的三步（我域）】
+  ① 归位：heirloom 两列（`32f6ab4`）· 升级/扎营/任务信息三处（`0474cbb`）⇒ **C=0**
+  ② 尺寸自洽：9 块框改 DD 尺寸 + 两处越界收缘 + 建筑弹窗拆树 + 侧栏格（`39822a2`·`353ec1d`·`5e0ed6a`·`2a1f770`）⇒ **A=0 · B=0**
+  ③ 层级分树 + 中文层级标题：容器/子面板 11 个（`f84997b`）＋ 屏级 10 个（`ed1143d`）＝ **21 个标题** ✓
+  ④ 门禁固化：本页 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
