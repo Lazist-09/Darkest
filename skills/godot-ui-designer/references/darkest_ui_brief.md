@@ -3225,3 +3225,29 @@ screen.raid.darkest 顶栏/信息类键（原样）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.85 **C2 实现方案（读准建树后）：卡片整体搬到顶层锚点 ⇒ 三处交互自动跟随**（2026-09-21）
+
+```
+实测 `BattleUI.Cards.cs`（165 行）事实：
+  · 卡由 `MakeCard` 代码建：`card = PanelContainer`，`card.SizeFlagsHorizontal = **ExpandFill**`（L100）
+    ⇒ 现在卡在**中段 HBox**（`playerArea` / `enemyArea`）里"均分宽流动定位"
+  · `_portraits.Add(glyph)`（L101）⇒ 立绘 = 卡内 `glyph` Label（(B) 已清空其文字 ⇒ 现由 `portraitBox` 色块 + Modulate 表达）
+  · `_cards.Add((card, name, stats, hp, morale, tag, slot, isPlayer))`（L124）⇒ 交互/高亮都挂在**卡节点**上（`card` 元组首项）
+
+🔴 **关键发现**：三处交互（选目标点击 / 当前行动者高亮 / 技能目标高亮）都绑在**卡节点本身**上，
+   ⇒ 只要"**把整张卡搬到新位置**"（而不是换成新节点），三处交互**自动跟随** ✓ ⇒ **C3 风险大幅下降**（不再是"迁移"，而是"验证"）✓
+
+**C2 方案**（低-中风险，分两小步）：
+  C2a：在中段加一个 **`StageLayer`(Control)**（`MidCol` 内、`midRow` 之上或替其卡片位）
+       ⇒ `MakeCard` 里把卡从 `playerArea/enemyArea` 改挂到 `StageLayer`，并用**锚点**定位（DD overlays）：
+         英雄 x = 788/620/452/284 ÷1920 = **0.410/0.323/0.236/0.148**（右→左）· 怪物 x = 1050/1218/1386/1554 ÷1920 = **0.547/0.634/0.722/0.809**
+         y = 680/1080 = **0.6297**（中段顶端已精确 ✓）· 宽 = CardW 84 ÷1280 = **0.0656**
+       ⚠️ 卡宽 84 + 间隙 9 已按 DD（§14.0.53）⇒ 锚点宽度用 0.0656 即可 ✓
+  C2b：保留 `playerArea/enemyArea` 与 `vs`（不动结构），仅把"卡片挂载点"改为 `StageLayer` ⇒ 红则回退 ✓
+  C3（降级为**验证**）：确认 ① 点卡选目标 ② `CurrentActorFrame` 高亮 ③ 技能目标高亮 都仍在卡上随动；
+       若高亮是**按卡位置画框**的，则改按 `StageLayer` 坐标画（同卡位即可 ✓）
+  C4：复测 6 入口（battle / battle-longtext / battle-tab4 / map-mode / tile-walk / settle）+ 留痕 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
