@@ -3370,3 +3370,27 @@ C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴🔴 14.0.91 **冒烟变干净：bad=0 code=0（目标项⑨ 完成）**（2026-09-21）
+
+```
+根因链（如实记录，含我的两次失误）：
+  ① `smoke.ps1` 的 `$noise` 表**未排除** `Failed to read the root certificate store`（本机证书库 = 环境噪声）
+     ⇒ 每例都被计 1 条"真错误" ⇒ `bad=10 code=1` ✗
+  ② 我第一次改写该脚本时用了 **UTF-8 无 BOM** 写回 ⇒ PS 5.1 按 ANSI 读 ⇒ 中文说明乱码 ⇒ **第 27 行解析失败** ✗
+     （与 §14.0.63 记过的同一个坑；`-List` 也随之不可用）
+  ③ 修法：**字节级补 BOM**（`UTF8Encoding($true)`，先解码再写回，内容零改动）＋ `$noise` 加 `root certificate store` ✓
+  ④ 验证：`smoke.ps1 -List` **退出码 0**（脚本可解析 ✓）⇒ 全量冒烟 **`PROBE-EXIT bad=0 code=0`**、**退出码 0** ✓
+
+干净读数（`reports\smoke_summary_20260919_1402.txt`，10 例）：
+  entry-main1 39 · topology-auto 10 · hamlet-next 303 · e2e 458 · map-mode 1232 · town-step 269 ·
+  ui-audit 35 · dungeon-in-scene 10 · tile-walk 39 · abandon 42（行数）
+  ⇒ **每例 真错误=0** ✓；仅 hamlet-next/e2e/town-step 有 `引擎退出泄漏=4`（RID 泄漏，**引擎行为**、脚本单列 ✓）
+
+本次"回到原值"收尾全量读数：
+  构建 = 0 errors｜ ui_sweep 退出码=0｜ # summary: entries=21 failed=0｜ DD 门禁 46 条：RESULT: all DD values have an implementation anchor｜ 命名门 exit=0
+  ⇒ 四类判据 + 冒烟读数**全部为绿/干净** ✓
+📌 教训（复发提醒）：**凡我域脚本，写回一律带 BOM**；改脚本后先跑 `-List` 之类"只解析不执行"的路径验证 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
