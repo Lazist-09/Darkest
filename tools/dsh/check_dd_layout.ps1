@@ -47,6 +47,8 @@ $rows = @(
   @{ Key = "monster type_pos"; Dd = 65; Impl = "unit_card MonsterType block (card-relative)"; Pat = "MonsterType" }
   @{ Key = "monster resistances_pos"; Dd = 100; Impl = "unit_card MonsterResistances block"; Pat = "MonsterResistances" }
   @{ Key = "monster skills_title_pos"; Dd = 480; Impl = "unit_card MonsterSkillsTitle block"; Pat = "MonsterSkillsTitle" }
+  @{ Key = "raid battle attack_overlay_pos"; Dd = 960; Impl = "battle_bottombar AttackOverlayAnchor block (x/1920)"; Pat = "AttackOverlayAnchor" }
+  @{ Key = "raid battle monster_panel_position"; Dd = 946; Impl = "battle_bottombar MonsterPanelAnchor block (x/1920)"; Pat = "MonsterPanelAnchor" }
   @{ Key = "hero status resolve offset.y"; Dd = 4; Impl = "HeroStatusBars first bar"; Pat = "HeroHpBar" }
   @{ Key = "hero status stress offset.y"; Dd = 100; Impl = "HeroStatusBars second bar"; Pat = "HeroMoraleBar" }
   @{ Key = "building upgrade_trees offset.y"; Dd = 195; Impl = "building_popup UpgradeTree"; Pat = "UpgradeTree" }

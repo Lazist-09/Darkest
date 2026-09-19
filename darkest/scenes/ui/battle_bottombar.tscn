@@ -194,3 +194,23 @@ anchor_right = 0.015
 anchor_bottom = 0.665
 mouse_filter = 2
 tooltip_text = "回合指示器（DD round_indicator_icon_offset 10,-4 · spacing 8,0 · 需美术 ⇒ 色块占位，不换不删）"
+
+; P4 overlays：DD screen.raid.battle 的 .attack_overlay_pos 960,360（屏心）与 .monster_panel_position 946,712
+; ⇒ 比例 0.5/0.3333 与 0.4927/0.6593；数据未接入 ⇒ ColorRect 色块占位（不换不删）
+[node name="AttackOverlayAnchor" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.485
+anchor_top = 0.318
+anchor_right = 0.515
+anchor_bottom = 0.349
+mouse_filter = 2
+tooltip_text = "攻击覆盖位（DD screen.raid.battle .attack_overlay_pos 960,360 · 需特效 ⇒ 色块占位，不换不删）"
+
+[node name="MonsterPanelAnchor" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.478   ; DD .monster_panel_position 946,712
+anchor_top = 0.645
+anchor_right = 0.508
+anchor_bottom = 0.676
+mouse_filter = 2
+tooltip_text = "怪物面板位（DD screen.raid.battle .monster_panel_position 946,712 · 数据未接入 ⇒ 色块占位，不换不删）"
