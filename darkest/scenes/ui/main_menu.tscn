@@ -45,3 +45,43 @@ custom_minimum_size = Vector2(0, 36)
 [node name="StatusLabel" type="Label" parent="MenuMargin/MenuCol/StatusPanel"]
 clip_text = true
 text_overrun_behavior = 3
+
+; 阶段2 子流程批(4)：shared/menu 的**一致项**（不含待裁的 466x60/64/260 三处冲突）
+[node name="MenuBackButtonAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.4474
+anchor_top = 0.0954
+anchor_right = 0.5274
+anchor_bottom = 0.1354
+mouse_filter = 2
+tooltip_text = "返回按钮位（DD shared/menu back_button_pos 859,103 · 屏幕级 ÷1920 ÷1080 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="MenuBackFill" type="ColorRect" parent="MenuBackButtonAnchor"]
+layout_mode = 2
+
+; 自带尺寸项（来源①）：元素名 tooltip 热区 360x50 · 手柄勾选热区 600x36
+[node name="MenuNameTooltipHotArea" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.02
+anchor_top = 0.86
+anchor_right = 0.22
+anchor_bottom = 0.91
+custom_minimum_size = Vector2(360, 50)   ; DD element_name_tooltip_hot_area_size
+mouse_filter = 2
+tooltip_text = "元素名 tooltip 热区（DD element_name_tooltip_hot_area_size 360x50 · 自带尺寸 ⇒ 直接用 ✓）"
+
+[node name="MenuNameTooltipFill" type="ColorRect" parent="MenuNameTooltipHotArea"]
+layout_mode = 2
+
+[node name="MenuControllerHotArea" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.02
+anchor_top = 0.93
+anchor_right = 0.22
+anchor_bottom = 0.975
+custom_minimum_size = Vector2(600, 36)   ; DD element_control_check_box_controller_hotspot_size
+mouse_filter = 2
+tooltip_text = "手柄勾选热区（DD element_control_check_box_controller_hotspot_size 600x36 · 自带尺寸 ✓）"
+
+[node name="MenuControllerFill" type="ColorRect" parent="MenuControllerHotArea"]
+layout_mode = 2
