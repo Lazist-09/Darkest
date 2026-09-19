@@ -49,6 +49,8 @@ $rows = @(
   @{ Key = "monster skills_title_pos"; Dd = 480; Impl = "unit_card MonsterSkillsTitle block"; Pat = "MonsterSkillsTitle" }
   @{ Key = "raid battle attack_overlay_pos"; Dd = 960; Impl = "battle_bottombar AttackOverlayAnchor block (x/1920)"; Pat = "AttackOverlayAnchor" }
   @{ Key = "raid battle monster_panel_position"; Dd = 946; Impl = "battle_bottombar MonsterPanelAnchor block (x/1920)"; Pat = "MonsterPanelAnchor" }
+  @{ Key = "panel.tab reorder button_pos"; Dd = 678; Impl = "battle_bottombar RaidReorderPartyButton block"; Pat = "RaidReorderPartyButton" }
+  @{ Key = "inventory raid grid columns"; Dd = 8; Impl = "battle_bottombar RaidInventoryGridAnchor block (grid params 20,28 / 80,160)"; Pat = "RaidInventoryGridAnchor" }
   @{ Key = "hero status resolve offset.y"; Dd = 4; Impl = "HeroStatusBars first bar"; Pat = "HeroHpBar" }
   @{ Key = "hero status stress offset.y"; Dd = 100; Impl = "HeroStatusBars second bar"; Pat = "HeroMoraleBar" }
   @{ Key = "building upgrade_trees offset.y"; Dd = 195; Impl = "building_popup UpgradeTree"; Pat = "UpgradeTree" }

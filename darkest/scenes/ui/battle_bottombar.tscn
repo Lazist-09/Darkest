@@ -214,3 +214,23 @@ anchor_right = 0.508
 anchor_bottom = 0.676
 mouse_filter = 2
 tooltip_text = "怪物面板位（DD screen.raid.battle .monster_panel_position 946,712 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+; 补位：DD panel.tab 的 reorder_party .button_pos 678,90 与 pannel.inventory 的 8 列网格（start 20,28 / offset 80,160）
+; 均未接入数据/美术 ⇒ ColorRect 色块占位（不换不删）；注意 inventory 面板的**屏幕位置**不在该文件里 ⇒ 不猜 ✗
+[node name="RaidReorderPartyButton" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.345   ; DD panel.tab reorder_party .button_pos 678/1920
+anchor_top = 0.078   ; 90/1080
+anchor_right = 0.375
+anchor_bottom = 0.11
+mouse_filter = 2
+tooltip_text = "换位按钮位（DD panel.tab reorder_party .button_pos 678,90 · 我域有 mf_tab 模板 ⇒ 待对齐 · 色块占位，不换不删）"
+
+[node name="RaidInventoryGridAnchor" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.735
+anchor_top = 0.30
+anchor_right = 0.985
+anchor_bottom = 0.62
+mouse_filter = 2
+tooltip_text = "库存网格位（DD pannel.inventory raid grid: 8 列 · start_pos 20,28 · offset 80,160 · 面板屏幕位置未在该文件给出 ⇒ 按 E 区右下占位，不换不删）"
