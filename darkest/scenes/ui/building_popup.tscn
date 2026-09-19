@@ -301,11 +301,12 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "选项"
-[node name="BpGraveyardEntry" type="PanelContainer" parent="."]
+[node name="BpGraveyardEntry" type="PanelContainer" parent="GraveyardPanel"]
+; 拆树(第3步)：DD graveyard_main_layout（容器 dead_hero_layout）· entry_size 1000x160 属**坟场列表**；list_position 148,148 · list_area_size 720x600（entry 宽于列表 ⇒ 画面上被列表裁剪 ✓）
 layout_mode = 0
-anchor_left = 0.6274
+anchor_left = 0.4792   ; A 修正：1000 宽框 @920 使整框入屏（DD entry_size 1000x160 + 列表裁剪）
 anchor_top = 0.1275
-anchor_right = 0.9
+anchor_right = 1.0
 anchor_bottom = 0.2075
 custom_minimum_size = Vector2(1000, 160)
 mouse_filter = 2
@@ -324,7 +325,8 @@ text = "坟场条目"
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
-[node name="BpStatueList" type="PanelContainer" parent="."]
+[node name="BpStatueList" type="PanelContainer" parent="StatuePanel"]
+; 拆树(第3步)：DD statue_main_layout（顶层）· list_area_size 600x580 · list_position 270,170
 layout_mode = 0
 anchor_left = 0.6274
 anchor_top = 0.2175
@@ -370,7 +372,8 @@ text = "升级图标"
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
-[node name="BpHeroActionBase" type="PanelContainer" parent="."]
+[node name="BpHeroActionBase" type="PanelContainer" parent="HeroActionPanel"]
+; 拆树(第3步)：DD hero_action_layout（顶层）· base_pos 220,44 · base_size 100x100
 layout_mode = 0
 anchor_left = 0.6274
 anchor_top = 0.3975
@@ -416,7 +419,8 @@ text = "疗养院选项"
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
-[node name="BpStageCoachTextBox" type="PanelContainer" parent="."]
+[node name="BpStageCoachTextBox" type="PanelContainer" parent="StageCoachPanel"]
+; 拆树(第3步)：DD add_hero_dialog_contents（容器 hero_recruit_store，base_size 780x780）· text_box_size 350x200
 layout_mode = 0
 anchor_left = 0.6274
 anchor_top = 0.5775
@@ -446,3 +450,42 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+
+; 拆树(第3步)：DD building_base_layout 的 body 区与各栋子面板（容器名取自 v4 的 section/归属容器 ✓）
+[node name="BpBodyLayout" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+; DD dead_hero_layout（顶层，L2）：坟场死英灵页的父层
+[node name="BpDeadHeroLayer" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="GraveyardPanel" type="Control" parent="BpBodyLayout"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="StatuePanel" type="Control" parent="BpBodyLayout"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="StageCoachPanel" type="Control" parent="BpBodyLayout"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="HeroActionPanel" type="Control" parent="BpBodyLayout"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
