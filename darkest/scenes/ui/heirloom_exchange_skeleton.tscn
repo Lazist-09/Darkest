@@ -131,7 +131,10 @@ text = "选项起点"
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
-[node name="HxIconOffsetAnchor" type="PanelContainer" parent="."]
+[node name="HxIconOffsetAnchor" type="PanelContainer" parent="HxFromLayer"]
+; 归位(第1步)：本块 DD 来源 = heirloom_exchange_heirloom_from_layout.icon_offset 0,32（offset 类）
+;   ⇒ 父容器 = heirloom_exchange_layout 的【转入列】；列锚点 heirloom_from_pos 0,0 + choice_start_offset 79,110
+;   ⚠️ 面板尺寸 DD 未给 ⇒ 列层为坐标空间承载，块位置仍为近似（未取得，不猜）
 layout_mode = 0
 anchor_left = 0.0
 anchor_top = 0.0296
@@ -153,7 +156,9 @@ text = "图标位"
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
-[node name="HxArrowAnchor" type="PanelContainer" parent="."]
+[node name="HxArrowAnchor" type="PanelContainer" parent="HxToLayer"]
+; 归位(第1步)：本块 DD 来源 = heirloom_exchange_heirloom_to_layout.arrow_offset 148,80（offset 类）
+;   ⇒ 父容器 = heirloom_exchange_layout 的【转出列】；列锚点 heirloom_to_pos 0,0 + choice_start_offset 256,75
 layout_mode = 0
 anchor_left = 0.0771
 anchor_top = 0.0741
@@ -174,3 +179,17 @@ text = "箭头"
 [node name="Fill" type="ColorRect" parent="HxArrowAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
+
+; 第1步：转出/转入两列的坐标层（DD heirloom_exchange_layout 的 heirloom_from_pos / heirloom_to_pos 均为 0,0）
+; ⚠️ 面板尺寸 DD 未给 ⇒ 列层取满屏坐标空间，仅作 offset 挂载父级（位置未取得，不猜）
+[node name="HxFromLayer" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="HxToLayer" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
