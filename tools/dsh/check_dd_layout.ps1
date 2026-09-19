@@ -60,7 +60,7 @@ $rows = @(
   @{ Key = "provision store start_pos"; Dd = 120; Impl = "provision_skeleton StoreGrid"; Pat = "StoreGrid" }
   @{ Key = "provision store background x"; Dd = 814; Impl = "provision BodyRow equal expand + InfoCol 180 => store left approx 0.42 (derived, not exact)"; Pat = "StoreGrid" }
   @{ Key = "quest_select name_pos"; Dd = 104; Impl = "quest_select_skeleton title row"; Pat = "QuestSelectTitle" }
-  @{ Key = "roster stress_offset.y"; Dd = 43; Impl = "roster_row RosterUpRow height 43"; Pat = "Vector2(231, 43)" }
+  @{ Key = "roster stress_offset.y"; Dd = 43; Impl = "roster_row PressureBar anchor y 0.4433 = 43/97 (A1 anchor rebuild)"; Pat = "0.4433" }
 )
 
 "DD value (x0.667 where linear) vs our implementation"
