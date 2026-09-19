@@ -3602,3 +3602,64 @@ C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.96 **阶段2 施工单（战斗批 ①~⑤，可直接执行）**（2026-09-21）
+
+```
+① 英雄面板：`scenes/ui/hero_detail_skeleton.tscn`（现为近似锚点）⇒ 换用 panel_hero(720x224) 比例：
+     health_layout.pos DD(130,11) => 0.1806 / 0.0491
+     stress_layout.pos DD(130,40) => 0.1806 / 0.1786
+     stat_layout.pos DD(60,72) => 0.0833 / 0.3214
+     hero_equipment.pos DD(238,0) => 0.3306 / 0
+     hero_trinket.pos DD(453,0) => 0.6292 / 0
+   ⇒ 目标节点：HeroStatusBars(health/stress 两条) · HeroStatsGrid(stat) · HeroEquipArea(equipment) · HeroTrinketArea(trinket)（均为已有节点 ✓ 只改锚点 ✗不加节点）
+
+② 怪物卡：`scenes/ui/unit_card.tscn` ⇒ 换用 panel_monster(702x368) 比例：
+     _root.name_pos DD(65,58) => 0.0926 / 0.1576
+     _root.type_pos DD(65,112) => 0.0926 / 0.3043
+     _root.type_spacing DD(0,22) => 0 / 0.0598
+     _root.hp_pos DD(520,61) => 0.7407 / 0.1658
+     _root.stats_pos DD(235,112) => 0.3348 / 0.3043
+     _root.stats_spacing DD(0,22) => 0 / 0.0598
+     _root.hero_stats_pos DD(435,111) => 0.6197 / 0.3016
+     _root.hero_stats_spacing DD(0,22) => 0 / 0.0598
+     _root.resistances_title_pos DD(154,186) => 0.2194 / 0.5054
+     _root.resistances_pos DD(100,220) => 0.1425 / 0.5978
+     _root.resistances_spacing DD(0,22) => 0 / 0.0598
+     _root.resistances_entry_icon_pos DD(-10,8) => -0.0142 / 0.0217
+     _root.resistances_entry_title_pos DD(20,6) => 0.0285 / 0.0163
+     _root.resistances_entry_value_pos DD(206,6) => 0.2934 / 0.0163
+   ⇒ 目标节点：MonsterType/MonsterResistances/MonsterSkillsTitle（已有）+ 新增 MonsterHeroStats/MonsterResistEntryIcon（色块 ✓）
+
+③ 地图：`scenes/ui/battle_bottombar.tscn` 的 MapCorner ⇒ 改为 panel_map(720x360) 面板位：
+     map_layout.pos DD(4,40) => 0.0056 / 0.1111
+     map_layout.scrollpos DD(0,0) => 0 / 0
+     indicator_layout.pos DD(672,252) => 0.9333 / 0.7
+     indicator_layout.button_pos DD(677,24) => 0.9403 / 0.0667
+     indicator_layout.tooltip_offset DD(1206,28) => 1.675 / 0.0778
+     input_preview.base_pos DD(5,3) => 0.0069 / 0.0083
+   ⇒ 目标：新增 `MapPanelAnchor`（720x360 面板 + tab 0.9333/0.7 + home 0.9403/0.0667 两个色块）✓
+
+④ 战斗横幅（**DD 有、我域缺**）：`panel.banner`(754x136) ⇒ 新增面板骨架（色块占位）：
+     background_layout.pos DD(-33,0) => -0.0438 / 0
+     background_layout.controller_pos DD(-33,0) => -0.0438 / 0
+     portrait_layout.pos DD(32,32) => 0.0424 / 0.2353
+     portrait_layout.seal_pos DD(24,23) => 0.0318 / 0.1691
+     portrait_layout.controller_button_offset DD(-4,48) => -0.0053 / 0.3529
+     name_layout.pos DD(272,38) => 0.3607 / 0.2794
+     ability_layout.pos DD(280,35) => 0.3714 / 0.2574
+     ability_layout.controller_button_offset DD(0,10) => 0 / 0.0735
+   ⇒ 目标：新文件 `scenes/ui/panel_banner_skeleton.tscn` + `PanelBannerSkeleton.cs` + 控制器（骨架优先/缺失回落）✓
+
+⑤ 库存网格：`pannel.inventory`(720x360) ⇒ 8 列网格：
+     raid_inventory_panel_background.pos DD(0,0) => 0 / 0
+     wave_inventory_panel_background.pos DD(0,0) => 0 / 0
+     raid_inventory_panel_grid_layout.start_pos DD(20,28) => 0.0278 / 0.0778
+   ⇒ 目标：`battle_bottombar.tscn` 加 `InventoryGridAnchor`（8 列 · 格距 80x160 ⇒ 0.1111/0.4444）✓
+
+⚠️ 施工前提（**当前被阻塞**）：我域工作树有 9 处**他人未提交改动**（含 `BattleUI.Build.cs`）⇒ battle 入口 `trace=MISSING:StatusTray` FAIL；
+   在用户答复 A（让开）/ B（授权接手）前，**我只做只读**，不写这些文件 ✗
+⚠️ 口径提醒：仅"面板左上角锚点"类字段可 ÷ 面板基准；"条目/相对偏移"类需各自父基准，判不了记"未取得"不猜 ✗
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
