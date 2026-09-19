@@ -95,11 +95,11 @@ layout_mode = 2
 
 [node name="MenuControllerHotArea" type="PanelContainer" parent="."]
 layout_mode = 0
-anchor_left = 0.02
-anchor_top = 0.93
-anchor_right = 0.22
-anchor_bottom = 0.975
-custom_minimum_size = Vector2(600, 36)   ; DD element_control_check_box_controller_hotspot_size
+anchor_left = 0.0198
+anchor_top = 0.9
+anchor_right = 0.3323
+anchor_bottom = 0.9333
+custom_minimum_size = Vector2(600, 36)   ; DD size (box=size, px @1920x1080)
 mouse_filter = 2
 tooltip_text = "手柄勾选热区（DD element_control_check_box_controller_hotspot_size 600x36 · 自带尺寸 ✓）"
 

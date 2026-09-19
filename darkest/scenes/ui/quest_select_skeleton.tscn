@@ -234,11 +234,11 @@ layout_mode = 2
 
 [node name="QsWaveHighscoreTt" type="PanelContainer" parent="."]
 layout_mode = 0
-anchor_left = 0.02
-anchor_top = 0.99
-anchor_right = 0.22
-anchor_bottom = 1.04
-custom_minimum_size = Vector2(260, 160)   ; DD 自带尺寸
+anchor_left = 0.0198
+anchor_top = 0.7
+anchor_right = 0.1552
+anchor_bottom = 0.8481
+custom_minimum_size = Vector2(260, 160)   ; DD size (box=size, px @1920x1080)
 mouse_filter = 2
 tooltip_text = "波次高分 tooltip（DD wave_highscore_tt_size 260x160 · 自带尺寸 ✓） · 色块占位，不换不删"
 

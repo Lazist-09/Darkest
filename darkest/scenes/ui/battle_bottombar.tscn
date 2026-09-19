@@ -463,11 +463,11 @@ layout_mode = 2
 
 [node name="RaidTorchGauge" type="PanelContainer" parent="."]
 layout_mode = 0
-anchor_left = 0.30
-anchor_top = 0.02
-anchor_right = 0.50
-anchor_bottom = 0.05
-custom_minimum_size = Vector2(400, 4)   ; DD [torch_layout] gauge_size 400x4
+anchor_left = 0.3
+anchor_top = 0.0204
+anchor_right = 0.5083
+anchor_bottom = 0.0241
+custom_minimum_size = Vector2(400, 4)   ; DD size (box=size, px @1920x1080)
 mouse_filter = 2
 tooltip_text = "DD screen.raid [torch_layout] gauge_size 400x4 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
@@ -477,11 +477,11 @@ layout_mode = 2
 
 [node name="RaidBasicScrollBtn" type="PanelContainer" parent="."]
 layout_mode = 0
-anchor_left = 0.30
-anchor_top = 0.055
-anchor_right = 0.50
-anchor_bottom = 0.085
-custom_minimum_size = Vector2(384, 36)   ; DD [basic_scroll] button_size 384x36
+anchor_left = 0.3
+anchor_top = 0.0546
+anchor_right = 0.5
+anchor_bottom = 0.088
+custom_minimum_size = Vector2(384, 36)   ; DD size (box=size, px @1920x1080)
 mouse_filter = 2
 tooltip_text = "DD screen.raid [basic_scroll] button_size 384x36 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
@@ -523,11 +523,11 @@ layout_mode = 2
 
 [node name="RaidResultScrollBtn" type="PanelContainer" parent="."]
 layout_mode = 0
-anchor_left = 0.30
+anchor_left = 0.3
 anchor_top = 0.125
-anchor_right = 0.50
-anchor_bottom = 0.155
-custom_minimum_size = Vector2(384, 36)   ; DD [result_scroll] button_size 384x36
+anchor_right = 0.5
+anchor_bottom = 0.1583
+custom_minimum_size = Vector2(384, 36)   ; DD size (box=size, px @1920x1080)
 mouse_filter = 2
 tooltip_text = "DD screen.raid [result_scroll] button_size 384x36 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
@@ -592,11 +592,11 @@ layout_mode = 2
 
 [node name="RaidQuestInfoArea" type="PanelContainer" parent="."]
 layout_mode = 0
-anchor_left = 0.30
-anchor_top = 0.23
-anchor_right = 0.50
-anchor_bottom = 0.26
-custom_minimum_size = Vector2(300, 150)   ; DD [quest_info] size 300x150
+anchor_left = 0.3
+anchor_top = 0.2296
+anchor_right = 0.4562
+anchor_bottom = 0.3685
+custom_minimum_size = Vector2(300, 150)   ; DD size (box=size, px @1920x1080)
 mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] size 300x150 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
