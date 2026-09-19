@@ -3990,3 +3990,14 @@ E 盘直读 `scripts\layout\base.popup_text.layout.darkest`：**43 section / 172
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.110 **阶段3 落位清单已生成（交付美术）**（2026-09-21）
+
+```
+新增交付物：`skills/godot-ui-designer/references/darkest_ui_asset_manifest.md`
+  · 内容：只读扫描 `darkest/scenes/ui/*.tscn` 的「场景 | 节点 | 锚点 | 尺寸 + DD 出处」共 **27 条** ✓
+  · 用法：美术照单出**同尺寸原创资产**；替换时**只换贴图、不动锚点/尺寸** ⇒ 布局零改动 ✓（阶段3 的验收口径 ✓）
+  · 合规：DD 数字=度量事实；DD 像素未进工程 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
