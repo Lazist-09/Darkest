@@ -208,3 +208,17 @@ tooltip_text = "地产费用热区（DD shared/estate estate_cost_hot_spot_layou
 
 [node name="Fill" type="ColorRect" parent="HamletMargin/HamletRootCol/EstateCostHotSpot"]
 layout_mode = 2
+
+; 阶段2：E 盘 realm_inventory inventory_grid_size **560x525**（自带尺寸 => 直接用）；面板屏位取 town.realm_inventory_pos 881,128
+[node name="RealmInventoryGrid" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
+layout_mode = 0
+anchor_left = 0.459
+anchor_top = 0.119
+anchor_right = 0.559
+anchor_bottom = 0.219
+custom_minimum_size = Vector2(560, 525)   ; DD realm_inventory_layout.inventory_grid_size
+mouse_filter = 2
+tooltip_text = "领域库存网格（DD realm_inventory inventory_grid_size 560x525 · grid_pos 30,195 · close 610,22 · 尺寸=DD 原值；面板屏位取 town.realm_inventory_pos 881,128）· 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HamletMargin/HamletRootCol/RealmInventoryGrid"]
+layout_mode = 2

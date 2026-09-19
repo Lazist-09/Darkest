@@ -4037,3 +4037,22 @@ E 盘直读 `scripts\layout\base.popup_text.layout.darkest`：**43 section / 172
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.113 **roster / realm_inventory 直读结论**（2026-09-21）
+
+```
+`campaign/town/roster/roster.layout.darkest`（51 字段 / 2 section）：
+  · **[town_roster_element_layout] portrait_icon_offset 21,9** ⇒ 我域名册行先前已按 DD 21,9 落位 ✓（一致 ✓）
+  · [town_roster_list_layout] 其余多为**相对偏移**（element_pos 0,132 · top/bottom_frame_offset 20,-50/20,-10 ·
+    scroll_up/down -38/-12 · show_hide_pos 0,0 · hide_offset 384,0 · roster_message 60,78 · live_top/bottom 35,90/35,-30 ·
+    sort_tooltip 16,-8 · sort overlay -8,-8/-8,24 · focus_controller 366,26 · sort_controller 294,26）
+    ⇒ 这些相对**名册列表**（父元素）⇒ 父基准需从别处取 ⇒ **本轮不硬套** ✗（记录备查 ✓）
+
+`campaign/town/realm_inventory/realm_inventory.layout.darkest`（39 字段 / 3 section）：
+  · **[realm_inventory_layout] inventory_grid_size 560×525**（自带尺寸 ✓ ⇒ 已落 `RealmInventoryGrid` ✓）
+  · grid_pos 30,195 · close_pos 610,22 · name_pos -44,-10 · 各种 input_preview_pos（130,100 / 300,716 / -45,20 …）
+    ⇒ 均为**面板内**坐标 ⇒ 面板尺寸 DD 未给（`text_box_size 300×200` 属 add_trinket_dialog ✗ 不是面板）⇒
+       我只用"自带尺寸 560×525" + town 的 `realm_inventory_pos 881,128` 定位，**其余不硬套** ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
