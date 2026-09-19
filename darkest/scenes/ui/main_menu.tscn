@@ -14,8 +14,8 @@ script = ExtResource("1_menu")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
+theme_override_constants/margin_left = 510   ; DD shared/menu element_start_pos 510,260（机器解析为准）
+theme_override_constants/margin_top = 260
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
@@ -37,7 +37,7 @@ custom_minimum_size = Vector2(600, 432)   ; P3：DD menu options 区 600x432（�
 size_flags_vertical = 3
 
 [node name="OptionsCol" type="VBoxContainer" parent="MenuMargin/MenuCol/OptionsPanel"]
-theme_override_constants/separation = 8
+theme_override_constants/separation = 4   ; DD element_spacing 0,64 − 热区 60 = 4
 
 [node name="StatusPanel" type="PanelContainer" parent="MenuMargin/MenuCol"]
 custom_minimum_size = Vector2(0, 36)

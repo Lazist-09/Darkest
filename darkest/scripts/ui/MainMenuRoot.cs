@@ -86,8 +86,8 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
         // 🔴 DD 1:1 ③【主菜单分区】照 `shared\menu\menu.layout.darkest`：
         //    menu_layout.base_pos **450 150**（标题块）· base_layout.element_start_pos **510 240**（菜单元素起点）
         //    1920×1080 ⇒ ×0.667 = (300,100) / (340,160)；本项目相机 1280×720 ⇒ 按比例换算为边距（注释即依据）✓
-        menuMargin.AddThemeConstantOverride("margin_left", 340);   // DD 510/1920 = 26.6% × 1280 ≈ 340 ✓
-        menuMargin.AddThemeConstantOverride("margin_top", 160);    // DD 240/1080 = 22.2% × 720  ≈ 160 ✓
+        menuMargin.AddThemeConstantOverride("margin_left", 510);   // DD 510/1920 = 26.6% × 1280 ≈ 340 ✓
+        menuMargin.AddThemeConstantOverride("margin_top", 260);    // DD 240/1080 = 22.2% × 720  ≈ 160 ✓
         menuMargin.AddThemeConstantOverride("margin_right", 24);
         menuMargin.AddThemeConstantOverride("margin_bottom", 24);
             menuMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
