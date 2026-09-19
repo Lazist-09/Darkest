@@ -61,6 +61,35 @@ public static class ExpeditionComposition
         RosterConfig roster = RosterConfig.Parse(FileAccess.GetFileAsString(RosterConfig.ResPath));
         FormationConfig template = FormationConfig.Parse(FileAccess.GetFileAsString(FormationConfig.ResPath));
         IReadOnlyList<HeroConfig> sortie = FormationSortie.SelectForTemplate(template, roster);
+
+        // 🆕 **英雄美术解析读数**（用户 2026-09-19：把 mod 英雄接进来**替换现有内容**）——
+        //    在真实构建里把"每个原型 ⇒ 用哪份美术"打一次：正式优先 → 按原型占位 → 旧单包 → 点名 ✓
+        //    🔴 纪律 Q：**只打印、不改行为**；解析失败也**不抛**（留痕即可）✓
+        try
+        {
+            var seen = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
+            foreach (HeroConfig h in sortie)
+            {
+                if (!seen.Add(h.Archetype))
+                {
+                    continue;
+                }
+
+                HeroArtResolution art = HeroArtResolver.Resolve(h.Archetype, Godot.FileAccess.FileExists);
+                string kind = art.Source switch
+                {
+                    HeroArtSource.Formal => "正式",
+                    HeroArtSource.Placeholder => "占位(按原型)",
+                    HeroArtSource.PlaceholderLegacy => "占位(旧单包)",
+                    _ => "无(回落色块)",
+                };
+                GD.Print($"[英雄美术] {h.Archetype} ⇒ {kind}　{art.Note}");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            GD.Print($"[英雄美术] 读数不可用（不影响流程）：{ex.GetType().Name}");
+        }
         Roster shared = ExpeditionContext.EnsureRoster(roster);
 
         var openingMorale = new List<int>();
