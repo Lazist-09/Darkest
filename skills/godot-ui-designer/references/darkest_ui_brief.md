@@ -3737,3 +3737,30 @@ blacksmith/guild/camping_trainer/nomad_wagon）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.99 **阶段2 子流程批(4)：menu/inventory/tab/raid_results 数据 + 两处冲突**（2026-09-21）
+
+```
+来源 `doc/ui_spec.json`（只读）：
+
+【shared/menu/menu】28 字段 ⇒ 🔴 **与用户先前给的数字冲突**：
+  spec:  element_hot_area_size **466×60** · element_spacing **0,64** · element_start_pos **510,260** · visible_area_size **600×432** ·
+         base_pos 450,150 · back_button_pos 859,103 · element_name_* / tooltip 热区 360×50 · controller 热区 600×36
+  用户先前说：热区 **466×48** · 行距 **56** · 元素起 **510,240**  ⇒ **60 vs 48 / 64 vs 56 / 260 vs 240** 三处不一致 ✗
+  ⇒ 我**当前落的是用户口径**（466×48/56/240）✗ ⇒ **请裁**：以 spec（466×60/64/260）为准，还是以你给的数字为准？
+
+【shared/inventory/inventory】7 字段 ⇒ 库存格**自带尺寸**: `.icon_size **72×144**`（与我读到的资产 `inv_*+*.png 72×144` **完全一致** ✓✓）
+  · icon_offset 24,118 · amount_text_offset 14,4 · cost_offset 37,157 · controller_button_offset 17,124 · **offset 85,0**（横向步距 85 ✗）
+  ⇒ 注意：`pannel.inventory`（raid）的格距是 **80,160**，而 shared/inventory 是 **offset 85,0 + icon 72×144** ⇒ **两个屏的格距不同** ✓
+  ⇒ 我当前 ⑤ 用的是 raid 口径（80×160）✓；若要 shared 口径 ⇒ 用 72×144 + 85 步距 ✓（待用户指定哪屏用哪套）
+
+【pannel.inventory】start_pos 20,28 ✓（已落）｜【panel.tab】button_pos 678,90 ✓（已落）
+
+【raid_results】43 字段（**屏幕级** ⇒ ÷1920、÷1080）⇒ 我域**有对应载体**：`BattleUI.Build.MakeOpaqueModal("ResultPanel")` ✓
+  关键位置：quest_title **960,212** ⇒ 0.5/0.1963 · quest_result **960,150** ⇒ 0.5/0.1389 · state **510,0** ⇒ 0.2656/0 ·
+  completion_background **960,0** ⇒ 0.5/0 · level_background 0,0 · progression_bar **0,958** ⇒ 0/0.8870 ·
+  next/return_to_town **1870,980** ⇒ 0.9740/0.9074 · back **50,980** ⇒ 0.0260/0.9074 · frame **450,250** ⇒ 0.2344/0.2315 ·
+  quest_inventory_grid_offset **84,308** ⇒ 0.0438/0.2852 ⇒ ⇒ 下一批可把结算模态按这些比例落色块位 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
