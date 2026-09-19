@@ -160,6 +160,12 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
         };
         statusPanel.AddChild(_status);
+
+        // 阶段2：外壳流程（存梣槽窗口 1800x434 / 模式选择 500x55 / 版本号）色块占位 —— 数据未接入
+        if (FeFlowSkeleton.TryInstantiate() is FeFlowSkeleton feFlow)
+        {
+            AddChild(feFlow);
+        }
         _status.Text = $"跨趟状态：金钱 {economy.Gold}　名册 {roster.Heroes.Count}/{roster.Cap}　" +
                        $"最低士气 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}";
 

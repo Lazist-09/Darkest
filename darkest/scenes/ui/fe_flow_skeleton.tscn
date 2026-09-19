@@ -1,0 +1,88 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/ui/FeFlowSkeleton.cs" id="2_ff"]
+
+; 阶段2：E 盘 fe_flow/fe_flow.layout.darkest（9 section / 76 字段）——外壳流程（存档槽/模式选择/版本号）
+; 自带尺寸：save_slot_window **1800x434** · mode_select answer button **500x55**（来源①⇒直接用 ✓）
+[node name="FeFlowSkeleton" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_ff")
+
+[node name="FfSaveSlotWindow" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.1042
+anchor_top = 0.5074
+anchor_right = 0.35
+anchor_bottom = 0.62
+custom_minimum_size = Vector2(1800, 434)   ; DD save_slot_window_size
+mouse_filter = 2
+tooltip_text = "存档槽窗口（DD save_slot_window_position 200,548 · size 1800x434 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="FfSaveSlotWindow"]
+layout_mode = 2
+
+[node name="FfScrollBar" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.7813
+anchor_top = 0.537
+anchor_right = 0.8213
+anchor_bottom = 0.657
+mouse_filter = 2
+tooltip_text = "滚动条（DD scroll_bar_position 1500,580 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="FfScrollBar"]
+layout_mode = 2
+
+[node name="FfModeSelectDialog" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.2778
+anchor_right = 0.75
+anchor_bottom = 0.3778
+mouse_filter = 2
+tooltip_text = "模式选择对话框（DD mode_select_dialog base_pos 960,300 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="FfModeSelectDialog"]
+layout_mode = 2
+
+[node name="FfAnswerButton1" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.4
+anchor_right = 0.75
+anchor_bottom = 0.45
+custom_minimum_size = Vector2(500, 55)   ; DD mode_select answer button_size
+mouse_filter = 2
+tooltip_text = "模式选择答案按钮（DD button_size 500x55 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="FfAnswerButton1"]
+layout_mode = 2
+
+[node name="FfBackButton" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.1510
+anchor_top = 0.05
+anchor_right = 0.2510
+anchor_bottom = 0.10
+mouse_filter = 2
+tooltip_text = "返回（DD mode_select_dialog back_pos 290,54 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="FfBackButton"]
+layout_mode = 2
+
+[node name="FfBuildNum" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0125
+anchor_top = 0.0185
+anchor_right = 0.0625
+anchor_bottom = 0.0485
+mouse_filter = 2
+tooltip_text = "版本号位（DD build_num_pos 24,20 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="FfBuildNum"]
+layout_mode = 2
