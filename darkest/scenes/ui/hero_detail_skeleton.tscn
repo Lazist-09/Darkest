@@ -55,6 +55,7 @@ mouse_filter = 2
 tooltip_text = "装备区（DD panel.hero equipment 238,0 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="EquipPlaceholder" type="ColorRect" parent="HeroEquipArea"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="HeroTrinketArea" type="PanelContainer" parent="."]
@@ -67,11 +68,13 @@ mouse_filter = 2
 tooltip_text = "饰品区（DD panel.hero trinket 453,0 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="TrinketPlaceholder" type="ColorRect" parent="HeroTrinketArea"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 ; P2 细化：DD hero.layout 的两处未用键 —— hero_portrait_icon_layout.disease_icon_offset 61,61 与
 ; hero_scouting_stat_layout（text 0,0 · tooltip hotspot 300x40）。数据/美术未接入 ⇒ 按硬规矩 §14.0.68 色块占位（不换不删）
 [node name="HeroDiseaseIcon" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 0
 anchor_left = 0.055   ; DD disease_icon_offset 61/1080 附近（以面板为参照的比例近似）
 anchor_top = 0.105
@@ -90,11 +93,13 @@ mouse_filter = 2
 tooltip_text = "侦察数值（DD hero_scouting_stat_layout · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="ScoutingPlaceholder" type="ColorRect" parent="HeroScoutingStat"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 ; P2 细化(续)：DD hero_equipment_layout 的 highlight_pos_offset -20,-20 / level_offset 90,12 与
 ; hero_base_stats_layout 的 icon_offset -26,2 —— 数据/美术未接入 ⇒ 一律 ColorRect 色块占位（不换不删）
 [node name="HeroEquipHighlight" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 0
 anchor_left = 0.36
 anchor_top = 0.0
@@ -104,6 +109,7 @@ mouse_filter = 2
 tooltip_text = "装备高亮框（DD hero_equipment_layout.highlight_pos_offset -20,-20 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="HeroEquipLevelText" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 0
 anchor_left = 0.455   ; DD level_offset 90,12（装备等级文字位）
 anchor_top = 0.055
@@ -113,6 +119,7 @@ mouse_filter = 2
 tooltip_text = "装备等级位（DD hero_equipment_layout.level_offset 90,12 · 对应攻/防=装备等级口径 · 色块占位，不换不删）"
 
 [node name="HeroStatsIcon" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 0
 anchor_left = 0.0
 anchor_top = 0.145   ; 属性列左侧（DD hero_base_stats_layout.icon_offset -26,2）

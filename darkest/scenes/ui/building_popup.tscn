@@ -19,6 +19,7 @@ theme_override_constants/separation = 6
 custom_minimum_size = Vector2(0, 96)
 
 [node name="ShopkeeperPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingList/ShopkeeperSlot"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 
 [node name="BuildingContent" type="VBoxContainer" parent="BuildingSplit"]
 theme_override_constants/separation = 6
@@ -42,6 +43,7 @@ mouse_filter = 2
 tooltip_text = "英雄槽 1（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot1"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="HeroSlot2" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
@@ -51,6 +53,7 @@ mouse_filter = 2
 tooltip_text = "英雄槽 2（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot2"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="HeroSlot3" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
@@ -60,6 +63,7 @@ mouse_filter = 2
 tooltip_text = "英雄槽 3（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot3"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="HeroSlot4" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
@@ -69,6 +73,7 @@ mouse_filter = 2
 tooltip_text = "英雄槽 4（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot4"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="CostRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
@@ -77,6 +82,7 @@ mouse_filter = 2
 tooltip_text = "花费（DD activity cost · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="CostPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/CostRow"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 custom_minimum_size = Vector2(160, 24)
 
@@ -86,6 +92,7 @@ mouse_filter = 2
 tooltip_text = "确认（DD activity confirm · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="ConfirmPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/ConfirmRow"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 custom_minimum_size = Vector2(120, 28)
 
@@ -96,6 +103,7 @@ mouse_filter = 2
 tooltip_text = "活动名称（DD activity name · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="NamePlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/NameRow"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 custom_minimum_size = Vector2(200, 22)
 
@@ -105,5 +113,6 @@ mouse_filter = 2
 tooltip_text = "活动描述（DD activity description · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="DescPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/DescRow"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 custom_minimum_size = Vector2(260, 40)

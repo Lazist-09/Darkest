@@ -33,6 +33,7 @@ anchor_bottom = 0.3608
 mouse_filter = 2
 
 [node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/PortraitFrame"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="RosterInfo" type="Label" parent="RosterRowBody/RosterRowBody2"]
@@ -61,6 +62,7 @@ mouse_filter = 2
 tooltip_text = "装备等级·攻（DD weapon_level_offset 156,65 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="EquipLevelPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/EquipLevelSlot"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="ArmourLevelSlot" type="PanelContainer" parent="RosterRowBody/RosterRowBody2"]
@@ -73,6 +75,7 @@ mouse_filter = 2
 tooltip_text = "装备等级·防（DD armour_level_offset 228,65 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="ArmourLevelPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/ArmourLevelSlot"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="HeroLevel" type="PanelContainer" parent="RosterRowBody/RosterRowBody2"]
@@ -84,4 +87,5 @@ anchor_bottom = 0.3093
 mouse_filter = 2
 
 [node name="ResolvePlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/HeroLevel"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2

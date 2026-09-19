@@ -24,12 +24,30 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 theme_override_constants/separation = 8
 
+[node name="TopBar" type="PanelContainer" parent="HamletMargin/HamletRootCol" unique_id=200001]
+layout_mode = 2
+
+[node name="TopRow" type="HBoxContainer" parent="HamletMargin/HamletRootCol/TopBar" unique_id=200002]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatusBar" type="PanelContainer" parent="HamletMargin/HamletRootCol" unique_id=200003]
+layout_mode = 2
+
 [node name="Body" type="HBoxContainer" parent="HamletMargin/HamletRootCol" unique_id=753073968]
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="LeftColumn" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body" unique_id=910111213]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="LeftCol" type="VBoxContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn" unique_id=910111214]
+layout_mode = 2
+theme_override_constants/separation = 6
+
 [node name="RightColumn" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body" unique_id=333327316]
-custom_minimum_size = Vector2(370, 0)   ; DD roster.layout：名册列 x=1550/1920 ⇒ 右锚 81%、列宽 ≈370 ✓
+custom_minimum_size = Vector2(370, 0)
 layout_mode = 2
 size_flags_horizontal = 8
 
@@ -44,115 +62,122 @@ layout_mode = 2
 layout_mode = 2
 theme_override_constants/separation = 12
 
-; DD 1:1 3-3：建筑 nav 进骨架（编辑器可见可改）；DD building_navigation.base_size 128x1000 与 button_navigation_pos 70,230
 [node name="BuildingNav" type="VBoxContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol"]
 layout_mode = 2
 custom_minimum_size = Vector2(128, 1000)
 theme_override_constants/separation = 12
 
-; P1.1（DD 严格贴合）：DD building_navigation 有 index 0-9 共 10 栋；这里给**未接入**的 7 栋建位，
-; 一律**色块占位**（用户硬规矩 §14.0.68：占位用色块，不换不删）；3 栋已接入者由代码在运行时加真实按钮
-
 [node name="DDNav1_blacksmith" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
 layout_mode = 2
 custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
-tooltip_text = "DD building_navigation index 1：blacksmith（数据未接入 ⇒ 色块占位，不换不删）"
+tooltip_text = "DD building_navigation index 1: blacksmith (placeholder)"
 
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav1_blacksmith"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="DDNav2_guild" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
 layout_mode = 2
 custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
-tooltip_text = "DD building_navigation index 2：guild（数据未接入 ⇒ 色块占位，不换不删）"
+tooltip_text = "DD building_navigation index 2: guild (placeholder)"
 
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav2_guild"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="DDNav3_camping_trainer" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
 layout_mode = 2
 custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
-tooltip_text = "DD building_navigation index 3：camping_trainer（数据未接入 ⇒ 色块占位，不换不删）"
+tooltip_text = "DD building_navigation index 3: camping_trainer (placeholder)"
 
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav3_camping_trainer"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="DDNav6_sanitarium" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
 layout_mode = 2
 custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
-tooltip_text = "DD building_navigation index 6：sanitarium（数据未接入 ⇒ 色块占位，不换不删）"
+tooltip_text = "DD building_navigation index 6: sanitarium (placeholder)"
 
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav6_sanitarium"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="DDNav7_nomad_wagon" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
 layout_mode = 2
 custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
-tooltip_text = "DD building_navigation index 7：nomad_wagon（数据未接入 ⇒ 色块占位，不换不删）"
+tooltip_text = "DD building_navigation index 7: nomad_wagon (placeholder)"
 
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav7_nomad_wagon"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="DDNav8_graveyard" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
 layout_mode = 2
 custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
-tooltip_text = "DD building_navigation index 8：graveyard（数据未接入 ⇒ 色块占位，不换不删）"
+tooltip_text = "DD building_navigation index 8: graveyard (placeholder)"
 
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav8_graveyard"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="DDNav9_statue" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
 layout_mode = 2
 custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
-tooltip_text = "DD building_navigation index 9：statue（数据未接入 ⇒ 色块占位，不换不删）"
+tooltip_text = "DD building_navigation index 9: statue (placeholder)"
 
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav9_statue"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
-; P1.3（DD 严格贴合）：DD town.layout 有 .estate_summary_pos 0 975 与 .realm_inventory_pos 881 128；
-; 我域此前**缺**这两块 ⇒ 按用户硬规矩 §14.0.68 用**色块占位**新增（不换不删），锚点取 DD 值 /1920 与 /1080
-[node name="EstateSummary" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
+[node name="DDNav0_stage_coach" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+
+[node name="DDNav4_tavern" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+
+[node name="DDNav5_abbey" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+
+[node name="Overlay" type="Control" parent="."]
+layout_mode = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="EstateSummary" type="PanelContainer" parent="Overlay"]
 layout_mode = 0
 anchor_left = 0.0
 anchor_top = 0.903
 anchor_right = 0.22
 anchor_bottom = 0.98
 mouse_filter = 2
-tooltip_text = "DD estate_summary_pos 0,975（常驻资源摘要条 · 数据未接入 ⇒ 色块占位，不换不删）"
+tooltip_text = "DD estate_summary_pos 0,975 (resource bar, placeholder)"
 
-[node name="EstateSummaryPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/EstateSummary"]
+[node name="EstateSummaryPlaceholder" type="ColorRect" parent="Overlay/EstateSummary"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
-[node name="RealmInventory" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
+[node name="RealmInventory" type="PanelContainer" parent="Overlay"]
 layout_mode = 0
 anchor_left = 0.459
 anchor_top = 0.119
 anchor_right = 0.60
 anchor_bottom = 0.42
 mouse_filter = 2
-tooltip_text = "DD realm_inventory_pos 881,128（领域库存 · 数据未接入 ⇒ 色块占位，不换不删）"
+tooltip_text = "DD realm_inventory_pos 881,128 (realm inventory, placeholder)"
 
-[node name="RealmInventoryPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/RealmInventory"]
+[node name="RealmInventoryPlaceholder" type="ColorRect" parent="Overlay/RealmInventory"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
-
-; P1.1：DD building_navigation index 0 = stage_coach（已接入 ⇒ 空槽，运行时由代码填入真实按钮）
-[node name="DDNav0_stage_coach" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 56)
-
-; P1.1：DD building_navigation index 4 = tavern（已接入 ⇒ 空槽，运行时由代码填入真实按钮）
-[node name="DDNav4_tavern" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 56)
-
-; P1.1：DD building_navigation index 5 = abbey（已接入 ⇒ 空槽，运行时由代码填入真实按钮）
-[node name="DDNav5_abbey" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 56)

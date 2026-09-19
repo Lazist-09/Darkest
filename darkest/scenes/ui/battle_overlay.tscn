@@ -1,0 +1,226 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" uid="uid://chllcwagtr3iw" path="res://resources/theme/dd_theme.tres" id="9_theme"]
+
+; 🔴 战斗·屏幕空间覆盖层：状态托盘 / 地图角 / 攻击覆盖位 / 怪物面板 / 换位按钮 / 库存网格
+;    全部节点用**全屏坐标**（x/1920, y/1080），必须挂在 FullRect 的 _uiRoot 上，
+;    绝不能放进底栏 HBox —— 否则锚点只会对到底栏那一小块，整片托盘被压成一坨。
+[node name="BattleOverlay" type="Control"]
+layout_mode = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("9_theme")
+mouse_filter = 2
+
+; DD 1:1 3-1：紧凑状态托盘（全屏浮层；比例来自 DD status_bars 与 overlays）
+[node name="StatusTray" type="Control" parent="."]
+mouse_filter = 2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="HeroTray1" type="Control" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.41
+anchor_top = 0.646
+anchor_right = 0.514
+anchor_bottom = 0.6653
+
+[node name="EnemyTray1" type="Control" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.547
+anchor_top = 0.646
+anchor_right = 0.651
+anchor_bottom = 0.6653
+
+[node name="HeroTray2" type="Control" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.323
+anchor_top = 0.646
+anchor_right = 0.427
+anchor_bottom = 0.6653
+
+[node name="EnemyTray2" type="Control" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.634
+anchor_top = 0.646
+anchor_right = 0.738
+anchor_bottom = 0.6653
+
+[node name="HeroTray3" type="Control" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.235
+anchor_top = 0.646
+anchor_right = 0.339
+anchor_bottom = 0.6653
+
+[node name="EnemyTray3" type="Control" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.722
+anchor_top = 0.646
+anchor_right = 0.826
+anchor_bottom = 0.6653
+
+[node name="HeroTray4" type="Control" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.148
+anchor_top = 0.646
+anchor_right = 0.252
+anchor_bottom = 0.6653
+
+[node name="EnemyTray4" type="Control" parent="StatusTray"]
+layout_mode = 0
+anchor_left = 0.809
+anchor_top = 0.646
+anchor_right = 0.913
+anchor_bottom = 0.6653
+
+; P4-b(1b)：DD status_bars 的图标位（tray_icon_left/right_offset 58/62,-38 · hot_spot 20x24）
+; 需美术图标 ⇒ 按硬规矩 §14.0.68 一律 ColorRect 色块占位（不换不删）；y = (698-38)/1080 = 0.611
+[node name="HeroIcon1" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.41
+anchor_top = 0.611
+anchor_right = 0.4204
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "icon Hero1 (DD tray_icon_left 58,-38 / right 62,-38; needs art => color placeholder, keep)"
+
+[node name="EnemyIcon1" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.547
+anchor_top = 0.611
+anchor_right = 0.5574
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "icon Enemy1 (DD tray_icon; needs art => color placeholder, keep)"
+
+[node name="HeroIcon2" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.323
+anchor_top = 0.611
+anchor_right = 0.3334
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "icon Hero2 (DD tray_icon; needs art => color placeholder, keep)"
+
+[node name="EnemyIcon2" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.634
+anchor_top = 0.611
+anchor_right = 0.6444
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "icon Enemy2 (DD tray_icon; needs art => color placeholder, keep)"
+
+[node name="HeroIcon3" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.235
+anchor_top = 0.611
+anchor_right = 0.2454
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "icon Hero3 (DD tray_icon; needs art => color placeholder, keep)"
+
+[node name="EnemyIcon3" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.722
+anchor_top = 0.611
+anchor_right = 0.7324
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "icon Enemy3 (DD tray_icon; needs art => color placeholder, keep)"
+
+[node name="HeroIcon4" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.148
+anchor_top = 0.611
+anchor_right = 0.1584
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "icon Hero4 (DD tray_icon; needs art => color placeholder, keep)"
+
+[node name="EnemyIcon4" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.809
+anchor_top = 0.611
+anchor_right = 0.8194
+anchor_bottom = 0.633
+mouse_filter = 2
+tooltip_text = "icon Enemy4 (DD tray_icon; needs art => color placeholder, keep)"
+
+[node name="RoundIndicator" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.005
+anchor_top = 0.646
+anchor_right = 0.015
+anchor_bottom = 0.665
+mouse_filter = 2
+tooltip_text = "round indicator (DD round_indicator_icon_offset 10,-4; needs art => color placeholder, keep)"
+
+; P4-a（DD 严格贴合）：panel.map 接右下（只读不可点；数据未接入 ⇒ 色块占位，不换不删）
+; 可视区 DD panel.map clip 16 665 19 340 · 可视区 720x360
+[node name="MapCorner" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.74
+anchor_top = 0.30
+anchor_right = 0.985
+anchor_bottom = 0.62
+mouse_filter = 2
+tooltip_text = "dungeon map (DD panel.map; read-only, no data => color placeholder, keep)"
+
+[node name="MapPlaceholder" type="ColorRect" parent="MapCorner"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+
+; P4 overlays：DD screen.raid.battle attack_overlay_pos 960,360 与 monster_panel_position 946,712
+[node name="AttackOverlayAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.485
+anchor_top = 0.318
+anchor_right = 0.515
+anchor_bottom = 0.349
+mouse_filter = 2
+tooltip_text = "attack overlay anchor (DD screen.raid.battle attack_overlay_pos 960,360; needs fx => color placeholder, keep)"
+
+[node name="MonsterPanelAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.478
+anchor_top = 0.645
+anchor_right = 0.508
+anchor_bottom = 0.676
+mouse_filter = 2
+tooltip_text = "monster panel anchor (DD screen.raid.battle monster_panel_position 946,712; no data => color placeholder, keep)"
+
+; 补位：DD panel.tab reorder_party button_pos 678,90 与 pannel.inventory raid grid
+[node name="RaidReorderPartyButton" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.345
+anchor_top = 0.078
+anchor_right = 0.375
+anchor_bottom = 0.11
+mouse_filter = 2
+tooltip_text = "reorder party button (DD panel.tab reorder_party button_pos 678,90; mf_tab template pending)"
+
+[node name="RaidInventoryGridAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 0
+anchor_left = 0.735
+anchor_top = 0.30
+anchor_right = 0.985
+anchor_bottom = 0.62
+mouse_filter = 2
+tooltip_text = "raid inventory grid anchor (DD pannel.inventory raid grid 8 cols; screen pos per E area; color placeholder, keep)"

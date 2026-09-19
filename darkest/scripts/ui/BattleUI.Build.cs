@@ -44,12 +44,19 @@ public partial class BattleUI : Control
         }
 
 
-        // 背景：**刻意不让它成为"满屏不透明 Panel"**（锚点不是 0/0/1/1）——
-        //   否则判据会把它当成**模态覆盖层**，只审它自己的子树（= 空）⇒ 报 ✅ 却是**假通过** ⚠️（实测踩过两次）
-        var bg = new Panel { Name = "BattleBg", Size = GetViewport().GetVisibleRect().Size };
+        // 🔴 背景：世界层暗色底（落在相机视口、压在角色之下），**不在 UI(CanvasLayer) 层** ⇒
+        //   不会盖住 HUD，也不会盖住世界单位（单位运行时加入世界层、位于 bg 之上）✓
+        //   （旧实现把满屏不透明 bg 放在 UI 层 ⇒ 直接遮住世界单位；现归世界层、随相机视口定位）
+        Camera2D? cam = GetParent()?.GetParent()?.GetNode<Camera2D>("Camera2D");
+        var bg = new Panel { Name = "BattleBg" };
         _bg = bg; // 🔴 `#327` S1：背景属于【必须存活的骨架】（其 id 在进战斗前后应不变）
         bg.Modulate = Darkest.UI.DdTheme.BgDeep;
-        _uiRoot.AddChild(bg);
+        Vector2 viewSize = GetViewport().GetVisibleRect().Size;
+        Vector2 camCenter = cam is not null ? cam.Position : viewSize * 0.5f;
+        bg.Position = camCenter - viewSize * 0.5f;
+        bg.Size = viewSize;
+        Node worldRoot = GetParent()?.GetParent() ?? this;
+        worldRoot.AddChild(bg);
 
         var uiMargin = new MarginContainer { Name = "BattleMargin" };
         uiMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -96,20 +103,41 @@ public partial class BattleUI : Control
 
         var bottomPanel = new PanelContainer { Name = "BottomRow", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         uiCol.AddChild(bottomPanel);
-        var bottomRow = new HBoxContainer { Name = "BottomRowBox", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
-        bottomRow.AddThemeConstantOverride("separation", 10);
-        bottomPanel.AddChild(bottomRow);
-        _bottomRow = bottomRow;
-
         _bottomBarSkel = Darkest.UI.BattleBottomBarSkeleton.TryInstantiate();
         if (_bottomBarSkel is not null)
         {
+            // 🔴 骨架根 `BottomRowBox`(HBox) 即真正底栏容器；`_bottomRow` 必须指向它。
+            //    之前指向空 HBox：死代码 + 隐患 —— DungeonHost / Refresh 尺寸读取都依赖 `_bottomRow`，
+            //    若指向空容器，DungeonHost 会进死节点、底栏尺寸读数为 0。
+            _bottomBarSkel.Name = "BottomRowBox";
             bottomPanel.AddChild(_bottomBarSkel);
+            _bottomRow = _bottomBarSkel;
+        }
+        else
+        {
+            // 回落：手建底栏（保持原分离逻辑，确保 `_bottomRow` 非空、DungeonHost 有家可归）✓
+            var bottomRow = new HBoxContainer { Name = "BottomRowBox", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+            bottomRow.AddThemeConstantOverride("separation", 10);
+            bottomPanel.AddChild(bottomRow);
+            _bottomRow = bottomRow;
         }
 
         BuildTopRow();
         BuildBattlefield();
         BuildBottomRow();
+
+        // 🔴 屏幕空间覆盖层（状态托盘 / 地图角 / 攻击覆盖位 / 怪物面板 / 换位按钮 / 库存网格）：
+        //    这些都是**全屏坐标**（y 0.078~0.676），绝不能留在底栏 HBox —— 否则锚点只会对到底栏那一小块，
+        //    整片托盘被压成一坨。挂到 FullRect 的 `_uiRoot` 上，锚点才能对到整块 1920×1080 画布。
+        var overlayScene = GD.Load<PackedScene>("res://scenes/ui/battle_overlay.tscn");
+        if (overlayScene is not null)
+        {
+            var overlay = overlayScene.Instantiate<Control>();
+            overlay.Name = "BattleOverlay";
+            _uiRoot.AddChild(overlay);
+            _statusTray = overlay.GetNodeOrNull<Control>("StatusTray");
+            GD.Print("[BattleUI] ✅ 战斗屏幕空间覆盖层就位（状态托盘回到全屏坐标，不再被底栏 HBox 压缩）");
+        }
 
         // 结算 / 开发者日志 = **满屏不透明模态**（挂 `_uiRoot`：它是真 `Control` ⇒ `FullRect` 锚点算得出满屏 ✓）
         _resultLabel = MakeOpaqueModal("ResultPanel", out _resultPanel);

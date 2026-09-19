@@ -54,6 +54,7 @@ mouse_filter = 2
 tooltip_text = "FROM 1（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="FromPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/FromCol/FromSlot1"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="ToSlot1" type="PanelContainer" parent="ExchangeCol/BodyRow/ToCol"]
@@ -63,6 +64,7 @@ mouse_filter = 2
 tooltip_text = "TO 1（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="ToPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/ToCol/ToSlot1"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="FromSlot2" type="PanelContainer" parent="ExchangeCol/BodyRow/FromCol"]
@@ -72,6 +74,7 @@ mouse_filter = 2
 tooltip_text = "FROM 2（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="FromPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/FromCol/FromSlot2"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="ToSlot2" type="PanelContainer" parent="ExchangeCol/BodyRow/ToCol"]
@@ -81,6 +84,7 @@ mouse_filter = 2
 tooltip_text = "TO 2（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="ToPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/ToCol/ToSlot2"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="FromSlot3" type="PanelContainer" parent="ExchangeCol/BodyRow/FromCol"]
@@ -90,6 +94,7 @@ mouse_filter = 2
 tooltip_text = "FROM 3（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="FromPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/FromCol/FromSlot3"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 [node name="ToSlot3" type="PanelContainer" parent="ExchangeCol/BodyRow/ToCol"]
@@ -99,4 +104,5 @@ mouse_filter = 2
 tooltip_text = "TO 3（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="ToPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/ToCol/ToSlot3"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
