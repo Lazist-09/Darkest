@@ -194,3 +194,17 @@ tooltip_text = "活动日志/城镇事件位（DD town.layout activity_log_pos /
 
 [node name="ActivityLogFill" type="ColorRect" parent="HamletMargin/HamletRootCol/ActivityLogAnchor"]
 layout_mode = 2
+
+; 阶段2：E 盘 shared/estate estate_cost_hot_spot_layout.size **100x50**（费用热区）
+[node name="EstateCostHotSpot" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.903
+anchor_right = 0.08
+anchor_bottom = 0.95
+custom_minimum_size = Vector2(100, 50)   ; DD estate_cost_hot_spot_layout.size
+mouse_filter = 2
+tooltip_text = "地产费用热区（DD shared/estate estate_cost_hot_spot_layout.size 100x50 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="HamletMargin/HamletRootCol/EstateCostHotSpot"]
+layout_mode = 2

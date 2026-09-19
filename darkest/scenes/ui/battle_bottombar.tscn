@@ -531,3 +531,17 @@ anchor_right = 0.9767
 anchor_bottom = 0.5624
 mouse_filter = 2
 tooltip_text = "DD screen.raid [skip_curio_display] pos 1760,575 ⇒ 0.9167/0.5324 · 色块占位，不换不删"
+
+; 阶段2：E 盘 shared/inventory inventory_item_layout.icon_size **72x144**（图标本体；格距是 80x160 => 两者不矛盾）
+[node name="InvItemIconBody" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.30
+anchor_top = 0.70
+anchor_right = 0.45
+anchor_bottom = 0.80
+custom_minimum_size = Vector2(72, 144)   ; DD inventory_item_layout.icon_size
+mouse_filter = 2
+tooltip_text = "库存图标本体（DD shared/inventory inventory_item_layout.icon_size 72x144 · 与 hero_equipment/资产 inv_* 一致；格距见 pannel.inventory 80x160）· 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="InvItemIconBody"]
+layout_mode = 2
