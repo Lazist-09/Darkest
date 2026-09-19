@@ -117,3 +117,59 @@ tooltip_text = "活动描述（DD activity description · 数据未接入 ⇒ �
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 custom_minimum_size = Vector2(260, 40)
+
+; 阶段2 城池批(2)：DD buildings/building.layout 自带 base_size 950x800 ⇒ 偏移 ÷950、÷800 精确换算（比例锚点）
+
+[node name="BpNameAnchor" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.1095
+anchor_top = 0.1575
+anchor_right = 0.2595
+anchor_bottom = 0.2075
+mouse_filter = 2
+tooltip_text = "名称位（DD building.layout name_pos 104,126 · 基准 950x800） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BpBodyAnchor" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.6274
+anchor_top = 0.1275
+anchor_right = 0.7774
+anchor_bottom = 0.1775
+mouse_filter = 2
+tooltip_text = "主体位（DD body_base_pos 596,102） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BpUpgradeAnchor" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.1811
+anchor_top = 0.3238
+anchor_right = 0.3311
+anchor_bottom = 0.3738
+mouse_filter = 2
+tooltip_text = "升级区位（DD upgrade_base_pos 172,259） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BpTreesAnchor" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.2438
+anchor_right = 0.15
+anchor_bottom = 0.2938
+mouse_filter = 2
+tooltip_text = "升级树位（DD upgrade_trees_offset 0,195） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BpSlotListAnchor" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.4632
+anchor_top = 0.1488
+anchor_right = 0.6132
+anchor_bottom = 0.1988
+mouse_filter = 2
+tooltip_text = "英雄槽列表位（DD slot_list_pos 440,119 · slot_spacing 135） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="BpChoiceListAnchor" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.3125
+anchor_right = 0.1263
+anchor_bottom = 0.3375
+mouse_filter = 2
+tooltip_text = "选项列表位（DD choice_list_pos 0,250 · choice_hot_spot_size 120x20 尺寸） · 数据未接入 ⇒ 色块占位，不换不删"
