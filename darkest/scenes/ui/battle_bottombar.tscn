@@ -260,3 +260,77 @@ tooltip_text = "地图回中按钮（DD panel.map home button_pos 677,24 · 数�
 
 [node name="HomePlaceholder" type="ColorRect" parent="MapCorner/MapHomeButton"]
 layout_mode = 2
+
+; 阶段2 施工⑤（ui_spec.json · pannel.inventory 720x360）：8 列 · start_pos 20,28 · offset 80,160（格距 ⇒ 0.1111/0.4444）
+; 放在 EArea（底部页区）内 ⇒ 与 MapCorner 不重叠；面板屏幕位未取得 ⇒ 按页区约定，如实注明
+[node name="InventoryGridAnchor" type="GridContainer" parent="EArea"]
+layout_mode = 2
+columns = 8
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+mouse_filter = 2
+tooltip_text = "库存网格（DD pannel.inventory raid grid · 8 列 · start 20,28 · 格距 80x160 · 面板 720x360 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="InvSlot1" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取得）
+mouse_filter = 2
+
+[node name="SlotPlaceholder1" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot1"]
+layout_mode = 2
+
+[node name="InvSlot2" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取得）
+mouse_filter = 2
+
+[node name="SlotPlaceholder2" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot2"]
+layout_mode = 2
+
+[node name="InvSlot3" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取得）
+mouse_filter = 2
+
+[node name="SlotPlaceholder3" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot3"]
+layout_mode = 2
+
+[node name="InvSlot4" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取得）
+mouse_filter = 2
+
+[node name="SlotPlaceholder4" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot4"]
+layout_mode = 2
+
+[node name="InvSlot5" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取得）
+mouse_filter = 2
+
+[node name="SlotPlaceholder5" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot5"]
+layout_mode = 2
+
+[node name="InvSlot6" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取得）
+mouse_filter = 2
+
+[node name="SlotPlaceholder6" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot6"]
+layout_mode = 2
+
+[node name="InvSlot7" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取得）
+mouse_filter = 2
+
+[node name="SlotPlaceholder7" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot7"]
+layout_mode = 2
+
+[node name="InvSlot8" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取得）
+mouse_filter = 2
+
+[node name="SlotPlaceholder8" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot8"]
+layout_mode = 2
