@@ -24,7 +24,7 @@ mouse_filter = 2
 tooltip_text = "存档槽窗口（DD save_slot_window_position 200,548 · size 1800x434 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="FfSaveSlotWindow"]
+[node name="PurposeLabel" type="Label" parent="FfSaveSlotWindow"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -46,7 +46,7 @@ mouse_filter = 2
 tooltip_text = "滚动条（DD scroll_bar_position 1500,580 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="FfScrollBar"]
+[node name="PurposeLabel" type="Label" parent="FfScrollBar"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -68,7 +68,7 @@ mouse_filter = 2
 tooltip_text = "模式选择对话框（DD mode_select_dialog base_pos 960,300 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="FfModeSelectDialog"]
+[node name="PurposeLabel" type="Label" parent="FfModeSelectDialog"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -91,7 +91,7 @@ mouse_filter = 2
 tooltip_text = "模式选择答案按钮（DD button_size 500x55 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="FfAnswerButton1"]
+[node name="PurposeLabel" type="Label" parent="FfAnswerButton1"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -113,7 +113,7 @@ mouse_filter = 2
 tooltip_text = "返回（DD mode_select_dialog back_pos 290,54 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="FfBackButton"]
+[node name="PurposeLabel" type="Label" parent="FfBackButton"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -135,7 +135,7 @@ mouse_filter = 2
 tooltip_text = "版本号位（DD build_num_pos 24,20 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="FfBuildNum"]
+[node name="PurposeLabel" type="Label" parent="FfBuildNum"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1

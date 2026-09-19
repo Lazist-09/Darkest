@@ -118,6 +118,15 @@ anchor_bottom = 0.1094
 mouse_filter = 2
 tooltip_text = "选项起点（DD heirloom_exchange choice_start_offset 256,75） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HxChoiceStartAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "选项起点"
 [node name="Fill" type="ColorRect" parent="HxChoiceStartAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -131,6 +140,15 @@ anchor_bottom = 0.0696
 mouse_filter = 2
 tooltip_text = "图标位（DD icon_offset 0,32） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HxIconOffsetAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "图标位"
 [node name="Fill" type="ColorRect" parent="HxIconOffsetAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -144,6 +162,15 @@ anchor_bottom = 0.1141
 mouse_filter = 2
 tooltip_text = "箭头位（DD arrow_offset 148,80） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HxArrowAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "箭头"
 [node name="Fill" type="ColorRect" parent="HxArrowAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

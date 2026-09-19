@@ -83,6 +83,15 @@ anchor_bottom = 0.5261
 mouse_filter = 2
 tooltip_text = "任务地图位（DD quest_map_pos 1000,525 · 屏幕级） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="QsQuestMapAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "任务地图"
 [node name="Fill" type="ColorRect" parent="QsQuestMapAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -96,6 +105,15 @@ anchor_bottom = 0.6881
 mouse_filter = 2
 tooltip_text = "全图位（DD all_quest_map_pos 850,700） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="QsAllQuestMapAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "全图"
 [node name="Fill" type="ColorRect" parent="QsAllQuestMapAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -109,6 +127,15 @@ anchor_bottom = 0.5585
 mouse_filter = 2
 tooltip_text = "地牢效果覆盖位（DD dungeon_effect_overlay_pos 1000,560） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="QsEffectOverlayAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "地牢效果"
 [node name="Fill" type="ColorRect" parent="QsEffectOverlayAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -123,6 +150,15 @@ custom_minimum_size = Vector2(194, 8)   ; DD 自带尺寸
 mouse_filter = 2
 tooltip_text = "地牢 XP 条（DD dungeon_xp_bar_size 194x8 · 自带尺寸 ⇒ 直接用 ✓） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="QsDungeonXpBar"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "地牢经验"
 [node name="Fill" type="ColorRect" parent="QsDungeonXpBar"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -137,6 +173,15 @@ custom_minimum_size = Vector2(232, 48)   ; DD 自带尺寸
 mouse_filter = 2
 tooltip_text = "XP 条 tooltip 热区（DD dungeon_xp_bar_tt_hot_area_size 232x48 · 自带尺寸 ✓） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="QsXpBarTtHotArea"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "经验热区"
 [node name="Fill" type="ColorRect" parent="QsXpBarTtHotArea"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -151,6 +196,15 @@ custom_minimum_size = Vector2(32, 32)   ; DD 自带尺寸
 mouse_filter = 2
 tooltip_text = "城镇事件图标 tooltip（DD town_event_icon_tooltip_hot_area_size 32x32 · 自带尺寸 ✓） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="QsTownEventIconTt"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "城镇事件"
 [node name="Fill" type="ColorRect" parent="QsTownEventIconTt"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -165,6 +219,15 @@ custom_minimum_size = Vector2(80, 30)   ; DD 自带尺寸
 mouse_filter = 2
 tooltip_text = "扎营 tooltip（DD camping_tt_size 80x30 · 自带尺寸 ✓） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="QsCampingTt"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "扎营提示"
 [node name="Fill" type="ColorRect" parent="QsCampingTt"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -179,6 +242,15 @@ custom_minimum_size = Vector2(260, 160)   ; DD 自带尺寸
 mouse_filter = 2
 tooltip_text = "波次高分 tooltip（DD wave_highscore_tt_size 260x160 · 自带尺寸 ✓） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="QsWaveHighscoreTt"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "波次高分"
 [node name="Fill" type="ColorRect" parent="QsWaveHighscoreTt"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

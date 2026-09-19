@@ -119,6 +119,15 @@ anchor_bottom = 0.3715
 mouse_filter = 2
 tooltip_text = "全部拿取位（DD overlay.loot take_all_pos 80,358） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="LootTakeAllAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "全部拿取"
 [node name="Fill" type="ColorRect" parent="LootTakeAllAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -132,6 +141,15 @@ anchor_bottom = 0.3715
 mouse_filter = 2
 tooltip_text = "关闭位（DD close_pos 306,358） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="LootCloseAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "关闭"
 [node name="Fill" type="ColorRect" parent="LootCloseAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -145,6 +163,15 @@ anchor_bottom = 0.1659
 mouse_filter = 2
 tooltip_text = "描述位（DD loot_description pos 228,136 · width 350） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="LootDescAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "描述"
 [node name="Fill" type="ColorRect" parent="LootDescAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

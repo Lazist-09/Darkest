@@ -73,6 +73,15 @@ custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
 tooltip_text = "DD building_navigation index 1: blacksmith (placeholder)"
 
+
+[node name="PurposeLabel" type="Label" parent="DDNav1_blacksmith"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "铁匠铺"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav1_blacksmith"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -83,6 +92,15 @@ custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
 tooltip_text = "DD building_navigation index 2: guild (placeholder)"
 
+
+[node name="PurposeLabel" type="Label" parent="DDNav2_guild"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "公会"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav2_guild"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -93,6 +111,15 @@ custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
 tooltip_text = "DD building_navigation index 3: camping_trainer (placeholder)"
 
+
+[node name="PurposeLabel" type="Label" parent="DDNav3_camping_trainer"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "训练师"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav3_camping_trainer"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -103,6 +130,15 @@ custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
 tooltip_text = "DD building_navigation index 6: sanitarium (placeholder)"
 
+
+[node name="PurposeLabel" type="Label" parent="DDNav6_sanitarium"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "疗养院"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav6_sanitarium"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -113,6 +149,15 @@ custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
 tooltip_text = "DD building_navigation index 7: nomad_wagon (placeholder)"
 
+
+[node name="PurposeLabel" type="Label" parent="DDNav7_nomad_wagon"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "游商"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav7_nomad_wagon"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -123,6 +168,15 @@ custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
 tooltip_text = "DD building_navigation index 8: graveyard (placeholder)"
 
+
+[node name="PurposeLabel" type="Label" parent="DDNav8_graveyard"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "坟场"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav8_graveyard"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -133,6 +187,15 @@ custom_minimum_size = Vector2(128, 56)
 mouse_filter = 2
 tooltip_text = "DD building_navigation index 9: statue (placeholder)"
 
+
+[node name="PurposeLabel" type="Label" parent="DDNav9_statue"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "雕像"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav9_statue"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -165,6 +228,15 @@ anchor_bottom = 0.98
 mouse_filter = 2
 tooltip_text = "DD estate_summary_pos 0,975 (resource bar, placeholder)"
 
+
+[node name="PurposeLabel" type="Label" parent="EstateSummary"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "地产总览"
 [node name="EstateSummaryPlaceholder" type="ColorRect" parent="Overlay/EstateSummary"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -178,6 +250,15 @@ anchor_bottom = 0.42
 mouse_filter = 2
 tooltip_text = "DD realm_inventory_pos 881,128 (realm inventory, placeholder)"
 
+
+[node name="PurposeLabel" type="Label" parent="RealmInventory"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "领域库存"
 [node name="RealmInventoryPlaceholder" type="ColorRect" parent="Overlay/RealmInventory"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -192,6 +273,15 @@ anchor_bottom = 0.1922
 mouse_filter = 2
 tooltip_text = "活动日志/城镇事件位（DD town.layout activity_log_pos / town_event_pos 均 144,132 · 屏幕级 ÷1920 ÷1080 · 色块占位，不换不删）"
 
+
+[node name="PurposeLabel" type="Label" parent="ActivityLogAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "活动日志"
 [node name="ActivityLogFill" type="ColorRect" parent="HamletMargin/HamletRootCol/ActivityLogAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -207,6 +297,15 @@ custom_minimum_size = Vector2(100, 50)   ; DD estate_cost_hot_spot_layout.size
 mouse_filter = 2
 tooltip_text = "地产费用热区（DD shared/estate estate_cost_hot_spot_layout.size 100x50 · 色块占位，不换不删）"
 
+
+[node name="PurposeLabel" type="Label" parent="EstateCostHotSpot"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "地产费用"
 [node name="Fill" type="ColorRect" parent="HamletMargin/HamletRootCol/EstateCostHotSpot"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -222,6 +321,15 @@ custom_minimum_size = Vector2(560, 525)   ; DD realm_inventory_layout.inventory_
 mouse_filter = 2
 tooltip_text = "领域库存网格（DD realm_inventory inventory_grid_size 560x525 · grid_pos 30,195 · close 610,22 · 尺寸=DD 原值；面板屏位取 town.realm_inventory_pos 881,128）· 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="RealmInventoryGrid"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "库存网格"
 [node name="Fill" type="ColorRect" parent="HamletMargin/HamletRootCol/RealmInventoryGrid"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

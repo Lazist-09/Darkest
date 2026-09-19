@@ -27,7 +27,7 @@ color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha
 layout_mode = 2
 
 
-[node name="用法标签" type="Label" parent="BannerBackground"]
+[node name="PurposeLabel" type="Label" parent="BannerBackground"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -46,7 +46,7 @@ mouse_filter = 2
 tooltip_text = "横幅立绘位（DD portrait_layout pos 32,32 · 基准 754x136 · 需美术 ⇒ 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="BannerPortrait"]
+[node name="PurposeLabel" type="Label" parent="BannerPortrait"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -65,7 +65,7 @@ mouse_filter = 2
 tooltip_text = "横幅封印/徽记位（DD seal_pos 24,23 · 需美术 ⇒ 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="BannerSeal"]
+[node name="PurposeLabel" type="Label" parent="BannerSeal"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -84,7 +84,7 @@ mouse_filter = 2
 tooltip_text = "横幅名称位（DD name_layout pos 272,38 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="BannerName"]
+[node name="PurposeLabel" type="Label" parent="BannerName"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -102,7 +102,7 @@ anchor_bottom = 0.3874
 mouse_filter = 2
 tooltip_text = "横幅技能位（DD ability_layout pos 280,35 · 数据未接入 ⇒ 色块占位，不换不删）"
 
-[node name="用法标签" type="Label" parent="BannerAbility"]
+[node name="PurposeLabel" type="Label" parent="BannerAbility"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1

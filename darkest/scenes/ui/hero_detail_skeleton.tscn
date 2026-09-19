@@ -23,6 +23,15 @@ anchor_right = 0.30
 anchor_bottom = 0.20
 theme_override_constants/separation = 7
 
+
+[node name="PurposeLabel" type="Label" parent="HeroStatusBars"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "状态条"
 [node name="HeroHpBar" type="ProgressBar" parent="HeroStatusBars"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 12)
@@ -48,6 +57,15 @@ theme_override_constants/v_separation = 15
 ; P2.1（DD `panel.hero`）：装备区 238,0 与饰品区 453,0 —— 按用户指令"不显示独立武器槽" ⇒
 ; 这里**只放色块占位**（不换不删，§14.0.68），不建任何武器/护甲槽控件
 ; ⚠️ DD 值属 panel.hero 的**面板内偏移**（非屏幕绝对）⇒ 精确折算需读 `panel.hero.darkest` 的基准尺寸（下一步补）
+
+[node name="PurposeLabel" type="Label" parent="HeroStatsGrid"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "属性"
 [node name="HeroEquipArea" type="PanelContainer" parent="."]
 layout_mode = 0
 anchor_left = 0.1011
@@ -57,6 +75,15 @@ anchor_bottom = 0.65
 mouse_filter = 2
 tooltip_text = "装备区（DD panel.hero equipment 238,0 · 数据未接入 ⇒ 色块占位，不换不删）"
 
+
+[node name="PurposeLabel" type="Label" parent="HeroEquipArea"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "装备"
 [node name="EquipPlaceholder" type="ColorRect" parent="HeroEquipArea"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -70,6 +97,15 @@ anchor_bottom = 0.80
 mouse_filter = 2
 tooltip_text = "饰品区（DD panel.hero trinket 453,0 · 数据未接入 ⇒ 色块占位，不换不删）"
 
+
+[node name="PurposeLabel" type="Label" parent="HeroTrinketArea"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "饰品"
 [node name="TrinketPlaceholder" type="ColorRect" parent="HeroTrinketArea"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
@@ -142,6 +178,15 @@ anchor_bottom = 0.0541
 mouse_filter = 2
 tooltip_text = "英雄名位（DD name_pos 76,26） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdNameAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "英雄名"
 [node name="Fill" type="ColorRect" parent="HdNameAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -155,6 +200,15 @@ anchor_bottom = 0.1041
 mouse_filter = 2
 tooltip_text = "职业位（DD class_pos 76,80） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdClassAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "职业"
 [node name="Fill" type="ColorRect" parent="HdClassAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -168,6 +222,15 @@ anchor_bottom = 0.1485
 mouse_filter = 2
 tooltip_text = "怪癖区（DD quirks_pos 141,128） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdQuirksAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "怪癖"
 [node name="Fill" type="ColorRect" parent="HdQuirksAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -181,6 +244,15 @@ anchor_bottom = 0.1643
 mouse_filter = 2
 tooltip_text = "位点（DD hero_pips_pos 846,145） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdHeroPipsAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "位点"
 [node name="Fill" type="ColorRect" parent="HdHeroPipsAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -194,6 +266,15 @@ anchor_bottom = 0.1643
 mouse_filter = 2
 tooltip_text = "目标位点（DD target_pips_pos 1153,145） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdTargetPipsAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "目标位点"
 [node name="Fill" type="ColorRect" parent="HdTargetPipsAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -207,6 +288,15 @@ anchor_bottom = 0.1207
 mouse_filter = 2
 tooltip_text = "位点标题（DD position_pips_title_pos 760,98） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdPosTitleAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "位点标题"
 [node name="Fill" type="ColorRect" parent="HdPosTitleAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -220,6 +310,15 @@ anchor_bottom = 0.1744
 mouse_filter = 2
 tooltip_text = "战斗技能格（DD combat_skill_grid_pos 780,156） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdCombatSkillAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "战斗技能"
 [node name="Fill" type="ColorRect" parent="HdCombatSkillAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -233,6 +332,15 @@ anchor_bottom = 0.3263
 mouse_filter = 2
 tooltip_text = "扎营技能格（DD camping_skill_grid_pos 780,320） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdCampSkillAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "扎营技能"
 [node name="Fill" type="ColorRect" parent="HdCampSkillAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -246,6 +354,15 @@ anchor_bottom = 0.4337
 mouse_filter = 2
 tooltip_text = "抗性区（DD resistances_pos 780,436） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdResistAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "抗性"
 [node name="Fill" type="ColorRect" parent="HdResistAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -259,6 +376,15 @@ anchor_bottom = 0.5541
 mouse_filter = 2
 tooltip_text = "职业加成（DD class_bonuses_pos 780,566） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdClassBonusAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "职业加成"
 [node name="Fill" type="ColorRect" parent="HdClassBonusAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -272,6 +398,15 @@ anchor_bottom = 0.0467
 mouse_filter = 2
 tooltip_text = "关闭键位（DD close_pos 1344,18） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdCloseAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "关闭"
 [node name="Fill" type="ColorRect" parent="HdCloseAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -285,6 +420,15 @@ anchor_bottom = 0.6781
 mouse_filter = 2
 tooltip_text = "英雄立绘位（DD hero_pos 98,700） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HdHeroArtAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "立绘"
 [node name="Fill" type="ColorRect" parent="HdHeroArtAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -301,6 +445,15 @@ custom_minimum_size = Vector2(72, 144)
 mouse_filter = 2
 tooltip_text = "装备 tooltip 热区（DD hero_equipment_layout tooltip_hotspot_size 72x144 ⇒ 与库存 icon_size 72x144 一致） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HhEquipHotspot"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "装备热区"
 [node name="Fill" type="ColorRect" parent="HhEquipHotspot"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -315,6 +468,15 @@ custom_minimum_size = Vector2(160, 20)
 mouse_filter = 2
 tooltip_text = "基础属性热区（DD hero_base_stats_layout tooltip_hotspot_size 160x20） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HhBaseStatHotspot"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "属性热区"
 [node name="Fill" type="ColorRect" parent="HhBaseStatHotspot"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -329,6 +491,15 @@ custom_minimum_size = Vector2(160, 20)
 mouse_filter = 2
 tooltip_text = "属性热区（DD hero_stats_layout tooltip_hotspot_size 160x20） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HhStatHotspot"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "属性热区"
 [node name="Fill" type="ColorRect" parent="HhStatHotspot"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -343,6 +514,15 @@ custom_minimum_size = Vector2(300, 40)
 mouse_filter = 2
 tooltip_text = "侦察数值热区（DD hero_scouting_stat_layout tooltip_hotspot_size 300x40） · 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="HhScoutingHotspot"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "侦察热区"
 [node name="Fill" type="ColorRect" parent="HhScoutingHotspot"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

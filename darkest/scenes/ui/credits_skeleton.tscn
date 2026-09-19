@@ -23,7 +23,7 @@ mouse_filter = 2
 tooltip_text = "制作人员屏背景（DD credits base_pos 0,0 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="CrBasePanel"]
+[node name="PurposeLabel" type="Label" parent="CrBasePanel"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -45,7 +45,7 @@ mouse_filter = 2
 tooltip_text = "返回（DD credits back_button_pos 64,148 ⇒ 0.0333/0.137 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="CrBackButton"]
+[node name="PurposeLabel" type="Label" parent="CrBackButton"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -67,7 +67,7 @@ mouse_filter = 2
 tooltip_text = "制作人员滚动正文区（DD credits_level_0/1/2 三档 + animation 6 参数 ⇒ 时序层无几何；本块为正文区占位，色块不换不删）"
 
 
-[node name="用法标签" type="Label" parent="CrScrollBody"]
+[node name="PurposeLabel" type="Label" parent="CrScrollBody"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1

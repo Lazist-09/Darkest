@@ -79,6 +79,15 @@ anchor_bottom = 0.1289
 mouse_filter = 2
 tooltip_text = "任务信息位（DD provision quest_info_pos 1300,96 · 屏幕级 ⇒ ÷1920 ÷1080） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="ProvQuestInfoAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "任务信息"
 [node name="BlockPlaceholder" type="PanelContainer" parent="ProvQuestInfoAnchor"]
 layout_mode = 2
 
@@ -95,6 +104,15 @@ anchor_bottom = 0.1289
 mouse_filter = 2
 tooltip_text = "侦察数值位（DD scouting_stat_pos 1380,96） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="ProvScoutingAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "侦察"
 [node name="BlockPlaceholder" type="PanelContainer" parent="ProvScoutingAnchor"]
 layout_mode = 2
 
@@ -111,6 +129,15 @@ anchor_bottom = 0.5122
 mouse_filter = 2
 tooltip_text = "售回信息位（DD provision_sell_back_info_pos 1164,510） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="ProvSellBackAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "售回"
 [node name="BlockPlaceholder" type="PanelContainer" parent="ProvSellBackAnchor"]
 layout_mode = 2
 
@@ -127,6 +154,15 @@ anchor_bottom = 0.5326
 mouse_filter = 2
 tooltip_text = "商店背景位（DD provision pos 800,532；网格 start_pos 60,28 需面板尺寸 ⇒ 未取得） · 数据未接入 ⇒ 色块占位，不换不删"
 
+
+[node name="PurposeLabel" type="Label" parent="ProvStoreAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "商店"
 [node name="BlockPlaceholder" type="PanelContainer" parent="ProvStoreAnchor"]
 layout_mode = 2
 

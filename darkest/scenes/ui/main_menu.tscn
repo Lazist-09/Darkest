@@ -56,6 +56,15 @@ anchor_bottom = 0.1354
 mouse_filter = 2
 tooltip_text = "返回按钮位（DD shared/menu back_button_pos 859,103 · 屏幕级 ÷1920 ÷1080 · 数据未接入 ⇒ 色块占位，不换不删）"
 
+
+[node name="PurposeLabel" type="Label" parent="MenuBackButtonAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "返回"
 [node name="MenuBackFill" type="ColorRect" parent="MenuBackButtonAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -71,6 +80,15 @@ custom_minimum_size = Vector2(360, 50)   ; DD element_name_tooltip_hot_area_size
 mouse_filter = 2
 tooltip_text = "元素名 tooltip 热区（DD element_name_tooltip_hot_area_size 360x50 · 自带尺寸 ⇒ 直接用 ✓）"
 
+
+[node name="PurposeLabel" type="Label" parent="MenuNameTooltipHotArea"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "名称提示"
 [node name="MenuNameTooltipFill" type="ColorRect" parent="MenuNameTooltipHotArea"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -85,6 +103,15 @@ custom_minimum_size = Vector2(600, 36)   ; DD element_control_check_box_controll
 mouse_filter = 2
 tooltip_text = "手柄勾选热区（DD element_control_check_box_controller_hotspot_size 600x36 · 自带尺寸 ✓）"
 
+
+[node name="PurposeLabel" type="Label" parent="MenuControllerHotArea"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "手柄提示"
 [node name="MenuControllerFill" type="ColorRect" parent="MenuControllerHotArea"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

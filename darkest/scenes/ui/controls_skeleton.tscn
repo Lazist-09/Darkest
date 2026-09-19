@@ -23,7 +23,7 @@ mouse_filter = 2
 tooltip_text = "键鼠控制面板（DD controls_mouse_keyboard_panel.position 450,150）"
 
 
-[node name="用法标签" type="Label" parent="CtrlMouseKbPanel"]
+[node name="PurposeLabel" type="Label" parent="CtrlMouseKbPanel"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -45,7 +45,7 @@ mouse_filter = 2
 tooltip_text = "手柄控制面板（DD controls_controller_panel.position 148,64）"
 
 
-[node name="用法标签" type="Label" parent="CtrlControllerPanel"]
+[node name="PurposeLabel" type="Label" parent="CtrlControllerPanel"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -67,7 +67,7 @@ mouse_filter = 2
 tooltip_text = "分类起点（DD controls_mouse_keyboard_element.category_start_pos 280,200）"
 
 
-[node name="用法标签" type="Label" parent="CtrlCategoryStart"]
+[node name="PurposeLabel" type="Label" parent="CtrlCategoryStart"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -90,7 +90,7 @@ mouse_filter = 2
 tooltip_text = "手柄元素（标准变体 · DD controls_controller_element_layout 54 字段 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="CtrlVariantStandard"]
+[node name="PurposeLabel" type="Label" parent="CtrlVariantStandard"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -112,7 +112,7 @@ mouse_filter = 2
 tooltip_text = "手柄元素（备用变体 · DD …_alternate_layout 54 字段 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="CtrlVariantAlternate"]
+[node name="PurposeLabel" type="Label" parent="CtrlVariantAlternate"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -134,7 +134,7 @@ mouse_filter = 2
 tooltip_text = "手柄元素（SteamDeck 变体 · DD …_steamdeck_layout 54 字段 · 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="CtrlVariantSteamDeck"]
+[node name="PurposeLabel" type="Label" parent="CtrlVariantSteamDeck"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1

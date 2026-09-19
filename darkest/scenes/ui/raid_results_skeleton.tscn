@@ -23,7 +23,7 @@ mouse_filter = 2
 tooltip_text = "任务标题（E 盘 raid_results quest_title_pos 960,212） · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RrQuestTitle"]
+[node name="PurposeLabel" type="Label" parent="RrQuestTitle"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -42,7 +42,7 @@ mouse_filter = 2
 tooltip_text = "任务结果（quest_result_pos 960,150） · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RrQuestResult"]
+[node name="PurposeLabel" type="Label" parent="RrQuestResult"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -61,7 +61,7 @@ mouse_filter = 2
 tooltip_text = "状态（state_pos 510,0） · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RrState"]
+[node name="PurposeLabel" type="Label" parent="RrState"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -80,7 +80,7 @@ mouse_filter = 2
 tooltip_text = "完成背景（completion_background_pos 960,0） · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RrCompletionBg"]
+[node name="PurposeLabel" type="Label" parent="RrCompletionBg"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -99,7 +99,7 @@ mouse_filter = 2
 tooltip_text = "等级背景（level_background_pos 0,0） · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RrLevelBg"]
+[node name="PurposeLabel" type="Label" parent="RrLevelBg"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -118,7 +118,7 @@ mouse_filter = 2
 tooltip_text = "进度条（progression_bar_pos 0,958） · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RrProgression"]
+[node name="PurposeLabel" type="Label" parent="RrProgression"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -137,7 +137,7 @@ mouse_filter = 2
 tooltip_text = "下一场（next_pos / return_to_town_pos 1870,980） · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RrNext"]
+[node name="PurposeLabel" type="Label" parent="RrNext"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -156,7 +156,7 @@ mouse_filter = 2
 tooltip_text = "返回（back_pos 50,980） · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RrBack"]
+[node name="PurposeLabel" type="Label" parent="RrBack"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -177,7 +177,7 @@ tooltip_text = "任务库存网格（quest_inventory_grid_offset 84,308） · �
 ; 阶段2：E 盘 raid_results.layout.darkest 其余位置（屏幕级 /1920 /1080）
 
 
-[node name="用法标签" type="Label" parent="RrQuestInvGrid"]
+[node name="PurposeLabel" type="Label" parent="RrQuestInvGrid"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -196,7 +196,7 @@ mouse_filter = 2
 tooltip_text = "DD raid_results [raid_results_quest_inventory_system_grid_layout] start_pos 40,0 => 0.0208/0 · 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RrMore1"]
+[node name="PurposeLabel" type="Label" parent="RrMore1"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -215,7 +215,7 @@ mouse_filter = 2
 tooltip_text = "DD raid_results [raid_results_party_gold_inventory_system_grid_layout] start_pos 100,0 => 0.0521/0 · 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RrMore2"]
+[node name="PurposeLabel" type="Label" parent="RrMore2"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1

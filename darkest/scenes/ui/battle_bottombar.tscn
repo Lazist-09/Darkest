@@ -15,7 +15,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 
 
-[node name="用法标签" type="Label" parent="BackSlot5"]
+[node name="PurposeLabel" type="Label" parent="BackSlot5"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -34,7 +34,7 @@ layout_mode = 2
 size_flags_vertical = 0
 
 
-[node name="用法标签" type="Label" parent="CArea"]
+[node name="PurposeLabel" type="Label" parent="CArea"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -48,7 +48,7 @@ layout_mode = 2
 size_flags_vertical = 8
 
 
-[node name="用法标签" type="Label" parent="ActorDetailBox"]
+[node name="PurposeLabel" type="Label" parent="ActorDetailBox"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -63,7 +63,7 @@ size_flags_vertical = 3
 
 ; DD 1:1 3-1：紧凑状态托盘进骨架（编辑器可见可改）；比例来自 DD status_bars 与 overlays（x/1920、y/1080）
 
-[node name="用法标签" type="Label" parent="EArea"]
+[node name="PurposeLabel" type="Label" parent="EArea"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -146,7 +146,7 @@ mouse_filter = 2
 tooltip_text = "地牢地图（DD panel.map · 只读不可点 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="MapCorner"]
+[node name="PurposeLabel" type="Label" parent="MapCorner"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -254,7 +254,7 @@ tooltip_text = "回合指示器（DD round_indicator_icon_offset 10,-4 · spacin
 ; P4 overlays：DD screen.raid.battle 的 .attack_overlay_pos 960,360（屏心）与 .monster_panel_position 946,712
 ; ⇒ 比例 0.5/0.3333 与 0.4927/0.6593；数据未接入 ⇒ ColorRect 色块占位（不换不删）
 
-[node name="用法标签" type="Label" parent="RoundIndicator"]
+[node name="PurposeLabel" type="Label" parent="RoundIndicator"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -273,7 +273,7 @@ mouse_filter = 2
 tooltip_text = "攻击覆盖位（DD screen.raid.battle .attack_overlay_pos 960,360 · 需特效 ⇒ 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="AttackOverlayAnchor"]
+[node name="PurposeLabel" type="Label" parent="AttackOverlayAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -294,7 +294,7 @@ tooltip_text = "怪物面板位（DD screen.raid.battle .monster_panel_position 
 ; 补位：DD panel.tab 的 reorder_party .button_pos 678,90 与 pannel.inventory 的 8 列网格（start 20,28 / offset 80,160）
 ; 均未接入数据/美术 ⇒ ColorRect 色块占位（不换不删）；注意 inventory 面板的**屏幕位置**不在该文件里 ⇒ 不猜 ✗
 
-[node name="用法标签" type="Label" parent="MonsterPanelAnchor"]
+[node name="PurposeLabel" type="Label" parent="MonsterPanelAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -333,7 +333,7 @@ mouse_filter = 2
 tooltip_text = "地图页签（DD panel.map tab 672,252 · size 48x90 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="MapTabAnchor"]
+[node name="PurposeLabel" type="Label" parent="MapTabAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -355,7 +355,7 @@ mouse_filter = 2
 tooltip_text = "地图回中按钮（DD panel.map home button_pos 677,24 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="MapHomeButton"]
+[node name="PurposeLabel" type="Label" parent="MapHomeButton"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -378,7 +378,7 @@ mouse_filter = 2
 tooltip_text = "库存网格（DD pannel.inventory raid grid · 8 列 · start 20,28 · 格距 80x160 · 面板 720x360 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 
-[node name="用法标签" type="Label" parent="InventoryGridAnchor"]
+[node name="PurposeLabel" type="Label" parent="InventoryGridAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -486,7 +486,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [basic_scroll] button_size 384x36 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidBasicScrollBtn"]
+[node name="PurposeLabel" type="Label" parent="RaidBasicScrollBtn"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -509,7 +509,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [sidebar_scroll] item_slot_size 80x160 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidSidebarSlot"]
+[node name="PurposeLabel" type="Label" parent="RaidSidebarSlot"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -532,7 +532,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [result_scroll] button_size 384x36 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidResultScrollBtn"]
+[node name="PurposeLabel" type="Label" parent="RaidResultScrollBtn"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -555,7 +555,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [torch_info] mouseOverAreaSize 200x130 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidTorchInfoArea"]
+[node name="PurposeLabel" type="Label" parent="RaidTorchInfoArea"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -578,7 +578,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [torch_info] stripMouseOverAreaSize 860x24 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidTorchStripArea"]
+[node name="PurposeLabel" type="Label" parent="RaidTorchStripArea"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -601,7 +601,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] size 300x150 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidQuestInfoArea"]
+[node name="PurposeLabel" type="Label" parent="RaidQuestInfoArea"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -626,7 +626,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [kill_count_display] pos 1530,35 ⇒ 0.7969/0.0324 · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidPos1"]
+[node name="PurposeLabel" type="Label" parent="RaidPos1"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -655,7 +655,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [camp_layout] respite_scroll_pos 732,60 ⇒ 0.3812/0.0556 · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidPos3"]
+[node name="PurposeLabel" type="Label" parent="RaidPos3"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -674,7 +674,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] pos 12,20 ⇒ 0.0062/0.0185 · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidPos4"]
+[node name="PurposeLabel" type="Label" parent="RaidPos4"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -693,7 +693,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] complete_mid_screen_pos 948,590 ⇒ 0.4938/0.5463 · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidPos5"]
+[node name="PurposeLabel" type="Label" parent="RaidPos5"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -712,7 +712,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] complete_choice_shared_frame_pos 0,55 ⇒ 0/0.0509 · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidPos6"]
+[node name="PurposeLabel" type="Label" parent="RaidPos6"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -731,7 +731,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] complete_return_to_hamlet_pos -170,98 ⇒ -0.0885/0.0907 · 数据未接入 ⇒ 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidPos7"]
+[node name="PurposeLabel" type="Label" parent="RaidPos7"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -752,7 +752,7 @@ tooltip_text = "DD screen.raid [quest_info] complete_continue_raid_pos 90,98 ⇒
 ; 阶段2：E 盘 screen.raid.darkest 其余段真实 *_pos（÷1920 ÷1080；屏幕级 ✓）——安全写法，不用 RemoveRange
 
 
-[node name="用法标签" type="Label" parent="RaidPos8"]
+[node name="PurposeLabel" type="Label" parent="RaidPos8"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -771,7 +771,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [shard_escrow_display] pos 1530,135 ⇒ 0.7969/0.125 · 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidSec1"]
+[node name="PurposeLabel" type="Label" parent="RaidSec1"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -790,7 +790,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [wave_countdown_display] pos 1530,35 ⇒ 0.7969/0.0324 · 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidSec2"]
+[node name="PurposeLabel" type="Label" parent="RaidSec2"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -810,7 +810,7 @@ tooltip_text = "DD screen.raid [skip_curio_display] pos 1760,575 ⇒ 0.9167/0.53
 
 ; 阶段2：E 盘 shared/inventory inventory_item_layout.icon_size **72x144**（图标本体；格距是 80x160 => 两者不矛盾）
 
-[node name="用法标签" type="Label" parent="RaidSec3"]
+[node name="PurposeLabel" type="Label" parent="RaidSec3"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -829,7 +829,7 @@ mouse_filter = 2
 tooltip_text = "库存图标本体（DD shared/inventory inventory_item_layout.icon_size 72x144 · 与 hero_equipment/资产 inv_* 一致；格距见 pannel.inventory 80x160）· 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="InvItemIconBody"]
+[node name="PurposeLabel" type="Label" parent="InvItemIconBody"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -854,7 +854,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [overlays] hero_start_pos 788,680 => 0.4104/0.6296 · 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidX1"]
+[node name="PurposeLabel" type="Label" parent="RaidX1"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -873,7 +873,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [overlays] monster_start_pos 1050,680 => 0.5469/0.6296 · 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidX2"]
+[node name="PurposeLabel" type="Label" parent="RaidX2"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -902,7 +902,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [basic_scroll] ok_button_pos -150,400 => 0/0.3704 · 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidX4"]
+[node name="PurposeLabel" type="Label" parent="RaidX4"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -921,7 +921,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [basic_scroll] cancel_button_pos 78,400 => 0.0406/0.3704 · 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidX5"]
+[node name="PurposeLabel" type="Label" parent="RaidX5"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -950,7 +950,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [sidebar_scroll] investigate_button_pos -152,240 => 0/0.2222 · 色块占位，不换不删"
 
 
-[node name="用法标签" type="Label" parent="RaidX7"]
+[node name="PurposeLabel" type="Label" parent="RaidX7"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -968,7 +968,7 @@ anchor_bottom = 0.2472
 mouse_filter = 2
 tooltip_text = "DD screen.raid [sidebar_scroll] pass_button_pos 75,240 => 0.0391/0.2222 · 色块占位，不换不删"
 
-[node name="用法标签" type="Label" parent="RaidX8"]
+[node name="PurposeLabel" type="Label" parent="RaidX8"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
