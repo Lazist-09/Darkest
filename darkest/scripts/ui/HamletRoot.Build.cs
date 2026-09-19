@@ -210,7 +210,7 @@ public partial class HamletRoot : Control
 
         // 🔴 2026-09-21 DD 1:1 还原 #1c：建筑区 = **窄左列竖排 nav**（DD: 宽 128、按钮竖距 68、贴左缘）✓
         VBoxContainer buildingRow = skel?.BuildingNav ?? new VBoxContainer { Name = "BuildingNav" };   // DD 1:1 3-3：骨架优先（编辑器可改），缺失才代码建
-        buildingRow.CustomMinimumSize = new Vector2(128, 667);   // 🔴 DD 原文 building_navigation.base_size **128×1000** ⇒ 按 1280/1920=0.667 等比 ⇒ **128×667**（还原比例、非像素）✓
+        buildingRow.CustomMinimumSize = new Vector2(128, 1000);   // 🔴 DD 原文 building_navigation.base_size **128×1000** ⇒ 按 1280/1920=0.667 等比 ⇒ **128×667**（还原比例、非像素）✓
         buildingRow.AddThemeConstantOverride("separation", 12);   // DD 竖距 68 = 按钮高 56 + 12 ✓
         leftCol.AddChild(buildingRow);
         for (int i = 0; i < upgradable.Length; i++)

@@ -168,8 +168,8 @@ public partial class HamletRoot : Control
         string archeForStats = _rosterCfgForDetail?.Heroes.FirstOrDefault(h => h.Id == heroId)?.Archetype ?? string.Empty;
         UnitConfig? statsUnit = _unitsCfg?.Units.FirstOrDefault(u => u.Id == archeForStats);
         var statsGrid = new GridContainer { Name = "HeroStatsGrid", Columns = 2 };
-        statsGrid.AddThemeConstantOverride("h_separation", 133);   // DD spacing 200 ×0.667 ≈ 133（名→值间距）✓
-        statsGrid.AddThemeConstantOverride("v_separation", 15);    // DD spacing 22 ×0.667 ≈ 15（行距）✓
+        statsGrid.AddThemeConstantOverride("h_separation", 200);   // DD spacing 200 ×0.667 ≈ 133（名→值间距）✓
+        statsGrid.AddThemeConstantOverride("v_separation", 22);    // DD spacing 22 ×0.667 ≈ 15（行距）✓
         string[][] statPairs = statsUnit is null
             ? new[] { new[] { "攻击", "—" }, new[] { "物防", "—" }, new[] { "速度", "—" }, new[] { "闪避", "—" }, new[] { "暴击", "—" }, new[] { "韧性", "—" } }
             : new[]
@@ -219,8 +219,8 @@ public partial class HamletRoot : Control
         if (!usedSkel)
         {
         var trinketGrid = new GridContainer { Name = "HeroTrinketGrid", Columns = 2 };
-        trinketGrid.AddThemeConstantOverride("h_separation", 61);    // DD offset 92 ×0.667 ≈ 61 ✓
-        trinketGrid.AddThemeConstantOverride("v_separation", 107);   // DD offset 160 ×0.667 ≈ 107 ✓
+        trinketGrid.AddThemeConstantOverride("h_separation", 92);    // DD offset 92 ×0.667 ≈ 61 ✓
+        trinketGrid.AddThemeConstantOverride("v_separation", 160);   // DD offset 160 ×0.667 ≈ 107 ✓
         for (int t = 0; t < 2; t++)   // DD：2 列 = 2 个饰品位（一行）✓
         {
             var slot = new PanelContainer { Name = $"HeroTrinketSlot{t + 1}", CustomMinimumSize = new Vector2(44, 44), MouseFilter = Control.MouseFilterEnum.Ignore, TooltipText = $"饰品位 {t + 1}（装备系统接口 · 暂不可用）" };
