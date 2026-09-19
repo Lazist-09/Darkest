@@ -3948,3 +3948,16 @@ E 盘直读 `shared\controls\controls.layout.darkest`：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.107 **`base.popup_text` 解读：飘字样式层（无几何）+ 转 `fe_flow`**（2026-09-21）
+
+```
+E 盘直读 `scripts\layout\base.popup_text.layout.darkest`：**43 section / 172 字段**，每段仅 4-5 字段，
+  **无任何 size / pos / offset** ✗ ⇒ 这是**飘字样式/动画参数层**（段落名即类别）：
+    pop_text_layout_stress_damage · stun_clear · stun · hero_heal · hero_heal_crit · monster_heal · hp_heal_dot_onset ·
+    stress_dot_resist · stress_reduce · heart_attack · riposte · crit_damage · guard_failed · pass · tagged · debuff …（共 43 类）
+⇒ **本层无可落色块**（没有几何 ✓）⇒ 阶段2 不处理 ✓；阶段3 可对照它校准我方飘字**类别与配色**
+   （我域已有飘字：`BattleUI.Motion.cs` 的 `UiMotion.FloatText(_motionLayer, …)` ✓ ⇒ 后续按这 43 类补类别/配色即可 ✓）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
