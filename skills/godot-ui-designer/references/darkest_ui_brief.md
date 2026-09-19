@@ -3892,3 +3892,21 @@ blacksmith/guild/camping_trainer/nomad_wagon）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.104 **E 盘直读 `town.layout.darkest [town_screen_layout]` 全字段（含两个可直接用的值）**（2026-09-21）
+
+```
+原文（该 section 共 20 字段，全部屏幕级 ⇒ ÷1920、÷1080）：
+  .roster_list_pos **1550 0**  ⇒ 名册列自 x=1550 起 ⇒ **右侧 370px = 我域 RightColumn 370 ✓ 一致** ✓
+  .estate_summary_pos **0 975** ⇒ 0.9028 ✓（已落）｜ .heirloom_exchange_pos **340 708** ⇒ 0.1771/0.6556 ✓（已落）
+  .button_navigation_pos **70 230** / _offscreen −40 230 ⇒ 左窄列 ✓（已落）｜ .realm_inventory_pos **881 128** ✓（已落）
+  .activity_log_pos **144 132** ｜ .town_event_pos **144 132** ⇒ **两者同一位** ⇒ 可共享一个色块 ✓（本轮已落）
+  .character_pos 0 0 ｜ **.character_panel_size 1395×1080** ⇒ 角色面板尺寸（**新的可用尺寸 ✓**，可作英雄详情面板基准候选）
+  .embark_party_pos 754 871 ✓（已落）｜ .camera_position 960 322 −1251 · .ground_start/end · 各类 3D 场景位
+  **.panel_size 1550×1080** ⇒ **城池 UI 面板**尺寸（= 名册列起点 x ✓ 与 1920−370 自洽 ✓）
+
+另：该文件还有 11 栋建筑的 section（tavern/stage_coach/blacksmith/guild/abbey/camping_trainer/nomad_wagon/sanitarium/graveyard/statue/circus）
+  ⇒ 那是**城镇场景里各建筑的位置**（非 UI 面板）⇒ 属"3D 场景位"，UI 施工**不直接用**（记录备查 ✓）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |

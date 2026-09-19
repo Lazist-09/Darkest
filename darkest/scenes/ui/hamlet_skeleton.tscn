@@ -181,3 +181,16 @@ tooltip_text = "DD realm_inventory_pos 881,128 (realm inventory, placeholder)"
 [node name="RealmInventoryPlaceholder" type="ColorRect" parent="Overlay/RealmInventory"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
+
+; 阶段2 城池批(5)：E 盘直读 town.layout [town_screen_layout] —— activity_log_pos 与 town_event_pos 同为 144,132（共享一位）
+[node name="ActivityLogAnchor" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
+layout_mode = 0
+anchor_left = 0.075
+anchor_top = 0.1222
+anchor_right = 0.225
+anchor_bottom = 0.1922
+mouse_filter = 2
+tooltip_text = "活动日志/城镇事件位（DD town.layout activity_log_pos / town_event_pos 均 144,132 · 屏幕级 ÷1920 ÷1080 · 色块占位，不换不删）"
+
+[node name="ActivityLogFill" type="ColorRect" parent="HamletMargin/HamletRootCol/ActivityLogAnchor"]
+layout_mode = 2
