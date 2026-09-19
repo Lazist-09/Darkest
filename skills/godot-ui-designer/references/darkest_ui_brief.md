@@ -4066,3 +4066,43 @@ DD 门禁 46 条：RESULT: all DD values have an implementation anchor ｜ 命�
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.115 **DLC（arena_mp）UI 盘点 —— 建议判定为"超出本项目范围"**（2026-09-21）
+
+```
+E 盘 `dlc/1117860_arena_mp` 下 UI 布局文件 25 个：
+  307f/33s  \scripts\layout\arena.screen.raid.darkest  [gauge_size=400x4 button_size=384x36 item_slot_size=80x160 button_size=384x36 size=300x150]
+  90f/16s  \campaign\town\arena.town.layout.darkest  [bbox_size=260x190 bbox_size=370x750 bbox_size=250x500 bbox_size=260x450 bbox_size=350x425 bbox_size=480x500]
+  44f/8s  \campaign\town\buildings\rankings\rankings.layout.darkest  [size=600x660]
+  34f/2s  \campaign\town\party_builder\party_builder.layout.darkest  [scrolling_area_size=1180x600]
+  33f/4s  \raid_results\arena_raid_results.layout.darkest  []
+  32f/1s  \scripts\layout\arena.panel.monster.darkest  []
+  30f/3s  \scripts\layout\arena.screen.raid.battle.darkest  [highlight_panel_size=720x500]
+  29f/3s  \shared\character\arena.character.layout.darkest  [base_stats_size=580x80 equipment_size=244x175 combat_skills_size=580x100 resistances_size=580x90 char_edit_size=580x75]
+  28f/3s  \campaign\town\buildings\dueling_grounds\dueling_grounds.layout.darkest  [friends_size=600x550]
+  26f/6s  \campaign\town\party_setup\party_setup.layout.darkest  [trinket_area_size=200x625 close_area_size=1920x815 title_size=200x300]
+  24f/3s  \campaign\town\buildings\banner_customization\banner_customization.layout.darkest  [pieces_widget_size=560x550]
+  15f/5s  \scripts\layout\arena.panel.banner.darkest  []
+  14f/3s  \campaign\town\realm_inventory\compact_realm_inventory.layout.darkest  [inventory_grid_size=560x425 trinket_area_size=635x745]
+  12f/3s  \scripts\layout\arena_shieldbreaker.popup_text.layout.darkest  []
+  11f/3s  \campaign\town\matchmaking\matchmaking.layout.darkest  []
+  11f/3s  \campaign\town\buildings\prize_booth\prize_booth.layout.darkest  [size=1240x600]
+  11f/1s  \loading_screen\arena_loading_screen.layout.darkest  []
+  10f/2s  \campaign\town\rank_display\rank_display.layout.darkest  []
+  9f/6s  \scripts\layout\arena.panel.hero.darkest  []
+  8f/2s  \scripts\layout\arena.popup_text.layout.darkest  []
+  7f/1s  \campaign\town\news_popup\news_popup.layout.darkest  []
+  6f/2s  \shared\invite\invite.layout.darkest  [size=128x180]
+  4f/1s  \shared\reward_level\reward_level.layout.darkest  []
+  4f/4s  \campaign\town\building_navigation\arena.building_navigation.layout.darkest  []
+  1f/1s  \campaign\town\progression\arena.progression.layout.darkest  []
+
+⚠️ **重要判定（我建议）**：arena_mp 是 DD 的**多人对战 DLC**（`arena.screen.raid` / `arena.town` / `party_builder` /
+   `arena_raid_results` / `rankings`）⇒ **本项目未做 MP 模式** ⇒ 这些屏**没有对应的游戏功能** ✗
+⇒ 依既有口径「**DD 有但我方无对应玩法**」的两条路：
+   ① **不做**（推荐 ✓）：把 DLC UI 判为**范围外**（我方是单人战役 ✓），仅在本页留档备查 ✓
+   ② 若日后要做 MP ⇒ 再按同法（逐 section ÷基准 + 自带尺寸）落色块 ✓
+📌 **请用户确认**：是否要把 DLC 对战 UI 也纳入阶段2？（我默认**不做**，避免给不需要的模式造屏 ✗）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
