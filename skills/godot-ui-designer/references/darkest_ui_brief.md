@@ -4122,3 +4122,13 @@ E 盘 `scripts/layout/screen.raid.darkest` 的 `[overlays]` 段给出：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.117 **阶段2 验收报告已成文**（2026-09-21）
+
+```
+新增交付物：`skills/godot-ui-designer/references/darkest_ui_phase2_acceptance.md`
+  · 含：目标与合规前提 · 交付物 · **覆盖范围表（逐批 DD 依据）** · **门禁读数** · **已知缺口/未取得项** · 阶段3 替换口径 · 纪律沉淀 ✓
+  · 门禁读数（最近全量）：构建 0 错误 · ui_sweep 24 入口全绿 · DD 门禁 46 条 · 命名门 0 · 冒烟 bad=0 code=0 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
