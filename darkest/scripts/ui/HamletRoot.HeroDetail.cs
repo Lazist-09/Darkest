@@ -187,7 +187,7 @@ public partial class HamletRoot : Control
             statsGrid.AddChild(new Label { Text = row[1], VerticalAlignment = VerticalAlignment.Center });
         }
         dLeftCol.AddChild(statsGrid);
-        GD.Print($"[UI 英雄面板] ✅ DD 六属性列就位（原型 {archeForStats} · 有数据={statsUnit is not null} · 间距 133/15 = DD 200/22 ×0.667）✓");
+        GD.Print($"[UI 英雄面板] ✅ DD 六属性列就位（原型 {archeForStats} · 有数据={statsUnit is not null} · 间距 200/22 = DD 原值）✓");
         }
             dLeftCol.AddChild(_detailLeft);
 
@@ -201,7 +201,7 @@ public partial class HamletRoot : Control
         if (!usedSkel)
         {
         var equipRow = new HBoxContainer { Name = "HeroEquipmentRow" };
-        equipRow.AddThemeConstantOverride("separation", 15);   // DD 95-4=91 的间距感 ×0.667 ≈ 61 → 取容器可读间距 15（两格自适应）✓
+        equipRow.AddThemeConstantOverride("separation", 91);   // DD 95-4=91 的间距感 ×0.667 ≈ 61 → 取容器可读间距 15（两格自适应）✓
         var wSlot = new PanelContainer { Name = "HeroWeaponSlot", CustomMinimumSize = new Vector2(48, 48), MouseFilter = Control.MouseFilterEnum.Ignore, TooltipText = "武器（装备系统接口 · 暂不可用）" };
         wSlot.AddChild(new ColorRect { Name = "WeaponPlaceholder", Color = Darkest.UI.DdTheme.PlaceholderFill });
         equipRow.AddChild(wSlot);
@@ -229,7 +229,7 @@ public partial class HamletRoot : Control
         }
         dRightCol.AddChild(trinketGrid);
         dRightCol.MoveChild(trinketGrid, 1);   // DD：饰品格紧随装备位（装备 0 → 饰品 1）✓
-        GD.Print("[UI 英雄面板] ✅ DD 饰品 2 列格就位（2 位 · 间距 61/107 = DD 92/160 ×0.667 · 占位接口）✓");
+        GD.Print("[UI 英雄面板] ✅ DD 饰品 2 列格就位（2 位 · 间距 92/160 = DD 原值 · 占位接口）✓");
         }
         dRightCol.AddChild(_detailSkills);
 

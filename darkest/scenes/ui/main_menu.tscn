@@ -33,7 +33,7 @@ size_flags_horizontal = 3
 vertical_alignment = 1
 
 [node name="OptionsPanel" type="PanelContainer" parent="MenuMargin/MenuCol"]
-custom_minimum_size = Vector2(400, 288)   ; P3：DD menu options 区 600x432 x0.667 = 400x288
+custom_minimum_size = Vector2(600, 432)   ; P3：DD menu options 区 600x432（原值）
 size_flags_vertical = 3
 
 [node name="OptionsCol" type="VBoxContainer" parent="MenuMargin/MenuCol/OptionsPanel"]

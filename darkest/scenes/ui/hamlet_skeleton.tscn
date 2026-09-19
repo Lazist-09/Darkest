@@ -47,7 +47,7 @@ theme_override_constants/separation = 12
 ; DD 1:1 3-3：建筑 nav 进骨架（编辑器可见可改）；DD building_navigation.base_size 128x1000 与 button_navigation_pos 70,230
 [node name="BuildingNav" type="VBoxContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol"]
 layout_mode = 2
-custom_minimum_size = Vector2(128, 667)
+custom_minimum_size = Vector2(128, 1000)
 theme_override_constants/separation = 12
 
 ; P1.1（DD 严格贴合）：DD building_navigation 有 index 0-9 共 10 栋；这里给**未接入**的 7 栋建位，

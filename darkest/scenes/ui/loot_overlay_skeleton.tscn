@@ -35,7 +35,7 @@ text = "✕ 关闭"
 
 [node name="LootDescBlock" type="PanelContainer" parent="LootCol"]
 layout_mode = 2
-custom_minimum_size = Vector2(233, 40)   ; DD loot_description .width 350 x0.667
+custom_minimum_size = Vector2(350, 40)   ; DD loot_description .width 350（原值）
 mouse_filter = 2
 tooltip_text = "描述（DD loot_description .pos 228,136 · .width 350 · 数据未接入 ⇒ 色块占位，不换不删）"
 
@@ -44,7 +44,7 @@ layout_mode = 2
 
 [node name="LootTiles" type="HBoxContainer" parent="LootCol"]
 layout_mode = 2
-theme_override_constants/separation = 49   ; DD loot_tiles .offset 74 x0.667
+theme_override_constants/separation = 74   ; DD loot_tiles .offset 74（原值）
 tooltip_text = "战利品格（DD loot_tiles .startPosY 195 · .offset 74,0 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="LootTile1" type="PanelContainer" parent="LootCol/LootTiles"]

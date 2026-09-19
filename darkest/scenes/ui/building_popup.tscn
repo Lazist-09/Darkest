@@ -33,7 +33,7 @@ theme_override_constants/separation = 6
 ; 数据未接入的位置一律 **ColorRect 色块占位**（用户硬规矩 §14.0.68：不换不删）
 [node name="HeroSlotRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
 layout_mode = 2
-theme_override_constants/separation = 90   ; DD activity hero_slot 间距 135 x0.667 约 90
+theme_override_constants/separation = 135   ; DD activity hero_slot 间距 135（原值）
 
 [node name="HeroSlot1" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
 layout_mode = 2
