@@ -22,6 +22,15 @@ anchor_bottom = 1.0
 mouse_filter = 2
 tooltip_text = "制作人员屏背景（DD credits base_pos 0,0 · 色块占位，不换不删）"
 
+
+[node name="用法标签" type="Label" parent="CrBasePanel"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "制作人员"
 [node name="Fill" type="ColorRect" parent="CrBasePanel"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -35,6 +44,15 @@ anchor_bottom = 0.177
 mouse_filter = 2
 tooltip_text = "返回（DD credits back_button_pos 64,148 ⇒ 0.0333/0.137 · 色块占位，不换不删）"
 
+
+[node name="用法标签" type="Label" parent="CrBackButton"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "返回"
 [node name="Fill" type="ColorRect" parent="CrBackButton"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -48,6 +66,15 @@ anchor_bottom = 0.85
 mouse_filter = 2
 tooltip_text = "制作人员滚动正文区（DD credits_level_0/1/2 三档 + animation 6 参数 ⇒ 时序层无几何；本块为正文区占位，色块不换不删）"
 
+
+[node name="用法标签" type="Label" parent="CrScrollBody"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "名单正文"
 [node name="Fill" type="ColorRect" parent="CrScrollBody"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

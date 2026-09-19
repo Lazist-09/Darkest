@@ -23,6 +23,15 @@ custom_minimum_size = Vector2(1800, 434)   ; DD save_slot_window_size
 mouse_filter = 2
 tooltip_text = "存档槽窗口（DD save_slot_window_position 200,548 · size 1800x434 · 色块占位，不换不删）"
 
+
+[node name="用法标签" type="Label" parent="FfSaveSlotWindow"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "存档槽"
 [node name="Fill" type="ColorRect" parent="FfSaveSlotWindow"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -36,6 +45,15 @@ anchor_bottom = 0.657
 mouse_filter = 2
 tooltip_text = "滚动条（DD scroll_bar_position 1500,580 · 色块占位，不换不删）"
 
+
+[node name="用法标签" type="Label" parent="FfScrollBar"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "滚动条"
 [node name="Fill" type="ColorRect" parent="FfScrollBar"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -49,6 +67,15 @@ anchor_bottom = 0.3778
 mouse_filter = 2
 tooltip_text = "模式选择对话框（DD mode_select_dialog base_pos 960,300 · 色块占位，不换不删）"
 
+
+[node name="用法标签" type="Label" parent="FfModeSelectDialog"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "模式选择"
 [node name="Fill" type="ColorRect" parent="FfModeSelectDialog"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -63,6 +90,15 @@ custom_minimum_size = Vector2(500, 55)   ; DD mode_select answer button_size
 mouse_filter = 2
 tooltip_text = "模式选择答案按钮（DD button_size 500x55 · 色块占位，不换不删）"
 
+
+[node name="用法标签" type="Label" parent="FfAnswerButton1"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "选项按钮"
 [node name="Fill" type="ColorRect" parent="FfAnswerButton1"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -76,6 +112,15 @@ anchor_bottom = 0.10
 mouse_filter = 2
 tooltip_text = "返回（DD mode_select_dialog back_pos 290,54 · 色块占位，不换不删）"
 
+
+[node name="用法标签" type="Label" parent="FfBackButton"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "返回"
 [node name="Fill" type="ColorRect" parent="FfBackButton"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
@@ -89,6 +134,15 @@ anchor_bottom = 0.0485
 mouse_filter = 2
 tooltip_text = "版本号位（DD build_num_pos 24,20 · 色块占位，不换不删）"
 
+
+[node name="用法标签" type="Label" parent="FfBuildNum"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "版本号"
 [node name="Fill" type="ColorRect" parent="FfBuildNum"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
