@@ -3929,3 +3929,22 @@ DD 里有两套英雄面板：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.106 **`shared/controls` 解读：按键提示面板（DD 有、我域无对应屏）**（2026-09-21）
+
+```
+E 盘直读 `shared\controls\controls.layout.darkest`：
+  · section 6 个 / 字段 170：
+      controls_controller_element_layout **54f** ｜ …_alternate_layout **54f** ｜ …_steamdeck_layout **54f**
+      controls_mouse_keyboard_element_layout 4f ｜ controls_mouse_keyboard_panel_layout 2f ｜ controls_controller_panel_layout 2f
+  · **无自带尺寸键** ✗ ⇒ 全部**屏幕级** ⇒ ÷1920、÷1080 ✓
+  · pos 字段（全部）：controls_controller_panel.position **148,64** ⇒ 0.0771/0.0593 ·
+    controls_mouse_keyboard_panel.position **450,150** ⇒ 0.2344/0.1389 · mouse_keyboard_element.category_start_pos **280,200** ⇒ 0.1458/0.1852
+
+⇒ 判读：这是 DD 的「**控制说明/按键提示**」屏（鼠标键盘 1 套 · 手柄 3 套变体）
+⇒ 我域 grep：**没有**输入提示/手柄 glyph UI ✗（`BattleUI.Cards` 的 `glyph` 是单位头像占位，无关 ✓）
+⇒ 处置（按既有口径）：属 **"DD 有、我域缺"** ⇒ 可在后续批次**新建** `controls_skeleton`（用上面 3 个位置 + 3 套变体占位 ✓），
+  但它是**整屏新增**（170 字段）⇒ 单独一轮做，本轮**只入库不硬落** ✓（不为凑数造块 ✓）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
