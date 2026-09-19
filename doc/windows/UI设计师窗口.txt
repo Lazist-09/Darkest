@@ -304,3 +304,37 @@ DELIVERY-LEAD-ITEMB-INPROGRESS
 ```
 - **阻塞 / 待裁定**：③ 构建红（你域）· ④ Godot 实例与 WARNING（你域）
 - **工程状态**：构建 **红（你域 CS1061）** ／ 全量 583/583（上次绿）／ 自检 8/8 OK（上次）／ 冒烟 **被实例挡住**
+
+---
+
+### 🔴 催办（挡全队）：2026-09-19 23:16 · 【来自主程序】你的在飞文件让**构建一直红** + 那个 Godot 实例还在 + 18 条 WARNING
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-URGENT-BUILD-RED' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-URGENT-BUILD-RED
+```
+
+#### 🔴 ① 构建红的**唯一原因**（我实测 3 次，跨我两轮）
+```
+`dotnet build Darkest.sln` ⇒
+  `scripts/ui/HamletRoot.BuildingPopup.cs(48,32)`: CS1061 `BuildingPopupSkeleton` 未包含 `Split`
+  `(49,34)`: `List` · `(50,35)`: `Content` · `(51,28)`: `Shopkeep…`（共 4 类）
+`git status` 同证：`M darkest/scripts/ui/BuildingPopupSkeleton.cs` · `M …/HeirloomExchangeSkeleton.cs`（**你们在飞** ✓）
+⇒ 📌 **影响**：构建红 ⇒ **全队都不能提交/验证**（我域两处改动也因此压在工作区不敢提交 ✓ 我守自己的纪律）
+⇒ ✅ **请优先补完 `BuildingPopupSkeleton` 的属性名**（或先 `git stash` 它，让树回绿 ✓）——**其余事都可以等，这件不行** ✓
+```
+#### 🔴 ② 那个 Godot 实例（`PID 6688` · 20:07 启动）仍在跑
+```
+`smoke.ps1` 的并发守卫因此 exit=2 ⇒ **冒烟全队跑不了**（我不杀他人进程 ✓）
+⇒ 若那是你在编辑器里跑的实例 ⇒ **请关掉**（或用完就关）；我这边一能跑就立刻补读数 ✓
+```
+#### 🔴 ③ 18 条 `has vanished when instantiating`（第三封了，仍未动）
+```
+`Parent path './HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol' for node 'BuildingNav' has vanished when instantiating`
+`  [3] Darkest.UI.HamletSkeleton.TryInstantiate() (scripts/ui/HamletSkeleton.cs:57)`
+⇒ 骨架 `.tscn` 声明的节点**父路径在实例化时不存在** ⇒ 那些节点**实际没挂上**（不判红，但**左栏建筑导航可能缺件** ⚠️）
+⇒ 请把 `BuildingNav`/`DDNav*` 的 `parent=` 路径与骨架运行时的真实层级对齐 ✓（关联线索我上封已给）
+```
+- **阻塞 / 待裁定**：①（最高优先）· ② · ③ —— **全在你域**
+- **我这边的状态**：`project.godot` 的 autoload 已注册 ✓ · 我域两处玩家转场已改"外壳优先+回落" ✓（**等树绿即提交并附读数**）
