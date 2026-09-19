@@ -1,0 +1,102 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/ui/LootOverlaySkeleton.cs" id="2_lt"]
+
+; DD 1:1 战利品弹层（overlay.loot.darkest）：标题 228,40 · 描述 228,136 宽 350 · 格子 startY 195 间距 74 ·
+; 全部拿取 80,358 · 关闭 306,358（1920x1080 基准 ⇒ 比例表达）；未接入数据 ⇒ 一律色块占位（不换不删）
+[node name="LootOverlaySkeleton" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_lt")
+
+[node name="LootCol" type="VBoxContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.119   ; DD loot_title .pos 228/1920
+anchor_top = 0.037    ; 40/1080
+anchor_right = 0.9
+anchor_bottom = 0.95
+theme_override_constants/separation = 10
+
+[node name="TitleRow" type="HBoxContainer" parent="LootCol"]
+layout_mode = 2
+
+[node name="LootTitle" type="Label" parent="LootCol/TitleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🎁 战利品"
+
+[node name="LootClose" type="Button" parent="LootCol/TitleRow"]
+layout_mode = 2
+text = "✕ 关闭"
+
+[node name="LootDescBlock" type="PanelContainer" parent="LootCol"]
+layout_mode = 2
+custom_minimum_size = Vector2(233, 40)   ; DD loot_description .width 350 x0.667
+mouse_filter = 2
+tooltip_text = "描述（DD loot_description .pos 228,136 · .width 350 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="LootDescPlaceholder" type="ColorRect" parent="LootCol/LootDescBlock"]
+layout_mode = 2
+
+[node name="LootTiles" type="HBoxContainer" parent="LootCol"]
+layout_mode = 2
+theme_override_constants/separation = 49   ; DD loot_tiles .offset 74 x0.667
+tooltip_text = "战利品格（DD loot_tiles .startPosY 195 · .offset 74,0 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="LootTile1" type="PanelContainer" parent="LootCol/LootTiles"]
+layout_mode = 2
+custom_minimum_size = Vector2(53, 53)   ; 80x80 比例
+mouse_filter = 2
+
+[node name="TilePlaceholder" type="ColorRect" parent="LootCol/LootTiles/LootTile1"]
+layout_mode = 2
+
+[node name="LootTile2" type="PanelContainer" parent="LootCol/LootTiles"]
+layout_mode = 2
+custom_minimum_size = Vector2(53, 53)   ; 80x80 比例
+mouse_filter = 2
+
+[node name="TilePlaceholder" type="ColorRect" parent="LootCol/LootTiles/LootTile2"]
+layout_mode = 2
+
+[node name="LootTile3" type="PanelContainer" parent="LootCol/LootTiles"]
+layout_mode = 2
+custom_minimum_size = Vector2(53, 53)   ; 80x80 比例
+mouse_filter = 2
+
+[node name="TilePlaceholder" type="ColorRect" parent="LootCol/LootTiles/LootTile3"]
+layout_mode = 2
+
+[node name="LootTile4" type="PanelContainer" parent="LootCol/LootTiles"]
+layout_mode = 2
+custom_minimum_size = Vector2(53, 53)   ; 80x80 比例
+mouse_filter = 2
+
+[node name="TilePlaceholder" type="ColorRect" parent="LootCol/LootTiles/LootTile4"]
+layout_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="LootCol"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="TakeAllBlock" type="PanelContainer" parent="LootCol/ButtonRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 30)
+mouse_filter = 2
+tooltip_text = "全部拿取（DD loot_buttons .take_all_pos 80,358 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="TakeAllPlaceholder" type="ColorRect" parent="LootCol/ButtonRow/TakeAllBlock"]
+layout_mode = 2
+
+[node name="CloseBlock" type="PanelContainer" parent="LootCol/ButtonRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 30)
+mouse_filter = 2
+tooltip_text = "关闭（DD loot_buttons .close_pos 306,358 · 色块占位，不换不删）"
+
+[node name="ClosePlaceholder" type="ColorRect" parent="LootCol/ButtonRow/CloseBlock"]
+layout_mode = 2
