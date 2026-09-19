@@ -1,0 +1,87 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/ui/ControlsSkeleton.cs" id="2_ct"]
+
+; 阶段2：E 盘 shared/controls/controls.layout.darkest（6 section / 170 字段，无自带尺寸 ⇒ 屏幕级 ÷1920÷1080）
+; 3 个 panel/category 位置 + 3 套手柄元素变体（标准/备用/SteamDeck）占位；全为色块（不换不删）
+[node name="ControlsSkeleton" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_ct")
+
+[node name="CtrlMouseKbPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.2344
+anchor_top = 0.1389
+anchor_right = 0.4344
+anchor_bottom = 0.2389
+mouse_filter = 2
+tooltip_text = "键鼠控制面板（DD controls_mouse_keyboard_panel.position 450,150）"
+
+[node name="Fill" type="ColorRect" parent="CtrlMouseKbPanel"]
+layout_mode = 2
+
+[node name="CtrlControllerPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0771
+anchor_top = 0.0593
+anchor_right = 0.2771
+anchor_bottom = 0.1593
+mouse_filter = 2
+tooltip_text = "手柄控制面板（DD controls_controller_panel.position 148,64）"
+
+[node name="Fill" type="ColorRect" parent="CtrlControllerPanel"]
+layout_mode = 2
+
+[node name="CtrlCategoryStart" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.1458
+anchor_top = 0.1852
+anchor_right = 0.3458
+anchor_bottom = 0.2252
+mouse_filter = 2
+tooltip_text = "分类起点（DD controls_mouse_keyboard_element.category_start_pos 280,200）"
+
+[node name="Fill" type="ColorRect" parent="CtrlCategoryStart"]
+layout_mode = 2
+
+; 3 套手柄元素变体各留一组占位（标准 / alternate / steamdeck）
+[node name="CtrlVariantStandard" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0771
+anchor_top = 0.18
+anchor_right = 0.4271
+anchor_bottom = 0.24
+mouse_filter = 2
+tooltip_text = "手柄元素（标准变体 · DD controls_controller_element_layout 54 字段 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="CtrlVariantStandard"]
+layout_mode = 2
+
+[node name="CtrlVariantAlternate" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0771
+anchor_top = 0.26
+anchor_right = 0.4271
+anchor_bottom = 0.32
+mouse_filter = 2
+tooltip_text = "手柄元素（备用变体 · DD …_alternate_layout 54 字段 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="CtrlVariantAlternate"]
+layout_mode = 2
+
+[node name="CtrlVariantSteamDeck" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0771
+anchor_top = 0.34
+anchor_right = 0.4271
+anchor_bottom = 0.40
+mouse_filter = 2
+tooltip_text = "手柄元素（SteamDeck 变体 · DD …_steamdeck_layout 54 字段 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="CtrlVariantSteamDeck"]
+layout_mode = 2

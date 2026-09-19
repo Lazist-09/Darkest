@@ -212,7 +212,7 @@ public partial class HamletRoot : Control
         VBoxContainer buildingRow = skel?.BuildingNav ?? new VBoxContainer { Name = "BuildingNav" };   // DD 1:1 3-3：骨架优先（编辑器可改），缺失才代码建
         buildingRow.CustomMinimumSize = new Vector2(128, 1000);   // 🔴 DD 原文 building_navigation.base_size **128×1000** ⇒ 按 1280/1920=0.667 等比 ⇒ **128×667**（还原比例、非像素）✓
         buildingRow.AddThemeConstantOverride("separation", 12);   // DD 竖距 68 = 按钮高 56 + 12 ✓
-        leftCol.AddChild(buildingRow);
+        // 修 Can't add child BuildingNav already has a parent：骨架已带该节点 ⇒ 先判断父再挂（Godot 要求 Reparent）         if (buildingRow.GetParent() is null) { leftCol.AddChild(buildingRow); }         else if (buildingRow.GetParent() != leftCol) { buildingRow.Reparent(leftCol); }
         for (int i = 0; i < upgradable.Length; i++)
         {
             string bId = upgradable[i];
@@ -409,6 +409,10 @@ public partial class HamletRoot : Control
             OpenBuildingPopup(bArg["--hamlet-building=".Length..]);
         }
 
+        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-controls"))   // 阶段2：按键提示屏（可复验）
+        {
+            OpenControls();
+        }
         if (System.Array.Exists(hamletArgs, a => a == "--hamlet-loot"))   // DD 1:1 战利品弹层（可复验）
         {
             OpenLootOverlay();
