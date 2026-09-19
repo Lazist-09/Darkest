@@ -157,7 +157,7 @@ public partial class BattleRoot : Node2D
             Position = new Vector2(280, 700),
             Size = new Vector2(220, 40),
         };
-        toHamlet.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/hamlet/Hamlet.tscn");
+        toHamlet.Pressed += GoToHamlet;   // 🆕 外壳优先、缺失回落（见 GoToHamlet）
         AddChild(toHamlet);
         GD.Print("[BattleRoot] 地牢层入口就绪：StartExpedition 按钮（或 --expedition 命令行）⇒ **本场景内进地牢**（片 4：唯一宿主）✓");
         GD.Print("[BattleRoot] 回城入口就绪：ToHamlet 按钮（或 --hamlet 命令行）⇒ res://scenes/hamlet/Hamlet.tscn");
@@ -165,7 +165,7 @@ public partial class BattleRoot : Node2D
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--hamlet"))
         {
             GD.Print("[BattleRoot] --hamlet ⇒ 直接回城（端到端冒烟路径：启动 → 回城）");
-            GetTree().CallDeferred("change_scene_to_file", "res://scenes/hamlet/Hamlet.tscn");
+            GoToHamlet();
         }
 
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--expedition" || a == "--e2e"))
@@ -360,7 +360,7 @@ public partial class BattleRoot : Node2D
         ExpeditionComposition.Built built = ExpeditionComposition.BuildInScene(this, log);
         if (_ui is null)
         {
-            _ui = GetNode<BattleUI>("BattleUI");
+            _ui = GetNode<BattleUI>("UILayer/BattleUI");
         }
 
         _dungeonHostedInScene = true; // 🔴 片 4 过渡标记（战后据此回地图模式）✓
@@ -407,11 +407,31 @@ public partial class BattleRoot : Node2D
                      or Darkest.Gameplay.Sim.Run.FlowPhase.Camp ? "True" : "False")}）✓");
         return true;
     }
+    /// <summary>
+    /// 🆕 **回城入口（UI Track 1 · 事项 B）**：`UIRoot` 单外壳优先，**缺失/未就绪就回落**到原来的硬切场景 ✓
+    /// 🔴 为什么写成"外壳优先 + 回落"：`UIRoot` 是 UI 域的可选外壳（他们另有 `TryInstantiate()` 回落）⇒
+    ///    主程序侧**不假设它一定在**（无 autoload / 未注册 / 场景缺失 ⇒ 都不会崩，且行为与改造前一致 ✓）。
+    /// ⚠️ 本方法**只用于玩家路径**；`DungeonRunDriver`（e2e 驱动器）**故意不动** —— 不把测试驱动与玩家路径搅在一起 ✓
+    /// </summary>
+    private void GoToHamlet()
+    {
+        const string path = "res://scenes/hamlet/Hamlet.tscn";
+        Darkest.UI.UIRoot? shell = Darkest.UI.UIRoot.Instance;
+        if (shell is not null && shell.ShowPanel<Darkest.UI.HamletRoot>(path) is not null)
+        {
+            GD.Print("[BattleRoot] 回城 ⇒ 走 UIRoot 单外壳（ShowPanel<HamletRoot>）✓");
+            return;
+        }
+
+        GD.Print("[BattleRoot] 回城 ⇒ 无 UIRoot 外壳（回落：ChangeSceneToFile）✓");
+        GetTree().CallDeferred("change_scene_to_file", path);
+    }
+
     private void BindUi()
     {
         if (_ui is null)
         {
-            _ui = GetNode<BattleUI>("BattleUI");
+            _ui = GetNode<BattleUI>("UILayer/BattleUI");
         }
 
         _ui.Bind(host: this, useSkill: (actor, skillId) => DoUseSkill(actor, skillId),

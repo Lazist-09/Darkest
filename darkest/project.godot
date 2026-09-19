@@ -15,6 +15,12 @@ run/main_scene="res://scenes/main/MainMenu.tscn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+; UI Track 1 S1：UIRoot 单外壳（UI 域实现 scripts/ui/UIRoot.cs + scenes/ui/ui_root.tscn）
+; 由主程序注册（架构裁定：autoload 注册属主程序域）；UI 侧另有 TryInstantiate() 回落 => 未注册也不崩
+UIRoot="*res://scenes/ui/ui_root.tscn"
+
 [display]
 
 window/size/viewport_width=1920
