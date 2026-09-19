@@ -1,4 +1,4 @@
-﻿# tools/dsh/smoke.ps1 —— 一键冒烟入口（架构登记 · 2026-09-21）
+# tools/dsh/smoke.ps1 —— 一键冒烟入口（架构登记 · 2026-09-21）
 #
 # 为什么存在：`DungeonRunDriver` 那套 CLI 旗标很聪明，但"只有写的人知道" ⇒
 #   本脚本把它固化成【一键可跑 + 可接 CI】，否则验证能力会随人员变动丢失。
@@ -113,7 +113,7 @@ foreach ($c in $run) {
     # 🔴🔴 主程序 2026-09-21 修 **ERROR 口径**（用户指令：别让它们一直"待判定"）：
     #    · **引擎退出 RID 泄漏**（`leaked at exit` / `RID allocations`）= **引擎行为**，**不是代码错误** ⇒ 单独计数、只作信息 ✓
     #    · **真错误** = 其余 ERROR ⇒ **只有它才判红**（否则每份留档都挂着 1~2 条"待判定"，谁也说不清 ✓）
-    $noise = 'AudioDriver|DisplayServer|OpenGL|Vulkan|Cannot open file.*\.wav|texture.*not found'
+    $noise = 'AudioDriver|DisplayServer|OpenGL|Vulkan|Cannot open file.*\.wav|texture.*not found|root certificate store'   # UI 2026-09-21 补：证书库读取是本机环境噪声（非代码错误）
     $lines = Get-Content $log -ErrorAction SilentlyContinue
     # 🔴 2026-09-19 修：原来用 `-match 'ERROR'` ⇒ **把 C# backtrace 帧误计成"真错误"** ⚠️
 #    实测：Godot 打 WARNING 时会附带调用栈，其中一帧的类型名含 `godot_variant_call_error`
