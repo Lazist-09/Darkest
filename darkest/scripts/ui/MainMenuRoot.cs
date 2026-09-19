@@ -166,6 +166,12 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
         {
             AddChild(feFlow);
         }
+
+        // 阶段2：制作人员屏（DD shared/credits：背景 0,0 + 返回 64,148）色块占位 —— 数据未接入
+        if (CreditsSkeleton.TryInstantiate() is CreditsSkeleton credits)
+        {
+            AddChild(credits);
+        }
         _status.Text = $"跨趟状态：金钱 {economy.Gold}　名册 {roster.Heroes.Count}/{roster.Cap}　" +
                        $"最低士气 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}";
 

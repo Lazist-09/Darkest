@@ -1,0 +1,50 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/ui/CreditsSkeleton.cs" id="2_cr"]
+
+; 阶段2：E 盘 shared/credits/credits.layout.darkest（5 section / 37 字段）——制作人员屏
+; 可用几何：base_pos 0,0 · back_button_pos 64,148 ⇒ 0.0333/0.137（其余为 credits_animation 时序参数 ✗ 无几何）
+; 全为色块占位（§14.0.68 不换不删）
+[node name="CreditsSkeleton" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_cr")
+
+[node name="CrBasePanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+tooltip_text = "制作人员屏背景（DD credits base_pos 0,0 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="CrBasePanel"]
+layout_mode = 2
+
+[node name="CrBackButton" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0333
+anchor_top = 0.137
+anchor_right = 0.1333
+anchor_bottom = 0.177
+mouse_filter = 2
+tooltip_text = "返回（DD credits back_button_pos 64,148 ⇒ 0.0333/0.137 · 色块占位，不换不删）"
+
+[node name="Fill" type="ColorRect" parent="CrBackButton"]
+layout_mode = 2
+
+[node name="CrScrollBody" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.15
+anchor_top = 0.15
+anchor_right = 0.85
+anchor_bottom = 0.85
+mouse_filter = 2
+tooltip_text = "制作人员滚动正文区（DD credits_level_0/1/2 三档 + animation 6 参数 ⇒ 时序层无几何；本块为正文区占位，色块不换不删）"
+
+[node name="Fill" type="ColorRect" parent="CrScrollBody"]
+layout_mode = 2
