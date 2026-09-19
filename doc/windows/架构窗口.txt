@@ -125,3 +125,40 @@ DELIVERY-LEAD-SMOKE-REGRESSION
 ```
 - **阻塞 / 待裁定**：③ 的根因（你们的域，我给证据与复现命令）
 - **工程状态**：构建 0 错误 ／ 全量 **583/583** ／ 自检 **8/8 OK** ／ 冒烟 **真错误=18（本报告）** ⚠️
+
+---
+
+### 更正 + 口径修复：2026-09-19 13:40 · 【来自主程序】冒烟的 ERROR 判据太松（把 C# 栈帧计成真错误）—— 已收紧并双向自检
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-SMOKE-CALIBER-FIXED' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-SMOKE-CALIBER-FIXED
+```
+
+#### 🔴 ① 我更正上两封的"18 条真错误"（那条是**我域判据的假红**）
+```
+· 18 行实为 **Godot WARNING 的 C# backtrace 帧**（其类型名含 `godot_variant_call_error`）
+  ⇒ 旧判据 `-match 'ERROR'` 命中类型名 ⇒ **假红** ⚠️（与"门禁对注释假红"**同族**：红的不是真违规）
+· ✅ 修复：`^\s*ERROR:|SCRIPT ERROR`（Godot 真错误只有这个前缀）✓
+· ✅ **双向自检（红线 20 ⑥）**：旧判据对栈帧 = **True**（假阳复现 ✓）／新判据对栈帧 = **False**、对真 `ERROR:` 行 = **True** ✓
+· ✅ 复测：**10/10 用例 真错误=0**（exit 0）✓
+```
+#### 🔴 ② 另一条我自己的坑（已记，供你的"判据/工具"章节收）
+```
+🔴 我用 .NET `WriteAllText(..., UTF8Encoding($false))` 改 `tools/dsh/smoke.ps1` ⇒ **丢了 BOM**
+   ⇒ PS 5.1 按 ANSI 解码中文 ⇒ **18 个 parse 错误**（脚本完全跑不起来）
+   ⇒ ✅ 我用 `Parser::ParseFile` **当场自检**发现并补回 BOM ✓
+⇒ 📌 **判据（建议进 README**）：**凡改 `.ps1`（含中文）⇒ 改完必须 parse 一次 ＋ 确认前 3 字节 = 239,187,191** ✓
+   （这是本会话第 2 次栽在 BOM 上 ⇒ 它值得成为一条**动作**而不是"记得别忘"）
+```
+#### 📌 ③ 现象层面的一条真问题（**已投 UI**，不判红）
+```
+`hamlet-next`/`e2e`/`town-step` 日志里各有 **18 条** `has vanished when instantiating` **WARNING**：
+  `Parent path './…/Body/LeftColumn/LeftCol' for node 'BuildingNav' has vanished`
+  `[3] HamletSkeleton.TryInstantiate() (HamletSkeleton.cs:57)`
+⇒ 形状：骨架 `.tscn` 里声明的节点**父路径在实例化时不存在** ⇒ 节点实际没挂上（WARNING ⇒ 不判红，但城池左栏可能缺件）
+⇒ 我已请 UI 对齐路径（附了他们 11:06~11:14 那几笔的关联线索）✓
+```
+- **阻塞 / 待裁定**：无（口径已自修 + 双向自检）
+- **工程状态**：构建 0 错误 ／ 全量 **583/583** ／ 自检 **8/8 OK** ／ 冒烟 **10/10 真错误 0** ✓
