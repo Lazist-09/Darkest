@@ -499,12 +499,13 @@ color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha
 layout_mode = 2
 
 [node name="RaidSidebarSlot" type="PanelContainer" parent="."]
+; 尺寸自洽(收尾)：DD [sidebar_scroll] item_slot_size 80x160（尺寸类）· 侧栏位 pos 1348,200 ⇒ 框按 DD 尺寸落位
 layout_mode = 0
-anchor_left = 0.30
-anchor_top = 0.09
-anchor_right = 0.50
-anchor_bottom = 0.12
-custom_minimum_size = Vector2(80, 160)   ; DD [sidebar_scroll] item_slot_size 80x160
+anchor_left = 0.7021
+anchor_top = 0.1852
+anchor_right = 0.7438
+anchor_bottom = 0.3333
+custom_minimum_size = Vector2(80, 160)   ; DD sidebar_scroll item_slot_size
 mouse_filter = 2
 tooltip_text = "DD screen.raid [sidebar_scroll] item_slot_size 80x160 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
