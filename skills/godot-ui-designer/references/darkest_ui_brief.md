@@ -3874,3 +3874,21 @@ blacksmith/guild/camping_trainer/nomad_wagon）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴🔴 14.0.103 **尺寸键的 section 归属（E 盘逐 section 直读）——并更正我的一处误用**（2026-09-21）
+
+```
+直读 E 盘逐 section 提取尺寸键，结果（**尺寸键都带 section 名，不能只看压平视图** ✗）：
+  · `campaign/town/buildings/building.layout.darkest`：
+      [building_activity_layout]        base_size **800×200**   ← 活动区
+      [building_choice_activity_slot_layout] choice_hot_spot_size **120×20**
+      [building_store_list_layout]      base_size **950×800**   ← **商店列表**（不是整个弹窗 ✗）
+  · `campaign/town/town.layout.darkest`：[town_screen_layout] panel_size **1550×1080**   ← 城池屏
+  · `campaign/town/realm_inventory/...`：[add_trinket_dialog_contents] text_box_size **300×200** ← **加饰品对话框**（非库存面板 ✗）
+  · `campaign/town/buildings/sanitarium/...`：[sanitarium_activity_layout] base_size 800×200 · [.._slot_layout] choice_hot_spot_size 120×20
+
+🔴 **更正**：我先前给 `BuildingPopupBody` 设 `custom_minimum_size = 950×800` —— 那是 **商店列表** 的尺寸 ✗ ⇒ 已改为更正注释，**弹窗自身尺寸 DD 未给 ⇒ 不猜** ✓
+⇒ 纪律加强：**凡"自带尺寸"必须先确认所属 section**（尺寸键与 section 名一起读）✓ 与本页同法 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
