@@ -502,3 +502,32 @@ anchor_right = 0.1069
 anchor_bottom = 0.1207
 mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] complete_continue_raid_pos 90,98 ⇒ 0.0469/0.0907 · 数据未接入 ⇒ 色块占位，不换不删"
+
+; 阶段2：E 盘 screen.raid.darkest 其余段真实 *_pos（÷1920 ÷1080；屏幕级 ✓）——安全写法，不用 RemoveRange
+
+[node name="RaidSec1" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.7969
+anchor_top = 0.125
+anchor_right = 0.8569
+anchor_bottom = 0.155
+mouse_filter = 2
+tooltip_text = "DD screen.raid [shard_escrow_display] pos 1530,135 ⇒ 0.7969/0.125 · 色块占位，不换不删"
+
+[node name="RaidSec2" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.7969
+anchor_top = 0.0324
+anchor_right = 0.8569
+anchor_bottom = 0.0624
+mouse_filter = 2
+tooltip_text = "DD screen.raid [wave_countdown_display] pos 1530,35 ⇒ 0.7969/0.0324 · 色块占位，不换不删"
+
+[node name="RaidSec3" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.9167
+anchor_top = 0.5324
+anchor_right = 0.9767
+anchor_bottom = 0.5624
+mouse_filter = 2
+tooltip_text = "DD screen.raid [skip_curio_display] pos 1760,575 ⇒ 0.9167/0.5324 · 色块占位，不换不删"
