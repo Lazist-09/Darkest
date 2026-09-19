@@ -1,56 +1,87 @@
-[gd_scene format=3 uid="uid://bq4dtfx6wvaet"]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" uid="uid://brfq6750jghwd" path="res://scripts/ui/RosterRowTemplate.cs" id="1_row"]
-[ext_resource type="Theme" uid="uid://chllcwagtr3iw" path="res://resources/theme/dd_theme.tres" id="9_theme"]
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/ui/RosterRowTemplate.cs" id="2_rrt"]
 
-[node name="RosterRow" type="Button" unique_id=954326763]
-custom_minimum_size = Vector2(370, 97)   ; DD roster.layout：列宽 370 / 行高 97（尺寸按 DD，结构保持你的两行式）
+; 🔴 A1（用户裁决"改"）：名册行 = 锚点式，严格按 DD roster.layout 六元素偏移（行 370x97）
+;   portrait 21,9 · name 116,4 · stress 116,43 · weapon_level 156,65 · armour_level 228,65 · resolve_bar 258,4
+;   ⚠️ 攻/防=装备等级 · 决心条位=士气条（用户口径）｜ 代码依赖名保留（RosterRowBody/2 · PortraitFrame · PortraitPlaceholder · RosterInfo · HeroLevel）
+[node name="RosterRow" type="Button"]
+custom_minimum_size = Vector2(370, 97)
 offset_right = 370.0
 offset_bottom = 97.0
-theme = ExtResource("9_theme")
-script = ExtResource("1_row")
+theme = ExtResource("1_theme")
+script = ExtResource("2_rrt")
 
-[node name="RosterRowBody" type="HBoxContainer" parent="." unique_id=1212591559]
+[node name="RosterRowBody" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/separation = 0
+
+[node name="RosterRowBody2" type="Control" parent="RosterRowBody"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PortraitFrame" type="PanelContainer" parent="RosterRowBody/RosterRowBody2"]
 layout_mode = 0
-offset_right = 231.0
-offset_bottom = 97.0
+anchor_left = 0.0568
+anchor_top = 0.0928
+anchor_right = 0.127
+anchor_bottom = 0.3608
+mouse_filter = 2
 
-[node name="RosterRowBody2" type="VBoxContainer" parent="RosterRowBody" unique_id=1518103725]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="RosterUpRow" type="HBoxContainer" parent="RosterRowBody/RosterRowBody2" unique_id=1905712270]
-custom_minimum_size = Vector2(231, 43)   ; P1.2：DD stress_offset y=43 ⇒ 上带高度 43（DD 值 x0.667 口径下的相对带高；**结构与节点未动**）
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="PortraitFrame" type="PanelContainer" parent="RosterRowBody/RosterRowBody2/RosterUpRow" unique_id=760509520]
-custom_minimum_size = Vector2(26, 26)
+[node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/PortraitFrame"]
 layout_mode = 2
 
-[node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/RosterUpRow/PortraitFrame" unique_id=1959592058]
+[node name="RosterInfo" type="Label" parent="RosterRowBody/RosterRowBody2"]
+layout_mode = 0
+anchor_left = 0.3135
+anchor_top = 0.0412
+anchor_right = 1.0
+anchor_bottom = 0.28
+text = "英雄"
+
+[node name="PressureBar" type="Label" parent="RosterRowBody/RosterRowBody2"]
+layout_mode = 0
+anchor_left = 0.3135
+anchor_top = 0.4433
+anchor_right = 0.95
+anchor_bottom = 0.62
+text = "压力"
+
+[node name="EquipLevelSlot" type="PanelContainer" parent="RosterRowBody/RosterRowBody2"]
+layout_mode = 0
+anchor_left = 0.4216
+anchor_top = 0.6701
+anchor_right = 0.4919
+anchor_bottom = 0.9381
+mouse_filter = 2
+tooltip_text = "装备等级·攻（DD weapon_level_offset 156,65 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+[node name="EquipLevelPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/EquipLevelSlot"]
 layout_mode = 2
 
-[node name="PressureBar" type="Label" parent="RosterRowBody/RosterRowBody2/RosterUpRow" unique_id=2016220736]
-layout_mode = 2
-text = "●●●●○○○○○○　"
+[node name="ArmourLevelSlot" type="PanelContainer" parent="RosterRowBody/RosterRowBody2"]
+layout_mode = 0
+anchor_left = 0.6162
+anchor_top = 0.6701
+anchor_right = 0.6865
+anchor_bottom = 0.9381
+mouse_filter = 2
+tooltip_text = "装备等级·防（DD armour_level_offset 228,65 · 数据未接入 ⇒ 色块占位，不换不删）"
 
-[node name="RosterDownRow" type="HBoxContainer" parent="RosterRowBody/RosterRowBody2" unique_id=1223030150]
-custom_minimum_size = Vector2(231, 0)   ; P1.2：下带（名/信息行）自然高度；DD name_offset 116,4 与 weapon/armour 156,65 属**绝对偏移**，HBox/VBox 结构无法直接表达（见 skill 记录）
-layout_mode = 2
-
-[node name="RosterInfo" type="Label" parent="RosterRowBody/RosterRowBody2/RosterDownRow" unique_id=1305470552]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "攻10  防10"
-vertical_alignment = 1
-clip_text = true
-text_overrun_behavior = 3
-
-[node name="HeroLevel" type="PanelContainer" parent="RosterRowBody" unique_id=2006654285]
-custom_minimum_size = Vector2(26, 26)
+[node name="ArmourLevelPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/ArmourLevelSlot"]
 layout_mode = 2
 
-[node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/HeroLevel" unique_id=96436621]
-custom_minimum_size = Vector2(40, 40)
+[node name="HeroLevel" type="PanelContainer" parent="RosterRowBody/RosterRowBody2"]
+layout_mode = 0
+anchor_left = 0.6973
+anchor_top = 0.0412
+anchor_right = 0.7676
+anchor_bottom = 0.3093
+mouse_filter = 2
+
+[node name="ResolvePlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/HeroLevel"]
 layout_mode = 2
