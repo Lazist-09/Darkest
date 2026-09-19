@@ -1,0 +1,68 @@
+﻿# 一键冒烟（20260918_2019）· 用例 10 个 · 每例 --quit-after 600
+entry-main1      | 行数=24     | 真错误=16 | 引擎退出泄漏=0 | exit=-1073741819
+    ERROR: Failed to open 'user://logs/godot2026-09-18T20.19.22.log'.
+    [1] error(-1): no debug info in PE/COFF executable
+    [2] error(-1): no debug info in PE/COFF executable
+    [3] error(-1): no debug info in PE/COFF executable
+    [4] error(-1): no debug info in PE/COFF executable
+topology-auto    | 行数=24     | 真错误=16 | 引擎退出泄漏=0 | exit=-1073741819
+    ERROR: Failed to open 'user://logs/godot2026-09-18T20.19.31.log'.
+    [1] error(-1): no debug info in PE/COFF executable
+    [2] error(-1): no debug info in PE/COFF executable
+    [3] error(-1): no debug info in PE/COFF executable
+    [4] error(-1): no debug info in PE/COFF executable
+hamlet-next      | 行数=24     | 真错误=16 | 引擎退出泄漏=0 | exit=-1073741819
+    ERROR: Failed to open 'user://logs/godot2026-09-18T20.19.36.log'.
+    [1] error(-1): no debug info in PE/COFF executable
+    [2] error(-1): no debug info in PE/COFF executable
+    [3] error(-1): no debug info in PE/COFF executable
+    [4] error(-1): no debug info in PE/COFF executable
+e2e              | 行数=24     | 真错误=16 | 引擎退出泄漏=0 | exit=-1073741819
+    ERROR: Failed to open 'user://logs/godot2026-09-18T20.19.37.log'.
+    [1] error(-1): no debug info in PE/COFF executable
+    [2] error(-1): no debug info in PE/COFF executable
+    [3] error(-1): no debug info in PE/COFF executable
+    [4] error(-1): no debug info in PE/COFF executable
+map-mode         | 行数=24     | 真错误=16 | 引擎退出泄漏=0 | exit=-1073741819
+    ERROR: Failed to open 'user://logs/godot2026-09-18T20.19.38.log'.
+    [1] error(-1): no debug info in PE/COFF executable
+    [2] error(-1): no debug info in PE/COFF executable
+    [3] error(-1): no debug info in PE/COFF executable
+    [4] error(-1): no debug info in PE/COFF executable
+town-step        | 行数=24     | 真错误=16 | 引擎退出泄漏=0 | exit=-1073741819
+    ERROR: Failed to open 'user://logs/godot2026-09-18T20.19.41.log'.
+    [1] error(-1): no debug info in PE/COFF executable
+    [2] error(-1): no debug info in PE/COFF executable
+    [3] error(-1): no debug info in PE/COFF executable
+    [4] error(-1): no debug info in PE/COFF executable
+ui-audit         | 行数=24     | 真错误=16 | 引擎退出泄漏=0 | exit=-1073741819
+    ERROR: Failed to open 'user://logs/godot2026-09-18T20.20.10.log'.
+    [1] error(-1): no debug info in PE/COFF executable
+    [2] error(-1): no debug info in PE/COFF executable
+    [3] error(-1): no debug info in PE/COFF executable
+    [4] error(-1): no debug info in PE/COFF executable
+dungeon-in-scene | 行数=24     | 真错误=16 | 引擎退出泄漏=0 | exit=-1073741819
+    ERROR: Failed to open 'user://logs/godot2026-09-18T20.20.12.log'.
+    [1] error(-1): no debug info in PE/COFF executable
+    [2] error(-1): no debug info in PE/COFF executable
+    [3] error(-1): no debug info in PE/COFF executable
+    [4] error(-1): no debug info in PE/COFF executable
+tile-walk        | 行数=24     | 真错误=16 | 引擎退出泄漏=0 | exit=-1073741819
+    ERROR: Failed to open 'user://logs/godot2026-09-18T20.20.13.log'.
+    [1] error(-1): no debug info in PE/COFF executable
+    [2] error(-1): no debug info in PE/COFF executable
+    [3] error(-1): no debug info in PE/COFF executable
+    [4] error(-1): no debug info in PE/COFF executable
+abandon          | 行数=24     | 真错误=16 | 引擎退出泄漏=0 | exit=-1073741819
+    ERROR: Failed to open 'user://logs/godot2026-09-18T20.20.14.log'.
+    [1] error(-1): no debug info in PE/COFF executable
+    [2] error(-1): no debug info in PE/COFF executable
+    [3] error(-1): no debug info in PE/COFF executable
+    [4] error(-1): no debug info in PE/COFF executable
+# 🔴🔴 主程序 2026-09-21 修：**收尾段也用 try/catch 包住**（实测：这一段抛错 ⇒ 脚本提前退出、退出码不可信 ⚠️）
+#    ⇒ 同一纪律：**读数与汇总【不许】打断主流程**；退出码必须由 $bad **唯一决定**（这样才可能接 CI）✓
+# 汇总（人读）+ 判决（机读 · 给 CI 用）：**RESULT 行是 CI 判据的唯一来源**（不靠 -1073741819）✓
+# 汇总：10 例，非环境 ERROR 非零的用例 = 10
+
+── 关键读数（自动提取）──
+RESULT: BAD n=10
