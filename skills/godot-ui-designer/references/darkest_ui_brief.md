@@ -3910,3 +3910,22 @@ blacksmith/guild/camping_trainer/nomad_wagon）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴🔴 14.0.105 **辨明：DD 有两个"英雄面板"⇒ 我域用错了基准（待改）**（2026-09-21）
+
+```
+DD 里有两套英雄面板：
+  ① **战斗检视面板** `scripts/layout/panel.hero.darkest`（sections: health_layout/stress_layout/stat_layout/hero_equipment/hero_trinket）
+     ⇒ 无自带尺寸 ⇒ 基准 = `panels/panel_hero.png **720×224**` ⇒ 比例 health 0.1806/0.0491 · stress 0.1806/0.1786 · stat 0.0833/0.3214 · equip 0.3306 · trinket 0.6292
+  ② **城池角色面板** `shared/character/character.layout.darkest`（132 字段 / 12 section）
+     ⇒ 基准 = `town.layout [town_screen_layout].character_panel_size **1395×1080**` ✓
+     关键字段：name 76,26 · class 76,80 · campaign_status 93,117 · quirks 141,128 · base_stats 141,358 · equipment 141,516 ·
+               hero_pips 846,145（spacing 47.5）· target_pips 1153,145 · combat_skill_grid 780,156 · camping_skill_grid 780,320 ·
+               resistances 780,436 · class_bonuses 780,566 · close 1344,18 · palette_icon 20,720
+
+🔴 **我域状况**：`scenes/ui/hero_detail_skeleton.tscn` 服务于 **城池**（`HamletRoot.HeroDetail` ✗ 不是战斗）
+   ⇒ 我上一批却把 **① 战斗面板** 的比例（0.1806/0.0491 等）套上去了 ✗ **属基准误用**（同 menu 那次的类别 ✗）
+⇒ 正确做法：城池英雄详情应对齐 **② `character.layout` ÷ (1395,1080)** 的比例 ✓（战斗检视面板若要做，另建屏）
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
