@@ -4056,3 +4056,13 @@ E 盘直读 `scripts\layout\base.popup_text.layout.darkest`：**43 section / 172
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.114 **阶段2 当前状态全量门禁快照**（2026-09-21）
+
+```
+清单：A 栏 165 条 / B 栏 52 条（合计 217）✓
+构建错误=0 ｜ ui_sweep 退出码=0（# summary: entries=24 failed=0）
+DD 门禁 46 条：RESULT: all DD values have an implementation anchor ｜ 命名门 exit=0
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |

@@ -2,11 +2,11 @@
 
 2026-09-21（脚本只读生成，可随施工再生）
 
-分类：**A = tooltip 提及 DD 出处**（对齐 DD，优先出图）；**B = 未提及**（我方自建，保留不删）。分类为启发式，未提及 ≠ 与 DD 无关
+分类：**A = tooltip 提及 DD 出处**（优先出图）；**B = 未提及**（我方自建，保留不删）；分类为启发式，未提及 ≠ 与 DD 无关
 
 用法：美术按「节点 + 尺寸 + DD 出处」出**同尺寸原创资产**；替换时**只换贴图、不动锚点/尺寸** ⇒ 布局零改动 ✓
 
-## A 栏（159 条）
+## A 栏（165 条）
 
 ```
 场景 | 节点 | 锚点(left/top) | 尺寸 | DD 出处
@@ -101,6 +101,7 @@ hamlet_skeleton.tscn           | EstateSummary              | 0.0/0.903         
 hamlet_skeleton.tscn           | RealmInventory             | 0.459/0.119          | -                    | DD realm_inventory_pos 881,128 (realm inventory, placeholder)
 hamlet_skeleton.tscn           | ActivityLogAnchor          | 0.075/0.1222         | -                    | 活动日志/城镇事件位（DD town.layout activity_log_pos / town_event_pos 均 144,132 · 屏幕级 ÷1920 ÷1080 · 色块占位，不换不删）
 hamlet_skeleton.tscn           | EstateCostHotSpot          | 0.0/0.903            | Vector2(100, 50)     | 地产费用热区（DD shared/estate estate_cost_hot_spot_layout.size 100x50 · 色块占位，不换不删）
+hamlet_skeleton.tscn           | RealmInventoryGrid         | 0.459/0.119          | Vector2(560, 525)    | 领域库存网格（DD realm_inventory inventory_grid_size 560x525 · grid_pos 30,195 · close 610,22 · 尺寸=DD 原值；面板屏位取 town
 heirloom_exchange_skeleton.tscn | FromSlot1                  | -                    | Vector2(120, 40)     | FROM 1（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）
 heirloom_exchange_skeleton.tscn | ToSlot1                    | -                    | Vector2(120, 40)     | TO 1（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）
 heirloom_exchange_skeleton.tscn | FromSlot2                  | -                    | Vector2(120, 40)     | FROM 2（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）
@@ -162,6 +163,11 @@ quest_select_skeleton.tscn     | QsXpBarTtHotArea           | 0.02/0.81         
 quest_select_skeleton.tscn     | QsTownEventIconTt          | 0.02/0.87            | Vector2(32, 32)      | 城镇事件图标 tooltip（DD town_event_icon_tooltip_hot_area_size 32x32 · 自带尺寸 ✓） · 色块占位，不换不删
 quest_select_skeleton.tscn     | QsCampingTt                | 0.02/0.93            | Vector2(80, 30)      | 扎营 tooltip（DD camping_tt_size 80x30 · 自带尺寸 ✓） · 色块占位，不换不删
 quest_select_skeleton.tscn     | QsWaveHighscoreTt          | 0.02/0.99            | Vector2(260, 160)    | 波次高分 tooltip（DD wave_highscore_tt_size 260x160 · 自带尺寸 ✓） · 色块占位，不换不删
+raid_results_skeleton.tscn     | RrMore1                    | 0.0208/0             | -                    | DD raid_results [raid_results_quest_inventory_system_grid_layout] start_pos 40,0 => 0.0208/0 · 色块占位，不换不删
+raid_results_skeleton.tscn     | RrMore2                    | 0.0521/0             | -                    | DD raid_results [raid_results_party_gold_inventory_system_grid_layout] start_pos 100,0 => 0.0521/0 · 色块占位，不换
+raid_results_skeleton.tscn     | RrMore3                    | 0.0521/0             | -                    | DD raid_results [raid_results_party_heirloom_inventory_system_grid_layout] start_pos 100,0 => 0.0521/0 · 色块占
+raid_results_skeleton.tscn     | RrMore4                    | 0.0521/0             | -                    | DD raid_results [wave_raid_results_party_gold_inventory_system_grid_layout] start_pos 100,0 => 0.0521/0 · 色块
+raid_results_skeleton.tscn     | RrMore5                    | 0.0677/0.2315        | -                    | DD raid_results [raid_results_heroes_state_layout] heroes_start_pos 130,250 => 0.0677/0.2315 · 色块占位，不换不删
 roster_row.tscn                | EquipLevelSlot             | 0.4216/0.6701        | -                    | 装备等级·攻（DD weapon_level_offset 156,65 · 数据未接入 ⇒ 色块占位，不换不删）
 roster_row.tscn                | ArmourLevelSlot            | 0.6162/0.6701        | -                    | 装备等级·防（DD armour_level_offset 228,65 · 数据未接入 ⇒ 色块占位，不换不删）
 unit_card.tscn                 | MonsterType                | 0.0926/0.3043        | -                    | 类型（DD panel.monster .type_pos 65,112 · 数据未接入 ⇒ 色块占位，不换不删）
@@ -230,5 +236,5 @@ unit_card.tscn                 | portraitBox                | -                 
 ```
 
 注：① DD 数字=度量事实；DD 像素未进工程（红线27）｜② B 栏为既有占位（保留不删 §14.0.68）
-    ③ 生成脚本只用数组拼接（List.Add 模式在本环境会致变量退化 String ⇒ 弃用 ✓）
-    ④ **DD 内部互证尺寸**：装备/饰品图标 **72×144**（inventory.icon_size · hero_equipment.tooltip_hotspot_size · 资产 inv_*.png 三处一致）
+    ③ 生成脚本只用数组拼接（List.Add 在本环境会致变量退化 String ⇒ 弃用 ✓）
+    ④ DD 内部互证尺寸：装备/饰品图标 **72×144**（inventory.icon_size · hero_equipment.tooltip_hotspot_size · 资产 inv_*.png 三处一致）
