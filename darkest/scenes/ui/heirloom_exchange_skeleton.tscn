@@ -119,6 +119,7 @@ mouse_filter = 2
 tooltip_text = "选项起点（DD heirloom_exchange choice_start_offset 256,75） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="HxChoiceStartAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="HxIconOffsetAnchor" type="PanelContainer" parent="."]
@@ -131,6 +132,7 @@ mouse_filter = 2
 tooltip_text = "图标位（DD icon_offset 0,32） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="HxIconOffsetAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="HxArrowAnchor" type="PanelContainer" parent="."]
@@ -143,4 +145,5 @@ mouse_filter = 2
 tooltip_text = "箭头位（DD arrow_offset 148,80） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="HxArrowAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

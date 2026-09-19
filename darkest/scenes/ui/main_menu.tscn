@@ -57,6 +57,7 @@ mouse_filter = 2
 tooltip_text = "返回按钮位（DD shared/menu back_button_pos 859,103 · 屏幕级 ÷1920 ÷1080 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="MenuBackFill" type="ColorRect" parent="MenuBackButtonAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 ; 自带尺寸项（来源①）：元素名 tooltip 热区 360x50 · 手柄勾选热区 600x36
@@ -71,6 +72,7 @@ mouse_filter = 2
 tooltip_text = "元素名 tooltip 热区（DD element_name_tooltip_hot_area_size 360x50 · 自带尺寸 ⇒ 直接用 ✓）"
 
 [node name="MenuNameTooltipFill" type="ColorRect" parent="MenuNameTooltipHotArea"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="MenuControllerHotArea" type="PanelContainer" parent="."]
@@ -84,6 +86,7 @@ mouse_filter = 2
 tooltip_text = "手柄勾选热区（DD element_control_check_box_controller_hotspot_size 600x36 · 自带尺寸 ✓）"
 
 [node name="MenuControllerFill" type="ColorRect" parent="MenuControllerHotArea"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 scene margin_top
 scene separation

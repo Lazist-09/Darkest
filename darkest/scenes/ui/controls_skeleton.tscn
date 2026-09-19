@@ -23,6 +23,7 @@ mouse_filter = 2
 tooltip_text = "键鼠控制面板（DD controls_mouse_keyboard_panel.position 450,150）"
 
 [node name="Fill" type="ColorRect" parent="CtrlMouseKbPanel"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="CtrlControllerPanel" type="PanelContainer" parent="."]
@@ -35,6 +36,7 @@ mouse_filter = 2
 tooltip_text = "手柄控制面板（DD controls_controller_panel.position 148,64）"
 
 [node name="Fill" type="ColorRect" parent="CtrlControllerPanel"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="CtrlCategoryStart" type="PanelContainer" parent="."]
@@ -47,6 +49,7 @@ mouse_filter = 2
 tooltip_text = "分类起点（DD controls_mouse_keyboard_element.category_start_pos 280,200）"
 
 [node name="Fill" type="ColorRect" parent="CtrlCategoryStart"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 ; 3 套手柄元素变体各留一组占位（标准 / alternate / steamdeck）
@@ -60,6 +63,7 @@ mouse_filter = 2
 tooltip_text = "手柄元素（标准变体 · DD controls_controller_element_layout 54 字段 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="CtrlVariantStandard"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="CtrlVariantAlternate" type="PanelContainer" parent="."]
@@ -72,6 +76,7 @@ mouse_filter = 2
 tooltip_text = "手柄元素（备用变体 · DD …_alternate_layout 54 字段 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="CtrlVariantAlternate"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="CtrlVariantSteamDeck" type="PanelContainer" parent="."]
@@ -84,4 +89,5 @@ mouse_filter = 2
 tooltip_text = "手柄元素（SteamDeck 变体 · DD …_steamdeck_layout 54 字段 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="CtrlVariantSteamDeck"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

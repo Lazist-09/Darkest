@@ -121,6 +121,7 @@ custom_minimum_size = Vector2(260, 40)
 ; 阶段2 城池批(2)：DD buildings/building.layout 自带 base_size 950x800 ⇒ 偏移 ÷950、÷800 精确换算（比例锚点）
 
 [node name="BpNameAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.1095
 anchor_top = 0.1575
@@ -130,6 +131,7 @@ mouse_filter = 2
 tooltip_text = "名称位（DD building.layout name_pos 104,126 · 基准 950x800） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BpBodyAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.6274
 anchor_top = 0.1275
@@ -139,6 +141,7 @@ mouse_filter = 2
 tooltip_text = "主体位（DD body_base_pos 596,102） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BpUpgradeAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.1811
 anchor_top = 0.3238
@@ -148,6 +151,7 @@ mouse_filter = 2
 tooltip_text = "升级区位（DD upgrade_base_pos 172,259） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BpTreesAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.0
 anchor_top = 0.2438
@@ -157,6 +161,7 @@ mouse_filter = 2
 tooltip_text = "升级树位（DD upgrade_trees_offset 0,195） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BpSlotListAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.4632
 anchor_top = 0.1488
@@ -166,6 +171,7 @@ mouse_filter = 2
 tooltip_text = "英雄槽列表位（DD slot_list_pos 440,119 · slot_spacing 135） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BpChoiceListAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.0
 anchor_top = 0.3125
@@ -187,6 +193,7 @@ mouse_filter = 2
 tooltip_text = "坟场条目（DD graveyard .entry_size 1000x160 · 尺寸=DD 原值；该栋 *_position 偏移需父基准 ⇒ 位置取 body 区约定，未取得不猜） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BlockPlaceholder" type="ColorRect" parent="BpGraveyardEntry"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="BpStatueList" type="PanelContainer" parent="."]
@@ -200,6 +207,7 @@ mouse_filter = 2
 tooltip_text = "雕像列表区（DD statue .list_area_size 600x580 · 同上位置口径） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BlockPlaceholder" type="ColorRect" parent="BpStatueList"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="BpUpgradeSlot" type="PanelContainer" parent="."]
@@ -213,6 +221,7 @@ mouse_filter = 2
 tooltip_text = "升级图标位（DD upgrade .base_size 102x72 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BlockPlaceholder" type="ColorRect" parent="BpUpgradeSlot"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="BpHeroActionBase" type="PanelContainer" parent="."]
@@ -226,6 +235,7 @@ mouse_filter = 2
 tooltip_text = "英雄动作基准（DD hero_action .base_size 100x100 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BlockPlaceholder" type="ColorRect" parent="BpHeroActionBase"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="BpSanitariumChoice" type="PanelContainer" parent="."]
@@ -239,6 +249,7 @@ mouse_filter = 2
 tooltip_text = "疗养院选项热区（DD sanitarium .choice_hot_spot_size 120x20 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BlockPlaceholder" type="ColorRect" parent="BpSanitariumChoice"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="BpStageCoachTextBox" type="PanelContainer" parent="."]
@@ -252,4 +263,5 @@ mouse_filter = 2
 tooltip_text = "驿站文本框（DD stage_coach .text_box_size 350x200 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="BlockPlaceholder" type="ColorRect" parent="BpStageCoachTextBox"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

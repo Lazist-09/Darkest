@@ -110,12 +110,14 @@ mouse_filter = 2
 tooltip_text = "地牢地图（DD panel.map · 只读不可点 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="MapPlaceholder" type="ColorRect" parent="MapCorner"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 ; P4-b(1b)：DD status_bars 的图标位（tray_icon_left/right_offset 58/62,-38 · round_indicator_icon_offset 10,-4）
 ; 需美术图标 ⇒ 按硬规矩 §14.0.68 一律 ColorRect **色块占位**（不换不删）；y = (698-38)/1080 = 0.611
 
 [node name="HeroIcon1" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.41
 anchor_top = 0.611
@@ -125,6 +127,7 @@ mouse_filter = 2
 tooltip_text = "图标位 Hero1（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="EnemyIcon1" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.547
 anchor_top = 0.611
@@ -134,6 +137,7 @@ mouse_filter = 2
 tooltip_text = "图标位 Enemy1（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="HeroIcon2" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.323
 anchor_top = 0.611
@@ -143,6 +147,7 @@ mouse_filter = 2
 tooltip_text = "图标位 Hero2（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="EnemyIcon2" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.634
 anchor_top = 0.611
@@ -152,6 +157,7 @@ mouse_filter = 2
 tooltip_text = "图标位 Enemy2（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="HeroIcon3" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.235
 anchor_top = 0.611
@@ -161,6 +167,7 @@ mouse_filter = 2
 tooltip_text = "图标位 Hero3（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="EnemyIcon3" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.722
 anchor_top = 0.611
@@ -170,6 +177,7 @@ mouse_filter = 2
 tooltip_text = "图标位 Enemy3（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="HeroIcon4" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.148
 anchor_top = 0.611
@@ -179,6 +187,7 @@ mouse_filter = 2
 tooltip_text = "图标位 Hero4（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="EnemyIcon4" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.809
 anchor_top = 0.611
@@ -188,6 +197,7 @@ mouse_filter = 2
 tooltip_text = "图标位 Enemy4（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="RoundIndicator" type="ColorRect" parent="StatusTray"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.005   ; DD round_indicator_icon_offset 10,-4
 anchor_top = 0.646
@@ -199,6 +209,7 @@ tooltip_text = "回合指示器（DD round_indicator_icon_offset 10,-4 · spacin
 ; P4 overlays：DD screen.raid.battle 的 .attack_overlay_pos 960,360（屏心）与 .monster_panel_position 946,712
 ; ⇒ 比例 0.5/0.3333 与 0.4927/0.6593；数据未接入 ⇒ ColorRect 色块占位（不换不删）
 [node name="AttackOverlayAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.485
 anchor_top = 0.318
@@ -208,6 +219,7 @@ mouse_filter = 2
 tooltip_text = "攻击覆盖位（DD screen.raid.battle .attack_overlay_pos 960,360 · 需特效 ⇒ 色块占位，不换不删）"
 
 [node name="MonsterPanelAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.478   ; DD .monster_panel_position 946,712
 anchor_top = 0.645
@@ -219,6 +231,7 @@ tooltip_text = "怪物面板位（DD screen.raid.battle .monster_panel_position 
 ; 补位：DD panel.tab 的 reorder_party .button_pos 678,90 与 pannel.inventory 的 8 列网格（start 20,28 / offset 80,160）
 ; 均未接入数据/美术 ⇒ ColorRect 色块占位（不换不删）；注意 inventory 面板的**屏幕位置**不在该文件里 ⇒ 不猜 ✗
 [node name="RaidReorderPartyButton" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.345   ; DD panel.tab reorder_party .button_pos 678/1920
 anchor_top = 0.078   ; 90/1080
@@ -228,6 +241,7 @@ mouse_filter = 2
 tooltip_text = "换位按钮位（DD panel.tab reorder_party .button_pos 678,90 · 我域有 mf_tab 模板 ⇒ 待对齐 · 色块占位，不换不删）"
 
 [node name="RaidInventoryGridAnchor" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.735
 anchor_top = 0.30
@@ -247,6 +261,7 @@ mouse_filter = 2
 tooltip_text = "地图页签（DD panel.map tab 672,252 · size 48x90 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="TabPlaceholder" type="ColorRect" parent="MapCorner/MapTabAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="MapHomeButton" type="PanelContainer" parent="MapCorner"]
@@ -259,6 +274,7 @@ mouse_filter = 2
 tooltip_text = "地图回中按钮（DD panel.map home button_pos 677,24 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="HomePlaceholder" type="ColorRect" parent="MapCorner/MapHomeButton"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 ; 阶段2 施工⑤（ui_spec.json · pannel.inventory 720x360）：8 列 · start_pos 20,28 · offset 80,160（格距 ⇒ 0.1111/0.4444）
@@ -277,6 +293,7 @@ custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取
 mouse_filter = 2
 
 [node name="SlotPlaceholder1" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot1"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="InvSlot2" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
@@ -285,6 +302,7 @@ custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取
 mouse_filter = 2
 
 [node name="SlotPlaceholder2" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot2"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="InvSlot3" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
@@ -293,6 +311,7 @@ custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取
 mouse_filter = 2
 
 [node name="SlotPlaceholder3" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot3"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="InvSlot4" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
@@ -301,6 +320,7 @@ custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取
 mouse_filter = 2
 
 [node name="SlotPlaceholder4" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot4"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="InvSlot5" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
@@ -309,6 +329,7 @@ custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取
 mouse_filter = 2
 
 [node name="SlotPlaceholder5" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot5"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="InvSlot6" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
@@ -317,6 +338,7 @@ custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取
 mouse_filter = 2
 
 [node name="SlotPlaceholder6" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot6"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="InvSlot7" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
@@ -325,6 +347,7 @@ custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取
 mouse_filter = 2
 
 [node name="SlotPlaceholder7" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot7"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="InvSlot8" type="PanelContainer" parent="EArea/InventoryGridAnchor"]
@@ -333,6 +356,7 @@ custom_minimum_size = Vector2(80, 160)   ; DD 格距 80x160（格内尺寸未取
 mouse_filter = 2
 
 [node name="SlotPlaceholder8" type="ColorRect" parent="EArea/InventoryGridAnchor/InvSlot8"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 ; 阶段2：E 盘 scripts/layout/screen.raid.darkest（34 section / 307 字段）的**自带尺寸**段 ⇒ 同尺寸色块（尺寸=DD 原值 ✓）
@@ -349,6 +373,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [torch_layout] gauge_size 400x4 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="RaidTorchGauge"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="RaidBasicScrollBtn" type="PanelContainer" parent="."]
@@ -362,6 +387,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [basic_scroll] button_size 384x36 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="RaidBasicScrollBtn"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="RaidSidebarSlot" type="PanelContainer" parent="."]
@@ -375,6 +401,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [sidebar_scroll] item_slot_size 80x160 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="RaidSidebarSlot"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="RaidResultScrollBtn" type="PanelContainer" parent="."]
@@ -388,6 +415,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [result_scroll] button_size 384x36 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="RaidResultScrollBtn"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="RaidTorchInfoArea" type="PanelContainer" parent="."]
@@ -401,6 +429,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [torch_info] mouseOverAreaSize 200x130 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="RaidTorchInfoArea"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="RaidTorchStripArea" type="PanelContainer" parent="."]
@@ -414,6 +443,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [torch_info] stripMouseOverAreaSize 860x24 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="RaidTorchStripArea"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="RaidQuestInfoArea" type="PanelContainer" parent="."]
@@ -427,11 +457,13 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] size 300x150 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="RaidQuestInfoArea"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 ; 阶段2：E 盘 screen.raid.darkest 关键段的真实 *_pos（÷1920 ÷1080；屏幕级 ✓）
 
 [node name="RaidPos1" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.7969
 anchor_top = 0.0324
@@ -441,6 +473,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [kill_count_display] pos 1530,35 ⇒ 0.7969/0.0324 · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="RaidPos2" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = -0.1328
 anchor_top = 0
@@ -450,6 +483,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [camp_layout] fourth_pos -255,0 ⇒ -0.1328/0 · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="RaidPos3" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.3812
 anchor_top = 0.0556
@@ -459,6 +493,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [camp_layout] respite_scroll_pos 732,60 ⇒ 0.3812/0.0556 · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="RaidPos4" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.0062
 anchor_top = 0.0185
@@ -468,6 +503,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] pos 12,20 ⇒ 0.0062/0.0185 · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="RaidPos5" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.4938
 anchor_top = 0.5463
@@ -477,6 +513,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] complete_mid_screen_pos 948,590 ⇒ 0.4938/0.5463 · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="RaidPos6" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0
 anchor_top = 0.0509
@@ -486,6 +523,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] complete_choice_shared_frame_pos 0,55 ⇒ 0/0.0509 · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="RaidPos7" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = -0.0885
 anchor_top = 0.0907
@@ -495,6 +533,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [quest_info] complete_return_to_hamlet_pos -170,98 ⇒ -0.0885/0.0907 · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="RaidPos8" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.0469
 anchor_top = 0.0907
@@ -506,6 +545,7 @@ tooltip_text = "DD screen.raid [quest_info] complete_continue_raid_pos 90,98 ⇒
 ; 阶段2：E 盘 screen.raid.darkest 其余段真实 *_pos（÷1920 ÷1080；屏幕级 ✓）——安全写法，不用 RemoveRange
 
 [node name="RaidSec1" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.7969
 anchor_top = 0.125
@@ -515,6 +555,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [shard_escrow_display] pos 1530,135 ⇒ 0.7969/0.125 · 色块占位，不换不删"
 
 [node name="RaidSec2" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.7969
 anchor_top = 0.0324
@@ -524,6 +565,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [wave_countdown_display] pos 1530,35 ⇒ 0.7969/0.0324 · 色块占位，不换不删"
 
 [node name="RaidSec3" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.9167
 anchor_top = 0.5324
@@ -544,11 +586,13 @@ mouse_filter = 2
 tooltip_text = "库存图标本体（DD shared/inventory inventory_item_layout.icon_size 72x144 · 与 hero_equipment/资产 inv_* 一致；格距见 pannel.inventory 80x160）· 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="InvItemIconBody"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 ; 阶段2：E 盘 screen.raid 其余段 pos（屏幕级 /1920 /1080）
 
 [node name="RaidX1" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.4104
 anchor_top = 0.6296
@@ -558,6 +602,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [overlays] hero_start_pos 788,680 => 0.4104/0.6296 · 色块占位，不换不删"
 
 [node name="RaidX2" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.5469
 anchor_top = 0.6296
@@ -567,6 +612,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [overlays] monster_start_pos 1050,680 => 0.5469/0.6296 · 色块占位，不换不删"
 
 [node name="RaidX3" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.699
 anchor_top = 0.1296
@@ -576,6 +622,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [basic_scroll] pos 1342,140 => 0.699/0.1296 · 色块占位，不换不删"
 
 [node name="RaidX4" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0
 anchor_top = 0.3704
@@ -585,6 +632,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [basic_scroll] ok_button_pos -150,400 => 0/0.3704 · 色块占位，不换不删"
 
 [node name="RaidX5" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.0406
 anchor_top = 0.3704
@@ -594,6 +642,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [basic_scroll] cancel_button_pos 78,400 => 0.0406/0.3704 · 色块占位，不换不删"
 
 [node name="RaidX6" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.7021
 anchor_top = 0.1852
@@ -603,6 +652,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [sidebar_scroll] pos 1348,200 => 0.7021/0.1852 · 色块占位，不换不删"
 
 [node name="RaidX7" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0
 anchor_top = 0.2222
@@ -612,6 +662,7 @@ mouse_filter = 2
 tooltip_text = "DD screen.raid [sidebar_scroll] investigate_button_pos -152,240 => 0/0.2222 · 色块占位，不换不删"
 
 [node name="RaidX8" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.0391
 anchor_top = 0.2222

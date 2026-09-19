@@ -23,6 +23,7 @@ mouse_filter = 2
 tooltip_text = "制作人员屏背景（DD credits base_pos 0,0 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="CrBasePanel"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="CrBackButton" type="PanelContainer" parent="."]
@@ -35,6 +36,7 @@ mouse_filter = 2
 tooltip_text = "返回（DD credits back_button_pos 64,148 ⇒ 0.0333/0.137 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="CrBackButton"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="CrScrollBody" type="PanelContainer" parent="."]
@@ -47,4 +49,5 @@ mouse_filter = 2
 tooltip_text = "制作人员滚动正文区（DD credits_level_0/1/2 三档 + animation 6 参数 ⇒ 时序层无几何；本块为正文区占位，色块不换不删）"
 
 [node name="Fill" type="ColorRect" parent="CrScrollBody"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

@@ -83,6 +83,7 @@ tooltip_text = "任务信息位（DD provision quest_info_pos 1300,96 · 屏幕�
 layout_mode = 2
 
 [node name="Fill" type="ColorRect" parent="ProvQuestInfoAnchor/BlockPlaceholder"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="ProvScoutingAnchor" type="PanelContainer" parent="."]
@@ -98,6 +99,7 @@ tooltip_text = "侦察数值位（DD scouting_stat_pos 1380,96） · 数据未�
 layout_mode = 2
 
 [node name="Fill" type="ColorRect" parent="ProvScoutingAnchor/BlockPlaceholder"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="ProvSellBackAnchor" type="PanelContainer" parent="."]
@@ -113,6 +115,7 @@ tooltip_text = "售回信息位（DD provision_sell_back_info_pos 1164,510） ·
 layout_mode = 2
 
 [node name="Fill" type="ColorRect" parent="ProvSellBackAnchor/BlockPlaceholder"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="ProvStoreAnchor" type="PanelContainer" parent="."]
@@ -128,4 +131,5 @@ tooltip_text = "商店背景位（DD provision pos 800,532；网格 start_pos 60
 layout_mode = 2
 
 [node name="Fill" type="ColorRect" parent="ProvStoreAnchor/BlockPlaceholder"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

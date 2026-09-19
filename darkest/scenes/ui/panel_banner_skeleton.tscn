@@ -23,9 +23,11 @@ mouse_filter = 2
 tooltip_text = "战斗横幅（DD panel_banner.png 754x136 · 屏位未取得 ⇒ 顶部居中约定）"
 
 [node name="BannerBackground" type="ColorRect" parent="BannerPanel"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="BannerPortrait" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.0424
 anchor_top = 0.2353
@@ -35,6 +37,7 @@ mouse_filter = 2
 tooltip_text = "横幅立绘位（DD portrait_layout pos 32,32 · 基准 754x136 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="BannerSeal" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.0318
 anchor_top = 0.1691
@@ -44,6 +47,7 @@ mouse_filter = 2
 tooltip_text = "横幅封印/徽记位（DD seal_pos 24,23 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="BannerName" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.3607
 anchor_top = 0.2794
@@ -53,6 +57,7 @@ mouse_filter = 2
 tooltip_text = "横幅名称位（DD name_layout pos 272,38 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="BannerAbility" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.3714
 anchor_top = 0.2574

@@ -84,6 +84,7 @@ mouse_filter = 2
 tooltip_text = "任务地图位（DD quest_map_pos 1000,525 · 屏幕级） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="QsQuestMapAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="QsAllQuestMapAnchor" type="PanelContainer" parent="."]
@@ -96,6 +97,7 @@ mouse_filter = 2
 tooltip_text = "全图位（DD all_quest_map_pos 850,700） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="QsAllQuestMapAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="QsEffectOverlayAnchor" type="PanelContainer" parent="."]
@@ -108,6 +110,7 @@ mouse_filter = 2
 tooltip_text = "地牢效果覆盖位（DD dungeon_effect_overlay_pos 1000,560） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="QsEffectOverlayAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="QsDungeonXpBar" type="PanelContainer" parent="."]
@@ -121,6 +124,7 @@ mouse_filter = 2
 tooltip_text = "地牢 XP 条（DD dungeon_xp_bar_size 194x8 · 自带尺寸 ⇒ 直接用 ✓） · 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="QsDungeonXpBar"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="QsXpBarTtHotArea" type="PanelContainer" parent="."]
@@ -134,6 +138,7 @@ mouse_filter = 2
 tooltip_text = "XP 条 tooltip 热区（DD dungeon_xp_bar_tt_hot_area_size 232x48 · 自带尺寸 ✓） · 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="QsXpBarTtHotArea"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="QsTownEventIconTt" type="PanelContainer" parent="."]
@@ -147,6 +152,7 @@ mouse_filter = 2
 tooltip_text = "城镇事件图标 tooltip（DD town_event_icon_tooltip_hot_area_size 32x32 · 自带尺寸 ✓） · 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="QsTownEventIconTt"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="QsCampingTt" type="PanelContainer" parent="."]
@@ -160,6 +166,7 @@ mouse_filter = 2
 tooltip_text = "扎营 tooltip（DD camping_tt_size 80x30 · 自带尺寸 ✓） · 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="QsCampingTt"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="QsWaveHighscoreTt" type="PanelContainer" parent="."]
@@ -173,4 +180,5 @@ mouse_filter = 2
 tooltip_text = "波次高分 tooltip（DD wave_highscore_tt_size 260x160 · 自带尺寸 ✓） · 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="QsWaveHighscoreTt"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

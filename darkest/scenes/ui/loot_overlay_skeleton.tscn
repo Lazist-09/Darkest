@@ -120,6 +120,7 @@ mouse_filter = 2
 tooltip_text = "全部拿取位（DD overlay.loot take_all_pos 80,358） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="LootTakeAllAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="LootCloseAnchor" type="PanelContainer" parent="."]
@@ -132,6 +133,7 @@ mouse_filter = 2
 tooltip_text = "关闭位（DD close_pos 306,358） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="LootCloseAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="LootDescAnchor" type="PanelContainer" parent="."]
@@ -144,4 +146,5 @@ mouse_filter = 2
 tooltip_text = "描述位（DD loot_description pos 228,136 · width 350） · 数据未接入 ⇒ 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="LootDescAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

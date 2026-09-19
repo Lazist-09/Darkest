@@ -24,6 +24,7 @@ mouse_filter = 2
 tooltip_text = "存档槽窗口（DD save_slot_window_position 200,548 · size 1800x434 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="FfSaveSlotWindow"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="FfScrollBar" type="PanelContainer" parent="."]
@@ -36,6 +37,7 @@ mouse_filter = 2
 tooltip_text = "滚动条（DD scroll_bar_position 1500,580 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="FfScrollBar"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="FfModeSelectDialog" type="PanelContainer" parent="."]
@@ -48,6 +50,7 @@ mouse_filter = 2
 tooltip_text = "模式选择对话框（DD mode_select_dialog base_pos 960,300 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="FfModeSelectDialog"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="FfAnswerButton1" type="PanelContainer" parent="."]
@@ -61,6 +64,7 @@ mouse_filter = 2
 tooltip_text = "模式选择答案按钮（DD button_size 500x55 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="FfAnswerButton1"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="FfBackButton" type="PanelContainer" parent="."]
@@ -73,6 +77,7 @@ mouse_filter = 2
 tooltip_text = "返回（DD mode_select_dialog back_pos 290,54 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="FfBackButton"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 [node name="FfBuildNum" type="PanelContainer" parent="."]
@@ -85,4 +90,5 @@ mouse_filter = 2
 tooltip_text = "版本号位（DD build_num_pos 24,20 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="FfBuildNum"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

@@ -193,6 +193,7 @@ mouse_filter = 2
 tooltip_text = "活动日志/城镇事件位（DD town.layout activity_log_pos / town_event_pos 均 144,132 · 屏幕级 ÷1920 ÷1080 · 色块占位，不换不删）"
 
 [node name="ActivityLogFill" type="ColorRect" parent="HamletMargin/HamletRootCol/ActivityLogAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 ; 阶段2：E 盘 shared/estate estate_cost_hot_spot_layout.size **100x50**（费用热区）
@@ -207,6 +208,7 @@ mouse_filter = 2
 tooltip_text = "地产费用热区（DD shared/estate estate_cost_hot_spot_layout.size 100x50 · 色块占位，不换不删）"
 
 [node name="Fill" type="ColorRect" parent="HamletMargin/HamletRootCol/EstateCostHotSpot"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 ; 阶段2：E 盘 realm_inventory inventory_grid_size **560x525**（自带尺寸 => 直接用）；面板屏位取 town.realm_inventory_pos 881,128
@@ -221,4 +223,5 @@ mouse_filter = 2
 tooltip_text = "领域库存网格（DD realm_inventory inventory_grid_size 560x525 · grid_pos 30,195 · close 610,22 · 尺寸=DD 原值；面板屏位取 town.realm_inventory_pos 881,128）· 色块占位，不换不删"
 
 [node name="Fill" type="ColorRect" parent="HamletMargin/HamletRootCol/RealmInventoryGrid"]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
