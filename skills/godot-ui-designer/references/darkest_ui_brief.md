@@ -3532,3 +3532,73 @@ C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.95 **更正 §14.0.94：换算表重算（上次生成失败，表为空）**（2026-09-21）
+
+```
+🔴 更正：§14.0.94 的换算表**因我的模糊匹配失败而为空** ✗（与提交信息不符）⇒ 本页用**显式映射**重算 ✓
+映射：panel.hero↔panel_hero.png(720×224) · panel.monster↔panel_monster.png(702×368) ·
+      panel.banner↔panel_banner.png(754×136) · pannel.inventory↔panel_inventory.png(720×360) · panel.map↔panel_map.png(720×360)
+
+换算表（ratio = DD 偏移 ÷ 面板基准；阶段2 直接可用 ✓）：
+  [panel_banner.png] ability_layout.controller_button_offset  DD(0,10)  ⇒  0 / 0.0735  (基准 754 x 136)
+  [panel_banner.png] ability_layout.pos  DD(280,35)  ⇒  0.3714 / 0.2574  (基准 754 x 136)
+  [panel_banner.png] background_layout.controller_pos  DD(-33,0)  ⇒  -0.0438 / 0  (基准 754 x 136)
+  [panel_banner.png] background_layout.pos  DD(-33,0)  ⇒  -0.0438 / 0  (基准 754 x 136)
+  [panel_banner.png] name_layout.pos  DD(272,38)  ⇒  0.3607 / 0.2794  (基准 754 x 136)
+  [panel_banner.png] portrait_layout.controller_button_offset  DD(-4,48)  ⇒  -0.0053 / 0.3529  (基准 754 x 136)
+  [panel_banner.png] portrait_layout.pos  DD(32,32)  ⇒  0.0424 / 0.2353  (基准 754 x 136)
+  [panel_banner.png] portrait_layout.seal_pos  DD(24,23)  ⇒  0.0318 / 0.1691  (基准 754 x 136)
+  [panel_hero.png] health_layout.pos  DD(130,11)  ⇒  0.1806 / 0.0491  (基准 720 x 224)
+  [panel_hero.png] hero_equipment.pos  DD(238,0)  ⇒  0.3306 / 0  (基准 720 x 224)
+  [panel_hero.png] hero_trinket.pos  DD(453,0)  ⇒  0.6292 / 0  (基准 720 x 224)
+  [panel_hero.png] stat_layout.pos  DD(60,72)  ⇒  0.0833 / 0.3214  (基准 720 x 224)
+  [panel_hero.png] stress_layout.pos  DD(130,40)  ⇒  0.1806 / 0.1786  (基准 720 x 224)
+  [panel_inventory.png] raid_inventory_panel_background.pos  DD(0,0)  ⇒  0 / 0  (基准 720 x 360)
+  [panel_inventory.png] raid_inventory_panel_grid_layout.start_pos  DD(20,28)  ⇒  0.0278 / 0.0778  (基准 720 x 360)
+  [panel_inventory.png] wave_inventory_panel_background.pos  DD(0,0)  ⇒  0 / 0  (基准 720 x 360)
+  [panel_map.png] indicator_layout.button_pos  DD(677,24)  ⇒  0.9403 / 0.0667  (基准 720 x 360)
+  [panel_map.png] indicator_layout.pos  DD(672,252)  ⇒  0.9333 / 0.7  (基准 720 x 360)
+  [panel_map.png] indicator_layout.tooltip_offset  DD(1206,28)  ⇒  1.675 / 0.0778  (基准 720 x 360)
+  [panel_map.png] input_preview.background_offset  DD(-4,8)  ⇒  -0.0056 / 0.0222  (基准 720 x 360)
+  [panel_map.png] input_preview.base_pos  DD(5,3)  ⇒  0.0069 / 0.0083  (基准 720 x 360)
+  [panel_map.png] input_preview.pan_controller_button_offset  DD(10,35)  ⇒  0.0139 / 0.0972  (基准 720 x 360)
+  [panel_map.png] input_preview.pan_offset  DD(0,0)  ⇒  0 / 0  (基准 720 x 360)
+  [panel_map.png] input_preview.pan_text_offset  DD(20,18)  ⇒  0.0278 / 0.05  (基准 720 x 360)
+  [panel_map.png] input_preview.reset_controller_button_offset  DD(28,70)  ⇒  0.0389 / 0.1944  (基准 720 x 360)
+  [panel_map.png] input_preview.reset_offset  DD(0,220)  ⇒  0 / 0.6111  (基准 720 x 360)
+  [panel_map.png] input_preview.reset_text_offset  DD(20,42)  ⇒  0.0278 / 0.1167  (基准 720 x 360)
+  [panel_map.png] input_preview.transition_offset  DD(-100,0)  ⇒  -0.1389 / 0  (基准 720 x 360)
+  [panel_map.png] input_preview.visible_area_offset  DD(0,0)  ⇒  0 / 0  (基准 720 x 360)
+  [panel_map.png] input_preview.zoom_in_controller_button_offset  DD(28,40)  ⇒  0.0389 / 0.1111  (基准 720 x 360)
+  [panel_map.png] input_preview.zoom_in_offset  DD(0,100)  ⇒  0 / 0.2778  (基准 720 x 360)
+  [panel_map.png] input_preview.zoom_in_text_offset  DD(20,12)  ⇒  0.0278 / 0.0333  (基准 720 x 360)
+  [panel_map.png] input_preview.zoom_out_controller_button_offset  DD(28,55)  ⇒  0.0389 / 0.1528  (基准 720 x 360)
+  [panel_map.png] input_preview.zoom_out_offset  DD(0,160)  ⇒  0 / 0.4444  (基准 720 x 360)
+  [panel_map.png] input_preview.zoom_out_text_offset  DD(20,28)  ⇒  0.0278 / 0.0778  (基准 720 x 360)
+  [panel_map.png] map_layout.pos  DD(4,40)  ⇒  0.0056 / 0.1111  (基准 720 x 360)
+  [panel_map.png] map_layout.scrollpos  DD(0,0)  ⇒  0 / 0  (基准 720 x 360)
+  [panel_monster.png] _root.hero_stats_pos  DD(435,111)  ⇒  0.6197 / 0.3016  (基准 702 x 368)
+  [panel_monster.png] _root.hero_stats_spacing  DD(0,22)  ⇒  0 / 0.0598  (基准 702 x 368)
+  [panel_monster.png] _root.hp_pos  DD(520,61)  ⇒  0.7407 / 0.1658  (基准 702 x 368)
+  [panel_monster.png] _root.indicator_controller_button_offset  DD(-22,16)  ⇒  -0.0313 / 0.0435  (基准 702 x 368)
+  [panel_monster.png] _root.name_pos  DD(65,58)  ⇒  0.0926 / 0.1576  (基准 702 x 368)
+  [panel_monster.png] _root.resistances_entry_icon_pos  DD(-10,8)  ⇒  -0.0142 / 0.0217  (基准 702 x 368)
+  [panel_monster.png] _root.resistances_entry_title_pos  DD(20,6)  ⇒  0.0285 / 0.0163  (基准 702 x 368)
+  [panel_monster.png] _root.resistances_entry_value_pos  DD(206,6)  ⇒  0.2934 / 0.0163  (基准 702 x 368)
+  [panel_monster.png] _root.resistances_pos  DD(100,220)  ⇒  0.1425 / 0.5978  (基准 702 x 368)
+  [panel_monster.png] _root.resistances_spacing  DD(0,22)  ⇒  0 / 0.0598  (基准 702 x 368)
+  [panel_monster.png] _root.resistances_title_pos  DD(154,186)  ⇒  0.2194 / 0.5054  (基准 702 x 368)
+  [panel_monster.png] _root.skills_icon_offset  DD(-22,4)  ⇒  -0.0313 / 0.0109  (基准 702 x 368)
+  [panel_monster.png] _root.skills_icon_spacing  DD(22,0)  ⇒  0.0313 / 0  (基准 702 x 368)
+  [panel_monster.png] _root.skills_pos  DD(370,230)  ⇒  0.5271 / 0.625  (基准 702 x 368)
+  [panel_monster.png] _root.skills_spacing  DD(0,26)  ⇒  0 / 0.0707  (基准 702 x 368)
+  [panel_monster.png] _root.skills_text_offset  DD(50,0)  ⇒  0.0712 / 0  (基准 702 x 368)
+  [panel_monster.png] _root.skills_title_pos  DD(480,186)  ⇒  0.6838 / 0.5054  (基准 702 x 368)
+  [panel_monster.png] _root.stats_pos  DD(235,112)  ⇒  0.3348 / 0.3043  (基准 702 x 368)
+  [panel_monster.png] _root.stats_spacing  DD(0,22)  ⇒  0 / 0.0598  (基准 702 x 368)
+  [panel_monster.png] _root.type_pos  DD(65,112)  ⇒  0.0926 / 0.3043  (基准 702 x 368)
+  [panel_monster.png] _root.type_spacing  DD(0,22)  ⇒  0 / 0.0598  (基准 702 x 368)
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
