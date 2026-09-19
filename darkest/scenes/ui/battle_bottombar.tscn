@@ -545,3 +545,77 @@ tooltip_text = "库存图标本体（DD shared/inventory inventory_item_layout.i
 
 [node name="Fill" type="ColorRect" parent="InvItemIconBody"]
 layout_mode = 2
+
+; 阶段2：E 盘 screen.raid 其余段 pos（屏幕级 /1920 /1080）
+
+[node name="RaidX1" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.4104
+anchor_top = 0.6296
+anchor_right = 0.4604
+anchor_bottom = 0.6546
+mouse_filter = 2
+tooltip_text = "DD screen.raid [overlays] hero_start_pos 788,680 => 0.4104/0.6296 · 色块占位，不换不删"
+
+[node name="RaidX2" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.5469
+anchor_top = 0.6296
+anchor_right = 0.5969
+anchor_bottom = 0.6546
+mouse_filter = 2
+tooltip_text = "DD screen.raid [overlays] monster_start_pos 1050,680 => 0.5469/0.6296 · 色块占位，不换不删"
+
+[node name="RaidX3" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.699
+anchor_top = 0.1296
+anchor_right = 0.749
+anchor_bottom = 0.1546
+mouse_filter = 2
+tooltip_text = "DD screen.raid [basic_scroll] pos 1342,140 => 0.699/0.1296 · 色块占位，不换不删"
+
+[node name="RaidX4" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0
+anchor_top = 0.3704
+anchor_right = 0.05
+anchor_bottom = 0.3954
+mouse_filter = 2
+tooltip_text = "DD screen.raid [basic_scroll] ok_button_pos -150,400 => 0/0.3704 · 色块占位，不换不删"
+
+[node name="RaidX5" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0406
+anchor_top = 0.3704
+anchor_right = 0.0906
+anchor_bottom = 0.3954
+mouse_filter = 2
+tooltip_text = "DD screen.raid [basic_scroll] cancel_button_pos 78,400 => 0.0406/0.3704 · 色块占位，不换不删"
+
+[node name="RaidX6" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.7021
+anchor_top = 0.1852
+anchor_right = 0.7521
+anchor_bottom = 0.2102
+mouse_filter = 2
+tooltip_text = "DD screen.raid [sidebar_scroll] pos 1348,200 => 0.7021/0.1852 · 色块占位，不换不删"
+
+[node name="RaidX7" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0
+anchor_top = 0.2222
+anchor_right = 0.05
+anchor_bottom = 0.2472
+mouse_filter = 2
+tooltip_text = "DD screen.raid [sidebar_scroll] investigate_button_pos -152,240 => 0/0.2222 · 色块占位，不换不删"
+
+[node name="RaidX8" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0391
+anchor_top = 0.2222
+anchor_right = 0.0891
+anchor_bottom = 0.2472
+mouse_filter = 2
+tooltip_text = "DD screen.raid [sidebar_scroll] pass_button_pos 75,240 => 0.0391/0.2222 · 色块占位，不换不删"
