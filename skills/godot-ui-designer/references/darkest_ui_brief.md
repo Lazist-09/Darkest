@@ -3663,3 +3663,53 @@ C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.97 **阶段2 城池批：building.layout 换算表（自带 base_size 950×800 ⇒ 面板级基准已知）**（2026-09-21）
+
+```
+DD `campaign/town/buildings/building.layout.darkest` **自带 `.base_size 950 800`（类别=尺寸 ✓）** ⇒ 所有偏移可 ÷950、÷800 精确换算 ✓
+（对比：panel.hero/monster 无 size ⇒ 需借面板 PNG 尺寸做基准；此处 DD 直接给了基准，最可信 ✓）
+  name_pos DD(104,126) => 0.1095 / 0.1575
+  body_base_pos DD(596,102) => 0.6274 / 0.1275
+  upgrade_base_pos DD(172,259) => 0.1811 / 0.3238
+  close_input_preview_pos DD(1484,144) => 1.5621 / 0.18
+  close_pos DD(1496,144) => 1.5747 / 0.18
+  info_text_offset DD(580,760) => 0.6105 / 0.95
+  frame_offset DD(-18,-115) => -0.0189 / -0.1438
+  verbose_offset DD(20,30) => 0.0211 / 0.0375
+  upgrade_title_offset DD(458,36) => 0.4821 / 0.045
+  upgrade_percent_offset DD(480,62) => 0.5053 / 0.0775
+  upgrade_trees_offset DD(0,195) => 0 / 0.2438
+  upgrade_trees_spacing DD(0,160) => 0 / 0.2
+  title_offset DD(20,-35) => 0.0211 / -0.0438
+  icon_offset DD(30,0) => 0.0316 / 0
+  icon_locked_offset DD(0,0) => 0 / 0
+  icon_cost_offset DD(0,0) => 0 / 0
+  icon_tooltip_offset DD(30,106) => 0.0316 / 0.1325
+  requirement_start_offset DD(0,0) => 0 / 0
+  requirement_spacing DD(70,0) => 0.0737 / 0
+  requirement_tooltip_tree_icon_above_offset DD(0,0) => 0 / 0
+  requirement_tooltip_tree_icon_below_offset DD(0,0) => 0 / 0
+  divider_offset DD(0,118) => 0 / 0.1475
+  tooltip_offset DD(130,0) => 0.1368 / 0
+  base_pos DD(0,0) => 0 / 0
+  activity_spacing DD(0,230) => 0 / 0.2875
+  name_offset DD(170,36) => 0.1789 / 0.045
+  description_offset DD(170,90) => 0.1789 / 0.1125
+  slot_list_pos DD(440,119) => 0.4632 / 0.1488
+  slot_spacing DD(135,0) => 0.1421 / 0
+  shared_confirm_pos DD(0,0) => 0 / 0
+  shared_confirm_tooltip_offset DD(0,0) => 0 / 0
+  shared_cost_pos DD(0,0) => 0 / 0
+  shared_free_pos DD(0,0) => 0 / 0
+  hero_slot_offset DD(0,0) => 0 / 0
+
+⇒ 施工要点：
+  · `BuildingPopupBody` 已设 **custom_minimum_size 950×800**（DD base_size ✓）
+  · 我域现有 `HeroSlotRow` separation **135** 已 = DD `slot_spacing 135` ✓（回原值那批已做 ✓）
+  · 待落：name 0.1095/0.1575 · body_base 0.6274/0.1275 · upgrade_base 0.1811/0.3238 · upgrade_trees 0/0.2438 ·
+    slot_list 0.4632/0.1488 · choice_list 0/0.3125（spacing 0/0.0325）· choice_hot_spot_size 120×20（尺寸）
+  · ⚠️ `close_pos 1496,144` ⇒ 1496/950 = **1.5747 >1** ✗ ⇒ 该项**不是相对面板**（可能相对屏幕/父框）⇒ **需另找基准，判不了记未取得** ✗
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |

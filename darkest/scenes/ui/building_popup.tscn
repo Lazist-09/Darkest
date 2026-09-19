@@ -4,6 +4,7 @@
 [ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="9_theme"]
 
 [node name="BuildingPopupBody" type="VBoxContainer"]
+custom_minimum_size = Vector2(950, 800)   ; DD buildings/building.layout base_size 950x800（自带尺寸字段 ✓ 面板基准）
 theme = ExtResource("9_theme")
 script = ExtResource("1_bp")
 
