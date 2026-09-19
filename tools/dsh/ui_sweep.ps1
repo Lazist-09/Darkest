@@ -1,4 +1,4 @@
-# tools/dsh/ui_sweep.ps1 -- one-shot UI audit sweep (UI owner, 2026-09-21)
+﻿# tools/dsh/ui_sweep.ps1 -- one-shot UI audit sweep (UI owner, 2026-09-21)
 #
 # Why: the UI audit caliber (camera 1280x720 content demand / overlap / transparent frames)
 #      was only reproducible by hand-grepping logs. This script fixes the entrance so the
@@ -94,10 +94,10 @@ $TraceExpect = @{
     'hamlet-loot'             = 'loot_overlay_skeleton.tscn'
     'hero-detail'             = 'hero_detail_skeleton.tscn'
     'main-menu'               = 'main_menu.tscn'
-    'battle'                  = 'StatusTray'
-    'battle-longtext'         = 'StatusTray'
-    'battle-tab4'             = 'StatusTray'
-    'map-mode'                = 'StatusTray'
+    'battle'                  = 'stage-layer-ready'
+    'battle-longtext'         = 'stage-layer-ready'
+    'battle-tab4'             = 'stage-layer-ready'
+    'map-mode'                = 'stage-layer-ready'
     'tile-walk'               = 'walk_map_layer.tscn'
     'dungeon-in-scene'        = 'dungeon-in-scene-entered'
     'settle'                  = 'modal_dialog.tscn'
