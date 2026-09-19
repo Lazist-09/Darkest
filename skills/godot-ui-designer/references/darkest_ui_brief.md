@@ -3288,3 +3288,38 @@ C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.88 **骨架采用核对表（21 入口 ↔ 期望留痕）**（2026-09-21）
+
+```
+说明：每个入口都必须在其日志里出现下列**期望留痕**（缺则 `ui_sweep` 判 FAIL）⇒ 因此这张表同时是"骨架是否被采用"的证据清单 ✓
+
+  hamlet                 hamlet_skeleton.tscn
+  hamlet-longtext        hamlet_skeleton.tscn
+  hamlet-menu            hamlet-menu-open
+  hamlet-provision       provision_skeleton.tscn
+  hamlet-quest-select    quest_select_skeleton.tscn
+  hamlet-heirloom        heirloom_exchange_skeleton.tscn
+  hamlet-loot            loot_overlay_skeleton.tscn
+  hamlet-building        modal_dialog.tscn
+  hero-detail            hero_detail_skeleton.tscn
+  hamlet-hover           hamlet-hover
+  hamlet-hover-abbey     hamlet-hover
+  hamlet-hover-stagecoach hamlet-hover
+  main-menu              main_menu.tscn
+  battle                 StatusTray
+  battle-longtext        StatusTray
+  battle-tab4            StatusTray
+  map-mode               StatusTray
+  tile-walk              walk_map_layer.tscn
+  dungeon-in-scene       dungeon-in-scene-entered
+  settle                 modal_dialog.tscn
+  abandon                abandon
+
+解读：留痕为 `*_skeleton.tscn` / `*_layer.tscn` / `*_card.tscn` 者 ⇒ 该屏**确认走骨架**（`TryInstantiate` 成功路径）✓；
+      `StatusTray` ⇒ 战斗底栏托盘采用骨架 ✓；`modal_dialog.tscn` ⇒ 弹窗走模板 ✓；`abandon` / `hamlet-menu-open` / `hamlet-hover` /
+      `dungeon-in-scene-entered` ⇒ ASCII 关键路径留痕（对应功能入口真被执行，防空跑）✓
+⚠️ 若某屏**回退到代码自建**，其留痕会变成"不可用 ⇒ 回落"文案 ⇒ **该入口会立刻判 FAIL**（不放行）✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
