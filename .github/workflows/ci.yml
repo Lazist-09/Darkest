@@ -31,5 +31,8 @@ jobs:
       - name: Static check — `using Godot` whitelist (baseline, must be 0)
         run: python tools/check_godot_refs.py --root darkest
 
+      - name: Static check — program files <= 600 lines (user red line 2026-09-18)
+        run: python tools/check_file_size.py
+
       - name: Static check — negative self-test (guard against a dead checker)
         run: python tools/check_godot_refs.py --root darkest --selfcheck

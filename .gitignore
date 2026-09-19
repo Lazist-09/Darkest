@@ -42,3 +42,8 @@ reports/*.log
 # 🆕 reports 卫生（#405）：latest/ 与 archive/ 是【派生副本/归档】⇒ 不入库（只入库摘要与文档 ✓）
 reports/latest/
 reports/archive/
+
+# test/smoke run products (architect 2026-09-18: they kept polluting git status,
+# and "clean worktree" is the precondition for the pre-commit check)
+darkest/.tmp_appdata/
+darkest/Godot/
