@@ -130,3 +130,149 @@ anchor_right = 0.022
 anchor_bottom = 0.175
 mouse_filter = 2
 tooltip_text = "属性图标位（DD hero_base_stats_layout.icon_offset -26,2 · 需美术 ⇒ 色块占位，不换不删）"
+
+; 阶段2：续落 character.layout 其余位（基准 town.layout character_panel_size 1395x1080 => /1395 /1080）
+
+[node name="HdNameAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0545
+anchor_top = 0.0241
+anchor_right = 0.1745
+anchor_bottom = 0.0541
+mouse_filter = 2
+tooltip_text = "英雄名位（DD name_pos 76,26） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdNameAnchor"]
+layout_mode = 2
+
+[node name="HdClassAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0545
+anchor_top = 0.0741
+anchor_right = 0.1745
+anchor_bottom = 0.1041
+mouse_filter = 2
+tooltip_text = "职业位（DD class_pos 76,80） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdClassAnchor"]
+layout_mode = 2
+
+[node name="HdQuirksAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.1011
+anchor_top = 0.1185
+anchor_right = 0.2211
+anchor_bottom = 0.1485
+mouse_filter = 2
+tooltip_text = "怪癖区（DD quirks_pos 141,128） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdQuirksAnchor"]
+layout_mode = 2
+
+[node name="HdHeroPipsAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.6065
+anchor_top = 0.1343
+anchor_right = 0.7265
+anchor_bottom = 0.1643
+mouse_filter = 2
+tooltip_text = "位点（DD hero_pips_pos 846,145） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdHeroPipsAnchor"]
+layout_mode = 2
+
+[node name="HdTargetPipsAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.8265
+anchor_top = 0.1343
+anchor_right = 0.9465
+anchor_bottom = 0.1643
+mouse_filter = 2
+tooltip_text = "目标位点（DD target_pips_pos 1153,145） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdTargetPipsAnchor"]
+layout_mode = 2
+
+[node name="HdPosTitleAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.5448
+anchor_top = 0.0907
+anchor_right = 0.6648
+anchor_bottom = 0.1207
+mouse_filter = 2
+tooltip_text = "位点标题（DD position_pips_title_pos 760,98） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdPosTitleAnchor"]
+layout_mode = 2
+
+[node name="HdCombatSkillAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.5591
+anchor_top = 0.1444
+anchor_right = 0.6791
+anchor_bottom = 0.1744
+mouse_filter = 2
+tooltip_text = "战斗技能格（DD combat_skill_grid_pos 780,156） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdCombatSkillAnchor"]
+layout_mode = 2
+
+[node name="HdCampSkillAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.5591
+anchor_top = 0.2963
+anchor_right = 0.6791
+anchor_bottom = 0.3263
+mouse_filter = 2
+tooltip_text = "扎营技能格（DD camping_skill_grid_pos 780,320） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdCampSkillAnchor"]
+layout_mode = 2
+
+[node name="HdResistAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.5591
+anchor_top = 0.4037
+anchor_right = 0.6791
+anchor_bottom = 0.4337
+mouse_filter = 2
+tooltip_text = "抗性区（DD resistances_pos 780,436） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdResistAnchor"]
+layout_mode = 2
+
+[node name="HdClassBonusAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.5591
+anchor_top = 0.5241
+anchor_right = 0.6791
+anchor_bottom = 0.5541
+mouse_filter = 2
+tooltip_text = "职业加成（DD class_bonuses_pos 780,566） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdClassBonusAnchor"]
+layout_mode = 2
+
+[node name="HdCloseAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.9634
+anchor_top = 0.0167
+anchor_right = 1.0834
+anchor_bottom = 0.0467
+mouse_filter = 2
+tooltip_text = "关闭键位（DD close_pos 1344,18） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdCloseAnchor"]
+layout_mode = 2
+
+[node name="HdHeroArtAnchor" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.0703
+anchor_top = 0.6481
+anchor_right = 0.1903
+anchor_bottom = 0.6781
+mouse_filter = 2
+tooltip_text = "英雄立绘位（DD hero_pos 98,700） · 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="HdHeroArtAnchor"]
+layout_mode = 2
