@@ -3451,3 +3451,58 @@ C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.93 **阶段2 消费台账（战斗批）：spec 锚点 ↔ 我域命中**（2026-09-21）
+
+```
+战斗批锚点字段共 59 个，其中**未落**（按 ratio 串在 `scenes/ui`+`scripts/ui` 检索为 0 命中）= **44** 个：
+  ✗ _root · hero_stats_pos  DD(435,111)  期望 ratio 0.2266 / 0.1028
+  ✗ _root · hp_pos  DD(520,61)  期望 ratio 0.2708 / 0.0565
+  ✗ _root · indicator_controller_button_offset  DD(-22,16)  期望 ratio -0.0115 / 0.0148
+  ✗ _root · name_pos  DD(65,58)  期望 ratio 0.0339 / 0.0537
+  ✗ _root · resistances_entry_icon_pos  DD(-10,8)  期望 ratio -0.0052 / 0.0074
+  ✗ _root · resistances_entry_title_pos  DD(20,6)  期望 ratio 0.0104 / 0.0056
+  ✗ _root · resistances_entry_value_pos  DD(206,6)  期望 ratio 0.1073 / 0.0056
+  ✗ _root · resistances_pos  DD(100,220)  期望 ratio 0.0521 / 0.2037
+  ✗ _root · resistances_title_pos  DD(154,186)  期望 ratio 0.0802 / 0.1722
+  ✗ _root · skills_icon_offset  DD(-22,4)  期望 ratio -0.0115 / 0.0037
+  ✗ _root · skills_icon_spacing  DD(22,0)  期望 ratio 0.0115 / 0
+  ✗ _root · skills_pos  DD(370,230)  期望 ratio 0.1927 / 0.213
+  ✗ _root · skills_text_offset  DD(50,0)  期望 ratio 0.026 / 0
+  ✗ _root · stats_pos  DD(235,112)  期望 ratio 0.1224 / 0.1037
+  ✗ _root · type_pos  DD(65,112)  期望 ratio 0.0339 / 0.1037
+  ✗ health_layout · pos  DD(130,11)  期望 ratio 0.0677 / 0.0102
+  ✗ hero_equipment · pos  DD(238,0)  期望 ratio 0.124 / 0
+  ✗ hero_trinket · pos  DD(453,0)  期望 ratio 0.2359 / 0
+  ✗ indicator_layout · button_pos  DD(677,24)  期望 ratio 0.3526 / 0.0222
+  ✗ indicator_layout · tooltip_offset  DD(1206,28)  期望 ratio 0.6281 / 0.0259
+  ✗ input_preview · background_offset  DD(-4,8)  期望 ratio -0.0021 / 0.0074
+  ✗ input_preview · base_pos  DD(5,3)  期望 ratio 0.0026 / 0.0028
+  ✗ input_preview · pan_controller_button_offset  DD(10,35)  期望 ratio 0.0052 / 0.0324
+  ✗ input_preview · pan_text_offset  DD(20,18)  期望 ratio 0.0104 / 0.0167
+  ✗ input_preview · reset_controller_button_offset  DD(28,70)  期望 ratio 0.0146 / 0.0648
+  ✗ input_preview · reset_text_offset  DD(20,42)  期望 ratio 0.0104 / 0.0389
+  ✗ input_preview · transition_offset  DD(-100,0)  期望 ratio -0.0521 / 0
+  ✗ input_preview · zoom_in_controller_button_offset  DD(28,40)  期望 ratio 0.0146 / 0.037
+  ✗ input_preview · zoom_in_text_offset  DD(20,12)  期望 ratio 0.0104 / 0.0111
+  ✗ input_preview · zoom_out_controller_button_offset  DD(28,55)  期望 ratio 0.0146 / 0.0509
+  ✗ input_preview · zoom_out_text_offset  DD(20,28)  期望 ratio 0.0104 / 0.0259
+  ✗ map_layout · pos  DD(4,40)  期望 ratio 0.0021 / 0.037
+  ✗ stat_layout · pos  DD(60,72)  期望 ratio 0.0312 / 0.0667
+  ✗ status_bars · health_bar_offset  DD(50,0)  期望 ratio 0.026 / 0
+  ✗ status_bars · icon_offset  DD(50,30)  期望 ratio 0.026 / 0.0278
+  ✗ status_bars · round_indicator_icon_offset  DD(10,-4)  期望 ratio 0.0052 / -0.0037
+  ✗ status_bars · round_indicator_icon_spacing  DD(8,0)  期望 ratio 0.0042 / 0
+  ✗ status_bars · status_bar_controller_tooltip_offset  DD(50,-12)  期望 ratio 0.026 / -0.0111
+  ✗ status_bars · status_bar_tooltip_hot_area_offset  DD(50,-10)  期望 ratio 0.026 / -0.0093
+  ✗ status_bars · status_bar_tooltip_offset  DD(50,-12)  期望 ratio 0.026 / -0.0111
+  ✗ status_bars · stress_offset  DD(-1,12)  期望 ratio -0.0005 / 0.0111
+  ✗ status_bars · tray_icon_left_offset  DD(58,-38)  期望 ratio 0.0302 / -0.0352
+  ✗ status_bars · tray_icon_right_offset  DD(62,-38)  期望 ratio 0.0323 / -0.0352
+  ✗ stress_layout · pos  DD(130,40)  期望 ratio 0.0677 / 0.037
+
+说明：本表由 `doc/ui_spec.json` **只读生成**（ratio = 值/1920 与 /1080，画布已是 1080p ⇒ 原值直接用 ✓）；
+  "命中 0" 只说明**我域代码/场景里没有该 ratio 串**，不排除"用别的表达实现了"（如容器/尺寸表/参数）⇒ 施工时**逐个复核**再落 ✓。
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
