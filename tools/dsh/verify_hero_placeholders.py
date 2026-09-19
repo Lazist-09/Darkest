@@ -74,6 +74,33 @@ def check_pack(pack_dir, descriptor_path, problems, rows):
                  "yes" if portrait else "no", (cfg.get("source") or "")[:46]))
 
 
+FORMAL_ROOT = os.path.join(REPO, "darkest", "assets", "heroes")
+
+
+def check_formal(formal_root, problems, rows):
+    """Check the FORMAL path: it must never carry placeholder markers (compliance red line)."""
+    if not os.path.isdir(formal_root):
+        return
+    for arch in sorted(d for d in os.listdir(formal_root) if os.path.isdir(os.path.join(formal_root, d))):
+        descriptor = os.path.join(formal_root, arch, "hero.json")
+        if not os.path.isfile(descriptor):
+            continue
+        with open(descriptor, "r", encoding="utf-8") as fh:
+            try:
+                cfg = json.load(fh)
+            except Exception as exc:  # noqa: BLE001
+                problems.append("%s: JSON parse failed: %s" % (descriptor, exc))
+                continue
+        if cfg.get("placeholder"):
+            problems.append("%s: FORMAL path must not set 'placeholder: true' (put borrowed art in "
+                            "assets/heroes_placeholder instead)" % descriptor)
+        for slot in REQUIRED:
+            if slot not in (cfg.get("actions") or {}):
+                problems.append("%s: missing required slot '%s'" % (descriptor, slot))
+        rows.append((cfg.get("archetype") or "?", "FORMAL:" + arch, len(cfg.get("actions") or {}), 0,
+                     "yes" if cfg.get("portrait") else "no", "(formal asset)"))
+
+
 def main(argv):
     root = DEFAULT_ROOT
     if "--root" in argv:
@@ -84,6 +111,7 @@ def main(argv):
         return 0
 
     problems, rows = [], []
+    check_formal(FORMAL_ROOT, problems, rows)
     packs = sorted(d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d)))
     for pack in packs:
         descriptor = os.path.join(root, pack, "hero.json")
