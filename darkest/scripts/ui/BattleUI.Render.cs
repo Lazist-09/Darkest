@@ -109,8 +109,8 @@ public partial class BattleUI : Control
         // D4（#206）：死门后遗症必须显著标注（橙字）
         if (!empty && _host?.Director is { } dir && dir.Buffs.Has(new UnitId(u.UnitId), "deaths_door_recovery"))
         {
-            c.tag.Text = "死门后遗症（伤+10% 命中−5 速−1）";
-            c.tag.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.Shock);
+            c.card.TooltipText += "　⚠ 死门后遗症（伤+10% 命中−5 速−1）";   // (B)：关键告警保留在 Tooltip（不隐藏信息）✓
+            // (B)：tag 文字已清空 ⇒ 不再设字色（告警进 Tooltip）
         }
     }
 
