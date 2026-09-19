@@ -2,11 +2,11 @@
 
 2026-09-21（脚本只读生成，可随施工再生）
 
-分类规则：**A 栏 = tooltip 中提及 DD 出处**（对齐 DD，优先出图）；**B 栏 = 未提及 DD**（我方自建占位，保留不删）
+分类：**A = tooltip 提及 DD 出处**（对齐 DD，优先出图）；**B = 未提及**（我方自建，保留不删）。分类为启发式，未提及 ≠ 与 DD 无关
 
 用法：美术按「节点 + 尺寸 + DD 出处」出**同尺寸原创资产**；替换时**只换贴图、不动锚点/尺寸** ⇒ 布局零改动 ✓
 
-## A 栏：有 DD 出处（153 条）
+## A 栏（159 条）
 
 ```
 场景 | 节点 | 锚点(left/top) | 尺寸 | DD 出处
@@ -44,6 +44,7 @@ battle_bottombar.tscn          | RaidPos8                   | 0.0469/0.0907     
 battle_bottombar.tscn          | RaidSec1                   | 0.7969/0.125         | -                    | DD screen.raid [shard_escrow_display] pos 1530,135 ⇒ 0.7969/0.125 · 色块占位，不换不删
 battle_bottombar.tscn          | RaidSec2                   | 0.7969/0.0324        | -                    | DD screen.raid [wave_countdown_display] pos 1530,35 ⇒ 0.7969/0.0324 · 色块占位，不换不删
 battle_bottombar.tscn          | RaidSec3                   | 0.9167/0.5324        | -                    | DD screen.raid [skip_curio_display] pos 1760,575 ⇒ 0.9167/0.5324 · 色块占位，不换不删
+battle_bottombar.tscn          | InvItemIconBody            | 0.30/0.70            | Vector2(72, 144)     | 库存图标本体（DD shared/inventory inventory_item_layout.icon_size 72x144 · 与 hero_equipment/资产 inv_* 一致；格距见 pannel.
 battle_overlay.tscn            | HeroIcon1                  | 0.41/0.611           | -                    | icon Hero1 (DD tray_icon_left 58,-38 / right 62,-38; needs art => color placeholder, keep)
 battle_overlay.tscn            | EnemyIcon1                 | 0.547/0.611          | -                    | icon Enemy1 (DD tray_icon; needs art => color placeholder, keep)
 battle_overlay.tscn            | HeroIcon2                  | 0.323/0.611          | -                    | icon Hero2 (DD tray_icon; needs art => color placeholder, keep)
@@ -99,6 +100,7 @@ hamlet_skeleton.tscn           | DDNav9_statue              | -                 
 hamlet_skeleton.tscn           | EstateSummary              | 0.0/0.903            | -                    | DD estate_summary_pos 0,975 (resource bar, placeholder)
 hamlet_skeleton.tscn           | RealmInventory             | 0.459/0.119          | -                    | DD realm_inventory_pos 881,128 (realm inventory, placeholder)
 hamlet_skeleton.tscn           | ActivityLogAnchor          | 0.075/0.1222         | -                    | 活动日志/城镇事件位（DD town.layout activity_log_pos / town_event_pos 均 144,132 · 屏幕级 ÷1920 ÷1080 · 色块占位，不换不删）
+hamlet_skeleton.tscn           | EstateCostHotSpot          | 0.0/0.903            | Vector2(100, 50)     | 地产费用热区（DD shared/estate estate_cost_hot_spot_layout.size 100x50 · 色块占位，不换不删）
 heirloom_exchange_skeleton.tscn | FromSlot1                  | -                    | Vector2(120, 40)     | FROM 1（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）
 heirloom_exchange_skeleton.tscn | ToSlot1                    | -                    | Vector2(120, 40)     | TO 1（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）
 heirloom_exchange_skeleton.tscn | FromSlot2                  | -                    | Vector2(120, 40)     | FROM 2（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）
@@ -127,6 +129,10 @@ hero_detail_skeleton.tscn      | HdResistAnchor             | 0.5591/0.4037     
 hero_detail_skeleton.tscn      | HdClassBonusAnchor         | 0.5591/0.5241        | -                    | 职业加成（DD class_bonuses_pos 780,566） · 色块占位，不换不删
 hero_detail_skeleton.tscn      | HdCloseAnchor              | 0.9634/0.0167        | -                    | 关闭键位（DD close_pos 1344,18） · 色块占位，不换不删
 hero_detail_skeleton.tscn      | HdHeroArtAnchor            | 0.0703/0.6481        | -                    | 英雄立绘位（DD hero_pos 98,700） · 色块占位，不换不删
+hero_detail_skeleton.tscn      | HhEquipHotspot             | 0.1011/0.4778        | Vector2(72, 144)     | 装备 tooltip 热区（DD hero_equipment_layout tooltip_hotspot_size 72x144 ⇒ 与库存 icon_size 72x144 一致） · 色块占位，不换不删
+hero_detail_skeleton.tscn      | HhBaseStatHotspot          | 0.1011/0.3315        | Vector2(160, 20)     | 基础属性热区（DD hero_base_stats_layout tooltip_hotspot_size 160x20） · 色块占位，不换不删
+hero_detail_skeleton.tscn      | HhStatHotspot              | 0.5591/0.1444        | Vector2(160, 20)     | 属性热区（DD hero_stats_layout tooltip_hotspot_size 160x20） · 色块占位，不换不删
+hero_detail_skeleton.tscn      | HhScoutingHotspot          | 0.0/0.626            | Vector2(300, 40)     | 侦察数值热区（DD hero_scouting_stat_layout tooltip_hotspot_size 300x40） · 色块占位，不换不删
 loot_overlay_skeleton.tscn     | LootDescBlock              | -                    | Vector2(350, 40)     | 描述（DD loot_description .pos 228,136 · .width 350 · 数据未接入 ⇒ 色块占位，不换不删）
 loot_overlay_skeleton.tscn     | TakeAllBlock               | -                    | Vector2(80, 30)      | 全部拿取（DD loot_buttons .take_all_pos 80,358 · 数据未接入 ⇒ 色块占位，不换不删）
 loot_overlay_skeleton.tscn     | CloseBlock                 | -                    | Vector2(80, 30)      | 关闭（DD loot_buttons .close_pos 306,358 · 色块占位，不换不删）
@@ -165,7 +171,7 @@ unit_card.tscn                 | MonsterHeroStats           | 0.6197/0.3016     
 unit_card.tscn                 | MonsterResistEntryIcon     | 0.0/0.0217           | -                    | 抗性条目图标（DD panel.monster resistances_entry_icon_pos -10,8 · 基准 702x368 · 需美术 ⇒ 色块占位，不换不删）
 ```
 
-## B 栏：我方自建（52 条）
+## B 栏（52 条）
 
 ```
 场景 | 节点 | 锚点(left/top) | 尺寸
@@ -223,7 +229,6 @@ unit_card.tscn                 | UnitCard                   | -                 
 unit_card.tscn                 | portraitBox                | -                    | Vector2(44, 44)
 ```
 
-注：① A 栏 DD 数字均为度量事实（不构成抄袭）；DD 像素未进入工程（红线27）
-    ② B 栏为既有 UI 占位（保留不删 §14.0.68）
-    ③ 生成脚本只用数组拼接（本环境 List.Add 模式两次致变量退化成 String ⇒ 已弃用 ✓）
-    ④ 分类为**启发式**（按 tooltip 是否提及 DD）；未提及者不代表与 DD 无关 ✓
+注：① DD 数字=度量事实；DD 像素未进工程（红线27）｜② B 栏为既有占位（保留不删 §14.0.68）
+    ③ 生成脚本只用数组拼接（List.Add 模式在本环境会致变量退化 String ⇒ 弃用 ✓）
+    ④ **DD 内部互证尺寸**：装备/饰品图标 **72×144**（inventory.icon_size · hero_equipment.tooltip_hotspot_size · 资产 inv_*.png 三处一致）
