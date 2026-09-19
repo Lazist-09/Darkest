@@ -390,11 +390,12 @@ color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha
 layout_mode = 2
 
 [node name="HdCloseAnchor" type="PanelContainer" parent="."]
+; 几何修复：DD close_pos 1344,18 只给位置未给尺寸 => 以 24x24 标记占位（不造尺寸）
 layout_mode = 0
-anchor_left = 0.9634
+anchor_left = 0.9688
 anchor_top = 0.0167
-anchor_right = 1.0834
-anchor_bottom = 0.0467
+anchor_right = 0.9812
+anchor_bottom = 0.0389
 mouse_filter = 2
 tooltip_text = "关闭键位（DD close_pos 1344,18） · 色块占位，不换不删"
 

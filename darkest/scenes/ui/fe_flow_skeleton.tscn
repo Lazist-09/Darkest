@@ -14,12 +14,13 @@ theme = ExtResource("1_theme")
 script = ExtResource("2_ff")
 
 [node name="FfSaveSlotWindow" type="PanelContainer" parent="."]
+; 几何修复：DD save_slot_window_position 200,548 + size 1800x434 (200+1800>1920) => 左缘收到 120 使整框入屏
 layout_mode = 0
-anchor_left = 0.1042
+anchor_left = 0.0625
 anchor_top = 0.5074
-anchor_right = 0.35
-anchor_bottom = 0.62
-custom_minimum_size = Vector2(1800, 434)   ; DD save_slot_window_size
+anchor_right = 1
+anchor_bottom = 0.9093
+custom_minimum_size = Vector2(1800, 434)
 mouse_filter = 2
 tooltip_text = "存档槽窗口（DD save_slot_window_position 200,548 · size 1800x434 · 色块占位，不换不删）"
 
