@@ -3764,3 +3764,20 @@ blacksmith/guild/camping_trainer/nomad_wagon）：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴🔴 14.0.100 **重大教训：spec 会"压平多 section"⇒ 必须直读 E 盘原文（用户提醒）**（2026-09-21）
+
+```
+事件：`shared/menu/menu.layout.darkest` 里其实有**两套值，分属不同 section**：
+  · **base_layout**：   element_start_pos 510,**240** · element_spacing 0,**56** · element_hot_area_size 466,**48**   ← 用户口径 ✓ 基础菜单
+  · **options_layout**：element_start_pos 510,260      · element_spacing 0,64      · element_hot_area_size 466,60      ← 设置页
+🔴 而 `doc/ui_spec.json` 的 `shared/menu` 被解析成**单个 `_root` section**（28 字段）⇒ **两套值被压平混在一起** ✗
+   ⇒ 我据此"以机器解析为准"把**基础菜单**改成了 options_layout 的值（466×60 / 64 / 260）✗✗ **错了**
+⇒ 用户提醒「记得参考 E 盘里的游戏代码」⇒ 我**直读 E 盘原文**后当场发现并**回退**：
+   `MainMenuRoot` 466×60→**466×48** · margin_top 260→**240** · 场景 `OptionsCol` separation 4→**8**（56−48 ✓）· 门禁 Pat 回 `Vector2(466, 48)` ✓
+
+📌 **新纪律（并入铁律）**：凡多 section 的 DD 文件 ⇒ **直读 E 盘原文确认 section 归属**，**不得只依赖 spec 的压平视图** ✗；
+   spec 适合做"候选清单/基准尺寸"，**section 归属与冲突裁决必须以 E 盘原文为准** ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |

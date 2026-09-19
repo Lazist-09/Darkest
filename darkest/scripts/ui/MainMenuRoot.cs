@@ -87,7 +87,7 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
         //    menu_layout.base_pos **450 150**（标题块）· base_layout.element_start_pos **510 240**（菜单元素起点）
         //    1920×1080 ⇒ ×0.667 = (300,100) / (340,160)；本项目相机 1280×720 ⇒ 按比例换算为边距（注释即依据）✓
         menuMargin.AddThemeConstantOverride("margin_left", 510);   // DD 510/1920 = 26.6% × 1280 ≈ 340 ✓
-        menuMargin.AddThemeConstantOverride("margin_top", 260);    // DD 240/1080 = 22.2% × 720  ≈ 160 ✓
+        menuMargin.AddThemeConstantOverride("margin_top", 240);    // DD 240/1080 = 22.2% × 720  ≈ 160 ✓
         menuMargin.AddThemeConstantOverride("margin_right", 24);
         menuMargin.AddThemeConstantOverride("margin_bottom", 24);
             menuMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -284,7 +284,7 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
         {
             Name = $"Menu{index}",
             Text = text,
-            CustomMinimumSize = new Vector2(466, 60), // 🔴 容器排布 ⇒ 只给最小尺寸（不再手摆 `Position/Size`）   // 🔴 DD 1:1 #3：menu_layout.base_layout.element_hot_area_size **466×48** ✓
+            CustomMinimumSize = new Vector2(466, 48), // 🔴 容器排布 ⇒ 只给最小尺寸（不再手摆 `Position/Size`）   // 🔴 DD 1:1 #3：menu_layout.base_layout.element_hot_area_size **466×48** ✓
         };
         // 🔴 必须 **deferred**：冒烟会在 `_Ready` 里直接按下菜单键 ⇒ 同步切场景会报
         //    `Parent node is busy adding/removing children`（实测抓到的真凶就在这一行）
