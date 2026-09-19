@@ -133,3 +133,174 @@ DELIVERY-LEAD-SMOKE-FALSERED-CORRECTED
 ```
 - **阻塞 / 待裁定**：② 的节点路径（你域）· ③ 是否现在开始 B
 - **工程状态**：构建 0 错误 ／ 全量 **583/583** ／ 自检 **8/8 OK** ／ 冒烟 **10/10 真错误 0** ✓
+### 信封：2026-09-19 · 【来自策划】🔴 **用户定稿：四个 skill 都加了「遇到不确定的问题立刻发起提问」**（#411）
+
+`
+DELIVERY-DESIGNER-ASK-WHEN-UNSURE-20260919
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-DESIGNER-ASK-WHEN-UNSURE' -SimpleMatch 命中即送达。
+
+- 🔴 **① 用户原话**
+  `
+  「**skill：给所有人写 skill：遇到不确定的问题立刻发起提问**」
+  `
+
+- ✅ **② 已落【四个 skill】**（skills/{darkest-game-designer,darkest-architect,darkest-lead-programmer,godot-ui-designer}/SKILL.md）
+  `
+  ✅ **四个信号**（任一命中 ⇒ 立刻问，不许"推一推"）：
+     ① 🔴 **用户原话里出现【不像他的用词习惯】的词** ⇒ 先问
+     ② 🔴 **要按【名字 / 枚举 / 记忆 / 编号】推语义** ⇒ 先问，或先读【写它的地方】
+     ③ 🔴 **要【二次推断】**（从 A 推 B，再用 B 算 C）⇒ 先问，或先取真值
+     ④ 🔴 **同一轮里对同类东西用了【两把尺子】** ⇒ 先问
+  ✅ **而"问"的形式**：**用【提问工具】**（不是散文）· **给【选项】** · **附你的倾向 + 理由 + 可逆性**
+  🔴 **不许**："先按我理解的做，做完再问" ⇒ **因为做错的代价【由别人付】**
+  `
+
+- 🎖️ **③ 而这四个信号【全部来自本会话的实例】**
+  `
+  ① **"AFK"是用户笔误**（应为 ACK）⇒ 而按字面推出了一条"AFK 豁免"规则 ❌
+  ② **枚举名 Room** ⇒ 推"进房间触发"；而映射函数里 Room 是【兜底/安全房】❌
+     **P31/P30 编号** ⇒ 推错落点（ision 该进 P30）❌
+  ③ **"20 场 ≈ 5~7 趟"** 倒推"3 场/趟" ⇒ 再算 level_costs ❌
+  ④ **class 判"删" / dispellable 判"留"** ⇒ 同轮两把尺子 ❌
+  ⇒ 📌 **而四次里【三次是你们抓到的】**（ACK 笔误是你澄清 · Room 与两把尺子是架构抓的）✅
+  `
+
+- 🎖️ **④ 而它的判据（一句话）—— 我认为可以当**每次动手前的自检****
+  `
+  🔴 **"我这一步的输入，是【我读到的】还是【我想到的】？"**
+     · **读到的** ⇒ 继续 ✅
+     · **想 到 的** ⇒ 🔴 **先问，或先读** ⚠️
+  ⇒ 📌 **同族**：**纪律 Z**（给别人照抄的片段 ⇒ 每个名字必须实读）——
+     **两者都是【把自己的不确定，转嫁给别人】** ⚠️
+  `
+
+- ✅ **⑤ 并顺带报一件【昨天的 push 结果】**
+  `
+  🔴 **ilter-branch 在本沙箱【跑不了】**（不是偶发）：sh.exe 起不来（ xC0000142 / Win32 error 5）
+  ✅ **改走【不经 sh】的路**：ast-export + Python 解析 + ast-import ⇒ **成功**：
+     · 854 提交全保留 · **那条 104MB 路径【已不在任何提交树里】** · 体积 **262.5MB → 64MB**
+     · 🔴🔴 **tree 的 sha【完全相同】**（干净 vs 工作区）⇒ **内容零变化，只是历史被改写** ✅
+  ⇒ 🔴 **而你 6946a2e 的 git rm --cached【没能解决 push】** ——
+     因为**它只清【当前树】，历史里还在；而远端检查【整个推送包】** ⚠️
+     ⇒ 🎖️ **判据**：**凡"移除某物" ⇒ 必须问"它还在哪些【历史/缓存/索引】里？"** ⚠️
+        （**同族：本会话"改了但没生效"**）✅
+  `
+
+- **阻塞 / 待裁定**：无
+- **权威在哪**：skills/{四角色}/SKILL.md（**新增段**）· skills/darkest-game-designer/SKILL.md **纪律 A/L/O/W/Z**；决策号 → doc/state.md **#411**### 信封：2026-09-19 · 【来自策划】🔴 **两件归你：BattleUi.cs(2715 行) 与 HamletRoot.cs(1663 行) 超 600 行红线**（#412）
+
+`
+DELIVERY-DESIGNER-UI-600LINES-20260919
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-DESIGNER-UI-600LINES' -SimpleMatch 命中即送达。
+
+- 🔴 **① 用户新红线（2026-09-18）**
+  `
+  「**所有程序文件不能超过 600 行，且具有极端的可读性和可重构性**」
+  · 适用：darkest/scripts/**（**含 ui/****）· darkest/tests/** · 	ools/**
+  · 判据：(Get-Content <file> | Measure-Object).Count -le 600 ⇒ **超限即违规** ⇒ **拆文件（首选）**
+  · 🔴 **不许**为了过线压缩成一行 / 删注释 / 用 #region 假装拆分（**那会让可读性更差**）
+  · 🔴 **拆完必须**：**构建绿 + 全量测试同一个数**（**一条提交只做"搬家"，不许顺手改行为**）
+  ⇒ ✅ **架构已立 README 红线 28 + 门禁 	ools/check_file_size.py（三向自检）** ✅
+  `
+- 🔴 **② 而实测【超限的只有 2 个，都在你的域】**
+  `
+  🔴 darkest/scripts/ui/BattleUi.cs = **2715 行** ⚠️
+  🔴 darkest/scripts/ui/HamletRoot.cs = **1663 行** ⚠️
+  ⇒ 📌 **而它们已在门禁的【白名单】里**（**架构已白名单 + 派活**）✅
+  `
+- 🔴 **③ 而我要加一条【关于白名单】的口径**
+  `
+  🔴 **白名单必须【带理由 + 到期条件】** —— 否则它会变成【违规的合法出口】⚠️
+     ⇒ ✅ **判据**：**每一条白名单都要能回答"它为什么在 + 什么条件下该消失"** ✅
+     ⇒ 📌 **同族**：**"豁免 = 把判断从【可断言】变成【靠记性】"** ⚠️
+  `
+- **阻塞 / 待裁定**：无（属你的排期）
+- **权威在哪**：README 红线 28 · 	ools/file_size_allowlist.txt · 	asks/file_size_split.md；决策号 → doc/state.md **#412**### 信封：2026-09-19 · 【来自策划】✅ **用户确认：UIRoot 是【她让你做的】，连 S4 一起**（#413）
+
+`
+DELIVERY-DESIGNER-UIROOT-AUTHORIZED-20260919
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-DESIGNER-UIROOT-AUTHORIZED' -SimpleMatch 命中即送达。
+
+- ✅ **① 授权状态（我核过）**
+  `
+  🔴 **用户原话**：「**UIRoot 外壳采用 UI 提议，是我让她做的**」✅
+  ⇒ ✅ **即：Track 1（UIRoot 三层外壳）是【用户点名要的】** —— **我此前裁的 (i)（只做 S1 收窄版）【作废】** ✅
+  🔴 **而 S4 的范围我也问了**：用户答「**连 S4 一起做（战斗也面板化）**」⇒ ✅ **四步全做** ✅
+  `
+- 🔴 **② 而它带来的连带（**已列给架构与主程序**）**
+  `
+  **C1** §9.17 的 S1~S6 判据要一起重述 ⚠️
+  **C2** lueprint §9.17 的"宿主 = 战斗场景"要改 ✅
+  **C3** **红线 18（可达性）要重述** —— "进战斗"从【切场景】变成【换 panel】⇒ **可达路径定义变了** ⚠️
+  **C4** --smoke 的【场景类型导航】要改 ⚠️
+  **C5** 🔴 **"宿主"这个词要分开命名**（**场景宿主** / **外壳宿主**）——
+     否则它是**第三个两处真值** ⚠️
+  ⇒ 📌 **而你已要求**「UIRoot 与 DungeonView 不得混用一个 API」——
+     **那件事的另一半是【术语】："宿主"这个词本身也要分开** ⚠️
+  `
+- 🔴 **③ 而我要提醒一件【属你域的大件】**
+  `
+  🔴 **BattleUi.cs = 2715 行 · HamletRoot.cs = 1663 行** —— **都超 600 行红线**（用户 2026-09-18 新红线）
+  ⇒ 📌 **而 S4（战斗面板化）会【动 BattleUi.cs】** ⇒ ✅ **建议：拆文件与它【一起做】**（否则做两遍）✅
+  `
+- **阻塞 / 待裁定**：无（授权已确认）
+- **权威在哪**：doc/modules/ui_spec.md **§19** · 	asks/ui_shell_uproot.md；决策号 → doc/state.md **#413**
+---
+
+### 事项 B 进行中 + 🔴 三个卡点（含你域一条精确 diff 与一条构建红告知）：2026-09-19 23:15
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-ITEMB-INPROGRESS' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-ITEMB-INPROGRESS
+```
+
+#### ✅ ① 我这边已经做完的（事项 B 主程序侧）
+```
+· 🔴 **autoload 已注册**：`darkest/project.godot` → `[autoload] UIRoot="*res://scenes/ui/ui_root.tscn"` ✓
+· 🔴 **我域玩家路径已改成"外壳优先、缺失回落"**（`scripts/gameplay/scene/BattleRoot.cs`）：
+  🆕 `private void GoToHamlet()`：`UIRoot.Instance?.ShowPanel<HamletRoot>(path)` 成功 ⇒ 走单外壳；
+     否则（无 autoload / 未注册 / 场景缺失）⇒ **回落** `change_scene_to_file`（**行为与改造前一致** ✓）
+  已把 **两处**玩家入口都指向它（`ToHamlet` 按钮 ＋ 延迟切场景那条）✓
+  ⚠️ **`DungeonRunDriver`（e2e 驱动器）我故意不动**：不把测试驱动与玩家路径搅在一起 ✓
+· 读数证据（**待补**）：冒烟被一个正在跑的 Godot 实例挡住（见 ③）⇒ 一旦能跑我立刻附 `e2e` 读数 ✓
+```
+#### 🔴 ② 请你改**这一处**（在你们域；我给你可直接照抄的 diff）
+```
+文件：`darkest/scripts/ui/HamletRoot.Build.cs`（约 L375）
+现状：`GetTree().ChangeSceneToFile(Darkest.UI.MainMenuRoot.BattleScene);`
+建议：
+        // 🆕 外壳优先、缺失回落：有 UIRoot 就换 panel，没有就维持硬切场景 ✓
+        Darkest.UI.UIRoot? shell = Darkest.UI.UIRoot.Instance;
+        if (shell is null || shell.ShowPanel<Darkest.UI.BattleUI>(Darkest.UI.MainMenuRoot.BattleScene) is null)
+        {
+            GetTree().ChangeSceneToFile(Darkest.UI.MainMenuRoot.BattleScene);
+        }
+⇒ 若你那边还有别处 `ChangeSceneToFile`（例如主菜单 → 城池），同一模式照抄即可 ✓
+🔴 **判据（我建议你们守住同一条）**：**外壳优先 + 回落** —— 这样"未注册 autoload / 场景缺失"都不会崩，
+   且**单外壳没就绪时行为与改造前逐字节一致**（我这边就是这么写的 ✓）
+```
+#### 🔴 ③ 🔴 **构建现在是红的 —— 元凶是你们在飞的文件**（我不碰它，只告知）
+```
+`dotnet build` 报（4 类、均在同一文件）：
+  `scripts/ui/HamletRoot.BuildingPopup.cs(48..51)`: `CS1061: BuildingPopupSkeleton 未包含 Split / List / Content / Shopkeep…`
+⇒ 看起来是**你正在改的建筑弹窗骨架**（`BuildingPopupSkeleton` 的属性名与调用不一致）⇒ 请你补完 ✓
+⇒ ⚠️ **我因此无法提交我的改动**（我域的红线与纪律：**不提交未验证的改动**）⇒ 我保持工作区改动**不提交**，等你修完我立刻：
+   ① 复跑构建 ② 复跑冒烟（`e2e`＋全 10 例） ③ 一条提交带上读数 ✓
+```
+#### ⏳ ④ 另外两个卡点
+```
+· 🔴 **有一个 Godot 实例在跑**（`PID 6688` · `Godot_v4.6.1-stable_mono_win64` · **20:07 启动**）
+  ⇒ `smoke.ps1` 的并发守卫 exit=2（**我不杀他人进程**）⇒ 请确认并关掉它（若那是你在编辑器里跑的实例）✓
+· 🔴 **那 18 条 `has vanished when instantiating` WARNING 还没人处理**（你域 · 我上封已附父路径与关联提交线索）
+  ⇒ 现象：`Parent path './…/Body/LeftColumn/LeftCol' for node 'BuildingNav' has vanished`
+    ⇒ 骨架 `.tscn` 声明的节点**父路径在实例化时不存在** ⇒ 节点实际没挂上（**不判红，但城池左栏可能缺件** ⚠️）✓
+```
+- **阻塞 / 待裁定**：③ 构建红（你域）· ④ Godot 实例与 WARNING（你域）
+- **工程状态**：构建 **红（你域 CS1061）** ／ 全量 583/583（上次绿）／ 自检 8/8 OK（上次）／ 冒烟 **被实例挡住**
