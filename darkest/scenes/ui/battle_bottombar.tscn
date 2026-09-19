@@ -428,3 +428,77 @@ tooltip_text = "DD screen.raid [quest_info] size 300x150 · 尺寸=DD 原值 ✓
 
 [node name="Fill" type="ColorRect" parent="RaidQuestInfoArea"]
 layout_mode = 2
+
+; 阶段2：E 盘 screen.raid.darkest 关键段的真实 *_pos（÷1920 ÷1080；屏幕级 ✓）
+
+[node name="RaidPos1" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.7969
+anchor_top = 0.0324
+anchor_right = 0.8569
+anchor_bottom = 0.0624
+mouse_filter = 2
+tooltip_text = "DD screen.raid [kill_count_display] pos 1530,35 ⇒ 0.7969/0.0324 · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RaidPos2" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = -0.1328
+anchor_top = 0
+anchor_right = -0.0728
+anchor_bottom = 0.03
+mouse_filter = 2
+tooltip_text = "DD screen.raid [camp_layout] fourth_pos -255,0 ⇒ -0.1328/0 · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RaidPos3" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.3812
+anchor_top = 0.0556
+anchor_right = 0.4412
+anchor_bottom = 0.0856
+mouse_filter = 2
+tooltip_text = "DD screen.raid [camp_layout] respite_scroll_pos 732,60 ⇒ 0.3812/0.0556 · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RaidPos4" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0062
+anchor_top = 0.0185
+anchor_right = 0.0662
+anchor_bottom = 0.0485
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] pos 12,20 ⇒ 0.0062/0.0185 · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RaidPos5" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.4938
+anchor_top = 0.5463
+anchor_right = 0.5538
+anchor_bottom = 0.5763
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] complete_mid_screen_pos 948,590 ⇒ 0.4938/0.5463 · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RaidPos6" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0
+anchor_top = 0.0509
+anchor_right = 0.06
+anchor_bottom = 0.0809
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] complete_choice_shared_frame_pos 0,55 ⇒ 0/0.0509 · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RaidPos7" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = -0.0885
+anchor_top = 0.0907
+anchor_right = -0.0285
+anchor_bottom = 0.1207
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] complete_return_to_hamlet_pos -170,98 ⇒ -0.0885/0.0907 · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RaidPos8" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0469
+anchor_top = 0.0907
+anchor_right = 0.1069
+anchor_bottom = 0.1207
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] complete_continue_raid_pos 90,98 ⇒ 0.0469/0.0907 · 数据未接入 ⇒ 色块占位，不换不删"
