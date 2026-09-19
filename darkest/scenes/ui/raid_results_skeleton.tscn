@@ -1,0 +1,94 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/ui/RaidResultsSkeleton.cs" id="2_rr"]
+
+; 阶段2：E 盘直读 raid_results.layout.darkest（80 字段 12 section）⇒ 结算屏 9 个位置块（屏幕级 ÷1920 ÷1080）
+[node name="RaidResultsSkeleton" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_rr")
+
+[node name="RrQuestTitle" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.1963
+anchor_right = 0.62
+anchor_bottom = 0.2263
+mouse_filter = 2
+tooltip_text = "任务标题（E 盘 raid_results quest_title_pos 960,212） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RrQuestResult" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.1389
+anchor_right = 0.62
+anchor_bottom = 0.1689
+mouse_filter = 2
+tooltip_text = "任务结果（quest_result_pos 960,150） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RrState" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.2656
+anchor_top = 0.0
+anchor_right = 0.3856
+anchor_bottom = 0.03
+mouse_filter = 2
+tooltip_text = "状态（state_pos 510,0） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RrCompletionBg" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.0
+anchor_right = 0.62
+anchor_bottom = 0.03
+mouse_filter = 2
+tooltip_text = "完成背景（completion_background_pos 960,0） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RrLevelBg" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.12
+anchor_bottom = 0.03
+mouse_filter = 2
+tooltip_text = "等级背景（level_background_pos 0,0） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RrProgression" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.8870
+anchor_right = 0.2
+anchor_bottom = 0.92
+mouse_filter = 2
+tooltip_text = "进度条（progression_bar_pos 0,958） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RrNext" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.9740
+anchor_top = 0.9074
+anchor_right = 0.999
+anchor_bottom = 0.94
+mouse_filter = 2
+tooltip_text = "下一场（next_pos / return_to_town_pos 1870,980） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RrBack" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0260
+anchor_top = 0.9074
+anchor_right = 0.1
+anchor_bottom = 0.94
+mouse_filter = 2
+tooltip_text = "返回（back_pos 50,980） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="RrQuestInvGrid" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_left = 0.0438
+anchor_top = 0.2852
+anchor_right = 0.1638
+anchor_bottom = 0.3152
+mouse_filter = 2
+tooltip_text = "任务库存网格（quest_inventory_grid_offset 84,308） · 数据未接入 ⇒ 色块占位，不换不删"

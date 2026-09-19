@@ -141,6 +141,7 @@ public partial class BattleUI : Control
 
         // 结算 / 开发者日志 = **满屏不透明模态**（挂 `_uiRoot`：它是真 `Control` ⇒ `FullRect` 锚点算得出满屏 ✓）
         _resultLabel = MakeOpaqueModal("ResultPanel", out _resultPanel);
+        RaidResultsSkeleton.AttachInto(_resultPanel);   // 阶段2：结算屏按 DD raid_results 落位（色块占位）
         _devLogLabel = MakeOpaqueModal("DevLogPanel", out _devLogPanel);
 
         // 🔴 `ui_spec §12.1` **动效层**（满屏 + 鼠标穿透）：瞬态 VFX（伤害数字 / 暗角）画在它上面。

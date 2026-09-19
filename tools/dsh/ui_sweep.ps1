@@ -100,7 +100,7 @@ $TraceExpect = @{
     'map-mode'                = 'stage-layer-ready'
     'tile-walk'               = 'walk_map_layer.tscn'
     'dungeon-in-scene'        = 'dungeon-in-scene-entered'
-    'settle'                  = 'modal_dialog.tscn'
+    'settle'                  = 'raid-results-layout'
     'abandon'                 = 'abandon'
 }
 
