@@ -3713,3 +3713,27 @@ DD `campaign/town/buildings/building.layout.darkest` **自带 `.base_size 950 80
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.98 **阶段2 城池批(3)：11 栋建筑 layout 盘点（6 栋自带尺寸 / 4 栋需借基准）**（2026-09-21）
+
+```
+来源 `doc/ui_spec.json`（只读）｜ 命中 10 个 section（statue/graveyard/upgrade/hero_action/stage_coach/sanitarium/
+blacksmith/guild/camping_trainer/nomad_wagon）：
+
+【自带尺寸 ⇒ 基准已知，可精确换算 ✓】
+  · stage_coach: **text_box_size 350×200**（+ 有 base_size 键）· store_item_pos / store_item_spacing / hero_* 偏移
+  · graveyard:   **entry_size 1000×160** · portrait_position / name_position / list_position / list_area_size / margins
+  · statue:      **list_area_size 600×580** · list_position / quote_position / scrollbar_offset / margins
+  · upgrade:     **base_size 102×72** · icon_offset / background_offset / cost_offset / free_offset / tooltip_offset
+  · hero_action: **base_size 100×100** · base_pos / banner_pos / verbose_pos / body_pos / name_offset / close_button_offset
+  · sanitarium:  **choice_hot_spot_size 120×20** · positive/negative/disease list_position + backdrop_offset + icons
+
+【无 size ⇒ 需借基准（父面板/共享 building 区）⇒ 判不了记"未取得"，不硬套 ✗】
+  · blacksmith (13 字段) · guild (13) · camping_trainer (13) —— 三者结构同族：{equipment|skill}_pos/_spacing + title_offset +
+    icon_* + requirement_* + divider_offset ⇒ 疑似相对 **共享 building 面板(950×800)** 内的 activity 区 ✗ 待定
+  · nomad_wagon (3 字段：pos / start_pos / offset) ⇒ 最简，疑似列表格 ✗ 待定
+
+⇒ 下一步：先落 **6 栋自带尺寸**的块（尺寸+锚点都能算 ✓）；4 栋无基准的**继续标"未取得"**，等找到父基准再落 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
