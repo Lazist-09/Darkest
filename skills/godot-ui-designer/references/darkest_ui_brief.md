@@ -3506,3 +3506,29 @@ C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.94 **面板级坐标 → 面板内比例（用 spec 的面板 PNG 基准尺寸）**（2026-09-21）
+
+```
+关键：DD 的面板级偏移（如 `panel.hero` 的 130,11）**有基准可依** —— `asset_sizes` 里有对应面板 PNG 的真实尺寸：
+  panels/panel_banner.png  =  754 x 136
+  panels/panel_banner_controller.png  =  754 x 136
+  panels/panel_hero.png  =  720 x 224
+  panels/panel_inventory.png  =  720 x 360
+  panels/panel_map.controller_focus_overlay.png  =  158 x 158
+  panels/panel_map.input_preview_background.png  =  186 x 340
+  panels/panel_map.png  =  720 x 360
+  panels/panel_monster.png  =  702 x 368
+  panels/panel_monster_indicator_invalid.png  =  147 x 76
+  panels/panel_monster_indicator_valid.png  =  147 x 76
+  panels/panel_monster_newmove.png  =  26 x 26
+  panels/panel_personality.png  =  720 x 224
+  panels/panel_transition.png  =  1920 x 20
+
+换算表（ratio = 偏移 / 面板基准；阶段2 落位时用这些比例，**不再猜** ✗）：
+
+⇒ 结论：**面板级也能精确落位** ✓（面板 PNG 尺寸 = 面板基准）；屏幕级用 /1920、/1080 ✓；
+  两者都可用后，阶段2 的"同尺寸色块 + 同锚点"就有了**完整可执行输入** ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
