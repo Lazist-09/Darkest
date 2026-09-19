@@ -3394,3 +3394,60 @@ C4 证据：新增 ASCII 留痕 **`[UI-TRACE] stage-layer-ready`**，6 入口（
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.92 **阶段2 只读盘点：`doc/ui_spec.json` 的 88 section 归组（我域相关已标）**（2026-09-21）
+
+```
+来源：`doc/ui_spec.json`（`meta.logic_basis 1920x1080` = 现画布 ⇒ 原值直接用 ✓）｜ section 总数 88 ｜ 文件数 63
+
+【我域相关文件 → section（阶段2 施工对象）】
+  ★ campaign/town/activity_log/activity_log.layout.darkest  sections=1  [_root]
+  ★ campaign/town/building_navigation/building_navigation.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/blacksmith/blacksmith.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/building.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/camping_trainer/camping_trainer.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/graveyard/graveyard.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/guild/guild.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/hero_action/hero_action.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/nomad_wagon/nomad_wagon.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/sanitarium/sanitarium.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/stage_coach/stage_coach.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/statue/statue.layout.darkest  sections=1  [_root]
+  ★ campaign/town/buildings/upgrade/upgrade.layout.darkest  sections=1  [_root]
+  ★ campaign/town/district/district.layout.darkest  sections=1  [_root]
+  ★ campaign/town/embark_party/embark_party.layout.darkest  sections=1  [_root]
+  ★ campaign/town/estate_summary/estate_summary.layout.darkest  sections=1  [_root]
+  ★ campaign/town/glossary/glossary.layout.darkest  sections=1  [_root]
+  ★ campaign/town/heirloom_exchange/heirloom_exchange.layout.darkest  sections=1  [_root]
+  ★ campaign/town/hero_slot/hero_slot.layout.darkest  sections=1  [_root]
+  ★ campaign/town/provision/provision.layout.darkest  sections=1  [_root]
+  ★ campaign/town/quest_select/quest_select.layout.darkest  sections=1  [_root]
+  ★ campaign/town/realm_inventory/realm_inventory.layout.darkest  sections=1  [_root]
+  ★ campaign/town/roster/roster.layout.darkest  sections=1  [_root]
+  ★ campaign/town/town.layout.darkest  sections=1  [_root]
+  ★ campaign/town/town_event/town_event.layout.darkest  sections=1  [_root]
+  ★ raid_results/raid_results.layout.darkest  sections=1  [_root]
+  ★ scripts/layout/overlay.loot.darkest  sections=5  [loot_background,loot_title,loot_description,loot_tiles,loot_buttons]
+  ★ scripts/layout/panel.banner.darkest  sections=4  [background_layout,portrait_layout,name_layout,ability_layout]
+  ★ scripts/layout/panel.hero.darkest  sections=5  [health_layout,stress_layout,stat_layout,hero_equipment,hero_trinket]
+  ★ scripts/layout/panel.map.darkest  sections=4  [map_layout,indicator_layout,fog_of_war,input_preview]
+  ★ scripts/layout/panel.monster.darkest  sections=1  [_root]
+  ★ scripts/layout/panel.tab.darkest  sections=1  [_root]
+  ★ scripts/layout/pannel.inventory.darkest  sections=3  [raid_inventory_panel_background,wave_inventory_panel_background,raid_inventory_panel_grid_layout]
+  ★ scripts/layout/screen.raid.battle.darkest  sections=1  [battle]
+  ★ scripts/layout/screen.raid.darkest  sections=10  [area,torch_layout,round_display,basic_scroll,sidebar_scroll,result_scroll,meal_scroll,camp_layout,torch_info,monster_info]
+  ★ scripts/layout/screen.raid.status_bars.darkest  sections=1  [status_bars]
+  ★ scripts/layout/screen.raid_animation.darkest  sections=1  [_root]
+  ★ shared/character/character.layout.darkest  sections=1  [_root]
+  ★ shared/estate/estate.layout.darkest  sections=1  [_root]
+  ★ shared/hero/hero.layout.darkest  sections=1  [_root]
+  ★ shared/inventory/inventory.layout.darkest  sections=1  [_root]
+  ★ shared/menu/menu.layout.darkest  sections=1  [_root]
+
+【使用约定】
+  · `fields.<键>` 形如 `{ a, b, 类别 }`；**类别=锚点** 用于定位（a/1920、b/1080），**类别=尺寸** 用于色块大小，`类别=参数`（b="."）忽略 ✓
+  · 阶段2 只建 **ColorRect 色块**（`DdTheme.PlaceholderFill`），tooltip 标「DD section/键 + 原值 + 尺寸」；遵守 §14.0.68 不换不删 ✓
+  · 该清单**只读生成**，不修改任何在飞文件 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
