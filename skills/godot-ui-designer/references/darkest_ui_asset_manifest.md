@@ -2,11 +2,11 @@
 
 2026-09-21（脚本只读生成，可随施工再生）
 
-分类：**A = tooltip 提及 DD 出处**（优先出图）；**B = 未提及**（我方自建，保留不删）；分类为启发式，未提及 ≠ 与 DD 无关
+分类：**A = tooltip 提及 DD 出处**（优先出图）；**B = 未提及**（我方自建，保留不删）；启发式分类，未提及 ≠ 与 DD 无关
 
 用法：美术按「节点 + 尺寸 + DD 出处」出**同尺寸原创资产**；替换时**只换贴图、不动锚点/尺寸** ⇒ 布局零改动 ✓
 
-## A 栏（165 条）
+## A 栏（173 条）
 
 ```
 场景 | 节点 | 锚点(left/top) | 尺寸 | DD 出处
@@ -45,6 +45,14 @@ battle_bottombar.tscn          | RaidSec1                   | 0.7969/0.125      
 battle_bottombar.tscn          | RaidSec2                   | 0.7969/0.0324        | -                    | DD screen.raid [wave_countdown_display] pos 1530,35 ⇒ 0.7969/0.0324 · 色块占位，不换不删
 battle_bottombar.tscn          | RaidSec3                   | 0.9167/0.5324        | -                    | DD screen.raid [skip_curio_display] pos 1760,575 ⇒ 0.9167/0.5324 · 色块占位，不换不删
 battle_bottombar.tscn          | InvItemIconBody            | 0.30/0.70            | Vector2(72, 144)     | 库存图标本体（DD shared/inventory inventory_item_layout.icon_size 72x144 · 与 hero_equipment/资产 inv_* 一致；格距见 pannel.
+battle_bottombar.tscn          | RaidX1                     | 0.4104/0.6296        | -                    | DD screen.raid [overlays] hero_start_pos 788,680 => 0.4104/0.6296 · 色块占位，不换不删
+battle_bottombar.tscn          | RaidX2                     | 0.5469/0.6296        | -                    | DD screen.raid [overlays] monster_start_pos 1050,680 => 0.5469/0.6296 · 色块占位，不换不删
+battle_bottombar.tscn          | RaidX3                     | 0.699/0.1296         | -                    | DD screen.raid [basic_scroll] pos 1342,140 => 0.699/0.1296 · 色块占位，不换不删
+battle_bottombar.tscn          | RaidX4                     | 0/0.3704             | -                    | DD screen.raid [basic_scroll] ok_button_pos -150,400 => 0/0.3704 · 色块占位，不换不删
+battle_bottombar.tscn          | RaidX5                     | 0.0406/0.3704        | -                    | DD screen.raid [basic_scroll] cancel_button_pos 78,400 => 0.0406/0.3704 · 色块占位，不换不删
+battle_bottombar.tscn          | RaidX6                     | 0.7021/0.1852        | -                    | DD screen.raid [sidebar_scroll] pos 1348,200 => 0.7021/0.1852 · 色块占位，不换不删
+battle_bottombar.tscn          | RaidX7                     | 0/0.2222             | -                    | DD screen.raid [sidebar_scroll] investigate_button_pos -152,240 => 0/0.2222 · 色块占位，不换不删
+battle_bottombar.tscn          | RaidX8                     | 0.0391/0.2222        | -                    | DD screen.raid [sidebar_scroll] pass_button_pos 75,240 => 0.0391/0.2222 · 色块占位，不换不删
 battle_overlay.tscn            | HeroIcon1                  | 0.41/0.611           | -                    | icon Hero1 (DD tray_icon_left 58,-38 / right 62,-38; needs art => color placeholder, keep)
 battle_overlay.tscn            | EnemyIcon1                 | 0.547/0.611          | -                    | icon Enemy1 (DD tray_icon; needs art => color placeholder, keep)
 battle_overlay.tscn            | HeroIcon2                  | 0.323/0.611          | -                    | icon Hero2 (DD tray_icon; needs art => color placeholder, keep)
@@ -237,4 +245,4 @@ unit_card.tscn                 | portraitBox                | -                 
 
 注：① DD 数字=度量事实；DD 像素未进工程（红线27）｜② B 栏为既有占位（保留不删 §14.0.68）
     ③ 生成脚本只用数组拼接（List.Add 在本环境会致变量退化 String ⇒ 弃用 ✓）
-    ④ DD 内部互证尺寸：装备/饰品图标 **72×144**（inventory.icon_size · hero_equipment.tooltip_hotspot_size · 资产 inv_*.png 三处一致）
+    ④ DD 内部互证：图标 **72×144**（3 处一致）· 舞台锚点 **788/1050/680**（见 skill §14.0.116）
