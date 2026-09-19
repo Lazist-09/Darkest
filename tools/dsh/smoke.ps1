@@ -115,7 +115,11 @@ foreach ($c in $run) {
     #    · **真错误** = 其余 ERROR ⇒ **只有它才判红**（否则每份留档都挂着 1~2 条"待判定"，谁也说不清 ✓）
     $noise = 'AudioDriver|DisplayServer|OpenGL|Vulkan|Cannot open file.*\.wav|texture.*not found'
     $lines = Get-Content $log -ErrorAction SilentlyContinue
-    $allErrs = @($lines | Select-String -Pattern 'ERROR|SCRIPT ERROR' | Where-Object { $_.Line -notmatch $noise })
+    # 🔴 2026-09-19 修：原来用 `-match 'ERROR'` ⇒ **把 C# backtrace 帧误计成"真错误"** ⚠️
+#    实测：Godot 打 WARNING 时会附带调用栈，其中一帧的类型名含 `godot_variant_call_error`
+#    ⇒ 大小写不敏感的 `ERROR` 命中它 ⇒ e2e 被判 18 条"真错误"，实际那 18 条是 **WARNING 的栈帧**（假红）
+#    ⇒ 判据收紧为 **行首 `ERROR:`**（Godot 真错误的唯一前缀）＋ 保留 `SCRIPT ERROR` ✓
+$allErrs = @($lines | Select-String -Pattern '^\s*ERROR:|SCRIPT ERROR' | Where-Object { $_.Line -notmatch $noise })
     # 🔴 主程序 2026-09-21 补：**引擎退出期的"资源仍在使用"也是引擎行为**（实测 e2e 里它就是唯一那条"真错误"）✓
     $leaks   = @($allErrs | Where-Object { $_.Line -match 'leaked at exit|RID allocations|resources still in use at exit' })
     $errs    = @($allErrs | Where-Object { $_.Line -notmatch 'leaked at exit|RID allocations|resources still in use at exit' })
