@@ -4155,3 +4155,36 @@ E 盘 `scripts/layout/screen.raid.darkest` 的 `[overlays]` 段给出：
 ```
 
 ## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
+
+### 🔴 14.0.119 **占位几何检查器 + 三张清单 + 教训（按 性质/层级 重构的开端）**（2026-09-21）
+
+```
+【工具（只读，均已提交）】
+  · `tools/dsh/check_offset_placement.ps1` —— 消费 `doc/ui_spec.json` v3 的 `性质`/`菜单层级`：
+      输出 (A) 根级越出视口 · (B) 根级锚点框 < DD 尺寸 · (C) `性质=offset` 却挂在场景根；并打印计数器
+      （nodes / with-tooltip / key-extracted / nature-resolved / ambiguous / no-tooltip）
+  · `tools/dsh/check_placeholder_geometry.ps1` —— 初版（按字段名猜性质 ✗ 判定含误报）⇒ **已被前者取代**，保留备查
+
+【修好的关键 bug（都在我这边 ✗）】
+  ① 脚本里写了**中文字面量 `性质`**，而脚本是 ASCII 无 BOM ⇒ PS 5.1 解析失败 ⇒ 判定永不成立（nature keys=0 ✗）
+     ⇒ 改为**按值的形态识别**（`absolute|offset|scale|offscreen` 是 ASCII ✓）⇒ nature keys=**828** ✓
+  ② 根级判定：Godot 对场景根写 `parent="."` ✗（不是空串）⇒ 必须 **空 或 "." 都算根级** ✓
+  ③ tooltip → (section,key) 抽取要支持 5 种形态：`[sec] key` · `sec.key` · `DD sec .key` · `DD sec key` · `(DD key` ✓
+  ④ 匹配优先级：`sec|key` 精确 → `key` 模糊（**唯一命中才用** ✓ 多义计入 ambiguous 不瞎选 ✗）
+
+【三张清单（最近一次运行）】
+  MUST-FIX: **A=3 ｜ B=4 ｜ C=3**（相对首轮 A=6 / B=12 / C=3 已收敛 ✓）
+  已修：B 类 7 块（`39822a2`）＋ A 类 2 块（`353ec1d`）
+  剩余（**均需用户决策 DD 结构，故暂停不猜** ✗）：
+    A: `RaidPos2`[camp_layout] fourth_pos(offset) · `RaidPos7`[monster_info] complete_return_to_hamlet_pos(offset) ·
+       `BpGraveyardEntry`[graveyard] entry_size 1000x160
+    B: `building_popup` 的 4 个 `Bp*`（框 523x86 vs DD 1000x160 / 100x100 / 350x200 / 600x580）
+    C: `BpTreesAnchor`[upgrade_trees_offset] · `HxArrowAnchor`[arrow_offset] · `HxIconOffsetAnchor`[icon_offset]（offset 挂根 ✗）
+
+【新铁律（本轮事故）】
+  📌 **改场景文本行（tooltip/text）必须"整行替换"** ✗ 禁止行内 `-replace` 拼接 ⇒
+     上轮我对 tooltip 行内替换 ⇒ 引号被写坏 ⇒ 场景解析失败 ⇒ **24 入口全红** ✗（已回退，改用**新增 `;` 注释行** ✓）
+  📌 与既有并列：锚点必须完整语句且唯一 ✓ · 写文件禁 `List.Add` ✓ · 工具脚本 ASCII/BOM ✓ · 中文只在场景/文档 ✓
+```
+
+## 11. 我方投递台账（outgoing · 追加式写）| 日期 | 收件窗口 | 投递标记 | 主题 | 回读状态 |
