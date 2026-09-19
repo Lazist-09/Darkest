@@ -283,6 +283,7 @@ public partial class BattleUI : Control
         enemyArea.AddThemeConstantOverride("separation", 4);
         enemyArea.AnchorLeft = 0.547f; enemyArea.AnchorRight = 0.809f; enemyArea.AnchorTop = 0.6297f; enemyArea.AnchorBottom = 0.95f;   // C2a：DD overlays（monster band 1050-1554）
         _midRow.AddChild(enemyArea);   // 🔴 DD 1:1 ④-3a：怪物 band 1050→1554 = 26.2% ✓
+        GD.Print("[UI-TRACE] stage-layer-ready");   // C2a/C4：舞台层与 DD 锚点就位（供 ui_sweep 观察）
         enemyArea.SizeFlagsStretchRatio = 0.262f;
         enemyArea.AddChild(TitleLabel("敌方　1 · 2 · 3 · 4"));
         _midRow.AddChild(new Control { Name = "MidPadRight", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.191f });   // DD 右空 (1920-1554)/1920 ✓
