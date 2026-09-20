@@ -27,6 +27,11 @@
 > 🔴 **每条必须带【规模】**（**条目数 / 字段数 / 引用数**）—— 🔴 **理由：避免"按小规模裁、按大规模做"** ⚠️
 >   实测教训（2026-09-20 · 两连发）：**Quirk = 从零建（不是改造）** · **Trinket = 490 条（不是几十条）** ✓
 >   📌 **判据**：**"我在裁这条之前，量过它有多大吗？"** —— 没量 ⇒ **先量再裁** ✓
+> 🆕 **并记一条同族判据（由 `kickstarter` 实例立）**：**"这个值是真的，还是【占位值】？"** ⚠️
+>   实测：`kickstarter` 饰品 **293/294 条 `price = 1`** ⇒ 那是**"不可购买"的占位**（不是"便宜"）✓
+>   🔴 **辨法三条（纪律 AD）**：**① 字段是否占位（`price=1`/权重 0）② 来源字段是否空（`origin_dungeon` 全空）③ id 像不像人的名字** ✓
+>   📌 **它是"看起来有值"的【第三类】**：前两类是 **"填了却没人消费"（`O-94`）** 与 **"空字段"** ⇒ 本类是 **"占位/不可达的值"** ✓
+>   （同族先例：`branch_special_weight: 0` ⇒ **结构上不可达** —— 当时判"不需应用点"）✓
 
 | # | 项 | 原版值（来源） | 我方值（实测） | 判定 | 落地状态 / 归属 |
 |---|---|---|---|---|---|
@@ -34,7 +39,7 @@
 | **2** | **属性模型**（武器/护甲 0~4 阶） | 原版有 `weapon`/`armour` 阶（`dd1_baseline §4` 偏差 2） | `UnitStats` **压平**（无阶） | 🔴 **待对齐**（未裁） | 影响 `units.json` + `UnitStatsMapper`；⚠️ 牵动伤害公式 ⇒ 与第 6 项同批评估 |
 | **3** | **抗性集** | 原版含 **poison / disease / death_blow / trap**（§4 偏差 3） | **缩水**（无这四类） | 🔴 **待对齐**（未裁） | 影响 `units.json` + 伤害/陷阱管线；⚠️ 若加 ⇒ **新增四条状态通道**（不是加数据那么简单） |
 | **4** | **速度随机浮动** | ⏸ **不可判**（原版需观察，§5 O2） | 我方"每回合重掷 0~10%" | ⏸ **不可判** | **等观察**；⚠️ **不得凭感觉对齐** |
-| **5** | **饰品 Trinket** | 原版**独立系统**：**3 饰品位 + 职业限制 + 稀有度 + 来源**（`dd1_baseline §4` 偏差 5）<br>🔴 **规模（`#429` ⑤ 实测）**：**490 条** · **稀有度 14 种**（**kickstarter 294 条 = 60%** ⚠️ 疑众筹专属 **待辨** · uncommon 44 · common 44 · rare 33 · very_rare 24 · very_common 16 · ancestral 9 · trophy 9 · ancestral_shambler 5 · crow 4 · madman 3 · collector 3 · courtier 1 · darkest_dungeon 1）· **职业限制非空 79/490（16%）** | 仅实现"饰品的 **Buff 效果**"（走 `BuffDefsConfig`）⇒ 🔴 **槽位/限制/稀有度【未实现】** | 🔴 **待对齐**（`#425` ② 已裁：**部分实现 ≠ 等价实现**） | ✅ **移层处方（红线 30）**：**Buff 效果继续走 `BuffDefsConfig`**（等价）· 🔴 **槽位/限制/稀有度需【Trinket 自己的表】**<br>🔴 **并因规模修正**：**它不是一个"表"、是【一个内容体系】** ⇒ ✅ **先辨 `kickstarter`**（若确为众筹专属 ⇒ **整体排除，省 60% 工作量**）**再分批** ✓ |
+| **5** | **饰品 Trinket** | 原版**独立系统**：**3 饰品位 + 职业限制 + 稀有度 + 来源**（`dd1_baseline §4` 偏差 5）<br>🔴 **规模（已辨 · `#430`）**：**490 条中【196 条属正式发行】**（**`kickstarter` 294 条已排除** —— 三条实证：**price=1 占位（293/294）** · **`origin_dungeon` 全空（294/294）** · **id 像人名**）<br>· **稀有度 14 种** · **职业限制非空 79/490（16%）**<br>· 🆕 **`award_category`（`base.rarities.trinkets.json` · 14 条）= 决定"从哪来"**：`dd` / `trophy` / `battle` / `universal` / `quest` / `kickstarter`（**策划 `#430` ③ 补齐 —— 我 `#425` 只列了稀有度、漏了"获得方式"**）| 仅实现"饰品的 **Buff 效果**"（走 `BuffDefsConfig`）⇒ 🔴 **槽位/限制/稀有度/获得方式 全部未实现** | 🔴 **待对齐**（`#425` ② 已裁） | ✅ **移层处方（红线 30）**：**Buff 效果继续走 `BuffDefsConfig`**（等价）· 🔴 **槽位/限制/稀有度/获得方式 走【Trinket 自己的表】**<br>✅ **分批（`#430` ④）**：**先 common/uncommon 打底** ⇒ 📌 **已从"490 条内容体系"降到【196 条 + 一个表 + 一个商店（`nomad_wagon`）】** ✓ |
 | **6** | **怪物 brain / wave / 每轮行动次数** | 原版有 `monster_brain` id + `wave_spawning`（§4 偏差 6 · §5 O3/O4）＋ 🔴 **`initiative.number_of_turns_per_round`（怪物级字段）**（`#425` ③ 一手） | 我方 `enemy_ai.json` ＋ 🔴 **`enemy_actions_per_round`（【导演级】倍率 · `O-36` 自加）** | 🔴 **待对齐**（`#425` ③ 已裁） | ✅ **"移层"= 从【导演级】移到【怪物级】**（**那就是原版的字段**）⇒ 阶段 A 补 ✓ |
 | **13** | **Quirk 系统** | 🔴 原版**两个库**：`quirk_library.json` **170 条**（79 负 / 68 正 / **23 疾病**；mental 108 / physical 56）· 字段含 `is_positive` / `is_disease` / `classification` / `incompatible_quirks` / `curio_tag`（`#425` ⑥ · `dd1_baseline §14`） | 🔴🔴 **实测：我方【没有】Quirk 系统** —— `git grep quirk` 只命中 `sanitarium.json` 的一条 `note`（疾病=每趟结束按概率获得）；**无 quirk 表、无代码** | 🔴 **待对齐（实为【从零建】）** | ⚠️ **口径更正**：策划表述为"**结构对齐 + 内容分批**"，而实测**我们连结构都没有** ⇒ **它是【新建系统】，不是改造**（工作量差异大，见 §3.4）✓ |
 | **14** | **折磨 / 美德** | 🔴 原版 = **独立 `trait_library.json`（13 条 = 8 折磨 + 5 美德）**（`#426`） | 我方 = **`buff_defs.json` 里 6 条**（`affliction_fear/selfish/uncontrolled` + `virtue_brave/resolute/inspired`），🔴 **消费点散在 8 个文件**（`BuffDefsConfig`/`AfflictionProcs`/`BattleDirector`/`DamagePipeline`/`SkillExecutor`/`TuningConfig`/`CombatLogText`）⇒ **行为真实存在** | 🔴 **待对齐（移层）** | ✅ **处方见 §5.2**：**新建 `traits.json` + 引用替换 + 【行为跟随】（8 处消费点一起搬）** ⇒ ⚠️ **只搬数据不搬行为 = 立刻变死声明**（红线 21）✓ |
