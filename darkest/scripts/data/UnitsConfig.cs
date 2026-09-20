@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Darkest.Core.Contracts;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -25,7 +26,11 @@ public sealed record UnitConfig(
     [property: JsonPropertyName("displace_resist")] int DisplaceResist,
     [property: JsonPropertyName("deaths_door_resist")] int? DeathsDoorResist,
     [property: JsonPropertyName("skills")] IReadOnlyList<string> Skills,
-    [property: JsonPropertyName("move_distance")] int MoveDistance = 0)
+    [property: JsonPropertyName("move_distance")] int MoveDistance = 0,
+    // 🆕 **M1a 阶段 1（加字段级 · 零行为改动）**：原版 `weapon`/`armour` 各 **5 阶**（0~4）✓
+    //   🔴 可选：缺省 = 不参与（老数据不受影响 ⇒ 旧读数必须不变）；本阶段**无消费点** ✓
+    [property: JsonPropertyName("weapon")] IReadOnlyList<WeaponTier>? Weapon = null,
+    [property: JsonPropertyName("armour")] IReadOnlyList<ArmourTier>? Armour = null)
 {
     public bool IsPlayer => Side == "player";
 }
@@ -129,6 +134,10 @@ public sealed record UnitsConfig(
             {
                 throw new InvalidDataException($"{ResPath}: 敌方原型 \"{u.Id}\" deaths_door_resist 必须为 null。");
             }
+
+            // 🆕 **M1a 阶段 1 校验（只查结构、不查平衡）**：给了就得是**整 5 阶**（原版 0~4）✓
+            ValidateTiers(u, "weapon", u.Weapon?.Count, u.Weapon?.Select(x => x.DmgMin).ToArray(), u.Weapon?.Select(x => x.DmgMax).ToArray());
+            ValidateTiers(u, "armour", u.Armour?.Count, null, null);
         }
 
         // F1（#190）：不再硬编码"必选 7 原型"——只要求两侧各至少 1 个（新增角色零代码改动）
@@ -148,5 +157,34 @@ public sealed record UnitsConfig(
         }
 
         return u;
+    }
+
+    /// <summary>
+    /// 🆕 **M1a 阶段 1**：tier 数组的**结构**校验（整 5 阶 · 区间 0 ≤ min ≤ max）——
+    /// 🔴 **只查结构形状**，不查"哪一阶更强"（那属平衡 ⇒ 解冻清单）✓ 规则来源 `dd1_baseline §27` ✓
+    /// </summary>
+    private static void ValidateTiers(UnitConfig u, string name, int? count, int[]? mins, int[]? maxs)
+    {
+        if (count is null)
+        {
+            return; // 缺省 = 不参与（阶段 1 允许）✓
+        }
+
+        if (count != 5)
+        {
+            throw new InvalidDataException($"{ResPath}: \"{u.Id}\" {name} 必须是 5 阶（原版 0~4）—— 实际 {count}。");
+        }
+
+        if (mins is not null && maxs is not null)
+        {
+            for (int i = 0; i < mins.Length; i++)
+            {
+                if (mins[i] < 0 || maxs[i] < 0 || mins[i] > maxs[i])
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: \"{u.Id}\" {name}[{i}] 区间非法（min={mins[i]} max={maxs[i]}；要求 0 ≤ min ≤ max）✓");
+                }
+            }
+        }
     }
 }

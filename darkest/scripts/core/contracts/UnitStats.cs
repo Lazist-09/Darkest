@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace Darkest.Core.Contracts;
 
 /// <summary>
@@ -17,10 +20,24 @@ public sealed record UnitStats(
     int StatDebuffResist,
     int DisplaceResist,
     int? DeathsDoorResist,
-    int MoveDistance = 0)
+    int MoveDistance = 0,
+    // 🆕 **M1a 阶段 1**：原版 weapon/armour 各 5 阶（**只承载数据，零消费点**）✓
+    IReadOnlyList<WeaponTier>? WeaponTiers = null,
+    IReadOnlyList<ArmourTier>? ArmourTiers = null)
 {
     public bool HasDeathsDoor => DeathsDoorResist is not null;
 
     /// <summary>池外「移动」的射程（自身 ±N 格换位；F1/#191 从单位读，不再写在技能上）。</summary>
     public int MovementRange => MoveDistance;
+
+    /// <summary>
+    /// 🆕 **M1a 阶段 1 的"按阶取"**：`tier` ∈ 0..4（原版 0~4）⇒ 返回该阶；越界或未配 tier ⇒ **null**（如实不假装）✓
+    /// 🔴 **本阶段无人消费它**（切换公式属 M1c 阶段 3）✓
+    /// </summary>
+    public WeaponTier? WeaponAt(int tier)
+        => WeaponTiers is not null && tier >= 0 && tier < WeaponTiers.Count ? WeaponTiers[tier] : null;
+
+    /// <summary>🆕 同上（护甲阶）✓</summary>
+    public ArmourTier? ArmourAt(int tier)
+        => ArmourTiers is not null && tier >= 0 && tier < ArmourTiers.Count ? ArmourTiers[tier] : null;
 }
