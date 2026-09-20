@@ -137,6 +137,45 @@ public static class BattleMath
     /// Damage rounding — combat_math §2.3: round() 四舍五入（AwayFromZero，钉死"非截断"），
     /// 任何来源伤害最低 damageFloor 点（默认 1，调用点显式传 BalanceTable.DamageFloor）。
     /// </summary>
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // 🆕 **M1c 阶段 1（换伤害模型 · 零行为改动）**：原版口径 = **武器区间 × (1 + 技能 dmg%)**
+    //   🔴 **本阶段只加纯函数、不接线**（没有任何调用方 ⇒ 旧读数必须不变 ✓）
+    //   来源（参考项目一手，`Assets/Resources/Data/Heroes/Info/*.bytes`）：
+    //     `weapon: .atk 0% .dmg 6 12 .crit 3% .spd 1`　·　`combat_skill: .dmg 0% / -40% / -75%`
+    //   ⇒ 命中修正 = `weapon.atk%`（**不是**我们现用的 `Attack` 直乘）· 伤害 = **区间随机值** × 技能百分比修正 ✓
+    //   ⚠️ 与本项目现模型（`DamageStep`：`EffectiveAttack × 段倍率 × (1−减伤) × …`）**是两种形状** ✓
+    //      ⇒ 所以 M1c 才要"三步走"：**阶段 2 试点对照 → 阶段 3 才切默认**（走解冻四件）✓
+    // ═══════════════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// 🆕 **M1c · 武器区间取值**：`[dmgMin, dmgMax]` 上按 `roll01 ∈ [0,1)` 线性取值（连续，原版 `DamageLow/High` 是浮点）✓
+    /// 🔴 纯函数（无随机源依赖）⇒ **可确定性测试** ✓；区间非法（min &gt; max）⇒ 按 min 处理（不抛，交给数据校验）✓
+    /// </summary>
+    public static double WeaponRoll(int dmgMin, int dmgMax, double roll01)
+    {
+        if (dmgMax <= dmgMin)
+        {
+            return dmgMin;
+        }
+
+        double r = System.Math.Clamp(roll01, 0.0, 1.0);   // ⚠️ 本文件就在 `Darkest.Core.Math` 里 ⇒ 必须限定 `System.Math`（同名遮蔽，我踩过两次）
+        return dmgMin + ((dmgMax - dmgMin) * r);
+    }
+
+    /// <summary>
+    /// 🆕 **M1c · 原版伤害模型**：`武器区间 × (1 + 技能 dmg%)` —— **未接任何调用方**（阶段 1）✓
+    /// </summary>
+    /// <param name="dmgMin">武器该阶 `dmg_min`（参考项目 `weapon.dmg` 左值）✓</param>
+    /// <param name="dmgMax">武器该阶 `dmg_max` ✓</param>
+    /// <param name="skillDmgPct">技能 `dmg%`（参考项目例：`smite 0%` · `zealous_accusation -40%` · `stunning_blow -75%`）✓</param>
+    /// <param name="roll01">区间取值（[0,1)）✓</param>
+    public static double WeaponRawDamage(int dmgMin, int dmgMax, int skillDmgPct, double roll01)
+    {
+        double baseRoll = WeaponRoll(dmgMin, dmgMax, roll01);
+        double mult = 1.0 + (skillDmgPct / 100.0);
+        return baseRoll * System.Math.Max(0.0, mult); // 负到 0 以下 ⇒ 0（不产生负伤害）✓
+    }
+
     public static int ApplyDamageRounding(double raw, int damageFloor = 1)
     {
         int rounded = (int)System.Math.Round(raw, System.MidpointRounding.AwayFromZero);
