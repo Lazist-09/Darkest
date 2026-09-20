@@ -1,0 +1,2296 @@
+{
+ "source": "F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets/Resources/Data/Heroes/Info/*.bytes",
+ "note": "REFERENCE EXTRACT (local Unity port of the original). Not shipped content. Alignment target for DD1 phase A; numbers must be blessed by the planner.",
+ "resist_keys": [
+  "stun",
+  "poison",
+  "bleed",
+  "disease",
+  "move",
+  "debuff",
+  "death_blow",
+  "trap"
+ ],
+ "heroes": {
+  "Abomination": {
+   "resistances": {
+    "stun": 40,
+    "poison": 60,
+    "bleed": 30,
+    "disease": 20,
+    "move": 40,
+    "debuff": 20,
+    "death_blow": 67,
+    "trap": 10
+   },
+   "weapon": [
+    {
+     "name": "abomination_weapon_0",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 11,
+     "crit": 2.5,
+     "spd": 7,
+     "req": null
+    },
+    {
+     "name": "abomination_weapon_1",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 13,
+     "crit": 3.0,
+     "spd": 7,
+     "req": "0"
+    },
+    {
+     "name": "abomination_weapon_2",
+     "atk": 0,
+     "dmg_min": 8,
+     "dmg_max": 15,
+     "crit": 3.5,
+     "spd": 8,
+     "req": "1"
+    },
+    {
+     "name": "abomination_weapon_3",
+     "atk": 0,
+     "dmg_min": 10,
+     "dmg_max": 18,
+     "crit": 4.0,
+     "spd": 8,
+     "req": "2"
+    },
+    {
+     "name": "abomination_weapon_4",
+     "atk": 0,
+     "dmg_min": 11,
+     "dmg_max": 20,
+     "crit": 4.5,
+     "spd": 9,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "abomination_armour_0",
+     "def": 0,
+     "prot": 0,
+     "hp": 26,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "abomination_armour_1",
+     "def": 0,
+     "prot": 0,
+     "hp": 33,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "abomination_armour_2",
+     "def": 0,
+     "prot": 0,
+     "hp": 40,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "abomination_armour_3",
+     "def": 0,
+     "prot": 0,
+     "hp": 47,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "abomination_armour_4",
+     "def": 0,
+     "prot": 0,
+     "hp": 54,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "transform": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "manacles": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "vomit": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "absolution": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "rake": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "rage": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "slam": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "Antiquarian": {
+   "resistances": {
+    "stun": 20,
+    "poison": 20,
+    "bleed": 20,
+    "disease": 20,
+    "move": 20,
+    "debuff": 20,
+    "death_blow": 67,
+    "trap": 10
+   },
+   "weapon": [
+    {
+     "name": "antiquarian_weapon_0",
+     "atk": 0,
+     "dmg_min": 3,
+     "dmg_max": 5,
+     "crit": 2.5,
+     "spd": 5,
+     "req": null
+    },
+    {
+     "name": "antiquarian_weapon_1",
+     "atk": 0,
+     "dmg_min": 4,
+     "dmg_max": 6,
+     "crit": 3.0,
+     "spd": 7,
+     "req": "0"
+    },
+    {
+     "name": "antiquarian_weapon_2",
+     "atk": 0,
+     "dmg_min": 4,
+     "dmg_max": 7,
+     "crit": 3.5,
+     "spd": 8,
+     "req": "1"
+    },
+    {
+     "name": "antiquarian_weapon_3",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 8,
+     "crit": 4.0,
+     "spd": 8,
+     "req": "2"
+    },
+    {
+     "name": "antiquarian_weapon_4",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 9,
+     "crit": 4.5,
+     "spd": 9,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "antiquarian_armour_0",
+     "def": 10,
+     "prot": 0,
+     "hp": 17,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "antiquarian_armour_1",
+     "def": 15,
+     "prot": 0,
+     "hp": 24,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "antiquarian_armour_2",
+     "def": 20,
+     "prot": 0,
+     "hp": 31,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "antiquarian_armour_3",
+     "def": 25,
+     "prot": 0,
+     "hp": 38,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "antiquarian_armour_4",
+     "def": 30,
+     "prot": 0,
+     "hp": 45,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "kris_stab": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "festering_vapours": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "cower": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "flashpowder": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fortifying_vapours": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "invigorating_vapours": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "protect_me": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "Arbalest": {
+   "resistances": {
+    "stun": 40,
+    "poison": 30,
+    "bleed": 30,
+    "disease": 30,
+    "move": 40,
+    "debuff": 30,
+    "death_blow": 67,
+    "trap": 10
+   },
+   "weapon": [
+    {
+     "name": "arbalest_weapon_0",
+     "atk": 0,
+     "dmg_min": 4,
+     "dmg_max": 9,
+     "crit": 7.5,
+     "spd": 3,
+     "req": null
+    },
+    {
+     "name": "arbalest_weapon_1",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 11,
+     "crit": 8.0,
+     "spd": 3,
+     "req": "0"
+    },
+    {
+     "name": "arbalest_weapon_2",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 13,
+     "crit": 8.5,
+     "spd": 4,
+     "req": "1"
+    },
+    {
+     "name": "arbalest_weapon_3",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 14,
+     "crit": 9.0,
+     "spd": 4,
+     "req": "2"
+    },
+    {
+     "name": "arbalest_weapon_4",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 16,
+     "crit": 9.5,
+     "spd": 5,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "arbalest_armour_0",
+     "def": 0,
+     "prot": 0,
+     "hp": 27,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "arbalest_armour_1",
+     "def": 5,
+     "prot": 0,
+     "hp": 34,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "arbalest_armour_2",
+     "def": 10,
+     "prot": 0,
+     "hp": 41,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "arbalest_armour_3",
+     "def": 15,
+     "prot": 0,
+     "hp": 48,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "arbalest_armour_4",
+     "def": 20,
+     "prot": 0,
+     "hp": 55,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "sniper_shot": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "suppressing_fire": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "sniper_mark": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "bola": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "blindfire": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "battlefield_bandage": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "flare": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "BountyHunter": {
+   "resistances": {
+    "stun": 40,
+    "poison": 30,
+    "bleed": 30,
+    "disease": 20,
+    "move": 40,
+    "debuff": 30,
+    "death_blow": 67,
+    "trap": 40
+   },
+   "weapon": [
+    {
+     "name": "bounty_hunter_weapon_0",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 10,
+     "crit": 5.0,
+     "spd": 5,
+     "req": null
+    },
+    {
+     "name": "bounty_hunter_weapon_1",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 12,
+     "crit": 5.5,
+     "spd": 5,
+     "req": "0"
+    },
+    {
+     "name": "bounty_hunter_weapon_2",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 13,
+     "crit": 6.0,
+     "spd": 6,
+     "req": "1"
+    },
+    {
+     "name": "bounty_hunter_weapon_3",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 15,
+     "crit": 6.5,
+     "spd": 6,
+     "req": "2"
+    },
+    {
+     "name": "bounty_hunter_weapon_4",
+     "atk": 0,
+     "dmg_min": 8,
+     "dmg_max": 16,
+     "crit": 7.0,
+     "spd": 7,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "bounty_hunter_armour_0",
+     "def": 5,
+     "prot": 0,
+     "hp": 25,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "bounty_hunter_armour_1",
+     "def": 10,
+     "prot": 0,
+     "hp": 30,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "bounty_hunter_armour_2",
+     "def": 15,
+     "prot": 0,
+     "hp": 35,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "bounty_hunter_armour_3",
+     "def": 20,
+     "prot": 0,
+     "hp": 40,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "bounty_hunter_armour_4",
+     "def": 25,
+     "prot": 0,
+     "hp": 45,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "collect_bounty": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "target_tag": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "come_hither": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "uppercut": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "flashbang": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "finish_him": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "hook_and_slice": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "Crusader": {
+   "resistances": {
+    "stun": 40,
+    "poison": 30,
+    "bleed": 30,
+    "disease": 30,
+    "move": 40,
+    "debuff": 30,
+    "death_blow": 67,
+    "trap": 10
+   },
+   "weapon": [
+    {
+     "name": "crusader_weapon_0",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 12,
+     "crit": 5.0,
+     "spd": 1,
+     "req": null
+    },
+    {
+     "name": "crusader_weapon_1",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 14,
+     "crit": 5.5,
+     "spd": 1,
+     "req": "0"
+    },
+    {
+     "name": "crusader_weapon_2",
+     "atk": 0,
+     "dmg_min": 8,
+     "dmg_max": 16,
+     "crit": 6.0,
+     "spd": 2,
+     "req": "1"
+    },
+    {
+     "name": "crusader_weapon_3",
+     "atk": 0,
+     "dmg_min": 9,
+     "dmg_max": 17,
+     "crit": 6.5,
+     "spd": 2,
+     "req": "2"
+    },
+    {
+     "name": "crusader_weapon_4",
+     "atk": 0,
+     "dmg_min": 10,
+     "dmg_max": 19,
+     "crit": 7.0,
+     "spd": 3,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "crusader_armour_0",
+     "def": 5,
+     "prot": 0,
+     "hp": 33,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "crusader_armour_1",
+     "def": 10,
+     "prot": 0,
+     "hp": 40,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "crusader_armour_2",
+     "def": 15,
+     "prot": 0,
+     "hp": 47,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "crusader_armour_3",
+     "def": 20,
+     "prot": 0,
+     "hp": 54,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "crusader_armour_4",
+     "def": 25,
+     "prot": 0,
+     "hp": 61,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "smite": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "zealous_accusation": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "stunning_blow": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "bulwark_of_faith": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "battle_heal": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "holy_lance": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "inspiring_cry": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "GraveRobber": {
+   "resistances": {
+    "stun": 20,
+    "poison": 50,
+    "bleed": 30,
+    "disease": 30,
+    "move": 20,
+    "debuff": 30,
+    "death_blow": 67,
+    "trap": 50
+   },
+   "weapon": [
+    {
+     "name": "grave_robber_weapon_0",
+     "atk": 0,
+     "dmg_min": 4,
+     "dmg_max": 9,
+     "crit": 5.0,
+     "spd": 8,
+     "req": null
+    },
+    {
+     "name": "grave_robber_weapon_1",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 11,
+     "crit": 5.5,
+     "spd": 8,
+     "req": "0"
+    },
+    {
+     "name": "grave_robber_weapon_2",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 13,
+     "crit": 6.0,
+     "spd": 9,
+     "req": "1"
+    },
+    {
+     "name": "grave_robber_weapon_3",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 14,
+     "crit": 6.5,
+     "spd": 9,
+     "req": "2"
+    },
+    {
+     "name": "grave_robber_weapon_4",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 16,
+     "crit": 7.0,
+     "spd": 10,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "grave_robber_armour_0",
+     "def": 10,
+     "prot": 0,
+     "hp": 20,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "grave_robber_armour_1",
+     "def": 15,
+     "prot": 0,
+     "hp": 24,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "grave_robber_armour_2",
+     "def": 20,
+     "prot": 0,
+     "hp": 28,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "grave_robber_armour_3",
+     "def": 25,
+     "prot": 0,
+     "hp": 32,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "grave_robber_armour_4",
+     "def": 30,
+     "prot": 0,
+     "hp": 36,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "pick": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "lunge": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "flashing_daggers": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "shadow_fade": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "thrown_dagger": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "poison_dart": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "toxin_trickery": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "Hellion": {
+   "resistances": {
+    "stun": 40,
+    "poison": 40,
+    "bleed": 40,
+    "disease": 30,
+    "move": 40,
+    "debuff": 30,
+    "death_blow": 67,
+    "trap": 20
+   },
+   "weapon": [
+    {
+     "name": "hellion_weapon_0",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 12,
+     "crit": 2.5,
+     "spd": 4,
+     "req": null
+    },
+    {
+     "name": "hellion_weapon_1",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 14,
+     "crit": 3.0,
+     "spd": 4,
+     "req": "0"
+    },
+    {
+     "name": "hellion_weapon_2",
+     "atk": 0,
+     "dmg_min": 8,
+     "dmg_max": 16,
+     "crit": 3.5,
+     "spd": 5,
+     "req": "1"
+    },
+    {
+     "name": "hellion_weapon_3",
+     "atk": 0,
+     "dmg_min": 9,
+     "dmg_max": 17,
+     "crit": 4.0,
+     "spd": 5,
+     "req": "2"
+    },
+    {
+     "name": "hellion_weapon_4",
+     "atk": 0,
+     "dmg_min": 10,
+     "dmg_max": 19,
+     "crit": 4.5,
+     "spd": 6,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "hellion_armour_0",
+     "def": 10,
+     "prot": 0,
+     "hp": 26,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "hellion_armour_1",
+     "def": 15,
+     "prot": 0,
+     "hp": 31,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "hellion_armour_2",
+     "def": 20,
+     "prot": 0,
+     "hp": 36,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "hellion_armour_3",
+     "def": 25,
+     "prot": 0,
+     "hp": 41,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "hellion_armour_4",
+     "def": 30,
+     "prot": 0,
+     "hp": 46,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "wicked_hack": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "iron_swan": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "barbaric_yawp": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "if_it_bleeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "breakthru": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "adrenaline_rush": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "bleed_out": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "Highwayman": {
+   "resistances": {
+    "stun": 30,
+    "poison": 30,
+    "bleed": 30,
+    "disease": 30,
+    "move": 30,
+    "debuff": 30,
+    "death_blow": 67,
+    "trap": 40
+   },
+   "weapon": [
+    {
+     "name": "highwayman_weapon_0",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 10,
+     "crit": 5.0,
+     "spd": 5,
+     "req": null
+    },
+    {
+     "name": "highwayman_weapon_1",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 12,
+     "crit": 5.5,
+     "spd": 5,
+     "req": "0"
+    },
+    {
+     "name": "highwayman_weapon_2",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 13,
+     "crit": 6.0,
+     "spd": 6,
+     "req": "1"
+    },
+    {
+     "name": "highwayman_weapon_3",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 15,
+     "crit": 6.5,
+     "spd": 6,
+     "req": "2"
+    },
+    {
+     "name": "highwayman_weapon_4",
+     "atk": 0,
+     "dmg_min": 8,
+     "dmg_max": 16,
+     "crit": 7.0,
+     "spd": 7,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "highwayman_armour_0",
+     "def": 10,
+     "prot": 0,
+     "hp": 22,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "highwayman_armour_1",
+     "def": 15,
+     "prot": 0,
+     "hp": 26,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "highwayman_armour_2",
+     "def": 20,
+     "prot": 0,
+     "hp": 30,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "highwayman_armour_3",
+     "def": 25,
+     "prot": 0,
+     "hp": 34,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "highwayman_armour_4",
+     "def": 30,
+     "prot": 0,
+     "hp": 38,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "wicked_slice": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "pistol_shot": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "point_blank_shot": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "grape_shot_blast": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "take_aim": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "duelist_advance": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "opened_vein": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "HoundMaster": {
+   "resistances": {
+    "stun": 40,
+    "poison": 40,
+    "bleed": 40,
+    "disease": 30,
+    "move": 40,
+    "debuff": 30,
+    "death_blow": 67,
+    "trap": 40
+   },
+   "weapon": [
+    {
+     "name": "houndmaster_weapon_0",
+     "atk": 0,
+     "dmg_min": 4,
+     "dmg_max": 7,
+     "crit": 5.0,
+     "spd": 6,
+     "req": null
+    },
+    {
+     "name": "houndmaster_weapon_1",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 8,
+     "crit": 5.5,
+     "spd": 6,
+     "req": "0"
+    },
+    {
+     "name": "houndmaster_weapon_2",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 10,
+     "crit": 6.0,
+     "spd": 7,
+     "req": "1"
+    },
+    {
+     "name": "houndmaster_weapon_3",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 11,
+     "crit": 6.5,
+     "spd": 7,
+     "req": "2"
+    },
+    {
+     "name": "houndmaster_weapon_4",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 13,
+     "crit": 7.0,
+     "spd": 8,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "houndmaster_armour_0",
+     "def": 10,
+     "prot": 0,
+     "hp": 21,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "houndmaster_armour_1",
+     "def": 15,
+     "prot": 0,
+     "hp": 28,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "houndmaster_armour_2",
+     "def": 20,
+     "prot": 0,
+     "hp": 35,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "houndmaster_armour_3",
+     "def": 25,
+     "prot": 0,
+     "hp": 42,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "houndmaster_armour_4",
+     "def": 30,
+     "prot": 0,
+     "hp": 49,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "hounds_rush": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "hounds_harry": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "whistle": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "howl": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "guard_dog": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "lick_wounds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "blackjack": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "Jester": {
+   "resistances": {
+    "stun": 20,
+    "poison": 40,
+    "bleed": 30,
+    "disease": 20,
+    "move": 20,
+    "debuff": 20,
+    "death_blow": 67,
+    "trap": 30
+   },
+   "weapon": [
+    {
+     "name": "jester_weapon_0",
+     "atk": 0,
+     "dmg_min": 4,
+     "dmg_max": 7,
+     "crit": 7.5,
+     "spd": 7,
+     "req": null
+    },
+    {
+     "name": "jester_weapon_1",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 8,
+     "crit": 8.0,
+     "spd": 7,
+     "req": "0"
+    },
+    {
+     "name": "jester_weapon_2",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 10,
+     "crit": 8.5,
+     "spd": 8,
+     "req": "1"
+    },
+    {
+     "name": "jester_weapon_3",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 11,
+     "crit": 9.0,
+     "spd": 8,
+     "req": "2"
+    },
+    {
+     "name": "jester_weapon_4",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 13,
+     "crit": 9.5,
+     "spd": 9,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "jester_armour_0",
+     "def": 15,
+     "prot": 0,
+     "hp": 19,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "jester_armour_1",
+     "def": 20,
+     "prot": 0,
+     "hp": 23,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "jester_armour_2",
+     "def": 25,
+     "prot": 0,
+     "hp": 27,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "jester_armour_3",
+     "def": 30,
+     "prot": 0,
+     "hp": 31,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "jester_armour_4",
+     "def": 35,
+     "prot": 0,
+     "hp": 35,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "dirk_stab": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "harvest": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "heroic_end": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "solo": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "slice_off": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "battle_ballad": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "inspiring_tune": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "Leper": {
+   "resistances": {
+    "stun": 60,
+    "poison": 40,
+    "bleed": 10,
+    "disease": 20,
+    "move": 60,
+    "debuff": 40,
+    "death_blow": 67,
+    "trap": 10
+   },
+   "weapon": [
+    {
+     "name": "leper_weapon_0",
+     "atk": 0,
+     "dmg_min": 8,
+     "dmg_max": 16,
+     "crit": 2.5,
+     "spd": 2,
+     "req": null
+    },
+    {
+     "name": "leper_weapon_1",
+     "atk": 0,
+     "dmg_min": 9,
+     "dmg_max": 18,
+     "crit": 3.0,
+     "spd": 2,
+     "req": "0"
+    },
+    {
+     "name": "leper_weapon_2",
+     "atk": 0,
+     "dmg_min": 10,
+     "dmg_max": 21,
+     "crit": 3.5,
+     "spd": 3,
+     "req": "1"
+    },
+    {
+     "name": "leper_weapon_3",
+     "atk": 0,
+     "dmg_min": 12,
+     "dmg_max": 23,
+     "crit": 4.0,
+     "spd": 3,
+     "req": "2"
+    },
+    {
+     "name": "leper_weapon_4",
+     "atk": 0,
+     "dmg_min": 13,
+     "dmg_max": 26,
+     "crit": 4.5,
+     "spd": 4,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "leper_armour_0",
+     "def": 0,
+     "prot": 0,
+     "hp": 35,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "leper_armour_1",
+     "def": 5,
+     "prot": 0,
+     "hp": 42,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "leper_armour_2",
+     "def": 10,
+     "prot": 0,
+     "hp": 49,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "leper_armour_3",
+     "def": 15,
+     "prot": 0,
+     "hp": 56,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "leper_armour_4",
+     "def": 20,
+     "prot": 0,
+     "hp": 63,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "chop": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "hew": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "focus": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "revenge": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "withstand": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "solemnity": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "intimidate": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "ManAtArms": {
+   "resistances": {
+    "stun": 50,
+    "poison": 30,
+    "bleed": 40,
+    "disease": 30,
+    "move": 50,
+    "debuff": 30,
+    "death_blow": 67,
+    "trap": 10
+   },
+   "weapon": [
+    {
+     "name": "man_at_arms_weapon_0",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 10,
+     "crit": 3.75,
+     "spd": 3,
+     "req": null
+    },
+    {
+     "name": "man_at_arms_weapon_1",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 12,
+     "crit": 4.25,
+     "spd": 3,
+     "req": "0"
+    },
+    {
+     "name": "man_at_arms_weapon_2",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 13,
+     "crit": 4.75,
+     "spd": 4,
+     "req": "1"
+    },
+    {
+     "name": "man_at_arms_weapon_3",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 15,
+     "crit": 5.25,
+     "spd": 4,
+     "req": "2"
+    },
+    {
+     "name": "man_at_arms_weapon_4",
+     "atk": 0,
+     "dmg_min": 8,
+     "dmg_max": 16,
+     "crit": 5.75,
+     "spd": 5,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "man_at_arms_armour_0",
+     "def": 5,
+     "prot": 0,
+     "hp": 31,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "man_at_arms_armour_1",
+     "def": 10,
+     "prot": 0,
+     "hp": 38,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "man_at_arms_armour_2",
+     "def": 15,
+     "prot": 0,
+     "hp": 45,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "man_at_arms_armour_3",
+     "def": 20,
+     "prot": 0,
+     "hp": 52,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "man_at_arms_armour_4",
+     "def": 25,
+     "prot": 0,
+     "hp": 59,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "crush": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "rampart": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "bellow": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "defender": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "retribution": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "command": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "bolster": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "Occultist": {
+   "resistances": {
+    "stun": 20,
+    "poison": 30,
+    "bleed": 40,
+    "disease": 40,
+    "move": 20,
+    "debuff": 40,
+    "death_blow": 67,
+    "trap": 10
+   },
+   "weapon": [
+    {
+     "name": "occultist_weapon_0",
+     "atk": 0,
+     "dmg_min": 4,
+     "dmg_max": 7,
+     "crit": 7.5,
+     "spd": 6,
+     "req": null
+    },
+    {
+     "name": "occultist_weapon_1",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 8,
+     "crit": 8.0,
+     "spd": 6,
+     "req": "0"
+    },
+    {
+     "name": "occultist_weapon_2",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 10,
+     "crit": 8.5,
+     "spd": 7,
+     "req": "1"
+    },
+    {
+     "name": "occultist_weapon_3",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 11,
+     "crit": 9.0,
+     "spd": 7,
+     "req": "2"
+    },
+    {
+     "name": "occultist_weapon_4",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 13,
+     "crit": 9.5,
+     "spd": 8,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "occultist_armour_0",
+     "def": 10,
+     "prot": 0,
+     "hp": 19,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "occultist_armour_1",
+     "def": 15,
+     "prot": 0,
+     "hp": 23,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "occultist_armour_2",
+     "def": 20,
+     "prot": 0,
+     "hp": 27,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "occultist_armour_3",
+     "def": 25,
+     "prot": 0,
+     "hp": 31,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "occultist_armour_4",
+     "def": 30,
+     "prot": 0,
+     "hp": 35,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "bloodlet": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "abyssal_artillery": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "weakening_curse": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "wyrd_reconstruction": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "disruptive_curse": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "hands_from_abyss": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "daemons_pull": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "PlagueDoctor": {
+   "resistances": {
+    "stun": 20,
+    "poison": 70,
+    "bleed": 20,
+    "disease": 50,
+    "move": 20,
+    "debuff": 50,
+    "death_blow": 67,
+    "trap": 20
+   },
+   "weapon": [
+    {
+     "name": "plague_doctor_weapon_0",
+     "atk": 0,
+     "dmg_min": 4,
+     "dmg_max": 7,
+     "crit": 2.5,
+     "spd": 7,
+     "req": null
+    },
+    {
+     "name": "plague_doctor_weapon_1",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 8,
+     "crit": 3.0,
+     "spd": 7,
+     "req": "0"
+    },
+    {
+     "name": "plague_doctor_weapon_2",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 10,
+     "crit": 3.5,
+     "spd": 8,
+     "req": "1"
+    },
+    {
+     "name": "plague_doctor_weapon_3",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 11,
+     "crit": 4.0,
+     "spd": 8,
+     "req": "2"
+    },
+    {
+     "name": "plague_doctor_weapon_4",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 13,
+     "crit": 4.5,
+     "spd": 9,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "plague_doctor_armour_0",
+     "def": 5,
+     "prot": 0,
+     "hp": 22,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "plague_doctor_armour_1",
+     "def": 10,
+     "prot": 0,
+     "hp": 26,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "plague_doctor_armour_2",
+     "def": 15,
+     "prot": 0,
+     "hp": 30,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "plague_doctor_armour_3",
+     "def": 20,
+     "prot": 0,
+     "hp": 34,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "plague_doctor_armour_4",
+     "def": 25,
+     "prot": 0,
+     "hp": 38,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "noxious_blast": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "plague_grenade": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "blinding_gas": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "incision": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "battlefield_medicine": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "emboldening_vapours": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "disorienting_blast": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  },
+  "Vestal": {
+   "resistances": {
+    "stun": 30,
+    "poison": 30,
+    "bleed": 30,
+    "disease": 30,
+    "move": 30,
+    "debuff": 30,
+    "death_blow": 67,
+    "trap": 10
+   },
+   "weapon": [
+    {
+     "name": "vestal_weapon_0",
+     "atk": 0,
+     "dmg_min": 4,
+     "dmg_max": 9,
+     "crit": 2.5,
+     "spd": 4,
+     "req": null
+    },
+    {
+     "name": "vestal_weapon_1",
+     "atk": 0,
+     "dmg_min": 5,
+     "dmg_max": 11,
+     "crit": 3.0,
+     "spd": 4,
+     "req": "0"
+    },
+    {
+     "name": "vestal_weapon_2",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 13,
+     "crit": 3.5,
+     "spd": 5,
+     "req": "1"
+    },
+    {
+     "name": "vestal_weapon_3",
+     "atk": 0,
+     "dmg_min": 6,
+     "dmg_max": 14,
+     "crit": 4.0,
+     "spd": 5,
+     "req": "2"
+    },
+    {
+     "name": "vestal_weapon_4",
+     "atk": 0,
+     "dmg_min": 7,
+     "dmg_max": 16,
+     "crit": 4.5,
+     "spd": 6,
+     "req": "3"
+    }
+   ],
+   "armour": [
+    {
+     "name": "vestal_armour_0",
+     "def": 0,
+     "prot": 0,
+     "hp": 24,
+     "spd": 0,
+     "req": null
+    },
+    {
+     "name": "vestal_armour_1",
+     "def": 5,
+     "prot": 0,
+     "hp": 29,
+     "spd": 0,
+     "req": "0"
+    },
+    {
+     "name": "vestal_armour_2",
+     "def": 10,
+     "prot": 0,
+     "hp": 34,
+     "spd": 0,
+     "req": "1"
+    },
+    {
+     "name": "vestal_armour_3",
+     "def": 15,
+     "prot": 0,
+     "hp": 39,
+     "spd": 0,
+     "req": "2"
+    },
+    {
+     "name": "vestal_armour_4",
+     "def": 20,
+     "prot": 0,
+     "hp": 44,
+     "spd": 0,
+     "req": "3"
+    }
+   ],
+   "skill_levels": {
+    "mace_bash": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "judgement": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "dazzling_light": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "divine_grace": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "gods_comfort": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "gods_illumination": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "gods_hand": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   }
+  }
+ }
+}
