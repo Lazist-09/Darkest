@@ -36,19 +36,19 @@ function Run-Step([string]$title, [scriptblock]$body) {
     }
 }
 
-Run-Step '1/8 kernel stays Godot-free (check_godot_refs.py)' {
+Run-Step '1/9 kernel stays Godot-free (check_godot_refs.py)' {
     python tools/check_godot_refs.py
 }
 
-Run-Step '2/8 number discipline (check_data_discipline.py)' {
+Run-Step '2/9 number discipline (check_data_discipline.py)' {
     python tools/check_data_discipline.py --numbers
 }
 
-Run-Step '3/8 UI namespace unified (check_ui_namespace.ps1)' {
+Run-Step '3/9 UI namespace unified (check_ui_namespace.ps1)' {
     & powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/check_ui_namespace.ps1
 }
 
-Run-Step '4/8 CI gate script works (smoke_gate.ps1 -SelfTest)' {
+Run-Step '4/9 CI gate script works (smoke_gate.ps1 -SelfTest)' {
     & powershell -NoProfile -ExecutionPolicy Bypass -File tools/dsh/smoke_gate.ps1 -SelfTest
 }
 
@@ -57,7 +57,7 @@ Run-Step '4/8 CI gate script works (smoke_gate.ps1 -SelfTest)' {
 #   build products, or resources/ (assets_credits.md A1 family). This is a LEGAL
 #   invariant, so it belongs in the one-command self check.
 Write-Output ""
-Write-Output "=== 5/8 placeholder compliance ==="
+Write-Output "=== 5/9 placeholder compliance ==="
 $compliance = 0
 $tracked = @(git ls-files)
 if (@($tracked | Select-String -Pattern 'borrow/').Count -gt 0) {
@@ -84,11 +84,11 @@ if ($leak.Count -gt 0) {
     $compliance = 1
 }
 if ($compliance -ne 0) {
-    Write-Output "[selfcheck] FAIL (5/8 placeholder compliance)"
+    Write-Output "[selfcheck] FAIL (5/9 placeholder compliance)"
     $failed++
 }
 else {
-    Write-Output "[selfcheck] ok   (5/8 placeholder compliance: not tracked, gitignored, not in resources/)"
+    Write-Output "[selfcheck] ok   (5/9 placeholder compliance: not tracked, gitignored, not in resources/)"
 }
 
 # ---- 6/6 powershell syntax (ASCII-only; no Godot needed) ------------------------
@@ -96,7 +96,7 @@ else {
 #   did not even parse -- and it stayed silent for several rounds (it LOOKED like an
 #   "exit code quirk"). A script that cannot parse must be caught by the self check.
 Write-Output ""
-Write-Output "=== 6/8 powershell syntax ==="
+Write-Output "=== 6/9 powershell syntax ==="
 $parseFail = 0
 $psFiles = @(Get-ChildItem tools -Recurse -Filter *.ps1 -ErrorAction SilentlyContinue)
 foreach ($s in $psFiles) {
@@ -109,30 +109,30 @@ foreach ($s in $psFiles) {
     }
 }
 if ($parseFail -ne 0) {
-    Write-Output "[selfcheck] FAIL (6/8 powershell syntax)"
+    Write-Output "[selfcheck] FAIL (6/9 powershell syntax)"
     $failed++
 }
 else {
-    Write-Output ("[selfcheck] ok   (6/8 powershell syntax: " + $psFiles.Count + " scripts parsed)")
+    Write-Output ("[selfcheck] ok   (6/9 powershell syntax: " + $psFiles.Count + " scripts parsed)")
 }
 
-# ---- 7/8 solution builds (ASCII-only) -------------------------------------------
+# ---- 7/9 solution builds (ASCII-only) -------------------------------------------
 # WHY: twice on 2026-09-21 a stray ASCII quote inside a Chinese string literal broke the
 #   build, and it was only caught by an ad-hoc "dotnet build" I happened to run.
 #   A check that must be run by hand is a check that gets skipped, so it lives here.
 Write-Output ""
-Write-Output "=== 7/8 solution builds ==="
+Write-Output "=== 7/9 solution builds ==="
 Push-Location darkest
 dotnet build Darkest.sln -p:DarkestTargetFramework=net10.0 --no-restore -m:1 -nodeReuse:false -tl:off -v:q 2>&1 |
     Select-String -Pattern 'error' -CaseSensitive | Select-Object -First 5 | ForEach-Object { Write-Output ("[build] " + $_.Line.Trim()) }
 $buildCode = $LASTEXITCODE
 Pop-Location
 if ($buildCode -ne 0) {
-    Write-Output "[selfcheck] FAIL (7/8 build) exit=$buildCode"
+    Write-Output "[selfcheck] FAIL (7/9 build) exit=$buildCode"
     $failed++
 }
 else {
-    Write-Output "[selfcheck] ok   (7/8 build: 0 errors)"
+    Write-Output "[selfcheck] ok   (7/9 build: 0 errors)"
 }
 
 # ---- 8/8 program files <= 600 lines (ASCII-only) --------------------------------
@@ -149,14 +149,31 @@ if ($sizeCode -ne 0) {
     $failed++
 }
 else {
-    Write-Output "[selfcheck] ok   (8/8 file size: no program file over 600 lines)"
+    Write-Output "[selfcheck] ok   (8/9 file size: no program file over 600 lines)"
+}
+
+# ---- 9/9 no external (E-drive / original-game) assets (ASCII-only) ---------------
+# WHY: planner B6 / red line 29 -- local self-use is fine, shipping the original's bytes is not.
+#   HARD markers (E-drive paths, SteamLibrary) are red anywhere; SOFT markers (borrow/, .darkest)
+#   are red only in CODE -- a comment citing the original layout file is provenance, not an extract.
+Write-Output ""
+Write-Output "=== 9/9 no external assets (check_no_external_assets.py) ==="
+python tools/check_no_external_assets.py
+$extCode = $LASTEXITCODE
+if ($null -eq $extCode) { $extCode = 0 }
+if ($extCode -ne 0) {
+    Write-Output "[selfcheck] FAIL (9/9 external assets) exit=$extCode"
+    $failed++
+}
+else {
+    Write-Output "[selfcheck] ok   (9/9 external assets: no E-drive/original-game origin)"
 }
 
 Write-Output ""
 if ($failed -gt 0) {
-    Write-Output ("[selfcheck] RESULT: FAIL (" + $failed + " of 8 checks failed)")
+    Write-Output ("[selfcheck] RESULT: FAIL (" + $failed + " of 9 checks failed)")
     exit 1
 }
 
-Write-Output "[selfcheck] RESULT: OK (all 8 checks passed)"
+Write-Output "[selfcheck] RESULT: OK (all 9 checks passed)"
 exit 0
