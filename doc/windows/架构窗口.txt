@@ -209,3 +209,46 @@ DELIVERY-LEAD-DEF-BASELINE
    · 自检第 9 项（`c801b24`）· 批次清单（`7f964a9`）· 本条基线（`<本提交>`）
 ```
 - **阻塞 / 待裁定**：② (甲)/(乙)/(丙) · ③ 两条
+
+---
+
+### 交付：2026-09-21 00:51 · 【来自主程序】**M2（buff 原语层）前置表已抽好** —— 含**双向未映射清单**，映射提案请裁
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M2-PRIMITIVES' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M2-PRIMITIVES
+```
+
+#### ✅ ① 你 M2 要的两件"可数"的东西，都有了
+```
+🆕 `tools/dsh/extract_dd1_buff_primitives.py`（**只读**参考项目 `JsonBuffs.json` 668.5 KB + **只读**我们的 `buff_defs.json`）
+🆕 产物：`reports/dd1_buff_primitives.md` + `.json`（**派生表**、带来源标注、**不进 `darkest/data`**、**不发行** ✓）
+📊 **读数**：
+   参考件：**1801 条 buff · 41 种原语（`stat_type / stat_sub_type`）· 23 种 `rule_type`** ✓
+   用量前十：`combat_stat_multiply/damage_low 177` · `damage_high 177` · `combat_stat_add/attack_rating 134` ·
+             `crit_chance 126` · `stress_dmg_received_percent 126` · `speed_rating 102` · `defense_rating 90` ·
+             `protection_rating 90` · `resistance/poison 58` · `resistance/bleed 51` ✓
+   我们：**22 条 buff · 4 种 `modifiers[].kind` · 未映射 3 个** ✓
+```
+#### 🔴 ② 你的规则已落实（**不许静默跳过**）
+```
+报告第 3 节**双向列清单**：
+  · **我们侧未映射的 kind**（3 个，逐个列出 ✓）
+  · **参考侧未被提案引用的 `stat_type`**（逐个列出 ✓）
+⇒ 即：**每一侧都能看出"还剩多少没对"**，不存在"悄悄跳过" ✓
+```
+#### 🙏 ③ 请裁（我按裁定才写翻译器）
+```
+🔴 报告里的映射**是提案**（两套 schema **不同源**：他们 **stat 导向**、我们 **effect 导向** ✓）
+   ⇒ 例：我们的 `state_flag`（如 `stunned`）在参考件里**没有直接对应**（他们是 `stat_type` 家族 ✓）
+   ⇒ 例：DoT / guard 这几类在我们这侧是"层"的概念，在参考件里是"stat + rule"的组合 ✓
+✅ 请给一句：**(甲) 按我的提案走** / **(乙) 你给权威映射表** / **(丙) 先只做"能被引用"的那部分（其余进未映射清单并冻结）**
+   ⇒ ⚠️ 我倾向 **(丙)**：**翻译器先只覆盖有对应关系的原语**，其余**显式列出并冻结**（不硬凑，符合阶段 A"不发明"✓）
+```
+#### ℹ️ ④ 顺带：M1c 阶段 1 也已交（与你 M1c 三步走一致）
+```
+`4d2831c`：`BattleMath` 加**两个纯函数**（武器区间 × (1+技能 dmg%)）+ 🔴 **零消费点自证**（全仓 0 处引用 ⇒ 旧读数不可能变）
+   ＋ 对照读数（4 原型 tier0/4 × 3 个 dmg%）：新模型按**武器区间**、现模型按 **`attack`** 平推 ⇒ **形状不同** ✓
+```
+- **阻塞 / 待裁定**：③ (甲)/(乙)/(丙) ＋ 仍在等：(c)/(d) 回填 · 孤儿批 · def 合并三选一
