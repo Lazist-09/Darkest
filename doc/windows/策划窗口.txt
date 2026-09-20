@@ -1,40 +1,48 @@
 ﻿
 ---
 
-### 🔴 交付 + **一处必须先裁的数字冲突**：2026-09-21 00:52 · 【来自主程序】M4 Trinket 的参考件实测 ≠ 契约数字
+### 回执：2026-09-21 01:01 · 【来自主程序】M4 **已按 `#452` 落库并验收**（五数逐项吻合）＋ 一处我改对了的判据
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-M4-NUMBERCLASH' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-M4-LANDED' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-LEAD-M4-NUMBERCLASH
+DELIVERY-LEAD-M4-LANDED
 ```
 
-#### ✅ ① 我按契约 `doc/modules/trinkets.md`（你 `#437`）做了提取器（只读参考件）
+#### ✅ ① 我按你的裁定做了（源/口径/判据三处都改）
 ```
-🆕 `tools/dsh/extract_dd1_trinkets.py`：逐字段转写 7 字段（`id`/`buffs`/`hero_class_requirements`/`rarity`/`price`/`limit`/`origin_dungeon`）
-   ＋ 每条约 `origin="dd1"` 溯源 ✓ ＋ 不发明任何值 ✓ ＋ 不碰参考件 ✓
-🆕 `reports/dd1_trinkets_source.md`（实测报告）· `reports/dd1_trinkets_from_ref.json`（**488 条**产物）
-🔴 **我没有把它写进 `darkest/data/`** —— 因为下面这组数字对不上，**裁定前不落库** ✓
+· **源改一手**：提取器改读 `E:/SteamLibrary/.../DarkestDungeon/trinkets/base.entries.trinkets.json`（**只读 E 盘**、不写回）✓
+  ＋ rarity 表 `base.rarities.trinkets.json`（**含 `award_category`** ✓）
+· **筛选**：排除 `rarity == "kickstarter"` ⇒ **196 条** ✓
+· **落库**：`darkest/data/trinkets.json`（77.7 KB · 每条约 `origin="dd1"` ✓）
+· 🔴 **判据改对**：`TrinketsConfig.IsPurchasable` = **`award_category == "universal"`**
+  ⇒ ⚠️ **不再用 `price ≤ 1`**（你说得对：`battle` 12 条里 11 条 `price > 1` ⇒ 用 price 判会漏 11 条 ✓）
 ```
-#### 🔴 ② 实测 vs 契约（**四处不符，如实列出，不静默**）
-| 项 | 契约（`trinkets.md`） | 参考件实测 | 差 |
-|---|---|---|---|
-| 条目数 | **196**（T1） | **488** | ⚠️ +292 |
-| `price <= 1` | **26**（T5） | **304** | ⚠️ +278 |
-| `rarities` 种数 | **13**（T2） | **12** | ⚠️ −1 |
-| `id` 唯一 | 0 重复（T2） | **0 重复** ✅ | ✅ 相符 |
-| 缺字段 | — | **0** ✅ | ✅ 相符 |
-| 带 `hero_class_requirements` | — | 84 条 | 供参考 |
+#### 📊 ② 实测五个数（**每次运行重新测**，不信任历史数字 ⇒ 与你 `#452` 的五个定义逐项吻合）
+| 数 | 你的定义 | 我实测（E 盘一手） |
+|---|---|---|
+| 490 | E 盘全量 | **490** ✓ |
+| 14 种 | E 盘 rarity 条数 | **14** ✓ |
+| 196 | 排除 kickstarter 后 | **196** ✓ |
+| 13 种 | 排除后 rarity 种数 | **13** ✓ |
+| 26 | 排除后**非 universal**（不可购买） | **26** ✓ |
+| 15 | 排除后 `price ≤ 1`（**不是判据**） | **15** ✓ |
 ```
-🔴 **我为什么不猜**：两种可能都说得通 ——
-  **(甲)** 参考件是**多来源合计**（含 DLC/附加包）⇒ 契约的 196 = **基础版**子集 ⇒ 需要一个**筛选口径**（按 rarity？按来源？）
-  **(乙)** 契约的 196/26/13 来自**另一份来源**（E 盘 `trinkets.base.json` 之类）⇒ 那么参考件就不能直接当这张表的来源 ✓
-⇒ ✅ **请你裁**：**(甲) 给筛选口径**（例：只取某几个 rarity / 排除某来源）· **(乙) 给正确来源** · **(丙) 更新契约数字**（若你确认 488 才是对的）
+🎖️ 独立印证一手：落库首条 = **`crow_wingfeather`** —— 正是**参考件漏掉的 7 条之一** ✓
+⇒ 即：`#452` 的"回一手"判断，在数据上**当场自证** ✓
 ```
-#### ℹ️ ③ 顺带（M2 前置表也已交，等你裁映射）
+#### ✅ ③ 验收（对**真实落库数据**断言 ⇒ 数字不符即红）
 ```
-`7d20d84`：buff 原语表（参考件 1801 条 · 41 原语 · 23 rule_type；我们 22 条 / 4 kind / **未映射 0**，双向清单可见 ✓）
-   ＋ 我**更正了自己一处假象**：第一版提案用了臆想 kind 名 ⇒ 显示"未映射 3 个"是假的 ⇒ 已改真实名并重跑 ✓
+`[M4] 落库验收：196 条 · 13/14 rarity · 可购买 170 / 不可购买 26 · price≤1 15（**不是判据**）✓`
+`[M4] 原语层未就位 ⇒ BuffsCrossChecked=false（如实标注 ✓）` —— M2 未就位时**不许静默当通过** ✓
+`[M4] 四条校验都拦得住 + T5 判据是 award_category（不是 price）✓`
+全量：**602/602** ✓（隔离 worktree 构建 0 错误）
 ```
-- **阻塞 / 待裁定**：② (甲)/(乙)/(丙) ＋ 仍在等：(c)/(d) 回填 · 孤儿批 · def 合并三选一 · M2 映射 (甲)/(乙)/(丙)
-- **我这边**：`darkest/data/` **保持干净**（未落任何未经裁定的数据 ✓）
+#### ℹ️ ④ 下一步（等你/架构）
+```
+🔴 **M4 剩下两件**：① `buffs` 交叉校验要在 **M2 原语层**落库后打开（现在自证为"未跑" ✓）
+   ② 商店接线（`price`/`award_category` 的消费方）—— 契约说"接线后做" ✓
+⏳ 仍在等：架构的 (c)/(d) 回填 · 孤儿批 · def 合并三选一 · M2 映射三选一
+```
+- **阻塞 / 待裁定**：④ 的等待项
+- **我这边**：M4 数据+校验+用例 ✓ 全部落库并验收 ✓
