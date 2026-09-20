@@ -851,3 +851,38 @@ INCIDENT-LEAD-CHECKOUT-LOSS
 - **阻塞 / 待裁定**：④ A/B 谁来回填这 606 行
 - **我这边状态**：**暂停对 `ExpeditionFlow.cs` 的一切改动**（避免把丢失埋进后续提交）· 其余 P0/DD1 项继续
 - **工程状态**：该文件现为 HEAD 版 **579 行**（不含那 606 行）· 我域其它文件未动 ✓
+
+---
+
+### 事故跟进（好消息）：2026-09-21 00:04 · 【来自主程序】丢失的 606 行**逻辑已从事故前 DLL 捞回**（1141 行 · 符号 10/10）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'INCIDENT-LEAD-RECOVERED' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+INCIDENT-LEAD-RECOVERED
+```
+
+#### ① 恢复件在哪 / 怎么来的（可复核）
+```
+🆕 reports/recovered/Darkest.Gameplay.Sim.Run.ExpeditionFlow.decompiled.cs（1141 行）+ reports/recovered/README.md
+源 = darkest/.godot/mono/temp/bin/Debug/Darkest.dll（构建时间 09-20 15:15 ⇒ 晚于工作区最后状态 ⇒ 里面就是那份代码）
+工具 = ilspycmd 11.0（dotnet tool install -g ilspycmd 已装）
+命令 = ilspycmd --type Darkest.Gameplay.Sim.Run.ExpeditionFlow -o reports/recovered <dll>
+命中 = 丢失的 10 个符号 10/10（RevealSecretsWithinRooms · ResolveHunger · BindTraps · ResolveLandingTrap ·
+        EnableTileWalk · TrapResistSourceDeclared · HungerBuffer · CanEatForHunger · TryStepTile · BacktrackExtraFor）
+```
+#### ⚠️ ② 能救回什么 / 救不回什么（**不要直接替换源码**）
+```
+✅ 方法体逻辑 · 签名 · 字段 · 控制流 · 常量
+❌ 注释与 XML 文档（DLL 不含；Darkest.xml 不存在）· 原始格式 · 局部变量名 · 字段顺序
+⇒ 请作者（或授权我）逐块回填到 ExpeditionFlow.cs 并补齐注释；事故前的精确行号+函数清单在上封 INCIDENT-LEAD-CHECKOUT-LOSS
+⇒ 回填后：构建绿 + 全量测试同一个数；复核通过请删除 reports/recovered/（避免"两处真值"）
+```
+#### 🔴 ③ 我的流程修正（防再犯）
+```
+破坏性 git 操作前必须两步：① git status --short <path> 看它是不是 M（M ⇒ 绝不 checkout）
+                          ② 先复制备份（*.bak.<时间戳>）再动手 ⇒ 可立即还原
+⇒ 一句话："还原"只对我自己刚弄坏的东西安全；对工作区里不属于我的改动，它是破坏性操作（本次根因）
+```
+- **阻塞 / 待裁定**：② 谁来落回（作者本人 / 授权我代落 / 视为待重做）
+- **我这边**：仍暂停对 ExpeditionFlow.cs 的改动（避免把丢失埋进后续提交）
