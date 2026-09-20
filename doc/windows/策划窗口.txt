@@ -135,3 +135,47 @@ DELIVERY-LEAD-M1A-VALUES-ASK
 ```
 - **阻塞 / 待裁定**：② A/B/C（**卡在你**）
 - **我这边**：结构已就位、零行为已自证；拿到 A/B/C 我就填值并给"填前/填后"读数 ✓
+
+---
+
+### 信封（**好消息 + 请你裁**）：2026-09-21 00:30 · 【来自主程序】参考项目 `Darkest-Dungeon-Unity` 把 M1a 缺的**数值全给了**（我抽好了）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-UNITYREF-TABLES' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-UNITYREF-TABLES
+```
+
+#### 🎉 ① 用户指了一个可参考的本地项目 ⇒ 它是【原版数据的可读副本】
+```
+`F:\GithubPro\Darkest-Dungeon-Unity`（4165 文件）里的 **`Assets/Resources/Data/Heroes/Info/<英雄>.bytes` 是【纯文本】原版数据表**：
+  `resistances: .stun 40% .poison 30% .bleed 30% .disease 30% .move 40% .debuff 30% .death_blow 67% .trap 10%`
+  `weapon: .name "crusader_weapon_0" .atk 0% .dmg 6 12 .crit 5% .spd 1`（共 5 阶，带 `upgradeRequirementCode`）
+  `armour: .name "crusader_armour_4" .def 25% .prot 0 .hp 61 .spd 0`（共 5 阶）
+  `combat_skill: .id "smite" .level 0..4 .atk 85%..105% .dmg 0% .crit 0%..2%`（**技能升级表也在**）
+```
+#### ✅ ② 我已抽成带来源标注的对齐表（**机器可读 + 人读**）
+```
+🆕 `reports/dd1_hero_tables_from_unity_ref.json`（34 KB）· `reports/dd1_hero_tables_from_unity_ref.md`（人读表）
+工具：`tools/dsh/extract_dd1_hero_tables.py`（**只读**参考项目；可 `--root` 重跑）
+📊 读数：**heroes=15 · 8 抗性齐全=15 · 5 阶 weapon=15 · 5 阶 armour=15** ✓（exit 0）
+样例：`Crusader | 40/30/30/30/40/30/67/10 | 6-12 → 7-14 → 8-16 → 9-17 → 10-19 | 5%/33 → … → 25%/61 | prot 0…0`
+```
+#### 🔴 ③ 而它顺带**裁定级事实**（同源代码 `Character.cs` / `MechanicsDefines.cs`）
+```
+🔴 **`prot` 的语义 = 0~0.85 的【比例】**：`Protection = Clamp(prot.ModifiedValue, -1, max(0.85, RawValue))`
+   ⇒ ✅ 即"**护甲减伤是百分比、封顶 85%**"，**不是固定减伤** ✓（我上封问的 C 有答案了）
+🔴 **原版只有一个 `def`**：`Character.Dodge` 读的就是 `AttributeType.DefenseRating`
+   ⇒ ✅ **基准的怀疑成立**（我们把一个 `def` 拆成了 `PhysDef`+`Dodge`）⇒ 合并方向明确 ✓
+✅ **抗性就是这 8 个**：`Stun · Poison · Disease · DeathBlow · Move · Bleed · Debuff · Trap`
+   ⇒ ✅ 我本轮补的 `poison_resist`/`disease_resist`/`trap_resist` **恰好就是缺的三个** ✓
+```
+#### 🙏 ④ 请你裁两件（裁定后我立刻填 `units.json` 并给"填前/填后"读数）
+```
+🔴 **A. 把这张表当作【阶段 A 的对齐数值来源】吗？**（15 英雄 × 5 阶 + 8 抗性 + 45 条技能升级）
+   ⇒ 若"是" ⇒ 请指定**填哪些**：全部 15 英雄？还是只填我们现有的 **4 原型**？
+🔴 **B. 我们的 4 原型 ↔ 原版 15 职业怎么对**？（`warrior`/`tank`/`medic`/`commissar` ↔ 例如 `Crusader`/`ManAtArms`/`PlagueDoctor`/`Arbalest`？）
+   ⇒ ⚠️ 这**不是我能定的**（命名/语义/内容）⇒ 请你给映射（或"先按最接近的对应"并标 placeholder ✓）
+```
+- **阻塞 / 待裁定**：④ A/B（**卡在你**）· C 已自答（prot=比例 ✓）
+- **合规**：只读参考项目、不写它；产物是**派生表**（不含素材字节）、**不进 `darkest/data`**、**不发行**（红线 29 / B6 ✓）
