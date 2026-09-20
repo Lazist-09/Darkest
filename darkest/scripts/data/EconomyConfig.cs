@@ -29,12 +29,29 @@ public sealed record StressReliefConfig(
     [property: JsonPropertyName("next_run_penalty")] int NextRunPenalty,
     [property: JsonPropertyName("buildings")] IReadOnlyList<StressReliefBuildingConfig> Buildings);
 
-/// <summary>驿站马车（M8.0 ⑤ / `#283` 硬要求③）：**招募免费** + **补的人不比老的强**（新兵 level 1 / morale 50）。</summary>
+/// <summary>
+/// 驿站马车（M8.0 ⑤ / `#283` 硬要求③）：**招募免费** + **补的人不比老的强**（新兵 level 1 / morale 50）。
+///
+/// 🔴 **M7 · 名册/招募对齐（策划 `#423`）** —— **上限的【单一来源】就是这里（马车）** ✓：
+///   · `roster_cap_by_level` = **9 → 12 → 16 → 20 → 24 → 28**（6 值 = 未升级 + `stage_coach.rostersize` 的 a~e 五档 ✓）
+///     ⇒ 与 `darkest/data/buildings.json` 里 `stage_coach.rostersize` 的 **5 档**一一对应 ✓
+///   · `num_recruits_by_level` = **2 ~ 7 人**（端点由策划给；中间为等步长 ramp ⇒ 若要别的 ramp 请裁 ✓）
+///   · `upgraded_recruit_chances_pct` = **18.75 / 12.5 / 6.25**（对应 `stage_coach.upgraded_recruits` 的 a/b/c ✓）
+///   🔴 **`max_roster` 必须等于曲线末值**（校验断言）—— 否则又是"两处真值" ✓
+/// </summary>
 public sealed record StagecoachConfig(
     [property: JsonPropertyName("recruit_cost")] int RecruitCost,
     [property: JsonPropertyName("rookie_level")] int RookieLevel,
     [property: JsonPropertyName("rookie_morale")] int RookieMorale,
-    [property: JsonPropertyName("max_roster")] int MaxRoster);
+    [property: JsonPropertyName("max_roster")] int MaxRoster,
+    // 🆕 M7（策划 #423）：三条曲线 —— **上限的单一来源** ✓
+    [property: JsonPropertyName("roster_cap_by_level")] IReadOnlyList<int>? RosterCapByLevel = null,
+    [property: JsonPropertyName("num_recruits_by_level")] IReadOnlyList<int>? NumRecruitsByLevel = null,
+    [property: JsonPropertyName("upgraded_recruit_chances_pct")] IReadOnlyList<double>? UpgradedRecruitChancesPct = null)
+{
+    /// <summary>🔴 上限曲线末值（= 最终硬上限）；未配曲线 ⇒ 退回 `MaxRoster`（老数据不受影响 ✓）</summary>
+    public int CapCeiling => RosterCapByLevel is { Count: > 0 } c ? c[^1] : MaxRoster;
+}
 
 /// <summary>
 /// `economy.json` 根模型 + **P22 ④⑤⑥ 校验（M8.0，`#284`）**：
@@ -216,6 +233,61 @@ public sealed record EconomyConfig(
         if (cfg.Stagecoach.MaxRoster <= 0)
         {
             throw new InvalidDataException($"{ResPath}: stagecoach.max_roster 必须 > 0（P22 ⑥）。");
+        }
+
+        // 🆕 **M7（策划 `#423`）**：三条曲线的**结构校验**（数值本身由契约/用例锁 ✓）
+        if (cfg.Stagecoach.RosterCapByLevel is { } caps)
+        {
+            if (caps.Count < 2)
+            {
+                throw new InvalidDataException($"{ResPath}: roster_cap_by_level 至少 2 个值（未升级 + ≥1 档）✓");
+            }
+
+            if (caps[0] <= 0)
+            {
+                throw new InvalidDataException($"{ResPath}: roster_cap_by_level[0] 必须 > 0 ✓");
+            }
+
+            for (int i = 1; i < caps.Count; i++)
+            {
+                if (caps[i] < caps[i - 1])
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: roster_cap_by_level 必须**非递减**（{caps[i - 1]} → {caps[i]}）✓");
+                }
+            }
+
+            // 🔴 **单一来源自洽**：曲线末值就是最终硬上限 ⇒ 不许与 max_roster 各说各话 ✓
+            if (caps[^1] != cfg.Stagecoach.MaxRoster)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: roster_cap_by_level 末值 {caps[^1]} 必须 == max_roster {cfg.Stagecoach.MaxRoster}（单一来源）✓");
+            }
+        }
+
+        if (cfg.Stagecoach.NumRecruitsByLevel is { } rec)
+        {
+            if (rec.Count < 2 || rec.Any(v => v <= 0))
+            {
+                throw new InvalidDataException($"{ResPath}: num_recruits_by_level 至少 2 个值且全部 > 0 ✓");
+            }
+
+            for (int i = 1; i < rec.Count; i++)
+            {
+                if (rec[i] < rec[i - 1])
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: num_recruits_by_level 必须**非递减**（{rec[i - 1]} → {rec[i]}）✓");
+                }
+            }
+        }
+
+        if (cfg.Stagecoach.UpgradedRecruitChancesPct is { } up)
+        {
+            if (up.Any(v => v < 0 || v > 100))
+            {
+                throw new InvalidDataException($"{ResPath}: upgraded_recruit_chances_pct 每项必须 ∈ [0,100] ✓");
+            }
         }
     }
 

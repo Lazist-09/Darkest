@@ -15,6 +15,10 @@
     ]
   },
   "stagecoach_note": "#283 硬要求③（照抄 DD wiki：Stage Coach 招募 entirely free of charge）：**免费** + **补的人不比老的强**（新兵 level 1 / morale 50）",
-  "stagecoach": { "recruit_cost": 0, "rookie_level": 1, "rookie_morale": 50, "max_roster": 12 },
+  "stagecoach": { "recruit_cost": 0, "rookie_level": 1, "rookie_morale": 50, "max_roster": 28,
+    "_m7_note": "M7 策划 #423：名册上限【单一来源】= 马车。roster_cap_by_level 6 值 = 未升级 + stage_coach.rostersize 的 a~e 五档；末值必须 == max_roster（校验断言）。num_recruits_by_level 端点 2~7 由策划给；upgraded_recruit_chances_pct 对应 upgraded_recruits 的 a/b/c 三档。",
+    "roster_cap_by_level": [9, 12, 16, 20, 24, 28],
+    "num_recruits_by_level": [2, 3, 4, 5, 6, 7],
+    "upgraded_recruit_chances_pct": [18.75, 12.5, 6.25] },
   "ratio_check": { "battles_per_run": 3, "expected_run_income_low": 3, "expected_run_income_high": 6 }
 }
