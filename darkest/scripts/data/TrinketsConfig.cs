@@ -8,17 +8,20 @@ using System.Text.Json.Serialization;
 namespace Darkest.Data;
 
 /// <summary>
-/// 🔴 **M4 · Trinket（饰品）** —— 契约 `doc/modules/trinkets.md`（策划 `#437`）的**数据 + 校验**件。
+/// 🔴 **M4 · rarity 表**（E 盘一手 `base.rarities.trinkets.json` 的 14 条 ⇒ 排除 `kickstarter` 后 13 条）✓
+/// **`award_category` 就在这里** —— 而它是**"能否购买"的唯一判据来源** ✓（策划 `#452` 的更正）
+/// </summary>
+public sealed record TrinketRarityConfig(
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("award_category")] string AwardCategory);
+
+/// <summary>
+/// 🔴 **M4 · Trinket（饰品）条目** —— 契约 `doc/modules/trinkets.md`（策划 `#437` / `#452`）。
 ///
-/// 四件套（纪律 AF）里本件的位置：
-///   **数据** = `data/trinkets.json` ✓　**解析+校验** = **本文件** ✓
-///   **运行时状态** = 🔴 **不要** `TrinketLedger`（契约 §3 明确）—— 饰品只是"挂在英雄上的 buff 集合"，
-///   而**"已装备关系"归 `Roster`**（每英雄 **2 槽**）⇒ 本件**只做结构/合法性**，不持有任何运行时状态 ✓
-///
-/// 契约给的验收（我照它做成可测的）：
-///   **T1** 字段齐全：`id` / `buffs` / `hero_class_requirements` / `rarity` / `price` / `limit` / `origin_dungeon` ✓
-///   **T2** `id` 唯一 · `buffs` 引用**必须存在于原语层** · `rarity` ∈ 声明集合 · `price ≥ 0` ✓
-///   **T5** `price ≤ 1` ⇒ **不可购买**（商店不列）⇒ 本件给 `IsPurchasable` 一个**单一落点** ✓
+/// 7 个字段（一手 E 盘 `base.entries.trinkets.json` 逐字）：
+///   `id` / `buffs` / `hero_class_requirements` / `rarity` / `price` / `limit` / `origin_dungeon` ✓
+/// ＋ 我们补的 `award_category`（**由 rarity 派生**，不重复存真值 ⇒ 单一来源在 rarity 表 ✓）
+/// ＋ `origin`（溯源：阶段 A 对齐数据一律标来源 ✓）
 /// </summary>
 public sealed record TrinketConfig(
     [property: JsonPropertyName("id")] string Id,
@@ -28,25 +31,33 @@ public sealed record TrinketConfig(
     [property: JsonPropertyName("price")] int Price,
     [property: JsonPropertyName("limit")] int Limit,
     [property: JsonPropertyName("origin_dungeon")] string OriginDungeon,
-    // 溯源字段（阶段 A 对齐数据一律标来源；契约 §3 的 `origin` ✓）
     [property: JsonPropertyName("origin")] string? Origin = null);
 
 /// <summary>
-/// 🔴 **M4 · Trinket 表根**：`Parse` 只做"读进来 + 校验"，**不改任何数值** ✓
+/// 🔴 **M4 · Trinket 表根**：只做"读进来 + 校验"，**不改任何数值** ✓
+///
+/// 四件套（纪律 AF）里的位置：**数据** = `data/trinkets.json` ✓　**解析+校验** = 本文件 ✓
+/// **运行时状态** = 🔴 **不要** `TrinketLedger`（契约 §3）：装备关系归 `Roster`（每英雄 **2 槽**）✓
+///
+/// 验收（契约，含 `#452` 更正）：
+///   **T1** 字段齐全（196 条 · 一手 E 盘 + 排除 `kickstarter`）✓
+///   **T2** `id` 唯一 · `buffs` ∈ 原语层 · `rarity` ∈ 声明的 rarity 表 · `price ≥ 0` ✓
+///   **T5** 🔴 **不可购买的判据 = `award_category != "universal"`**（**26 条**）——
+///        ⚠️ **不是** `price ≤ 1`（那是 **15 条** ⇒ 策划 `#452` 明确更正：用 price 判会漏）✓
 /// </summary>
 public sealed class TrinketsConfig
 {
     public const string ResPath = "res://data/trinkets.json";
 
     [JsonPropertyName("rarities")]
-    public IReadOnlyList<string> Rarities { get; init; } = Array.Empty<string>();
+    public IReadOnlyList<TrinketRarityConfig> Rarities { get; init; } = Array.Empty<TrinketRarityConfig>();
 
     [JsonPropertyName("trinkets")]
     public IReadOnlyList<TrinketConfig> Trinkets { get; init; } = Array.Empty<TrinketConfig>();
 
     /// <summary>
-    /// 🔴 **原语层交叉校验是否真的跑了**（**自证**，同 `TrapResistSourceDeclared` 的思路）：
-    /// 原语层（M2 的 `dd1_buffs.json`）**尚未就位**时 ⇒ 这一步**跳过** ⇒ 必须**说出来**，不许静默当"通过" ✓
+    /// 🔴 **原语层交叉校验是否真的跑了**（**自证**，同 `TrapResistSourceDeclared` 思路）：
+    /// 原语层（M2 的 `dd1_buffs.json`）未就位时这一步**跳过** ⇒ **必须说出来**，不许静默当通过 ✓
     /// </summary>
     [JsonIgnore]
     public bool BuffsCrossChecked { get; private set; }
@@ -60,13 +71,6 @@ public sealed class TrinketsConfig
         ReadCommentHandling = JsonCommentHandling.Skip,
     };
 
-    /// <summary>
-    /// 读入并校验 ✓
-    /// </summary>
-    /// <param name="json">`data/trinkets.json` 的内容 ✓</param>
-    /// <param name="knownBuffIds">
-    /// **原语层**（M2）里存在的 buff id 集合；**null = 原语层未就位** ⇒ 跳过交叉校验并**如实标注** ✓
-    /// </param>
     public static TrinketsConfig Parse(string json, ISet<string>? knownBuffIds = null)
     {
         if (string.IsNullOrWhiteSpace(json))
@@ -97,7 +101,7 @@ public sealed class TrinketsConfig
             throw new InvalidDataException($"{ResPath}: trinkets 为空。");
         }
 
-        var declared = new HashSet<string>(cfg.Rarities, StringComparer.Ordinal);
+        var declared = new HashSet<string>(cfg.Rarities.Select(r => r.Id), StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (TrinketConfig t in cfg.Trinkets)
@@ -107,45 +111,50 @@ public sealed class TrinketsConfig
                 throw new InvalidDataException($"{ResPath}: 存在缺失 id 的饰品。");
             }
 
-            // T2 ①：id 唯一 ✓
             if (!seen.Add(t.Id))
             {
                 throw new InvalidDataException($"{ResPath}: 饰品 id \"{t.Id}\" 重复（T2）✓");
             }
 
-            // T2 ③：rarity 必须在**声明的集合**里（不发明第 13 种；集合由数据自己声明 ✓）
             if (!declared.Contains(t.Rarity))
             {
                 throw new InvalidDataException(
-                    $"{ResPath}: \"{t.Id}\" rarity=\"{t.Rarity}\" 不在声明的 rarities 里（T2）✓");
+                    $"{ResPath}: \"{t.Id}\" rarity=\"{t.Rarity}\" 不在 rarity 表里（T2）✓");
             }
 
-            // T2 ④：price ≥ 0 ✓
             if (t.Price < 0)
             {
                 throw new InvalidDataException($"{ResPath}: \"{t.Id}\" price={t.Price} 为负（T2）✓");
             }
 
-            // T2 ②：buffs 必须存在于**原语层** —— 原语层未就位则**跳过且已自证** ✓
             if (knownBuffIds is not null)
             {
                 foreach (string b in t.Buffs)
                 {
                     if (!knownBuffIds.Contains(b))
                     {
-                        throw new InvalidDataException(
-                            $"{ResPath}: \"{t.Id}\" 引用了不存在的原语 \"{b}\"（T2）✓");
+                        throw new InvalidDataException($"{ResPath}: \"{t.Id}\" 引用了不存在的原语 \"{b}\"（T2）✓");
                     }
                 }
             }
         }
     }
 
+    /// <summary>某 rarity 的 `award_category`（**购买判据的唯一来源** ✓）。</summary>
+    public string AwardCategoryOf(string rarity)
+        => Rarities.FirstOrDefault(r => r.Id == rarity)?.AwardCategory ?? "";
+
     /// <summary>
-    /// 🔴 **T5 的单一落点**：`price ≤ 1` ⇒ **不可购买**（商店不列）✓
-    /// （契约原文：`price=0/1` 那批与 `award_category` 100% 吻合 ⇒ 它们是"奖励/任务"来源，不是商品 ✓）
+    /// 🔴 **T5 的单一落点（`#452` 更正后）**：**`award_category == "universal"` ⇒ 可购买**；
+    /// 其余（`battle` / `dd` / `trophy` / `quest` …）⇒ **不可购买**（商店不列）✓
+    /// ⚠️ 判据**不是** `price`（策划实测：`battle` 12 条里 11 条 `price > 1` ⇒ 用 price 判会漏）✓
     /// </summary>
-    public static bool IsPurchasable(TrinketConfig t) => t.Price > 1;
+    public bool IsPurchasable(TrinketConfig t) => AwardCategoryOf(t.Rarity) == "universal";
+
+    /// <summary>可购买条数 / 不可购买条数（读数；**不影响任何行为** ✓）。</summary>
+    public int PurchasableCount => Trinkets.Count(IsPurchasable);
+
+    public int NonPurchasableCount => Trinkets.Count - PurchasableCount;
 
     /// <summary>按 id 取（不存在抛异常 —— fail-fast，照 `BuffDefsConfig.Get` ✓）。</summary>
     public TrinketConfig Get(string id)
@@ -158,7 +167,4 @@ public sealed class TrinketsConfig
 
         return t;
     }
-
-    /// <summary>可购买条数（供商店接线前的读数；**不影响任何行为** ✓）。</summary>
-    public int PurchasableCount => Trinkets.Count(IsPurchasable);
 }

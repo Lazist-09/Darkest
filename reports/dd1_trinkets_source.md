@@ -1,20 +1,34 @@
-# M4 Trinket 表：来源与实测结构（由提取器生成）
+# M4 Trinket 表：来源与实测（由提取器生成 · 一手 E 盘）
 
-> 来源：`F:\GithubPro\Darkest-Dungeon-Unity\Assets\Resources\Data\JsonTrinkets.json`（本地参考项目，用户指定可参考）
-> 契约：`doc/modules/trinkets.md`（策划 `#437`）⇒ T1 196 条 / T2 校验 / T5 `price<=1` 不可购买 ✓
+> 源：`E:\SteamLibrary\steamapps\common\DarkestDungeon\trinkets\base.entries.trinkets.json`（**一手**）· rarity 表：`base.rarities.trinkets.json`
+> 裁定：策划 `#452` —— 参考件是**第三方**（漏 7 / 多 5 / 缺 2 种 rarity）⇒ **回一手** ✓
+> 口径：**排除 `rarity == kickstarter`** ⇒ **196 条 / 13 种 rarity** ✓
 
-## 实测
+## 实测（每次运行重新测，不信任历史数字）
 
-- 条目数 = **488**（契约 T1 期望 **196**）
-- 参考件 `rarities` 声明 **12** 种：`darkest_dungeon`, `ancestral_shambler`, `ancestral`, `collector`, `madman`, `very_rare`, `rare`, `uncommon`, `common`, `very_common`, `trophy`, `kickstarter`
-- 条目里**实际用到**的 rarity **12** 种：`ancestral`, `ancestral_shambler`, `collector`, `common`, `darkest_dungeon`, `kickstarter`, `madman`, `rare`, `trophy`, `uncommon`, `very_common`, `very_rare`
-- `price <= 1` 的条目 = **304** 条（契约 T5 期望 **26**）
-- 带 `hero_class_requirements` 的条目 = **84** 条
-- 重复 id = **0**（T2 要求 0）
-- 缺字段 = **0** 处
+- E 盘全量条目 = **490**（裁定定义：490）
+- E 盘 rarity 条数 = **14**（裁定定义：14）
+- 排除 `kickstarter` 后条目 = **196**（裁定定义：196）
+- 排除后 rarity 种数 = **13**（裁定定义：13）：`ancestral`, `ancestral_shambler`, `collector`, `common`, `courtier`, `crow`, `darkest_dungeon`, `madman`, `rare`, `trophy`, `uncommon`, `very_common`, `very_rare`
+- 排除后**非 universal** = **26**（裁定定义：26）⇒ 这才是**不可购买**的判据 ✓
+- 排除后 `price <= 1` = **15**（裁定定义：15）⇒ ⚠️ **不是**购买判据（策划已更正）✓
+- 重复 id = **0**（T2 要求 0）· 缺字段 = 0（提取时已补显式空值）
 
-## 与契约的差异（如实列出，不静默）
+## rarity 表（含 `award_category` —— 购买判据的唯一来源）
 
-- ⚠️ 条目数 488 ≠ 契约 196 ⇒ **请策划裁**：是参考件少/多，还是契约数字需更新 ✓
-- ⚠️ `rarities` 声明 **12** 种 ≠ 契约 T2 的 **13** ⇒ 请裁（多/少的那一种是什么）✓
-- ⚠️ `price<=1` **304** 条 ≠ 契约 T5 的 **26** ⇒ 请裁 ✓
+| rarity | award_category |
+|---|---|
+| `darkest_dungeon` | `dd` |
+| `trophy` | `trophy` |
+| `ancestral_shambler` | `battle` |
+| `ancestral` | `universal` |
+| `crow` | `quest` |
+| `courtier` | `battle` |
+| `collector` | `battle` |
+| `madman` | `battle` |
+| `very_rare` | `universal` |
+| `rare` | `universal` |
+| `uncommon` | `universal` |
+| `common` | `universal` |
+| `very_common` | `universal` |
+| `kickstarter` | `kickstarter` |

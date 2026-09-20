@@ -8,75 +8,99 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Darkest.Tests;
 
 /// <summary>
-/// 🔴 **M4 · Trinket 的结构与校验**（契约 `doc/modules/trinkets.md` · 策划 `#437`）：
-///   **T1** 字段齐全 · **T2** `id` 唯一 / `rarity` ∈ 声明集合 / `price ≥ 0` / `buffs` ∈ 原语层 · **T5** `price ≤ 1` 不可购买 ✓
+/// 🔴 **M4 · Trinket 的结构与校验**（契约 `doc/modules/trinkets.md` · 策划 `#437` / `#452`）：
+///   **T1** 196 条 · 字段齐全　**T2** `id` 唯一 / `rarity` ∈ rarity 表 / `price ≥ 0` / `buffs` ∈ 原语层
+///   **T5** 🔴 **不可购买 = `award_category != "universal"`（26 条）** —— ⚠️ **不是** `price ≤ 1`（15 条）
 ///
-/// 🔴 本用例**只用内联样例**：因为参考件实测 **488 条 ≠ 契约 T1 的 196 条**（数字冲突已投策划）
-///   ⇒ **裁定前不落 `darkest/data/trinkets.json`** ⇒ 校验逻辑先独立可测 ✓
+/// 数据来源：E 盘**一手**（`base.entries.trinkets.json` · 排除 `rarity == kickstarter`）⇒ 落 `darkest/data/trinkets.json` ✓
+/// 本用例对**真实落库数据**断言 ⇒ 数字不符即红（**这就是 M4 的验收**）✓
 /// </summary>
 [TestClass]
 public sealed class TrinketsConfigTests
 {
-    private const string Good = """
+    private static string ReadData(string name)
     {
-      "_note": "内联样例（不是落库数据）",
-      "rarities": ["common", "rare", "ancestral"],
-      "trinkets": [
-        { "id": "a", "buffs": ["B1"], "hero_class_requirements": [], "rarity": "common",
-          "price": 150, "limit": 1, "origin_dungeon": "", "origin": "synthetic" },
-        { "id": "b", "buffs": ["B2"], "hero_class_requirements": ["crusader"], "rarity": "ancestral",
-          "price": 0, "limit": 1, "origin_dungeon": "crypts", "origin": "synthetic" }
-      ]
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null)
+        {
+            string candidate = Path.Combine(dir.FullName, "data", name);
+            if (File.Exists(candidate))
+            {
+                return File.ReadAllText(candidate);
+            }
+
+            dir = dir.Parent;
+        }
+
+        throw new FileNotFoundException($"data/{name} 未找到。");
     }
-    """;
 
+    /// <summary>🔴 **T1 + T2 + T5 对着真实落库数据一次性验收**（数字全来自策划 `#452` 的定义）✓</summary>
     [TestMethod]
-    public void ParseAndValidate_AcceptsTheContractShape_AndT5HasASingleHome()
+    public void LandedTable_MatchesTheRuledNumbers_AndT5UsesAwardCategoryNotPrice()
     {
-        TrinketsConfig cfg = TrinketsConfig.Parse(Good, knownBuffIds: new HashSet<string> { "B1", "B2" });
+        TrinketsConfig cfg = TrinketsConfig.Parse(ReadData("trinkets.json"));
 
-        Assert.AreEqual(2, cfg.Trinkets.Count);
-        Assert.IsTrue(cfg.BuffsCrossChecked, "给了原语层 ⇒ 交叉校验应真的跑了（自证 ✓）");
-        Assert.AreEqual(3, cfg.Rarities.Count);
+        Assert.AreEqual(196, cfg.Trinkets.Count, "T1：应为 196 条（一手 E 盘 + 排除 kickstarter）✓");
+        Assert.AreEqual(14, cfg.Rarities.Count, "rarity 表应为 14 条（一手）✓");
+        Assert.AreEqual(13, cfg.Trinkets.Select(t => t.Rarity).Distinct().Count(),
+            "条目实际用到 13 种 rarity（kickstarter 已被排除）✓");
 
-        // T5：price ≤ 1 ⇒ 不可购买（单一落点 ✓）
-        Assert.IsTrue(TrinketsConfig.IsPurchasable(cfg.Get("a")), "price 150 ⇒ 可购买 ✓");
-        Assert.IsFalse(TrinketsConfig.IsPurchasable(cfg.Get("b")), "price 0 ⇒ **不可购买** ✓");
-        Assert.AreEqual(1, cfg.PurchasableCount, "可购买条数 = 1 ✓");
+        // T5：🔴 判据是 award_category（非 universal = 26 条不可购买）；price ≤ 1 是 15 条（不是判据）
+        Assert.AreEqual(26, cfg.NonPurchasableCount, "T5：非 universal 应为 26 条（不可购买）✓");
+        Assert.AreEqual(170, cfg.PurchasableCount, "可购买 = 196 − 26 = 170 ✓");
+        int priceLe1 = cfg.Trinkets.Count(t => t.Price <= 1);
+        Assert.AreEqual(15, priceLe1, "price ≤ 1 是 15 条（策划实测）—— 若拿它当购买判据就会漏 11 条 battle ✓");
 
-        Console.WriteLine($"[M4] T1/T2 通过 · T5：可购买 {cfg.PurchasableCount}/{cfg.Trinkets.Count} ✓");
+        Assert.AreEqual(196, cfg.Trinkets.Select(t => t.Id).Distinct().Count(), "T2：id 唯一 ✓");
+        Assert.IsNotNull(cfg.Get("crow_wingfeather"), "参考件漏掉的 crow 系条目必须在（一手 E 盘有）✓");
+
+        Console.WriteLine($"[M4] 落库验收：196 条 · 13/14 rarity · 可购买 {cfg.PurchasableCount} / 不可购买 {cfg.NonPurchasableCount}"
+            + $" · price≤1 {priceLe1}（**不是判据**）✓");
+        TestContext.WriteLine("[M4] T1/T2/T5 对着真实数据通过 ✓");
     }
 
     [TestMethod]
     public void WithoutThePrimitiveLayer_TheCrossCheckIsSkipped_AndSaysSo()
     {
-        TrinketsConfig cfg = TrinketsConfig.Parse(Good);   // 不给 knownBuffIds = 原语层未就位
+        TrinketsConfig cfg = TrinketsConfig.Parse(ReadData("trinkets.json"));
         Assert.IsFalse(cfg.BuffsCrossChecked,
-            "🔴 原语层未就位 ⇒ 交叉校验**必须自证为「没跑」**（不许静默当成通过 ✓）");
-        Console.WriteLine("[M4] 原语层未就位 ⇒ BuffsCrossChecked=false（如实标注，不假装 ✓）");
+            "🔴 原语层（M2）未就位 ⇒ 交叉校验**必须自证为没跑**（不许静默当通过 ✓）");
+        Console.WriteLine("[M4] 原语层未就位 ⇒ BuffsCrossChecked=false（如实标注 ✓）");
     }
 
     [TestMethod]
     public void Validation_RejectsDuplicateId_UnknownRarity_NegativePrice_UnknownPrimitive()
     {
-        // T2 ①：id 重复
-        var dup = Assert.ThrowsException<InvalidDataException>(() => TrinketsConfig.Parse(Good.Replace("\"id\": \"b\"", "\"id\": \"a\"")));
+        const string sample = """
+        {
+          "rarities": [ { "id": "common", "award_category": "universal" }, { "id": "rare", "award_category": "battle" } ],
+          "trinkets": [
+            { "id": "a", "buffs": ["B1"], "hero_class_requirements": [], "rarity": "common",
+              "price": 150, "limit": 1, "origin_dungeon": "", "origin": "synthetic" },
+            { "id": "b", "buffs": ["B2"], "hero_class_requirements": [], "rarity": "rare",
+              "price": 0, "limit": 1, "origin_dungeon": "", "origin": "synthetic" }
+          ]
+        }
+        """;
+
+        TrinketsConfig cfg = TrinketsConfig.Parse(sample, knownBuffIds: new HashSet<string> { "B1", "B2" });
+        Assert.IsTrue(cfg.IsPurchasable(cfg.Get("a")), "award_category=universal ⇒ 可购买 ✓");
+        Assert.IsFalse(cfg.IsPurchasable(cfg.Get("b")), "award_category=battle ⇒ 不可购买（且与 price 无关）✓");
+
+        var dup = Assert.ThrowsException<InvalidDataException>(() => TrinketsConfig.Parse(sample.Replace("\"id\": \"b\"", "\"id\": \"a\"")));
         StringAssert.Contains(dup.Message, "重复");
 
-        // T2 ③：rarity 不在声明集合
-        var rar = Assert.ThrowsException<InvalidDataException>(() => TrinketsConfig.Parse(Good.Replace("\"rarity\": \"ancestral\"", "\"rarity\": \"mythic\"")));
+        var rar = Assert.ThrowsException<InvalidDataException>(() => TrinketsConfig.Parse(sample.Replace("\"rarity\": \"rare\"", "\"rarity\": \"mythic\"")));
         StringAssert.Contains(rar.Message, "rarity");
 
-        // T2 ④：price 为负
-        var neg = Assert.ThrowsException<InvalidDataException>(() => TrinketsConfig.Parse(Good.Replace("\"price\": 0", "\"price\": -5")));
+        var neg = Assert.ThrowsException<InvalidDataException>(() => TrinketsConfig.Parse(sample.Replace("\"price\": 0", "\"price\": -5")));
         StringAssert.Contains(neg.Message, "price");
 
-        // T2 ②：buffs 引用了原语层里不存在的 id
-        var buf = Assert.ThrowsException<InvalidDataException>(
-            () => TrinketsConfig.Parse(Good, knownBuffIds: new HashSet<string> { "B1" }));
+        var buf = Assert.ThrowsException<InvalidDataException>(() => TrinketsConfig.Parse(sample, knownBuffIds: new HashSet<string> { "B1" }));
         StringAssert.Contains(buf.Message, "原语");
 
-        Console.WriteLine($"[M4] 四条校验都拦得住：{dup.Message.Split('：').Last()} / {rar.Message.Split('：').Last()} / {neg.Message.Split('：').Last()} / {buf.Message.Split('：').Last()} ✓");
+        Console.WriteLine("[M4] 四条校验都拦得住 + T5 判据是 award_category（不是 price）✓");
     }
 
     public TestContext TestContext { get; set; } = null!;
