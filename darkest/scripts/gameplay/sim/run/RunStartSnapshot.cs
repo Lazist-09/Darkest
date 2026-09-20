@@ -32,7 +32,11 @@ public sealed record RunStartSnapshot(
     IReadOnlyDictionary<string, int> Heirlooms,
     IReadOnlyDictionary<int, int> LevelHistogram,   // 🆕 等级分布（Lv → 人数）：让"队伍在长"看得见形状 ✓
     IReadOnlyList<string> SortieIds,               // 🆕 本趟出征名单（为 null/空 ⇒ 未提供）：轮换读数的基础 ✓
-    IReadOnlyDictionary<string, int> BuildingLevels)
+    IReadOnlyDictionary<string, int> BuildingLevels,
+    // 🆕 **M15-P0（架构裁定取 (b)）**：**上一次收尾时的队伍 HP%**（0~100；null = 未接线/首趟 ⇒ 不假装）✓
+    //   口径（架构裁定）：对比的是"**上次收尾 vs 本次出发**" —— 而**出发按契约恒满血**（`#245`）✓
+    //   ⇒ 所以它记的是【上一趟结束时】的队伍平均 HP%（**不是**出发时的 100%）✓
+    int? HpPercentLastRunEnd = null)
 {
     /// <summary>
     /// 默认关注的建筑（`heirlooms.json` 的 building id；名字不是数字 ⇒ 写在这里不触 `#307`）✓
@@ -51,7 +55,8 @@ public sealed record RunStartSnapshot(
         HeirloomStock? heirlooms = null,
         Economy? economy = null,
         IReadOnlyList<string>? buildings = null,
-        IReadOnlyList<string>? sortieIds = null)   // 🆕 出征名单（可选；给了才能看"换人"）✓
+        IReadOnlyList<string>? sortieIds = null,   // 🆕 出征名单（可选；给了才能看"换人"）✓
+        int? hpPercentLastRunEnd = null)           // 🆕 M15-P0 (b)：上次收尾的队伍 HP%（可选；缺省 = 不记）✓
     {
         if (roster is null)
         {
@@ -128,7 +133,7 @@ public sealed record RunStartSnapshot(
         // 🔴 参数顺序必须与 record 声明一致（我第一版插错位置 ⇒ 编译当场抓到 ✓）
         return new RunStartSnapshot(runIndex, economy?.Gold ?? 0, count, roster.CurrentCap, moraleAvg, levelAvg, levelMax,
             diseases, pos, neg, locked, heirloomCounts, levelHist,
-            sortieIds?.ToList() ?? new List<string>(), levels);
+            sortieIds?.ToList() ?? new List<string>(), levels, hpPercentLastRunEnd);   // 🆕 M15-P0 (b)：**真的传进 record**（我第一版只加参数没传 ⇒ 用例当场抓到 ✓）
     }
 
     /// <summary>一行读数（存档/日志用）✓</summary>
@@ -142,7 +147,9 @@ public sealed record RunStartSnapshot(
            $"疾病 {Diseases}　特质 正 {TraitsPositive}／负 {TraitsNegative}（锁定 {TraitsLocked}）　" +
            $"传家宝 [{string.Join(" ", Heirlooms.OrderBy(k => k.Key).Select(k => $"{k.Key}:{k.Value}"))}]　" +
            $"建筑 [{string.Join(" ", BuildingLevels.OrderBy(k => k.Key).Select(k => $"{k.Key}:Lv{k.Value}"))}]　" +
-           "（HP：契约每场满血开局 `#245` ⇒ 不记）✓";
+           (HpPercentLastRunEnd is { } hp
+               ? $"队伍 HP%：**上次收尾 {hp}%** → 本次出发 100%（契约满血 `#245`）✓"
+               : "队伍 HP%：**未接线**（架构 (b) 口径要的是「上次收尾」⇒ 等宿主把该值传进来；**不假装** ✓）✓");
 
     /// <summary>
     /// 🔴 **"本次 vs 上次"对比行**（只列**真的变了**的项）—— 这就是"养成有没有意义"的可读形式 ✓
@@ -168,6 +175,12 @@ public sealed record RunStartSnapshot(
         Cmp("名册", RosterCount, prev.RosterCount);
         Cmp("名册上限", RosterCap, prev.RosterCap);
         Cmp("平均士气", MoraleAvg, prev.MoraleAvg);
+
+        // 🆕 **M15-P0 (b)**：跨趟看"队伍收尾 HP%"的走向（两边都有值才比 ⇒ 不与"未接线"混淆 ✓）
+        if (prev.HpPercentLastRunEnd is { } ph && HpPercentLastRunEnd is { } nh)
+        {
+            Cmp("上趟收尾队伍 HP%", nh, ph);
+        }
         Cmp("平均等级", LevelAvg, prev.LevelAvg);
 
         // 🆕 **等级分布**（形状变化也要看得见：例 `[Lv1×3 Lv2×5] → [Lv1×1 Lv2×6 Lv3×1]`）✓
