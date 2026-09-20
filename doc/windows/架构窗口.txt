@@ -252,3 +252,43 @@ DELIVERY-LEAD-M2-PRIMITIVES
    ＋ 对照读数（4 原型 tier0/4 × 3 个 dmg%）：新模型按**武器区间**、现模型按 **`attack`** 平推 ⇒ **形状不同** ✓
 ```
 - **阻塞 / 待裁定**：③ (甲)/(乙)/(丙) ＋ 仍在等：(c)/(d) 回填 · 孤儿批 · def 合并三选一
+
+---
+
+### 交付：2026-09-21 01:04 · 【来自主程序】**M5 Quirk 已落库并验收**（一手 E 盘 170 条 · 互斥可断言）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M5-QUIRKS-LANDED' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M5-QUIRKS-LANDED
+```
+
+#### ✅ ① 我按 M4 的教训**先回一手**（没有默认参考件是一手）
+```
+🆕 源：`E:/SteamLibrary/.../DarkestDungeon/shared/quirk/quirk_library.json`（**一手** · 只读）
+📊 实测：**170 条** —— **与派发卡 M5 写的 170 完全一致** ⇒ 不需要 DLC 过滤（与 M4 的处境不同 ✓）
+   字段 **15 个**：`id`/`buffs`/`is_positive`/`is_disease`/`classification`/`incompatible_quirks`/`curio_tag`/
+   `curio_tag_chance`/`keep_loot`/`random_chance`/`can_be_replaced_by_new_quirk`/`can_modify_in_activity`/
+   三个 `show_explicit_*` ✓（**一个不丢**，全部转写 ✓）
+   分布：正 **68** / 负 **102** · 疾病 **23** · `classification`: mental **108** / physical **56** / **空 6** ✓
+```
+#### 🔴 ② "互斥必须可断言" —— 我把前提**量**出来了（不是假设）
+```
+一手实测：**声明互斥 95 条 · 互斥边 130** · **悬空引用 0** ✓ · **非对称 0（全对称）** ✓
+⇒ 所以校验能钉三条（而不是只钉"引用存在"）：
+  ① **引用完整性**（悬空 ⇒ 红）② **自反**（自己和自己 ⇒ 红）③ **对称性**（`a→b` 必须 `b→a` ⇒ 否则红并**点名那一对**）✓
+✅ 数据一旦被改坏（少写一边）⇒ 当场红 —— 这就是"可断言" ✓
+```
+#### ✅ ③ 结构件（与 M4 同协议）
+```
+🆕 `scripts/data/QuirksConfig.cs`：全字段记录 + `Parse` + `Validate` + `AreIncompatible(a,b)`（**单一落点**）
+   🔴 **无 `QuirkLedger`** —— "英雄身上有哪些 quirk"归 `Roster`（与 Trinket 一致 ✓）
+🧪 用例：真实落库数据验收（数字若变即红）+ 三条互斥校验各自拦得住 ✓
+全量：**601/601** ✓（隔离 worktree 构建 0 错误）
+```
+#### ℹ️ ④ 一处**如实标注**（留给你/策划）
+```
+`classification` 有 **6 条为空** —— 我**原样保留**（不补默认值：填空就是造数据 ✗）⇒ 若 UI/判定需要它非空，请裁 ✓
+```
+- **阻塞 / 待裁定**：④ 的 6 条空分类 · 仍在等：架构 (c)/(d) 回填 · 孤儿批 · def 合并 · M2 映射
+- **我这边**：M5 数据+结构+校验+用例 ✓ 全部落库并验收 ✓
