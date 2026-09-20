@@ -26,6 +26,11 @@ public sealed record UnitStats(
     int? PoisonResist = null,
     int? DiseaseResist = null,
     int? TrapResist = null,
+    // 🆕 **M1a · 补 `prot`（护甲值）**：**百分比整数（0~85）**，null = 未配（不假装 0）✓
+    //   🔴 语义来源（参考项目 `Character.cs`，一手）：
+    //      `Protection = Mathf.Clamp(prot.ModifiedValue, -1, Mathf.Max(0.85f, prot.RawValue))`
+    //      ⇒ **prot 是 0~0.85 的【比例/减伤百分比】，封顶 85%**（**不是固定减伤**）✓
+    int? Prot = null,
     int MoveDistance = 0,
     // 🆕 **M1a 阶段 1**：原版 weapon/armour 各 5 阶（**只承载数据，零消费点**）✓
     IReadOnlyList<WeaponTier>? WeaponTiers = null,
@@ -44,6 +49,13 @@ public sealed record UnitStats(
         => WeaponTiers is not null && tier >= 0 && tier < WeaponTiers.Count ? WeaponTiers[tier] : null;
 
     /// <summary>🆕 同上（护甲阶）✓</summary>
+    /// <summary>
+    /// 🆕 **M1a · 护甲减伤（比例）**：`Prot` 是百分比整数（0~85）⇒ 返回 0~0.85 的比例；未配 ⇒ **null**（不假装 0）✓
+    /// 🔴 上限 0.85 的来源 = 参考项目 `Character.cs` 的 `Mathf.Max(0.85f, raw)` 钳制 ✓
+    /// ⚠️ **本阶段没有消费点**（接结算属后续）⇒ 加它不改变任何读数 ✓
+    /// </summary>
+    public double? ProtFraction => Prot is { } p ? System.Math.Clamp(p / 100.0, 0.0, 0.85) : null;
+
     public ArmourTier? ArmourAt(int tier)
         => ArmourTiers is not null && tier >= 0 && tier < ArmourTiers.Count ? ArmourTiers[tier] : null;
 }

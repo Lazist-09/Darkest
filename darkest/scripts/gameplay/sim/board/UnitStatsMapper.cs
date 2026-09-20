@@ -23,6 +23,7 @@ public static class UnitStatsMapper
         PoisonResist: c.PoisonResist,
         DiseaseResist: c.DiseaseResist,
         TrapResist: c.TrapResist,
+        Prot: c.Prot,
             MoveDistance: c.MoveDistance,
         WeaponTiers: c.Weapon,
         ArmourTiers: c.Armour);

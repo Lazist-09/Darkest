@@ -33,6 +33,8 @@ public sealed record UnitConfig(
     [property: JsonPropertyName("poison_resist")] int? PoisonResist = null,
     [property: JsonPropertyName("disease_resist")] int? DiseaseResist = null,
     [property: JsonPropertyName("trap_resist")] int? TrapResist = null,
+    // 🆕 **M1a · 补 `prot`**：百分比整数 0~85（参考项目 `Character.cs` 把比例钳在 0.85）✓ 未配 = null ✓
+    [property: JsonPropertyName("prot")] int? Prot = null,
     [property: JsonPropertyName("weapon")] IReadOnlyList<WeaponTier>? Weapon = null,
     [property: JsonPropertyName("armour")] IReadOnlyList<ArmourTier>? Armour = null)
 {
@@ -147,6 +149,12 @@ public sealed record UnitsConfig(
             ValidateResist(u, "poison_resist", u.PoisonResist);
             ValidateResist(u, "disease_resist", u.DiseaseResist);
             ValidateResist(u, "trap_resist", u.TrapResist);
+
+            // 🆕 **M1a · `prot` 的校验**：0~85（上限来自参考项目 `Character.cs`：比例钳在 0.85）✓ 未配 = null 合法 ✓
+            if (u.Prot is { } prot && (prot < 0 || prot > 85))
+            {
+                throw new InvalidDataException($"{ResPath}: \"{u.Id}\" prot={prot} 越界 [0,85]（参考项目把护甲减伤钳在 0.85）✓");
+            }
         }
 
         // F1（#190）：不再硬编码"必选 7 原型"——只要求两侧各至少 1 个（新增角色零代码改动）

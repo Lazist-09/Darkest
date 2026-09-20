@@ -101,18 +101,38 @@ public sealed class UnitTierStage1Tests
     }
 
     [TestMethod]
-    public void ShippedDataHasNoTiers_SoNothingConsumesThem_OldReadingsUnchanged()
+    public void ShippedData_OnlyTheFourPlayerArchetypesCarryTiers_AndValuesComeFromTheReference()
     {
         UnitsConfig shipped = UnitsConfig.Parse(ReadData("units.json"));
-        Assert.IsTrue(shipped.Units.Count > 0);
-        Assert.IsTrue(shipped.Units.All(x => x.Weapon is null && x.Armour is null),
-            "🔴 当前 units.json 不写 tier ⇒ 全部为 null ⇒ **阶段 1 零行为改动**（旧读数不变的实证）✓");
 
-        UnitStats stats = UnitStatsMapper.From(shipped.Units[0]);
-        Assert.IsNull(stats.WeaponAt(0), "没配 tier ⇒ 按阶取返回 null（不是 0，也不是默认值）✓");
-        Assert.IsNull(stats.ArmourAt(0));
-        Console.WriteLine($"[M1a·阶段1] 出厂数据 {shipped.Units.Count} 个单位 ⇒ tier 全 null ⇒ 无消费点 ⇒ 旧读数不变 ✓");
-        TestContext.WriteLine("[M1a·阶段1] 出厂数据无 tier ⇒ 零行为改动 ✓");
+        // 🔴 策划 `#448` 裁定：**只填【现有 4 原型】**（不填全 15 英雄 —— 没有那些职业 ⇒ 会是死数据）✓
+        string[] players = { "warrior", "tank", "medic", "commissar" };
+        foreach (string id in players)
+        {
+            UnitConfig u = shipped.Get(id);
+            Assert.AreEqual(5, u.Weapon?.Count, $"{id}: 5 阶 weapon ✓");
+            Assert.AreEqual(5, u.Armour?.Count, $"{id}: 5 阶 armour ✓");
+            Assert.IsNotNull(u.PoisonResist, $"{id}: 三轴对齐值应已填 ✓");
+            UnitStats s = UnitStatsMapper.From(u);
+            Assert.IsNotNull(s.WeaponAt(4), $"{id}: 可按阶取 ✓");
+        }
+
+        // 敌人**不该**带 tier（策划只批了 4 原型 ⇒ 多填即越裁）
+        foreach (UnitConfig e in shipped.Units.Where(x => x.Side == "enemy"))
+        {
+            Assert.IsNull(e.Weapon, $"敌人 {e.Id} 不应有 tier（#448 只批 4 原型）✓");
+            Assert.IsNull(e.Armour, $"敌人 {e.Id} 不应有 armour ✓");
+        }
+
+        // 抽查：值必须来自参考项目对应职业（warrior←Hellion · medic←PlagueDoctor）
+        Assert.AreEqual(19, shipped.Get("warrior").Weapon![4].DmgMax, "warrior 5 阶 dmg_max = Hellion 的 19 ✓");
+        Assert.AreEqual(70, shipped.Get("medic").PoisonResist, "medic 毒抗 = Plague Doctor 的 70 ✓");
+        Assert.AreEqual(10, shipped.Get("tank").TrapResist, "tank 陷阱抗 = Man-at-Arms 的 10 ✓");
+        Assert.AreEqual(40, shipped.Get("commissar").TrapResist, "commissar 陷阱抗 = Highwayman 的 40 ✓");
+        Assert.AreEqual(0, shipped.Get("warrior").Prot, "prot 四个原型均为 0（与参考一致）✓");
+
+        Console.WriteLine($"[M1a·对齐] 4 原型已带 tier+三轴+prot（值取自参考项目对应职业 ✓）· 敌人不带（#448）✓");
+        TestContext.WriteLine("[M1a·对齐] 4 原型有 tier、敌人没有、抽查值来自参考 ✓");
     }
 
     /// <summary>
