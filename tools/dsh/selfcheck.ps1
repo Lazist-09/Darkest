@@ -1,4 +1,4 @@
-# tools/dsh/selfcheck.ps1 -- one command, eight checks (the build step needs dotnet, no Godot).
+﻿# tools/dsh/selfcheck.ps1 -- one command, eight checks (the build step needs dotnet, no Godot).
 #
 # ASCII-ONLY ON PURPOSE: a PowerShell file with non-ASCII text must be saved as
 #   UTF-8 *with BOM*, or Windows PowerShell 5.1 decodes it as ANSI and the parser
