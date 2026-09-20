@@ -105,14 +105,10 @@
   "stat_mod": 1
  },
  "proposed_kind_mapping": {
-  "state_flag": "(no direct counterpart -- our engine-side flag, e.g. stunned)",
-  "damage_mod": "**UNMAPPED**",
-  "prob_mod": "**UNMAPPED**",
-  "stat_mod": "**UNMAPPED**"
+  "state_flag": "(参考件无直接对应：他们是 stat 导向；我们的引擎侧标志位，如 stunned)",
+  "damage_mod": "combat_stat_multiply / damage_low + damage_high (以及 damage_received_percent 家族)",
+  "prob_mod": "*_chance 家族（stun_chance / debuff_chance / poison_chance / bleed_chance / move_chance ...）",
+  "stat_mod": "combat_stat_add / combat_stat_multiply（按 stat_sub_type 细分：attack_rating / crit_chance / speed_rating / defense_rating / protection_rating ...）"
  },
- "ours_unmapped": [
-  "damage_mod",
-  "prob_mod",
-  "stat_mod"
- ]
+ "ours_unmapped": []
 }

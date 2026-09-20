@@ -82,17 +82,17 @@
 
 | 我们的 kind | 次数 | 提案映射 |
 |---|---|---|
-| `damage_mod` | 9 | **UNMAPPED** |
-| `prob_mod` | 7 | **UNMAPPED** |
-| `state_flag` | 3 | (no direct counterpart -- our engine-side flag, e.g. stunned) |
-| `stat_mod` | 1 | **UNMAPPED** |
+| `damage_mod` | 9 | combat_stat_multiply / damage_low + damage_high (以及 damage_received_percent 家族) |
+| `prob_mod` | 7 | *_chance 家族（stun_chance / debuff_chance / poison_chance / bleed_chance / move_chance ...） |
+| `state_flag` | 3 | (参考件无直接对应：他们是 stat 导向；我们的引擎侧标志位，如 stunned) |
+| `stat_mod` | 1 | combat_stat_add / combat_stat_multiply（按 stat_sub_type 细分：attack_rating / crit_chance / speed_rating / defense_rating / protection_rating ...） |
 
 ## 3. 🔴 未映射清单（**必须可见**）
 
-- **我们侧未映射的 kind**：`damage_mod`, `prob_mod`, `stat_mod`
-- **参考侧未被提案引用的 `stat_type`**：`hp_heal_percent`, `hp_heal_received_percent`, `stress_dmg_received_percent`, `stress_heal_received_percent`, `resolve_check_percent`, `resolve_xp_bonus_percent`, `resistance`, `stun_chance`, `poison_chance`, `bleed_chance`, `move_chance`, `debuff_chance`, `scouting_chance`, `remove_negative_quirk_chance`, `food_consumption_percent`, `starving_damage_percent`, `party_surprise_chance`, `stress_dmg_percent`, `monsters_surprise_chance`, `stress_heal_percent`, `hp_heal_amount`, `upgrade_discount`, `damage_received_percent`
+- **我们侧未映射的 kind**：（无）
+- **参考侧未被提案引用的 `stat_type`**：`combat_stat_add`, `combat_stat_multiply`, `hp_heal_percent`, `hp_heal_received_percent`, `stress_dmg_received_percent`, `stress_heal_received_percent`, `resolve_check_percent`, `resolve_xp_bonus_percent`, `resistance`, `stun_chance`, `poison_chance`, `bleed_chance`, `move_chance`, `debuff_chance`, `scouting_chance`, `remove_negative_quirk_chance`, `food_consumption_percent`, `starving_damage_percent`, `party_surprise_chance`, `stress_dmg_percent`, `monsters_surprise_chance`, `stress_heal_percent`, `hp_heal_amount`, `upgrade_discount`, `damage_received_percent`
 
 ## 4. 数量核对（可测）
 
 - 参考 buff 条数 = **1801** · 原语种类 = **41** · rule_type 种类 = **23**
-- 我们 buff 条数 = **22** · modifier kind 种类 = **4** · **未映射 = 3**
+- 我们 buff 条数 = **22** · modifier kind 种类 = **4** · **未映射 = 0**

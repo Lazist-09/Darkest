@@ -39,13 +39,15 @@ OUT_JSON = os.path.join(REPO, "reports", "dd1_buff_primitives.json")
 # PROPOSED mapping: our modifier "kind" -> the original's stat_type family.
 # 🔴 This is a *proposal for the planner to bless*, not a decision: the two schemas are
 #    not 1:1 (ours is effect-oriented, theirs is stat-oriented).
+# PROPOSED mapping: our modifier "kind" -> the original's stat_type family.
+# 🔴 This is a *proposal for the planner to bless*, not a decision.
+# ⚠️ 我第一版把 kind 名写成了臆想的 `stat_add/stat_multiply/...` ⇒ 报告里出现"未映射 3 个"的**假象** ✗
+#    ⇒ 已改为**我们真实的 kind 名**（照 `darkest/data/buff_defs.json` 实测：damage_mod/prob_mod/stat_mod/state_flag）✓
 PROPOSED = {
-    "state_flag": "(no direct counterpart -- our engine-side flag, e.g. stunned)",
-    "stat_add": "combat_stat_add",
-    "stat_multiply": "combat_stat_multiply",
-    "dot": "(original expresses DoT via rule/duration on stat types; needs cases)",
-    "resist_add": "combat_stat_add (stat_sub_type = *_resist / *_chance)",
-    "guard_redirect": "(no direct counterpart -- our displacement/guard layer)",
+    "damage_mod": "combat_stat_multiply / damage_low + damage_high (以及 damage_received_percent 家族)",
+    "prob_mod": "*_chance 家族（stun_chance / debuff_chance / poison_chance / bleed_chance / move_chance ...）",
+    "stat_mod": "combat_stat_add / combat_stat_multiply（按 stat_sub_type 细分：attack_rating / crit_chance / speed_rating / defense_rating / protection_rating ...）",
+    "state_flag": "(参考件无直接对应：他们是 stat 导向；我们的引擎侧标志位，如 stunned)",
 }
 
 
