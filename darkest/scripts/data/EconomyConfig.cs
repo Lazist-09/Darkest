@@ -257,11 +257,14 @@ public sealed record EconomyConfig(
                 }
             }
 
-            // 🔴 **单一来源自洽**：曲线末值就是最终硬上限 ⇒ 不许与 max_roster 各说各话 ✓
-            if (caps[^1] != cfg.Stagecoach.MaxRoster)
+            // 🔴 **单一来源的中间态规则**（M7 分两步，别越界）：
+            //   ① 本步：**只落曲线**，`max_roster` 仍是**当前生效**的硬上限（不许动 ⇒ 不然就是我这次犯的错）✓
+            //   ② 接线步：由 `Roster` 改读曲线、并把 `max_roster` 提到曲线末值（28）⇒ 那时二者相等 ✓
+            //   ⇒ 所以此处的判据是【**不许倒挂**】：曲线末值必须 ≥ max_roster（否则曲线一接上就要**降**上限）✓
+            if (caps[^1] < cfg.Stagecoach.MaxRoster)
             {
                 throw new InvalidDataException(
-                    $"{ResPath}: roster_cap_by_level 末值 {caps[^1]} 必须 == max_roster {cfg.Stagecoach.MaxRoster}（单一来源）✓");
+                    $"{ResPath}: roster_cap_by_level 末值 {caps[^1]} 不得小于 max_roster {cfg.Stagecoach.MaxRoster}（不许倒挂）✓");
             }
         }
 

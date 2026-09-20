@@ -43,8 +43,10 @@ public sealed class StagecoachCurvesTests
 
         CollectionAssert.AreEqual(new[] { 9, 12, 16, 20, 24, 28 }, c.RosterCapByLevel!.ToArray(),
             "上限曲线必须是 9→12→16→20→24→28（策划 #423）✓");
-        Assert.AreEqual(28, c.CapCeiling, "最终硬上限 = 曲线末值 = 28 ✓");
-        Assert.AreEqual(c.CapCeiling, c.MaxRoster, "max_roster 必须等于曲线末值（单一来源自洽）✓");
+        Assert.AreEqual(28, c.CapCeiling, "曲线末值 = 目标硬上限 28 ✓");
+        // 🔴 M7 分两步：**本步只落曲线** ⇒ `max_roster` 仍是当前生效值 **12**（不许越界改行为）✓
+        //   ② 接线步（在 Roster.cs，属在飞文件）会把 max_roster 提到 28 ⇒ 那时二者相等 ✓
+        Assert.AreEqual(12, c.MaxRoster, "本步 max_roster 仍为 12（越界改它会立刻改行为 —— 我犯过一次，被两处既有测试当场抓住）✓");
 
         CollectionAssert.AreEqual(new[] { 2, 3, 4, 5, 6, 7 }, c.NumRecruitsByLevel!.ToArray(),
             "招募刷新 2~7（端点由策划给；中间为等步长 ramp）✓");
@@ -68,10 +70,10 @@ public sealed class StagecoachCurvesTests
     {
         string good = ReadData("economy.json");
 
-        // ① 末值 ≠ max_roster ⇒ 红（"两处真值"防线）
+        // ① **倒挂**（曲线末值 < max_roster）⇒ 红：曲线一接上就要"降上限"，逻辑不成立 ✓
         var mismatch = Assert.ThrowsException<InvalidDataException>(
-            () => EconomyConfig.Parse(good.Replace("\"max_roster\": 28", "\"max_roster\": 12")));
-        StringAssert.Contains(mismatch.Message, "单一来源");
+            () => EconomyConfig.Parse(good.Replace("[9, 12, 16, 20, 24, 28]", "[9, 10]")));
+        StringAssert.Contains(mismatch.Message, "倒挂");
 
         // ② 曲线递减 ⇒ 红
         var dec = Assert.ThrowsException<InvalidDataException>(
