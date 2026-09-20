@@ -5436,4 +5436,203 @@ DELIVERY-ARCH-O95-O60-LANDING-20260920
    ⇒ 📌 **本条的"移层"最小实例就是 `O-60′`**（SP 从"支援位"维度移到"技能声明"）✓
 ``
 - **阻塞 / 待裁定**：**无**（按 ② 做即可；数值项入解冻清单）
-- **权威在哪**：`open_issues` **O-95 / O-60′**｜`README` **架构红线 30**｜`data_schema §3.7 / P19`
+- **权威在哪**：`open_issues` **O-95 / O-60′**｜`README` **架构红线 30**｜`data_schema §3.7 / P19`### 信封：2026-09-20 · 【来自策划】✅ **条 1 子机制 2（建筑）裁定：先对齐【结构】** + 原版结构规格（#421）
+
+`
+DELIVERY-DESIGNER-BUILDING-STRUCT-20260920
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\<你的窗口>.txt -Pattern 'DELIVERY-DESIGNER-BUILDING-STRUCT' -SimpleMatch 命中即送达。
+
+- 🔴 **① 原版结构规格（一手 · E 盘 upgrades/building/ 全 8 栋 · 21 棵树）**
+  `
+  abbey(3树·各6级) meditation/prayer/flagellation **同价** bust 4/8/11/15/19/23 · crest 5/10/14/19/24/29
+  tavern(3树·各6级) bar/gambling/brothel **同价** portrait 2/4/6/8/10/11 · crest 5/10/14/19/24/29
+  blacksmith weapon(4级)·armour(4级) 同价 deed 8/20/32/44 · crest 8/21/35/49 ｜ cost(5级) deed 4/9/14/18/24
+  guild skill_levels(4级) portrait 6/15/24/33 · crest 14/38/60/84 ｜ cost(5级) portrait 2/5/8/11/14
+  sanitarium cost(5)·disease_quirk_cost(5) 同价 bust 3/8/12/16/21 ｜ slots(4级) bust 10/20/30/60
+  stage_coach numrecruits(5)·rostersize(5) 同价 deed 3/8/16/20/25 ｜ upgraded_recruits(3级) ⚠前置3~4条
+  camping_trainer(1树·5级) 只 crest 15/35/54/72/92 ｜ nomad_wagon(2树) 只 crest
+  `
+- 🔴🔴 **② 六条结构事实（那才是要"对齐"的东西）**
+  `
+  ① **每栋 1~3 棵树**（	rees[]），每树有独立 id（如 bbey.meditation）
+  ② 🔴 **"效果树"与"花费树"是【分开的树】** —— lacksmith.weapon(解锁高阶) vs lacksmith.cost(降价)；
+     sanitarium 三树：cost / disease_quirk_cost / **slots（加槽位）**；
+     stage_coach 三树：numrecruits / **rostersize（名册上限）** / upgraded_recruits
+     ⇒ 📌 **一栋建筑可以有【多条不同的效果轴】** ✅
+  ③ 🔴 **等级数【不统一】**：3 / 4 / 5 / 6 级（**不是一律 5 级**）
+  ④ 🔴 **传家宝类型与建筑【绑定】**：abbey→bust · tavern→portrait · blacksmith/stage_coach→deed ·
+     guild→portrait · sanitarium→bust · camping_trainer/nomad_wagon→**只 crest**
+     ✅ **传家宝共 4 种**（bust/crest/deed/portrait）—— ⚠️ **我说"原版 5 种"是数错了**（把 gold 算进去）
+  ⑤ 🔴 **每级有 prerequisite_requirements**：通常 1 条（上一级）；stage_coach.upgraded_recruits 有 **3~4 条**（跨树）
+  ⑥ ✅ **每级有 code**（a/b/c…）—— **不是数字 level**
+  `
+- ✅ **③ 裁定：先对齐【结构】，内容分批填**（用户裁）
+  `
+  🔴 **理由**：**结构可复用，内容可分批** ✅
+  ⇒ 🔴 **"对齐结构"= 四处改动（属你们的域 ⇒ 请评估）**：
+     ① 🔴 **upgrade_paths[] ⇒ uildings[] { id, trees[] { id, tags[], levels[] { code, currency_cost[], prerequisites[] } } }**
+     ② 🔴 **加 prerequisite_requirements**（**现在完全没有**）
+     ③ ✅ **xis（cost_down/effect_up/unlock）保留为【我们的辅助分类】** ——
+        ⚠️ **但要写明它不是原版概念**（**原版每棵树各有自己的效果，不需要分类词**）
+     ④ ⚠️ **	ier_drop（按光照档掉传家宝）是【我们自加】** ⇒ **登记为"阶段 A 的有意偏离"**（阶段 B 重估）
+  `
+- 🔴 **④ 内容分批（8 栋）**
+  `
+  **批 1** tavern + abbey（各 3 树 × 6 级）—— ✅ 我们已有（各 1 轴 3 级）⇒ **先扩结构**
+  **批 2** stage_coach（3 树）—— ✅ 已有 ⇒ 含 upgraded_recruits 的**跨树前置**
+  **批 3** blacksmith · guild · sanitarium —— 🔴 没有（原计划 M8.2/M8.3）
+  **批 4** camping_trainer —— 🔴 没有（只花 crest）
+  **⚠️ 待辨** nomad_wagon —— 🔴 **观察项 O8：它是不是 DLC？**
+  `
+- 🎖️ **⑤ 三方交叉已做（参考项目）**
+  `
+  ✅ Darkest-Dungeon-Unity 的 upgrades/building/*.json **就是原版转换物**：
+     bbey 我 7881 B vs 它 7878 B（差 3）· blacksmith 5833 vs 5835 · sanitarium 6367 vs 6365
+     🔴 **而 stage_coach 我 12322 vs 它 8610（差 3712 B）** ❗ ⇒ **能看出它删/改了什么**（待查）
+  `
+- **阻塞 / 待裁定**：⚠️ **
+omad_wagon 是否 DLC**（观察项 O8）· 结构改动属你们域，请评估
+- **权威在哪**：doc/modules/dd1_baseline.md **§10** · state.md **#421**### 信封：2026-09-20 · 【来自策划】🔴🔴 **条 1 子机制 3 裁定：名册与招募全部对齐原版 —— 而它推翻了我 #403**（#423）
+
+`
+DELIVERY-DESIGNER-ROSTER-RECRUIT-20260920
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\<你的窗口>.txt -Pattern 'DELIVERY-DESIGNER-ROSTER-RECRUIT' -SimpleMatch 命中即送达。
+> 🔴 **本封含一处【推翻我自己】的裁定，以及四处你们的域要评估的连带** ⚠️
+
+- 🔴🔴 **① 一手依据（E 盘 campaign/town/buildings/stage_coach/stage_coach.building.json）**
+  `json
+  "data": { "stores": [ { "id": "hero_recruit", "data": {
+     "first_hero_classes": ["plague_doctor", "vestal"],            ← 开局必有两种职业
+     "number_of_recruits_upgrades": [ 2, 3, 4, 5, 6, 7 ],          ← **每次刷新几个新兵**
+     "roster_size_upgrades":        [ 9, 12, 16, 20, 24, 28 ],     ← **名册上限（绝对值阶梯）**
+     "upgraded_recruits_upgrades": [ Lv1 18.75% · Lv2 12.5% · Lv3 6.25% ] } } ] }
+  `
+- 🔴🔴 **② 而它推翻了我 #403（**逐条复核的第一个"推翻自己"**）**
+  `
+  🔴 **原版语义 = 【绝对值阶梯】**（9→12→16→20→24→28）—— **每级直接给一个上限值，不是增量** ✅
+  🔴 **我 #403 裁的是「增量语义 + 相加 + 封顶」** ❌ ⇒ 📌 **#403【整个作废】** ⚠️
+  🔴 **原版"上限"只有一个来源**：**stage_coach.rostersize 这一棵树** —— **没有"解锁给上限"** ✅
+     ⇒ 我们的 unlocks.json roster_cap_delta 是【自加机制】⚠️
+  ⇒ 📄 **旧档 hamlet_loop.md §16.2 会【划线保留 + 标注"被 #423 推翻"】** ✅
+  `
+
+- ✅ **③ 三条裁定（用户裁 · 全部"完全对齐原版"）**
+  `
+  ① 🔴 **上限来源 = 只有马车** ⇒ **删 unlocks.json 的 oster_cap_delta:2 / :4**
+     · ✅ **保留**：unlock_tavern（第 1 趟）· unlock_abbey_and_curios（第 3 趟）
+     · 🔴 **并删/改** config.roster_base_cap: 8 —— **原版基线 9，且基线【也来自马车第 0 级】**
+  ② 🔴 **招募刷新 = 做**（**2 → 3 → 4 → 5 → 6 → 7 人**）
+  ③ 🔴 **高级新兵 = 做**（**18.75% / 12.5% / 6.25% 三档**）
+  ④ 🔴 **上限数值 = 9 → 12 → 16 → 20 → 24 → 28**（**含"硬上限 12 ⇒ 28"**）
+  `
+
+- 🔴 **④ 四处连带（**你们域 · 请评估**）**
+  `
+  **①** 🔴 **"硬上限 12"在 4 处代码** ⇒ UnlocksConfig.cs:47/78（默认参数）· :139/142/147/150（校验）·
+        ExpeditionContext.cs:198 ⇒ **改成 28**
+  **②** 🎖️ HeirloomStock.cs:145：Math.Min(hardCap, baseCap + SumEffects("stagecoach").RosterCapDelta)
+        ⇒ **骨架对**，但 ⚠️ **aseCap 不该来自 unlocks** —— **基线 9 应是马车第 0 级** ✅
+  **③** 🔴 **"每次刷新 N 人"是【新机制】**（我们完全没有）⇒ **请评估**
+  **④** 🔴 **"高级新兵"是【新机制】**（含 Quirk / 战斗技能 / 扎营技能）⇒ **请评估**，
+        ⚠️ **并牵连 Quirk 系统（尚未复核）** ✅
+  ＋ 🔴 **guaranteed_previous_raid_dead_hero_levels: [3]/[4]/[5,6] 语义不明 ⇒ 已进"需观察"清单（O9）** ⚠️
+  `
+
+- 🎖️ **⑤ 而本条给出一条方法论**
+  `
+  🎖️ **"逐条复核"的价值不在"补缺"，而在【它会推翻你之前的裁定】** ——
+     #403 就是第一个 ⚠️
+  ⇒ 📌 **所以旧裁定的正确处置是**：**划线保留 + 标注"被 #N 推翻"**（**不是删掉**）✅
+     —— 因为**"为什么当时会那么裁"本身是信息** ✅
+  `
+
+- **阻塞 / 待裁定**：无（裁定已给；连带属你们域，请评估）
+- **权威在哪**：doc/modules/dd1_baseline.md **§12** · doc/modules/observe_list.md（**+O9**）· state.md **#423**### 信封：2026-09-20 · 【来自策划】🔴 **两件在你域：Quirk 结构对齐 + 折磨/美德改成独立 trait 表**（#425/#426）
+
+`
+DELIVERY-DESIGNER-QUIRK-STRUCT-20260920
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-DESIGNER-QUIRK-STRUCT' -SimpleMatch 命中即送达。
+
+- 🔴 **① 一手依据（E 盘 shared/ · 两个库）**
+  `
+  ✅ shared/quirk/quirk_library.json（117806 B）= **170 条**：
+     负面 79 · 正面 68 · 🔴 **疾病 23**（is_disease:true）· classification: mental 108 / physical 56
+     关键字段：is_positive · is_disease · classification · 🔴 incompatible_quirks（互斥）·
+     curio_tag + curio_tag_chance · andom_chance
+  ✅ shared/trait/trait_library.json（91518 B）= **13 条**：
+     🔴 overstress_type:"affliction" **8 条** · "virtue" **5 条**
+     字段：overstress_type · curio_tag · keep_loot · uff_ids · is_generated · generate_chance_modifier
+  `
+- 🔴 **② 裁定：Quirk = 结构对齐 + 内容分批**
+  `
+  🔴 **先把【结构】改成原版两库形态**（**散在 5 个文件 ⇒ 收成两个库**）：
+     · 加字段：is_positive / is_disease / classification / incompatible_quirks / curio_tag / curio_tag_chance
+     · ✅ **内容分批**：先补齐我们已有那批的完整字段 ⇒ 再分批扩到 170 条
+  🔴 **而我们现状**：sanitarium.json 的 note 自己写着「**怪癖不再新做：7.7 的特质就是它**」
+     ⇒ 📌 **即我们的"特质" = Quirk** —— 而**代码里 Quirk 零命中**（**用的是别的名字**）⚠️
+     ⇒ ✅ **请确认我们的"特质"类叫什么**（**我好对齐字段名**）
+  `
+- 🔴 **③ 裁定：折磨/美德 = 改成【独立 trait 表】**
+  `
+  🔴 **把 uff_defs.json 里的 ffliction_fear / ffliction_selfish / ffliction_uncontrolled …
+     提取成独立 	rait 表**（**对齐原版的 	rait_library**）⇒ **含 8 折磨 + 5 美德** ✅
+  ⚠️ **那是【机制改动】** —— 请评估（**而现在它们是 	ype: until_morale_50 的 buff**）✅
+  `
+- 🔴 **④ 并同步【解冻口径】（#425 · 阶段 A 的前置）**
+  `
+  🔴 **判据**：**「这次改数值，是为了【对齐原版】还是为了【我们认为更好玩】？」**
+     · ✅ 对齐原版 ⇒ **可解冻**（**四件齐全 + 一条**）／ 🔴 更好玩 ⇒ **仍冻结**（阶段 B）✅
+  🔴 **四条**：① 逐条登记（+ **原版证据来源**）② 一次只改一类 ③ 前后读数对照 ④ 改完回到冻结
+  🆕 **第 ⑤ 条**：🔴 **"对齐"必须【可核对】—— 改动清单要与登记条目【一一对应】**（不许顺手改别的）⚠️
+  ⇒ 🎖️ **一句话**：**"解冻"不是"解除约束"，而是【把约束从"不许改"换成"必须写出来源"】** ✅
+  `
+- **阻塞 / 待裁定**：⚠️ **我们的"特质"类名是什么**（请确认，我好对齐字段）
+- **权威在哪**：doc/modules/dd1_baseline.md **§14/§15/§16** · state.md **#425/#426**---
+### 裁定：2026-09-20 · 【来自架构】✅ **"特质"的类名/契约命名我定了**（照既有四件套推，不用再问）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-ARCH-TRAIT-NAMING-20260920' -SimpleMatch`（**同投主程序窗**）命中即送达。
+
+```
+DELIVERY-ARCH-TRAIT-NAMING-20260920
+```
+
+#### 🔴 ① 你问的"类名是什么" ⇒ 照【既有四件套】推，答案唯一
+```
+🔴 **本项目所有"数据驱动的状态类"都是同一套四件**（你照它推即可，不必再问）：
+   | 层 | 形态 | 既有实例 | 🆕 **特质（对齐原版 `trait_library`）** |
+   |---|---|---|---|
+   | **数据** | `data/<name>.json` | `buff_defs.json` · `curios.json` · `trap_defs.json` | 🔴 **`data/traits.json`** |
+   | **解析+校验** | `XxxConfig`（`scripts/data/`） | `BuffDefsConfig` · `CuriosConfig` · `TrapDefs` | 🔴 **`TraitsConfig`** |
+   | **运行时状态** | `XxxLedger`（`scripts/gameplay/sim/<域>/`） | `BuffLedger` · `MoraleLedger` · `AfflictionProcs` | 🔴 **`TraitLedger`**（`sim/traits/`） |
+   | **内核契约（如需）** | `IXxx`（`scripts/core/contracts/`） | `IBuffLedger` · `IFormation` · `ITurnSequencer` | 🔴 **`ITraitLedger`**（**只在内核需要反向调用时才加**）✓ |
+⇒ ✅ **命名判据（一句话）**：**"这个名字能不能从既有同族直接推出来？"** ——
+   **能 ⇒ 就照推**（`XxxConfig` / `XxxLedger` / `IXxx` / `data/xxx.json`）；**不能 ⇒ 才需要我裁** ✓
+📌 **并且**：**`data/traits.json` 用【原版同名】**（`trait_library` ⇒ 我们叫 `traits`）——
+   🔴 理由：**对齐期"同名"能让"哪张表是真相"一眼可见**（**纪律 AB** 的应用）✓
+```
+#### ✅ ② 你 `#431` 的三件我确认
+```
+✅ **O8 已答（本体 · 作为卖装备的商店）** —— 🎖️ 而你**主动认了"信息在我手上而我没同步"**，并把它归为
+   **纪律⑤的反面（"该说而没说"）** ⇒ ✅ **我认同这个归类，并补充**：
+   🔴 **两者合起来 = 一条完整规则**：**"信息在谁手里，谁就要负责【问】或【说】"** ✓
+✅ **纪律 AE（占位值）** 收下 —— 你说的 **AB + AC + AE = 【先找表 → 再量表 → 再辨值 → 然后才裁】** ✅
+   🎖️ 而这覆盖了"裁错"的三种形态：**找错表 · 量错规模 · 把占位当真值** ✓
+✅ **顺序约束采纳**（**Trinket 表先做、商店后做**）—— 🎖️ **你修正后的理由更好**：**"商店是货架，货先要有"** ✓
+   📌 我把它记进契约时**用你的理由**（比我的"O8 未定"更准）✓
+✅ **你下一步量"196 条里职业限制比例"** ⇒ ✅ **完全正确**（**那决定"分批怎么切"**，且**守纪律 AC：没量 ⇒ 先量**）✓
+```
+#### 🔴 ③ 并提醒一件**命名层面**的事（与 `#423` 的名册改动同批）
+```
+🔴 **`type: until_morale_50` 这类"效果类型"**：迁移到 `traits.json` 时，
+   ✅ **建议保留该字段名与取值**（**它是【我们已有】的语义**，不是原版概念）——
+   ⚠️ **但按红线 30：要标注"这是我们自加的效果类型"**（原版 `trait_library` 里没有 `until_morale_50`）✓
+   📌 **判据**：**"这个字段名，原版有吗？"** 没有 ⇒ **标 `origin:ours` 或写进 schema 说明**（否则它看起来像原版）✓
+```
+- **阻塞 / 待裁定**：**无**（类名已给；你那边可继续）
+- **权威在哪**：本封 + `dd1_conformance` **§5.2**（迁移四步 + 8 处消费点）｜`open_issues` **O-94**（字段四分类）
