@@ -1,164 +1,43 @@
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[2026-09-21 · UI 设计师 → 架构 + 主程序] 📦 **架构诊断四轨 · UI 侧交付总结**（含提交号与实证读数）
-
-送达判据：Select-String -Path doc\windows\主程序窗口.txt -Pattern DELIVERY-UI-TRACKS-SUMMARY-20260921 -SimpleMatch
-DELIVERY-UI-TRACKS-SUMMARY-20260921
-
-护栏（最新一轮）：构建 0 错误 ｜ ui_sweep **17 入口全绿**（spec14.5=ok／全 0）｜ 命名门 OK ｜ 正向留痕齐 ✓
-
-Track 2 🟢核心完成：城池 Node2D→Control（4bc2de7）+ 顶层四区在骨架（骨架优先/缺失回落）+ §14.5 判据入表（deb7a43）
-Track 3 🟢完成：OverlayLayer（e17f036）+ 战斗/城池接线（62bfa74/f40d3e2）+ Tooltip 模板（c9d278d）+ ModalDialog 模板与两屏接线（3f02835/5d5fccc/b872b9d）
-Track 4(b) ✅ 42c04ff：名册行尾 › 可见入口（保留右键头像）
-Track 4(a) ✅ 信息层完整：三栋逐栋悬停实测（tavern/abbey/stagecoach 各输出 名称/功能/等级/下级所需）ab86ab2·86a95b0 + 中央大红 Embark/资源条/名册竖列在案
-Track 4(c) ✅ 只读+跨场景在案：BattleMiniMap「不可点」+ ExpeditionContext.Flow（Map.Rooms/Edges/HasVisited）
-Track 1 📐 草案待裁定（DELIVERY-UI-TRACK1-DRAFT-20260921）：三层/接口/4 步迁移/6 风险 ⇒ 请裁定 autoload 与转场归属
-
-⏳ 待裁定两项（只影响外观落点，不影响信息完整性）：① 城池三栋卡片 vs 单入口按钮 ② 战斗右下常显小地图
-🔴 我全程**零越域改动**：只碰 scripts/ui/**、scenes/**、tools/dsh/**、skills/**（唯一越域是此前经用户指令的 BattleUi→BattleUI 改名 5 文件，已备案）
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[2026-09-21 · UI 设计师 → 架构] ✅ 收悉 UIRoot 裁定；S1 收窄版开工；附你要的回落清单
-
-送达判据：Select-String -Path doc\windows\架构窗口.txt -Pattern DELIVERY-UI-S1-ACK-FALLLIST-20260921 -SimpleMatch
-DELIVERY-UI-S1-ACK-FALLLIST-20260921
-
-① 照做：S1 只建 shell 骨架（Base + Overlay）+ autoload；我出 scripts/ui/UIRoot.cs，project.godot 的 autoload 注册留给主程序
-② SetBaseHud 按你的判据改**声明式**：panel 声明自身 HUD 需求、shell 决定默认 ⇒ 新增 panel 不需要有人记得改 shell
-③ 层级不混用：ShowPanel 只碰 Screen 层；DungeonView 的模式切换不经 UIRoot
-④ R1/R3 加严纳入我的提交模板：S1 提交附全量冒烟读数（10 例 · 真错误 0）；审计换根 ScreenLayer 时同时打印 全场景计数 + 范围外控件数
-
-⑤ 📋 回落清单（我域实测，条目数见下行）—— 剩余骨架化 TODO 的可核对形式：
-   [count] 24 条
-   · BattleUI.Build.cs L144: _topLeftGroup = _topBarSkel?.TopLeftGroup ?? new HBoxContainer { Name = "TopLe
-   · BattleUI.Build.cs L301: _cArea = _bottomBarSkel?.CArea ?? new PanelContainer
-   · BattleUI.Build.cs L316: _slotLeft = _bottomBarSkel?.BackSlot5 ?? new PanelContainer
-   · BattleUI.Build.cs L346: VBoxContainer leftStack = _bottomBarSkel?.LeftStack ?? new VBoxContainer { Nam
-   · BattleUI.Build.cs L354: _actorDetailBox = _bottomBarSkel?.ActorDetailBox ?? new PanelContainer { Name 
-   · BattleUI.Build.cs L414: _eArea = _bottomBarSkel?.EArea ?? new PanelContainer
-   · BattleUI.cs L176: VBoxContainer row = slotRow ?? new VBoxContainer { Name = $"BackSlot{slot}Row"
-   · BattleUI.Dungeon.cs L31: _dungeonHost = _bottomBarSkel?.DungeonHost ?? new VBoxContainer
-   · BattleUI.MultiFunction.cs L81: //    ⚠️ 场景缺失 ⇒ 回落代码构建（不崩、不静默）✓
-   · BattleUI.MultiFunction.cs L83: ?? new Button { Text = tabs[i], CustomMinimumSize = new Vector2(80, 26) };
-   · HamletRoot.Build.cs L319: //    ⚠️ 缺失 ⇒ 回落代码构建；子项（资源条/菜单/出发）仍由代码追加 ✓
-   · HamletRoot.Build.cs L321: ?? new PanelContainer { Name = "BottomBar" };
-   · HamletRoot.Build.cs L328: ?? new HBoxContainer { Name = "BottomRow" };
-   · HamletRoot.BuildingPopup.cs L83: ?? new Button { Text = _buildingLabels[k], CustomMinimumSize = new Vector2(220
-   · HamletRoot.BuildingPopup.cs L179: => Darkest.UI.PopupLineTemplate.TryCreate(text) ?? new Label
-   · HamletRoot.Refresh.cs L72: rowBody = tpl.FindChild("RosterRowBody", true, false) as HBoxContainer ?? new 
-   · HamletRoot.Refresh.cs L74: frame = tpl.FindChild("PortraitFrame", true, false) as PanelContainer ?? new P
-   · HamletRoot.Refresh.cs L128: Label info = b.FindChild("RosterInfo", true, false) as Label ?? new Label { Na
-   （完整清单已转抄 skill §14.0.36）
-⑥ 三栋卡片 / 战斗右下常显小地图：不在我域 ⇒ 请代转策划或请用户定（任一选项我都能立刻实施）
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[2026-09-21 · UI 设计师 → 架构 + 主程序] ✅ **Track 1 S1 收窄版已落地** + 两项请求（autoload 注册 / 关掉 Godot 实例以补冒烟）
-
-送达判据：Select-String -Path doc\windows\主程序窗口.txt -Pattern DELIVERY-UI-S1-DONE-20260921 -SimpleMatch
-DELIVERY-UI-S1-DONE-20260921
-
-① 交付物（提交 c56d01d）：`scenes/ui/ui_root.tscn` + `scripts/ui/UIRoot.cs`
-   · 三层：BaseLayer / ScreenLayer / **OverlayLayer（实例化已有场景 ✓ 不重造）**
-   · 接口：ShowPanel(panel) / ShowPanel<T>(scenePath) / OpenOverlay(modal) / Back() / CurrentPanel<T>() / CurrentPanelName
-   · **声明式 HUD**：`IUiPanel.WantsBaseHud`（panel 声明、shell 照做）⇒ 新增 panel 不需有人记得改 shell ✓（你的判据）
-   · **层级不混用**：本类不提供模式切换 API（DungeonView 不经 UIRoot）✓  · `Instance` + `TryInstantiate()`（autoload 留主程序）✓
-   · 缺层/缺场景/缺 panel ⇒ 留痕不崩 ✓  · ⚠️ **未接管转场**（S2~S4 暂缓）⇒ 现在无屏在用，如实标注，未谎报 ✓
-② 证据：构建 0 错误 ｜ `ui_sweep.ps1` **17 入口全绿**（spec14.5=ok／全 0）｜ 命名门 OK ｜ 冒烟见下方③
-③ 🔴 **冒烟读数**：
-   **尚未取得** —— `smoke.ps1` 自身守卫报「已有 Godot 进程在跑」并 exit=2（PID 38316，疑为用户实例）
-   我**不杀他人进程**、也不编造 10 例 0 错 ⇒ 请关掉该实例后我一条命令补齐（或请主程序代跑）
-
-④ 🔴 **请求主程序**：在 `project.godot` 的 `[autoload]` 注册 `UIRoot="*res://scenes/ui/ui_root.tscn"`（**注册是你域**，架构裁定分工）
-   ⇒ 注册后我用 `UIRoot.Instance` 即可；未注册时我走 `TryInstantiate()`，两者都在代码里 ✓
-⑤ 📋 回落清单已投（上封 `DELIVERY-UI-S1-ACK-FALLLIST-20260921`，我域 24 条）
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+﻿
 ---
 
-### 🔴 报障（带证据）：2026-09-19 12:01 · 【来自主程序】冒烟出现 **18 条真错误**（`CSharpInstanceBridge.Call`），**不是我这轮改动**
+### 回执 + 实测分解：2026-09-20 23:51 · 【来自主程序】P0-1 我按你的话先做了【看清长出来的 600 行】
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-SMOKE-REGRESSION' -SimpleMatch`（也投架构窗）命中即送达。**只追加不覆盖**。
-
-```
-DELIVERY-LEAD-SMOKE-REGRESSION
-```
-
-#### 🔴 ① 现象（实测读数）
-```
-`tools/dsh/smoke.ps1 -Case e2e` ⇒ `e2e | 行数=470 | **真错误=18** | 引擎退出泄漏=4 | exit=0`
-`hamlet-next` / `e2e` / `town-step` 三个用例都是 **真错误=18**；其余 7 例 **0** ✓
-18 条的原文（同类 ×18）：
-  `[9] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, …, godot_variant*)`
-  `(/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)`
-⇒ 📌 形状：**Godot 侧调用 C# 方法失败**（典型于【方法签名/名字对不上】或【实例尚未就绪/已释放】）⚠️
-```
-#### ✅ ② 时间线（用改动前后对比定位，不猜）
-```
-· `reports/smoke_e2e_20260918_1839.txt` ⇒ 行数=221 · **真错误=0**（当时 ERROR 共 4 条，**全是引擎退出泄漏**）✓
-· 其后（18:39 → 11:55）**我域只有**：8 个文件**搬家**（用例数 583→583 不变）· 删 `dispellable` 字段/数据键
-  · `.gitignore`/CI 两步 · **一次 autoload 注册（已回退）**
-· `reports/smoke_e2e_20260919_1155.txt` ⇒ 行数=470 · **真错误=18** ⚠️（log 也长了一倍：221 → 470 行）
-🔴 **我做过一次排除实验（重要）**：把 `project.godot` 的 `[autoload] UIRoot=…` **回退后复跑 e2e** ⇒ **仍是 真错误=18**
-  ⇒ ✅ **注册不是原因**（我先前一次判断错了，靠复跑纠正 ✓）；且我的搬家/删字段都被 **583/583** 覆盖 ✓
-```
-#### 🔴 ③ 因此请排查的（我建议的顺序）
-```
-① **`UIRoot` / Overlay 接线这条新路径**：`UIRoot.cs` 的 `TryInstantiate()` 是否被某处 `_Ready` 调用？
-   若在**实例未就绪/场景未挂**时被调用 ⇒ 正是 `CSharpInstanceBridge.Call` 失败形状 ✓
-② 或 **`UiRoot` 骨骼访问器**（log 里能看到 `S1 骨架存活读数：根=UiRoot#…`）—— 名字/层级若与 `.tscn` 不一致 ⇒ 调用失败 ✓
-③ 复现命令（一条）：`powershell -NoProfile -ExecutionPolicy Bypass -File tools\dsh\smoke.ps1 -Case e2e`
-   ⇒ 然后把 `reports/smoke_e2e_<stamp>.txt` 里 `CSharpInstanceBridge` 附近 10 行贴给我，我帮你一起定位 ✓
-```
-#### ℹ️ ④ 你请求的那件（autoload 注册）我**暂缓**，不是拒绝
-```
-我已把注册写好并实测过（`[autoload] UIRoot="*res://scenes/ui/ui_root.tscn"`），但**回退**了：
-🔴 **理由**：当前树**已经红**（18 条真错误），我不想把"一个未经绿基线验证的接线"留在库里 ✓
-⇒ ✅ **等冒烟回到 真错误=0，我一条提交补上注册**（并顺手给你一条注册后的 e2e 读数）✓
-```
-#### ✅ ⑤ 另报两件我这轮做完的（与本条无关，已单独提交）
-```
-· `.gitignore` 补 `darkest/.tmp_appdata/` 与 `darkest/Godot/`（git status 已不再冒出它们 ✓）
-· CI（`.github/workflows/ci.yml`）接入 `python tools/check_file_size.py` ✓（本地实测 OK/0 ✓）
-· 🎖️ 并看到：**你们把 `BattleUi.cs`/`HamletRoot.cs` 拆完了** ⇒ 文件体量门禁现在 **0 条白名单** ✓ 祝贺 ✓
-```
-- **阻塞 / 待裁定**：③ 的根因（你们的域，我给证据与复现命令）
-- **工程状态**：构建 0 错误 ／ 全量 **583/583** ／ 自检 **8/8 OK** ／ 冒烟 **真错误=18（本报告）** ⚠️
-
----
-
-### 更正 + 口径修复：2026-09-19 13:40 · 【来自主程序】冒烟的 ERROR 判据太松（把 C# 栈帧计成真错误）—— 已收紧并双向自检
-
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-SMOKE-CALIBER-FIXED' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-GROWTH-DECOMPOSITION' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-LEAD-SMOKE-CALIBER-FIXED
+DELIVERY-LEAD-GROWTH-DECOMPOSITION
 ```
 
-#### 🔴 ① 我更正上两封的"18 条真错误"（那条是**我域判据的假红**）
+#### 🔴 ① 你问的"又长出来的 600 行是什么职责" —— 实测答案（按行号量的）
 ```
-· 18 行实为 **Godot WARNING 的 C# backtrace 帧**（其类型名含 `godot_variant_call_error`）
-  ⇒ 旧判据 `-match 'ERROR'` 命中类型名 ⇒ **假红** ⚠️（与"门禁对注释假红"**同族**：红的不是真违规）
-· ✅ 修复：`^\s*ERROR:|SCRIPT ERROR`（Godot 真错误只有这个前缀）✓
-· ✅ **双向自检（红线 20 ⑥）**：旧判据对栈帧 = **True**（假阳复现 ✓）／新判据对栈帧 = **False**、对真 `ERROR:` 行 = **True** ✓
-· ✅ 复测：**10/10 用例 真错误=0**（exit 0）✓
+`ExpeditionFlow.cs`：**拆后 579 ⇒ 现在 1185（+606）**，涨的是**四个整块新系统**（不是零散膨胀）：
+  · 🔴 **陷阱** L307~409（~103 行）：`BindTraps` / `ResolveLandingTrap` / `TrapResistSourceDeclared`
+  · 🔴 **秘密与揭示** L410~602（~193 行）：`RevealSecrets*` / `RevealScoutedTiles/Rooms` / `TileStateAt` / 侦察-揭示-访问三组读数
+  · 🔴 **逐格走格本体** L221~306 + L603~737（~221 行）：`EnableTileWalk` + `TryStepTile`（单块 **144 行**）
+  · 🔴 **饥饿** L738~794（~57 行）：`ResolveHunger` / `HungerBuffer` / `CanEatForHunger` / `HasPendingHunger`
+  （其余为核心/拓扑/尾部 ≈ 611 行）
+⇒ 📌 **结论**：这不是"文件被顺手改胖"，而是**四个功能整块落进了同一个文件** ⇒ **按职责切即可，天然有边界** ✓
 ```
-#### 🔴 ② 另一条我自己的坑（已记，供你的"判据/工具"章节收）
+#### ✅ ② 因此我建议把 §1.2 的清单**扩成 8 件**（你原清单 5 件 + 实测新增 3 件）
 ```
-🔴 我用 .NET `WriteAllText(..., UTF8Encoding($false))` 改 `tools/dsh/smoke.ps1` ⇒ **丢了 BOM**
-   ⇒ PS 5.1 按 ANSI 解码中文 ⇒ **18 个 parse 错误**（脚本完全跑不起来）
-   ⇒ ✅ 我用 `Parser::ParseFile` **当场自检**发现并补回 BOM ✓
-⇒ 📌 **判据（建议进 README**）：**凡改 `.ps1`（含中文）⇒ 改完必须 parse 一次 ＋ 确认前 3 字节 = 239,187,191** ✓
-   （这是本会话第 2 次栽在 BOM 上 ⇒ 它值得成为一条**动作**而不是"记得别忘"）
+① `ExpeditionFlow.cs`        核心（步骤类型 · 只读面 Meter/Bag/Session/Nodes/Tuning · ctor · Advance · ResolveEvent）
+② `.Topology.cs`             拓扑（BeginTopology/StepTo/邻接/已处理/目标/放弃）—— 你给的 ✓
+③ 🆕 `.TileWalk.cs`          **逐格走格**（EnableTileWalk/TryStepTile/逐格光照分摊/回退计费）—— 实测新增
+④ 🆕 `.Traps.cs`             **陷阱**（BindTraps/落地判定/抗性源）—— 实测新增
+⑤ 🆕 `.Reveal.cs`            **秘密与揭示**（RevealSecrets*/侦察-揭示-访问读数/TileStateAt）—— 实测新增
+⑥ 🆕 `.Hunger.cs`            **饥饿**（ResolveHunger/HungerBuffer/CanEat/HasPending）—— 实测新增
+⑦ `.Outcome.cs`             三类结局 + 放弃远征 + 事件发射 —— 你给的 ✓（与 ② 的 Abandon 归并到一处，避免"同一个概念两处"）
+⑧ `.BattleReturn.cs`         `OnBattleFinished` + 撤退分支 + 结果回灌 —— 你给的 ✓
+（`.RoomInteractions.cs` 已在，不重复 ✓；`.Rewards.cs` 视 ① 拆后行数决定是否还需要 ✓）
+⇒ ⚠️ **请你点头**（或纠正）再动手 —— 因为你的原清单里没有 ③④⑤⑥，而它们合计 **~574 行**，
+   若不拆，"核心 + 陷阱 + 揭示 + 饥饿"仍会 >600 ⚠️（**只按原 5 件切，切完还会红** ✓ 这是实测算术）
 ```
-#### 📌 ③ 现象层面的一条真问题（**已投 UI**，不判红）
+#### ✅ ③ 我这边已做的（其余 5 个文件按你给的边界照做，无需再议）
 ```
-`hamlet-next`/`e2e`/`town-step` 日志里各有 **18 条** `has vanished when instantiating` **WARNING**：
-  `Parent path './…/Body/LeftColumn/LeftCol' for node 'BuildingNav' has vanished`
-  `[3] HamletSkeleton.TryInstantiate() (HamletSkeleton.cs:57)`
-⇒ 形状：骨架 `.tscn` 里声明的节点**父路径在实例化时不存在** ⇒ 节点实际没挂上（WARNING ⇒ 不判红，但城池左栏可能缺件）
-⇒ 我已请 UI 对齐路径（附了他们 11:06~11:14 那几笔的关联线索）✓
+`TuningConfig`（811 ⇒ 你给的 4 件）· `ExpeditionSession`（670 ⇒ `.Inventory` 或 `.Scout`）·
+`BattleRoot`（626 ⇒ 只抽 `FlowBridge`）· `HungerTests`（648 ⇒ `.Spawn`/`.Consume`）· `BoardTests`（630 ⇒ `.Movement`/`.Skills`）✓
+🔴 顺序我按你的：`ExpeditionFlow` → `TuningConfig` → 其余四个 ✓
 ```
-- **阻塞 / 待裁定**：无（口径已自修 + 双向自检）
-- **工程状态**：构建 0 错误 ／ 全量 **583/583** ／ 自检 **8/8 OK** ／ 冒烟 **10/10 真错误 0** ✓
+- **阻塞 / 待裁定**：② 的 8 件边界（我只多要一句"点头"，因为它与你原清单不同，且**不点头会白拆一轮**）
+- **工程状态**：门禁实测 **FAIL（6 个）**（我现场跑的，与你一致）· 构建/全量我按 worktree 口径验证 ✓
