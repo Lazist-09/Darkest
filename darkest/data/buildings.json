@@ -1,0 +1,2505 @@
+{
+  "_note": "阶段 A 对齐数据：由 tools/dsh/extract_dd1_buildings.py 从 E 盘【一手】upgrades/building/*.upgrades.json 转写；每个 level 带 origin=dd1 ✓。形状 = 策划 #421 的目标：buildings[]{id, trees[]{id, levels[]{code, currency_cost[], prerequisites[]}}} ✓",
+  "_source": "E:\\SteamLibrary\\steamapps\\common\\DarkestDungeon\\upgrades\\building",
+  "_field_classes": "code = constraint+behavior（等级标识，也是前置引用目标）· currency_cost = behavior（升级花费）· prerequisites = constraint（**必须可断言**：引用存在 + 无环）· tags/is_instanced = doc ✓",
+  "buildings": [
+    {
+      "id": "abbey",
+      "trees": [
+        {
+          "id": "abbey.meditation",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "abbey"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 4
+                },
+                {
+                  "type": "crest",
+                  "amount": 5
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.meditation",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 11
+                },
+                {
+                  "type": "crest",
+                  "amount": 14
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.meditation",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 15
+                },
+                {
+                  "type": "crest",
+                  "amount": 19
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.meditation",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 19
+                },
+                {
+                  "type": "crest",
+                  "amount": 24
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.meditation",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "f",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 23
+                },
+                {
+                  "type": "crest",
+                  "amount": 29
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.meditation",
+                  "requirement_code": "e"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "abbey.prayer",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "abbey"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 4
+                },
+                {
+                  "type": "crest",
+                  "amount": 5
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.prayer",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 11
+                },
+                {
+                  "type": "crest",
+                  "amount": 14
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.prayer",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 15
+                },
+                {
+                  "type": "crest",
+                  "amount": 19
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.prayer",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 19
+                },
+                {
+                  "type": "crest",
+                  "amount": 24
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.prayer",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "f",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 23
+                },
+                {
+                  "type": "crest",
+                  "amount": 29
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.prayer",
+                  "requirement_code": "e"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "abbey.flagellation",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "abbey"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 4
+                },
+                {
+                  "type": "crest",
+                  "amount": 5
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.flagellation",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 11
+                },
+                {
+                  "type": "crest",
+                  "amount": 14
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.flagellation",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 15
+                },
+                {
+                  "type": "crest",
+                  "amount": 19
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.flagellation",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 19
+                },
+                {
+                  "type": "crest",
+                  "amount": 24
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.flagellation",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "f",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 23
+                },
+                {
+                  "type": "crest",
+                  "amount": 29
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "abbey.flagellation",
+                  "requirement_code": "e"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "blacksmith",
+      "trees": [
+        {
+          "id": "blacksmith.weapon",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "blacksmith"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 8
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 20
+                },
+                {
+                  "type": "crest",
+                  "amount": 21
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "blacksmith.weapon",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 32
+                },
+                {
+                  "type": "crest",
+                  "amount": 35
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "blacksmith.weapon",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 44
+                },
+                {
+                  "type": "crest",
+                  "amount": 49
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "blacksmith.weapon",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "blacksmith.armour",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "blacksmith"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 8
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 20
+                },
+                {
+                  "type": "crest",
+                  "amount": 21
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "blacksmith.armour",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 32
+                },
+                {
+                  "type": "crest",
+                  "amount": 35
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "blacksmith.armour",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 44
+                },
+                {
+                  "type": "crest",
+                  "amount": 49
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "blacksmith.armour",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "blacksmith.cost",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "blacksmith"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 4
+                },
+                {
+                  "type": "crest",
+                  "amount": 4
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 9
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "blacksmith.cost",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 14
+                },
+                {
+                  "type": "crest",
+                  "amount": 15
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "blacksmith.cost",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 18
+                },
+                {
+                  "type": "crest",
+                  "amount": 20
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "blacksmith.cost",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 24
+                },
+                {
+                  "type": "crest",
+                  "amount": 26
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "blacksmith.cost",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "camping_trainer",
+      "trees": [
+        {
+          "id": "camping_trainer.cost",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "camping_trainer"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 15
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 35
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "camping_trainer.cost",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 54
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "camping_trainer.cost",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 72
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "camping_trainer.cost",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 92
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "camping_trainer.cost",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guild",
+      "trees": [
+        {
+          "id": "guild.skill_levels",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "guild"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 6
+                },
+                {
+                  "type": "crest",
+                  "amount": 14
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 15
+                },
+                {
+                  "type": "crest",
+                  "amount": 38
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "guild.skill_levels",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 24
+                },
+                {
+                  "type": "crest",
+                  "amount": 60
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "guild.skill_levels",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 33
+                },
+                {
+                  "type": "crest",
+                  "amount": 84
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "guild.skill_levels",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "guild.cost",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "guild"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 2
+                },
+                {
+                  "type": "crest",
+                  "amount": 6
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 5
+                },
+                {
+                  "type": "crest",
+                  "amount": 14
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "guild.cost",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 21
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "guild.cost",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 11
+                },
+                {
+                  "type": "crest",
+                  "amount": 29
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "guild.cost",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 14
+                },
+                {
+                  "type": "crest",
+                  "amount": 36
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "guild.cost",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nomad_wagon",
+      "trees": [
+        {
+          "id": "nomad_wagon.numitems",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "nomad_wagon"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 26
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "nomad_wagon.numitems",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 42
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "nomad_wagon.numitems",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 58
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "nomad_wagon.numitems",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "nomad_wagon.cost",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "nomad_wagon",
+            "trinket"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 8
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 18
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "nomad_wagon.cost",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 28
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "nomad_wagon.cost",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 38
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "nomad_wagon.cost",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "crest",
+                  "amount": 46
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "nomad_wagon.cost",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sanitarium",
+      "trees": [
+        {
+          "id": "sanitarium.cost",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "sanitarium"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 3
+                },
+                {
+                  "type": "crest",
+                  "amount": 3
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 5
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.cost",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 12
+                },
+                {
+                  "type": "crest",
+                  "amount": 8
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.cost",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 16
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.cost",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 21
+                },
+                {
+                  "type": "crest",
+                  "amount": 13
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.cost",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "sanitarium.disease_quirk_cost",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "sanitarium"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 3
+                },
+                {
+                  "type": "crest",
+                  "amount": 3
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 5
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.disease_quirk_cost",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 12
+                },
+                {
+                  "type": "crest",
+                  "amount": 8
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.disease_quirk_cost",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 16
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.disease_quirk_cost",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 21
+                },
+                {
+                  "type": "crest",
+                  "amount": 13
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.disease_quirk_cost",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "sanitarium.slots",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "sanitarium"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 10
+                },
+                {
+                  "type": "crest",
+                  "amount": 6
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 20
+                },
+                {
+                  "type": "crest",
+                  "amount": 13
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.slots",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 30
+                },
+                {
+                  "type": "crest",
+                  "amount": 19
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.slots",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 60
+                },
+                {
+                  "type": "crest",
+                  "amount": 38
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "sanitarium.slots",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stage_coach",
+      "trees": [
+        {
+          "id": "stage_coach.numrecruits",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "stage_coach"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 3
+                },
+                {
+                  "type": "crest",
+                  "amount": 4
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "stage_coach.numrecruits",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 16
+                },
+                {
+                  "type": "crest",
+                  "amount": 15
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "stage_coach.numrecruits",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 20
+                },
+                {
+                  "type": "crest",
+                  "amount": 20
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "stage_coach.numrecruits",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 25
+                },
+                {
+                  "type": "crest",
+                  "amount": 26
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "stage_coach.numrecruits",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "stage_coach.rostersize",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "stage_coach"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 3
+                },
+                {
+                  "type": "crest",
+                  "amount": 4
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "stage_coach.rostersize",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 16
+                },
+                {
+                  "type": "crest",
+                  "amount": 15
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "stage_coach.rostersize",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 20
+                },
+                {
+                  "type": "crest",
+                  "amount": 20
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "stage_coach.rostersize",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "deed",
+                  "amount": 25
+                },
+                {
+                  "type": "crest",
+                  "amount": 26
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "stage_coach.rostersize",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "stage_coach.upgraded_recruits",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "stage_coach"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 9
+                },
+                {
+                  "type": "crest",
+                  "amount": 12
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "guild.skill_levels",
+                  "requirement_code": "b"
+                },
+                {
+                  "tree_id": "blacksmith.weapon",
+                  "requirement_code": "b"
+                },
+                {
+                  "tree_id": "blacksmith.armour",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 12
+                },
+                {
+                  "type": "crest",
+                  "amount": 16
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "stage_coach.upgraded_recruits",
+                  "requirement_code": "a"
+                },
+                {
+                  "tree_id": "guild.skill_levels",
+                  "requirement_code": "c"
+                },
+                {
+                  "tree_id": "blacksmith.weapon",
+                  "requirement_code": "c"
+                },
+                {
+                  "tree_id": "blacksmith.armour",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "bust",
+                  "amount": 15
+                },
+                {
+                  "type": "crest",
+                  "amount": 20
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "stage_coach.upgraded_recruits",
+                  "requirement_code": "b"
+                },
+                {
+                  "tree_id": "guild.skill_levels",
+                  "requirement_code": "d"
+                },
+                {
+                  "tree_id": "blacksmith.weapon",
+                  "requirement_code": "d"
+                },
+                {
+                  "tree_id": "blacksmith.armour",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tavern",
+      "trees": [
+        {
+          "id": "tavern.bar",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "tavern"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 2
+                },
+                {
+                  "type": "crest",
+                  "amount": 5
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 4
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.bar",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 6
+                },
+                {
+                  "type": "crest",
+                  "amount": 14
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.bar",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 19
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.bar",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 10
+                },
+                {
+                  "type": "crest",
+                  "amount": 24
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.bar",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "f",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 11
+                },
+                {
+                  "type": "crest",
+                  "amount": 29
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.bar",
+                  "requirement_code": "e"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "tavern.gambling",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "tavern"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 2
+                },
+                {
+                  "type": "crest",
+                  "amount": 5
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 4
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.gambling",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 6
+                },
+                {
+                  "type": "crest",
+                  "amount": 14
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.gambling",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 19
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.gambling",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 10
+                },
+                {
+                  "type": "crest",
+                  "amount": 24
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.gambling",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "f",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 11
+                },
+                {
+                  "type": "crest",
+                  "amount": 29
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.gambling",
+                  "requirement_code": "e"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        },
+        {
+          "id": "tavern.brothel",
+          "is_instanced": false,
+          "tags": [
+            "building",
+            "tavern"
+          ],
+          "levels": [
+            {
+              "code": "a",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 2
+                },
+                {
+                  "type": "crest",
+                  "amount": 5
+                }
+              ],
+              "prerequisites": [],
+              "origin": "dd1"
+            },
+            {
+              "code": "b",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 4
+                },
+                {
+                  "type": "crest",
+                  "amount": 10
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.brothel",
+                  "requirement_code": "a"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "c",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 6
+                },
+                {
+                  "type": "crest",
+                  "amount": 14
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.brothel",
+                  "requirement_code": "b"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "d",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 8
+                },
+                {
+                  "type": "crest",
+                  "amount": 19
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.brothel",
+                  "requirement_code": "c"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "e",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 10
+                },
+                {
+                  "type": "crest",
+                  "amount": 24
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.brothel",
+                  "requirement_code": "d"
+                }
+              ],
+              "origin": "dd1"
+            },
+            {
+              "code": "f",
+              "currency_cost": [
+                {
+                  "type": "gold",
+                  "amount": 0
+                },
+                {
+                  "type": "portrait",
+                  "amount": 11
+                },
+                {
+                  "type": "crest",
+                  "amount": 29
+                }
+              ],
+              "prerequisites": [
+                {
+                  "tree_id": "tavern.brothel",
+                  "requirement_code": "e"
+                }
+              ],
+              "origin": "dd1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
