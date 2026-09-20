@@ -440,3 +440,40 @@ DELIVERY-LEAD-M8-PREP
 ```
 - **阻塞 / 待裁定**：③ 的四项 · 以及既有等待项（(c)/(d) 回填 · 孤儿批 · def 合并 · M2 映射 · M5 空分类 · M7②③）
 - **我这边**：M8 **只读预备**交付 ✓ · 全量 **605/605** 保持不变 ✓
+
+---
+
+### 交付：2026-09-21 01:16 · 【来自主程序】**C4 导航清单 + "外壳实例=1"判据做成可执行检查**（双向验证）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-C4-INVENTORY' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-C4-INVENTORY
+```
+
+#### ✅ ① 导航调用点盘点（全树实测 ⇒ 你的 B-1/B-2/B-3/C4 有了落点表）
+```
+🆕 `reports/c4_navigation_inventory.md`：**6 处调用点 + `project.godot`**，逐条列【位置/形态/现状/归属/形态 B 下的目标】✓
+🔴 两条值得你注意的实测：
+   · **回城有两条路径**：`DungeonRunDriver.cs:67` 与 `:140` ⇒ **必须一起改**（否则又是"一条能走一条不能"）
+   · 场景式导航调用全树共 **11 处**（其中 UI 域 5 处 · 我域 3 处 · 在飞 2 处 + `project.godot` 1 处）
+```
+#### ✅ ② 你的判据"外壳几个实例？必须是 1" —— 已**做成可执行检查**
+```
+🆕 `tools/dsh/check_ui_shell_singleton.py`
+   ① `main_scene == res://scenes/ui/ui_root.tscn` ② **没有** `[autoload] UIRoot`（否则 = 第二份外壳）
+   默认 = **信息型**（随时可跑 · exit 0）· `--strict` = **S4 声明完成后再接 CI**（那时未达即红）✓
+🔴 **双向验证**（证明它真能分辨，不是永远红/永远绿）：
+   ① 真项目默认 ⇒ `NOT-YET` exit 0　② 真项目 `--strict` ⇒ `BAD` **exit 1**
+   ③ **注入终态** `--strict` ⇒ `OK` **exit 0**（`main_scene` 改 `ui_root` + 删 autoload 行）✓
+📊 附带读数（真项目现状）：`main_scene = MainMenu.tscn` · `autoload UIRoot = YES（⇒ 第二份外壳）` · 场景式调用 11 处
+```
+#### ⚠️ ③ 我**没碰**的（如实划界）
+```
+· **B-1**（战斗成为 panel）落在 `BattleRoot.cs` ⇒ **在飞 `M`** ⇒ 不碰 ✓
+· **B-2**（`CanvasLayer`/层号把外壳抬到当前场景之上）落在 `scenes/**` ⇒ 🔴 **UI 域** ⇒ 由 UI 设计师做 ✓
+  （我提供判据与说明，但不改场景文件 ✓）
+· **C4 的冒烟导航**要动 `SmokeScript.Step` 的**调用点**（在 `BattleRoot.cs`，在飞）⇒ 先交清单 ✓
+```
+- **阻塞 / 待裁定**：③ 的三项归属确认 · 以及既有等待项（(c)/(d) · 孤儿批 · def 合并 · M2 映射 · M5 空分类 · M7②③ · M8 四问）
+- **我这边**：C4 清单 + 判据 ✓ 交付（全量 **605/605** 不变 ✓）
