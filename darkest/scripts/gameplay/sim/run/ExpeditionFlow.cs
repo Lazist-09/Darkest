@@ -4,6 +4,7 @@ using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Core.Rng;
 using Darkest.Data;
+using Darkest.Gameplay.Sim.Survival;   // 🆕 事故回填：LightMeter 现居此命名空间（别人把它从 sim/run 搬来）✓
 
 namespace Darkest.Gameplay.Sim.Run;
 
@@ -576,4 +577,235 @@ public sealed partial class ExpeditionFlow
 
     /// <summary>会话（供投影取 HP/士气/资源）。</summary>
     public ExpeditionSession Session => _session;
+
+
+    // ═══ 事故回填（逐段 · 来源 reports/recovered · 架构路线 (b)）：Traps ═══
+	public void BindTraps(TrapDefs? defs, Func<string, int>? resistFor = null)
+	{
+		Traps = defs;
+		TrapResistFor = resistFor;
+	}
+
+	private void ResolveLandingTrap(string? region)
+	{
+		if ((object)Traps == null || _tileWalker == null || string.IsNullOrWhiteSpace(region) || _tileWalker.CurrentTile != DungeonTileKind.Trap)
+		{
+			return;
+		}
+		TrapGate pendingTrapGate = _pendingTrapGate;
+		_pendingTrapGate = TrapGate.Consumed;
+		if (pendingTrapGate == TrapGate.Consumed)
+		{
+			return;
+		}
+		TrapDef trapDef = TrapResolver.Pick(_log, _rng, Traps, region);
+		if ((object)trapDef != null)
+		{
+			string text = _session.ResolveTrapByResist(_log, Traps, trapDef, pendingTrapGate, TrapResistFor);
+			LastTrap = (region, pendingTrapGate, text);
+			if (text == "triggered")
+			{
+				TrapTriggeredCount++;
+			}
+			else if (text == "disarmed")
+			{
+				TrapDisarmedCount++;
+			}
+		}
+	}
+
+
+    // ═══ 事故回填（逐段 · 来源 reports/recovered · 架构路线 (b)）：Reveal+State ═══
+	public int RevealSecrets(IEnumerable<(int X, int Y)> within)
+	{
+		TuningSecretScatter tuningSecretScatter = _tuning.DungeonLayer?.Secrets;
+		if ((object)tuningSecretScatter != null && _tileWalker != null)
+		{
+			DungeonGridDeriver.Derived tw = TileWalk;
+			if ((object)tw != null)
+			{
+				if (within == null)
+				{
+					return 0;
+				}
+				int maxRewardsPerRun = tuningSecretScatter.MaxRewardsPerRun;
+				if (maxRewardsPerRun > 0 && _claimedSecrets.Count >= maxRewardsPerRun)
+				{
+					_log.Append(new EffectEvent(null, $"secret_quota_reached:{maxRewardsPerRun}", 0.0, Triggered: false));
+					return 0;
+				}
+				int num = 0;
+				foreach (var item in from p in within
+					where tw.Grid.TileAt(p.X, p.Y) == DungeonTileKind.Secret
+					orderby p.Y, p.X
+					select p)
+				{
+					if (_claimedSecrets.Add(item))
+					{
+						_tileWalker.RevealScouted(new(int, int)[1] { item });
+						int rewardGold = tuningSecretScatter.RewardGold;
+						Economy economy = _economy;
+						if (economy != null)
+						{
+							rewardGold = economy.AwardContent(_log, tuningSecretScatter.RewardGold, "secret");
+						}
+						else
+						{
+							rewardGold = 0;
+							_log.Append(new EffectEvent(null, "secret_no_economy_gold_uncredited", 0.0, Triggered: false));
+						}
+						SecretGoldGranted += rewardGold;
+						LastSecret = (item, rewardGold);
+						num++;
+						_log.Append(new EffectEvent(null, $"secret_revealed:{item.X},{item.Y}:gold{rewardGold}", 100.0, Triggered: true));
+						if (maxRewardsPerRun > 0 && _claimedSecrets.Count >= maxRewardsPerRun)
+						{
+							break;
+						}
+					}
+				}
+				return num;
+			}
+		}
+		return 0;
+	}
+
+	public int RevealSecretsWithinRooms(IEnumerable<int> roomIds)
+	{
+		DungeonGridDeriver.Derived tileWalk = TileWalk;
+		if ((object)tileWalk == null)
+		{
+			return 0;
+		}
+		HashSet<int> set = new HashSet<int>(roomIds ?? Array.Empty<int>());
+		if (set.Count == 0)
+		{
+			return 0;
+		}
+		return RevealSecrets(from kv in tileWalk.TileRoom
+			where set.Contains(kv.Value)
+			select kv.Key);
+	}
+
+	public RevealState TileStateAt((int X, int Y) pos)
+	{
+		return _tileWalker?.StateAt(pos, TileVision) ?? RevealState.Unexplored;
+	}
+
+	public bool VisitedTileAt((int X, int Y) pos)
+	{
+		return _tileWalker?.HasVisited(pos) ?? false;
+	}
+
+	public void RevealScoutedTiles(IEnumerable<(int X, int Y)> tiles)
+	{
+		if (_tileWalker != null && TileWalkEnabled)
+		{
+			_tileWalker.RevealScouted(tiles);
+		}
+	}
+
+	public void RevealScoutedRooms(IEnumerable<int> roomIds)
+	{
+		if (_tileWalker == null)
+		{
+			return;
+		}
+		DungeonGridDeriver.Derived tileWalk = TileWalk;
+		if ((object)tileWalk == null)
+		{
+			return;
+		}
+		HashSet<int> set = new HashSet<int>(roomIds ?? Array.Empty<int>());
+		if (set.Count != 0)
+		{
+			RevealScoutedTiles(from kv in tileWalk.TileRoom
+				where set.Contains(kv.Value)
+				select kv.Key);
+		}
+	}
+
+
+    // ═══ 事故回填（逐段 · 来源 reports/recovered · 架构路线 (b)）：SetRegion+Hunger+Backtrack+Forecast ═══
+	public void SetRegion(string? region)
+	{
+		_currentRegion = region;
+	}
+
+	public string ResolveHunger(bool eat)
+	{
+		HungerConfig config = _tuning.DungeonLayer?.Hunger ?? throw new InvalidOperationException("未配置 `tuning.dungeon_layer.hunger` ⇒ 不存在可结算的饥饿事件 ✓");
+		if (!_session.HungerCanApply)
+		{
+			throw new InvalidOperationException("名册台账未建立（首场战斗之前）⇒ 饥饿**无人可结算**；请先判 `HasPendingHunger`（它会返回 false）✓");
+		}
+		string result = _session.ResolveHunger(_log, config, eat, _tuning.DungeonLayer?.Exploration);
+		LastHunger = HungerRollResult.None;
+		return result;
+	}
+
+	private int BacktrackExtraFor(int revisitCost, (int X, int Y) pos, bool segmentBilled)
+	{
+		if (!segmentBilled)
+		{
+			return revisitCost;
+		}
+		int item = _tileSegAt[pos].Length;
+		int num = ((item > 0) ? (_tileSegmentCost / item) : 0);
+		return Math.Max(0, revisitCost - num);
+	}
+
+	public int? ForecastLightTo(int goalRoomId)
+	{
+		if (_tileWalker != null)
+		{
+			DungeonGridDeriver.Derived tileWalk = TileWalk;
+			if ((object)tileWalk != null && _tileRoom != null && (object)_map != null)
+			{
+				if (goalRoomId == _currentRoomId)
+				{
+					return 0;
+				}
+				(int, int) position = _tileWalker.Position;
+				(int, int)? tuple = null;
+				int num = int.MaxValue;
+				foreach (KeyValuePair<(int, int), int> item in tileWalk.TileRoom)
+				{
+					if (item.Value == goalRoomId)
+					{
+						int num2 = Math.Abs(item.Key.Item1 - position.Item1) + Math.Abs(item.Key.Item2 - position.Item2);
+						if (num2 < num)
+						{
+							num = num2;
+							tuple = item.Key;
+						}
+					}
+				}
+				if (tuple.HasValue)
+				{
+					(int, int) valueOrDefault = tuple.GetValueOrDefault();
+					if (true)
+					{
+						DungeonWalker dungeonWalker = new DungeonWalker(tileWalk.Grid, position);
+						IReadOnlyList<(int, int)> readOnlyList = dungeonWalker.PathTo(valueOrDefault.Item1, valueOrDefault.Item2);
+						if (readOnlyList.Count == 0)
+						{
+							return null;
+						}
+						try
+						{
+							IReadOnlyList<int> source = DungeonWalkLight.PlanPath(tileWalk.Grid, _tileRoom, position, readOnlyList, _tileSegmentCost);
+							return source.Sum();
+						}
+						catch (ArgumentException)
+						{
+							return null;
+						}
+					}
+				}
+				return null;
+			}
+		}
+		return null;
+	}
 }
