@@ -24,6 +24,24 @@
 > ⇒ 📌 **判据**：**门禁已在，但【没接进 CI】⇒ 没人被挡** ⇒ ✅ **接 CI 是 P0**（`check_file_size.py` 退出码可用）✓
 > ⇒ ⚠️ 并说明**为什么反弹**：**拆分只是"搬家"，不阻止原地继续长** ⇒ 需要 **① 门禁接 CI ② 每次提交前跑** ③ 新功能别再往大文件里塞 ✓
 
+### 🔴 §1.2 拆分边界建议（**架构给出 · 2026-09-20** —— 执行者照做即可，不必再判断）
+
+> 📌 **为什么由架构给边界**：**"按职责切"需要一个判断**（哪个方法属于哪个职责）——
+>   而**那是架构的事**（本次反弹的根因之一就是"没有边界清单，只有行数目标"）✓
+> ⚠️ **共同要求**（照 §3 的四条）：`partial` + **职责命名** + 头部四行（来源·职责·**依赖哪些私有状态**·只搬家+读数）+ **不许删注释**（红线 28 明令）
+
+| 文件 | 行数 | **建议边界** |
+|---|---|---|
+| 🔴 `sim/run/ExpeditionFlow.cs` | **1185** | 它现在同时管 **状态机核心 / 拓扑 / 结局 / 战斗回灌 / 奖励** ⇒ 拆 4~5 个（**`RoomInteractions.cs` 已存在，不重复**）：<br>① **`ExpeditionFlow.cs`**（核心：步骤类型 · 当前步骤 · `Advance` 驱动 · 只读面 `Meter/Bag/Session/Nodes/Tuning`）<br>② **`.Topology.cs`**（拓扑模式：`StepTo` · 邻接 · **已处理格**）<br>③ **`.Outcome.cs`**（**三类结局** `WalkedOut/Abandoned/Wiped` · **放弃远征** · 事件发射）<br>④ **`.BattleReturn.cs`**（`OnBattleFinished` · 撤退分支 · 战斗结果回灌）<br>⑤ **`.Rewards.cs`**（掉落/奖励/资源入账）—— 若 ① 仍 >600 才拆 |
+| 🔴 `data/TuningConfig.cs` | **811** | 它本质是 **`tuning.json` 的只读 POCO 集合** ⇒ 按**数据域**拆（**不是按行数**）：<br>① **`TuningConfig.cs`**（根聚合 + 解析入口 + 顶层校验）<br>② **`.Combat.cs`**（士气钳制/减免除数/虚弱/死门/护卫/命中补偿/暴击治疗）<br>③ **`.Expedition.cs`**（光照 · 背包 · 扎营 · 回头威胁 · 超时增援）<br>④ **`.Hamlet.cs`**（养成 · 疗养院 · 经济 · 解锁 · 饥饿）<br>🔴 **特别提醒**：本文件大量 XML 注释是 **"数字外置（P29）的理由"** ⇒ **拆时逐条带走**（丢了注释 = 丢了"为什么"）⚠️ |
+| 🔴 `gameplay/scene/BattleRoot.cs` | **626** | **只超 26 行 ⇒ 最小改动**：把 **`片 3 流程驱动口`**（`AdvanceHostFlow` 一族）抽成 **`BattleRoot.FlowBridge.cs`** 即可，别的别动 ✓ |
+| 🔴 `sim/run/ExpeditionSession.cs` | **670** | 已有 `.CampAndBonuses` ⇒ 再抽 **`.Inventory.cs`**（背包/物品）或 **`.Scout.cs`**（侦察），二者取一即够 ✓ |
+| 🔴 `tests/HungerTests.cs` | **648** | 按**测试主题**拆：**`.Spawn.cs`**（饥饿生成/触发）／**`.Consume.cs`**（消耗/结算）✓ |
+| 🔴 `tests/BoardTests.cs` | **630** | 已有 `.Fixtures` ⇒ 再抽 **`.Movement.cs`**（推进/靠齐）或 **`.Skills.cs`**（技能落点）✓ |
+
+> 🔴 **顺序建议**：**先 `ExpeditionFlow`**（最大、且它挡住内核门的可读性）⇒ 再 `TuningConfig`（纯 POCO，最安全）⇒ 其余四个都是小手术 ✓
+> ✅ **每拆一个**：**构建绿 + 全量测试同一个数 + 门禁 `check_file_size.py` 复跑**（红转绿是可见进度）✓
+
 | 域 | 文件 | 拆前 → 拆后 | 状态 |
 |---|---|---|---|
 | **主程序** | `TuningConfig.cs` | 760 → **559** + 214 | ✅ |

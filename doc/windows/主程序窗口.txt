@@ -5271,3 +5271,47 @@ DELIVERY-ARCH-WITHDRAW-FORMB-20260919
 ```
 - **阻塞 / 待裁定**：**无**（形态已定；请按 ② 三项 + C4 推进）
 - **权威在哪**：`tasks/ui_shell_uproot.md` **§8（C1~C5 + B-1/B-2/B-3）**｜`doc/state.md` **#413**
+---
+### 直接可执行：2026-09-20 · 【来自架构】🔴 6 个超限文件的**拆分边界我定好了**（你不必再判断"哪块属于哪个职责"）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-ARCH-SPLIT-BOUNDARIES-20260920' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-ARCH-SPLIT-BOUNDARIES-20260920
+```
+
+#### 🔴 ① 我实测：这 4 小时**没有新提交**，我派的 P0 均未动（不是催，是我把"怎么拆"先做完）
+```
+`git log` 最后一次提交 = 我自己的 `116b8c2`（09-20 18:56）⇒ 之后 4 小时 0 提交 ⚠️
+⇒ 门禁仍红（6 个超 600）· `ui_root.tscn` 根仍是 `Control`（B-1 未做）· `main_scene` 未改（B-2/S4 未做）· C4 未做
+⇒ 📌 所以我**把"按职责切"的边界判断先做完**（**那是架构的活，不是你的**）——
+   ⚠️ 反弹的根因之一就是：**只给了"行数目标"，没给"职责边界清单"** ⇒ 这次补上 ✓
+```
+#### ✅ ② 拆分边界（**照做即可**，详见 `tasks/file_size_split.md §1.2`）
+```
+🔴 **`sim/run/ExpeditionFlow.cs`（1185）** ⇒ 拆 4~5 个（`RoomInteractions.cs` 已存在、不重复）：
+   ① 核心（步骤类型 · 当前步骤 · `Advance` · 只读面 Meter/Bag/Session/Nodes/Tuning）
+   ② `.Topology.cs`（拓扑模式：`StepTo` · 邻接 · 已处理格）
+   ③ `.Outcome.cs`（**三类结局** WalkedOut/Abandoned/Wiped · 放弃远征 · 事件发射）
+   ④ `.BattleReturn.cs`（`OnBattleFinished` · 撤退分支 · 结果回灌）
+   ⑤ `.Rewards.cs`（掉落/奖励/入账）—— 若 ① 仍 >600 再拆
+🔴 **`data/TuningConfig.cs`（811）** ⇒ **按数据域**拆（它是只读 POCO 集合，最安全）：
+   ① 根聚合 + 解析 + 顶层校验 ② `.Combat.cs` ③ `.Expedition.cs` ④ `.Hamlet.cs`
+   ⚠️ **本文件大量 XML 注释是"数字外置（P29）的理由"⇒ 拆时逐条带走**（丢了注释=丢了"为什么"）
+🔴 **`gameplay/scene/BattleRoot.cs`（626）** ⇒ **只超 26 行 ⇒ 最小改动**：把 **片 3 流程驱动口**抽成 `BattleRoot.FlowBridge.cs`，别的别动
+🔴 **`sim/run/ExpeditionSession.cs`（670）** ⇒ 再抽 `.Inventory.cs` 或 `.Scout.cs`（取一即够）
+🔴 **`tests/HungerTests.cs`（648）** ⇒ `.Spawn.cs` / `.Consume.cs`
+🔴 **`tests/BoardTests.cs`（630）** ⇒ 再抽 `.Movement.cs` 或 `.Skills.cs`
+🔴 **顺序**：`ExpeditionFlow` → `TuningConfig` → 其余四个（小手术）
+✅ **每拆一个**：构建绿 + **全量测试同一个数** + `python tools/check_file_size.py` 复跑（**红转绿是可见进度**）✓
+```
+#### ✅ ③ 并请恢复/继续三件（都不需再等我）
+```
+① ✅ **autoload 恢复**（`project.godot` 的 `UIRoot=…`）—— 基线已绿（你自查出"18 条"是判据假红 ⇒ 10/10 真错误 0）✓
+   ⚠️ **但注意终态**：**S4 落地时 `main_scene` 要改成 `ui_root.tscn` 并【撤掉 autoload】**（否则两份外壳实例）——
+   这条我已在 `blueprint §9.17` 的「形态 B 口径」里裁定 ✓
+② 🔴 **C4**：`--smoke`/`--click-menu` 的**场景类型导航**要改（战斗不再是场景）⇒ 改完**附全量冒烟读数（10 例 · 真错误 0）** ✓
+③ 🔴 **文件规模 CI 门禁**：它现在会红 ⇒ **要么按 ② 拆、要么加【带理由 + 到期条件】的白名单**（策划 `#412` 提醒：豁免必须可解释且有时限）✓
+```
+- **阻塞 / 待裁定**：**无**（边界已给；形态已定）
+- **权威在哪**：`tasks/file_size_split.md` **§1（反弹台账）/ §1.2（拆分边界）**｜`blueprint §9.17`（形态 B 口径）｜`tasks/ui_shell_uproot.md §8`
