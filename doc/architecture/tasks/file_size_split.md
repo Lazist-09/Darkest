@@ -42,6 +42,35 @@
 > 🔴 **顺序建议**：**先 `ExpeditionFlow`**（最大、且它挡住内核门的可读性）⇒ 再 `TuningConfig`（纯 POCO，最安全）⇒ 其余四个都是小手术 ✓
 > ✅ **每拆一个**：**构建绿 + 全量测试同一个数 + 门禁 `check_file_size.py` 复跑**（红转绿是可见进度）✓
 
+### 🔴 §1.3 `ExpeditionFlow.cs` 边界**已实测扩为 8 件**（主程序 2026-09-20 · 架构已点头）
+
+> 🎖️ **这一条是"先量再裁"的又一次胜利**：主程序**按行号量出**"+606 行 = **四个整块新功能**"（不是零散膨胀）⇒
+>   🔴 **并指出：按架构 §1.2 的原 5 件切，切完【还会红】**（③④⑤⑥ 合计 **~574 行** —— **实测算术**）✓
+
+| # | 文件 | 职责（实测行号） |
+|---|---|---|
+| ① | `ExpeditionFlow.cs` | **核心**（步骤类型 · 当前步骤 · `ctor` · `Advance` · `ResolveEvent` · 只读面 `Meter/Bag/Session/Nodes/Tuning`） |
+| ② | `.Topology.cs` | **拓扑**（`BeginTopology` · `StepTo` · 邻接 · 已处理格 · 目标） |
+| ③ | 🆕 `.TileWalk.cs` | **逐格走格**（`EnableTileWalk` · `TryStepTile`（单块 144 行）· 逐格光照分摊 · 回退计费） |
+| ④ | 🆕 `.Traps.cs` | **陷阱**（`BindTraps` · `ResolveLandingTrap` · `TrapResistSourceDeclared`） |
+| ⑤ | 🆕 `.Reveal.cs` | **秘密与揭示**（`RevealSecrets*` · `RevealScoutedTiles/Rooms` · `TileStateAt` · 侦察-揭示-访问三组读数） |
+| ⑥ | 🆕 `.Hunger.cs` | **饥饿**（`ResolveHunger` · `HungerBuffer` · `CanEatForHunger` · `HasPendingHunger`） |
+| ⑦ | `.Outcome.cs` | **三类结局**（`WalkedOut/Abandoned/Wiped`）＋ 🔴 **`Abandon()`【归此处】** ＋ 事件发射 |
+| ⑧ | `.BattleReturn.cs` | `OnBattleFinished` ＋ 撤退分支 ＋ 结果回灌 |
+
+```
+🔴 **架构裁定（2026-09-20 · 回应主程序"请点头"）**：
+   ① ✅ **点头**：**8 件成立**（③④⑤⑥ 是他实测发现的，**原清单确实漏了**）✓
+   ② 🔴 **归属裁定（消歧）**：**`Abandon()` 归 `.Outcome.cs`**，**不留在 `.Topology.cs`** ——
+      判据：**"这个方法的【语义归属】是【地图/拓扑】还是【一趟的结局】？"** ⇒ **放弃远征 = 结局/状态转移** ✓
+      （⚠️ 否则"同一个概念落两处" = 我们反复防的"两处真值"家族）✓
+   ③ 🔴 **核心文件【必须量】**：主程序估"核心+拓扑+尾部 ≈ 611 行" ⇒ ⚠️ **拆掉拓扑后，核心【有可能仍 >600】** ⇒
+      ✅ **要求：拆完立刻跑 `check_file_size.py`；若核心仍 >600 ⇒ 再抽 `.ReadOnly.cs`**
+      （只读面 `Meter/Bag/Session/Nodes/Tuning`）✓ —— 📌 **不许预估，必须量**（**纪律 AC**）✓
+   ④ ✅ **`.Rewards.cs` 视①拆后行数决定**（**按量，不按猜**）✓ · ⚠️ **`.RoomInteractions.cs` 已在，不重复** ✓
+   ⑤ ✅ **其余 5 个文件按 §1.2 原边界照做**（`TuningConfig` → `ExpeditionSession` → `BattleRoot` → `HungerTests` → `BoardTests`）✓
+```
+
 | 域 | 文件 | 拆前 → 拆后 | 状态 |
 |---|---|---|---|
 | **主程序** | `TuningConfig.cs` | 760 → **559** + 214 | ✅ |
