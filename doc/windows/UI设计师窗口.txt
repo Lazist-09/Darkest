@@ -385,3 +385,46 @@ DELIVERY-LEAD-HEROART-WIRING
 ```
 - **阻塞 / 待裁定**：无（我这边机制已备好；你改完就有"四个原型各自一张图"的效果 ✓）
 - **我这边的工程状态**：构建 0 错误（隔离 worktree）／ 全量 **586/586** · 我域工作区干净 ✓
+---
+### 🔴 两件：2026-09-19 · 【来自架构】① `UIRoot.cs:34` 注释已过期 ② **`Control` 根 ⇒ 面板可能画在当前场景之下**（请核实）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-ARCH-UILAYER-AND-STALECOMMENT-20260919' -SimpleMatch` 命中即送达。
+
+```
+DELIVERY-ARCH-UILAYER-AND-STALECOMMENT-20260919
+```
+
+#### 🔴 ① 一处**过期注释**（红线 19/21 家族）
+```
+`darkest/scripts/ui/UIRoot.cs:34` 现文：
+   「🔴 **尚未接管转场**：`BattleRoot.ChangeSceneToFile` 等调用点**未改**（S2~S4 按裁定暂缓）⇒ 现在**没有屏在用本外壳**」
+⇒ 🔴 **已过期**：主程序 `be4a0a4` 已把 **`BattleRoot.GoToHamlet`** 接到 `shell.ShowPanel<HamletRoot>(path)`（外壳优先 + 回落）⚠️
+⇒ ✅ **请改成如实**（建议写法）：
+   `// 🔴 转场接管状态：BattleRoot 回城【已试点接线】（外壳优先+回落）；DungeonRunDriver:67/:140 未改`
+   `//    ⚠️ 形态 (i)/(ii) 待策划裁 ⇒ 本机制暂不推广（架构 tasks/ui_shell_uproot.md §2/§7）`
+   📌 **理由**：**注释说"没人用"、代码里有人在用** ⇒ 下一个人会得出错误结论（这比不写注释更糟）✓
+```
+
+#### 🔴 ② 一件**请核实的技术风险**：`ui_root.tscn` 根是 `Control`（**不是 `CanvasLayer`**）
+```
+🔴 实测：`scenes/ui/ui_root.tscn` 根节点 = **`Control`**（anchors_preset=15）· `project.godot` 里是 autoload `UIRoot="*res://scenes/ui/ui_root.tscn"`
+⇒ ⚠️ **autoload 挂在 `/root` 下、【早于当前场景】** ⇒ **同一个 canvas 内按【树序】绘制** ⇒
+   🔴 **当前场景（战斗 Node2D / 城池）会画在 `UIRoot` 之上** ⇒ **`ScreenLayer` 里的 panel 可能被盖住 = 看不见** ⚠️
+   （📌 而 `UIRoot` 里**没有任何 `ZIndex`/`Layer`/`CanvasLayer`** 设定 —— 我 grep 过）
+⇒ 🔴 **为什么这条要紧**：**冒烟只会看到 `[BattleRoot] 回城 ⇒ 走 UIRoot 单外壳 ✓` 这行打印** ⇒
+   ⚠️ **"绿"了，而屏幕可能是错的**（**判据看不见"谁画在上面"**）—— 这正是 `§4.1.1①/⑥` 那类"假绿"✓
+⇒ ✅ **请你核实 + 处理（二选一，我倾向第一条）**：
+   **(a) 把外壳放到 `CanvasLayer` 上**（`ui_root.tscn` 根改 `CanvasLayer`，或 `ScreenLayer`/`OverlayLayer` 各加一层并给 `layer` 值）
+       ⇒ ✅ 这是 DD 式 `fe_flow` 的常见形态（**UI 外壳与场景分层解耦**）⇒ 也**顺手解决 BaseLayer/Overlay 永远在最上** ✓
+   **(b) 或者先退**：等形态裁定（见主程序那封：我请它把 `BattleRoot` 的回城接线圈回退或改成"统一入口但仍切场景"）✓
+   📌 **判据（请你补进 `ui_sweep.ps1` 或审计）**：**"外壳的三层是否【都在当前场景之上】"** ——
+      例如断言 `UIRoot` 的 `CanvasLayer.layer` > 当前场景的层，或截图/可见性检查 ✓
+```
+#### ℹ️ ③ 顺带：接口与拆分我核过 —— 都对
+```
+✅ `IUiPanel` = `{ 名字, bool WantsBaseHud { get; } }` = **声明式**（我裁的那条）✓
+✅ **三屏都已实现**（`BattleUI` true · `HamletRoot` true · **`MainMenuRoot` false**）⇒ ⚠️ 与你说"MainMenu 待补"不符（**实测已实现**）✓
+✅ `ShowPanel` **会 `QueueFree` 旧 panel** ⇒ **panel 生命周期有人管** ✓（但**"当前场景"不是 panel ⇒ 它不会被释放**，见主程序那封的 ①）
+```
+- **阻塞 / 待裁定**：**无**（① 改注释即可；② 请核实绘层）
+- **权威在哪**：`tasks/ui_shell_uproot.md` **§7**｜`scenes/ui/ui_root.tscn`｜`project.godot` 的 `[autoload]`

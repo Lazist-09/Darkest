@@ -11,6 +11,19 @@
 
 ## §1 现状（实测）
 
+> 🔴🔴 **2026-09-19 复查：红线 28 已【反弹】—— 门禁抓到 6 个超限文件**（**这就是"没有门禁会慢慢长回去"的实证**）：
+> | 文件 | 拆后 | **现在** | 变化 |
+> |---|---|---|---|
+> | `gameplay/sim/run/ExpeditionFlow.cs` | 579 | 🔴 **1185** | **+606** |
+> | `data/TuningConfig.cs` | 559 | 🔴 **811** | +252 |
+> | `gameplay/sim/run/ExpeditionSession.cs` | 413 | 🔴 **670** | +257 |
+> | `tests/HungerTests.cs` | —（新增） | 🔴 **648** | 新增即超限 |
+> | `tests/BoardTests.cs` | 702 | 🔴 **630** | 仍超限 |
+> | `gameplay/scene/BattleRoot.cs` | 562 | 🔴 **626** | +64 |
+> ⇒ `python tools/check_file_size.py` ⇒ **FAIL（6 个）**；`tools/dsh/selfcheck.ps1` ⇒ 🔴 **FAIL（8/8 中 1 红 = file size）**
+> ⇒ 📌 **判据**：**门禁已在，但【没接进 CI】⇒ 没人被挡** ⇒ ✅ **接 CI 是 P0**（`check_file_size.py` 退出码可用）✓
+> ⇒ ⚠️ 并说明**为什么反弹**：**拆分只是"搬家"，不阻止原地继续长** ⇒ 需要 **① 门禁接 CI ② 每次提交前跑** ③ 新功能别再往大文件里塞 ✓
+
 | 域 | 文件 | 拆前 → 拆后 | 状态 |
 |---|---|---|---|
 | **主程序** | `TuningConfig.cs` | 760 → **559** + 214 | ✅ |
