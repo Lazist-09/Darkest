@@ -39,7 +39,7 @@
 | **2** | **属性模型**（武器/护甲 0~4 阶） | 原版有 `weapon`/`armour` 阶（`dd1_baseline §4` 偏差 2） | `UnitStats` **压平**（无阶） | 🔴 **待对齐**（未裁） | 影响 `units.json` + `UnitStatsMapper`；⚠️ 牵动伤害公式 ⇒ 与第 6 项同批评估 |
 | **3** | **抗性集** | 原版含 **poison / disease / death_blow / trap**（§4 偏差 3） | **缩水**（无这四类） | 🔴 **待对齐**（未裁） | 影响 `units.json` + 伤害/陷阱管线；⚠️ 若加 ⇒ **新增四条状态通道**（不是加数据那么简单） |
 | **4** | **速度随机浮动** | ⏸ **不可判**（原版需观察，§5 O2） | 我方"每回合重掷 0~10%" | ⏸ **不可判** | **等观察**；⚠️ **不得凭感觉对齐** |
-| **5** | **饰品 Trinket** | 原版**独立系统**：**3 饰品位 + 职业限制 + 稀有度 + 来源**（`dd1_baseline §4` 偏差 5）<br>🔴 **规模（已量完 · `#432`）＝【196 条】**（`kickstarter` 294 已排除 · 三条实证见下）<br>· **rarity**：uncommon 44 · common 44 · rare 33 · very_rare 24 · very_common 16 · trophy 9 · ancestral 9 · ancestral_shambler 5 · crow 4 · madman 3 · collector 3 · courtier 1 · darkest_dungeon 1 ⇒ 🎖️ **前三档（c/u/r）= 121 条 = 62%（"打底"）**<br>· 🔴 **职业限制 = 79/196 = 40%**（每职业 5~6 件专属 · 覆盖全部 15 职业）<br>· 🆕 **`award_category`（5 种）= 决定"从哪来"**：universal 6 · battle 4 · dd 1 · trophy 1 · quest 1<br>· 🔴🔴 **`buffs` 引用 = 【535 个】（平均 2.7/条）⇒ ⚠️ 见下"第三层规模待量"**<br>· **price 6 档**：5000(16) · 7500(44) · 10000(44) · 15000(39) · 25000(24) · 50000(14) ⇒ ⚠️ **`price=0`×10 / `price=1`×5 疑占位 ⇒ 已进观察清单 `O10`**（守纪律 AE） | 仅实现"饰品的 **Buff 效果**"（走 `BuffDefsConfig`）⇒ 🔴 **槽位/限制/稀有度/获得方式 全部未实现** | 🔴 **待对齐** | ✅ **移层处方（红线 30）**：**Buff 效果走 `BuffDefsConfig`** · 🔴 **槽位/限制/稀有度/获得方式 走【Trinket 自己的表】**<br>✅ **分批 3 批（`#432` ④）**：**批1 c+u = 88（48 带职业限制）** · 批2 rare+very_rare = 57（31）· 批3 very_common+特殊 = 51 ✓<br>🔴🔴 **第三层规模【待量】（架构按纪律 AC 追问）**：**535 个 buff 引用【去重后】有多少？其中我们已有 vs 需新建？** —— ⚠️ **这决定"移层"是"复用现有 buff"还是"要建一整套 Trinket 用 buff"**（我方 `buff_defs.json` 现仅 **21 条**）✓ |
+| **5** | **饰品 Trinket** | 原版**独立系统**：**3 饰品位 + 职业限制 + 稀有度 + 来源**（`dd1_baseline §4` 偏差 5）<br>🔴 **第一层（已量 · `#432`）＝【196 条】**（`kickstarter` 294 已排除）<br>· **rarity**：uncommon 44 · common 44 · rare 33 · very_rare 24 · very_common 16 · trophy 9 · ancestral 9 · ancestral_shambler 5 · crow 4 · madman 3 · collector 3 · courtier 1 · darkest_dungeon 1 ⇒ 🎖️ **前三档 c/u/r = 121 = 62%（打底）**<br>· **职业限制 79/196 = 40%** · **`award_category` 5 种** · **price 6 档**（⚠️ `price=0`×10/`price=1`×5 疑占位 ⇒ `O10`）<br>🔴 **第二层（`#433`）＝ `buffs` 引用 535（含重复）⇒【去重实体 = 374】**<br>🔴🔴 **第三层（`#433`）＝ 原版 buff 库 `shared/buffs/base.buffs.json` = 751 KB ⇒【2020 条】**（**12 字段**：`id`/`stat_type`/`stat_sub_type`/`amount`/`duration`/`duration_type`/`rule_type`/`rule_data`/`is_false_rule`/`remove_if_not_active`/`is_clear_debuff_valid`/`remove_on_battle_complete` ⇒ **实质 = 属性修改器 + 条件**）<br>🔴🔴🔴 **而【我方 22 条 buff 与那 374 条的【交集 = 0】】** —— ⚠️ **不是缺 buff，是【两套 id 体系完全不同】**：**我方 = 语义名（`stun`/`taunt`）＋ `type: until_morale_50`** ／ **原版 = 生成式 id（`TRINKET_ABOM_DMG_BUFF_H`/`STUNSKILL25`）＋ `stat_type`/`rule_type`** | 仅实现"饰品的 **Buff 效果**"（走 `BuffDefsConfig`）⇒ 🔴 **槽位/限制/稀有度/获得方式 全部未实现** | 🔴 **待对齐** | ✅ **移层处方（红线 30）· 已升级为【两层结构】**（见 §5.4）：<br>· **原语层** = 原版 buff 库（属性修改器 + 条件）· **概念层** = 我方 22 条语义 buff ⇒ 🔴 **两者【不同层、不相斥】** ✓<br>· ✅ **分批 3 批**（批1 c+u = 88 · 批2 rare+very_rare = 57 · 批3 = 51）✓<br>🔴 **等用户定"纳不纳原版 buff 库"**（策划 `#433` ③ 已问）⇒ ⚠️ **但架构建议：定之前先量【映射可行性】**（见 §5.4 ②）✓ |
 | **6** | **怪物 brain / wave / 每轮行动次数** | 原版有 `monster_brain` id + `wave_spawning`（§4 偏差 6 · §5 O3/O4）＋ 🔴 **`initiative.number_of_turns_per_round`（怪物级字段）**（`#425` ③ 一手） | 我方 `enemy_ai.json` ＋ 🔴 **`enemy_actions_per_round`（【导演级】倍率 · `O-36` 自加）** | 🔴 **待对齐**（`#425` ③ 已裁） | ✅ **"移层"= 从【导演级】移到【怪物级】**（**那就是原版的字段**）⇒ 阶段 A 补 ✓ |
 | **13** | **Quirk 系统** | 🔴 原版**两个库**：`quirk_library.json` **170 条**（79 负 / 68 正 / **23 疾病**；mental 108 / physical 56）· 字段含 `is_positive` / `is_disease` / `classification` / `incompatible_quirks` / `curio_tag`（`#425` ⑥ · `dd1_baseline §14`） | 🔴🔴 **实测：我方【没有】Quirk 系统** —— `git grep quirk` 只命中 `sanitarium.json` 的一条 `note`（疾病=每趟结束按概率获得）；**无 quirk 表、无代码** | 🔴 **待对齐（实为【从零建】）** | ⚠️ **口径更正**：策划表述为"**结构对齐 + 内容分批**"，而实测**我们连结构都没有** ⇒ **它是【新建系统】，不是改造**（工作量差异大，见 §3.4）✓ |
 | **14** | **折磨 / 美德** | 🔴 原版 = **独立 `trait_library.json`（13 条 = 8 折磨 + 5 美德）**（`#426`） | 我方 = **`buff_defs.json` 里 6 条**（`affliction_fear/selfish/uncontrolled` + `virtue_brave/resolute/inspired`），🔴 **消费点散在 8 个文件**（`BuffDefsConfig`/`AfflictionProcs`/`BattleDirector`/`DamagePipeline`/`SkillExecutor`/`TuningConfig`/`CombatLogText`）⇒ **行为真实存在** | 🔴 **待对齐（移层）** | ✅ **处方见 §5.2**：**新建 `traits.json` + 引用替换 + 【行为跟随】（8 处消费点一起搬）** ⇒ ⚠️ **只搬数据不搬行为 = 立刻变死声明**（红线 21）✓ |
@@ -112,7 +112,6 @@
 ```
 
 ### §5.2 🔴 折磨/美德 → 独立 `traits.json`：**"搬家必须带行为"**（8 处消费点清单）
-
 ```
 🔴 **风险（最重要的一条）**：现状 6 条在 `buff_defs.json`，但**行为散在 8 个文件**：
    `BuffDefsConfig` · `AfflictionProcs` · `BattleDirector` · `DamagePipeline` · `SkillExecutor` · `TuningConfig` · `CombatLogText` · `BattleEventTypes`
@@ -162,3 +161,31 @@ C3 🔴 **判定为 ⏸ 不可判的 ⇒ 必须进策划 §5 观察清单**（**
 C4 🔴 **本档只在【对齐/偏离状态变化】时更新**（不是日志）；🔴 **每次更新附读数**（可核对）✓
 C5 ✅ **与策划侧互为指针**（本档 ≠ 偏差清单；偏差发现归策划、判据与状态归架构）✓
 ```
+
+### §5.4 🔴 buff 库：**两层结构**与**映射可行性**（回应 `#433` · 交集 0 的正解）
+
+``
+🔴 **现象**：**我方 22 条 buff 与原版 374 条的【交集 = 0】** —— ⚠️ 但**这不是"缺 buff"** ✓
+🔴 **架构解读：它们【不在同一层】** ——
+   | | 我方 22 条 | 原版 2020 条 |
+   |---|---|---|
+   | **命名** | **语义名**（`stun` · `taunt`） | **生成式 id**（`TRINKET_ABOM_DMG_BUFF_H` · `STUNSKILL25`） |
+   | **字段** | `type: until_morale_50`（**概念**） | `stat_type`/`stat_sub_type`/`amount`/`rule_type`（**原语**） |
+   | **粒度** | **1 条 = 1 个玩法概念** | **1 条 = 1 个"属性修改器 + 条件"**（同一概念可能是几条的组合） |
+   ⇒ ✅ **所以"交集 0"是【正常且必然】的** ⇒ 🔴 **这是「架构红线 30」的场景：把原版放在【我们没管的层】= 原语层** ✓
+
+✅ **建议形状（两层并存、各司其职、不造第三套真相）**：
+   ① **原语层**：`data/dd1_buffs.json`（2020 条 · **只读对齐 · 机器生成** · 标 `origin:dd1`）✓
+   ② **概念层**：我方 `buff_defs.json`（22 条 · 标 `origin:ours`）**保留** ✓
+   ③ **Trinket 表引用原语层 id**（374 条直接有着落）✓
+   ④ ⚠️ **两层之间不强行映射**：**能映射就映射、不能就并存**（**别造第三套 truth**）✓
+
+🔴🔴 **但在"纳不纳"之前必须先量一个数（守纪律 AC + AG 写口径）**：
+   🔴 **「那 374 条里，有多少条的 `stat_type`/`rule_type` **在我们现有属性/状态模型里有落点**？」**
+   口径：**「有落点」= 能映射到既有 `UnitStats` 字段或既有管线步骤，且【不需新增内核能力】**
+   📌 **决策判据**：**≥80% 有落点 ⇒ 值得纳** · **40~80% ⇒ 可纳但要先扩属性模型（单独排期）** · **<40% ⇒ 纳了也跑不动（先扩模型或只纳 374 条）** ✓
+   🎖️ **给用户的输入**：**"纳不纳"不该是二元题，而应附带【能映射的比例】**（那才是可判定的 —— 同纪律 AF）✓
+
+🔴 **顺序（细化）**：**buff 库（纳不纳 + 映射可行性）→ Trinket 表 → 商店接线**；
+   若映射比例低 ⇒ **先扩模型、或只纳 374 条**（**不是"先纳 2020 条再想怎么用"**）✓
+``
