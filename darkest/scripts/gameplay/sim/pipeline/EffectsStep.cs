@@ -31,6 +31,12 @@ public static class EffectsStep
             "stun_resist" => Math.Clamp(target.Base.StunResist + target.StunResistBuildup + target.StunResistBonus, 0, 100),
             "bleed_resist" => target.Base.BleedResist,
             "stat_debuff_resist" => target.Base.StatDebuffResist,
+            // 🆕 **M1a · 抗性 5→8**：判定轴照同形接 ✓
+            //   🔴 `?? 0` = **未配 ⇒ 0**（与陷阱路径"退化解"同口径；陷阱那条**会自证打印**）✓
+            //   ⚠️ poison/disease 的**结算**（周期性伤害 / 感染）不在本阶段 —— 那是机制+数值 ⇒ 等策划 ✓
+            "poison_resist" => target.Base.PoisonResist ?? 0,
+            "disease_resist" => target.Base.DiseaseResist ?? 0,
+            "trap_resist" => target.Base.TrapResist ?? 0,
             _ => 0,
         };
 

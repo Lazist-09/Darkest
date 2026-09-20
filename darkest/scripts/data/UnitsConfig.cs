@@ -29,6 +29,10 @@ public sealed record UnitConfig(
     [property: JsonPropertyName("move_distance")] int MoveDistance = 0,
     // 🆕 **M1a 阶段 1（加字段级 · 零行为改动）**：原版 `weapon`/`armour` 各 **5 阶**（0~4）✓
     //   🔴 可选：缺省 = 不参与（老数据不受影响 ⇒ 旧读数必须不变）；本阶段**无消费点** ✓
+    // 🆕 **M1a · 抗性 5→8**：可空 = 未配（不假装 0）✓ 数值由策划给（原版口径）✓
+    [property: JsonPropertyName("poison_resist")] int? PoisonResist = null,
+    [property: JsonPropertyName("disease_resist")] int? DiseaseResist = null,
+    [property: JsonPropertyName("trap_resist")] int? TrapResist = null,
     [property: JsonPropertyName("weapon")] IReadOnlyList<WeaponTier>? Weapon = null,
     [property: JsonPropertyName("armour")] IReadOnlyList<ArmourTier>? Armour = null)
 {
@@ -138,6 +142,11 @@ public sealed record UnitsConfig(
             // 🆕 **M1a 阶段 1 校验（只查结构、不查平衡）**：给了就得是**整 5 阶**（原版 0~4）✓
             ValidateTiers(u, "weapon", u.Weapon?.Count, u.Weapon?.Select(x => x.DmgMin).ToArray(), u.Weapon?.Select(x => x.DmgMax).ToArray());
             ValidateTiers(u, "armour", u.Armour?.Count, null, null);
+
+            // 🆕 **M1a · 抗性 5→8 的校验**：给了就必须在 [0,100]（照 deaths_door_resist 同形）✓
+            ValidateResist(u, "poison_resist", u.PoisonResist);
+            ValidateResist(u, "disease_resist", u.DiseaseResist);
+            ValidateResist(u, "trap_resist", u.TrapResist);
         }
 
         // F1（#190）：不再硬编码"必选 7 原型"——只要求两侧各至少 1 个（新增角色零代码改动）
@@ -163,6 +172,15 @@ public sealed record UnitsConfig(
     /// 🆕 **M1a 阶段 1**：tier 数组的**结构**校验（整 5 阶 · 区间 0 ≤ min ≤ max）——
     /// 🔴 **只查结构形状**，不查"哪一阶更强"（那属平衡 ⇒ 解冻清单）✓ 规则来源 `dd1_baseline §27` ✓
     /// </summary>
+    /// <summary>🆕 **M1a · 抗性 5→8**：给了就查 [0,100]（**未配 = null 合法**，不假装 0）✓</summary>
+    private static void ValidateResist(UnitConfig u, string name, int? value)
+    {
+        if (value is { } v && v is < 0 or > 100)
+        {
+            throw new InvalidDataException($"{ResPath}: \"{u.Id}\" {name}={v} 越界 [0,100]。");
+        }
+    }
+
     private static void ValidateTiers(UnitConfig u, string name, int? count, int[]? mins, int[]? maxs)
     {
         if (count is null)

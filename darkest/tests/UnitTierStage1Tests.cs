@@ -115,5 +115,34 @@ public sealed class UnitTierStage1Tests
         TestContext.WriteLine("[M1a·阶段1] 出厂数据无 tier ⇒ 零行为改动 ✓");
     }
 
+    /// <summary>
+    /// 🔴 **M1a · 抗性 5→8（加字段级）**：`poison_resist` / `disease_resist` / `trap_resist`。
+    ///   · **可空 = 未配**（不假装 0）✓ · 给了就查 [0,100] ✓ · 映射到 `UnitStats` ✓
+    ///   🔴 **出厂数据没写它们 ⇒ 全 null ⇒ 判定轴取 `?? 0` ⇒ 与改造前同值（零行为）** ✓
+    /// </summary>
+    [TestMethod]
+    public void ThreeNewResistAxes_AreOptionalValidatedAndMapped()
+    {
+        UnitConfig plain = UnitsConfig.Parse(Json(FiveWeapons, FiveArmours)).Units[0];
+        UnitStats plainStats = UnitStatsMapper.From(plain);
+        Assert.IsNull(plainStats.PoisonResist, "未配 ⇒ null（不是 0）✓");
+        Assert.IsNull(plainStats.TrapResist, "未配 ⇒ null ✓");
+
+        string json = Json(FiveWeapons, FiveArmours).Replace(
+            "\"weapon\":", "\"poison_resist\": 25, \"disease_resist\": 30, \"trap_resist\": 40, \"weapon\":");
+        UnitStats stats = UnitStatsMapper.From(UnitsConfig.Parse(json).Units[0]);
+        Assert.AreEqual(25, stats.PoisonResist);
+        Assert.AreEqual(30, stats.DiseaseResist);
+        Assert.AreEqual(40, stats.TrapResist);
+
+        string bad = Json(FiveWeapons, FiveArmours).Replace("\"weapon\":", "\"trap_resist\": 140, \"weapon\":");
+        var ex = Assert.ThrowsException<InvalidDataException>(() => UnitsConfig.Parse(bad));
+        StringAssert.Contains(ex.Message, "trap_resist");
+        StringAssert.Contains(ex.Message, "[0,100]");
+
+        Console.WriteLine($"[M1a·抗性] 未配=null ✓ · 配了 ⇒ {stats.PoisonResist}/{stats.DiseaseResist}/{stats.TrapResist} ✓ · 越界 ⇒ 拒绝：{ex.Message}");
+        TestContext.WriteLine("[M1a·抗性] 三轴：可空 + 校验 + 映射 ✓");
+    }
+
     public TestContext TestContext { get; set; } = null!;
 }

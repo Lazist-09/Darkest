@@ -20,6 +20,12 @@ public sealed record UnitStats(
     int StatDebuffResist,
     int DisplaceResist,
     int? DeathsDoorResist,
+    // 🆕 **M1a · 抗性 5→8（加字段级）**：null = **未配**（不假装 0）✓
+    //   🔴 判定路径照 `EffectsStep` 既有 switch 同形接；**数值由策划给**（原版口径），我不发明 ✓
+    //   ⚠️ 陷阱那条已有自证（`TrapResistSourceDeclared`：未声明 ⇒ 退化解 0 且**会打印**）✓
+    int? PoisonResist = null,
+    int? DiseaseResist = null,
+    int? TrapResist = null,
     int MoveDistance = 0,
     // 🆕 **M1a 阶段 1**：原版 weapon/armour 各 5 阶（**只承载数据，零消费点**）✓
     IReadOnlyList<WeaponTier>? WeaponTiers = null,

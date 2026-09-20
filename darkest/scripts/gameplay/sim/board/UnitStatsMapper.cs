@@ -20,6 +20,9 @@ public static class UnitStatsMapper
             StatDebuffResist: c.StatDebuffResist,
             DisplaceResist: c.DisplaceResist,
             DeathsDoorResist: c.DeathsDoorResist,
+        PoisonResist: c.PoisonResist,
+        DiseaseResist: c.DiseaseResist,
+        TrapResist: c.TrapResist,
             MoveDistance: c.MoveDistance,
         WeaponTiers: c.Weapon,
         ArmourTiers: c.Armour);
