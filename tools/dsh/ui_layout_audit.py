@@ -2,6 +2,13 @@
 # -*- coding: utf-8 -*-
 """ui_layout_audit.py -- static layout audit for the UI scenes (the card's `--ui-audit` sibling).
 
+🔴 MEASURED CONCLUSION (2026-09-21): a STATIC audit can never be the layout authority here.
+    Measured across darkest/scenes/**: only 54 nodes carry anchor_left and just 13 carry the full
+    anchor+offset set => the static coverage CEILING is ~24%. The rest is laid out by containers
+    (HBox/VBox/PanelContainer...) at runtime. That is why this tool is fail-closed and why the
+    runtime `--ui-audit` (inside Godot) remains the acceptance authority for "0 overlap / in camera".
+    => Do NOT invest further in static resolution; use this tool as a diagnostic only.
+
 WHY (the dispatch card names it as an acceptance tool)
     M8 acceptance: "每批：构建绿 + `--ui-audit` + 平衡读数"
     M9u acceptance: "`--ui-audit` 0 重叠 · 镜头内可见（对齐原版）"
