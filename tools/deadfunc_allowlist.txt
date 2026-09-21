@@ -14,3 +14,13 @@ scripts/core/math/BattleMath.cs | SpiritHit | 同上（精神伤害样例的参�
 #    ⇒ 归**内容层待办**：等策划把 `torch`/`dark` 选项写进事件节点数据，本方法的调用点才有意义。
 #    ⚠️ 这不是"漏接"：本方法 + 它的用例是**契约载体**（`survival.md` 的光源/事件交互），留着是对的。
 scripts/gameplay/sim/survival/LightMeter.cs | ApplyEventChoice | `expedition_nodes.json` **无 torch/dark 选项键** ⇒ 接线等于编造数据（`#307`）；归内容层待办，等数据补上再连
+# ── 主程序 2026-09-21 判读批：**全部是"机制已就位、消费方未到"**（激活条件逐条写明 ✓ 见 reports/data_discipline_triage.md）
+darkest/scripts/core/contracts/UnitStats.cs | WeaponAt | M1a 按阶取武器；消费方 = M1c 阶段 3（伤害读阶）⇒ 届时接线 ✓
+darkest/scripts/core/contracts/UnitStats.cs | ArmourAt | 同上（按阶取护甲）✓
+darkest/scripts/core/math/BattleMath.cs | WeaponRawDamage | M1c 阶段 1 纯函数；消费方 = 阶段 3 的新伤害路径 ✓
+darkest/scripts/data/BuffPrimitiveTranslation.cs | FrozenReason | 冻结原语的**理由查询口**（报表/测试读它 ⇒ 让"未映射可见" ✓）
+darkest/scripts/data/TrinketsConfig.cs | IsPurchasable | M4 判据（`award_category != universal`）；消费方 = 商店/饰品 UI ✓
+darkest/scripts/data/UiShellLedger.cs | Reset | **测试支持**（用例之间清账本 ✓）
+darkest/scripts/gameplay/sim/pipeline/WeaponBaseDamage.cs | Damage | M1c 阶段 3 机制；消费方 = 阶段 3 默认切换（**现在必须无人调用** ✓ 见阶段1守卫）
+darkest/scripts/gameplay/sim/run/StagecoachRecruits.cs | StartingLevel | M7 新兵起始等级规则；消费方 = 招募 UI ✓
+darkest/scripts/gameplay/sim/skill/HealAmount.cs | ScaleByCaster | M2 激活的便利入口（纯函数）；消费方 = 后续按施法者取修正的调用点 ✓

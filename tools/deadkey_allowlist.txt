@@ -27,3 +27,28 @@ buff_defs.json | timing | `hooks[].timing` 文档键：钩子**时机**的人读
 buff_defs.json | note_max_per_turn_physical_only_guarded_morale | 文档键（`note_` 前缀的自定义名）：守护的 `once_per_turn / physical_only / guarded_morale` 三条约束的人读说明 —— 🔴 命名未走 `*_note` 约定（是 `note_*` 前缀），故在此显式登记 ✓
 buff_defs.json | _field_classes | **文件级** schema 文档键：说明本文件字段的**四分类**（behavior=引擎读并改结果 / constraint=只被 Validate 读 / doc=hooks·extra_rules 仅说明 / empty=已删）—— 它是给**维护者**读的分类表，不参与任何行为 ✓（同族文件级键 `_note` 已由工具内置放行；此前缀 `_*` 未覆盖 ⇒ 显式登记）
 
+# ── 主程序 2026-09-21 判读批：分两类（元数据 / 映射键）✓
+buildings.json | _field_classes | 文档键（给人读的字段分类说明 ✓ P29 允许的"显式登记未消费"）
+buildings.json | _source | 同上（出处标注 ✓）
+quirks.json | _field_classes | 同上
+quirks.json | _source | 同上
+trinkets.json | _field_classes | 同上
+trinkets.json | _ruling | 同上（策划裁定标注 ✓）
+trinkets.json | _source | 同上
+units.json | _align | 同上（对齐说明 ✓）
+traits.json | timing | **第 1 步"值原样"搬运的载荷**（hook 时序 ✓ 消费方 = M3 第 2 步）⇒ 届时接线 ✓
+hero_upgrades.json | abomination | 🔴 **映射键**（15 职业之一）：由 `HeroUpgradesConfig` **按字典泛读** ⇒ 扫描器"字面量 grep"**不适用**（不是我漏接线）⚠️
+hero_upgrades.json | antiquarian | 同上（映射键）
+hero_upgrades.json | arbalest | 同上（映射键）
+hero_upgrades.json | bounty_hunter | 同上（映射键）
+hero_upgrades.json | crusader | 同上（映射键）
+hero_upgrades.json | grave_robber | 同上（映射键）
+hero_upgrades.json | hellion | 同上（映射键）
+hero_upgrades.json | highwayman | 同上（映射键）
+hero_upgrades.json | houndmaster | 同上（映射键）
+hero_upgrades.json | jester | 同上（映射键）
+hero_upgrades.json | leper | 同上（映射键）
+hero_upgrades.json | man_at_arms | 同上（映射键）
+hero_upgrades.json | occultist | 同上（映射键）
+hero_upgrades.json | plague_doctor | 同上（映射键）
+hero_upgrades.json | vestal | 同上（映射键）

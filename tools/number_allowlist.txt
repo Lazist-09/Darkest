@@ -54,3 +54,12 @@ darkest/scripts/data/HeroAssets.cs | int Fps = 8 | 动作槽的【默认】帧�
 darkest/scripts/data/HeroAssets.cs | s.Length <= 24 | 报错文案的**截断长度**（只影响日志可读性，非平衡）
 darkest/scripts/data/HeroAssets.cs | s.Length <= 200 | **引用长度护栏**：拒绝把内联数据塞进 frames（`P31` ② "frames 必须是引用"的守卫；不是平衡数字）
 scripts/gameplay/sim/director/BattleDirector.OvertimeAndRetreat.cs | Math.Max(3, o.MValue ?? o.WaveIntervalRounds | M 值下限（公式契约，非平衡量；可复议）—— 2026-09-18 拆分搬家后的新落点（原 BattleDirector.cs 同一条，**路径级白名单遇搬家会失效** ⚠️）
+# ── 主程序 2026-09-21 数据纪律判读批（逐条人工核过 ✓ 见 reports/data_discipline_triage.md）
+darkest/scripts/core/contracts/UnitStats.cs | ProtFraction | 原版 prot 的**比例上限 0.85**（结构性规则，不是平衡数字；一手出处见 UnitStats 注释）
+darkest/scripts/data/BuildingsConfig.cs | Take(6) | **报错信息截断长度**（报告可读性，不参与任何游戏计算）
+darkest/scripts/data/TuningConfig.Validate.ExpeditionSide.cs | Tiers.Count != 5 | **结构计数**：光照 5 档是结构（数据仍需提供 5 条）
+darkest/scripts/data/TuningConfig.Validate.ExpeditionSide.cs | SlotCap != 12 | 策划 **P21⑥ 的故意护栏**（报错原文：不许调到 15 来「修好」设计取舍）⇒ 故意硬编码 ✓
+darkest/scripts/data/TuningConfig.Validate.ExpeditionSide.cs | Math.Max(3, | **量测样本下限**（结构下限，保证统计有意义）
+darkest/scripts/data/UnitsConfig.cs | prot < 0 | prot 的**上限 85**（原版比例上限，结构性）
+darkest/scripts/data/UnitsConfig.cs | count != 5 | **阶数结构**：weapon/armour 各 5 阶（结构计数）
+darkest/scripts/gameplay/sim/run/ExpeditionFlow.TileWalk.cs | valueOrDefault > 0.0 | **派生阈值分支**（结构判断，不是平衡数字）
