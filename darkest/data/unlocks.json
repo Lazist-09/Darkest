@@ -8,12 +8,7 @@
       "source": "#316③：第 1 趟后 ⇒ 解锁 Tavern（减压）" },
     { "id": "unlock_abbey_and_curios", "required_runs_finished": 3, "required_battles_won": 0,
       "unlocks": ["building:abbey", "curio:cur_book_stack", "curio:cur_altar"],
-      "source": "#316③：第 3 趟后 ⇒ 解锁 Abbey ＋ Curio【书堆/圣坛】（起手 4 种 → 6 种）" },
-    { "id": "unlock_roster_10", "required_runs_finished": 6, "required_battles_won": 0,
-      "unlocks": ["roster_cap_delta:2"],
-      "source": "#316③：第 6 趟后 ⇒ 名册可用上限 8 → 10" },
-    { "id": "unlock_roster_12", "required_runs_finished": 10, "required_battles_won": 0,
-      "unlocks": ["roster_cap_delta:4"],
-      "source": "#316③：第 10 趟后 ⇒ 名册可用上限 10 → 12（= 硬上限，见 C1）" }
+      "source": "#316③：第 3 趟后 ⇒ 解锁 Abbey ＋ Curio【书堆/圣坛】（起手 4 种 → 6 种）" }
+    
   ]
 }

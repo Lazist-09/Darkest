@@ -1,5 +1,5 @@
 {
-  "roster_cap": 12,
+  "roster_cap": 28,
   "level_min": 1,
   "level_max": 6,
   "level_growth": { "hp_per_level": 2, "attack_per_level": 1 },

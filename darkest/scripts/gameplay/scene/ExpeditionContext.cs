@@ -125,9 +125,17 @@ public static class ExpeditionContext
     /// </summary>
     public static Economy? Gold { get; private set; }
 
+    /// <summary>🆕 **M7②（策划 `#423`）**：**名册上限曲线的唯一来源** = 马车的 `roster_cap_by_level`
+    /// （`9→12→16→20→24→28`，索引 = 马车等级）✓
+    /// 由 `EnsureEconomy` 在拿到已解析数据时缓存 ⇒ UI 只需把它传给 `CurrentRosterCap(...)` ✓
+    /// （🔴 这是"上限单一来源 = 马车"的落点：名字册上限**只由它**决定 ✓）</summary>
+    public static IReadOnlyList<int>? StagecoachCapCurve { get; private set; }
+
     /// <summary>确保跨趟经济存在（首次进入地牢层或回城时创建；已存在则复用同一实例）。</summary>
     public static Economy EnsureEconomy(EconomyConfig config, int gold = 0)
     {
+        // 🆕 M7②：顺手缓存"上限曲线"（配置在手时最省事 ⇒ 调用方无需自己找 EconomyConfig ✓）
+        StagecoachCapCurve ??= config.Coach.RosterCapByLevel;
         Gold ??= new Economy(config, gold);
         return Gold;
     }

@@ -142,11 +142,14 @@ public sealed record RosterConfig(
 
     private static void Validate(RosterConfig cfg, string rawJson)
     {
-        // ① 名册上限
-        if (cfg.RosterCap != 12 || cfg.RosterCap <= SortieSize)
+        // ① 名册上限 —— 🆕 **M7②（策划 `#423`）**：**上限的单一来源 = 马车曲线** ⇒ 此处**不再写死 12** ✓
+        //   保留 P22 ① 的【实质】判据：**名册必须容得下出征人数**（`> 出征`）✓
+        //   🔴 "= 12" 是旧口径的硬编码（`#423` 明列"6 处硬编码收敛"）⇒ 曲线末值 28 由
+        //      `economy.json` 的 `stagecoach.max_roster` + `roster_cap_by_level` 与用例共同锁定 ✓
+        if (cfg.RosterCap <= SortieSize)
         {
             throw new InvalidDataException(
-                $"{ResPath}: roster_cap 必须 = 12 且 > 出征 {SortieSize}（实际 {cfg.RosterCap}；P22 ①）。");
+                $"{ResPath}: roster_cap 必须 > 出征 {SortieSize}（实际 {cfg.RosterCap}；P22 ① 的实质口径）。");
         }
 
         if (cfg.LevelMin != 1 || cfg.LevelMax != 6)

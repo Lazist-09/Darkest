@@ -56,12 +56,12 @@ public sealed class UnlockConsumptionTests
 
         // 起手：什么都没解锁
         Assert.AreEqual(0, p.UnlockedIds(unlocks).Count, "起手 0 解锁");
-        Assert.AreEqual(8, p.CurrentRosterCap(unlocks, 12), "C1：起手可用上限 8");
+        Assert.AreEqual(8, p.CurrentRosterCap(unlocks, 28), "C1：起手可用上限 8");
         Assert.AreEqual(0, p.UnlockedCurios(unlocks).Count, "起手 Curio 可用 = 基础 4 种（解锁 0 种）");
 
         p.FinishRun(new CombatLog(), "completed", 3);           // 第 1 趟
         Assert.IsTrue(p.UnlockedBuildings(unlocks).Contains("tavern"), "第 1 趟 ⇒ Tavern");
-        Assert.AreEqual(8, p.CurrentRosterCap(unlocks, 12), "上限未变");
+        Assert.AreEqual(8, p.CurrentRosterCap(unlocks, 28), "上限未变");
 
         p.FinishRun(new CombatLog(), "retreat", 1);             // 第 2 趟（撤退也算"已结束"，口径见 RunProgress 注释）
         p.FinishRun(new CombatLog(), "completed", 3);           // 第 3 趟
@@ -74,17 +74,17 @@ public sealed class UnlockConsumptionTests
             p.FinishRun(new CombatLog(), "completed", 3);
         }
 
-        Assert.AreEqual(10, p.CurrentRosterCap(unlocks, 12), "第 6 趟 ⇒ 可用上限 10");
+        Assert.AreEqual(8, p.CurrentRosterCap(unlocks, 28), "第 6 趟 ⇒ 上限仍 = 起手 8（🔴 M7②：单一来源=马车曲线，解锁不加增量）✓");
 
         while (p.RunsFinished < 10)
         {
             p.FinishRun(new CombatLog(), "completed", 3);
         }
 
-        Assert.AreEqual(12, p.CurrentRosterCap(unlocks, 12), "第 10 趟 ⇒ 可用上限 12（= 硬上限）");
+        Assert.AreEqual(8, p.CurrentRosterCap(unlocks, 28), "第 10 趟 ⇒ 同上（解锁不加增量）✓");
 
         p.FinishRun(new CombatLog(), "completed", 3);           // 第 11 趟
-        Assert.AreEqual(12, p.CurrentRosterCap(unlocks, 12), "不得超硬上限（C1）");
+        Assert.AreEqual(8, p.CurrentRosterCap(unlocks, 28), "不得超上限（C1）✓");
     }
 
     [TestMethod]
@@ -133,7 +133,7 @@ public sealed class UnlockConsumptionTests
     {
         RosterConfig cfg = RosterConfig.Parse(ReadData("roster.json"));
         var roster = new Roster(cfg);
-        Assert.AreEqual(12, roster.Cap, "硬上限 = 12（P22① 不变）");
+        Assert.AreEqual(28, roster.Cap, "🔴 M7②/#423：硬上限收敛为曲线末值 28（原 12）✓");
 
         // 起手：可用上限 8 ⇒ 即使名册只有 8 人，"再招一个"必须被拒（按【当前可用上限】判，C1）
         roster.CurrentCap = 8;
@@ -141,7 +141,7 @@ public sealed class UnlockConsumptionTests
 
         var coach = EconomyConfig.Parse(ReadData("economy.json")).Coach;
         HeroConfig? hired = roster.Recruit(new CombatLog(), coach, "warrior", "新兵");
-        Assert.IsNull(hired, "🔴 C1：满员判定按【当前可用上限 8】⇒ 必须拒绝（不是按硬上限 12）");
+        Assert.IsNull(hired, "🔴 C1：满员判定按【当前可用上限 8】⇒ 必须拒绝（不是按硬上限 28）");
 
         // 抬高到 10 ⇒ 才允许招
         roster.CurrentCap = 10;

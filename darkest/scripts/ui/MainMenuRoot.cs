@@ -142,7 +142,13 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
             roster.Cap);
 
         // 🔴 C1 的消费点：**把"当前可用上限"写进名册**（招募的满员判定按它；硬上限仍 12）
-        roster.CurrentCap = ExpeditionContext.Progress.CurrentRosterCap(unlocks, roster.Cap);
+        // 🔴 M7②（策划 #423）：**上限的单一来源 = 马车曲线**（9→12→16→20→24→28，索引 = 马车等级）✓
+            //    ⇒ 曲线由 ExpeditionContext 在 EnsureEconomy 时缓存；马车等级来自传家宝库存（缺失 ⇒ 0 = 起手 9）✓
+            roster.CurrentCap = ExpeditionContext.Progress.CurrentRosterCap(
+                unlocks,
+                roster.Cap,
+                stagecoachCapByLevel: ExpeditionContext.StagecoachCapCurve,
+                stagecoachLevel: ExpeditionContext.Heirlooms?.LevelOf("stagecoach") ?? 0);
         GD.Print($"[MainMenuRoot] 解锁阈值表：{unlocks.Unlocks.Count} 条　" +
                  $"起手可用上限 {unlocks.RosterBaseCap}（硬上限 {roster.Cap}）　" +
                  $"{ExpeditionContext.Progress.Audit(unlocks, roster.Cap)}");

@@ -44,9 +44,9 @@ public sealed class StagecoachCurvesTests
         CollectionAssert.AreEqual(new[] { 9, 12, 16, 20, 24, 28 }, c.RosterCapByLevel!.ToArray(),
             "上限曲线必须是 9→12→16→20→24→28（策划 #423）✓");
         Assert.AreEqual(28, c.CapCeiling, "曲线末值 = 目标硬上限 28 ✓");
-        // 🔴 M7 分两步：**本步只落曲线** ⇒ `max_roster` 仍是当前生效值 **12**（不许越界改行为）✓
+        // 🔴 M7 两步已完成：曲线落库（第①步）+ 接线与数据同批（第②步）⇒ 现在 `max_roster` = 曲线末值 28 ✓
         //   ② 接线步（在 Roster.cs，属在飞文件）会把 max_roster 提到 28 ⇒ 那时二者相等 ✓
-        Assert.AreEqual(12, c.MaxRoster, "本步 max_roster 仍为 12（越界改它会立刻改行为 —— 我犯过一次，被两处既有测试当场抓住）✓");
+        Assert.AreEqual(28, c.MaxRoster, "🆕 M7② 激活后 max_roster = 28 = 曲线末值（此前 12；本次同批接线+数据+撤旧源+改读数）✓");
 
         CollectionAssert.AreEqual(new[] { 2, 3, 4, 5, 6, 7 }, c.NumRecruitsByLevel!.ToArray(),
             "招募刷新 2~7（端点由策划给；中间为等步长 ramp）✓");

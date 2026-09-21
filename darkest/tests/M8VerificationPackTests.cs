@@ -165,7 +165,8 @@ public sealed class M8VerificationPackTests
 
         Assert.AreEqual(0, ecfg.Coach.RecruitCost, "招募免费（V4）");
         Assert.AreEqual(1, ecfg.Coach.RookieLevel, "新兵 1 级（不比老的强）");
-        Assert.AreEqual(12, rcfg.RosterCap, "名册上限 12 = 出征 6 + 替补 6");
+        // 🔴 M7②（#423）：上限单一来源 = 马车曲线 ⇒ 终值 28（旧口径 12 已收敛）✓
+        Assert.AreEqual(28, rcfg.RosterCap, "名册终值上限 28（= 曲线末值；#423）");
         Assert.IsTrue(roster.Heroes.Count < rcfg.RosterCap, "起步未满 ⇒ **招募可达**（否则 V4 是死内容）");
 
         // 招募到上限 ⇒ 替补 ≥ 6 ⇒ **轮换休息真的可行**（不是摆设）

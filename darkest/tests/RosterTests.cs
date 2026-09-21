@@ -36,10 +36,10 @@ public sealed class RosterTests
     public void P22_1_RosterCapTwelve_GreaterThanSortie()
     {
         RosterConfig r = Roster();
-        Assert.AreEqual(12, r.RosterCap, "名册上限 12（#283 7.4）");
+        Assert.AreEqual(28, r.RosterCap, "名册终值上限 28（曲线末值；🔴 M7②/#423）✓");
         Assert.IsTrue(r.RosterCap > RosterConfig.SortieSize, "必须 > 出征 6 ⇒ 轮换休息成为策略");
         Assert.IsTrue(r.Heroes.Count >= RosterConfig.SortieSize && r.Heroes.Count <= r.RosterCap,
-            $"heroes 数量 ∈ [6, 12]（实际 {r.Heroes.Count}）");
+            $"heroes 数量 ∈ [6, RosterCap]（实际 {r.Heroes.Count}，上限 {r.RosterCap}）");
         Assert.IsTrue(r.Heroes.Count < r.RosterCap, "🔴 起步必须**未满员** ⇒ 留出招募空间（M8.0 ⑤，否则招募是死内容）");
         Assert.AreEqual(r.Heroes.Count, r.Heroes.Select(h => h.Id).Distinct().Count(), "id 不重复");
     }
@@ -86,7 +86,7 @@ public sealed class RosterTests
 
         // ① 名册上限被调小（≤ 出征 6）
         Assert.ThrowsException<InvalidDataException>(
-            () => RosterConfig.Parse(raw.Replace("\"roster_cap\": 12", "\"roster_cap\": 6", StringComparison.Ordinal)),
+            () => RosterConfig.Parse(raw.Replace("\"roster_cap\": 28", "\"roster_cap\": 6", StringComparison.Ordinal)),
             "roster_cap ≤ 6 → 启动报错（P22 ①）");
 
         // ② 出现技能升级字段

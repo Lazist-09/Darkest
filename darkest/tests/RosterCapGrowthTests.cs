@@ -65,14 +65,14 @@ public sealed class RosterCapGrowthTests
         int capStart = progress.CurrentRosterCap(unlocks, cfg.RosterCap);
         Assert.AreEqual(baseCap, capStart, "0 趟时上限 = 起手值 ✓");
 
-        // ② 跑够 6 趟 ⇒ 解锁 `roster_cap_delta:2` ⇒ 上限 = 起手 + 2 ✓（#403 的**增量**语义 ✓）
+        // ② 跑够 6 趟 ⇒ 🔴 **M7②/#423 后：解锁不再抬高上限**（单一来源 = 马车曲线）⇒ 上限仍 = 起手 ✓
         for (int i = 0; i < 6; i++)
         {
             progress.FinishRun(log, "completed", battlesWon: 3);
         }
 
         int capUnlocked = progress.CurrentRosterCap(unlocks, cfg.RosterCap);
-        Assert.AreEqual(baseCap + 2, capUnlocked, "6 趟后应 +2（`roster_cap_delta:2` ⇒ **增量** ✓）");
+        Assert.AreEqual(baseCap, capUnlocked, "🔴 M7②/#423：上限改为【马车曲线】单一来源 ⇒ 解锁不再加增量（原口径为 +2）✓");
 
         // ③ **填满**到解锁后的上限 ⇒ 招募**应被拒**（"满员即拒" ✓）
         roster.CurrentCap = capUnlocked;

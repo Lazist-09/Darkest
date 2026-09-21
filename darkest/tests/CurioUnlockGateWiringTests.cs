@@ -66,7 +66,7 @@ public sealed class CurioUnlockGateWiringTests
         RoomContentsConfig contents = RoomContentsConfig.Parse(ReadData("room_contents.json"), curios);
         UnlocksConfig unlocks = UnlocksConfig.Parse(ReadData("unlocks.json"),
             HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
-            curios.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal), 12);
+            curios.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal), 28);   // 🔴 M7②：硬上限 12→28（#423）✓
 
         var progress = new RunProgress(); // 起手：0 趟 ⇒ 书堆/圣坛**未解锁**
         ExpeditionFlow flow = RoomContentSelectionTests_Flow(seed: 5, progress, unlocks);

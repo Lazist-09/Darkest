@@ -42,7 +42,7 @@ public sealed class StagecoachTests
         Assert.AreEqual(0, coach.RecruitCost, "招募**免费**（照 DD wiki：entirely free of charge；P22 ⑥）");
         Assert.AreEqual(1, coach.RookieLevel, "新兵 level = 1（**补的人不比老的强**；P22 ⑥）");
         Assert.AreEqual(RosterConfig.RookieMorale, coach.RookieMorale, "新兵 morale = 50（与 P22 ⑦ 一致）");
-        Assert.AreEqual(12, coach.MaxRoster, "名册上限 12（与 P22 ① 一致）");
+        Assert.AreEqual(28, coach.MaxRoster, "名册终值上限 28（= 曲线末值；🔴 M7②/#423 收敛硬编码）✓");
     }
 
     [TestMethod]
@@ -96,7 +96,7 @@ public sealed class StagecoachTests
             Assert.IsNotNull(roster.Recruit(log, cfg.Coach, "medic", "补员"), "未满时都能招");
         }
 
-        Assert.AreEqual(cfg.Coach.MaxRoster, roster.Heroes.Count, "已达上限 12");
+        Assert.AreEqual(cfg.Coach.MaxRoster, roster.Heroes.Count, "已达上限（= cfg.Coach.MaxRoster，M7② 后为 28）");
         Assert.IsNull(roster.Recruit(log, cfg.Coach, "medic", "超员"), "**满员即拒绝**（返回 null，不悄悄顶替）");
         Assert.AreEqual(cfg.Coach.MaxRoster, roster.Heroes.Count, "拒绝时人数不变");
     }

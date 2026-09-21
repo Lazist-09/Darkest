@@ -41,8 +41,8 @@ public sealed class UnlocksConfigTests
             curios.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal), 12);
 
         // 🔴 `#316`③ 的真清单（4 条：第 1／3／6／10 趟）—— 不再是占位
-        Assert.AreEqual(4, cfg.Unlocks.Count, "四条阈值（1／3／6／10 趟）");
-        CollectionAssert.AreEquivalent(new[] { 1, 3, 6, 10 },
+        Assert.AreEqual(2, cfg.Unlocks.Count, "两条阈值（1／3 趟）—— 🔴 M7②/#423：6/10 趟那两条只做「上限增量」，已收敛到马车曲线 ✓");
+        CollectionAssert.AreEquivalent(new[] { 1, 3 },
             cfg.Unlocks.Select(e => e.RequiredRunsFinished).ToArray(), "阈值 = 1／3／6／10");
         Assert.AreEqual(8, cfg.RosterBaseCap, "起手名册可用上限 8（硬上限 12 见 C1）");
 
@@ -51,7 +51,7 @@ public sealed class UnlocksConfigTests
         Assert.IsTrue(targets.Any(t => t.StartsWith("building:", StringComparison.Ordinal)), "有 building: 项");
         Assert.IsTrue(targets.Any(t => t.StartsWith("curio:", StringComparison.Ordinal)), "有 curio: 项");
         // 🔴 策划 `#403`：名册上限改成**增量语义**（`roster_cap_delta:N`，与马车同语法 ✓）
-        Assert.IsTrue(targets.Any(t => t.StartsWith("roster_cap_delta:", StringComparison.Ordinal)),
+        Assert.IsFalse(targets.Any(t => t.StartsWith("roster_cap_delta:", StringComparison.Ordinal)),   // 🔴 M7②：已撤（单一来源=马车曲线）
             "有 roster_cap_delta: 项（增量语义 · `#403` ✓）");
 
         foreach (UnlockEntry e in cfg.Unlocks)

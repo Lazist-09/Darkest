@@ -76,7 +76,7 @@ public sealed class NextUnlockProgressionTests
             prevTotalGap = totalGap;
         }
 
-        lines.Add($"[下一解锁] {progress.Audit(unlocks, 12)}");
+        lines.Add($"[下一解锁] {progress.Audit(unlocks, 28)}");   // 🔴 M7②：硬上限 12→28 ✓
 
         foreach (string l in lines)
         {
