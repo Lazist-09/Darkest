@@ -81,8 +81,29 @@ public sealed class RunProgress
     /// ⚠️ 兼容：旧语法 `roster_cap:N`（**绝对值**）仍接受 ⇒ 按旧的"取最大"口径处理，
     ///    以免**改写历史读数**（归档纪律 ✓）。
     /// </summary>
-    public int CurrentRosterCap(UnlocksConfig cfg, int hardCap, int heirloomDelta = 0)
+    /// <param name="stagecoachCapByLevel">
+    /// 🆕 **M7 第 ② 步（策划 `#423`）**：**上限的单一来源 = 马车曲线**（`economy.json` 的
+    ///   `stagecoach.roster_cap_by_level` = 9→12→16→20→24→28，索引 = 马车等级）✓
+    ///   🔴 **传了曲线 ⇒ 以曲线为准**（不再相加解锁增量/马车效果 —— 那些是"两处真值"家族 ✓）
+    ///   🔴 **不传 ⇒ 老逻辑一字不动**（历史读数不被改写 ✓）
+    ///   ⚠️ **激活条件（我按自查表的承诺写明）**：调用点 `MainMenuRoot.cs:145` 需把曲线与马车等级传进来
+    ///      （那是 **UI 域**的一行改动 ⇒ 我不擅自改 ⇒ 已在投递里给出可直接粘贴的那一行 ✓）
+    /// </param>
+    /// <param name="stagecoachLevel">马车等级（`HeirloomStock.LevelOf("stagecoach")` ✓）；越界会被钳制 ✓</param>
+    public int CurrentRosterCap(
+        UnlocksConfig cfg,
+        int hardCap,
+        int heirloomDelta = 0,
+        IReadOnlyList<int>? stagecoachCapByLevel = null,
+        int stagecoachLevel = 0)
     {
+        // 🆕 **M7②：单一来源 = 马车曲线**（给了曲线就只用它 ✓）
+        if (stagecoachCapByLevel is { Count: > 0 } curve)
+        {
+            int idx = Math.Clamp(stagecoachLevel, 0, curve.Count - 1);
+            return Math.Min(curve[idx], hardCap);
+        }
+
         int cap = cfg.RosterBaseCap;
         foreach (string s in UnlockedIds(cfg))
         {
