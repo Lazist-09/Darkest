@@ -62,3 +62,22 @@
 ③ 4v4 名单：点名 4 个（池子见 §1 ⑤）
 ④ SP 剂量：参考项目没有 ⇒ 只能你给
 ```
+
+---
+
+## §6 🆕 数据出处等级与对账状态（2026-09-22 · 轮 2/3 补）
+> 本节把「**每个数据集的来源等级**」也纳进单一入口 ⇒ 后续要改时**只看这一份** ✓
+> 全量审计：`reports/data_provenance_audit.md` ✓
+
+| 数据集 | 源 | 出处等级 | 对账状态 |
+|---|---|---|---|
+| `units.json` **5 阶武器/护甲** | E 盘 `<h>.info.darkest` | ✅ **一手** | ✅ 轮 1 已落一手（一手 vs 第三方：495 比较 / **97 冲突** ⇒ 一手为准 ✓） |
+| `units.json` **顶层基础属性** | （非 `<h>.info.darkest` —— 实测该文件只有 weapon/armour ✗） | ⚠️ **我们的设计（含手调）** | ✅ 已核对：**不是第 0 阶投影**（`reports/top_level_vs_tier0_consistency.md`）⇒ **不列为待回一手**，列为「阶机制差异清单」✓ |
+| `data/trinkets.json`(196) | E 盘 `trinkets/base.entries.trinkets.json` | ✅ 一手 | ✅ 无需动 |
+| `data/quirks.json`(170) | E 盘 `shared/quirk/quirk_library.json` | ✅ 一手 | ✅ 无需动 |
+| `data/buildings.json`(8/20/99) | E 盘 `upgrades/building/*` | ✅ 一手 | ✅ 无需动 |
+| `data/hero_upgrades.json`(15/135/645) | E 盘 `upgrades/heroes/*` | ✅ 一手 | ✅ 轮 2 补上 `_note`/`_source` ✓ |
+| **Buff 原语词汇**（分类器） | 🆕 **已对账**：一手 `shared/buffs/base.buffs.json`(2020/48 原语) vs 第三方 `JsonBuffs.json`(1801/41) | ✅ **一手已取到** | 🔧 **待修正分类器**：**+8 只在一手** · **−1 只在第三方**（`hp_heal_amount/` 空子类型 = 非原版 ✗）⇒ 修正=零行为（新条目先冻结 ✓）<br>报告 `reports/buff_primitives_edrive_vs_ref.md` ✓ |
+| **技能 dmg% 候选池** | 第三方 `Heroes/Info/*.bytes` | ⚠️ 第三方（**仅提案**） | ⏳ 等策划确认（提案未落库 ✓） |
+| `data/traits.json`(7) | 我们的 `buff_defs.json` | ✅ 自有 | ✅ |
+| `data/skills.json`(44) | 我们自研 | ✅ 自有 | ✅ |
