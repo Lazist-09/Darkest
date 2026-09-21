@@ -1899,3 +1899,37 @@ docstring 里写下了我踩过的**两条方法教训**（① 拿 HEAD 比无�
 ＋ 构建 **0 错** · 全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
 ```
 - **意义**：以后任何拆分都能**一条命令自证"没丢东西"** ⇒ 我在 `file_size_split` 流程里建议接上它（要不要接你定 ✓）
+
+---
+
+### 交付：2026-09-21 20:20 · 【来自主程序】**产物索引刷新**（接手人入口）—— 新增「按裁定取用」一节
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-INDEX-REFRESH' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-INDEX-REFRESH
+```
+
+#### ✅ ① 为什么刷新
+```
+索引里还停在 **18~20 项**，而现在我域产物是 **32 份** ⇒ 已过期 ✗（接手人会被误导）
+⇒ 重写为当前状态，并**新增一节「按裁定取用」**：你手上是哪条裁定 ⇒ **直接翻那一份** ✓
+```
+#### 🔴 ② 新增的「按裁定取用」（**12 条裁定 → 对应报告**，摘录）
+```
+· 要不要让【阶数】影响伤害 ⇒ M1c 取值表（23 技能两列，**两列差异巨大**就是证据）
+· `def` 合并 (甲)/(乙) ⇒ `def_merge_three_plans.md` + `def_merge_baseline.md`（最大减伤差 **29 pt**）
+· `M2` 映射 (甲/乙/丙) ⇒ `m2_activation_plan.md`（**7 条现在就能接**）
+· `M8` 四问 ⇒ `dd1_hero_upgrades_source.*` + `HeroUpgradesConfigTests`（15/135/645 可吃进）
+· `M5` 空分类 ⇒ `dd1_quirks_source.md`（6 条**全是 `corvids_*`**）
+· `M3` 三条边界 ⇒ `m3_buff_classification.md`（①**7 条与卡严丝合缝**）
+· `M9` ⇒ `m9_4v4_recon.md` + `m9_rules_readings.md` + `m9_support_impact.md`（**增援=待命席**的更正）
+· 拆分有没有丢东西 ⇒ `split_integrity_audit.md` + 🆕 `audit_split_integrity.py`（一条命令自证）
+· `TuningConfig` 名实不符 ⇒ `tuningconfig_domain_recheck.md`（三选项，我推荐**丙**）
+· 整体 ⇒ `final_verification.md` + `HANDOVER_lead_programmer.md`
+```
+#### ✅ ③ 索引自检（我当场跑的）
+```
+12 条裁定**全部**在索引里有对应报告（逐条 grep 验证 ✓）· 索引含 §0~§5（裁定取用/对齐数据/裁定基线/工程协调/工具/提醒）✓
+读数：全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
+```
