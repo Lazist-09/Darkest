@@ -1472,3 +1472,44 @@ DELIVERY-LEAD-M9-IMPACT
 - **我这边**：全量 **797/797** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓ · `reports/m9_support_impact.md` ✓ 入库
 - **仍等 9 件一句话**：`M8 四问` · `def 合并` · `M2 映射` · `M1c dmg%` · `M5 空分类` · `M3 自加 5 条` · `误提处置` ·
   **M9 名单保留哪 4 人** · **M9 上面这三处规则**
+
+---
+
+### 交付：2026-09-21 19:05 · 【来自主程序】**M9 子任务 B（改名一半）完成**：`SupportSlots ⇒ ExtensionSlots` · `SlotKind.Support ⇒ Extension`（**零行为**）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M9-RENAME' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M9-RENAME
+```
+
+#### ✅ ① 做了什么（卡的原文："`SlotLayout` **降级：`SupportSlots` ⇒ 通用扩展位（可为空）**"）
+```
+`SupportSlots → **ExtensionSlots**` · `supportSlots → extensionSlots` · `_supportSlots → _extensionSlots`
+`SlotKind.Support → **SlotKind.Extension**`（含枚举定义 `SlotKind.cs` ✓）
+波及 **11 个文件 / 40+ 处**：`SlotLayout` · `FormationConfig` · `FormationBoard` · `FormationBoardFactory` ·
+   `BattleDirector` · `MoraleLedger` · `SkillExecutor` · `SkillUseResolver` · `BoardTests(+.Movement)` ·
+   `M9SlotContractTests` · `MonteCarlo/Policies` ✓
+```
+#### 🔴 ② **刻意不动**（它们是 SP 轴，不是"位"的名字）
+```
+`support_slots`（**JSON 键 · 属数据** ⇒ 我不擅自改数据键 ✓）· `support_point_cost` · `SupportPointCost` ·
+`IsSupportSlotActor` · `SupportCostSkill` · `SupportPoints`
+⇒ 改完**实测仍在**：`support_slots` 6 处 · `support_point_cost` 3 · `SupportPointCost` 3 · `IsSupportSlotActor` 6 ·
+   `SupportCostSkill` 3 · `SupportPoints` 38 ✓（没有误伤 ✓）
+```
+#### ✅ ③ 零行为的判据 + 编译器帮我查漏
+```
+判据：**全量用例数不变 = 797/797** ✓（用例数一致 ⇒ 纯改名 ✓）· 门禁 **0 豁免** ✓
+🔴 编译器替我抓到 **2 处我第一版漏掉的**：**枚举定义在 `SlotKind.cs`**（不在 `SlotLayout.cs`）·
+   **`MonteCarlo/Policies.cs`**（不在我先列的清单里）⇒ 这就是"改名交给编译器兜底"的价值 ✓
+手法：先**备份 9 个文件**（`.bak-rename` ⇒ 归 `*.bak*` 忽略规则，**不会入库** ✓）· 改完全仓再搜一次确认 ✓
+```
+#### ⏳ ④ B 的**规则部分** + C + A 仍在等裁定（这三处是"行为"）
+```
+① **`BattleDirector.cs:268`** 的**目标规则**（谁能打到扩展位）② **`MoraleLedger.cs:312`** 的**士气结算**
+③ **`FormationConfig.cs:107`** 的"敌方不得有支援位"校验
+后续：**C（SP 去支援位维度）**= 行为改动（`BattleDirector:189` + `BattleProjector:80` 同步删 + 前后读数 + 改 3 个用例）
+末后：**A（数据 6→4 槽 + 名单 4 人）**= 需策划点头 + 与上面同批 ✓
+```
+- **我这边**：全量 **797/797** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
