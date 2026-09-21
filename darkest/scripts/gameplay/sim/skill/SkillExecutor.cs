@@ -58,12 +58,20 @@ public sealed class SkillExecutor
         FormationBoard targetBoard = skill.Target.Side == "enemy" ? enemy : player;
         FormationBoard allyBoard = player.UnitAtPosition(caster) is not null ? player : enemy;
 
-        int[] candidates = SkillTargetResolver.Resolve(skill, caster, player, enemy).ToArray();
+        int[] candidates = SkillTargetResolver.Resolve(skill, caster, player, enemy, _buffs).ToArray();
         if (candidates.Length == 0)
         {
             _log.Append(new SkillRefusedEvent(caster, skill.Id, "no_target")); // G0/O-55
             return; // NoTarget（防御性；导演层任务应已灰显）
         }
+
+        // C-1 / C-1a（2026-09-20）De-Stealth：带 `ignore_stealth` 的技能【**命中**即解除】目标潜行
+        //   （原版 `.on_hit true` ⇒ 命中才解除；`playwright.effects.darkest:5` "gunfire shattered"）。
+        //   🔴 精确化：**不再"选中即解除"** —— 改为在管线结算之后**读 `HitEvent`**，
+        //      只对 `Hit == true` 的目标解除；未命中（Miss）⇒ 潜行**保留**（原版口径）。
+        //      若技能未走伤害管线（无 `Damage`，如纯支援/移动）⇒ 无命中概念 ⇒ **不解除**（保守，不错杀）✓
+        bool deStealth = _buffs is not null && skill.Tags.Contains(FuncTag.IgnoreStealth);
+        int logMark = _log.Events.Count; // 记录结算前的位置，之后只读**本次结算**新增的 HitEvent ✓
 
         // G0/O-55：技能使用事件（谁用了什么技能、打了哪些目标位）——「技能使用率」KPI 的唯一前提
         _log.Append(new SkillUseEvent(caster, player.UnitAtPosition(caster) ?? 0, skill.Id, candidates.ToArray()));
@@ -129,10 +137,50 @@ public sealed class SkillExecutor
         }
         else
         {
-            ExecuteDamagePath(skill, caster, player, enemy, execTargets, explicitMorale, rng);
+            ExecuteDamagePath(skill, caster, player, enemy, execTargets, explicitMorale, rng, logMark);
+        }
+
+        // 🔴 C-1a 精确化：结算之后才解除潜行 —— **只认真的命中**（`HitEvent.Hit == true`）✓
+        if (deStealth)
+        {
+            ApplyDeStealthOnHits(logMark, caster);
         }
 
         _runtime.RecordUse(caster, skill); // CD 置位 / per_battle 计数
+    }
+
+    /// <summary>
+    /// 🔴 C-1a（2026-09-20）**命中即解除**：扫本次结算新产生的 `HitEvent`，对**命中**的目标清掉潜行。
+    /// <para>· 未命中（`Hit == false`）⇒ **保留潜行**（原版 `.on_hit` 语义）✓</para>
+    /// <para>· 同一目标多次命中（多段/AOE）⇒ 只清一次、只写一条 `unstealth` 事件（去重）✓</para>
+    /// <para>· 「没走伤害管线」⇒ 本次区间内无 `HitEvent` ⇒ 什么都不做（纯支援/移动技能不会误解除）✓</para>
+    /// </summary>
+    private void ApplyDeStealthOnHits(int fromIndex, UnitId caster)
+    {
+        if (_buffs is null)
+        {
+            return;
+        }
+
+        var alreadyCleared = new HashSet<UnitId>();
+        for (int i = fromIndex; i < _log.Events.Count; i++)
+        {
+            if (_log.Events[i] is not HitEvent hit || !hit.Hit || hit.Target is not { } victim)
+            {
+                continue;
+            }
+
+            if (!alreadyCleared.Add(victim))
+            {
+                continue; // 该目标本次已处理过 ✓
+            }
+
+            if (_buffs.HasStateFlag(victim, SkillTargetResolver.StealthFlag))
+            {
+                _buffs.ClearStateFlag(victim, SkillTargetResolver.StealthFlag);
+                _log.Append(new EffectEvent(victim, "unstealth", 100.0, true, caster));
+            }
+        }
     }
 
     /// <summary>池外「移动」（#180）：与目标位【直接互换】（原目标位的人到自身原位，途经槽位不动）、
@@ -163,7 +211,7 @@ public sealed class SkillExecutor
 
     private void ExecuteDamagePath(SkillTemplateConfig skill, UnitId caster,
         FormationBoard player, FormationBoard enemy,
-        int[] targets, MoraleEffectRequest[] explicitMorale, IRngProvider rng)
+        int[] targets, MoraleEffectRequest[] explicitMorale, IRngProvider rng, int logMark)
     {
         bool hasMissingHp = skill.Damage!.Segments.Any(s => s.Type == DamageSegmentType.MissingHp);
         bool hasPush = skill.Displacement is { Type: DisplacementType.Push };
@@ -180,6 +228,7 @@ public sealed class SkillExecutor
                 MapEffects(skill), MapDisplacement(skill, selfOnly: true),
                 explicitMorale.Length > 0 ? explicitMorale : null, skill.BonusVsMarkedPercent);
             _pipeline.Execute(fixture, player, enemy, rng);
+            ApplyObstacleDamage(logMark, skill, targetBoard, targets, rng); // 🔴 障碍受击（动作级一次）✓
             return;
         }
 
@@ -201,7 +250,89 @@ public sealed class SkillExecutor
                 ResolvedMultipliers(skill, targetBoard, slot), IsAoe(skill),
                 MapEffects(skill), disp, explicitMorale.Length > 0 ? explicitMorale : null, skill.BonusVsMarkedPercent);
             _pipeline.Execute(fixture, player, enemy, rng);
+            ApplyObstacleDamage(logMark, skill, targetBoard, new[] { slot }, rng); // 🔴 障碍受击（逐目标）✓
         }
+    }
+
+    /// <summary>
+    /// 🔴 **障碍受击结算**（2026-09-20 接线）：让"挡路的木箱/石堆"**真的能被打掉**。
+    /// <para>**为什么必须补这一刀**：`DamagePipeline` 遇 `SlotState.Blocked` 直接 `continue`
+    /// （"障碍 M2 不结算伤害/状态"）⇒ 实测**全仓无任何障碍扣血调用点** ⇒
+    /// `FormationBoard.TryGetObstacleHp` / `RemoveObstacle` **只有测试在调**，
+    /// 实机里障碍 = **纯无敌墙**（与 `ObstacleRuntime` 注释"只有血量的占位角色"矛盾）⚠️</para>
+    /// <para>**纪律 V（展示值 == 消费值）**：本方法**不重掷骰** —— 它只**读本次区间新产生的
+    /// `HitEvent`**（已经写进日志的那次判定），据其 `Hit` 决定打没打中 ⇒ **数字完全可从事件流复算** ✓</para>
+    /// <para>**伤害量来源**：优先用本次实际 `DamageEvent.Amount`（已经过防御/护盾/暴击的**结算值**）；
+    /// 若该目标无 `DamageEvent`（例：纯位移/纯效果技能打在障碍上）⇒ 回落到**技能自身最小段伤害**
+    /// 作为确定性的扣减量（不掷骰 ⇒ 仍可复算）✓</para>
+    /// <para>**不做的**：障碍**不参与士气/虚弱/死门**、**免疫 debuff**（GDD §1.1）⇒ 本方法只碰 HP ✓</para>
+    /// </summary>
+    /// <param name="logMark2">本次结算开始前的事件下标（只读这之后的新事件）✓</param>
+    private void ApplyObstacleDamage(int logMark2, SkillTemplateConfig skill,
+        FormationBoard targetBoard, int[] targets, IRngProvider rng)
+    {
+        foreach (int slot in targets)
+        {
+            if (targetBoard.GetSlot(slot) != SlotState.Blocked)
+            {
+                continue; // 只处理障碍槽（非障碍由管线自理）✓
+            }
+
+            // ① 读本次区间里**针对该槽**的命中判定（不重掷 ⇒ 纪律 V）——
+            //    `HitEvent.Target` 对障碍槽为 null（障碍无 UnitId）⇒ 只能按"本次是否有命中"整体取用 ✓
+            bool? hit = null;
+            int dealt = 0;
+            for (int i = logMark2; i < _log.Events.Count; i++)
+            {
+                if (_log.Events[i] is HitEvent h && h.Target is null)
+                {
+                    hit = h.Hit; // 碰撞在"有碰撞无单位"的槽上 = 障碍（唯一契约：障碍槽内无 UnitRuntime）✓
+                }
+
+                if (_log.Events[i] is DamageEvent d && d.Target is null && d.Amount > 0)
+                {
+                    dealt += d.Amount;
+                }
+            }
+
+            if (hit is false)
+            {
+                _log.Append(new EffectEvent(null, $"obstacle_miss@{slot}", 100.0, false)); // 没打中：障碍不掉血 ✓
+                continue;
+            }
+
+            bool hasRoll = hit is not null;
+            int amount = dealt > 0 ? dealt : FallbackObstacleDamage(skill);
+            if (amount <= 0 && !hasRoll)
+            {
+                continue; // 无命中判定、又无伤害段 ⇒ 不是攻击（例：纯支援/移动）⇒ 不碰障碍 ✓
+            }
+
+            bool stillThere = targetBoard.DamageObstacle(slot, amount);
+            _log.Append(new EffectEvent(null, $"obstacle_damage@{slot}", 100.0, true, null));
+            _log.Append(new EffectEvent(null,
+                stillThere ? $"obstacle_stand@{slot}" : $"obstacle_destroyed@{slot}", 100.0, true, null));
+        }
+    }
+
+    /// <summary>障碍受击的**回落扣减量**：技能伤害段的最小 `multiplier`（不掷骰、不读来源属性 ⇒ 可复算）✓</summary>
+    private static int FallbackObstacleDamage(SkillTemplateConfig skill)
+    {
+        if (skill.Damage is null)
+        {
+            return 0;
+        }
+
+        int best = int.MaxValue;
+        foreach (DamageSegment seg in skill.Damage.Segments)
+        {
+            if (seg.Multiplier is { } m && m > 0 && m < best)
+            {
+                best = (int)Math.Round(m);
+            }
+        }
+
+        return best == int.MaxValue ? 0 : Math.Max(1, best);
     }
 
     private void ExecuteSupportPath(SkillTemplateConfig skill, UnitId caster, FormationBoard allyBoard,
@@ -267,6 +398,15 @@ public sealed class SkillExecutor
                         // F1（#192）：嘲讽挂到【自己】身上（target.scope=self）；敌方 AI 按 buff holder 识别 → 可插拔
                         _buffs?.Add(target.Id, "taunt", source: null);
                         _log.Append(new EffectEvent(target.Id, "taunt", 100.0, true));
+                    }
+
+                    if (effect.Type is SkillEffectType.Stealth)
+                    {
+                        // C-1（v0.99）：潜行挂到目标身上（原版 `.stealth 1 .duration 2`，playwright:26 挂 performer=自己；
+                        // 本实现走 apply_to 通用挂载 —— 缺省=目标列表，`self`=施法者，与 taunt 同构）。
+                        // 时长由 buff_defs.json 的 stealth.duration.value 决定（2 回合，placeholder）。
+                        _buffs?.Add(target.Id, SkillTargetResolver.StealthFlag, source: caster);
+                        _log.Append(new EffectEvent(target.Id, SkillTargetResolver.StealthFlag, 100.0, true, caster));
                     }
                 }
                 // guard_attach/next_attack_boost：数据已录，钩子执行归后续包

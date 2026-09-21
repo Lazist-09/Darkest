@@ -176,6 +176,17 @@ public static class ExpeditionProjector
               $"　后续：无（末档）{resist}　［#255：HP 递进已撤销］"
             : $"⑧ 难度：第 {v.CurrentBattleIndex} 场 敌 HP ×{v.CurrentDifficultyMultiplier:F2}（{v.CurrentDifficultyRange}）" +
               $"　后续预告：敌 HP ×{v.NextDifficultyMultiplier:F2}（{v.NextDifficultyRange}）{resist}　［#255：HP 递进已撤销，改由抗性承担］");
+
+        // 🔴 **投影可信性自证**（`Reconciles` 的**生产调用点**，2026-09-20 接线）——
+        //    本列表声明"数字全部来自事件流"，但它渲染的 `v.Firewood/v.Food` 是**投影快照**，
+        //    而 `session` 持有的是**会话真值** ⇒ 二者不等 = **事件流有缺口**（有资源变化没写事件）⚠️
+        //    ⇒ 在这里当场加一行**如实标注**（不静默、也不自动修正 —— 差值本身就是缺陷证据）✓
+        if (!Reconciles(v, session))
+        {
+            lines.Add($"🔴 [可信性] 投影与会话**不一致**：柴火 {v.Firewood} vs {session.Firewood}　" +
+                      $"口粮 {v.Food} vs {session.Food} ⇒ **事件流有缺口**（数字必须能从事件流复算）⚠️");
+        }
+
         return lines;
     }
 }

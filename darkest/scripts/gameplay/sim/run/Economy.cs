@@ -71,6 +71,33 @@ public sealed class Economy
         return true;
     }
 
+    /// <summary>
+    /// 🔴 `D-6`（2026-09-20）：**内容回报**（隐藏房 / 奇物 等**非战斗**来源的固定金币）。
+    ///
+    /// <para>🔴 **为什么不开新账**：`Gold` 是**单一**真值（跨趟持有），`GoldChangedEvent` 是**唯一**记账通道
+    /// ⇒ 本方法只是"从另一个来源走进同一条通道"（`#325` D6：不得为同一语义造第二份）✓</para>
+    /// <para>· 金额由**调用方**给（内容/数值表决定），本类**不算公式**（`RewardFor` 是战斗口径，不适用于内容回报）✓</para>
+    /// <para>· `amount ≤ 0` ⇒ **拒绝且不扣**（与 `TrySpend` 同向：负数不是"惩罚"，是调用方写错了）✓</para>
+    /// </summary>
+    /// <returns>实际入账金额（被拒 ⇒ 0）✓</returns>
+    public int AwardContent(CombatLog log, int amount, string reason)
+    {
+        if (log is null)
+        {
+            throw new ArgumentNullException(nameof(log));
+        }
+
+        if (amount <= 0)
+        {
+            return 0; // 🔴 拒绝：内容回报必须是**正数**（0/负数 = 调用方配错，不静默当"倒扣"）✓
+        }
+
+        Gold += amount;
+        AwardedTotal += amount;
+        log.Append(new GoldChangedEvent(amount, reason, Gold));
+        return amount;
+    }
+
     /// <summary>一次减压的价格（7.1：先定比例 —— 一次减压 = 3 单位）。</summary>
     public int StressReliefCost => _cfg.StressReliefCost;
 }

@@ -34,11 +34,43 @@ public sealed record DungeonGridEncounter(
     public bool IsEmpty => PerTileChance is null && CooldownTiles is null;
 }
 
-/// <summary>视野（策划 `#338`②：进格揭示 + 半径以**格**为单位；侦察临时 +N ⇒ 数值 `placeholder`）✓</summary>
+/// <summary>
+/// 视野（策划 `#338`②：进格揭示 + 半径以**格**为单位；侦察临时 +N ⇒ 数值 `placeholder`）✓
+///
+/// 🔴 `D-3`（2026-09-20）：本记录**原本只有加载期 `radius ≥ 0` 校验、全仓无消费点**
+/// ⇒ 典型的"填了但没生效"（红线 21 / `P29` ① 静默默认）⚠️ 现已接线，消费点见：
+///   · `DungeonWalker.StateAt(..., vision)`（格级视野 ⇒ `Visited`）
+///   · `ExpeditionFlow.TileStateAt` / `TileVision`（流程读数）
+///   · `WalkMapView.FromTileWalk(..., stateOf)`（表现层三态配色）
+/// 注：`tuning.dungeon_layer.vision` 是**同一份契约的另一个载体**（见 `TuningGridVision`）——
+///     两者**字段一致**，因为 `dungeon_grid.json` 尚不存在（仍在派生图阶段）⇒ 走 tuning 注入 ✓
+/// </summary>
 public sealed record DungeonGridVision(
     [property: JsonPropertyName("reveal_on_enter")] bool RevealOnEnter,
     [property: JsonPropertyName("radius")] int Radius,
     [property: JsonPropertyName("scout_bonus")] int ScoutBonus = 0);
+
+/// <summary>
+/// 🔴🔴 **回头代价（`D-1`，2026-09-20 新增）** —— 网格层的 DD 口径。
+///
+/// **为什么必须新开一段**：旧房间图层 `expedition_map.json` 的 `revisit_cost` 校验写着
+/// 「**回头必须更便宜**」（`|revisit| &lt; |new|`，`P25 ④`）—— 那是"按段移动"的世界；
+/// 而 DD 的真规则是**重走已探索区更便宜、但仍有代价**（wiki ⑦：新区域 −6 / 重走 −1）。
+/// ⇒ `D-1` 裁决：**旧层不动**（免返工，且它的"回头更便宜"在按段世界里自洽），
+///   **新网格层用 DD 口径**（本段）。
+///
+/// **数值全部 `placeholder: true`**（`#307`）：DD 的 `−6 / −1` 挂在它的 `light` 刻度上，
+/// 我们的刻度不同（`tuning.light.node_step = −30`）⇒ **不能直接抄数字**，等实测校准。
+/// </summary>
+public sealed record DungeonGridBacktrack(
+    /// <summary>进入**已访问**格（重走）时额外扣的光照（**正数** = 消耗量；`null` = 未定案）⚠️</summary>
+    [property: JsonPropertyName("revisit_light_cost")] int? RevisitLightCost,
+
+    /// <summary>进入**未访问**格时的光照（`null` = 沿用既有 `WalkLightCost` 守恒口径，不在此处重复取值）✓</summary>
+    [property: JsonPropertyName("new_tile_light_cost")] int? NewTileLightCost = null,
+
+    /// <summary>人类可读说明（**不参与行为**；`#408` 说明字段纪律）✓</summary>
+    [property: JsonPropertyName("note")] string? Note = null);
 
 /// <summary>
 /// 移动（`P30` ⑥ / 架构附注④）：🔴 **`cost_light_per_tile` 量级未定案 ⇒ 本次只登记、不取值（必须 null）** ⚠️
@@ -61,7 +93,8 @@ public sealed record DungeonGridConfig(
     [property: JsonPropertyName("room_anchors")] IReadOnlyList<DungeonGridRoomAnchor>? RoomAnchors = null,
     [property: JsonPropertyName("encounter")] DungeonGridEncounter? Encounter = null,
     [property: JsonPropertyName("vision")] DungeonGridVision? Vision = null,
-    [property: JsonPropertyName("move")] DungeonGridMove? Move = null)
+    [property: JsonPropertyName("move")] DungeonGridMove? Move = null,
+    [property: JsonPropertyName("backtrack")] DungeonGridBacktrack? Backtrack = null)
 {
     public const string ResPath = "res://data/dungeon_grid.json";
 
@@ -176,9 +209,61 @@ public sealed record DungeonGridConfig(
         }
 
         // ⑦ 视野（若给）：`radius ≥ 0`（数值 `placeholder`；"越暗侦察越差"等设计意图不在本类实现）✓
-        if (cfg.Vision is { Radius: < 0 })
+        //   🔴 `D-3`（2026-09-20）**补齐上界**：半径 ≥ 图的最长边 ⇒ 开局**整张图全亮**
+        //      ⇒ 探索层被**静默架空**（玩家永远不用走）⚠️ —— 与 ③ 的"图必须可通关"同一族纪律：
+        //      **把设计前提变成加载期可判**，而不是等策划填错了在游戏里才发现 ✓
+        if (cfg.Vision is { } vs)
         {
-            throw new InvalidDataException($"{ResPath}: vision.radius 必须 ≥ 0（实测 {cfg.Vision.Radius}）。");
+            if (vs.Radius < 0)
+            {
+                throw new InvalidDataException($"{ResPath}: vision.radius 必须 ≥ 0（实测 {vs.Radius}）。");
+            }
+
+            if (vs.Radius >= Math.Max(cfg.Width, cfg.Height))
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: vision.radius（{vs.Radius}）≥ 图的最长边（{Math.Max(cfg.Width, cfg.Height)}）" +
+                    "⇒ **开局整张图全亮**，探索层被架空 ⇒ 拒绝加载（这是设计前提，不是可调数值）⚠️");
+            }
+
+            // 🔴 `scout_bonus < 0` ⇒ 侦察加成变**惩罚**；配 `base_pct` 低时会让侦察**永远失败**
+            //    —— 又一个"填了但只静默失效"的坑（`D-2` 末档不覆盖满光照是同款）⚠️
+            if (vs.ScoutBonus < 0)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: vision.scout_bonus 必须 ≥ 0（实测 {vs.ScoutBonus}）—— " +
+                    "负加成会让侦察**永远失败**（静默失效）⚠️");
+            }
+        }
+
+        // ⑧ 🔴 `D-1` 回头代价：**必须为正**（= 真正有代价），且**若同时给了新格代价则回头不得更便宜**
+        //    —— 这是 DD 方向（wiki ⑦：新区域 −6 / 重走 −1，但**两者都要付**）。
+        //    ⚠️ 与旧 `expedition_map.json` 的"回头必须更便宜"是**两套世界**（该文件注释已写明），
+        //       此处**不是**笔误、**不是**矛盾：旧层是"按段移动"，本层是"瓷砖网格"。✓
+        if (cfg.Backtrack is { } bt)
+        {
+            if (bt.RevisitLightCost is { } rv)
+            {
+                if (rv <= 0)
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: backtrack.revisit_light_cost 必须 > 0（= 回头**真的**有代价；实测 {rv}）" +
+                        " —— D-1 的判据就是「回头必付代价」（红线 21：不许留'填了但没生效'的数）⚠️");
+                }
+
+                if (bt.NewTileLightCost is { } nw && rv >= nw)
+                {
+                    throw new InvalidDataException(
+                        $"{ResPath}: backtrack 中 **重走必须比新格便宜**（DD 方向：新 {nw} > 重走 {rv}）" +
+                        " —— 否则「回头」反而更贵，玩家会拒绝探索（D-1 纠偏）⚠️");
+                }
+            }
+
+            if (bt.NewTileLightCost is { } n2 && n2 <= 0)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: backtrack.new_tile_light_cost 必须 > 0（实测 {n2}）。");
+            }
         }
 
         return cfg;

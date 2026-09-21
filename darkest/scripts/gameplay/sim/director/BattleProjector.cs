@@ -82,7 +82,8 @@ public sealed class BattleProjector
             carried, _runtime, IsEnemy: false,
             SupportPoints: _director.SupportPoints,
             SupportCost: cost,
-            IsSupportSlotActor: supportSlot));
+            IsSupportSlotActor: supportSlot,
+            Buffs: _director.Buffs)); // C-1（v0.99）：潜行门禁 ⇒ 目标全潜行时 D 栏灰显"目标处于潜行"
         return new SkillProjection(skillId, av.Reason, av.Tooltip);
     }
 
@@ -108,12 +109,11 @@ public sealed class BattleProjector
     public int HitRateFor(int targetDodge, int hitMod)
         => Core.Math.BattleMath.HitRate(targetDodge, hitMod, _balance.HitClampMin, _balance.HitClampMax);
 
-    /// <summary>位移预览（必显 #6）：对只读快照跑同一 TrySwapChain（dry-run，与结算同源）。</summary>
+    /// <summary>位移预览（必显 #6）：对只读快照跑同一 TrySwapChain（dry-run，与结算同源）。
+    /// 🔴 2026-09-20：**改为委托 `FormationBoard.DryRunSwapChain`** —— 此前两处各写一份"建快照 + 跑链"
+    /// （`#325` D6 同族：**两份真值**）⇒ 现在**只有 `DryRunSwapChain` 一份实现**，投影器只做转发 ✓</summary>
     public DisplaceResult DisplacementPreview(UnitId mover, int fromPos, int toPos, int distance, FormationBoard board)
-    {
-        FormationBoard snapshot = board.CreatePreviewSnapshot();
-        return snapshot.TrySwapChain(mover, fromPos, toPos, distance);
-    }
+        => board.DryRunSwapChain(mover, fromPos, toPos, distance);
 
     /// <summary>
     /// G4（O-57）敌方意图预览：切片**默认不显示**（enabled=false → 空意图）；后续「侦察」技能可开启。
@@ -158,6 +158,17 @@ public sealed class BattleProjector
         UnitRuntime? u = board.UnitRuntimeAt(slot);
         if (u is null)
         {
+            // 🔴 障碍槽（2026-09-20 接线）：此前一律回落"-"占位 ⇒ **玩家看不出这里是"能打掉的木箱"
+            //    还是"打不掉的石堆"**（`TryGetObstacleHp` 只有测试在调）⚠️
+            //    GDD §1.1：障碍 = "不会行动、**只有血量**的占位角色" ⇒ 详情就该像单位一样**报血量** ✓
+            if (board.TryGetObstacleHp(slot, out int? obsHp))
+            {
+                string hpText = obsHp is { } n ? $"{n}/{n}" : "∞（不可摧毁）";
+                return new UnitDetail(slot, "-", "障碍", obsHp ?? 0, obsHp ?? 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0,
+                    new[] { $"hp={hpText}", obsHp is null ? "不可摧毁" : "可摧毁" });
+            }
+
             return new UnitDetail(slot, "-", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, Array.Empty<string>());
         }
 

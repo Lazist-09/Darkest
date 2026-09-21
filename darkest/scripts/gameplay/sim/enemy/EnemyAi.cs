@@ -57,7 +57,7 @@ public sealed class EnemyAi
                 continue;
             }
 
-            if (!IsSkillUsable(enemyUnit, rule.SkillId, slot, enemy, player))
+            if (!IsSkillUsable(enemyUnit, rule.SkillId, slot, enemy, player, buffs))
             {
                 continue;
             }
@@ -126,7 +126,8 @@ public sealed class EnemyAi
         return true;
     }
 
-    private bool IsSkillUsable(UnitRuntime unit, string skillId, int slot, FormationBoard enemy, FormationBoard player)
+    private bool IsSkillUsable(UnitRuntime unit, string skillId, int slot, FormationBoard enemy, FormationBoard player,
+        IBuffLedger? buffs)
     {
         SkillTemplateConfig skill = _skills.Get(skillId);
         if (!skill.SelfSlots.Allows(slot))
@@ -147,7 +148,8 @@ public sealed class EnemyAi
 
         if (skill.Target.Scope == SkillTargetScope.Slots)
         {
-            IReadOnlyList<int> targets = SkillTargetResolver.Resolve(skill, unit.Id, player, enemy); // 参数序修正（同 ResolveTargets）
+            // C-1：传台账 ⇒ 潜行目标已从候选中剔除（全潜行 ⇒ 空 ⇒ 本技能不可用）
+            IReadOnlyList<int> targets = SkillTargetResolver.Resolve(skill, unit.Id, player, enemy, buffs); // 参数序修正（同 ResolveTargets）
             if (targets.Count == 0)
             {
                 return false;
@@ -172,7 +174,7 @@ public sealed class EnemyAi
             return Array.Empty<int>();
         }
 
-        List<int> pool = SkillTargetResolver.Resolve(skill, unit.Id, player, enemy).ToList(); // 参数序：player 板在前（caster 在敌方侧自动识别）
+        List<int> pool = SkillTargetResolver.Resolve(skill, unit.Id, player, enemy, buffs).ToList(); // 参数序：player 板在前（caster 在敌方侧自动识别）；C-1：潜行目标已剔除
         if (pool.Count <= 1 || skill.Tags.Contains(FuncTag.Aoe))
         {
             return pool; // AOE 全池；唯一/空池无抽取（确定性基线保护）

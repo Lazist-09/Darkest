@@ -27,6 +27,9 @@ public sealed class Roster
     private readonly List<HeroConfig> _heroes;
     private int _recruitSeq;
 
+    /// <summary>🔴 `#283` 7.3：待生效的"**下一趟开局 −N**"（减压副作用；`OpeningMorale` 消费后清空）✓</summary>
+    private readonly Dictionary<string, int> _pendingOpeningPenalty = new(StringComparer.Ordinal);
+
     public Roster(RosterConfig config)
     {
         _cfg = config ?? throw new ArgumentNullException(nameof(config));
@@ -420,6 +423,47 @@ public sealed class Roster
     }
 
     /// <summary>下一趟的**开局士气**（`#287` V2 的可观测入口）：**不重置**，原样取出。</summary>
+    /// <remarks>
+    /// 🔴 `#283` 7.3（2026-09-20 接线）：减压副作用的"**下一趟开局 −N**"在这里**真正生效** ——
+    /// 此前 `StressRelief.NextRunOpeningMorale` **无生产调用点** ⇒ 副作用**只在 UI 上显示、从不实际扣** ⚠️
+    /// （真缺陷：玩家看到"下趟 −8"却毫无代价）⇒ 本方法改为：**待到罚者先扣、再产出开局值** ✓
+    /// ⚠️ **读到即清**（`_pendingOpeningPenalty`）⇒ 同一笔副作用**只影响一趟** ✓
+    /// </remarks>
     public IReadOnlyDictionary<string, int> OpeningMorale(IEnumerable<string> heroIds)
-        => heroIds.ToDictionary(id => id, MoraleOf);
+    {
+        var result = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (string id in heroIds)
+        {
+            int morale = MoraleOf(id);
+            if (_pendingOpeningPenalty.TryGetValue(id, out int penalty) && penalty > 0)
+            {
+                morale = StressRelief.NextRunOpeningMorale(morale, penalty);
+            }
+
+            result[id] = morale;
+        }
+
+        _pendingOpeningPenalty.Clear(); // 🔴 读到即清：副作用只影响这一趟 ✓
+        return result;
+    }
+
+    /// <summary>
+    /// 🔴 `#283` 7.3：**登记"下一趟开局 −N"的副作用**（减压掷骰触发时由 Hamlet 侧调用）——
+    /// 供 `OpeningMorale` 在下一趟开趟时消费 ✓
+    /// 📌 为什么单独存一层而不是直接改士气：`#245` 要求"回城**完全不恢复**（也不额外惩罚）"，
+    ///    惩罚的时机是**下一趟开局**，不是回城 ⇒ 必须**延后**到那时才施加 ✓
+    /// </summary>
+    public void ScheduleOpeningPenalty(string heroId, int penalty)
+    {
+        if (penalty <= 0 || !_morale.ContainsKey(heroId))
+        {
+            return; // 无惩罚 / 不在册 ⇒ 什么都不登记（不假装）✓
+        }
+
+        _pendingOpeningPenalty[heroId] = Math.Max(
+            _pendingOpeningPenalty.GetValueOrDefault(heroId), penalty); // 取最重者（不叠加，避免滚雪球）✓
+    }
+
+    /// <summary>待生效的"下一趟开局 −N"（只读读数；headless 冒烟断言用）✓</summary>
+    public IReadOnlyDictionary<string, int> PendingOpeningPenalties => _pendingOpeningPenalty;
 }

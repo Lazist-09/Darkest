@@ -420,6 +420,41 @@ public sealed class FormationBoard : IFormation
         return true;
     }
 
+    /// <summary>
+    /// 🔴 **障碍受击**（2026-09-20 接线）：扣血 → 若归零则**自动移除**，返回**本槽是否还有障碍**。
+    /// <para>· `hp == null`（不可摧毁）⇒ **吸收但不掉血、不移除** ⇒ 返回 true（#73/#105 口径）✓</para>
+    /// <para>· 这是 `TryGetObstacleHp`（读）+ `RemoveObstacle`（写）的**唯一生产调用点** ——
+    ///    此前两者只有测试在调 ⇒「**会挡路的木箱/石堆**」在实机里**打不掉**（`DamagePipeline` 遇
+    ///    `Blocked` 直接 `continue` ⇒ 障碍是纯无敌墙）⚠️</para>
+    /// <para>· ⚠️ **移除后的"靠齐"不在此处**：GDD §1.1 明文"立即靠齐由调用方负责任务编排" ⇒
+    ///    本方法只做"没了就算没了"，靠齐交由 <see cref="CloseUpAfterRemoval"/>（若需）✓</para>
+    /// </summary>
+    /// <returns>true = 该槽仍被障碍占据（含不可摧毁）；false = 槽已空（本次被摧毁移除）。</returns>
+    public bool DamageObstacle(int pos, int amount)
+    {
+        ValidateSlot(pos);
+        if (!TryGetObstacleHp(pos, out int? hp))
+        {
+            return false; // 非障碍槽：读口判存在（调用方通常也先读一次拿血条）✓
+        }
+
+        if (hp is null)
+        {
+            return true; // 不可摧毁：absorb，无血条 ⇒ 不动 ✓
+        }
+
+        int after = hp.Value - Math.Max(0, amount);
+        if (after > 0)
+        {
+            _obstacles[pos - 1] = _obstacles[pos - 1]!.TakeDamage(amount);
+            return true;
+        }
+
+        // 归零 ⇒ 走既有移除口（**同一语义只此一处**，不写第二份）——靠齐仍由调用方编排 ✓
+        RemoveObstacle(pos);
+        return false;
+    }
+
     /// <summary>只读快照 = 板数据的深拷贝（单位引用共享但槽数组独立），供预览 dry-run，永不污染真实板。</summary>
     public FormationBoard CreatePreviewSnapshot()
     {

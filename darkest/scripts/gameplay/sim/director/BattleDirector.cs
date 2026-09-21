@@ -9,6 +9,7 @@ using Darkest.Data;
 using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Buffs;
 using Darkest.Gameplay.Sim.Enemy;
+using Darkest.Gameplay.Sim.Morale;
 using Darkest.Gameplay.Sim.Pipeline;
 using Darkest.Gameplay.Sim.Skill;
 using Darkest.Gameplay.Sim.Survival;
@@ -120,6 +121,12 @@ public sealed partial class BattleDirector
         }
 
         _outputUsersThisRound.Clear();
+
+        // 🔴 **回合级士气计数器清零**（`morale_events` 的 `once_per_turn_max1`）——
+        //    ⚠️ 此前**无人调用** `MoraleLedger.ResetTurnCounters` ⇒ `_weakHitThisTurn` 永不清空
+        //       ⇒ "虚弱者受击 −5（每回合≤1）"实际退化成"**整场≤1**"（真缺陷）⚠️
+        //    ⇒ 与 `_outputUsersThisRound.Clear()` 同一处收口（都是"回合开始清零"的语义）✓
+        _pipeline.Morale.ResetTurnCounters();
 
         ApplyReinforcement(rng);
 

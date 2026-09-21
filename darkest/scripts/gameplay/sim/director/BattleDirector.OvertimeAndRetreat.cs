@@ -113,6 +113,18 @@ public sealed partial class BattleDirector
         }
 
         StartTurn(rng);
+
+        // 🔴 2026-09-20：**`enemy_actions_per_round > 1` 的分支此前从未生效**（真缺陷）——
+        //    本方法文档写着"&gt;1 时走旧 EnemyPhase 路径"，但代码里**没有任何一处**读这个键 ⇒
+        //    `EnemyPhase` 成了死函数，而"每回合敌方多动"这个策划保留开关**形同虚设** ⚠️
+        //    ⇒ 这里补上：>1 ⇒ 走 `EnemyPhase`（bulk 敌方阶段），我方仍按行动序列逐个决策 ✓
+        //    ⚠️ 纪律：**只是把已声明的分支接上**，不改默认行为（`enemy_actions_per_round` 现值 = 1 ⇒ 逐字不变）✓
+        if (_balance.Tuning.EnemyActionsPerRound > 1)
+        {
+            RunBulkEnemyRound(rng, decide);
+            return;
+        }
+
         while (!IsBattleOver)
         {
             UnitId? actor = _sequencer.NextActor();
@@ -162,6 +174,66 @@ public sealed partial class BattleDirector
         if (IsBattleOver)
         {
             EmitBattleEnd(); // G0/O-55：整回合跑完即结算胜负入日志
+        }
+    }
+
+    /// <summary>
+    /// 🔴 **`enemy_actions_per_round > 1` 的 bulk 回合**（2026-09-20 接线）：
+    /// 我方按行动序列逐个决策（与 `RunFullRound` 同一条路），敌方**整队跑完 `EnemyPhase`**
+    /// （每个敌人各行动 `enemy_actions_per_round` 次）⇒ 这就是本方法文档里承诺的"旧 `EnemyPhase` 路径" ✓
+    /// ⚠️ 只被 `EnemyActionsPerRound > 1` 触发；现值 = 1 ⇒ **默认行为逐字不变** ✓
+    /// </summary>
+    private void RunBulkEnemyRound(IRngProvider rng, System.Func<UnitRuntime, PlayerDecision> decide)
+    {
+        while (!IsBattleOver)
+        {
+            UnitId? actor = _sequencer.NextActor();
+            if (actor is null)
+            {
+                break;
+            }
+
+            EmitTurnStart(actor.Value);
+
+            UnitRuntime? playerUnit = _player.UnitsInSlotOrder().FirstOrDefault(x => x.Id == actor);
+            if (playerUnit is not null)
+            {
+                PlayerDecision decision = decide(playerUnit);
+                if (decision.ReinforceB is { } bSlot && decision.ReinforceX is { } xSlot)
+                {
+                    if (!Reinforce(actor.Value, bSlot, xSlot))
+                    {
+                        PassTurn(actor.Value);
+                    }
+                }
+                else if (decision.SkillId is not null)
+                {
+                    if (TryFearRefusal(actor.Value, rng))
+                    {
+                        continue;
+                    }
+
+                    int[]? chosen = decision.SkillTargetSlot is { } ts ? new[] { ts } : null;
+                    if (!PlayerUseSkill(actor.Value, decision.SkillId, rng, chosen))
+                    {
+                        PassTurn(actor.Value);
+                    }
+                }
+                else
+                {
+                    PassTurn(actor.Value);
+                }
+            }
+            else if (_enemy.UnitsInSlotOrder().Any(x => x.Id == actor))
+            {
+                // 🔴 bulk 口径：**一个敌方节拍 = 整队各动 `EnemyActionsPerRound` 次**（`EnemyPhase` 语义）✓
+                EnemyPhase(rng);
+            }
+        }
+
+        if (IsBattleOver)
+        {
+            EmitBattleEnd();
         }
     }
 

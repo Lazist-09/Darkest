@@ -5,6 +5,7 @@ using Darkest.Core.Math;
 using Darkest.Core.Rng;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Board;
+using Darkest.Gameplay.Sim.Morale;
 using Darkest.Gameplay.Sim.Pipeline;
 
 namespace Darkest.Gameplay.Sim.Survival;

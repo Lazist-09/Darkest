@@ -1,5 +1,6 @@
 using System;
 using Darkest.Core.Contracts;
+using Darkest.Gameplay.Sim.Morale;
 
 namespace Darkest.Gameplay.Sim.Board;
 

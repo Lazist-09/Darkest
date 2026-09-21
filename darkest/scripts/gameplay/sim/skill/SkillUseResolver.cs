@@ -20,12 +20,15 @@ public sealed record SkillUseContext(
     bool IsEnemy,
     int SupportPoints = int.MaxValue,   // #211（S0）：战斗级 SP（默认不可耗尽 → 旧调用不受影响）
     int SupportCost = 0,                // 支援位技能消耗（战斗位恒 0）
-    bool IsSupportSlotActor = false);   // 只有支援位技能会因 SP 被拒
+    bool IsSupportSlotActor = false,    // 只有支援位技能会因 SP 被拒
+    IBuffLedger? Buffs = null);         // C-1（v0.99）：潜行门禁数据源（null = 不做潜行过滤，旧调用不受影响）
 
 /// <summary>
 /// 技能可用性判定（T-M3-03 / skill.md §5，顺序固定不可调换）：
 /// ① 携带 ② 站位 ③ 目标部分非空（全空灰显，障碍计非空）④ 使用限制（CD / 每场次数）。
 /// 敌方无"携带"概念，跳过 ①；零随机、零写状态（CD/次数只读台账），幂等。
+/// C-1（v0.99）：③ 的候选池在带 `Buffs` 时已剔除潜行目标 ⇒ 全潜行自然落为 `NoTarget`；
+/// 若原始槽位里**存在**目标、只因潜行被剔除，则改报 `TargetStealthed` 以便 UI 给出准确文案。
 /// </summary>
 public sealed class SkillUseResolver
 {
@@ -54,10 +57,17 @@ public sealed class SkillUseResolver
         }
 
         // ③ 目标范围内"部分非空"（全空 → 灰显；障碍计入非空 #73/#77/#105）
-        IReadOnlyList<int> targets = SkillTargetResolver.Resolve(skill, ctx.Caster, ctx.AllyBoard, ctx.TargetBoard);
+        //    C-1：带 Buffs 时潜行目标已被剔除；若剔除后才变空 ⇒ 区分文案（目标处于潜行 vs 范围内没有目标）
+        IReadOnlyList<int> targets = SkillTargetResolver.Resolve(
+            skill, ctx.Caster, ctx.AllyBoard, ctx.TargetBoard, ctx.Buffs);
         if (targets.Count == 0)
         {
-            return new Availability(AvailabilityReason.NoTarget, Availability.TooltipFor(AvailabilityReason.NoTarget));
+            bool stealthedOnly = ctx.Buffs is not null
+                && SkillTargetResolver.Resolve(skill, ctx.Caster, ctx.AllyBoard, ctx.TargetBoard).Count > 0;
+            AvailabilityReason reason = stealthedOnly
+                ? AvailabilityReason.TargetStealthed
+                : AvailabilityReason.NoTarget;
+            return new Availability(reason, Availability.TooltipFor(reason));
         }
 
         // ③.5 D5（#207）前置条件：自身/目标血量阈值、自身虚弱、自身死门 → 不满足则灰显

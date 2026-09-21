@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Data;
+using Darkest.Gameplay.Sim.Survival;
 
 namespace Darkest.Gameplay.Sim.Run;
 

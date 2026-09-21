@@ -42,7 +42,8 @@ public sealed class SimplePlayerAuto
         {
             SkillTemplateConfig skill = _skills.Get(id);
             Availability av = _resolver.Resolve(new SkillUseContext(skill, unit.Id,
-                director.Player, director.Enemy, ownedSet, _runtime, IsEnemy: false));
+                director.Player, director.Enemy, ownedSet, _runtime, IsEnemy: false,
+                Buffs: director.Buffs)); // C-1（v0.99）：潜行目标不可被直接指定
             if (av.Reason == AvailabilityReason.Ok)
             {
                 usable.Add(id);
@@ -74,7 +75,7 @@ public sealed class SimplePlayerAuto
                 return PlayerDecision.Skill(id, null);
             }
 
-            IReadOnlyList<int> cand = SkillTargetResolver.Resolve(s, unit.Id, director.Player, director.Enemy);
+            IReadOnlyList<int> cand = SkillTargetResolver.Resolve(s, unit.Id, director.Player, director.Enemy, director.Buffs);
             if (weakestSlot is { } ws && cand.Contains(ws))
             {
                 return PlayerDecision.Skill(id, ws); // 集火
@@ -86,7 +87,7 @@ public sealed class SimplePlayerAuto
         if (anyOutput is not null)
         {
             IReadOnlyList<int> cand = SkillTargetResolver.Resolve(_skills.Get(anyOutput), unit.Id,
-                director.Player, director.Enemy);
+                director.Player, director.Enemy, director.Buffs);
             return PlayerDecision.Skill(anyOutput, cand.Select(p => (int?)p).FirstOrDefault());
         }
 

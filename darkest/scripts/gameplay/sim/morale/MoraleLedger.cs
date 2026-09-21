@@ -8,7 +8,7 @@ using Darkest.Data;
 using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Buffs;
 
-namespace Darkest.Gameplay.Sim.Pipeline;
+namespace Darkest.Gameplay.Sim.Morale;
 
 /// <summary>
 /// 士气台账（T-M2-08 + T-M4-01~05/07）：唯一写入口 Apply（钳制 [0,100]）+ 崩溃判定（事件触发，
@@ -45,6 +45,12 @@ public sealed class MoraleLedger
         }
     }
 
+    /// <summary>
+    /// 🔴 **回合级计数器清零**（`WeakDeathsDoor` / 虚弱 −5 的 `once_per_turn_max1` 语义）——
+    /// 由 `BattleDirector.StartTurn` 每回合调用 ✓
+    /// ⚠️ 此前**无任何生产调用点** ⇒ `_weakHitThisTurn` 从不清空 ⇒ "每回合≤1" 实际退化成
+    ///    "**整场≤1**"（真缺陷：同一名虚弱者第 2 回合起再受打击**不再** −5 士气）⚠️
+    /// </summary>
     public void ResetTurnCounters() => _weakHitThisTurn.Clear();
 
     /// <summary>动作级判定去重（一次伤害事件内崩溃判定最多 1 次，T-M4-02）。</summary>
@@ -168,7 +174,10 @@ public sealed class MoraleLedger
     // T-M4-02/03 崩溃判定（事件触发 #67；判定后士气留在 0）
     // ------------------------------------------------------------------
 
-    public bool IsCollapseEmber(UnitRuntime unit) => unit.CollapseEmber;
+    // 🔴 2026-09-20：`IsCollapseEmber(unit)` 曾在此处（`=> unit.CollapseEmber` 的**纯转发**）——
+    //    但 `UnitRuntime.CollapseEmber` 本身就是 **public 属性** ⇒ 该转发器**零信息量**，
+    //    且生产代码**一处都没用**（所有调用点都直接读 `unit.CollapseEmber`）⇒ **删除**（死代码纪律 P29）✓
+    //    ⚠️ 教训：给公开属性再包一层“查询方法” = 两个名字说同一件事 ⇒ 迟早有一个变成死代码 ⚠️
 
     /// <summary>士气从 >0 跨到 0（普通打击路径）：恰好触发 1 次判定（调用方保证 before&gt;0）。
     /// 美德中再归 0 → 消除美德 → 士气回 50 → 重新走崩溃判定（morale §8 / T-M4-04）。</summary>

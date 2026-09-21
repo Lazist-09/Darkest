@@ -4,6 +4,7 @@ using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Core.Rng;
 using Darkest.Data;
+using Darkest.Gameplay.Sim.Survival;
 
 namespace Darkest.Gameplay.Sim.Run;
 

@@ -4,7 +4,7 @@ using Darkest.Core.Events;
 using Darkest.Data;
 using System.Collections.Generic;
 
-namespace Darkest.Gameplay.Sim.Run;
+namespace Darkest.Gameplay.Sim.Survival;
 
 /// <summary>光照五档（DD 五档照抄；边界取档见 <see cref="LightMeter.TierFor"/>）。</summary>
 public enum LightTier
