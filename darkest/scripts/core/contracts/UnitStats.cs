@@ -10,6 +10,7 @@ namespace Darkest.Core.Contracts;
 public sealed record UnitStats(
     int Hp,
     int Attack,
+    // 🔴 **我们自加**（原版只有一个 `def` = 我们的 `Dodge`；原版减伤走 `prot`）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
     int PhysDef,
     int Speed,
     int Dodge,

@@ -248,6 +248,7 @@ public sealed record UnitDetail(
     int MaxHp,
     int Morale,
     int Attack,
+    // 🔴 投影里的 `PhysDef` 同样是**我们自加**的（不是原版字段）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
     int PhysDef,
     int Speed,
     int Resilience,

@@ -15,6 +15,7 @@ public sealed record UnitConfig(
     [property: JsonPropertyName("side")] string Side,
     [property: JsonPropertyName("hp")] int Hp,
     [property: JsonPropertyName("attack")] int Attack,
+    // 🔴 **我们自加**的字段（原版无 `phys_def`；原版减伤走 `prot`）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
     [property: JsonPropertyName("phys_def")] int PhysDef,
     [property: JsonPropertyName("speed")] int Speed,
     [property: JsonPropertyName("dodge")] int Dodge,

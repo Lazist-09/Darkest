@@ -66,6 +66,7 @@ public sealed class UnitRuntime
     // ------------------------------------------------------------------
 
     public int AttackMod { get; set; }
+    // 🔴 战斗内修正叠加在**我们自加**的 `PhysDef` 上（原版无此拆分）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
     public int PhysDefMod { get; set; }
     public int ResilienceMod { get; set; }
     public int SpeedMod { get; set; }
