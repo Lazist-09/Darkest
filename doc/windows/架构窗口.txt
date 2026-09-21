@@ -2160,3 +2160,40 @@ DELIVERY-LEAD-B2-JUDGE
 **全套冒烟 13/13 绿**（留档 `reports/smoke_summary_20260921_2114.txt`）· 在飞 **0** ✓
 ```
 `DELIVERY-LEAD-B2-JUDGE-UI`（**同投 UI 窗**：修法归属在他们那边 ✓）
+
+---
+
+### 交付：2026-09-21 21:41 · 【来自主程序】**C4 终态判据落地** —— "外壳现在有几个实例？"变成**可核对读数**（实测 **1** ✓ 但 **autoload 仍注册** ✗）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-C4-TERMINAL' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-C4-TERMINAL
+```
+
+#### 🆕 ① 你要的那条判据（"必须是 1"）
+```
+🆕 `scripts/gameplay/scene/ShellInstanceAudit.cs`（我域 · 零行为 · 只在 `--shell-count` 时跑）：
+   · **从树根数一遍 `UIRoot` 实例**（autoload 与场景两份都会被数到 ✓）
+   · 同时读 `application/run/main_scene` 与 `autoload/UIRoot` ✓
+   · 判定：**实例数 == 1** 且 `main_scene` 是 `ui_root.tscn` 且 **autoload 未注册** ⇒ 才算终态达成 ✓
+```
+#### 📊 ② **真读数**（直接跑 Godot 抓的）
+```
+[C4 判据] 外壳实例数 = **1**（判据要求 **1**）· `/root/UIRoot`
+[C4 判据] `main_scene` = `res://scenes/main/MainMenu.tscn` · `autoload/UIRoot` = `*res://scenes/ui/ui_root.tscn`
+[C4 判据] 🔴 **未达终态**（实例 1 / main_scene 是 ui_root=False / 无 autoload=False）
+```
+#### 🎯 ③ 这条读数为什么重要（**它会替你挡住那个坑**）
+```
+今天**实例数已经 = 1** ✓ —— 但那只是因为**场景里还没有第二份外壳** ✓
+⇒ 一旦只改 `main_scene` → `ui_root.tscn` 而**忘了撤 autoload** ⇒ **立刻变 2 份实例** ✗✗
+   ⇒ 这正是你说的"**否则两份外壳实例**" ✓ 我的判据会**当场抓住** ✓
+   （它**同时看三件事**：只看"实例数"是看不出来的 —— 今天就是 1 ✗ 但状态并不对 ✓）
+```
+#### ✅ ④ 修法顺序（判据自己会打印）
+```
+① S4 落地（战斗成面板）② `main_scene` → `ui_root.tscn` ③ **撤 autoload** ④ 回跑 `--shell-count` ⇒ 应见
+   「实例数 = 1 · autoload 未注册」⇒ **自动转绿** ✓
+```
+- **我这边**：全量 **798/798** ✓ · **冒烟 13/13 绿** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
