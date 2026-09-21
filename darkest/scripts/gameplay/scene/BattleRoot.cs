@@ -85,8 +85,28 @@ public partial class BattleRoot : Node2D
     public int ReinforcePhase => _reinforcePhase;
     public int ReinforceB => _reinforceB;
 
+    /// <summary>🔴 **B-1 标记**：本实例是「被面板托管的战斗」（防止面板宿主自己再造面板 ⇒ 递归）✓</summary>
+    private const string HostedInPanelMeta = "d87_battle_panel_hosted";
+
     public override void _Ready()
     {
+        // 🔴 **B-1（形态 B · S4 第一步）**：--battle-panel ⇒ **本场景根不再自己驱动战斗**，
+        //    而是**造一个战斗面板挂进外壳**（面板内那个 BattleRoot 会正常启动 ✓）
+        //    ⚠️ 防递归：面板内那个实例带 meta 标记，不会再进这个分支 ✓
+        bool hosted = HasMeta(HostedInPanelMeta);
+        bool wantsPanel = !hosted && System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-panel");
+        if (wantsPanel)
+        {
+            GD.Print("[BattleRoot] 🔴 --battle-panel ⇒ **走面板路径**（本场景根只做宿主，不再自己驱动战斗）✓");
+            BattlePanel panel = BattlePanel.Create("BattlePanel");
+            panel.Root?.SetMeta(HostedInPanelMeta, true);
+            if (!panel.TryMountIntoShell())
+            {
+                GD.Print("[BattleRoot] 🔴 面板未挂进外壳 ⇒ 如实停在这里（不假装成功 ✓）");
+            }
+
+            return;
+        }
         // 🔴🔴 **相位在【两个场景】之间的修补**（UI 实测报告：战斗场景里 `Phase` 仍是 `Walking` ⇒ 三谓词全 True ⚠️）
         //   根因：战斗是**另一个场景**，而 `ExpeditionSession.Phase` 只由远征那条循环推动 ⇒ 战斗期间它"诚实但过时" ✓
         //   ⇒ 现在进战斗就显式推进到 `Battle`（片 3 把两场景并成一个状态机后，这行会被状态机自然取代）✓
