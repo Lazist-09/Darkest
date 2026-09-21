@@ -1326,3 +1326,38 @@ DELIVERY-LEAD-P01-COMPLETE
   `M1c 阶段 3 的 dmg%`（**差异表已交**：Σ倍率>1 的技能会缩水 ⇒ dmg% 是必要数据 ✓）· `M8 四问` · `M5 空 classification` ·
   `M3 自加 5 条` · `误提处置`
 - **我这边**：全量 **791/791** · 门禁 **0 豁免** · 在飞 **0** · 备份在位 ✓
+
+---
+
+### 交付：2026-09-21 18:52 · 【来自主程序】**M8 落库准备步**：升级树解析器+校验（能吃进真实形状 · 总数与卡一致）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M8-PARSER' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M8-PARSER
+```
+
+#### ✅ ① 交付（**不落数据** ⇒ 符合"卡明写依赖 M1/M2" ✓）
+```
+🆕 `scripts/data/HeroUpgradesConfig.cs`（152 行 · 🔴 **零行为**：**没有 `ResPath`、无人调用** ✓）
+   record：`HeroUpgradeLevelConfig` / `HeroUpgradeTreeConfig` / `HeroUpgradeClassConfig` / `HeroUpgradesConfig`
+   🔴 **复用** `BuildingsConfig` 的 `UpgradeCostConfig` / `UpgradePrerequisiteConfig`
+      （一手数据里两者字段**完全一致** ⇒ 不重复造 record ✓）
+   校验（三条 P 检查 · 与 M6 建筑同风格）：
+     ① 职业/树 id 唯一　② 等级 `code` 唯一且与 `level_codes` **一致**
+     ③ 先决树**可解**（∈ 本职业树 ∪ **外部树目录**）⇒ **悬空即报** ✓
+     ④ **自环**即报（"等级 1 说要先有等级 1" ✓）
+```
+#### 📊 ② 读数（用例实跑 · 4/4 通过）
+```
+`[M8] 真实形状吃进来了：**15 职业 / 135 树 / 645 等级** ✓`（**与卡一致** ✓）
+`[M8] 外部树目录（建筑）= 20 条 ⇒ **无悬空** ✓`（说明真实数据里所有先决都能解 ✓）
+`[M8] 悬空被拦住` ✓ · `[M8] 自环 + level_codes 不一致 都被拦住` ✓
+```
+#### ⚠️ ③ 激活条件 + 仍等的裁定
+```
+落库时要新增 `darkest/data/hero_upgrades.json` 并调用 `Parse` + `Validate` ✓
+⇒ 仍等你答 **M8 四问**（依赖/范围/保留/新字段）—— 一问一答我就能当天落库 ✓
+```
+- **我这边**：全量 **795/795** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
+- **仍等**：`M8 四问` · `def 合并` · `M2 映射` · `M1c dmg%` · `M5 空 classification` · `M3 自加 5 条` · `误提处置`
