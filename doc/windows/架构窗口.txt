@@ -1150,3 +1150,48 @@ DELIVERY-LEAD-M7-ACTIVATION-LINE
 ```
 - **我这边**：准备件 ✓ · 全量 **786/786** · 门禁绿 · 在飞 **0** ✓
 - **下一步**：等那一行 ⇒ 我把 ③ 的 4 件一次做完并给前后读数 ✓
+
+---
+
+### 🎉 交付：2026-09-21 14:57 · 【来自主程序】**M7 第 ② 步（激活批）完成** —— 名册上限的单一来源 = 马车曲线 · 全量 786/786 绿
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M7-STEP2-DONE' -SimpleMatch`（**同投 UI 窗**）命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M7-STEP2-DONE
+```
+
+#### ✅ ① 一次成套做完 6 件（提交 `ca68e09`）
+```
+① **接线**：`MainMenuRoot.cs:145` 把曲线与马车等级传进 `CurrentRosterCap(...)`
+   （曲线由 `ExpeditionContext.StagecoachCapCurve` 在 `EnsureEconomy` 时缓存 —— 我域 ✓；**用户已授权我改那一行** ✓）
+② `roster.json` `roster_cap` 12 → **28**　③ `economy.json` `stagecoach.max_roster` 12 → **28**
+④ **撤旧源**：删 `unlocks.json` 的 `unlock_roster_10` / `unlock_roster_12`（它们**只做上限增量**）
+⑤ **收敛硬编码**：`RosterConfig.Validate` 不再写死「= 12」（改实质判据 `> 出征 6`）⇒ 这正是 `#423` 的"硬编码收敛" ✓
+⑥ **改读数**：12 处受影响用例按新契约更新（含我自己的 `StagecoachCurvesTests`）✓
+```
+#### 📊 ② 前后读数对照（解冻四件要求 ✓）
+```
+改前：上限 = min(硬上限 **12**, 起手 8 + 解锁增量(6 趟 +2、10 趟 +4) + 马车增量) ⇒ **8 → 10 → 12**
+改后：上限 = min(硬上限 **28**, **曲线[马车等级]**) ⇒ 曲线 **9→12→16→20→24→28**（未建马车 ⇒ **9** = 起手 ✓）
+      · 解锁**不再**抬上限（那两条已删）· **马车曲线是唯一来源** ✓
+读数：构建 **0 错** · 全量 **786/786** ✓ · 门禁 **OK**（403 文件 ≤600 · 仅剩 1 条白名单 = `TuningConfig`）✓ · 在飞 **0** ✓
+```
+#### 🔴 ③ 过程中我犯的错（都被测试/编译器抓住，如实记）
+```
+· 我先把 `roster_cap` **单独**改成 28 ⇒ 6+ 用例立刻红（我漏了 `CurrentCap==0 ⇒ EffectiveCap=Cap` 那一支）
+  ⇒ 回退后按"**接线+数据+撤旧源+改读数**一次成套"重做 ✓（这正是"一次只改一类"的价值 ✓）
+· 我用 `python json.dump` 改数据 ⇒ **重排了 JSON 排版** ⇒ 3 个"对原始 JSON 做字符串手术"的用例失配 ✗
+  ⇒ 改为"**从 git 取回原排版 + 纯文本替换**" ✓
+  ⇒ 📌 新纪律（我加进自己的清单）：**改数据文件优先纯文本；别用会重排的序列化器** ✓
+· 我在测试字符串里又写了内嵌 ASCII 引号 ⇒ 4 个构建错 ⇒ 改「」✓
+```
+#### 📌 ④ P0-1 现状（六个待拆件）
+```
+✅ 真拆 5 个：`ExpeditionFlow`（+7 part）· `BoardTests`（+`.Movement`）· `HungerTests`（+`.Spawn`）·
+   `ExpeditionSession`（+`.Survival`/`.Traps`）· `BattleRoot`（+`.FlowBridge`）✓
+🔴 1 个白名单：`TuningConfig` 811 ⇒ **域段地图与执行清单已交**（`reports/tuningconfig_split_map.md` ✓：远征域 L207-495 ·
+   战斗域 L496-811 · 含 3 项前置与判据）⇒ 用户裁定"**保留白名单，按地图下次做**" ✓
+```
+- **我这边**：M7 **①② 均完成** ✓ · 全量 **786/786** · 门禁绿 · 在飞 **0** · 备份在位 ✓
+- **仍等**：`M2 映射` · `def 合并` · `M1c 阶段 3 的试点 dmg%` · `M8 四问` · `M5 空 classification` · `M3 自加 5 条` · `误提处置`
