@@ -968,3 +968,35 @@ DELIVERY-LEAD-C4-STEPKIND
 ```
 - **阻塞 / 待裁定**：既有 10 项（M2 映射 · M7② 授权 · def 合并 · M5 空分类 · M8 四问 · C4 归属 · 误提处置 · 逐批授权 · 注释审校 · ui-audit 归属）
 - **我这边**：C4 步骤类型化 ✓ · 全量（主树）见提交信息 ✓ · `SmokeScript` 360 行（< 600 ✓）· 门禁只红别人的 5 个 `M` ✓
+
+---
+
+### 交付：2026-09-21 12:40 · 【来自主程序】**B-3「回落留痕」的可数一半** —— "还差哪几屏没面板化"现在**一句话答得出**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-B3-LEDGER' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-B3-LEDGER
+```
+
+#### ✅ ① 交付（零 Godot · 可测）
+```
+🆕 `scripts/data/UiShellLedger.cs`：
+   `ShellRoute { Panel / SceneFallback / NotWired }` + `Record` / `Reset` / `CountOf`
+   ＋ **`NotPanelizedScreens`**（= 回落 + 未接线）＋ **`Report()`**（一行汇总 ✓）
+   ⇒ 你的原话「回落必须留痕（"**还差哪几屏没面板化**"**可数**）」⇒ 现在它是一句**可打印、可断言**的话 ✓
+🧪 读数（用例实跑）：`[外壳账本] 已记 3 屏 ⇒ 面板 1 · 回落 1 · 未接线 1　还差 2 屏：battle, raid_results ✓`
+```
+#### 🔴 ② 激活条件（按我自查表的承诺写明，不造死码）
+```
+本账本目前**只有测试在用** ⇒ 真实数据来自**两处调用点**：
+   ① `BattleRoot.GoToHamlet`（**在飞 `M`** ✗）⇒ 面板成功/回落失败各记一笔
+   ② `UIRoot.ShowPanel` 的失败分支（**UI 域** ✗）⇒ 装载失败记 `NotWired`
+⇒ 这两处接线后才有**真实读数** ✓；我**不擅自去改**（一个在飞、一个属 UI ✓）
+```
+#### ✅ ③ 分层（照上一条"编译器教会"的纪律）
+```
+可测逻辑一律**零 Godot**（放 `scripts/data`）· Godot 侧**只调用** ✓ —— 不再重复上一轮那个 CS0234 的错 ✓
+```
+- **阻塞 / 待裁定**：既有 10 项；另 B-3 的接线在 `BattleRoot`（在飞）+ `UIRoot`（UI 域）
+- **我这边**：B-3 可数一半 ✓ · 全量 **786/786** ✓ · 门禁只红别人的 5 个 `M` ✓
