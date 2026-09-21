@@ -85,6 +85,13 @@ public sealed record SkillTemplateConfig(
     [property: JsonPropertyName("tags")] IReadOnlyList<FuncTag> Tags,
     [property: JsonPropertyName("range_axis")] SkillRangeAxis RangeAxis,
     [property: JsonPropertyName("damage_axis")] SkillDamageAxis DamageAxis,
+    /// <summary>
+    /// 🆕 **M1c 阶段 3 · 技能 `dmg%`**（策划给的值；`smite 0` / `zealous_accusation −40` ✓ 是一手例）。
+    /// 🔴 **`null` = 仍走旧模型**（`attack × 段倍率`）⇒ **默认零行为** ✓（阶段 3 才逐个填 ✓）
+    /// ⚠️ 激活条件：填了它 + **阶段 3 的伤害路径接上**（见 `WeaponBaseDamage` 的两个前置 ✓）才会生效 ✓
+    /// </summary>
+    [property: JsonPropertyName("dmg_pct")] int? DmgPct = null,
+
     [property: JsonPropertyName("heal_fixed")] int? HealFixed = null,
     [property: JsonPropertyName("self_damage_fixed")] int? SelfDamageFixed = null,
     [property: JsonPropertyName("pool_external")] bool PoolExternal = false,

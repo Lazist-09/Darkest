@@ -76,7 +76,10 @@ public sealed class WeaponDamageModelStage1Tests
     public void NoProductionCodeCallsTheNewModel_SoOldReadingsCannotChange()
     {
         DirectoryInfo root = RepoRoot();
-        string[] allow = { "WeaponDamageModelStage1Tests.cs", "BattleMath.cs" };
+        // 🔴 **M1c 阶段 3 起**：把"**新模型的机制文件**"也放进白名单 —— 因为阶段 3 的定义就是
+        //    "机制存在、但**还没人调用**" ✓ ⇒ 所以下面**额外加一条更强的断言**：**无人调用 `WeaponBaseDamage`** ✓
+        //    （即：白名单放宽了"机制文件本身"，但"**旧路径不许碰它**"这条钉得更死了 ✓）
+        string[] allow = { "WeaponDamageModelStage1Tests.cs", "BattleMath.cs", "WeaponBaseDamage.cs" };
         var offenders = new List<string>();
 
         foreach (string f in Directory.EnumerateFiles(Path.Combine(root.FullName, "darkest", "scripts"), "*.cs", SearchOption.AllDirectories))
@@ -98,6 +101,44 @@ public sealed class WeaponDamageModelStage1Tests
         //    ⇒ 要钉的是**生产代码**（darkest/scripts/**）零调用 ✓；**测试**调用它是**允许**的
         //    （例：M1c 阶段 2 的对照夹具 `M1cPilotComparisonTests` 必须调用它才能做对照 ✓）
         //    我第一版把 tests 目录也一并算作违规 ⇒ 夹具一加就假红 ✗ ⇒ 已收窄到只查生产代码 ✓
+
+        // 🆕 **更精确的那条**（阶段 3 机制）：**没有任何生产文件调用 `WeaponBaseDamage`** ⇒
+        //    即"机制就位但**未接线**" ✓ —— 这比"零消费点"更准：允许机制存在，但**不许有人用它算伤害** ✓
+        var modelConsumers = new List<string>();
+        foreach (string f in Directory.EnumerateFiles(Path.Combine(root.FullName, "darkest", "scripts"), "*.cs", SearchOption.AllDirectories))
+        {
+            if (Path.GetFileName(f) is "WeaponBaseDamage.cs")
+            {
+                continue;
+            }
+
+            // 🔴 **判据必须【注释/代码分流】**（与 B6 门禁同款纪律 ✓）：
+            //    注释里"提到"机制名 ≠ 调用它 ⇒ 我第一版只 grep 原文 ⇒ **把注释里的提及误判成消费点** ✗
+            //    （实测抓到 `SkillsConfig.cs`：它只是在 XML 注释里引用了 `WeaponBaseDamage` ✓）
+            bool callsIt = false;
+            foreach (string line in File.ReadAllLines(f))
+            {
+                string trimmed = line.TrimStart();
+                if (trimmed.StartsWith("//", StringComparison.Ordinal))
+                {
+                    continue;   // 注释不算 ✓
+                }
+
+                if (line.Contains("WeaponBaseDamage", StringComparison.Ordinal))
+                {
+                    callsIt = true;
+                    break;
+                }
+            }
+
+            if (callsIt)
+            {
+                modelConsumers.Add(Path.GetFileName(f));
+            }
+        }
+
+        Assert.AreEqual(0, modelConsumers.Count,
+            $"阶段 3 的机制**必须无人消费**（机制在、接线等解冻）⇒ 实际调用者：{string.Join(", ", modelConsumers)}");
 
         Assert.AreEqual(0, offenders.Count,
             $"阶段 1 必须对**生产代码**零消费点 ⇒ 除 `BattleMath.cs`，`darkest/scripts/**` 不应有人调用新模型；实际：{string.Join(", ", offenders)}");
