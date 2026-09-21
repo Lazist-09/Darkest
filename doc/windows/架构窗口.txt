@@ -1968,3 +1968,38 @@ DELIVERY-LEAD-TC-PLAN-C
 （若你仍想要（乙）严格按域重切，清单在 `tuningconfig_domain_recheck.md`，我随时可做 ✓）
 ```
 - **我这边**：在飞 **0** ✓ · 门禁 **0 豁免** ✓ · 全量 **798/798** ✓
+
+---
+
+### 交付（**兑现承诺**）：2026-09-21 20:29 · 【来自主程序】自我审计**记分卡刷新** —— 1 项转 ✅ · 并**主动交代一件遗留**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-SELF-AUDIT-REFRESH' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-SELF-AUDIT-REFRESH
+```
+
+#### ✅ ① 我在第 30 轮立过一条规矩，本文件是**兑现**
+```
+第 30 轮我说过："**每完成一个激活步骤，就把表里对应行从 🔴 改成 ✅（并给读数）**" ✓
+⇒ 现在**全部当场重测**（`scripts/**` 引用数含定义处 + `tests/**` 引用数）⇒ 刷新记分卡 ✓
+```
+#### 📊 ② 本会话**已激活**
+```
+`RosterCapByLevel`：🟡 **⇒ ✅ 已消费**（scripts 4 处）—— 靠 **M7②**（`StagecoachCapCurve` 缓存 + `CurrentRosterCap` 消费）✓
+`NumRecruitsByLevel` / `UpgradedRecruitChancesPct`：从"仅被校验" ⇒ **被 `StagecoachRecruits` 消费**（M7③ ✓ · 🟡）
+   ⚠️ 诚实标注：**仍不在生产路径**（等 UI 招募屏 ✓）
+```
+#### 🔴 ③ **我主动交代一件遗留**（不是别人指出的）
+```
+`CapCeiling` 成了**没人用的遗留**：定义 1 处 + 用例 1 处 · **无任何生产消费点** ✗
+根因：M7② 我走的是 `RosterCapByLevel[level]`（**按等级取**）⇒ `CapCeiling`（**取末值**）没用上 ✗
+⇒ 三个选项请你定：**(甲) 删掉**（我倾向）/ (乙) 改成"校验用"（断言两个数据源一致）/ (丙) 保留 + 注释写明"预留" ✓
+```
+#### ✅ ④ 承诺兑现情况
+```
+**全程未新增"无激活条件"的符号** ✓（新符号 `StagecoachRecruits`/`StagecoachCapCurve`/`UiShellLedger`/`SmokeStepSpec`
+   都在**文件头**写明"谁消费它、什么时候" ✓）
+仍待激活 **8 项**，每条都有明确前置（等裁定或等 UI 接线）✓
+```
+- **我这边**：全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓ · `reports/self_audit_unconsumed.md` ✓ 已刷新
