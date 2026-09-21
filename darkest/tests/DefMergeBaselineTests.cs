@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Darkest.Core.Contracts;
 using Darkest.Core.Math;
 using Darkest.Data;
+using Darkest.Gameplay.Sim.Board;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Darkest.Tests;
@@ -89,4 +91,46 @@ public sealed class DefMergeBaselineTests
     }
 
     public TestContext TestContext { get; set; } = null!;
+    /// <summary>
+    /// 🔴 **合并 `def` 的【原版口径对照】** —— 把甲/乙/丙的**代价变成数字**（供裁定引用 ✓）。
+    ///
+    /// 一手事实（`reports/def_merge_baseline.md` §3）：原版**只有一个 `def`**（= 我们的 `Dodge`），
+    ///   原版的**减伤**走 `prot`（`Clamp(prot, -1, max(0.85, raw))` ⇒ 0~0.85 比例），
+    ///   而 4 原型对到的原版职业 **`prot` 均为 0** ✓
+    /// ⇒ 本用例并排算两列：**我方口径**（`phys_def` / 除数）与**原版口径**（`prot` 比例）✓
+    ///   🔴 **零行为**：只读数据 + 调纯函数 ⇒ 不改任何数值、不改判定 ✓
+    /// </summary>
+    [TestMethod]
+    public void ReferenceSemantics_ShowsWhatStrictAlignmentWouldCost()
+    {
+        BalanceTable balance = BalanceTable.FromTuning(TuningConfig.Parse(ReadData("tuning.json")));
+        UnitsConfig units = UnitsConfig.Parse(ReadData("units.json"));
+
+        int rows = 0;
+        int maxDelta = 0;
+        var lines = new List<string> { "[def 对照] 单位 ⇒ 命中%（两口径同源）· 我方减伤% · 原版减伤%（prot 比例）· 差" };
+
+        foreach (UnitConfig u in units.Units)
+        {
+            int hit = BattleMath.HitRate(u.Dodge, 0, balance.HitClampMin, balance.HitClampMax);
+            int oursPct = (int)Math.Round(BattleMath.PhysicalMitigation(u.PhysDef, balance.PhysicalMitigationDivisor) * 100);
+            int refPct = (int)Math.Round((UnitStatsMapper.From(u).ProtFraction ?? 0) * 100);   // 🔴 走**真实映射路径**（contract 的 ProtFraction ✓）
+            int delta = oursPct - refPct;
+            maxDelta = Math.Max(maxDelta, Math.Abs(delta));
+            rows++;
+            lines.Add($"[def 对照] {u.Id,-16} 命中 {hit,3}% · 我方减伤 {oursPct,3}% · 原版减伤 {refPct,3}%（prot {u.Prot}）· 差 {delta,+4}");
+        }
+
+        lines.Add($"[def 对照] 共 {rows} 个单位 · 最大减伤差 = {maxDelta} 个百分点 ⇒ 这就是严格照原版的代价 ✓");
+        foreach (string s in lines)
+        {
+            Console.WriteLine(s);
+        }
+
+        Assert.AreEqual(7, rows, "基线覆盖 7 个单位（我方 4 + 敌方 3 ✓）");
+        Assert.IsTrue(maxDelta > 0,
+            "🔴 我方减伤与原版不同（我方非零、原版为 0）⇒ 这就是 M1a「合并 def」要裁的点 ✓");
+
+        TestContext.WriteLine("[def 对照] 原版口径对照已输出 ✓");
+    }
 }
