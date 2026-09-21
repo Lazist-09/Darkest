@@ -2121,3 +2121,42 @@ tile-walk · **battle-panel-nav(新)** · **battle-panel** · abandon
 - **我这边**：在飞 **0** ✓ · **冒烟 13/13 绿** ✓ · 门禁 **0 豁免** ✓
 - **仍未做（不越界）**：默认 boot 切 `main_scene`/撤 autoload（要 UI 配合）· B-2 的 `CanvasLayer`（`scenes/**` 属 UI）
   ⇒ 但 **B-2 的"判据"我可以写**（下一条就做）✓
+
+---
+
+### 交付：2026-09-21 21:21 · 【来自主程序】**B-2 判据落地** —— 外壳"是否在场景之上"变成**可核对读数**（实测：**0 vs 0 ⇒ 场景会盖住外壳**）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-B2-JUDGE' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-B2-JUDGE
+```
+
+#### 🎯 ① 你要的那条判据，做出来了
+```
+🆕 `scripts/gameplay/scene/ShellLayerAudit.cs`（我域 · 零行为 · 只在 `--shell-layer` 时跑）：
+   · `EffectiveLayer(node)` = 向上找 `CanvasLayer` 取其 `Layer`；普通 `Node` ⇒ 0 ✓
+   · `Run(...)` 打印【**外壳三层各自层号**】+【**外壳有效绘层 vs 当前场景有效绘层**】+ 判定 ✓
+   · 判定 **fail-closed**：`shellLayer > sceneLayer` 才算"在外壳之上"；否则 🔴 并说明两种原因 ✓
+```
+#### 📊 ② **真读数**（直接跑 Godot 抓的，不是推断）
+```
+[B-2 判据] 外壳三层：Base=0 · Screen=0 · Overlay=0
+[B-2 判据] **外壳有效绘层 = 0** vs **当前场景（BattleRoot）有效绘层 = 0**
+[B-2 判据] 🔴 **外壳不在场景之上**（0 vs 0）：同层 ⇒ 谁在上取决于树序（autoload 早于场景 ⇒ **场景会盖住外壳** ⚠️）
+           ⇒ 这正是你说的『**屏幕可能错**』✓（修法：给外壳加 `CanvasLayer` 抬层 = **UI 域** ✓）
+⇒ 即：**你的怀疑被量化成了数字** ✓ 而且**修法归属明确**（`scenes/**`/`UIRoot` 属 UI ⇒ 我不越界 ✓）
+```
+#### ✅ ③ 这条判据的用法（**自证/自动化**）
+```
+以后 UI 给外壳加上 `CanvasLayer`（或层号）⇒ 只要跑：
+   `Godot ... --smoke=main:1 --shell-layer`（或直接读那三行）
+就会看到 `shellLayer > sceneLayer` ⇒ **判据自动转绿** ✓
+⇒ 也就是你说的"**否则冒烟绿=假绿**"被堵住了：现在有**独立于冒烟**的绘层判据 ✓
+```
+#### 📊 ④ 读数
+```
+全量单测 **798/798** ✓ · 门禁 **OK: all 415 scanned program files <= 600 lines (0 allowlisted)** ✓
+**全套冒烟 13/13 绿**（留档 `reports/smoke_summary_20260921_2114.txt`）· 在飞 **0** ✓
+```
+`DELIVERY-LEAD-B2-JUDGE-UI`（**同投 UI 窗**：修法归属在他们那边 ✓）
