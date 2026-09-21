@@ -1068,3 +1068,51 @@ DELIVERY-LEAD-HANDOVER
 ```
 - **我这边的判断**：目标**未完成**（多数 M 项卡在裁定上）⇒ 我**保持 active**，等你/策划一句话即可继续 ✓
 - **产物**：`reports/HANDOVER_lead_programmer.md`（接手第一批动作也写在 §4 ✓）
+
+---
+
+### 🎉 状态大变：2026-09-21 13:01 · 【来自主程序】**用户授权后：252 项在飞全部入库 · 文件规模门禁【转绿】· P0-1 收口**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-INFLIGHT-COMMITTED-GATE-GREEN' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-INFLIGHT-COMMITTED-GATE-GREEN
+```
+
+#### 🎉 ① 用户授权("在飞改动你直接动")⇒ 我按 9 批**全部入库**（内容非我所写，已逐批在提交信息里写明 ✓）
+```
+动手前先备份:`F:\GithubPro\Darkest-backup-20260921_124836`(4476 文件 + 252 行清单)✓
+批次(路径**显式列名**,不用通配符 ✓):B_工程/卫生 20 项 · B1 数据/解析/core 19 · B2 sim 51 · B3 scene 5 ·
+   B4 tests 80 · B5 UI 域 40(标注属 UI) · B6 doc 30(标注属契约域) · B7 其余 3 · B8 收尾 5
+⇒ **在飞清单 = 0** ✓✓（提交 `b5ef094` … `7fff261`）
+🛡️ 卫生:`.gitignore` **追加**忽略 6 个大目录(`.tools` **623MB** · `dd_ref_ui` · `.workbuddy` · `doc/dd_ref` ·
+   `doc/_ui_reverse` · `doc/_backups`)+ `*.bak*` ⇒ 防将来 `git add -A` 吞掉 600MB+(红线 `O-90`)✓
+```
+#### 🎉 ② 文件规模门禁：**红 → 绿**
+```
+**OK: all 400 scanned program files <= 600 lines (3 allowlisted)**　exit 0 ✓
+我拆掉的:`ExpeditionFlow`(852→357+7 part · 早先)· **`BoardTests` 630→295 + `.Movement` 367** ·
+   **`HungerTests` 648→557 + `.Spawn` 117** ✓
+🔴 剩下 3 个用你 §1.2 **明文许可的那条**:"或先加**带理由的白名单**（临时，且**必须写"谁认账 + 何时拆"**）"
+   · `TuningConfig.cs 811` ⇒ 待把 `Validate` 按域段拆成三支（高风险:要逐条比对校验顺序）
+   · `ExpeditionSession.cs 670` ⇒ 待抽 `.Inventory`/`.Scout`
+   · `BattleRoot.cs 626` ⇒ 待抽 `.FlowBridge`（流程驱动口）
+   ⇒ 三条都写了【**主程序认账** + 拆分条件 + 完成即删本行】✓（提交 `4cdd65e`）
+🔴 为什么不用自动化硬拆（如实）:这三个文件的成员跨度大，我的"行段切片"在这类文件上**失败 3 次**
+   （先后写坏 `ExpeditionFlow`/`BoardTests`/`HungerTests`），每次都靠**动手前备份**完整还原 ✓
+   ⇒ 与其冒险写坏生产文件硬凑数字，不如**如实豁免 + 记明欠账**（门禁的反假拆纪律也是这么说的 ✓）
+```
+#### 📌 ③ 由此**解锁**的项（这些前置现在没了）
+```
+· **M7 第 ② 步**：消费者 `Roster.cs` **已入库** ⇒ 不再是"在飞" ⇒ **我可以做了** ✓
+· **B-1/B-2**：`BattleRoot.cs` **已入库** ⇒ 我可以改它了（但 B-2 的 `scenes/**` 仍属 UI 域 ⇒ 需与 UI 协同 ✓）
+· **C4 面板步骤接线**：等 S4（= B-1）✓
+· **M3**：9 个消费点**都已入库** ⇒ 只等 **M1/M2** ✓
+· **终验**：构建 0 错 · 全量 **786/786** · 门禁绿 · 我域未提交 0 ✓
+```
+#### ⏳ ④ 仍等你的 7 件（不变）
+```
+M2 映射三选一 · def 合并三选一 · M1c 阶段 3 的试点 dmg% 值 · M8 四问 · M5 空 classification ·
+M3 自加 5 条处置 · 误提处置 (甲)/(乙)（外加"回填后注释审校"的派工 ✓）
+```
+- **我下一步**：**M7 第 ② 步**（上限来源切到马车 · 带前后读数）⇒ 然后视情况做 B-1（战斗成为 panel）✓
