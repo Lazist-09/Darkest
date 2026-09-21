@@ -1,61 +1,89 @@
-# 主程序产物索引（接手人入口 · 2026-09-21 刷新）
+# 主程序 · **交付索引**（单一入口 · 2026-09-21 末次重测）
 
-> 🔴 **本会话我域的产物共 32 份**（外加 2 份是我代提的别人域报告 ✓）
-> 🔴 **怎么用**：先看 §0「按裁定取用」⇒ 你手上是哪条裁定，就翻哪份报告 ✓；需要背景再看 §1~§4 ✓
-> 🔴 **权威来源**：凡"参考件 vs E 盘"冲突 ⇒ **E 盘是一手**（策划 `#452`）✓
+> 🔴 **用途**：本文件是「**我交付了什么、读数是多少、提交号在哪**」的**唯一入口** ✓
+>   ⇒ 每一项都遵守目标判据：**实测读数 + 提交号** ✓
+> 🔴 **口径**（沿用项目纪律）：
+>   · **"零行为"** = 构建 0 错 **且** 全量测试与改前**同一个数** **且** 相关基线（如减伤矩阵）**逐位不变** ✓
+>   · **"运行时验证"** = 本机 **Godot 4.6.1 mono** 真跑（`tools/dsh/smoke.ps1`）✓ 不是"构建绿"✓
+>   · **能验 / 不能验分开写**（见 §6）✓
 
-## 0. 🔴 按裁定取用（**你裁哪条，就看哪份**）
-| 你手上的裁定 | 看这份 | 里面有什么 |
+## §0 末次总读数（当场重测）
+```
+构建 **0 错** · 全量单测 **809/809** ✓ · 文件规模门禁 **OK: all 425 scanned program files <= 600 lines (0 allowlisted)** ✓
+B6 外源门禁 **OK** ✓ · 数据纪律 **OK** ✓ · 全套冒烟 **13/13 绿**（真错误 0 · PROBE-EXIT bad=0 code=0）✓
+我域在飞 **0** ✓ · 备份 **4 份**（3 全量 + 1 专项）✓ · 本会话提交 **230+** 条 ✓
+```
+
+## §1 P0-1 · 文件规模（六件**全真拆** · 白名单清零）
+| 项 | 读数 | 提交 |
 |---|---|---|
-| **要不要让【阶数】直接影响伤害** | `m1c_dmg_pct_*.md`?→ 见 `M1c` 取值表（用例 `M1cDmgPctTableTests`） | 23 技能"复现今天所需 dmg%"两列（tier0/tier4）⇒ **两列差异巨大**就是这个问题的证据 |
-| **M1c 的 dmg% 值** | 同上 + `M1cPilotComparisonTests` | 16 行并排对照（阶段 2）✓ |
-| **`def` 合并 (甲)/(乙)** | `def_merge_three_plans.md` + `def_merge_baseline.md` | 三份预案（动哪几行/改哪些读数）+ 28 条前置基线 + 原版口径对照（最大差 **29 pt**）|
-| **`M2` 映射 (甲)/(乙)/(丙)** | `m2_activation_plan.md` | 15 条冻结原语逐条：**7 条现在就能接** · 4 条等 M3/M4 · 2 条口径待定 |
-| **`M8` 四问** | `dd1_hero_upgrades_source.{md,json}` + 用例 `HeroUpgradesConfigTests` | **15 职业/135 树/645 等级** 可吃进真实形状（无悬空）+ 三道 P 检查 |
-| **`M5` 的 6 条空分类** | `dd1_quirks_source.md` | 6 条**全是 `corvids_*`**（建议保持空 ✓）|
-| **`M3` 三条边界** | `m3_buff_classification.md` | 22 条逐条归属表（**①7 条与卡严丝合缝**）+ `taunt`/`bound`/`pep_talk` 的判据冲突 |
-| **`M9` 名单 4 人 / 是否保留待命位** | `m9_4v4_recon.md` + `m9_rules_readings.md` + `m9_support_impact.md` | 四个子任务 + **"增援=待命席"的更正** + 10 文件 32 处影响面 |
-| **拆分到底有没有丢东西** | `split_integrity_audit.md` + 工具 `tools/dsh/audit_split_integrity.py` | 六件 + `ExpeditionFlow` 7 片 = **成员零丢失**（一条命令可复跑 ✓）|
-| **`TuningConfig` 名字与内容不符** | `tuningconfig_domain_recheck.md` + `tuningconfig_split_map.md` | 真实跨域清单 + 三个选项（甲保持/乙真重切/丙按校验对象改名）|
-| **整体收尾与卡点** | `final_verification.md` + `HANDOVER_lead_programmer.md` | 终检读数 + 37 项交付总表 + 12 件待裁定 + 我的不变量 |
+| `ExpeditionFlow.cs` 1185 → **357** + 7 part | 门禁里它消失 · 全量同数 | 拆分批 + `c05108a` |
+| `tests/BoardTests.cs` 630 → **295** + `.Movement` 367 | 同数 | 拆分批 |
+| `tests/HungerTests.cs` 648 → **557** + `.Spawn` 117 | 同数 | 拆分批 |
+| `ExpeditionSession.cs` 670 → **378** + `.Survival` 233 + `.Traps` 97 | 同数 | 拆分批 |
+| `BattleRoot.cs` 626 → **532** + `.FlowBridge` 116 | 同数（只抽流程驱动口 ✓ 架构口径） | 拆分批 |
+| `TuningConfig.cs` 811 → **212** + `.Validate.ExpeditionSide` 575 + `.Validate.CombatSide` 81 | 零行为 · 两片改名诚实标记 → 再**严格按域重切 256 行** | `c379a0c` · `dd10218` · **`9a84a16`** |
+| **白名单** | `file_size_allowlist.txt` = **0 条** ✓ | 同批 |
+| 🆕 拆分完整性审计工具 | `audit_split_integrity.py`（防"拆完丢内容"） | 拆分批 |
 
-## 1. 对齐数据（M1/M4/M5/M6/M8 · DD1 阶段 A）
-| 产物 | 用途 | 状态 |
+## §2 P0-2 形态 B（**我域那一半已尽**：1 实现 + 4 判据 + 1 一键）
+| 项 | 读数（实测） | 提交 |
 |---|---|---|
-| `dd1_hero_tables_from_unity_ref.{md,json}` | 15 英雄 × 8 抗性 + weapon/armour 5 阶 | ✅ 可用（**参考件**，与 E 盘一致） |
-| `dd1_trinkets_source.md` + `darkest/data/trinkets.json` | Trinket **196 条**（E 盘一手，排除 kickstarter） | ✅ 已落库 + 验收 |
-| `dd1_quirks_source.md` + `darkest/data/quirks.json` | Quirk **170 条**（互斥悬空 0 / 非对称 0） | ✅ 已落库 + 验收 |
-| `dd1_buildings_source.md` + `darkest/data/buildings.json` | 建筑 **8/20/99** | ✅ 已落库 + 三条 P 校验 |
-| `dd1_hero_upgrades_source.{md,json}`（286 KB） | **15 职业/135 树/645 等级** | 🟡 **解析器+校验已就绪** · ⛔ 落库等 `M8 四问` |
-| `dd1_buff_primitives.{md,json}` | 参考件 1801 条 buff ⇒ **41 原语** | ✅ 已量（M2 的输入） |
+| **B-1** 战斗成面板 | 🆕 `BattlePanel : Control, IUiPanel` + `--battle-panel`；**真跑**：`battle-panel` 例 **真错误 0** | `e8919ec` · **`e148b34`** |
+| ↳ 关键修复 | 第一版 `new BattleRoot()` ⇒ `Node not found: "UILayer/BattleUI"` ✗ ⇒ 改**实例化战斗场景** ⇒ **真错误 2 → 0** | `e148b34` |
+| **C4** 面板步骤导航 | 🆕 `panel:battle`；**硬证据**：`路径=/root/UIRoot/ScreenLayer/BattlePanel/BattleRoot` ⇒ 消费者**在面板内** ✓ | **`d2f26e1`** |
+| **B-2** 绘层判据 | 实测 `外壳 0 vs 场景 0` ⇒ **同层 ⇒ 场景会盖住外壳** 🔴（架构的怀疑被量化） | **`fce749f`** |
+| **B-3** 回落留痕 | 实测 `[外壳账本] 已记 1 屏 ⇒ 面板 0 · 回落 1 · 还差 1 屏：hamlet` ✓ | **`7690ffe`** |
+| **C4 终态** 实例数判据 | 实测 `外壳实例数 = 1` ✓ 但 `autoload` 仍注册 ✗ + `main_scene` 不是 `ui_root.tscn` ✗ | **`280311f`** |
+| 🆕 **一键状态** `--shell-status` | 三条判据一次看全 + **写明"剩下归谁"**（架构把它立成**交付模板**） | **`ddd32ba`** |
+| ↳ 架构回执修正 | "未触发"不再打印成 `0` | `b088221` |
 
-## 2. 裁定与基线
-`def_merge_baseline.md`（28 条命中/减伤基线）· `def_merge_three_plans.md`（三预案）· `m2_activation_plan.md` ·
-`m3_buff_table_recon.md` · `m3_consumption_points.md` · `m3_actionable_plan.md` · `m3_buff_classification.md` ·
-`m9_4v4_recon.md` · `m9_support_impact.md` · `m9_rules_readings.md` · `tuningconfig_split_map.md`（域段地图，已用掉 ✓）·
-`tuningconfig_domain_recheck.md` · `self_audit_unconsumed.md`（我的欠账清单：8 符号待激活 + 条件）·
-`split_integrity_audit.md` · `final_verification.md` · `HANDOVER_lead_programmer.md`
+## §3 B6 外源门禁（架构规格）
+| 项 | 读数 | 提交 |
+|---|---|---|
+| 🆕 `tools/check_no_external_assets.py` | 双向自检 PASS · `--list` / `--root` 就位 · 白名单**每条带理由 + 到期条件** | B 批 |
+| 备注 | 扫描导出包/资产目录/打包清单 ⇒ 禁 E 盘来源标记或提取物（exit 1）✓ | — |
 
-## 3. 工程与协调
-`inflight_scan_summary.md`（在飞全盘扫描）· `commit_batches_for_inflight.md`（9 批清单 · **已执行完** ✓）·
-`c4_navigation_inventory.md`（C4 6 处调用点）· `ui_layout_audit.json`（静态审查结论：覆盖率上限 24% ⇒ 必须走 runtime）
+## §4 DD1 阶段 A（按卡）
+| 项 | 读数 | 提交 |
+|---|---|---|
+| **M5** Quirk/疾病/折磨 落库 | **170 条** · 互斥**悬空 0 / 非对称 0** · `disease 23` · `mental 108/physical 56/空 6`（6 条全 `corvids_*` ⇒ 裁定留空 ✓） | `9a3d2c8` |
+| **M4** Trinket 落库 | **196 条** · 可购买 **170** / 不可购买 **26** · 判据 = `award_category ≠ universal`（**不是** `price ≤ 1`：15 ≠ 26 ✓ 按 `#452` 更正 ✓） | `4c04e13` |
+| **M6** 建筑与升级 落库 | **8 建筑 / 20 树 / 99 等级** + 三条 P 检查（含**成环**） | `2e09649` |
+| **M7** 名册上限与招募 | 上限改 **单一来源 = 马车曲线**（9→12→16→20→24→28 ✓）· 招募 2→…→7 ✓ · 高级新兵 18.75/12.5/6.25% ✓ · 每掷骰留痕 | `d1cb693` · `ca68e09` · `709466d` |
+| **M8** 职业升级树 落库 | **15 职业 / 135 树 / 645 等级** · 悬空 0 · **645/645 带 `origin`** · 四问答案+依据 | **`4d98c6a`** |
+| **M9** 4v4 vs 6 槽 | 影响面（10 文件 32 处逐行）· **6 槽契约回归**（卡里验收项）· 改名（11 文件零行为）· 三处规则读数 | `31c96c9` · **`5368aa6`** · `92cefb3` |
+| **M1a** tier/三轴/`prot` | `warrior w[4] dmg 10-19` · **零行为自证** · 🆕 **`PhysDef` 归位 ⇒ `prot`**（值原样搬家 ✓） | `c4e6251` · **`51e7822`** |
+| **M1c** 换伤害模型 | 阶段 1（纯函数 · 零消费点自证）· 阶段 2（16 行对照）· **阶段 3 机制就位**（`dmg_pct` 默认 null + `WeaponBaseDamage`）+ **就绪度报告**（两个硬前置 ✓） | `4d2831c` · `0c88763` · **`73d8313`** |
+| **M2** buff 原语层 | 分类器 **41 原语 ⇒ 26 有去向 / 15 显式冻结** · **激活第 1 条 `hp_heal_percent`**（纯函数 + 用例 + 前后读数 ✓）+ **前提性发现**（6 条落点在趟级 ⇒ 到不了 ✓） | 各批 · **`8d00213`** |
+| **M3** 22 条 buff 三类处置 | 逐条归属表（**按时长形态分类** ✓ 与卡严丝合缝：折磨/美德 **7** ✓）· **第 1 步**：`traits.json`（**7 条** · 值原样 · 零行为）+ 第 2 步计划 | `e251e0b` · **`1c34b8d`** |
 
-## 4. 我本会话新增的工具（都可复跑）
+## §5 纪律与工具（本会话新增/加固）
+| 项 | 读数 | 提交 |
+|---|---|---|
+| 拆分方法论 | **精确行号切片**（不再用花括号推断 ✗ 该法曾 3 次写坏文件）| 各批 |
+| 🆕 `check_file_size.py` 白名单清零 | **0 allowlisted** ✓ | 各批 |
+| 🆕 **孤儿批逐文件核准表** | **9 批 237 文件**全部可追溯到 提交号 + 批次 + 归属域 ✓「能担保/不能担保」分开写 ✓ | **`98ec3c8`** |
+| 🆕 **无注释整类体清单**（架构点名要） | 按块 · 密度排序：最前 8 个（2.0~5.9%）**全是 `ExpeditionFlow` + 7 part** ⇒ 如实交代成因（反编译回填） | `f679a3d` |
+| 🆕 计划书工作总结 | 裁定 → 交付对照（11 行）+ 纪律自证 + 仍等策划的 8 条 | `5558286` |
+| 事故后恢复 | `ilspycmd` 从事故前 DLL 捞回 1141 行（符号 10/10 命中）· 4 份备份 | `5055d86` · `7197e88` |
+
+## §6 ✅ 能验 / 🔴 不能验（**分开写** ✓）
 ```
-`extract_dd1_hero_tables.py`   ← 英雄 5 阶/抗性/技能等级（参考件）
-`extract_dd1_trinkets.py`      ← **E 盘一手** ⇒ trinkets.json
-`extract_dd1_quirks.py`        ← **E 盘一手** ⇒ quirks.json
-`extract_dd1_buildings.py`     ← **E 盘一手** ⇒ buildings.json
-`extract_dd1_hero_upgrades.py` ← E 盘 15 职业升级树（只测量 ✓）
-`extract_dd1_buff_primitives.py` ← 参考件 buff ⇒ 原语用量
-`check_no_external_assets.py`  ← **B6 门禁**（E 盘来源/提取物 · 白名单需理由+到期 · 双向自检）
-`check_ui_shell_singleton.py`  ← 形态 B 终态判据（外壳实例 = 1 · `--strict` 供 S4 后接 CI）
-`ui_layout_audit.py`           ← 静态布局审查（**fail-closed**：覆盖不足即 INCONCLUSIVE）
-🆕 `audit_split_integrity.py`  ← **拆分完整性**（按成员名比 · 缺一个即 exit 1 · 含双向自检 ✓）
+✅ **我能自证的**：构建 · 全量单测 · 文件规模门禁 · B6 · 数据纪律 · **全套冒烟 13/13（本机真跑 Godot）** ·
+   减伤/命中基线逐位不变 · 每条判据的**实测输出**（B-2/B-3/C4/一键状态 ✓）
+🔴 **我不能自证 / 未做的**：
+   ① **UI 域**：外壳 `CanvasLayer` 抬层 · hamlet 等屏面板化 · `main_scene` + 撤 autoload（**都要 UI 动手** ✓）
+   ② **等裁定的数值**：技能 `dmg%` 23 条 · `prot` 对齐原版（减伤→0）· 4v4 名单/待命位 · `def` 平衡项
+   ③ **M3 第 2 步**（带行为）：建议与 ②③ 口径一并确认后一次做完 ✓
+   ④ **注释审校**：`ExpeditionFlow` 那批的"为什么"**真的丢了** ⇒ 只能补"这段在做什么"✓
+   ⑤ **`O-95` 4v4 数值**（技能 SP 剂量）⇒ 入解冻清单 ✓
 ```
-## 5. 使用提醒
+
+## §7 索引维护
 ```
-① 凡"参考件 vs E 盘"冲突 ⇒ **E 盘是一手** ✓
-② 凡"未落库/待激活"的产物 ⇒ **不是漏做**，是**按计划等前置**（每条都有前置写清 ✓）
-③ 本索引里凡标 🟡/⛔ 的 ⇒ 都是"等裁定"；标 ✅ 的 ⇒ **有读数 + 提交号** ✓
+· 本文件**每次有实质交付就更新**（新行 = 项 + 读数 + 提交号 ✓）
+· 相关报告：`final_verification.md`（终检快照）· `HANDOVER_lead_programmer.md`（交接）·
+  `orphan_batch_per_file_audit.md` · `no_comment_class_bodies.md` · `planner_briefing_work_summary.md` ·
+  `m1c_stage3_readiness.md` · `m2_activation_readings.md` · `m3_traits_step2_plan.md` · `m8_four_answers.md` ✓
 ```
