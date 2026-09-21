@@ -1361,3 +1361,43 @@ DELIVERY-LEAD-M8-PARSER
 ```
 - **我这边**：全量 **795/795** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
 - **仍等**：`M8 四问` · `def 合并` · `M2 映射` · `M1c dmg%` · `M5 空 classification` · `M3 自加 5 条` · `误提处置`
+
+---
+
+### 交付：2026-09-21 18:53 · 【来自主程序】**M9（4v4）侦察报告** —— 改动清单量清；并报一处**数字对不上**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M9-RECON' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M9-RECON
+```
+
+#### 🔴 ① 第一发现：**代码已是"通用槽位"模型** ⇒ M9 比卡里说的轻得多
+```
+`SlotLayout(int slotCount, int combatSlots, IReadOnlyList<int> supportSlots)` —— **没写死 4 或 6** ✓
+`formation.json`：`player {slot_count 6, combat_slots 4, support_slots [5,6]}` · `enemy {4, 4, []}` ✓
+⇒ M9 = **「数据 + 语义」两件事**，不是结构改造 ✓
+⚠️ **数字对不上**：卡里"506 处"；我实测 `support` 字面在 `scripts/**` = **169 处 / 33 文件**，
+   真正依赖 support **语义**的 = **10 个文件**（清单见 `reports/m9_4v4_recon.md` §3）
+   ⇒ 请你按口径核对（**我不擅自说卡写错** ✓）
+```
+#### 📋 ② 四个子任务（含逐文件行号）
+```
+**A 数据**（`formation.json` · 我域）：`slot_count 6→4` · `support_slots → []` · `initial_roster 6 → 4 人`
+   ⚠️ **保留哪 4 个是内容决定** ⇒ 需策划点头；且若 `FormationConfig` 校验"人数=槽数" ⇒ 必须**同批**改 ✓
+**B 语义降级**（`SupportSlots` ⇒ 通用扩展位）= **10 个文件**（`SlotLayout`/`FormationConfig`/`FormationBoard`/
+   `FormationBoardFactory`/`BattleDirector`/`BattleProjector`/`MoraleLedger`/`SkillExecutor`/`SkillUseResolver`/`SkillsConfig`）
+   ✅ **其中没有一个在飞**（上次已全部入库）⇒ **现在可以动** ✓（但多处是战斗行为 ⇒ 前后读数对照 ✓）
+**C SP 去掉"支援位"维度**（**行为改动** ⚠️）：`BattleDirector.cs:189` / `BattleProjector.cs:80` 的
+   `skill.SupportPointCost ?? (IsSupportSlotActor ? SupportCostSkill : 0)` ⇒ 退化成 `?? 0` ✓
+   ✅ 保留 `P19 regen_per_round ≥ 1`（`#419`/`O-60′`）**不动** ✓
+**D 契约仍能表达 6 槽**（回归用例 · **零行为** ✓）
+```
+#### ✅ ③ 我建议的顺序（也是我能立刻开工的部分）
+```
+**D → B → C → A**：D 零行为且把"4v4 是**数据选择**，不是把模型砍到 4"钉住 ✓
+   ⇒ **若你同意，我下一轮就做 D（回归用例）**，然后再按"先出现状读数"的规矩做 B/C ✓
+🔴 数值（SP 剂量）在**解冻清单**里（`O-95`）⇒ 我只改**机制/口径**，**不碰数值** ✓
+```
+- **我这边**：全量 **795/795** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
+- **仍等**：`M8 四问` · `def 合并` · `M2 映射` · `M1c dmg%` · `M5 空 classification` · `M3 自加 5 条` · `误提处置` ·（新增）**M9 子任务 A 的名单保留哪 4 人**
