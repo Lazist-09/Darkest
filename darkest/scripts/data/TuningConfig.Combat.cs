@@ -1,7 +1,9 @@
-// 🔴 从 TuningConfig.cs 拆出（用户红线 <=600 行 · 架构 file_size_split §1.2 的『②.Combat / ③.Expedition』）
-//    本文件 = 战斗域校验（ValidateCombat：物理/精神减伤、命中、暴击、士气、虚弱、死门等）
-//    🔴 **只搬家、零行为**：校验**顺序不变**（主文件的 Validate 在同一位置依次调用这两支 ✓）
-//    前置检查已做：两块的局部变量**互不越界**（实测 9 + 4 个全部自足 ✓）
+// 🔴 从 TuningConfig.cs 拆出（用户红线 <=600 行 · 架构 file_size_split §1.2）
+//    ⚠️ **如实说明**：本片的边界是【**行数边界**】（切在 L495/496 ✓），按主要内容命名为 `.Combat` —— **不是纯域**：
+//       主体 = 物理/精神减伤、命中、暴击、士气、虚弱、死门 ✓，**也含远征/地牢项**
+//       （`t.DungeonLayer` / `t.RetreatFormula` / `t.CurioRefusePercent` / `t.EatRefusePercent` / `t.Light` 等 ✓）
+//    🔴 严格按域重切的清单见 `reports/tuningconfig_domain_recheck.md` ✓
+//    🔴 只搬家、零行为：校验**顺序不变** ✓
 
 using System;
 using System.Collections.Generic;
@@ -332,3 +334,4 @@ public sealed partial record TuningConfig
         }
     }
 }
+

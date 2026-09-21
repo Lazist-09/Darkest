@@ -1,7 +1,9 @@
-// 🔴 从 TuningConfig.cs 拆出（用户红线 <=600 行 · 架构 file_size_split §1.2 的『②.Combat / ③.Expedition』）
-//    本文件 = 远征域校验（ValidateExpedition：远征/光照/侦察/背包/扎营/口粮）
-//    🔴 **只搬家、零行为**：校验**顺序不变**（主文件的 Validate 在同一位置依次调用这两支 ✓）
-//    前置检查已做：两块的局部变量**互不越界**（实测 9 + 4 个全部自足 ✓）
+// 🔴 从 TuningConfig.cs 拆出（用户红线 <=600 行 · 架构 file_size_split §1.2）
+//    ⚠️ **如实说明**：本片的边界是【**行数边界**】（切在 L495/496，因为那一刀两侧的**局部变量互不越界** ✓），
+//       我随后按**主要内容**把它命名为 `.Expedition` —— 但它**不是纯域**：
+//       主体 = 远征/光照/侦察/背包/扎营/口粮 ✓，**也含少数战斗项**（`t.Morale` / `t.MentalReduction` 等 ✓）
+//    🔴 若要**严格按域**重切 ⇒ 见 `reports/tuningconfig_domain_recheck.md`（我列了精确的跨域清单，等你定 ✓）
+//    🔴 只搬家、零行为：校验**顺序不变**（主文件的 `Validate` 在同一位置依次调用两支 ✓）
 
 using System;
 using System.Collections.Generic;
@@ -307,3 +309,4 @@ public sealed partial record TuningConfig
         // 🔴 物理减免除数（数字外置，用户 2026-09-14）：**必填且 > 0** ⇒ 不许回落到代码里的默认值 ✓
     }
 }
+
