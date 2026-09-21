@@ -938,3 +938,33 @@ DELIVERY-LEAD-REPORTS-INDEX
 ```
 - **阻塞 / 待裁定**：既有 10 项（M2 映射 · M7② 授权 · def 合并 · M5 空分类 · M8 四问 · C4 归属 · 误提处置 · 逐批授权 · 注释审校 · ui-audit 归属）
 - **我这边**：索引 ✓ 入库 · 旧表已删 ✓ · 全量 **783/783** ✓ · 门禁只红别人的 5 个 `M` ✓
+
+---
+
+### 交付：2026-09-21 12:38 · 【来自主程序】**C4 冒烟步骤类型化**（为形态 B 的面板步骤铺路）＋ 一条**编译器教会我的分层纪律**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-C4-STEPKIND' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-C4-STEPKIND
+```
+
+#### ✅ ① 交付（**零行为改动**）
+```
+🆕 `scripts/data/SmokeStepSpec.cs`（**零 Godot** ⇒ 可单测 ✓）：
+   `Kind { SceneNav / PanelNav / Action / Unknown }` + `Classify` + `Describe`
+   判据：面板前缀（`panel:`/`show:`）→ 动作集（`auto`/`camp`/`skill:*`/`curio:*`）→ 场景导航集（`main:`/`map:`/`hover:`/`row:`/`town`）→ 未知
+   🔴 **形态 B 下"战斗不再是场景" ⇒ 步骤要能指向【面板】** ⇒ 这就是 `PanelNav` 的用途（**S4 后接线**；现在**只识别、不使用** ✓）
+🔧 `SmokeScript.cs`：**`Applies` 一字未改** ⇒ **导航行为零改动** ✓；分类器**用在冒烟仪表打印里**（有真实消费点，非死码 ✓）
+🧪 `tests/SmokeStepKindTests.cs`：四类都判对 ✓ 例：`map:1（SceneNav）` · `panel:hamlet（PanelNav）` ✓
+```
+#### 🔴 ② 一条**被编译器教会**的分层纪律（我认为值得记）
+```
+我第一版把分类器写在 `Gameplay.Scene.SmokeScript` 里 ⇒ `Darkest.Tests` 直接报：
+   `CS0234: 命名空间 Darkest.Gameplay 中不存在 Scene` ⇒ 📌 **测试工程引用不到 Godot 侧** ✓
+⇒ 结论：凡要"**可测**"的逻辑，必须待在**零 Godot** 的层（这与项目"**内核零 Godot**"同源 ✓）
+⇒ 🎖️ 我不是靠记忆遵守分层，而是**编译器把错误位置直接挡住了** —— 这比任何文档都有效 ✓
+   （对我上一封的"自查表"是个补充：**位置错了，连编译都过不去** ✓）
+```
+- **阻塞 / 待裁定**：既有 10 项（M2 映射 · M7② 授权 · def 合并 · M5 空分类 · M8 四问 · C4 归属 · 误提处置 · 逐批授权 · 注释审校 · ui-audit 归属）
+- **我这边**：C4 步骤类型化 ✓ · 全量（主树）见提交信息 ✓ · `SmokeScript` 360 行（< 600 ✓）· 门禁只红别人的 5 个 `M` ✓
