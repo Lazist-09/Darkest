@@ -1,5 +1,5 @@
 // 🔴 从 TuningConfig.cs 拆出（用户红线 <=600 行 · 架构 file_size_split §1.2）
-//    ⚠️ **如实说明**：本片的边界是【**行数边界**】（切在 L495/496 ✓），按主要内容命名为 `.Combat` —— **不是纯域**：
+//    ⚠️ **如实说明**：本片的边界是【**行数边界**】（切在 L495/496 ✓），按主要内容命名 —— 现在文件名是 `.Validate.CombatSide`（**Side = 不假装纯域** ✓）：
 //       主体 = 物理/精神减伤、命中、暴击、士气、虚弱、死门 ✓，**也含远征/地牢项**
 //       （`t.DungeonLayer` / `t.RetreatFormula` / `t.CurioRefusePercent` / `t.EatRefusePercent` / `t.Light` 等 ✓）
 //    🔴 严格按域重切的清单见 `reports/tuningconfig_domain_recheck.md` ✓
