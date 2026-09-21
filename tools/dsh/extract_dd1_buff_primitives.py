@@ -33,8 +33,11 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DEFAULT_REF = r"F:\GithubPro\Darkest-Dungeon-Unity\Assets\Resources\Data\JsonBuffs.json"
 OURS = os.path.join(REPO, "darkest", "data", "buff_defs.json")
-OUT_MD = os.path.join(REPO, "reports", "dd1_buff_primitives.md")
-OUT_JSON = os.path.join(REPO, "reports", "dd1_buff_primitives.json")
+OUT_MD_BASE = os.path.join(REPO, "reports", "dd1_buff_primitives")
+OUT_JSON_BASE = os.path.join(REPO, "reports", "dd1_buff_primitives")
+OUT_MD = OUT_MD_BASE + ".md"
+OUT_JSON = OUT_JSON_BASE + ".json"
+
 
 # PROPOSED mapping: our modifier "kind" -> the original's stat_type family.
 # 🔴 This is a *proposal for the planner to bless*, not a decision: the two schemas are
@@ -58,6 +61,11 @@ def load(path):
 
 def main(argv):
     ref = argv[argv.index("--ref") + 1] if "--ref" in argv else DEFAULT_REF
+    if "--out-suffix" in argv:
+        sfx = argv[argv.index("--out-suffix") + 1]
+        global OUT_MD, OUT_JSON
+        OUT_MD = OUT_MD_BASE + sfx + ".md"
+        OUT_JSON = OUT_JSON_BASE + sfx + ".json"
     ours = argv[argv.index("--ours") + 1] if "--ours" in argv else OURS
     for p in (ref, ours):
         if not os.path.isfile(p):
