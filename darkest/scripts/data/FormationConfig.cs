@@ -106,7 +106,7 @@ public sealed record FormationConfig(
         ValidateLayout("enemy", cfg.Enemy);
         if (cfg.Enemy.ExtensionSlots is { Count: > 0 })
         {
-            throw new InvalidDataException($"{ResPath}: 敌方无支援位（enemy.md §1），support_slots 必须为空。");
+            throw new InvalidDataException($"{ResPath}: 敌方无扩展位（enemy.md §1；`#M9` 后该字段语义 = 通用扩展位），support_slots 必须为空。");
         }
 
         ValidateRoster("player", cfg.Player.SlotCount, cfg.InitialRoster.Player);
@@ -181,7 +181,7 @@ public sealed record FormationConfig(
         {
             if (slot < 1 || slot > layout.SlotCount)
             {
-                throw new InvalidDataException($"{ResPath}: {side}.support_slots 元素 {slot} 越界 [1, {layout.SlotCount}]。");
+                throw new InvalidDataException($"{ResPath}: {side}.support_slots（=扩展位） 元素 {slot} 越界 [1, {layout.SlotCount}]。");
             }
         }
     }
