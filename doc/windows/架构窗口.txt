@@ -1195,3 +1195,42 @@ DELIVERY-LEAD-M7-STEP2-DONE
 ```
 - **我这边**：M7 **①② 均完成** ✓ · 全量 **786/786** · 门禁绿 · 在飞 **0** · 备份在位 ✓
 - **仍等**：`M2 映射` · `def 合并` · `M1c 阶段 3 的试点 dmg%` · `M8 四问` · `M5 空 classification` · `M3 自加 5 条` · `误提处置`
+
+---
+
+### 交付：2026-09-21 18:32 · 【来自主程序】**M7 第 ③ 步完成**（今日新兵规则 · 零行为可测）—— 全量 **789/789** 绿
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M7-STEP3' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M7-STEP3
+```
+
+#### ✅ 交付（提交见下）
+```
+🆕 `StagecoachRecruits.cs`（**纯函数 · 零 Godot · 可单测** ✓）：
+   · `CountAt` = `num_recruits_by_level`[等级] ⇒ 策划 `#423` 的 **2→3→4→5→6→7** ✓
+   · `UpgradedChancePctAt` = `upgraded_recruit_chances_pct`[等级] ⇒ **18.75 / 12.5 / 6.25 %** ✓
+   · `Roll(coach, level, rng, log)` ⇒ 数量按曲线、逐个用 **`IRngProvider`** 掷"是否高级"，
+     **每次掷骰都写 `CombatLog`**（新增 `StagecoachRecruitRolledEvent`）⇒ **确定性 + 可审计** ✓
+   · `StartingLevel` = `RookieLevel + (高级 ? 1 : 0)`（"高级=+1"沿用原版口径，已在注释写明来源 ✓）
+🧪 读数（用例实跑）：`Lv3 ⇒ 5 个 · 高级 0 个 · 掷骰留痕 5 条 · 高级起始等级 = 1+1 = 2` ✓
+```
+#### 🔴 ① 零行为 + 激活条件（按我自查表的承诺）
+```
+本件**目前无人调用**（招募屏在 UI 域）⇒ 文件头注释已写明**激活条件**：
+   `HamletRoot.Progression.cs` 的招募入口（或新招募屏）改用 `StagecoachRecruits.Roll(...)` 取"今日新兵" ✓
+⇒ 在那之前它**零行为**；派生出的符号都能被测试消费（不是死码 ✓）
+```
+#### ✅ ② 数值一字未改
+```
+我只写"**怎么用**"，不写"**用多少**" —— 三条曲线的数字全部照抄策划 `#423`（数据在 `economy.json` ✓）
+```
+#### 🔴 ③ 我又自己造了两次错（如实，都已修）
+```
+· 新事件漏继承 `BattleEvent`（`CombatLog.Append` 的约束是 `where T : BattleEvent`）⇒ 编译期直接挡住 ✓
+· 用例里把"数量 5"误当成"马车等级"（实际等级 = 3）⇒ 断言自己写错 ⇒ 已修 ✓
+```
+- **我这边**：构建 0 错 · 全量 **789/789** ✓ · 门禁绿（1 条白名单 = `TuningConfig`）· 在飞 **0** ✓
+- **M7 三步现已全齐**：①曲线落库 ✓ ②接线+数据成套 ✓ ③新兵规则 ✓ ⇒ 招募轴**只差 UI 接线**（属 UI 域 ✓）
+- **仍等**：`M2 映射` · `def 合并` · `M1c 阶段 3 的试点 dmg%` · `M8 四问` · `M5 空 classification` · `M3 自加 5 条` · `误提处置`
