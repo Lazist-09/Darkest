@@ -1,0 +1,37 @@
+{
+  "traps": [
+    {
+      "id": "ruins_pit",
+      "region": "ruins",
+      "hp_percent": 25.0,
+      "weight": 1,
+      "note": "🔴 placeholder:true（#307）· D-4 遗迹：DD wiki 原文 25%/28%/30%（按难度档）⇒ 本项目取**首档 25%**（无难度分档，故取最低档；难度分档属后续项）。额外效果（DD 无）⇒ 不登记"
+    },
+    {
+      "id": "weald_snare",
+      "region": "weald",
+      "hp_percent": 5.0,
+      "weight": 1,
+      "note": "🔴 placeholder:true（#307）· D-4 荒野：DD 原文 **0% HP**（伤害全在 Blight 上）⇒ ⚠️ 本项目**不落 Blight 额外效果**（只登记不结算），若照抄 0% 会撞上加载期校验「`hp_percent` 必须 > 0」（0 = 只有压力，与漏配键不可区分）⇒ 取 **5%** 作为占位（比遗迹的 25% 明显低，保留「荒野陷阱伤害低」的手感）。🔴 **这是有意的偏离，待 Blight 落地后改回 0 并放开校验**"
+    },
+    {
+      "id": "warrens_spike",
+      "region": "warrens",
+      "hp_percent": 10.0,
+      "weight": 1,
+      "note": "🔴 placeholder:true（#307）· D-4 贫民窟：DD 原文 **10% HP** +（100/110/120% Bleed 2/2/3）⇒ HP 部分**原样照抄**；Bleed 额外效果不落（只登记不结算）"
+    },
+    {
+      "id": "cove_grate",
+      "region": "cove",
+      "hp_percent": 10.0,
+      "weight": 1,
+      "note": "🔴 placeholder:true（#307）· D-4 海湾：DD 原文 **10% HP** +（Debuff -5/-6/-8 SPD, -20/-25/-30 DODGE, 12 rds）⇒ HP 部分**原样照抄**；Debuff 额外效果不落（只登记不结算）"
+    }
+  ],
+  "unscouted_dodge_percent": 0,
+  "disarm_bonus_percent": 40.0,
+  "stress_damage": 15,
+  "disarm_stress_heal": 8,
+  "note": "🔴 placeholder:true（#307）· D-4 陷阱定值（DD wiki 「Trap」原文实据）。**伤害** = 随机一名队员掉 hp_percent% **其最大 HP**；**压力** = 定值 stress_damage（DD 原文「stress will always be +15」⇒ **不是百分比**）。**未被侦察**的陷阱按该队员的 **Trap Resist** 掷闪避（⚠️ DD 原文明确「not their DODGE」）—— 本项目的 `unscouted_dodge_percent` 是**额外基准加成**，DD 没有这一项 ⇒ **留 0**（纯用队员 Trap Resist）。**已被侦察**的陷阱（= D-3 三态里的 `Scouted`）可**拆除**：概率 = Trap Resist + `disarm_bonus_percent`（DD 原文 +40%），🔴 **允许 > 100%**（原文「Disarm Chance can go above 100%」）⇒ 实现**不钳位**；拆除成功 = **完全无害** + 回 `disarm_stress_heal` 压力（原文「renders it harmless and heals 8 stress」）。🔴 **已走过**的格（`Visited`）= 内容已消费 ⇒ **不再触发**。🔴🔴 **本表是全仓唯一的陷阱真值**：D-2 的 `RevisitSpawner.ThreatTrap`（DD 原文「Traps can sometimes be encountered along corridors that have already been explored」）与图上的陷阱是**同一件事** ⇒ 必须共用本表（纪律 #325 D6：不许为同一语义造第二份公式）。⚠️ **Trap Resist 目前尚无数据来源**（队员属性表未落）⇒ 调用方暂传 0；接线时要**先统一真值**（不许在陷阱层自造一份抗性公式）"
+}

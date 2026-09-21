@@ -137,6 +137,211 @@ public sealed record TuningRetreatPenalty(
     [property: JsonPropertyName("no_death")] int NoDeath,
     [property: JsonPropertyName("with_death")] int WithDeath);
 
+/// <summary>
+/// D-2 回头威胁一档：光照 ≤ <see cref="MaxLight"/> 时，回头触发威胁的概率 = <see cref="Percent"/>（%）。
+/// <para>🔴 档位数组**必须按暗 → 亮排列**（`max_light` 严格递增 = 从最暗档开始），首个命中的档即生效 ——
+/// 这是"越黑越容易出事"的**结构保证**，由加载期校验强制，不靠人工排序。</para>
+/// </summary>
+public sealed record RevisitThreatTier(
+    [property: JsonPropertyName("max_light")] int MaxLight,
+    [property: JsonPropertyName("percent")] double Percent);
+
+/// <summary>
+/// D-2 回头威胁（DD 口径：反复走同一格 ⇒ 威胁刷新，且**越黑越频繁**）。
+/// <para>未配置 ⇒ 完全不掷骰、不写日志（等价于"该地牢不刷回头怪"）。</para>
+/// </summary>
+public sealed record RevisitThreatConfig(
+    [property: JsonPropertyName("tiers")] IReadOnlyList<RevisitThreatTier> Tiers,
+    // 🔴 触发后的威胁种类权重：battle vs trap（DD 原版两者都有；权重比 = 相对频率）
+    [property: JsonPropertyName("battle_weight")] int BattleWeight = 1,
+    [property: JsonPropertyName("trap_weight")] int TrapWeight = 1,
+    [property: JsonPropertyName("note")] string? Note = null);
+
+/// <summary>地牢层（D-1 / D-2）：网格行走的**回头代价**与**回头威胁**。</summary>
+public sealed record TuningDungeonLayer(
+    // 🔴 D-1：重走一格的**额外**光照代价（正数 = 要扣多少；`null`/0 ⇒ 关闭回头代价）——
+    //    DD 口径：回头**仍要付**，只是比走新格便宜（与旧"按段"层的 revisit 同向，各层自洽）✓
+    [property: JsonPropertyName("revisit_light_cost")] int? RevisitLightCost = null,
+    [property: JsonPropertyName("revisit")] RevisitThreatConfig? Revisit = null,
+    // 🆕 D-5：**饥饿**（途中"队伍饿了"检查）—— `null` ⇒ 完全不启用（既有调用点行为逐字不变）✓
+    [property: JsonPropertyName("hunger")] HungerConfig? Hunger = null,
+    // 🆕 D-3：**格视野**（进格揭示 + 半径以**格**为单位）—— `null` ⇒ 完全不启用（= 旧二态行为）✓
+    [property: JsonPropertyName("vision")] TuningGridVision? Vision = null,
+
+    // 🆕 D-4：**陷阱撒布**（走廊段上按概率撒 `^` 格）—— `null` ⇒ 一格都不撒（既有调用点行为逐字不变）✓
+    [property: JsonPropertyName("traps")] TuningTrapScatter? Traps = null,
+
+    // 🆕 D-6：**隐藏房**（地图上不显示、靠侦察揭示 ⇒ 给侦察一个**非信息类**回报）——
+    //   `null` ⇒ 一格都不撒、一次都不给（既有调用点行为逐字不变）✓
+    [property: JsonPropertyName("secrets")] TuningSecretScatter? Secrets = null,
+
+    // 🆕 D-7：**探索层 act-out**（带折磨的英雄拒绝摸奇物 / 拒绝进食）——
+    //   `null` ⇒ 一次都不判、一次都不掷（既有调用点行为逐字不变）✓
+    [property: JsonPropertyName("exploration")] TuningExplorationActOut? Exploration = null);
+
+/// <summary>
+/// 🔴🆕 `D-7`（2026-09-20）**探索层 act-out** —— 带**折磨**的英雄在**战斗之外**的行为表现。
+///
+/// <para>🔴 **为什么需要它**：折磨此前**只**在战斗内有效（`AfflictionProcs` 的 `refuse_skill` /
+/// `refuse_heal` / `randomize_attack_target`）⇒ 玩家一趟远征里"最惨的时刻"全发生在战斗里，
+/// **走廊上、奇物前、饭点**完全感受不到折磨 ⇒ 折磨的**一半表现力**是缺失的（DD ⑩）✓</para>
+///
+/// <para>本刀落两条（`dungeon_layer_design.md §F5`）：</para>
+/// <para>· **拒绝摸奇物**（`curio.md §1.2 ⑤`）：DD 原文 = 带折磨者会「**自动空手碰**」某些 Curio
+///   （**绝不用道具**）⇒ 本刀落成「**拒绝用道具、被迫空手**」（空手掷骰照常走，代价照常承担）✓</para>
+/// <para>· **拒绝进食**（`§F5 ③`）：掷中 ⇒ **强制挨饿**（推翻玩家选的"吃"）✓</para>
+///
+/// <para>🔴🔴 **折磨判据 = 士气 &lt; <see cref="MoraleAfflictionThreshold"/>** —— 该阈值**不是近似，
+/// 而是模型自身的边界**（用户 2026-09-20 裁定）：</para>
+/// <para>· 折磨**只**在士气 == 0 挂上（`MoraleLedger.GrantAffliction`），且**只有**士气回到
+///   `morale.start`（= <see cref="MoraleAfflictionThreshold"/> = 50）才解除（`MoraleLedger` 第 127~134 行）；</para>
+/// <para>· 美德走士气 == 100（`HandleMoraleMax`）且**立即把士气拉回 50** ⇒ 美德与折磨**永不并存** ✓</para>
+/// <para>⇒ **「士气 &lt; 50」区间与「带折磨」在模型上等价**，且**天然跨趟**（士气本就是跨趟累积，`#245`/`#287`）
+/// —— 无需新增任何状态载体 ✅（这也正是"为什么不给 `Retained` 加 affliction 字段"：那是第二份真值，`#325` D6）</para>
+///
+/// <para>🔴 **opt-in**：`exploration = null` ⇒ 一次都不判、一次都不掷、一句都不写
+/// （零随机不留痕）⇒ 既有调用点行为**逐字不变** ✓</para>
+/// </summary>
+public sealed record TuningExplorationActOut(
+    /// <summary>
+    /// 🔴 **折磨阈值**：士气 **&lt;** 本值 ⇒ 判为"带折磨"。
+    /// ⚠️ **必须等于 `tuning.morale.start`**（加载期校验强制）—— 因为那正是 `MoraleLedger` 解除折磨的
+    /// **唯一**判据；两者不同值会出现「该解除还被判折磨」或「该判折磨却已解除」⚠️
+    /// </summary>
+    [property: JsonPropertyName("morale_affliction_threshold")] int MoraleAfflictionThreshold,
+
+    /// <summary>
+    /// 带折磨者**拒绝用道具**的概率（%；不写默认值 ⇒ 漏配即 0 ⇒ 加载期拒绝）。
+    /// 🔴 **必须 ∈ (0,100]**：0 = "配了但永远不生效"（静默失效家族）⇒ 要关闭请**整段删掉** `exploration`✓
+    /// </summary>
+    [property: JsonPropertyName("curio_refuse_percent")] double CurioRefusePercent,
+
+    /// <summary>同上的**拒绝进食**概率（%）；同上纪律 ✓</summary>
+    [property: JsonPropertyName("eat_refuse_percent")] double EatRefusePercent,
+
+    /// <summary>人类可读说明（**不参与行为**）✓</summary>
+    [property: JsonPropertyName("note")] string? Note = null);
+
+/// <summary>
+/// 🔴🆕 `D-4`（2026-09-20）**陷阱撒布** —— 派生图上"哪里会有陷阱格"的**唯一**数值来源。
+///
+/// <para>🔴 **为什么是数值（`tuning`）而不是内容（`trap_defs.json`）**：
+/// `trap_defs.json` 回答"**踩中会怎样**"（伤害 %、压力、拆除加成 —— 内容/规则）；
+/// 本类回答"**图上有多少陷阱**"（撒布密度 —— 平衡数值）⇒ 两者**不同族**，各归其位 ✓</para>
+///
+/// <para>⚠️ **为什么需要它**：`DungeonTileKind.Trap` 此前**全仓无人产出**（派生器只挖房间与走廊）
+/// ⇒ `TrapResolver` 再完备也永远触发不了。本类把"撒陷阱"变成**可配置的派生步骤** ✓</para>
+///
+/// <para>🔴 **opt-in**：`traps = null` ⇒ 一格不撒、一次不掷（零随机不留痕）⇒ 既有行为逐字不变 ✓</para>
+/// </summary>
+public sealed record TuningTrapScatter(
+    /// <summary>每条**走廊段**的陷阱概率（%）；`≤0` ⇒ 关闭。🔴 数值 `placeholder`（`#307`）✓</summary>
+    [property: JsonPropertyName("corridor_chance_percent")] double CorridorChancePercent,
+
+    /// <summary>人类可读说明（**不参与行为**）✓</summary>
+    [property: JsonPropertyName("note")] string? Note = null);
+
+/// <summary>
+/// 🔴🆕 `D-6`（2026-09-20）**隐藏房撒布 + 揭示回报** —— 派生图上"哪里会有 `*` 格"以及
+/// "揭示它值多少"的**唯一**数值来源。
+///
+/// <para>🔴 **为什么是数值（`tuning`）而不是内容表**：本类回答"**图上有多少隐藏房 / 揭示它给多少**"
+/// （撒布密度 + 回报量级 —— 平衡数值）；至于"隐藏房里**具体是哪件战利品**"归内容层
+/// （`loot` / `curios.json`），**不在本刀范围** ⇒ 本刀只给**资源回报**（`gold`）✓</para>
+///
+/// <para>🔴🔴 **为什么必须有"非信息类回报"**：`D-3` 三态揭示给的是**信息**（看得见），
+/// `D-4` 陷阱给的是**避免损失**。若隐藏房"揭示了但没东西"，侦察就永远是**净亏**（花光照换好看）
+/// ⇒ 玩家会**理性地永不侦察** ⇒ 整条侦察链路沦为装饰 ⚠️
+/// 故本类强制 `reward_*` > 0（加载期校验）：**揭示 = 拿到实打实的东西** ✓</para>
+///
+/// <para>🔴 **opt-in**：`secrets = null` ⇒ 一格不撒、一次不掷、一分不给（零随机不留痕）⇒ 既有行为逐字不变 ✓</para>
+/// </summary>
+public sealed record TuningSecretScatter(
+    /// <summary>每个**走廊格**的隐藏房概率（%）；`≤0` ⇒ 关闭。🔴 数值 `placeholder`（`#307`）✓</summary>
+    [property: JsonPropertyName("corridor_chance_percent")] double CorridorChancePercent,
+
+    /// <summary>
+    /// 揭示一处隐藏房的**金币**回报（DD 口径：隐藏房 = rewards 房）。
+    /// 🔴 **必须 > 0**：0 等于"揭示了但没东西" ⇒ 侦察变成纯亏（加载期拒收，见上）⚠️
+    /// </summary>
+    [property: JsonPropertyName("reward_gold")] int RewardGold,
+
+    /// <summary>
+    /// 每趟**最多**揭示（并结算）几处隐藏房 —— **配额**语义（与"逐格概率"是两码事）。
+    /// 🔴 `≤0` ⇒ 不设上限（给 0 合法：表示"不限"）—— 这是结构参数，允许默认 0（`#307` 白名单口径）✓
+    /// </summary>
+    [property: JsonPropertyName("max_rewards_per_run")] int MaxRewardsPerRun = 0,
+
+    /// <summary>人类可读说明（**不参与行为**）✓</summary>
+    [property: JsonPropertyName("note")] string? Note = null);
+
+/// <summary>
+/// 🔴🆕 `D-3` **格视野（`GridVision`）** —— DD 揭示三态的**格级**通道（"能看清什么"）。
+///
+/// <para>🔴 **为什么放在 `tuning` 而不是 `dungeon_grid.json`**：
+/// `DungeonGridConfig.ResPath`（`res://data/dungeon_grid.json`）**尚不存在**（我们仍在**派生图**阶段，
+/// 真关卡属阶段 4）⇒ 该文件里的 `vision` 字段目前**没有数据载体**。
+/// 而 `D-1`（`revisit_light_cost`）/ `D-5`（`hunger`）都已落在 `tuning.dungeon_layer` ⇒
+/// **同一族机制、同一位置、同一纪律**（opt-in：`null` ⇒ 行为逐字不变）✓</para>
+///
+/// <para>🔴 与 <see cref="Darkest.Gameplay.Sim.Run.DungeonGridVision"/> **字段一一对应**——
+/// 后者是"关卡的视野契约"（将来自 `dungeon_grid.json` 来），本类是"全局默认值"（从 `tuning` 来）。
+/// ⚠️ **不合并成一个类**：两者的**加载期校验不同**（关卡级要校验"半径 < 图边长"，全局级不知道图尺寸）⇒
+/// 合并会逼出一堆 `if (是关卡级)`（就是"一份数据两套规则"的开端）✓</para>
+/// </summary>
+public sealed record TuningGridVision(
+    /// <summary>进格即揭示（关 = 只有"走到的格"可见 ⇒ 旧二态行为）✓</summary>
+    [property: JsonPropertyName("reveal_on_enter")] bool RevealOnEnter,
+
+    /// <summary>视野半径（**格**；曼哈顿距离）—— 数值 `placeholder`（`#307`）✓</summary>
+    [property: JsonPropertyName("radius")] int Radius,
+
+    /// <summary>侦察临时 +N（**段级**通道的加成；`D-3` 阶段**只登记不消费** ⇒ 见下方说明）⚠️</summary>
+    [property: JsonPropertyName("scout_bonus")] int ScoutBonus = 0);
+
+/// <summary>
+/// 🔴 `D-5` 饥饿一档：光照 ≤ <see cref="MaxLight"/> 时，走廊**前行格**触发饥饿检查的概率 = <see cref="Percent"/>（%）。
+/// <para>结构与 <see cref="RevisitThreatTier"/> **刻意同构**（同为"越黑越频繁"）：数组**必须按暗 → 亮排列**
+/// （`max_light` 严格递增），首个命中即最暗档 —— 由加载期校验强制，不靠人工排序 ✓</para>
+/// <para>🔴 DD 原版刻度（wiki）：`Radiant/Dim 7.5%` · `Shadowy/Dark 10%` · `Black 12.5%`
+/// ⇒ 本项目刻度对齐为 `≤0 → 12.5` / `≤50 → 10` / `≤75 → 7.5` / `≤100 → 7.5`。</para>
+/// </summary>
+public sealed record HungerTier(
+    [property: JsonPropertyName("max_light")] int MaxLight,
+    [property: JsonPropertyName("percent")] double Percent);
+
+/// <summary>
+/// 🔴🔴 `D-5` **饥饿**（DD wiki "Hunger"）：走廊格上的**隐藏事件** —— 触发时队伍"饿了"，
+/// **必须二选一**（不能拖、不能跳）：**吃**（每名存活成员 1 口粮，全队回 HP）/ **不吃**
+/// （全队掉 HP + 涨压力）。**不能只喂一部分人**：口粮不够 ⇒ **只能挨饿**（且**一口粮都不消耗**）。
+///
+/// <para>**缓冲（Hunger Buffer）**：开场 / 扎营后给 <see cref="BufferAtStart"/> 条走廊；
+/// 每次触发后再给 <see cref="BufferAfterTrigger"/> 条。🔴 **只在前行时递减** —— 回头/退回原房间不算
+/// （DD 原文："moving backwards (left) and re-entering the starting room does not reduce the hunger buffer"）✓</para>
+///
+/// <para>数值全部 `placeholder`（`#307`：我不动任何数值）⇒ 由策划定实。</para>
+/// </summary>
+public sealed record HungerConfig(
+    [property: JsonPropertyName("tiers")] IReadOnlyList<HungerTier> Tiers,
+    // 🔴 吃：每名**存活**成员消耗多少口粮（DD = 1/人）
+    // 🔴🔴 `#307` / 三扫纪律：**不写默认值** —— 默认参数 = 静默默认（数据漏配会被悄悄补成 DD 值，
+    //    表现为"我改了 data 却没生效"的反向陷阱）⇒ 余额数字**必须**在 `tuning.json` 里显式给，
+    //    漏配就直接反序列化成 0 ⇒ 被 `TuningConfig.Validate` 当场拒绝（fail-fast，不给静默兜底）✓
+    [property: JsonPropertyName("food_per_hero")] int FoodPerHero,
+    // 🔴 吃：全队回多少 **% 最大 HP**（DD = 5）
+    [property: JsonPropertyName("eat_heal_percent")] double EatHealPercent,
+    // 🔴 不吃：全队掉多少 **% 最大 HP**（DD = 20）
+    [property: JsonPropertyName("starve_hp_percent")] double StarveHpPercent,
+    // 🔴 不吃：全队涨多少**压力**（DD = 20）
+    // ⚠️ **`starve_morale` 是唯一例外**：0 = "挨饿不加压力"是**合法**配置 ⇒ 漏配与显式 0
+    //    在 JSON 层不可区分 ⇒ 它**无法**用"反序列化成 0 就拒绝"兜底（有意的取舍：
+    //    宁可允许漏配，也不禁止一个语义正当的 0）⇒ 其余四个字段已 fail-fast，本条靠 `note` 契约 ✓
+    [property: JsonPropertyName("starve_morale")] int StarveMorale,
+    // 🔴 缓冲条数：**结构参数**（0 = 不缓冲，是正当配置）⇒ 允许默认 0（`#307` 的白名单口径）✓
+    [property: JsonPropertyName("buffer_at_start")] int BufferAtStart = 0,
+    [property: JsonPropertyName("buffer_after_trigger")] int BufferAfterTrigger = 0,
+    [property: JsonPropertyName("note")] string? Note = null);
+
 /// <summary>一趟远征的起手资源（E2）：柴火 = 扎营许可；口粮 = 吃饭。</summary>
 public sealed record TuningResources(
     [property: JsonPropertyName("firewood")] int Firewood,

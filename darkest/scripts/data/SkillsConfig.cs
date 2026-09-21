@@ -14,10 +14,12 @@ namespace Darkest.Data;
 public enum SkillTargetScope { Slots, Self, AnyAlly, Team, AdjacentAllyAndSelf, MoveRange }
 public enum SkillDamageAxis { Physical, Mental, None }
 public enum SkillRangeAxis { Melee, Ranged, None }
-public enum FuncTag { Output, Control, Displacement, Support, Heal, Aoe, Debuff }
+// 🔴 C-1（v0.99）：`IgnoreStealth` = 原版 `.ignore_stealth true`（playwright 投掷油壶/地狱之炎）——
+//    语义 = 【穿透潜行】：该技能无视"潜行者不可被直接指定"，且命中即解除其潜行（同 .unstealth）
+public enum FuncTag { Output, Control, Displacement, Support, Heal, Aoe, Debuff, IgnoreStealth }
 public enum UseLimitType { None, Cooldown, PerBattle, EveryNRounds }
 public enum DisplacementType { Push, Pull, SelfForward, SelfBackward }
-public enum SkillEffectType { Stun, Taunt, Bleed, StatMod, Shield, GuardAttach, NextAttackBoost, Mark }
+public enum SkillEffectType { Stun, Taunt, Bleed, StatMod, Shield, GuardAttach, NextAttackBoost, Mark, Stealth }
 public enum MoraleEffectScope { Self, Targets, Team, AllyTargets }
 public enum DamageSegmentType { Flat, MissingHp }
 
@@ -167,7 +169,8 @@ public sealed record SkillsConfig(
             ("melee", SkillRangeAxis.Melee), ("ranged", SkillRangeAxis.Ranged), ("none", SkillRangeAxis.None)));
         o.Converters.Add(new LowerEnumJsonConverter<FuncTag>(
             ("output", FuncTag.Output), ("control", FuncTag.Control), ("displacement", FuncTag.Displacement),
-            ("support", FuncTag.Support), ("heal", FuncTag.Heal), ("aoe", FuncTag.Aoe), ("debuff", FuncTag.Debuff)));
+            ("support", FuncTag.Support), ("heal", FuncTag.Heal), ("aoe", FuncTag.Aoe), ("debuff", FuncTag.Debuff),
+            ("ignore_stealth", FuncTag.IgnoreStealth))); // C-1（v0.99）：原版 `.ignore_stealth true`
         o.Converters.Add(new LowerEnumJsonConverter<UseLimitType>(
             ("none", UseLimitType.None), ("cooldown", UseLimitType.Cooldown),
             ("per_battle", UseLimitType.PerBattle), ("every_n_rounds", UseLimitType.EveryNRounds)));

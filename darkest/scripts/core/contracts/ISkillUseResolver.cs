@@ -13,6 +13,7 @@ public enum AvailabilityReason
     UsesExhausted,
     RequiresUnmet, // D5（#207）：前置条件不满足（自身/目标血量阈值、自身虚弱、自身死门）
     SupportPointsNotEnough, // #211（S0）：支援位技能 SP 不足（战斗位技能永不因此被拒）
+    TargetStealthed, // C-1（v0.99）：范围内目标全部处于潜行（且本技能无 ignore_stealth）⇒ 灰显
 }
 
 /// <summary>可用性判定结果（reason + UI tooltip 文案，ui_spec §4 逐字）。</summary>
@@ -28,6 +29,7 @@ public sealed record Availability(AvailabilityReason Reason, string Tooltip)
         AvailabilityReason.OnCooldown => "CD 中",
         AvailabilityReason.UsesExhausted => "每场次数用尽",
         AvailabilityReason.NotCarried => "未携带",
+        AvailabilityReason.TargetStealthed => "目标处于潜行", // C-1（v0.99）
         _ => "",
     };
 }

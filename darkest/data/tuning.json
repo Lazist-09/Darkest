@@ -7,7 +7,7 @@
   "physical_mitigation": { "divisor": 30 },
   "weak": { "damage_mult": 0.5, "speed_mult": 0.7, "hp_lock": 1 },
   "weak_recovery": { "base": 10, "per_healthy_support_ally": 5, "resilience_divisor": 20, "cap": 25 },
-  "weak_exit_hp_ratio": 0.10,
+  "weak_exit_hp_ratio": 0.1,
   "deaths_door": { "affliction_penalty_percent": 10 },
   "retreat": { "success_morale": -12, "with_death_morale": -15, "fail_morale": -5, "scope": "survivors" },
   "light": {
@@ -20,10 +20,10 @@
     "event_dark_cost": 20,
     "tiers": [
       { "id": "radiant", "min": 76, "max": 100 },
-      { "id": "dim",     "min": 51, "max": 75 },
+      { "id": "dim", "min": 51, "max": 75 },
       { "id": "shadowy", "min": 26, "max": 50 },
-      { "id": "dark",    "min": 1,  "max": 25 },
-      { "id": "black",   "min": 0,  "max": 0 }
+      { "id": "dark", "min": 1, "max": 25 },
+      { "id": "black", "min": 0, "max": 0 }
     ],
     "loot": {
       "radiant": {},
@@ -34,11 +34,11 @@
     },
     "loot_note": "#276：掉落从【份数】改为【类型 + 份数】，**柴火优先**（口粮换不来扎营 ⇒ 只给口粮则补给再多也换不来续航）；去掉掷骰；P21 ④ 校验 = 柴火份数按档单调不减（0/0/1/1/2）且 shadowy 起 ≥1",
     "effects": {
-      "radiant": { "our_morale_damage_pct": 0,  "enemy_acc": 0,    "enemy_dmg_pct": 0,   "enemy_crit_pct": 0, "our_ambush_pct": 0,  "our_crit_pct": 0, "scouting_pct": 15 },
-      "dim":     { "our_morale_damage_pct": 10, "enemy_acc": 0,    "enemy_dmg_pct": 0,   "enemy_crit_pct": 1, "our_ambush_pct": 0,  "our_crit_pct": 0, "scouting_pct": 7.5 },
-      "shadowy": { "our_morale_damage_pct": 20, "enemy_acc": 5,    "enemy_dmg_pct": 10,  "enemy_crit_pct": 2, "our_ambush_pct": 15, "our_crit_pct": 1, "scouting_pct": 0 },
-      "dark":    { "our_morale_damage_pct": 30, "enemy_acc": 10,   "enemy_dmg_pct": 15,  "enemy_crit_pct": 3, "our_ambush_pct": 25, "our_crit_pct": 2, "scouting_pct": 0 },
-      "black":   { "our_morale_damage_pct": 40, "enemy_acc": 12.5, "enemy_dmg_pct": 25,  "enemy_crit_pct": 5, "our_ambush_pct": 40, "our_crit_pct": 3, "scouting_pct": 0 }
+      "radiant": { "our_morale_damage_pct": 0, "enemy_acc": 0, "enemy_dmg_pct": 0, "enemy_crit_pct": 0, "our_ambush_pct": 0, "our_crit_pct": 0, "scouting_pct": 15 },
+      "dim": { "our_morale_damage_pct": 10, "enemy_acc": 0, "enemy_dmg_pct": 0, "enemy_crit_pct": 1, "our_ambush_pct": 0, "our_crit_pct": 0, "scouting_pct": 7.5 },
+      "shadowy": { "our_morale_damage_pct": 20, "enemy_acc": 5, "enemy_dmg_pct": 10, "enemy_crit_pct": 2, "our_ambush_pct": 15, "our_crit_pct": 1, "scouting_pct": 0 },
+      "dark": { "our_morale_damage_pct": 30, "enemy_acc": 10, "enemy_dmg_pct": 15, "enemy_crit_pct": 3, "our_ambush_pct": 25, "our_crit_pct": 2, "scouting_pct": 0 },
+      "black": { "our_morale_damage_pct": 40, "enemy_acc": 12.5, "enemy_dmg_pct": 25, "enemy_crit_pct": 5, "our_ambush_pct": 40, "our_crit_pct": 3, "scouting_pct": 0 }
     },
     "note": "#258 / D0：柴火 = Torch + Firewood 合一；P21 ③ 效果表**不得出现任何 HP 字段**（否则把 #255 已否决的杠杆搬回来）"
   },
@@ -65,22 +65,68 @@
     "pass_morale_delta": 0
   },
   "resources": { "firewood": 1, "food": 12 },
-  "camp": { "food_tiers": { "starve": 0, "half": 3, "full": 6, "feast": 12 }, "food_effects": { "starve": { "hp_percent": -0.20, "morale": -15 }, "half": { "hp_percent": 0.0, "morale": 0 }, "full": { "hp_percent": 0.10, "morale": 0 }, "feast": { "hp_percent": 0.25, "morale": 10 } }, "respite_base": 6, "pep_talk_battles": 4, "ambush_chance": 0.33 },
-  "retreat_formula": {
-    "base_percent": 50,
-    "per_speed_diff_percent": 4,
-    "clamp_min": 15,
-    "clamp_max": 85,
-    "random_range": 10,
-    "rand_clamp_min": 5,
-    "rand_clamp_max": 95,
-    "source": "#169"
+  "camp": {
+    "food_tiers": { "starve": 0, "half": 3, "full": 6, "feast": 12 },
+    "food_effects": {
+      "starve": { "hp_percent": -0.2, "morale": -15 },
+      "half": { "hp_percent": 0.0, "morale": 0 },
+      "full": { "hp_percent": 0.1, "morale": 0 },
+      "feast": { "hp_percent": 0.25, "morale": 10 }
+    },
+    "respite_base": 6,
+    "pep_talk_battles": 4,
+    "ambush_chance": 0.33
   },
+  "dungeon_layer": {
+    "revisit_light_cost": 15,
+    "revisit": {
+      "tiers": [
+        { "max_light": 0, "percent": 5.0 },
+        { "max_light": 25, "percent": 4.0 },
+        { "max_light": 50, "percent": 2.5 },
+        { "max_light": 100, "percent": 0.5 }
+      ],
+      "battle_weight": 1,
+      "trap_weight": 1,
+      "note": "🔴 placeholder:true（#307）· D-2 回头威胁：反复走同一格刷新威胁，**越黑越频繁**（判据②）。DD wiki 的原始口径是「光照 ≤50 ⇒ +2.5%；=0 ⇒ +5%」，但 DD 的裸光照刻度 ≠ 本项目的 `light.tiers`（0..100 五档）⇒ **换算到本项目刻度**后再定档（对齐 `shadowy` 上界 50 与 `black` = 0）。**tiers 必须按暗 → 亮排列**（max_light 严格递增），RevisitSpawner 取首个命中档、不排序（加载期校验强制）。**末档必须 ≤100**（否则最亮档不掷 ⇒ 亮着走永远平安，与 DD 不符）。percent 是**绝对触发率**（非叠加量）；battle/trap 权重 1:1 —— 全部为 placeholder，待 M8 内容层定实"
+    },
+    "hunger": {
+      "tiers": [
+        { "max_light": 0, "percent": 12.5 },
+        { "max_light": 50, "percent": 10.0 },
+        { "max_light": 75, "percent": 7.5 },
+        { "max_light": 100, "percent": 7.5 }
+      ],
+      "food_per_hero": 1,
+      "eat_heal_percent": 5.0,
+      "starve_hp_percent": 20.0,
+      "starve_morale": 20,
+      "buffer_at_start": 2,
+      "buffer_after_trigger": 1,
+      "note": "🔴 placeholder:true（#307）· D-5 饥饿（DD wiki 「Hunger」）：走廊格上的**隐藏事件**（地图永不显示、侦察也不显示）。触发 ⇒ **必须二选一**（吃 / 不吃），不能拖也不能跳。**吃** = 每人 food_per_hero 口粮 ⇒ 全队各回 eat_heal_percent% **自己**的最大 HP；**不吃（或口粮不够）** = 全队各掉 starve_hp_percent% 最大 HP + starve_morale 压力。🔴 **不能只喂一部分人**：口粮凑不齐 ⇒ 全员挨饿且**一口粮都不消耗**。🔴 **概率按光照档**（越黑越频繁，与 D-2 同向）：DD 原始口径 Radiant/Dim 7.5% · Shadowy/Dark 10% · Black 12.5% ⇒ 已换算到本项目 light.tiers 刻度（black=0 ⇒ ≤0；dark/shadowy 上界 25/50 ⇒ 合并取 ≤50 = 10%；dim 上界 75 ⇒ ≤75 = 7.5%；radiant ⇒ ≤100 = 7.5%）。**tiers 必须按暗 → 亮排列**（max_light 严格递增），HungerSpawner 取首个命中档、不排序（加载期校验强制）；**末档必须 ≥ 满光照 100**（否则亮着走永远不饿）。🔴 **缓冲**：开局/扎营后 buffer_at_start=2 条走廊，每次**遇到检查**（无论饿没饿）重置为 buffer_after_trigger=1；**只在前行时递减**（回头/退回原房间不算 —— DD 原文 「only decreases after walking forward」）⇒ 实现挂在「新格 + 走廊格」分支。全部为 placeholder，待 M8 内容层定实"
+    },
+    "vision": { "reveal_on_enter": true, "radius": 2, "scout_bonus": 0, "note": "🔴 placeholder:true（#307）· D-3 三态揭示（GridVision，DD wiki 「Dungeon Exploration」/「Scouting」）：暗（Unexplored）／暗+亮轮廓（Scouted）／浅灰（Visited）。**两条独立通道，数值互不加减**（架构 #380）：**侦察 = 段级**（能看多远 ⇒ 落 Scouted，由地图层侦察掷骰给出格批次）；**视野 = 格级**（能看清什么 ⇒ 落 Visited，本段 radius）。reveal_on_enter=false ⇒ 只有「走到的格」可见（旧二态行为）；radius 以**格**为单位（曼哈顿距离），**不穿墙**（视线被墙挡住 ⇒ 不可见）。⚠️ radius 必须 < 图的最长边（否则开局整张图全亮、探索层被架空）—— 该上界在 `DungeonGridConfig` ⑦ 校验（tuning 不知道图尺寸）。🔴 scout_bonus 本阶段**只登记不消费**：它是「侦察临时 +N 格」的加成，属于地图层侦察口径（`MapScouting` 已有自己的 reveal_depth_min/max），接线时要**先统一真值**再启用（纪律 #325 D6：不许为同一语义造第二份公式）—— 目前恒为 0，改动它**不会**有任何效果" },
+    "traps": { "corridor_chance_percent": 35, "note": "🔴 placeholder:true（#307）· D-4 陷阱撒布（DD wiki 「Trap」）：**每条走廊段** 35% 撒一个 `^` 陷阱格，跳过段首尾格（那两格放陷阱会让「进出房间」变成惩罚）。🔴 这是 `DungeonTileKind.Trap` 的**唯一产出源** —— 派生器此前只挖房间与走廊 ⇒ 图上一个 `^` 都没有 ⇒ `TrapResolver` 永远触发不了（库写完了没人接线）。**踩中会怎样**归 `data/trap_defs.json`（内容/规则），本键只管**有几个**（平衡数值）。⚠️ 未配置 `traps` ⇒ 一格不撒、一次不掷（既有行为逐字不变）；⚠️ 只撒**走廊**（房间有自己的遭遇物）" },
+    "secrets": { "corridor_chance_percent": 12, "reward_gold": 250, "max_rewards_per_run": 2, "note": "🔴 placeholder:true（#307）· D-6 隐藏房（DD wiki 「Dungeon Map」④ / 「Secret Room」）：走廊格上的**隐藏**内容 —— **地图上完全不显示**（不是「暗」，是**不画**），只有**侦察成功**才把它变成可进的 rewards 房。🔴 这是给侦察的**非信息类**回报：D-3 三态给「信息」、D-4 陷阱给「避免损失」，隐藏房给**实打实的资源**（reward_gold）—— 否则「揭示了但没东西」⇒ 玩家理性地永不侦察 ⚠️。🔴 撒布口径与 D-4 同构：**只在走廊格上撒**、**每个走廊格独立掷**（派生图走廊段普遍只 1~2 格，逐段掷会一格都撒不出 —— D-4 实测踩过）；chance ≤ 0 ⇒ 关闭（零随机不留痕）。🔴 `max_rewards_per_run` 是**配额**（每趟最多结算几处，防「一张图把金库刷空」）；0 = 不设上限。全部为 placeholder，待 M8 内容层定实" },
+    "exploration": { "morale_affliction_threshold": 50, "curio_refuse_percent": 33, "eat_refuse_percent": 25, "note": "🔴 placeholder:true（#307）· D-7 探索层 act-out（DD wiki 「Affliction」⑩ / `dungeon_layer_design.md §F5`）：带**折磨**的英雄在**战斗之外**的行为表现 —— ① **拒绝摸奇物**（`curio.md §1.2 ⑤`）：DD 原文 = 带折磨者会「**自动空手碰**」某些 Curio（**绝不用道具**）⇒ 本刀落成「**拒绝用道具、被迫空手**」（空手掷骰照常走、代价照常承担）✓；② **拒绝进食**（`§F5 ③`）：掷中 ⇒ **强制挨饿**（推翻玩家选的「吃」）✓。🔴🔴 **morale_affliction_threshold 必须 == `morale.start`**（加载期校验强制）—— 折磨**只**在士气 0 挂上、**只有**回到 `morale.start` 才解除（`MoraleLedger` 第 127~134 行），美德走 100 并立即回 50 ⇒ 「士气 < 阈值」与「带折磨」**在模型上等价**，且天然跨趟 ⇒ 无需新增状态载体（不造第二份真值，`#325` D6）✓。🔴 两条概率必须 ∈ (0,100]：0 = 「配了但永远不生效」（静默失效）⇒ 要关闭请**整段删掉** `exploration`。全部为 placeholder，待 M8 内容层定实" }
+  },
+  "retreat_formula": { "base_percent": 50, "per_speed_diff_percent": 4, "clamp_min": 15, "clamp_max": 85, "random_range": 10, "rand_clamp_min": 5, "rand_clamp_max": 95, "source": "#169" },
   "support_slot_morale_per_turn": 3,
   "support_points": { "start": 3, "regen_per_round": 1, "cap": 4, "cost_skill": 2, "cost_reinforce": 2 },
   "affliction_proc_percent": 33,
   "guard_redirect": { "max_per_turn": 1, "physical_only": true, "guarded_ally_morale": 3 },
-  "overtime_reinforcement": { "trigger_round": 7, "fill_or_buff": "fill_empty_then_buff_present", "buff_attack_delta": 3, "buff_speed_delta": 3, "wave_interval_rounds": 3, "safety_factor": 0.8, "m_value": 7, "measured_d": 21.04, "enemy_full_hp": 110, "elastic": { "enabled": true, "k_rounds": 2, "idle_output_slots": 3, "max_bonus": 3 } },
+  "overtime_reinforcement": {
+    "trigger_round": 7,
+    "fill_or_buff": "fill_empty_then_buff_present",
+    "buff_attack_delta": 3,
+    "buff_speed_delta": 3,
+    "wave_interval_rounds": 3,
+    "safety_factor": 0.8,
+    "m_value": 7,
+    "measured_d": 21.04,
+    "enemy_full_hp": 110,
+    "elastic": { "enabled": true, "k_rounds": 2, "idle_output_slots": 3, "max_bonus": 3 }
+  },
   "enemy_actions_per_round": 1,
   "bleed": { "per_round_damage": 3, "rounds": 2 },
   "stat_debuff_default": { "delta": -3, "rounds": 2 },
