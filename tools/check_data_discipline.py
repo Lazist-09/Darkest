@@ -222,7 +222,10 @@ def leaf_keys(obj, prefix: str = "") -> list[str]:
     return out
 
 
-DOC_ONLY_KEYS = {"_note", "note", "source", "config", "version"}
+# 🔴 **我方元数据键约定**（R5 补齐）：下划线前缀的注解键 = **给人读的出处/裁定/对齐说明** ✓
+#    （`_note` 说明 · `_source` 出处路径 · `_align` 对齐来源 · `_ruling` 裁定号 · `_field_classes` 字段分类 ✓）
+#    ⚠️ 判据必须**可审**：这些键的**值都是字符串注解**（不是游戏数值/集合）⇒ 不会藏住"该接线却没接"的字段 ✓
+DOC_ONLY_KEYS = {"_note", "_source", "_align", "_ruling", "_field_classes", "note", "source", "config", "version"}
 
 # 🔴 **文档键约定**（P29 允许的"显式登记未消费"形态之一）：以这些后缀结尾的键 = **给人读的设计说明**
 #    （`*_note` 写"为什么这么定/决策号"，`*_rule` 写规则语义）⇒ 它们**不进**死数据报告 ✓
