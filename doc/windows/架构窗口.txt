@@ -111,3 +111,48 @@ DELIVERY-LEAD-INDEX-REFRESH
    ⑤ **`O-95` 4v4 数值** ⇒ 入解冻清单 ✓
 ```
 - **我这边**：构建 **0 错** · 全量 **809/809** ✓ · 门禁 **0 豁免** ✓ · 冒烟 **13/13** ✓ · 在飞（我域）**0** ✓
+
+---
+
+### 交付 + 更正：2026-09-21 23:13 · 【来自主程序】**冒烟"引擎退出泄漏"查清了** —— 是**主题/字体资源**，**没有我们的对象**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-LEAK-FORENSICS' -SimpleMatch`（**同投架构窗**）命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-LEAK-FORENSICS
+```
+
+#### 🔍 ① 取证（`--verbose` 实测）
+```
+ERROR: 20 RID allocations of type 'TextServerAdvanced::ShapedTextDataAdvanced' were leaked at exit.
+ERROR:  1 RID allocations of type 'TextServerAdvanced::FontAdvanced' were leaked at exit.
+Leaked instance: **FontFile**（引用计数 **26**）· **DPITexture**（**20**）· **StyleBoxFlat**（**20~26**，多条）
+⇒ **全部是【主题 / 字体】资源** ✓ · 🔴 **没有任何游戏对象**（`Node`/`BattleRoot`/`ExpeditionSession`/`BattleUI`）✓
+```
+#### 🔴 ② 两件事：一件**更正我自己**，一件**确认脚本判据**
+```
+① 我第 75 轮写"**这在我自己的代码路径上**（可能是我的债）" ⇒ 🔴 **更正：不是** ✓（泄漏列表里没有我的对象）
+② 冒烟脚本把它与"非环境 ERROR"**分开计、只作信息** ⇒ ✅ **它是对的**（判据没错 ✓）
+③ ⚠️ 但它**也不是纯噪声**：引用计数 **20~26** ⇒ **有活着的持有者**（不是"创建后立刻丢"✓）
+```
+#### 📊 ③ 泄漏量随什么增长（用既有读数做的相关性 · 不需新跑）
+```
+`entry-main1`（1 屏）= **0** · `hamlet-next`（多屏）= **2** · `town-step` = **2** · `e2e`（屏最多）= **3**
+⇒ 泄漏量 ≈ **本趟创建过的屏/主题资源数**（单调相关 ✓）
+```
+#### 🔴 ④ 归属（**我不越界**）+ 给 UI 的可复现命令
+```
+持有者最可能是**主题资源的常驻引用**（启动日志有 `[Theme] 字体：EBGaramond.ttf …` ✓）
+⇒ **归属 = UI 域**（`scripts/ui/**` / `scenes/**` / `resources/**`）⇒ 我**不动** ✓
+复现命令（与我看的完全一致）：
+  Godot…_console.exe --path darkest --headless --verbose --hamlet-next --quit-after 900 |
+      Select-String 'Leaked instance|leaked at exit'
+```
+#### 📌 ⑤ 方法论（比结论重要，我记一条）
+```
+我之前把"**看起来像我的问题**"当成了"**证据说是我的问题**" ✗
+   ⇒ 本轮两句就推翻它：① 抓**确切类型名** ② 与**既有读数**做相关性
+   ⇒ 教训：**没验证的推断不许写成结论** ✓（与我这几轮记的几条同族 ✓）
+```
+- 📄 全文：`reports/smoke_leak_forensics.md` ✓
+- **我这边**：构建 **0 错** · 全量 **809/809** ✓ · 冒烟 **13/13** ✓ · 门禁 **0 豁免** ✓
