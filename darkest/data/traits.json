@@ -1,0 +1,131 @@
+{
+  "_note": "M3 第 1 步：折磨/美德从 buff_defs 搬到本表（**值原样** · 由 extract_ours_traits.py 生成 ✓）",
+  "traits": [
+    {
+      "id": "affliction_fear",
+      "name": "恐惧",
+      "kind": "affliction",
+      "ends_at": "until_morale_50",
+      "origin": "ours",
+      "modifiers": [
+        {
+          "kind": "prob_mod",
+          "effect": "refuse_skill",
+          "percent": 33
+        }
+      ],
+      "hooks": [
+        {
+          "timing": "before_use_skill",
+          "effect": "33% refuse to act; no action consumed; must reselect (#61)"
+        }
+      ],
+      "source": "morale §4.1 / §5 / #57/#61"
+    },
+    {
+      "id": "affliction_selfish",
+      "name": "自私",
+      "kind": "affliction",
+      "ends_at": "until_morale_50",
+      "origin": "ours",
+      "modifiers": [
+        {
+          "kind": "prob_mod",
+          "effect": "refuse_heal",
+          "percent": 33
+        }
+      ],
+      "hooks": [
+        {
+          "timing": "before_heal",
+          "effect": "33% refuse this heal"
+        }
+      ],
+      "source": "morale §4.1 / §5"
+    },
+    {
+      "id": "affliction_uncontrolled",
+      "name": "失控",
+      "kind": "affliction",
+      "ends_at": "until_morale_50",
+      "origin": "ours",
+      "modifiers": [
+        {
+          "kind": "prob_mod",
+          "effect": "randomize_attack_target",
+          "percent": 33
+        }
+      ],
+      "hooks": [
+        {
+          "timing": "before_attack",
+          "effect": "33% randomize target (combat slot); support slot -> bound (#48/#54)"
+        }
+      ],
+      "source": "morale §4.1 / §5 / #48"
+    },
+    {
+      "id": "virtue_brave",
+      "name": "勇猛",
+      "kind": "virtue",
+      "ends_at": "until_battle_end_or_morale_zero",
+      "origin": "ours",
+      "modifiers": [
+        {
+          "kind": "damage_mod",
+          "effect": "dealt_damage_mult",
+          "percent": 25
+        },
+        {
+          "kind": "state_flag",
+          "effect": "immune_fear"
+        }
+      ],
+      "source": "morale §6 / buff.md §5 (#94 上限 1)"
+    },
+    {
+      "id": "virtue_resolute",
+      "name": "坚韧",
+      "kind": "virtue",
+      "ends_at": "until_battle_end_or_morale_zero",
+      "origin": "ours",
+      "modifiers": [
+        {
+          "kind": "prob_mod",
+          "effect": "deaths_door_resist_bonus",
+          "percent": 20
+        }
+      ],
+      "source": "morale §6（切片美德池暂不含）"
+    },
+    {
+      "id": "virtue_inspired",
+      "name": "振奋",
+      "kind": "virtue",
+      "ends_at": "until_battle_end_or_morale_zero",
+      "origin": "ours",
+      "hooks": [
+        {
+          "timing": "round_start",
+          "effect": "team morale regen; VALUE MISSING -> O-27 (slice virtue pool excludes)"
+        }
+      ],
+      "source": "morale §6（数值缺失 O-27；切片不含）"
+    },
+    {
+      "id": "virtue_focused",
+      "name": "专注",
+      "kind": "virtue",
+      "ends_at": "until_battle_end_or_morale_zero",
+      "origin": "ours",
+      "modifiers": [
+        {
+          "kind": "prob_mod",
+          "effect": "crit_bonus",
+          "percent": 15
+        }
+      ],
+      "source": "morale §6（切片美德池暂不含）"
+    }
+  ]
+}
