@@ -2081,3 +2081,43 @@ dungeon-in-scene · tile-walk · **battle-panel(新)** · abandon
 **尚未做**（都在等你/UI）：默认 boot 仍走 `MainMenu`（C4 导航改造）· `main_scene`/autoload 终态 · B-2 的 `CanvasLayer` ✓
 ```
 - **我这边**：在飞 **0** ✓ · 全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · **冒烟 11/11 绿** ✓
+
+---
+
+### 交付：2026-09-21 21:13 · 【来自主程序】**C4 落地**：面板步骤导航（`panel:battle`）—— **13 例冒烟全绿**，判据有**硬证据**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-C4-PANELNAV' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-C4-PANELNAV
+```
+
+#### 🆕 ① 做了什么（`SmokeScript.cs` · 我域）
+```
+· `Applies`：`"panel:battle" => node is BattleRoot && IsInsidePanel(node)`
+  🔴 判据**不是"名字对上"**，而是**祖先链里真的有 `BattlePanel`** ✓（名字可以骗人，祖先链不会 ✓）
+· `Apply`：`case "panel:battle"` ⇒ 打印自证行（节点 / 面板名 / **完整路径**）并继续 ✓
+· 新增 `IsInsidePanel` / `FindPanel`（向上找；找不到 ⇒ null ⇒ **如实不匹配** ✓）
+🆕 冒烟用例 `battle-panel-nav`：`--smoke=main:1,panel:battle --battle-panel`（用例表现 **13** 例 ✓）
+```
+#### 📊 ② **硬证据**（直接抓 Godot 原始输出 · **不是摘要**）
+```
+[冒烟·C4] ✅ 面板步骤 `panel:battle` 被消费：节点=BattleRoot · 面板=battle ·
+          路径=/root/UIRoot/ScreenLayer/BattlePanel/BattleRoot ✓（B-1：战斗不再是场景根）
+⇒ **路径**证明消费者是【面板内】的实例（不是场景根宿主 ✓）；消费后「待办 =（空）」✓
+```
+#### 📊 ③ **全套冒烟 13 例全绿**（留档 `reports/smoke_summary_20260921_2106.txt`）
+```
+entry-main1 · topology-auto · hamlet-next · **e2e** · map-mode · town-step · **ui-audit** · dungeon-in-scene ·
+tile-walk · **battle-panel-nav(新)** · **battle-panel** · abandon
+⇒ 全部「真错误 = 0」· PROBE-EXIT bad=0 code=0 · **总退出码 0**（零回归 ✓）
+＋ 全量单测 **798/798** ✓ · 门禁 **414 文件 ≤600 / 0 豁免** ✓
+```
+#### 🎯 ④ 意义
+```
+你 P0-2 C4 的原话是"`--smoke`/`--click-menu` 的**场景类型导航**要改（战斗不再是场景）"✓
+⇒ 现在它**有可断言的判据**：不是"我改了代码"，而是「**步骤真的落在面板内并被消费**」—— **路径就是证据** ✓
+```
+- **我这边**：在飞 **0** ✓ · **冒烟 13/13 绿** ✓ · 门禁 **0 豁免** ✓
+- **仍未做（不越界）**：默认 boot 切 `main_scene`/撤 autoload（要 UI 配合）· B-2 的 `CanvasLayer`（`scenes/**` 属 UI）
+  ⇒ 但 **B-2 的"判据"我可以写**（下一条就做）✓
