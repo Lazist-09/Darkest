@@ -44,6 +44,14 @@ public sealed record HeroUpgradeClassConfig(
 public sealed record HeroUpgradesConfig(
     [property: JsonPropertyName("heroes")] IReadOnlyDictionary<string, HeroUpgradeClassConfig> Heroes)
 {
+    /// <summary>
+    /// 🆕 **M8 落库**（架构授权"按你的建议执行"）：数据文件路径 ✓
+    ///   数据来源 = **E 盘一手** `upgrades/heroes/*.upgrades.json`（经 `tools/dsh/extract_dd1_hero_upgrades.py` 量测 ✓）
+    ///   ⇒ 每级都带 `origin: "dd1"` ✓（**不编数**：一个数都不是我写的 ✓）
+    /// ⚠️ **消费方尚未存在**（职业升级 UI/逻辑属后续）⇒ 本件目前**只做"可加载 + 可校验"** ✓
+    /// </summary>
+    public const string ResPath = "res://data/hero_upgrades.json";
+
     /// <summary>全部等级数（= 校验与报表都用得上的读数 ✓）</summary>
     public int LevelCount => Heroes.Values.Sum(c => c.Trees.Sum(t => t.Levels.Count));
 
