@@ -31,35 +31,35 @@
           "atk_pct": 0,
           "dmg_min": 6,
           "dmg_max": 12,
-          "crit_pct": 3,
+          "crit_pct": 5,
           "spd": 4
         },
         {
           "atk_pct": 0,
           "dmg_min": 7,
           "dmg_max": 14,
-          "crit_pct": 3,
+          "crit_pct": 6,
           "spd": 4
         },
         {
           "atk_pct": 0,
           "dmg_min": 8,
           "dmg_max": 16,
-          "crit_pct": 4,
+          "crit_pct": 7,
           "spd": 5
         },
         {
           "atk_pct": 0,
           "dmg_min": 9,
           "dmg_max": 17,
-          "crit_pct": 4,
+          "crit_pct": 8,
           "spd": 5
         },
         {
           "atk_pct": 0,
           "dmg_min": 10,
           "dmg_max": 19,
-          "crit_pct": 5,
+          "crit_pct": 9,
           "spd": 6
         }
       ],
@@ -99,7 +99,7 @@
       "disease_resist": 30,
       "trap_resist": 20,
       "prot": 8,
-      "_align": "阶段 A 对齐来源：Hellion（参考项目 Darkest-Dungeon-Unity）：weapon 0~4 的 dmg/crit/spd + armour 0~4 的 def/hp 逐阶照抄 ✓",
+      "_align": "阶段 A 对齐来源：**一手 E 盘** hellion/hellion.info.darkest（逐阶照抄 ✓）｜此前用的是第三方参考项目版；两者 5 处不同 ⇒ 按 §32.3 **一手为准** ✓",
       "move_distance": 2
     },
     {
@@ -132,16 +132,23 @@
         {
           "atk_pct": 0,
           "dmg_min": 5,
-          "dmg_max": 10,
-          "crit_pct": 4,
+          "dmg_max": 9,
+          "crit_pct": 2,
           "spd": 3
         },
         {
           "atk_pct": 0,
           "dmg_min": 6,
+          "dmg_max": 10,
+          "crit_pct": 3,
+          "spd": 3
+        },
+        {
+          "atk_pct": 0,
+          "dmg_min": 7,
           "dmg_max": 12,
           "crit_pct": 4,
-          "spd": 3
+          "spd": 4
         },
         {
           "atk_pct": 0,
@@ -152,15 +159,8 @@
         },
         {
           "atk_pct": 0,
-          "dmg_min": 7,
-          "dmg_max": 15,
-          "crit_pct": 5,
-          "spd": 4
-        },
-        {
-          "atk_pct": 0,
           "dmg_min": 8,
-          "dmg_max": 16,
+          "dmg_max": 14,
           "crit_pct": 6,
           "spd": 5
         }
@@ -175,25 +175,25 @@
         {
           "def_pct": 10,
           "prot": 0,
-          "hp": 38,
+          "hp": 37,
           "spd": 0
         },
         {
           "def_pct": 15,
           "prot": 0,
-          "hp": 45,
+          "hp": 43,
           "spd": 0
         },
         {
           "def_pct": 20,
           "prot": 0,
-          "hp": 52,
+          "hp": 49,
           "spd": 0
         },
         {
           "def_pct": 25,
           "prot": 0,
-          "hp": 59,
+          "hp": 55,
           "spd": 0
         }
       ],
@@ -201,7 +201,7 @@
       "disease_resist": 30,
       "trap_resist": 10,
       "prot": 12,
-      "_align": "阶段 A 对齐来源：Man-at-Arms（参考项目 Darkest-Dungeon-Unity）逐阶照抄 ✓",
+      "_align": "阶段 A 对齐来源：**一手 E 盘** man_at_arms/man_at_arms.info.darkest（逐阶照抄 ✓）｜此前用的是第三方参考项目版；两者 9 处不同 ⇒ 按 §32.3 **一手为准** ✓",
       "move_distance": 1
     },
     {
@@ -235,7 +235,7 @@
           "atk_pct": 0,
           "dmg_min": 4,
           "dmg_max": 7,
-          "crit_pct": 3,
+          "crit_pct": 2,
           "spd": 7
         },
         {
@@ -256,44 +256,44 @@
           "atk_pct": 0,
           "dmg_min": 6,
           "dmg_max": 11,
-          "crit_pct": 4,
+          "crit_pct": 5,
           "spd": 8
         },
         {
           "atk_pct": 0,
           "dmg_min": 7,
           "dmg_max": 13,
-          "crit_pct": 5,
+          "crit_pct": 6,
           "spd": 9
         }
       ],
       "armour": [
         {
-          "def_pct": 5,
+          "def_pct": 0,
           "prot": 0,
           "hp": 22,
           "spd": 0
         },
         {
-          "def_pct": 10,
+          "def_pct": 5,
           "prot": 0,
           "hp": 26,
           "spd": 0
         },
         {
-          "def_pct": 15,
+          "def_pct": 10,
           "prot": 0,
           "hp": 30,
           "spd": 0
         },
         {
-          "def_pct": 20,
+          "def_pct": 15,
           "prot": 0,
           "hp": 34,
           "spd": 0
         },
         {
-          "def_pct": 25,
+          "def_pct": 20,
           "prot": 0,
           "hp": 38,
           "spd": 0
@@ -303,7 +303,7 @@
       "disease_resist": 50,
       "trap_resist": 20,
       "prot": 4,
-      "_align": "阶段 A 对齐来源：Plague Doctor（参考项目 Darkest-Dungeon-Unity）逐阶照抄 ✓",
+      "_align": "阶段 A 对齐来源：**一手 E 盘** plague_doctor/plague_doctor.info.darkest（逐阶照抄 ✓）｜此前用的是第三方参考项目版；两者 8 处不同 ⇒ 按 §32.3 **一手为准** ✓",
       "move_distance": 2
     },
     {
@@ -351,21 +351,21 @@
           "atk_pct": 0,
           "dmg_min": 7,
           "dmg_max": 13,
-          "crit_pct": 6,
-          "spd": 6
-        },
-        {
-          "atk_pct": 0,
-          "dmg_min": 7,
-          "dmg_max": 15,
           "crit_pct": 7,
           "spd": 6
         },
         {
           "atk_pct": 0,
           "dmg_min": 8,
+          "dmg_max": 15,
+          "crit_pct": 8,
+          "spd": 6
+        },
+        {
+          "atk_pct": 0,
+          "dmg_min": 9,
           "dmg_max": 16,
-          "crit_pct": 7,
+          "crit_pct": 9,
           "spd": 7
         }
       ],
@@ -373,31 +373,31 @@
         {
           "def_pct": 10,
           "prot": 0,
-          "hp": 22,
+          "hp": 23,
           "spd": 0
         },
         {
           "def_pct": 15,
           "prot": 0,
-          "hp": 26,
+          "hp": 28,
           "spd": 0
         },
         {
           "def_pct": 20,
           "prot": 0,
-          "hp": 30,
+          "hp": 33,
           "spd": 0
         },
         {
           "def_pct": 25,
           "prot": 0,
-          "hp": 34,
+          "hp": 38,
           "spd": 0
         },
         {
           "def_pct": 30,
           "prot": 0,
-          "hp": 38,
+          "hp": 43,
           "spd": 0
         }
       ],
@@ -405,7 +405,7 @@
       "disease_resist": 30,
       "trap_resist": 40,
       "prot": 5,
-      "_align": "阶段 A 对齐来源：Highwayman（参考项目 Darkest-Dungeon-Unity）逐阶照抄 ✓",
+      "_align": "阶段 A 对齐来源：**一手 E 盘** highwayman/highwayman.info.darkest（逐阶照抄 ✓）｜此前用的是第三方参考项目版；两者 8 处不同 ⇒ 按 §32.3 **一手为准** ✓",
       "move_distance": 2
     },
     {
