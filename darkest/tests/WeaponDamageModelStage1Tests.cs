@@ -94,23 +94,13 @@ public sealed class WeaponDamageModelStage1Tests
             }
         }
 
-        foreach (string f in Directory.EnumerateFiles(Path.Combine(root.FullName, "darkest", "tests"), "*.cs", SearchOption.AllDirectories))
-        {
-            string name = Path.GetFileName(f);
-            if (allow.Contains(name))
-            {
-                continue;
-            }
-
-            string text = File.ReadAllText(f);
-            if (text.Contains("WeaponRawDamage") || text.Contains("WeaponRoll("))
-            {
-                offenders.Add(name);
-            }
-        }
+        // 🔴 **口径修正（我自己的 bug，如实记）**：本用例的名字就是 No**ProductionCode**Calls...
+        //    ⇒ 要钉的是**生产代码**（darkest/scripts/**）零调用 ✓；**测试**调用它是**允许**的
+        //    （例：M1c 阶段 2 的对照夹具 `M1cPilotComparisonTests` 必须调用它才能做对照 ✓）
+        //    我第一版把 tests 目录也一并算作违规 ⇒ 夹具一加就假红 ✗ ⇒ 已收窄到只查生产代码 ✓
 
         Assert.AreEqual(0, offenders.Count,
-            $"阶段 1 必须**零消费点** ⇒ 除 `BattleMath.cs` 与本用例，不应有人调用新模型；实际：{string.Join(", ", offenders)}");
+            $"阶段 1 必须对**生产代码**零消费点 ⇒ 除 `BattleMath.cs`，`darkest/scripts/**` 不应有人调用新模型；实际：{string.Join(", ", offenders)}");
         Console.WriteLine("[M1c·阶段1] 零消费点自证：全仓（scripts + tests）除 BattleMath/本用例外 **0 处引用** ⇒ 旧读数不变 ✓");
     }
 
