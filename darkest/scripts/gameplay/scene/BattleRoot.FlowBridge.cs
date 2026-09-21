@@ -106,11 +106,17 @@ public sealed partial class BattleRoot
         Darkest.UI.UIRoot? shell = Darkest.UI.UIRoot.Instance;
         if (shell is not null && shell.ShowPanel<Darkest.UI.HamletRoot>(path) is not null)
         {
-            GD.Print("[BattleRoot] 回城 ⇒ 走 UIRoot 单外壳（ShowPanel<HamletRoot>）✓");
+            // 🆕 **B-3 接线**：成功面板化 ⇒ 记一笔 `Panel`（账本因此能回答"还差哪几屏"✓）
+            Darkest.Data.UiShellLedger.Record("hamlet", Darkest.Data.UiShellLedger.ShellRoute.Panel);
+            GD.Print("[BattleRoot] 回城 ⇒ 走 UIRoot 单外壳（ShowPanel<HamletRoot>）✓　"
+                + Darkest.Data.UiShellLedger.Report());
             return;
         }
 
-        GD.Print("[BattleRoot] 回城 ⇒ 无 UIRoot 外壳（回落：ChangeSceneToFile）✓");
+        // 🆕 **B-3 接线**：**回落必须留痕**（架构原话）—— 记 `SceneFallback` 并打印账本 ✓
+        Darkest.Data.UiShellLedger.Record("hamlet", Darkest.Data.UiShellLedger.ShellRoute.SceneFallback);
+        GD.Print("[BattleRoot] 回城 ⇒ 无 UIRoot 外壳（回落：ChangeSceneToFile）✓　"
+            + Darkest.Data.UiShellLedger.Report());
         GetTree().CallDeferred("change_scene_to_file", path);
     }
 }

@@ -64,6 +64,10 @@ public static class DungeonRunDriver
                  $"光照 {flow.Meter.Value} ⇒ 切城池（`--hamlet-next` 与冒烟 `town` 共用此实现）✓");
         flow.ReturnToTown(result); // 🔴 `#352`：completed = 走完 ／ abandoned = 放弃远征 ✓
         ExpeditionContext.End();
+        // 🆕 **B-3 接线**：本条路径**也是回落**（直接切场景、没有面板化）⇒ 如实记一笔并打印账本 ✓
+        //    ⇒ 这样"**还差哪几屏没面板化**"就有**真实数据**了（架构 B-3 的原话：回落必须留痕 ✓）
+        Darkest.Data.UiShellLedger.Record("hamlet", Darkest.Data.UiShellLedger.ShellRoute.SceneFallback);
+        GD.Print("[片4-driver] B-3 留痕：" + Darkest.Data.UiShellLedger.Report());
         host.GetTree().CallDeferred("change_scene_to_file", Darkest.UI.MainMenuRoot.HamletScene);
     }
 
