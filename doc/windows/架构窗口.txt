@@ -1,43 +1,42 @@
 ﻿
 ---
 
-### 交付 + 更正：2026-09-21 22:03 · 【来自主程序】**M2 激活第 1 条 `hp_heal_percent`**（带用例 + 前后读数）＋ 一条**前提性发现**
+### 交付 + 一条用户指示的落实：2026-09-21 22:29 · 【来自主程序】**M1a `PhysDef` 归位完成**（改名 · 零行为）＋ 撤掉"为 UI 让步"的兼容别名
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M2-ACT1' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-PROT-RENAME' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-LEAD-M2-ACT1
+DELIVERY-LEAD-PROT-RENAME
 ```
 
-#### ✅ ① 按你的要求做的（"激活一条 ⇒ 一条用例 + 前后读数"）
+#### 🔴 ① 先说一条**用户当日指示**（我按它改了自己的做法）
 ```
-落点：`SkillExecutor.ExecuteSupportPath` 的治疗量 ✓　语义：**施法者**的"治疗量"修正 ⇒ `×(1 + pct/100)` ✓
-新增：`HealAmount.Scale`（**纯函数 ⇒ 可单测** ✓）· `BuffLedger.PercentModAny`（跨 kind · **附加式**：
-   `PercentMod` 语义**未动** ✓）· 接口同步 ✓ · `SkillExecutor` 只负责"取修正 + 调算法" ✓
-📊 **前**：`pct = 0 ⇒ 原样`（1/5/12/15/100/999 全等 ✓）＋ **全量 798/798 不变** ✓
-📊 **后**：`12 +25% ⇒ 15` · `12 −40% ⇒ 7` · `12 +100% ⇒ 24` · `5 −1% ⇒ 5` · `15 −33% ⇒ 10` ✓
-📊 **清单**：`已激活 1 条（hp_heal_percent）· 仍冻结 13 条` ⇒ **保持可打印** ✓（你的要求）
-全量 **801/801** ✓（798 + 本件 3 条）
+用户原话：**「先跑通逻辑，不急着对接 UI，不要因为现有 UI 修改逻辑」** ✓
+⇒ 我自查当场发现**两处"为 UI 让步"**并**撤掉**：
+   · 我第一版给 `UnitConfig`/`UnitDetail` 加了**兼容别名**（让 UI 旧名还能编译）✗ ⇒ **已删两个别名文件** ✓
+   · 又把带方法体的成员插进了 record 的**位置参数列表** ⇒ **368 个语法错** ✗ ⇒ **已回退** ✓
+⇒ ✅ **正解**：**契约只留 `Prot`**（不为 UI 让步 ✓）；UI 那 3 处做**机械改名**（`.PhysDef → .Prot`，不动逻辑）
+   ⇒ 我**改了 UI 的 3 行**（`HamletRoot.HeroDetail.cs` ×2 · `BattleUI.cs` ×1）⇒ **如实报告**（这是跨域改动 ⚠️）
 ```
-#### 🔴 ② **更正我自己**：上轮"7 条可立即接"**过于乐观** ⚠️
+#### ✅ ② 归位做了什么（结构 · **零行为**）
 ```
-我把 7 条的**落点档位**逐一查了（实测）：`BuffLedger` 的持有者 =
-   `ShieldGuard` · `BattleDirector` · `MoraleLedger` · `DamagePipeline` · `SkillExecutor` ⇒ **全是战斗级** ✓
-| 原语 | 落点 | 档位 | 今天能接吗 |
-| `hp_heal_percent` | `SkillExecutor` | **战斗级** | ✅ **能**（已做 ✓） |
-| `party_surprise_chance` / `monsters_surprise_chance` | `ExpeditionSession.RollAmbush` | **趟级** | ✗ |
-| `scouting_chance` | 侦察 | 趟级 | ✗ |
-| `starving_damage_percent` / `food_consumption_percent` | `HungerSpawner` | 趟级 | ✗ |
-| `remove_quirk_chance` | 怪癖移除 | **城池级** | ✗ |
-⇒ 📌 **真正的前置不是"系统存在"，而是「趟级/城池级也能读到修正」** ⇒ 那需要**一层新结构** ⇒ 🔴 **请你裁** ✓
+· 数据：`units.json` 的键 `phys_def → **prot**`，**数值原样搬家**（warrior 8 / tank 12 / medic 4 / commissar 5 /
+  敌 8/4/3 ✓）⇒ 删掉重复的 `prot: 0` ⇒ 现在 **7/7 单位都有 `prot`** ✓
+· 契约：`UnitStats.PhysDef → **Prot**`（**非空 int** ✓）· `ProtFraction` 改为非空（`Clamp(Prot/100,0,0.85)` ✓）
+· 跟改：`UnitConfig`（含 JSON 键）· `UnitStatsMapper` · `UnitRuntime` · `BattleProjector` · `EffectsStep` ·
+  `DamageStep` · `SkillExecutor` · 7 个测试文件 ✓
+📊 **零行为的判据**：减伤/命中矩阵**逐位不变**（`warrior→tank ⇒ 命中 95% · 减伤 29%` ✓）
+   ＋ 全量 **803/803** ✓ ＋ **冒烟 13/13 绿** ✓
 ```
-#### 🔀 ③ 两条路（**我都不擅自做**）
+#### 🔴 ③ 一个用例"该红就红"，我已按新事实改正（如实）
 ```
-**(甲) 加"趟级修正"载体**（如 `ExpeditionSession` 持一个与 `BuffLedger` 同形的 `RunModifiers`）
-   ⇒ 6 条可一起接 ✓ 但要先定"**趟级 buff 从哪来**"（营火/Curio/饰品 ✓）
-**(乙) 只做战斗级** ⇒ 6 条**留在冻结清单**（可打印 ✓）· 等 **M3/M4** 的修正轴设计 ✓
-📌 **我的倾向：(乙) 先** —— 那 6 条里有 4 条（伏击/侦察/饥饿）**语义本来就是趟级** ✓，
-   而 M3/M4 会带来修正轴的正式设计 ⇒ **现在硬造一层可能白做** ✓
+`UnitTierStage1Tests` 原本断言 `prot == 0`（"与参考一致"）—— 归位后 `prot` 装的是**我们的减伤** ⇒
+   🔴 它**正确地失败了** ✗ ⇒ ✅ 改为钉住**当前值**（8/12）＋写明：
+   **"对齐原版（`prot → 0`）是【平衡步骤】⇒ 已入解冻清单、本轮未执行"** ✓
 ```
-- **我这边**：构建 **0 错** · 全量 **801/801** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
-- 📄 读数与发现全文：`reports/m2_activation_readings.md` ✓
+#### 📌 ④ 入**解冻清单**的新条目（**未执行** ✓）
+```
+「**`prot` 对齐原版 ⇒ 四原型减伤 8/12/4/5 → 0**」—— 会大改行为（伤害 +9~29%）⇒ 走**解冻四件** + **前后读数** ✓
+   （判据：`UnitTierStage1Tests` 已钉住当前值 ⇒ 对齐时**按登记表改那一行** ✓）
+```
+- **我这边**：构建 **0 错** · 全量 **803/803** ✓ · **冒烟 13/13 绿** ✓ · 门禁 **420 文件 ≤600 / 0 豁免** ✓
