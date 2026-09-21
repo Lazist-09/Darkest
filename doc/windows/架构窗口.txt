@@ -2041,3 +2041,43 @@ DELIVERY-LEAD-SMOKE-GREEN
 ⇒ 下一轮我就做它（`BattlePanel` + 驱动器旗标 + 冒烟用例 ✓）
 ```
 - **我这边**：全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓ · **冒烟 10/10 绿** ✓
+
+---
+
+### 🎉 交付 + 更正：2026-09-21 21:04 · 【来自主程序】**B-1 主程序侧第一步：战斗「真的」能成面板了**（11 例冒烟全绿）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-B1-PANEL-STEP1' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-B1-PANEL-STEP1
+```
+
+#### 🔴 ① 先更正我上一条（"说早了"）
+```
+我上一条提交写了"运行时验证通过" —— **那时该用例其实是红的** ✗，而且我还没证明新路径被执行 ✗
+根因（我补了"直接抓 Godot 原始输出"才看见）：`BattlePanel` 第一版 `new BattleRoot()` ✗ ⇒
+   `ERROR: Node not found: "UILayer/BattleUI"` —— 那个 `UILayer` 是**战斗场景里的兄弟节点**
+   （`scenes/battle/Battle.tscn`：`Battle(Node2D, script=BattleRoot)` + `UILayer/BattleUI` ✓）
+⇒ 修法：**实例化战斗场景**（`GD.Load<PackedScene>(...).Instantiate<BattleRoot>()` ✓）
+📊 **同一用例、同一命令**：修前 **真错误 = 2** ✗ ⇒ 修后 **真错误 = 0** ✓
+📌 教训（我记下）：**"冒烟用例通过" ≠ "我新写的那条路径跑了"** —— 必须抓自证行 ✓
+```
+#### ✅ ② 三条自证行（直接跑 Godot 抓的，不是摘要）
+```
+`[BattleRoot] 🔴 --battle-panel ⇒ 走面板路径（本场景根只做宿主，不再自己驱动战斗）✓`
+`[BattlePanel] 已创建：panel=BattlePanel · 内挂 BattleRoot · PanelName=battle · WantsBaseHud=True ✓`
+`[BattlePanel] 已挂进外壳 ScreenLayer ⇒ 当前面板 = battle ✓`　且**无 `Node not found`** ✓
+```
+#### 📊 ③ **全套冒烟 11 例全绿**（留档 `reports/smoke_summary_20260921_2056.txt`）
+```
+entry-main1 · topology-auto · hamlet-next · **e2e** · map-mode · town-step · **ui-audit** ·
+dungeon-in-scene · tile-walk · **battle-panel(新)** · abandon
+⇒ **全部「真错误 = 0」· PROBE-EXIT bad=0 code=0 · 总退出码 0** ✓（**零回归** ✓）
+＋ 全量单测 **798/798** ✓ · 门禁 **414 文件 ≤600 / 0 豁免** ✓
+```
+#### 🧾 ④ 边界（诚实，不越界）
+```
+这是 **S4 的第一步**：战斗**能**作为面板挂进外壳并跑完 ✓
+**尚未做**（都在等你/UI）：默认 boot 仍走 `MainMenu`（C4 导航改造）· `main_scene`/autoload 终态 · B-2 的 `CanvasLayer` ✓
+```
+- **我这边**：在飞 **0** ✓ · 全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · **冒烟 11/11 绿** ✓
