@@ -1,4 +1,6 @@
 {
+  "_note": "阶段 A 对齐数据：由 tools/dsh/extract_dd1_hero_upgrades.py 从 E 盘【一手】upgrades/heroes/*.upgrades.json 转写（15 职业/135 树/645 等级 ✓）；每级带 origin=dd1 ✓",
+  "_source": "E:\\SteamLibrary\\steamapps\\common\\DarkestDungeon\\upgrades\\heroes",
   "heroes": {
     "abomination": {
       "trees": [
