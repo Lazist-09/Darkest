@@ -933,3 +933,47 @@ DELIVERY-ARCH-UNCOMMITTED-RISK-20260921
 ```
 - **阻塞 / 待裁定**：**无**（对你们：**备份 + 提交**；对主程序：恢复命令已给）
 - **权威在哪**：`open_issues` **O-98**（含恢复命令与实测读数）
+
+---
+
+### 交付：2026-09-21 13:07 · 【来自主程序】M7 第 ② 步**准备件已落**（零行为）—— **激活只差【一行】**（在 UI 文件里）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-M7-ACTIVATION-LINE' -SimpleMatch`（**同投架构窗**）命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M7-ACTIVATION-LINE
+```
+
+#### ✅ ① 我这边已就绪（提交 `527a93a` · **零行为** ✓）
+```
+🔧 `RunProgress.CurrentRosterCap(...)` 加两个**可选**参数：
+   `IReadOnlyList<int>? stagecoachCapByLevel = null` · `int stagecoachLevel = 0`
+   给了曲线 ⇒ **只以曲线为准**：`min(曲线[马车等级], hardCap)`（= 策划 `#423` 的"上限单一来源 = 马车" ✓）
+   不给曲线 ⇒ **原逻辑一字不动**（起手 + 解锁增量 + 马车增量 ⇒ 历史读数不被改写 ✓）
+📊 读数：构建 0 错 · 全量 **786/786** · 门禁绿 · 本提交**无人调用新路径**⇒零行为 ✓
+```
+#### 🔴 ② **激活只差一行**（`MainMenuRoot.cs:145` · 🔴 **UI 域** ⇒ 我不擅自改）
+```
+现状（`MainMenuRoot.cs:145`）：
+   roster.CurrentCap = ExpeditionContext.Progress.CurrentRosterCap(unlocks, roster.Cap);
+改成（把【曲线】与【马车等级】传进去）：
+   roster.CurrentCap = ExpeditionContext.Progress.CurrentRosterCap(
+       unlocks, roster.Cap,
+       stagecoachCapByLevel: <economy 的 Coach.RosterCapByLevel>,
+       stagecoachLevel:      <HeirloomStock.LevelOf("stagecoach")>);
+   （`EconomyConfig.Coach.RosterCapByLevel` 与 `HeirloomStock.LevelOf("stagecoach")` 都是现成的只读口 ✓
+     具体变量名以该文件里已有的 economy/heirlooms 句柄为准 ✓）
+⇒ 🙏 **请 UI 设计师**改这一行（或**给我一句话授权**，我改这一行 —— 它属于 UI 文件，所以我不擅自动手 ✓）
+```
+#### 📋 ③ 那一行接上之后，**同一批**要做完 4 件（"一次只改一类" ✓）
+```
+① `roster.json` 的 `roster_cap`:12 → **28**（最终硬上限）
+② `economy.json` 的 `stagecoach.max_roster`:12 → **28**
+③ **删** `unlocks.json` 的 `roster_cap_delta:2` / `:4`（两条 ⇒ 它们是与马车**重复的来源**）
+④ 更新受影响的既有用例（**带前后读数对照** —— 解冻四件的要求 ✓）
+🔴 为什么必须**同批**：我这次先把 ① 单独做了 ⇒ **6+ 个既有用例立刻红**（`Joke_*`/`Bandage_*`/`CampMorale*`/
+   `ShippedConfigs*`/`RookieMorale*`/`BonePile_*`）⇒ 因为 `CurrentCap == 0 ⇒ EffectiveCap = Cap` 那一支
+   ⇒ 已回退 ✓ ⇒ **教训：改上限必须"接线 + 数据 + 撤旧源 + 改读数"一次成套** ✓（这正是"一次只改一类" ✓）
+```
+- **我这边**：准备件 ✓ 落库（`527a93a`）· 全量 **786/786** · 门禁绿 · 在飞 **0** ✓
+- **下一步**：等你/UI 那一行 ⇒ 我把 ③ 的 4 件一次做完并给前后读数 ✓
