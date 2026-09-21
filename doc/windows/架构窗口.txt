@@ -1654,3 +1654,43 @@ DELIVERY-LEAD-DEF-PLAN-C-DONE
 - **我这边**：全量 **797/797** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
 - **仍等 11 件一句话**：`def 合并 (甲/乙)` · `M2 映射` · `M1c dmg%` · `M8 四问` · `M5 空分类` · `M3 三条边界` ·
   `M9 名单 4 人` · `M9 是否保留扩展位` · `误提处置`
+
+---
+
+### 交付：2026-09-21 19:24 · 【来自主程序】**M2「丙方案」的 15 条冻结原语逐条激活清单** —— **7 条现在就能接**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M2-ACTIVATION' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M2-ACTIVATION
+```
+
+#### 🔬 ① 方法（含一条**必要的口径声明**）
+```
+逐条探"**对应系统是否存在**"；但线索数里**包含我自己的分类器文件** ⇒ 所以
+**线索 = 1 处 ⇒ 实际等于"没有任何系统"** ⚠️（我在表里逐条标了，避免把"我提到过"当成"已有系统" ✓）
+```
+#### ✅ ② 可**较快激活**的 **7 条**（系统已存在）
+```
+`hp_heal_percent`（72/22）· `party_surprise_chance`（63/18）· `monsters_surprise_chance`（63/18）·
+`remove_quirk_chance`（32/7）· `scouting_chance`（132/32）· `starving_damage_percent`（31/12）·
+`food_consumption_percent`（10/7）
+⇒ 每条都写明"加哪根轴 + 接在哪"，**一天内可做完**（含前后读数）✓
+```
+#### ✗ ③ **真·没有系统**的 4 条（仅我的分类器提到过）
+```
+`stress_dmg_received_percent` · `stress_dmg_percent` · `resolve_check_percent` · `resolve_xp_percent`
+⇒ 前置 = **M3**（压力修正轴）/ **M4**（决心链）✓
+（＋ `hp_heal_received_percent`：与 `hp_heal_percent` 的**区分口径**未定 ✓）
+```
+#### 🔴 ④ **口径待定 2 条**（需你/策划一句话）
+```
+`debuff_chance`：原版是**施加方**的成功率吗？（若是 ⇒ 归 `prob_mod` ✓）
+`dmg_received_percent`：**受击方**修正 ⇒ 与我们的 `damage_mod`（**输出方**）**是不是同一根轴**？
+```
+#### 📌 ⑤ 结论
+```
+**"选丙"不是拖延**：**26 条先落 · 7 条马上可落 · 剩 8 条有明确前置** ✓
+⇒ 你若说"选丙"，我下一轮就开始接那 7 条（每条带前后读数）✓
+```
+- **我这边**：全量 **797/797** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓ · `reports/m2_activation_plan.md` ✓ 入库
