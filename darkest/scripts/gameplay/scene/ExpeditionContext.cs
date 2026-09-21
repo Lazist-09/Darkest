@@ -52,6 +52,21 @@ public static class ExpeditionContext
     /// <summary>🆕 P0 养成闭环：**上一趟出发前的快照**（用于"本次 vs 上次"对比 ⇒ 让成长可读）✓</summary>
     public static Darkest.Gameplay.Sim.Run.RunStartSnapshot? LastRunStart { get; private set; }
 
+    /// <summary>
+    /// 🔴🆕 `D-4`（2026-09-20）：**本趟的目的地地区 id**（`ruins`/`weald`/`warrens`/`cove`）——
+    /// 决定抽哪张陷阱表（`trap_defs.json` 按地区分条）。
+    ///
+    /// <para>🔴 **默认 `null`**：主城/地图层目前**还没有"选地区"的入口** ⇒ 未设 ⇒ `D-4` 的陷阱抽取**显式不做**
+    /// （`TrapResolver.Pick` 拿不到地区 ⇒ 不抽不掷）—— 这是**可自证的有界缺口**，不是静默失效：
+    /// `BattleRoot` 会打印"地区 = 未给（不抽）"，而 `TrapResistSourceDeclared` 同族自证 ✓</para>
+    /// <para>⚠️ **为什么不在这里编一个默认地区**：那等于"谁替策划选了一个地区"（`TrapDefs.Parse` 的
+    /// `region` 校验正是为拦这个而存在）⇒ 宁可 `null` + 打印，也不静默挑一个 ⚠️</para>
+    /// </summary>
+    public static string? RegionId { get; private set; }
+
+    /// <summary>🔴 `D-4`：设置本趟地区（**由地图层/主城的"选地区"入口调**；`null` ⇒ 陷阱抽取关闭）✓</summary>
+    public static void SetRegion(string? region) => RegionId = region;
+
     /// <summary>🆕 P0：当前是第几趟（从 1 起；每次进地牢 +1）✓</summary>
     public static int RunIndex { get; private set; }
 
@@ -221,9 +236,27 @@ public static class ExpeditionContext
         Log = log;
     }
 
-    /// <summary>本趟结束：清空（下一趟重新 Begin）。</summary>
+    /// <summary>
+    /// 🔴 **上一趟的会话**（`#245` **跨趟携带**的唯一输入）—— 与 `Gold`/`Roster`/`Heirlooms` **不同层**：
+    /// 它**只在相邻两趟之间**有效（本趟开始后即被新会话取代）⇒ 由 `End()` 时从 `Flow` 里**摘出来**留存，
+    /// 供下一趟开趟时走 `ExpeditionSession.CarryOverFrom`（HP 全恢复 / **士气不回** / 虚弱与死门后遗症清除）✓
+    /// ⚠️ 若无此持有者，则"回城 → 再出发"在**生产路径**上永远拿不到上一趟的会话 ⇒ `CarryOverFrom`
+    ///    只被测试调用（= 死函数）且 `#245` 的跨趟语义**落不了地** ⚠️
+    /// </summary>
+    public static ExpeditionSession? PreviousSession { get; private set; }
+
+    /// <summary>本趟开始后认领上一趟的会话（**读到即清** ⇒ 不会跨两趟重复携带）✓</summary>
+    public static ExpeditionSession? ConsumePreviousSession()
+    {
+        ExpeditionSession? p = PreviousSession;
+        PreviousSession = null;
+        return p;
+    }
+
+    /// <summary>本趟结束：清空（下一趟重新 Begin）；**同时把本趟会话留给下一趟**（`#245` 跨趟携带）✓</summary>
     public static void End()
     {
+        PreviousSession = Flow?.Session; // 🔴 先摘会话，再清 Flow（顺序不可换）✓
         Flow = null;
         Log = null;
     }

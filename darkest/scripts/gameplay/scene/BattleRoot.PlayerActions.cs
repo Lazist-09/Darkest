@@ -1,4 +1,4 @@
-// 🔴 从 BattleRoot.cs 拆出（用户 2026-09-18 红线：程序文件 <=600 行）——
+﻿// 🔴 从 BattleRoot.cs 拆出（用户 2026-09-18 红线：程序文件 <=600 行）——
 //    本文件 = **玩家操作与战斗驱动**（场景内起战斗/新局/过牌/用技能/增援/移动/点卡/撤退）· 只搬家、零行为改动 ✓
 using System;
 using System.Linq;
@@ -168,7 +168,7 @@ public partial class BattleRoot : Node2D
         }
 
         SkillTemplateConfig skill = _skills.Get(skillId);
-        int[] candidates = SkillTargetResolver.Resolve(skill, actor, Director.Player, Director.Enemy).ToArray();
+        int[] candidates = SkillTargetResolver.Resolve(skill, actor, Director.Player, Director.Enemy, Director.Buffs).ToArray();
 
         // F0（#189）：一律进入选目标——候选池非空就必须点卡确认（单体/AOE/team/self/any_ally 无例外）
         if (candidates.Length == 0)
@@ -219,7 +219,7 @@ public partial class BattleRoot : Node2D
 
         string moveId = "move"; // F1（#191）：池外通用移动技能（距离从单位 move_distance 读）
         SkillTemplateConfig move = _skills.Get(moveId);
-        if (SkillTargetResolver.Resolve(move, _activeActor, Director.Player, Director.Enemy).Count == 0)
+        if (SkillTargetResolver.Resolve(move, _activeActor, Director.Player, Director.Enemy, Director.Buffs).Count == 0)
         {
             _ui.FlashHint("移动：周围无可交换位置");
             return;
@@ -286,11 +286,34 @@ public partial class BattleRoot : Node2D
         }
 
         string skillId = _pendingSkill;
-        int[] candidates = SkillTargetResolver.Resolve(_skills.Get(skillId), _activeActor, Director.Player, Director.Enemy).ToArray();
+        int[] candidates = SkillTargetResolver.Resolve(_skills.Get(skillId), _activeActor, Director.Player, Director.Enemy, Director.Buffs).ToArray();
         if (Array.IndexOf(candidates, slot) < 0)
         {
             _ui.FlashHint("该目标不在候选中，请点候选卡");
             return;
+        }
+
+        // 🔴 **位移预览 dry-run**（必显 #6 / `DisplacementPreview` 的生产消费点，2026-09-20 接线）——
+        //    在**真正提交之前**，对**只读快照**跑同一个 `TrySwapChain`，把"交换链会推几步、被推的是谁"
+        //    先算出来。⚠️ 此前 `BattleProjector.DisplacementPreview` / `FormationBoard.DryRunSwapChain`
+        //    **只有测试在调** ⇒ "必显 #6" 在实机里**根本没显**（玩家点下去才知道推到哪）⚠️
+        //    纪律：**只读快照**（`CreatePreviewSnapshot`）⇒ 绝不动真实板、不吞战斗随机数 ✓
+        if (Director.Player.GetSlot(slot) != Darkest.Core.Contracts.SlotState.Empty)
+        {
+            // 距离**必须**从单位自身 `move_distance` 读（`SkillsConfig` 校验：技能不得自带 distance，P14/F1）✓
+            int moverPos = Director.Player.UnitAtPosition(_activeActor) ?? -1;
+            int distance = Director.Player.UnitRuntimeAt(moverPos)?.Base.MovementRange ?? 1;
+            Darkest.Core.Contracts.DisplaceResult dry =
+                Projector.DisplacementPreview(_activeActor, moverPos, slot, distance, Director.Player);
+            string steps = dry.Success
+                ? $"链长 {dry.Steps.Count} 步：{string.Join(" → ", System.Linq.Enumerable.Select(dry.Steps, s => $"{s.FromSlot}⇒{s.ToSlot}"))}"
+                : $"**会被拒**（{dry.Failure}）";
+            GD.Print($"[位移预览] 槽 {moverPos} → {slot}（距离 {distance}）：{steps} ✓");
+            if (!dry.Success)
+            {
+                _ui.FlashHint($"位移预览：此交换会被拒（{dry.Failure}），未提交");
+                return; // dry-run 说不行 ⇒ **不提交**（避免"点了才知道白点"）✓
+            }
         }
 
         ExecutePlayerSkill(_activeActor, skillId, new[] { slot });
@@ -306,7 +329,7 @@ public partial class BattleRoot : Node2D
                 return Array.Empty<int>();
             }
 
-            return SkillTargetResolver.Resolve(_skills.Get(_pendingSkill), _activeActor, Director.Player, Director.Enemy).ToArray();
+            return SkillTargetResolver.Resolve(_skills.Get(_pendingSkill), _activeActor, Director.Player, Director.Enemy, Director.Buffs).ToArray();
         }
     }
 

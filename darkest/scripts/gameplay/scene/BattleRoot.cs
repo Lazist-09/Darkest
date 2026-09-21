@@ -6,6 +6,7 @@ using Darkest.Core.Rng;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
+using Darkest.Gameplay.Sim.Run;
 using Darkest.Gameplay.Sim.Skill;
 using Darkest.UI;
 using Godot;
@@ -24,6 +25,7 @@ public partial class BattleRoot : Node2D
     public BattleProjector Projector { get; private set; } = null!;
 
     private Darkest.Core.Events.CombatLog? _xpLog;   // 🆕 升级通道：常驻经验日志（事件可审计 ✓）
+    private Darkest.Data.RosterConfig? _rosterCfgForXp;   // 🆕 A10 升级读数：懒解析一次（只读，不重算数字）✓
     private RngProvider _rng = null!;
 
     /// <summary>
@@ -367,11 +369,39 @@ public partial class BattleRoot : Node2D
         // 🔴 片 4 收口：**把走格真正开起来**（UI 报"全项目无人调 `EnableTileWalk`" ⇒ 走格接口一直没人用 ⚠️）
         //    · 段消耗**从数据取**（`tuning.light.node_step` = −30，负值 = 消耗 ⇒ 取反得 30）⇒ **代码不写死** ✓
         //    · 幂等 + opt-in：不改变任何既有规则；表现层据此渲染"格子主画面" ✓
+        // 🔴 D-1（2026-09-20）：回头代价同样**从数据取**（`tuning.dungeon_layer.revisit_light_cost`）；
+        //    未配置 ⇒ 传 null ⇒ 回头代价关闭（既有行为不变）✓
         int segmentCost = -built.Flow.Tuning.Light!.NodeStep;
-        built.Flow.EnableTileWalk(segmentCost);
+        int? backtrackCost = built.Flow.Tuning.DungeonLayer?.RevisitLightCost;
+        built.Flow.EnableTileWalk(segmentCost, backtrackCost);
+
+        // 🔴🔴 `D-4`（2026-09-20）：**接线陷阱机制**（否则 `TrapResolver` 永远没人调 = 库写完了没人用 ⚠️）
+        //    · 陷阱表由组合根加载并绑定（`ExpeditionComposition.Traps`）⇒ 此处**只读**，不重复解析 ✓
+        //    · 地区 id **必须显式给**（`SetRegion`）：未给 ⇒ 不抽（**不静默挑一个地区** —— 那等于"谁替策划选了"）⚠️
+        //    · `trap_resist` 目前在 `units.json` 里**不存在** ⇒ 不传抗性查询口 ⇒ 退化解（全员 0），
+        //      由 `TrapResistSourceDeclared` **自证**（表现层/验收能判断"退化解是否在用"）✓
+        TrapDefs? trapDefs = ExpeditionComposition.Traps;
+        built.Flow.BindTraps(trapDefs);
+        built.Flow.SetRegion(ExpeditionContext.RegionId);
         GD.Print($"[片4] ✅ 走格已开启（段消耗 = −`light.node_step` = {segmentCost}，取自已解析数据）" +
+                 $"　回头代价 = {(backtrackCost is { } bc ? bc.ToString() : "未配置（关闭）")}" +
                  $"　网格 {built.Flow.TileWalk!.Grid.Width}×{built.Flow.TileWalk.Grid.Height}" +
                  $"　房间块 {built.Flow.TileWalk.Segments.Count} 段走廊　队伍在 ({built.Flow.TilePosition.X},{built.Flow.TilePosition.Y}) ✓");
+        GD.Print($"[片4·D-4] ✅ 陷阱已接线：{(trapDefs is null ? "未配置（机制关闭）" : $"陷阱表 {trapDefs.Traps.Count} 条")}　" +
+                 $"撒布 = {(built.Flow.Tuning.DungeonLayer?.Traps is { } ts ? $"{ts.CorridorChancePercent}%/走廊格" : "未配置（一格不撒）")}　" +
+                 $"本轮派生陷阱格 = {built.Flow.TileWalk.TrapTiles}　" +
+                 $"地区 = {ExpeditionContext.RegionId ?? "**未给（不抽）**"}　" +
+                 $"抗性来源 = {(built.Flow.TrapResistSourceDeclared ? "已声明" : "**未声明**（退化解：全员按 0 算）")} ✓");
+
+        // 🔴🔴 `D-6`（2026-09-20）：**接线隐藏房** —— 打印自证（否则"撒了但没人揭示"= 静默失效 ⚠️）
+        //    · 揭示**不需要新接线**：它挂在既有侦察路径（Curio 的 `scout` 效果）上，见
+        //      `ExpeditionFlow.RoomInteractions.ApplyCurioEffect("scout")` ✓
+        //    · 这里**只报状态**：配了多少 / 撒了几格 / 回报多少 —— 让"机制真的开着"可被肉眼核对 ✓
+        //    · 🔴 **`Unexplored` 的 `Secret` 格不会出现在地图上**（`WalkMapView.FromTileWalk` 显式跳过）✓
+        TuningSecretScatter? secretsCfg = built.Flow.Tuning.DungeonLayer?.Secrets;
+        GD.Print($"[片4·D-6] ✅ 隐藏房已接线：{(secretsCfg is null ? "未配置（机制关闭：不撒、不揭示、不给）" : $"撒布 {secretsCfg.CorridorChancePercent}%/走廊格 · 回报 {secretsCfg.RewardGold} 金币/处 · 配额 {(secretsCfg.MaxRewardsPerRun <= 0 ? "不限" : secretsCfg.MaxRewardsPerRun.ToString())}")}　" +
+                 $"本轮派生隐藏房格 = {built.Flow.TileWalk.SecretTiles}（🔴 这些格**未揭示前不会出现在地图上**）　" +
+                 $"已揭示 = {built.Flow.SecretRevealedCount} 处 / {built.Flow.SecretGoldGranted} 金币 ✓");
 
         // 🔴🆕 **P0 养成闭环**（用户指令：把重心转到 Hamlet/养成）：进地牢时抓一份"出发前快照"并打印
         //    **本次 vs 上次** ⇒ 让"这趟比上趟强在哪"变成**可读**（不碰任何数值，纯只读）✓
@@ -470,6 +500,20 @@ public partial class BattleRoot : Node2D
                 GD.Print("[升级通道] 本场" + (won ? "胜" : "负") + " ⇒ 发经验：" +
                          string.Join("、", System.Linq.Enumerable.Select(xpRoster.Heroes,
                              h => $"{h.Name} Lv{h.Level}(XP{xpRoster.ExperienceOf(h.Id)})")) + " ✓");
+
+                // 🔴 **A10 可读性读数**（策划 `#399`；`RosterConfig.BattlesToNextLevel` 的**生产消费点**，2026-09-20 接线）——
+                //    玩家感受到的是"**我打了 N 场，升了 1 级**" ⇒ 这句把"还差几场"直接说出来 ✓
+                //    此前该读法**只被测试调用** ⇒ "升级通道有没有意义"这个判据**在游戏里看不见** ⚠️
+                // 🔴 读法归属：`BattlesToNextLevel` / `CostToNextLevel` 定义在 **`RosterExperience`** 上
+                //    （`RosterConfig` 只有 `LevelGrowth` / `Experience` 两个成员）⇒ 必须经 `cfg.Experience?.` 进入 ✓
+                Darkest.Data.RosterConfig cfg = _rosterCfgForXp ??= Darkest.Data.RosterConfig.Parse(
+                    Godot.FileAccess.GetFileAsString(Darkest.Data.RosterConfig.ResPath));
+                Darkest.Data.RosterExperience? xp = cfg.Experience;
+                GD.Print("　[A10 升级读数] " + string.Join("、", System.Linq.Enumerable.Select(xpRoster.Heroes, h =>
+                {
+                    int? battles = xp?.BattlesToNextLevel(h.Level, cfg.LevelMin, cfg.LevelMax);
+                    return battles is { } n ? $"{h.Name} 再 {n} 场升 Lv{h.Level + 1}" : $"{h.Name} 已满级";
+                })) + " ✓");
             }
 
             // 🔴 `#352` 打印自证（`retreat.md §11` 要的"撤退 ⇒ 回地图当前格"）：这一行让"撤没撤对"**可读** ✓

@@ -5,6 +5,7 @@ using Darkest.Core.Contracts;
 using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Run;
+using Darkest.Gameplay.Sim.Survival;
 using Godot;
 
 namespace Darkest.Gameplay.Scene;
@@ -128,6 +129,19 @@ public static class ExpeditionComposition
         session.BindSortie(heroSlots);
         session.BindCampHeroes(roster.Heroes);
 
+        // 🔴🔴 **`#245` 跨趟携带的生产接线**（此前**只被测试调用** ⇒ `CarryOverFrom` 是死函数、
+        //    "回城 → 再出发"在真实路径上拿不到上一趟会话 ⇒ 士气**跨趟累积**落不了地）⚠️
+        //    口径（`ExpeditionSession.CarryOverFrom` 文档 + M7 ⑱ 3 趟士气曲线用例）：
+        //    · **HP 完全恢复**（回城口径）· **士气保留**（`#245`：回城完全不恢复）· 虚弱/死门后遗症清除 ✓
+        //    · 首次出征（`PreviousSession` 为 null）⇒ **不做任何事**（新会话自带初始名册值）✓
+        //    ⚠️ 认领即清（`ConsumePreviousSession`）⇒ 不会把同一趟会话携带两次 ✓
+        if (ExpeditionContext.ConsumePreviousSession() is { } previousRun)
+        {
+            session.CarryOverFrom(previousRun);
+            GD.Print($"[片4] #245 跨趟携带：上一趟 {previousRun.Roster().Count} 人 ⇒ **HP 全恢复**、" +
+                     $"**士气保留**（回城不恢复）、虚弱/死门后遗症清除 ✓");
+        }
+
         var meter = new LightMeter(tuning.Light!);
 
         EconomyConfig econCfg = EconomyConfig.Parse(FileAccess.GetFileAsString(EconomyConfig.ResPath));
@@ -143,8 +157,14 @@ public static class ExpeditionComposition
             curiosCfg.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal),
             shared.Cap);
 
+        // 🔴🔴 `D-4`（2026-09-20）：**陷阱掷骰源** —— 与主流程**共用同一条随机流**（可复现）；
+        //    ⚠️ 此前 `session.BindTrapRng` **无生产调用点**（只有测试调）⇒ 三扫判死函数 ⇒ 真实路径上
+        //    "踩中陷阱"会**抛错**（`ResolveTrapByResist` 会话未注入 ⇒ 明确抛，不静默）⇒ 故必须在此绑定 ✓
+        var runRng = new Darkest.Core.Rng.RngProvider(20260909);
+        session.BindTrapRng(runRng);
+
         var flow = new ExpeditionFlow(session, meter, bag, new Scouting(tuning.Scouting!, tuning.Light!),
-            handle.Nodes, tuning, log, new Darkest.Core.Rng.RngProvider(20260909), economy, heirlooms, heirloomCfg)
+            handle.Nodes, tuning, log, runRng, economy, heirlooms, heirloomCfg)
         {
             Progress = ExpeditionContext.Progress,
             Unlocks = unlocksCfg,
@@ -164,6 +184,42 @@ public static class ExpeditionComposition
             FileAccess.GetFileAsString(RoomContentsConfig.ResPath), curiosCfg);
 
         ExpeditionContext.BindConfigs(campSkills, roomContents, curiosCfg); // 🔴 片 4：面板配置进上下文 ⇒ 表现层读一处 ✓
+
+        // 🔴🆕 `D-4`（2026-09-20）：**陷阱内容表** —— 与 `curiosCfg` 同族（内容表），**同处组装、同处绑定** ✓
+        //    ⚠️ 文件**可以不存在**（陷阱是 opt-in 机制）⇒ 缺失 ⇒ `null` ⇒ `D-4` 显式关闭（不静默半生效）✓
+        if (Godot.FileAccess.FileExists(TrapDefs.ResPath))
+        {
+            TrapDefs trapCfg = TrapDefs.Parse(Godot.FileAccess.GetFileAsString(TrapDefs.ResPath));
+            builtTraps = trapCfg;
+            GD.Print($"[片4·D-4] 陷阱表已加载：{trapCfg.Traps.Count} 条 ／ " +
+                     $"闪避基准 {trapCfg.UnscoutedDodgePercent}% ／ 拆除加成 +{trapCfg.DisarmBonusPercent}% ／ " +
+                     $"压力 {trapCfg.StressDamage} ／ 拆回压 {trapCfg.DisarmStressHeal} ✓");
+        }
+        else
+        {
+            GD.Print($"[片4·D-4] 未找到 `{TrapDefs.ResPath}` ⇒ 陷阱机制**关闭**（opt-in；不静默）✓");
+        }
+
+        // 🔴🆕 `D-7`（2026-09-20）：**探索层 act-out** 自证 —— 带折磨者拒绝摸奇物 / 拒绝进食。
+        //    ⚠️ 与 D-4 不同：**没有独立内容表**（判据用 `tuning.dungeon_layer.exploration` + 士气读数）
+        //    ⇒ 此处只打印"机制是否启用 + 两条概率 + 阈值"，供冒烟/日志核对 ✓
+        if (tuning.DungeonLayer?.Exploration is { } actOut)
+        {
+            GD.Print($"[片4·D-7] 探索层 act-out **已启用**：折磨阈值 士气<{actOut.MoraleAfflictionThreshold}（= `morale.start`）・" +
+                     $"拒绝摸奇物 {actOut.CurioRefusePercent}% ・拒绝进食 {actOut.EatRefusePercent}% " +
+                     $"⇒ 判据 = **队内最低士气**（只算存活者；`Retained` 战后落账 ⇒ 首战前不生效，与 D-4/D-5 同源）✓");
+        }
+        else
+        {
+            GD.Print("[片4·D-7] 未配置 `tuning.dungeon_layer.exploration` ⇒ 探索层 act-out **关闭**（opt-in；不静默）✓");
+        }
+
         return new Built(flow, campSkills, rosterCfg, roomContents, curiosCfg, heroSlots);
     }
+
+    /// <summary>🔴 `D-4`：本趟的陷阱内容表（`null` = 未配置 ⇒ 机制关闭）✓</summary>
+    private static TrapDefs? builtTraps;
+
+    /// <summary>🔴 `D-4`：供宿主读的陷阱表（`null` ⇒ 未配置）✓</summary>
+    public static TrapDefs? Traps => builtTraps;
 }
