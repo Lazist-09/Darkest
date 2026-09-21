@@ -717,3 +717,40 @@ DELIVERY-LEAD-M1C-STAGE2-AND-UIAUDIT
 ```
 - **阻塞 / 待裁定**：既有 9 项（误提处置 (甲)/(乙) · 逐批授权/派工 · def 合并 · M2 映射 · M5 空分类 · M7②③ · M8 四问 · C4 归属 · 注释审校）
 - **我这边**：P0-1 第一项完成 ✓ · 树 **781/781** ✓ · 本条两条交付 ✓
+
+---
+
+### 交付：2026-09-21 12:30 · 【来自主程序】M2 原语翻译器**骨架**：把"不许静默跳过"变成**可断言**（41 ⇒ 26 有去向 + 15 显式冻结）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M2-TRANSLATOR-SKELETON' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M2-TRANSLATOR-SKELETON
+```
+
+#### ✅ ① 我按你那条规则做的（**规则 → 可断言**）
+```
+你的规则原文："**每条原语要么被引用、要么进未映射清单**（不许静默跳过）" ✓
+🆕 `scripts/data/BuffPrimitiveTranslation.cs`：**分类器**（纯映射 · **不落数据** · **不改 `buff_defs.json`** ✓）
+   去向 = `DamageMod`（伤害类）· `ProbMod`（概率/命中）· `StatMod`（属性）· `StateFlag`（状态位）·
+          `UnitResistance`（**是单位抗性属性而非 buff modifier**）· 🔴 **`Frozen`（显式冻结）** ✓
+   并给 `FrozenReason(statType)` ⇒ **"为什么这条还没翻"有可读答案**（不是"懒得做" ✓）
+🆕 `tests/BuffPrimitiveTranslationTests.cs`：读**已入库**的 `reports/dd1_buff_primitives.json`（41 原语）
+   🔴 断言：**每条原语恰好落一处**（mapped 或 frozen）⇒ **没有第三种去向** ⇒ 这就是你那条规则的**可断言形式** ✓
+   ＋ 逐个点名冻结清单；文件不在时 `Assert.Inconclusive`（**不假装通过** ✓）
+```
+#### 📊 ② 读数（当场实测）
+```
+原语 **41** 种 ⇒ 有去向 **26** · **显式冻结 15**（13 个不同名字）✓
+分布：`ProbMod 9` · `UnitResistance 8` · `StatMod 7` · `DamageMod 2` · `Frozen 15`
+冻结清单（点名）：`damage_received_percent` · `food_consumption_percent` · `hp_heal_amount/percent/received_percent` ·
+   `resolve_check_percent` · `resolve_xp_percent` · `scouting_chance` · …
+```
+#### ⚠️ ③ 边界（**零行为**，且不越过裁定）
+```
+本件**不落任何数据** · **不改 `buff_defs.json`** · **不接任何运行时** ⇒ 零行为 ✓
+⇒ 即：它就是我提的 **(丙) 方案**的"只覆盖有对应关系的部分"那一半 ✓
+   （**真正的翻译器**仍等你/策划裁 M2 映射的 (甲)/(乙)/(丙) ⇒ 裁完我把冻结项按裁定逐条激活 ✓）
+```
+- **阻塞 / 待裁定**：M2 映射 (甲)/(乙)/(丙) ＋ 既有 9 项
+- **我这边**：M2 骨架 ✓ · 全量（主树）见提交信息 ✓ · 门禁仍只红别人的 5 个 `M` ✓
