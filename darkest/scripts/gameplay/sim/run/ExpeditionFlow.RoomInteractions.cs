@@ -6,6 +6,7 @@ using System.Linq;
 using Darkest.Core.Events;
 using Darkest.Core.Rng;
 using Darkest.Data;
+using Darkest.Gameplay.Sim.Survival;
 
 namespace Darkest.Gameplay.Sim.Run;
 
@@ -153,6 +154,46 @@ public sealed partial class ExpeditionFlow
     public CurioOutcome? ResolveCurio(Darkest.Data.CurioConfig curio, string? itemUsed,
         Roster? roster = null, Darkest.Data.SanitariumConfig? diseases = null)
     {
+        // 🔴🔴 `D-7`（2026-09-20）：**探索层 act-out 门禁**（DD ⑩ / `curio.md §1.2 ⑤`）。
+        //
+        //   DD 原文：带**折磨**的英雄会「**自动空手碰**」某些 Curio（**绝不用道具**）
+        //     ⇒ 本刀落成「**拒绝用道具、被迫空手**」（不是"什么都不做"）。
+        //
+        //   🔴 **为什么必须挂在这里（最前面）**：
+        //      · 若挂在 `ResolveBare` **之后**，被拒的道具请求已经消耗掉一次 `RngDraw` ⇒ 随机流与"接受"不同步
+        //        （`D-4` 踩过同源坑：门禁算晚了 ⇒ 恒 `Consumed` ⇒ 整个机制**静默失效**）⚠️
+        //      · 本门禁只**改写** `itemUsed`（拒绝 ⇒ 传 `null` 走下去，即**被迫空手**），
+        //        **不**新增随机抽取、**不**改 `CurioResolver` 的任何纪律（它仍只管"解析"）✓
+        //
+        //   🔴 **判据在会话**（`LowestSurvivorMorale`：只算存活者、取最低者 —— 折磨是**个体**状态）✓
+        //   🔴 **未配置 `exploration` ⇒ 一次都不判**（`RollCurioRefuse` 内部直接返回 `None`，不掷不写）✓
+        if (_tuning.DungeonLayer?.Exploration is { } actOut
+            && _session.LowestSurvivorMorale() is { } lowestMorale)
+        {
+            ActOutRollResult refused = ExplorationActOut.RollCurioRefuse(_log, _rng, actOut, lowestMorale);
+            if (refused.Refused)
+            {
+                // 🔴 **拒绝必须有文案事件**（红线 21：绝不静默失败）—— 与 `curio_deferred` 同族的手法 ✓
+                _log.Append(new EventNodeResolvedEvent(curio.Id, "act_out_refuse",
+                    $"curio_use_item_refused:morale={lowestMorale};item={itemUsed ?? "none"}"));
+                _log.Append(new EffectEvent(default, "act_out_curio_refuse", 100.0, Triggered: true));
+                LastActOutRefused = true;
+                LastActOutText = refused.Text;
+                ActOutCurioRefuseCount++;
+                itemUsed = null; // 🔴 **被迫空手**：往下走空手路径（照常掷骰、照常承担代价）✓
+            }
+            else
+            {
+                LastActOutRefused = false;
+                LastActOutText = null;
+            }
+        }
+        else
+        {
+            LastActOutRefused = false;
+            LastActOutText = null;
+        }
+
         CurioOutcome? outcome = itemUsed is null
             ? CurioResolver.ResolveBare(curio, _rng, _log)
             : CurioResolver.ResolveItem(curio, itemUsed);
@@ -225,7 +266,38 @@ public sealed partial class ExpeditionFlow
                 _meter.TryAdvanceBy(_log, amount, "curio"); // 🔴 流程层持有光照计
                 break;
             case "scout":
+                // 🔴 `D-3`（2026-09-20）：侦察的**段级**结果必须落到**格级**表示上（否则"侦察了但地图没变"）⚠️
+                //    · `Scouting.Roll` 决定"这次侦察成不成功 / 揭示哪个节点的类型"（**它的口径是真值**）✓
+                //    · 走格开启时，**额外**把"当前房间沿线可见的房间格"标为 `Scouted`（暗 + 亮轮廓）——
+                //      这是 `D-3` 三态里中间态的**唯一生产来源** ✓
+                //    ⚠️ **不重写距离口径**：借用 `MapScouting.RevealWithin`（既有段级口径、按房间）再经
+                //       `RevealScoutedRooms` 落到格上 ⇒ 只有**一份**"能看多远"的真值（纪律 `#325` D6）✓
+                //    ⚠️ 未开走格 ⇒ `RevealScoutedRooms` 明确忽略（有 `ScoutedTileCount` 可自证）✓
                 LastScout = _scout.Roll(_log, _rng, _meter.Value, "curio");
+                if (LastScout.Success && _map is not null && TileWalkEnabled)
+                {
+                    int depth = TileWalk is { } tw
+                        ? Math.Max(1, tw.Segments.Count > 0 ? Math.Max(1, tw.TrunkSegments) : 1)
+                        : 1;
+                    IReadOnlyList<MapRoom> seen = MapScouting.RevealWithin(_map, _currentRoomId, depth);
+                    RevealScoutedRooms(seen.Select(r => r.Id));
+                    _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                        $"grid_scout_reveal:{depth}", 100.0, true));
+
+                    // 🔴🔴 `D-6`（2026-09-20）：**侦察的"非信息类"回报** —— 隐藏房。
+                    //    `D-3` 的三态揭示给的是**信息**（地图上多出亮轮廓），但那**不改变玩家收益**
+                    //    ⇒ 若侦察只给信息，玩家的最优解是**永不侦察**（省光照）⇒ 整条链路沦为装饰 ⚠️
+                    //    DD 的口径（`§F3d`）：隐藏房**地图上不显示**，**只有侦察成功**才变成可进的 rewards 房。
+                    //    🔴 **不重写距离口径**：仍用上面**同一批** `RevealWithin` 的结果（`#325` D6）✓
+                    //    🔴 未配置 `secrets` ⇒ `RevealSecrets` 直接返回 0（不揭示、不给钱、不写日志）✓
+                    int found = RevealSecretsWithinRooms(seen.Select(r => r.Id));
+                    if (found > 0)
+                    {
+                        _log.Append(new Darkest.Core.Events.EffectEvent(default,
+                            $"secret_scout_found:{found}", 100.0, true));
+                    }
+                }
+
                 break;
             case "damage_buff":
                 // 🔴 圣坛（`curio.md` §3 #5）：**本趟 +N% 伤害，到扎营** —— 跨场祝福（取大）+ 扎营清 ✓
@@ -322,6 +394,18 @@ public sealed partial class ExpeditionFlow
     /// <summary>最近一次 Curio 是否命中**阶段二（未接线）**分支（UI 必须据此标注，红线 21）。</summary>
     public bool LastCurioDeferred { get; private set; }
 
+    /// <summary>
+    /// 🔴 `D-7`：最近一次 Curio 是否**被折磨拒绝用道具**（⇒ 已**被迫空手**）。
+    /// UI 据此提示"他不是不想用，是**用不了**"（红线 21：不静默）✓
+    /// </summary>
+    public bool LastActOutRefused { get; private set; }
+
+    /// <summary>🔴 `D-7`：上面那次的**文案**（`null` = 没被拒）✓</summary>
+    public string? LastActOutText { get; private set; }
+
+    /// <summary>🔴 `D-7` 读数：本趟**累计**被折磨拒绝用道具的次数（供冒烟/日志自证）✓</summary>
+    public int ActOutCurioRefuseCount { get; private set; }
+
     /// <summary>扎营（柴火不足 ⇒ 拒绝；成功则光照回满）。**最小版：一调用到底**（供测试/旧路径）。</summary>
     public bool Camp()
     {
@@ -356,15 +440,43 @@ public sealed partial class ExpeditionFlow
 
     /// <summary>
     /// 🔴 **结束扎营（阶段二→三）**：`EndCamp` ＋【阶段三：夜袭判定】（契约 `m7_expedition.md:143`）。
-    /// 触发夜袭 ⇒ `LastCampAmbushed = true` ⇒ 调用方插一场额外战斗（计入胜场）。
+    /// 触发夜袭 ⇒ `LastCampAmbushed = true` ⇒ **本方法立刻经 `BeginAmbushBattle` 把额外战斗开出来** ✓
+    /// <para>返回 `true` = 收营完成（`AmbushBattle` 非空 ⇒ 调用方应切进战斗场景）；</para>
+    /// <para>`AmbushBattle is null` ⇒ 未触发 / 已插过 ⇒ **照常继续走图** ✓</para>
     /// </summary>
     public bool FinishCamp()
     {
         _session.EnterPhase(FlowPhase.Walking); // 🔴 收营 ⇒ 回【走图】相位 ✓
         _session.EndCamp(_log);
         LastCampAmbushed = RollAmbush();
+
+        // 🔴 `#305`／契约 `m7_expedition.md:143` 的**生产接线**（2026-09-20）：
+        //    此前 `FinishCamp` 只把 `LastCampAmbushed` 置真、**从不真的插战斗** ⇒
+        //    `BeginAmbushBattle` 是死函数，而"扎营被夜袭"这个机制**在流程上从未发生** ⚠️
+        //    ⇒ 这里触发即刻开战（`IsAmbush: true` ⇒ `OnBattleFinished` 的守卫会放行，因为不是节点步骤）✓
+        //    ⚠️ **不在这里切场景**：切场景归宿主（`BattleRoot`）—— 内核只把"有一场夜袭要打"交出去 ✓
+        AmbushBattle = LastCampAmbushed ? BeginAmbushBattle(_log) : null;
+
+        // 🔴 `D-5`（2026-09-20）：**扎营后重置饥饿缓冲** —— DD 原文：
+        //    "The party also gains this buffer when starting an expedition or **camping**" ✓
+        //    ⚠️ 此时 `TileWalk` 未开启（线性模式）⇒ 缓冲留待 `EnableTileWalk` 按 `buffer_at_start` 初始化，
+        //    这里的重置只对"已经开着走格又扎了营"的场景生效 ✓
+        ResetHungerBuffer();
         return true;
     }
+
+    /// <summary>
+    /// 🔴 `D-5`：把饥饿缓冲重置为 `hunger.buffer_at_start`（**开局**与**扎营后**两处调用）。
+    /// 未配置 `hunger` ⇒ 置 0（等价于不启用）✓
+    /// </summary>
+    public void ResetHungerBuffer()
+        => _hungerBuffer = _tuning.DungeonLayer?.Hunger?.BufferAtStart ?? 0;
+
+    /// <summary>
+    /// 🔴 **本次扎营触发的夜袭战斗**（`null` = 未触发 / 已插过）—— 供宿主决定"是否切进战斗场景" ✓
+    /// 由 `FinishCamp` 在夜袭判定为真时**立即开出**（`#305` 契约：夜袭战斗**计入胜场**）✓
+    /// </summary>
+    public Darkest.Gameplay.Sim.Director.BattleDirector? AmbushBattle { get; private set; }
 
     /// <summary>上一次扎营后是否触发夜袭（`#305`：触发 ⇒ 调用方插一场额外战斗，计入胜场）。</summary>
     public bool LastCampAmbushed { get; private set; }
