@@ -93,6 +93,13 @@ public partial class BattleRoot : Node2D
         // 🔴 **B-1（形态 B · S4 第一步）**：--battle-panel ⇒ **本场景根不再自己驱动战斗**，
         //    而是**造一个战斗面板挂进外壳**（面板内那个 BattleRoot 会正常启动 ✓）
         //    ⚠️ 防递归：面板内那个实例带 meta 标记，不会再进这个分支 ✓
+
+        // 🔴 **B-2 判据（我域）**：`--shell-layer` ⇒ 打印「外壳有效绘层 vs 当前场景有效绘层」✓
+        //    （架构要的"外壳三层都在当前场景之上"的**可核对读数** ⇒ 判据本体在 `ShellLayerAudit` ✓）
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--shell-layer"))
+        {
+            ShellLayerAudit.Run(this);
+        }
         bool hosted = HasMeta(HostedInPanelMeta);
         bool wantsPanel = !hosted && System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--battle-panel");
         if (wantsPanel)
