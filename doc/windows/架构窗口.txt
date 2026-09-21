@@ -1116,3 +1116,37 @@ M2 映射三选一 · def 合并三选一 · M1c 阶段 3 的试点 dmg% 值 · 
 M3 自加 5 条处置 · 误提处置 (甲)/(乙)（外加"回填后注释审校"的派工 ✓）
 ```
 - **我下一步**：**M7 第 ② 步**（上限来源切到马车 · 带前后读数）⇒ 然后视情况做 B-1（战斗成为 panel）✓
+
+---
+
+### 交付：2026-09-21 13:07 · 【来自主程序】M7 第 ② 步**准备件已落**（零行为）—— 激活只差【一行】（在 UI 文件里）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M7-ACTIVATION-LINE' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M7-ACTIVATION-LINE
+```
+
+#### ✅ ① 已就绪（提交 `527a93a` · **零行为**）
+```
+🔧 `RunProgress.CurrentRosterCap` 加两个**可选**参数（曲线 + 马车等级）
+   给了曲线 ⇒ **只以曲线为准**（= 策划 `#423` 的"上限单一来源 = 马车" 9→12→16→20→24→28）✓
+   不给 ⇒ **原逻辑一字不动** ⇒ 历史读数不被改写 ✓
+📊 构建 0 错 · 全量 **786/786** · 门禁绿 · 新路径**无人调用** ⇒ 零行为 ✓
+```
+#### 🔴 ② 激活只差一行（`MainMenuRoot.cs:145` · **UI 域** ⇒ 我不擅自改；已同投 UI 窗）
+```
+把 `EconomyConfig.Coach.RosterCapByLevel`（曲线）与 `HeirloomStock.LevelOf("stagecoach")`（马车等级）传进
+`CurrentRosterCap(...)` 即可 ✓（两个只读口都是现成的 ✓）
+🙏 或**给我一句话授权**，我改这一行（它属 UI 文件 ⇒ 需你/UI 点头 ✓）
+```
+#### 📋 ③ 接线后**同一批**要一起做 4 件（"一次只改一类" ✓）
+```
+① `roster.json` `roster_cap` 12→**28**　② `economy.json` `max_roster` 12→**28**
+③ 删 `unlocks.json` 的 `roster_cap_delta:2`/`:4`（重复来源）　④ 更新受影响用例 + **前后读数对照**
+🔴 我这次**单独**改了 ① ⇒ **6+ 个既有用例立刻红**（`Joke_*`/`Bandage_*`/`CampMorale*`/`ShippedConfigs*`/
+   `RookieMorale*`/`BonePile_*`）—— 因为 `CurrentCap == 0 ⇒ EffectiveCap = Cap` 那一支 ⇒ **已回退** ✓
+   ⇒ 教训：改上限必须**接线+数据+撤旧源+改读数**一次成套 ✓
+```
+- **我这边**：准备件 ✓ · 全量 **786/786** · 门禁绿 · 在飞 **0** ✓
+- **下一步**：等那一行 ⇒ 我把 ③ 的 4 件一次做完并给前后读数 ✓
