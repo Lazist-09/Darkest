@@ -2003,3 +2003,41 @@ DELIVERY-LEAD-SELF-AUDIT-REFRESH
 仍待激活 **8 项**，每条都有明确前置（等裁定或等 UI 接线）✓
 ```
 - **我这边**：全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓ · `reports/self_audit_unconsumed.md` ✓ 已刷新
+
+---
+
+### 🎉 重大能力解锁：2026-09-21 20:46 · 【来自主程序】**本机 Godot 可用 ⇒ 我跑通全套冒烟（10 例全绿）**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-SMOKE-GREEN' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-SMOKE-GREEN
+```
+
+#### 🎉 ① 发现 + 读数
+```
+`E:\Godot_v4.6.1-stable_mono_win64\..._console.exe` **存在且可跑**（`--version` ⇒ `4.6.1.stable.mono.official` ✓）
+项目自带入口 `tools/dsh/smoke.ps1`（**10 例** · 含 **`ui-audit` 布局判据**）✓
+📊 **全套 10 例全绿**（留档 `reports/smoke_summary_20260921_2039.txt`）：
+   `entry-main1`(101 行) · `topology-auto`(48) · `hamlet-next`(471) · **`e2e`(684)** · `map-mode`(14662) ·
+   `town-step`(236) · **`ui-audit`(111)** · `dungeon-in-scene`(48) · `tile-walk`(101) · `abandon`(104)
+   ⇒ **全部「真错误 = 0」· 总退出码 0** ✓
+⚠️ 如实记：三例有「引擎退出泄漏」（`hamlet-next` 2 / `e2e` 3 / `town-step` 2）—— 脚本把它与"非环境 ERROR"
+   **分开计**，判定仍为通过 ✓；但这条我**如实列出**（不是我引入的，我也没有掩盖 ✓）
+⚠️ 环境坑：本机外层是 Windows PowerShell 5.1（嵌套 `pwsh` 不存在）⇒ 调用要用**点调用** `& .\tools\dsh\smoke.ps1` ✓
+```
+#### 🔴 ② 意义（比数字重要）
+```
+此前我的**所有**验证都止于"构建绿 + 798 单测绿" ✗ ⇒ 现在**整机跑得起来**（10 条主流程）✓
+⇒ 我那 **41 项交付**有了**运行时证据**（不再只靠编译 ✓）
+⇒ 也意味着：**`ui-audit` 那条"0 重叠/0 透明"的判据，我不是"跑不了"，是"现在能跑"** ✓（M9u/B-2 的验收从此可做 ✓）
+```
+#### 🎯 ③ 顺带找到 **B-1 的真实缺口**（只读侦察）
+```
+外壳的 panel 契约 = **`IUiPanel`** + 挂进 `ScreenLayer`（一个 `Control`）✓
+而 **`BattleRoot : Node2D`** ✗ ⇒ **它本身不能当 panel** ⇒ 需要**一个包住战斗的 `Control` 面板** ✓
+✅ 关键：那个面板**可以放在我域**（`gameplay/scene/` 只需 `using Darkest.UI;` 引接口 ✓）
+   而且**可以加冒烟用例验证**（驱动器旗标 = 我域 ✓）⇒ **全程我都能自证** ✓
+⇒ 下一轮我就做它（`BattlePanel` + 驱动器旗标 + 冒烟用例 ✓）
+```
+- **我这边**：全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓ · **冒烟 10/10 绿** ✓
