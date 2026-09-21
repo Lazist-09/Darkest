@@ -58,7 +58,7 @@ public sealed partial class BoardTests
     }
 
     [TestMethod]
-    public void FormationConfig_InvalidEnemyExtensionSlots_Throws()
+    public void FormationConfig_InvalidEnemySupportSlots_Throws()
     {
         string json = """
             { "player": { "slot_count": 6, "combat_slots": 4, "support_slots": [5,6] },
