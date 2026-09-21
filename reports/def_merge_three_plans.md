@@ -1,0 +1,55 @@
+# `def` 合并 · **三份执行预案**（甲/乙/丙 · 2026-09-21 实测）
+
+> 🔴 **用途**：你裁一句话，我按对应预案**当天执行**（每份都写清：**动哪几行 · 改哪些读数 · 风险**）✓
+> 🔴 **裁定凭据已交**：`reports/def_merge_baseline.md`（28 条基线）+ `DefMergeBaselineTests` 的**原版口径对照**
+>   ⇒ 关键事实：**命中列两口径同源**（原版 `def` = 我们的 `Dodge`）⇒ **只有减伤这一列要裁** ✓
+
+## 0. 现状规模（实测）
+```
+`PhysDef` / `phys_def` 合计 **50 处 / 27 文件**：
+   tests **19** · data(JSON) **12** · 战斗管线 **9** · 解析/契约 **5** · 其它 **5**
+减伤公式 `BattleMath.PhysicalMitigation(...)` 的调用点 **7 处**：
+   `BattleMath.cs`(定义+1) · `DamageStep.cs` 1 · `BattleProjector.cs` 1 · `TuningConfig.cs` 1 ·
+   `PhysicalMitigationDataTests` 2 · `DefMergeBaselineTests` 2 · `FormulaTests` 2
+读"减伤数"的用例 ≈ **46 处**，集中在：`DefMergeBaselineTests 16` · `PhysicalMitigationDataTests 15` · `FormulaTests 15`
+```
+
+## 预案（甲）：**`PhysDef` 退场**（严格照原版 · 减伤走 `prot`）
+```
+🔴 **行为改动**（最大的一份）
+① 数据：`units.json` 删 `phys_def`（**12 处**）
+② 契约：`UnitStats.PhysDef` 删 · `UnitConfig.PhysDef` 删（**5 处**）
+③ 管线：`DamageStep`/`BattleProjector` 的减伤项改用 `prot`（**四原型 prot = 0 ⇒ 减伤归零** ✓）
+④ 公式：`BattleMath.PhysicalMitigation` **保留**（`prot` 口径也要走它 ⇒ 只是入参换源 ✓）
+⑤ 读数：改 3 个用例文件（≈ **46 处**）⇒ 依据 `DefMergeBaselineTests` 的对照表逐条改 ✓
+📊 **前后读数我已经有**（对照夹具已跑）：
+   我方减伤 warrior 21% / tank 29% / medic 12% / commissar 14% / 敌 9~21% ⇒ **全部归 0** ✓
+   命中列**不变**（90/95/90/90/85/90 ✓）
+⚠️ 风险：**战斗会明显变长/变难**（伤害 +9~29%）⇒ 这是**平衡决定**，必须策划点头 ✓
+```
+
+## 预案（乙）：**保留 `PhysDef`**，只把"它是我们自加的"写清楚
+```
+✅ **零代码改动**（0 行）
+① 文档：在 `data_schema`/`units.json` 的说明里写明"`PhysDef` 是**我们自加**的拆分（原版只有一个 `def`；
+   原版减伤走 `prot`）" ⇒ 🔴 那是**契约域**（`doc/**`）⇒ 我把**建议文字**给你/契约方，不擅自改 ✓
+② 已有资产：`reports/def_merge_baseline.md` §3 + `DefMergeBaselineTests` 的对照用例**已经把这件事讲清**了 ✓
+⇒ 我这边**一行不用动**；判据：**全量 797/797 不变** ✓
+```
+
+## 预案（丙）：**先只改名/注释**（不动行为）
+```
+🟢 **零行为**（我推荐作为"暂缓"时的落点 ✓）
+① 在 **5 处解析/契约**（`UnitStats`/`UnitConfig`/`UnitsConfig`/`UnitStatsMapper`/`TuningConfig` 相关）
+   给 `PhysDef` 加 XML 注释：**"⚠️ 这是**我们自加**的拆分，原版只有一个 `def`（= `Dodge`）；
+   原版减伤走 `prot`（0~0.85 比例）；**合并/退场的裁定见 `reports/def_merge_three_plans.md`**"** ✓
+② **不改名**（改名要动 50 处 ⇒ 纯 churn ✗；注释已能消除歧义 ✓）
+③ 判据：**全量 797/797 不变** + 门禁绿 ✓
+```
+
+## 🔴 我的建议
+```
+**先做（丙）**（零行为、零风险、当天可完）⇒ 把"`PhysDef` 是我们自加"写进代码注释，**消除歧义** ✓
+然后等策划对**平衡**（减伤归零 vs 保留）表态 ⇒ 再执行（甲）或（乙）✓
+⚠️ 我**不碰数值**、**不代裁平衡**（预案（甲）会让伤害整体 +9~29%，那是玩法决定 ✓）
+```
