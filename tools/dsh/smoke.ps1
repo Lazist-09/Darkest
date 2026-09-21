@@ -34,7 +34,7 @@ $Cases = @(
     @{ Name = 'dungeon-in-scene'; Args = @('--dungeon-in-scene');          Desc = '宿主内进地牢（片 3.1：进 Walking 不起战斗）' }
     @{ Name = 'tile-walk';    Args = @('--smoke=main:1', '--tile-walk');   Desc = '瓷砖主画面（走格开启 + UI 自证行）' }
     # 🔴 主程序 2026-09-21 补（B-1 主程序侧）：战斗作为 panel 挂进外壳（S4 第一步 ✓）
-    @{ Name = 'battle-panel'; Args = @('--battle-panel');                    Desc = '战斗成面板（B-1：场景根交出驱动权 + 挂进外壳 ScreenLayer）' }
+    @{ Name = 'battle-panel'; Args = @('--smoke=main:1', '--battle-panel');                    Desc = '战斗成面板（B-1：场景根交出驱动权 + 挂进外壳 ScreenLayer）' }
     @{ Name = 'abandon';      Args = @('--smoke=main:1,abandon');          Desc = '放弃远征（行走模式按按钮 ⇒ 结束本趟回城）' }
 )
 

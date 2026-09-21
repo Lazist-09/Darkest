@@ -46,7 +46,19 @@ public partial class BattlePanel : Control, Darkest.UI.IUiPanel
             MouseFilter = MouseFilterEnum.Pass,
         };
 
-        var battle = new BattleRoot { Name = "BattleRoot" };
+        // 🔴 **必须实例化【战斗场景】而不是裸造类**（我第一版裸造 ⇒ 实测报
+        //    `Node not found: "UILayer/BattleUI"` ✗ —— 因为那个 UILayer 是**场景里的兄弟节点**，
+        //    不在代码里。这一点是**跑出来**才知道的 ✓）
+        const string BattleScenePath = "res://scenes/battle/Battle.tscn";
+        var packed = GD.Load<PackedScene>(BattleScenePath);
+        if (packed is null)
+        {
+            GD.Print($"[BattlePanel] 🔴 场景加载失败：{BattleScenePath} ⇒ **如实不建面板**（不假装成功 ✓）");
+            return panel;
+        }
+
+        var battle = packed.Instantiate<BattleRoot>();
+        battle.Name = "BattleRoot";
         panel.AddChild(battle);
         panel.Root = battle;
 
