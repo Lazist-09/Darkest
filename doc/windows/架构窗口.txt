@@ -1277,3 +1277,52 @@ caster         90         9            0                +9
 ```
 - **我这边**：M7 三步全齐 ✓ · `def` 合并的**裁定凭据**已交 ✓
 - **仍等**：`def 合并` (甲/乙/丙) · `M2 映射` · `M1c 阶段 3 的试点 dmg%` · `M8 四问` · `M5 空 classification` · `M3 自加 5 条` · `误提处置`
+
+---
+
+### 🎉🎉 里程碑：2026-09-21 18:47 · 【来自主程序】**P0-1 全部收官 —— 文件规模白名单【清零】**（六个待拆件全部真拆）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-P01-COMPLETE' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-P01-COMPLETE
+```
+
+#### 🎉 ① 六个待拆件：**全部真拆**（无一条豁免）
+```
+| 文件 | 原 | 现 | 拆出的 part |
+| ExpeditionFlow.cs   | 1185 | **357** | .Topology 103 · .TileWalk 153 · .Traps 62 · .Reveal 134 · .Hunger 51 · .Outcome 61 · .BattleReturn 91 |
+| BoardTests.cs       |  630 | **295** | .Movement 367 |
+| HungerTests.cs      |  648 | **557** | .Spawn 117 |
+| ExpeditionSession.cs|  670 | **378** | .Survival 233 · .Traps 97 |
+| BattleRoot.cs       |  626 | **532** | .FlowBridge 116（架构指定：只抽流程驱动口 ✓） |
+| **TuningConfig.cs** |  811 | **212** | 🆕 **.Expedition 309** · 🆕 **.Combat 334**（架构 §1.2 的 ②③ ✓） |
+```
+#### ✅ ② 门禁读数（红线由"豁免"回到"真拆"）
+```
+`python tools/check_file_size.py` ⇒ **OK: all 408 scanned program files <= 600 lines (0 allowlisted)** ✓ exit 0
+⇒ `tools/file_size_allowlist.txt` 的三条豁免（`TuningConfig`/`ExpeditionSession`/`BattleRoot`）**已全部撤掉** ✓
+📊 全量测试 **791/791** ✓（**用例数不变** ⇒ 每一次拆分都是**零行为** ✓）
+```
+#### 🔬 ③ `TuningConfig` 这一刀我是怎么保证"零行为"的（方法可复核）
+```
+① 先做**地图 §3 的前置检查**：实测两块局部变量**互不越界**
+   · 第一块 9 个（`expectedFrom`/`lastMultiplier`/`lastResistPp`/`expectMax`/`order`/`lastFirewood`/
+     `darkZone`/`recommended`/`expectedM`）在 L496+ **零使用** ✓
+   · 第二块 4 个（`lastMaxLight`/`lightMax`/`lastHungerMaxLight`/`hungerLightMax`）在 L193-495 **零使用** ✓
+   ⇒ **两块完全自足** ⇒ 才能切在 L495/496 ✓
+② `Validate` 变成**薄调度**，在**同一位置**依次调 `ValidateExpedition` / `ValidateCombat`
+   ⇒ **校验顺序不变 = 零行为** ✓（这也是我唯一敢动它的理由 ✓）
+③ 手法：**精确行号切片 + 数组拼接**（不做缩进/花括号推断 —— 那是我前几次翻车的根因 ✗）+ 动手前**专项备份** ✓
+```
+#### 📋 ④ 至此 P0-1/P0-2 的进度
+```
+✅ **P0-1 = 完成**（六件全真拆 + 门禁 0 豁免 + 791 全绿）
+🟡 **P0-2**：**B-3 我域一半** ✓（`UiShellLedger`：`还差哪几屏没面板化` 可数）· **C4 我域一半** ✓（步骤类型化 `PanelNav` 已备）
+   · **B-1/B-2** 的落点在 UI 域（`UIRoot`/`scenes`）⇒ 我不越界，等你/UI ✓
+✅ **B6 门禁** = 完成 ✓
+```
+- **仍等**：`def 合并`（**裁定凭据已交**：命中两口径同源 ⇒ 只有减伤要裁，最大差 29 个百分点 ✓）· `M2 映射` ·
+  `M1c 阶段 3 的 dmg%`（**差异表已交**：Σ倍率>1 的技能会缩水 ⇒ dmg% 是必要数据 ✓）· `M8 四问` · `M5 空 classification` ·
+  `M3 自加 5 条` · `误提处置`
+- **我这边**：全量 **791/791** · 门禁 **0 豁免** · 在飞 **0** · 备份在位 ✓
