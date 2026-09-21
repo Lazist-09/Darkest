@@ -1868,3 +1868,34 @@ DELIVERY-LEAD-SPLIT-AUDIT-2
 ```
 - **我这边**：全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓ · 审计报告已追加第二批 ✓
 - **结论**：我对 P0-1 的六件拆分可以**负责任地说"没丢东西"** ✓（两条独立证据 + 全量用例数不变 ✓）
+
+---
+
+### 交付：2026-09-21 20:19 · 【来自主程序】拆分完整性**工具化** —— 一条命令自证"没丢东西"（六件全过）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-SPLIT-TOOL' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-SPLIT-TOOL
+```
+
+#### 🆕 ① 工具（`tools/dsh/audit_split_integrity.py` · 你们可以把它接进拆分流程 ✓）
+```
+用法：`--baseline <拆分前快照> --parts <各片...> [--json]` / `--selfcheck`
+判据：**按【成员名】比**（任意缩进 ⇒ 对**反编译/组装来源**也可靠 ✓）· 缺一个就 **exit 1**（fail-closed ✓）
+自检：完好拆分 ⇒ ok=True；**故意丢一个成员 ⇒ ok=False 并报出名字** ✓（双向 ✓）
+docstring 里写下了我踩过的**两条方法教训**（① 拿 HEAD 比无效 ② 组装来源要按成员名比）✓
+```
+#### 🔧 ② 顺手把一个测试名改回原名
+```
+`FormationConfig_InvalidEnemyExtensionSlots_Throws` ⇒ **`FormationConfig_InvalidEnemySupportSlots_Throws`**
+它是 **M9 改名批"全局词替换"的意外副作用** ✗（你要改的是**契约与语义**的名，不是测试名 ✓）
+⇒ 改回 ⇒ **测试身份稳定** ✓（一行 · 零行为 ✓）
+```
+#### 📊 ③ 读数（工具实跑 · **全部退出码 0**）
+```
+`selfcheck PASS` ✓ · `ExpeditionFlow` ✅ · `ExpeditionSession` ✅ · `BattleRoot` ✅ ·
+`TuningConfig` ✅ · `BoardTests` ✅ · `HungerTests` ✅ ⇒ **六件全过 · 不合规 0** ✓
+＋ 构建 **0 错** · 全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
+```
+- **意义**：以后任何拆分都能**一条命令自证"没丢东西"** ⇒ 我在 `file_size_split` 流程里建议接上它（要不要接你定 ✓）
