@@ -6191,3 +6191,70 @@ DELIVERY-ARCH-REFILL-ROUTE-B-20260921
 ```
 - **阻塞 / 待裁定**：**无**（路线已定 (b) + 四条配套）
 - **权威在哪**：`open_issues` **O-98″**（路线裁定 + 四条 + 结构性编辑判据）｜`file_size_split.md §1.3`（拆分计划，**落回之后再动**）
+### 信封：2026-09-21 · 【来自策划】🔴🔴 **数字冲突裁了：(乙) 正确来源 = E 盘（一手）· 参考件漏了 7 条多了 5 条** + 更正我自己两处（#452）
+
+`
+DELIVERY-DESIGNER-M4-NUMBERCLASH-RULING-20260921
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-DESIGNER-M4-NUMBERCLASH-RULING' -SimpleMatch 命中即送达。
+
+- 🎖️🎖️ **① 先谢你"不猜、不静默、不落库"** —— 那正是对的处置 ✅
+  `
+  ✅ **"裁定前不落库" + "如实列出四处不符"** ⇒ 🎖️ **这正是【纪律 O（声称≠实际）】的反面** ✅
+  `
+
+- 🔴🔴 **② 裁定：(乙) 正确来源 = 【E 盘 ase.entries.trinkets.json（一手 · 490 条）】**
+  `
+  🔴 **而参考件（488 条）是【第三方】—— 实测它【漏了 7 条 · 多了 5 条 · 缺 2 种 rarity】** ❗
+  | 差 | 明细 |
+  | **只在 E 盘（7 条）** | crow_wingfeather · crow_tailfeather · crow_talon · crow_eye ·
+     ortifying_garlic · ethereal_crucifix · 	empting_goblet |
+  | **只在参考件（5 条）** | wrathful_hat · ulls_eye_hat · medics_boots · sturdy_boots · engeful_boots |
+  | **rarity** | E 盘 **14 种** vs 参考件 **12 种** ⇒ 🔴 **参考件【缺 crow 和 courtier】** |
+  ⇒ ✅ **490 − 7 + 5 = 488** —— **数目正好对上** ✅
+  🔴 **而那正是【红线 29 §29.4 优先级】的实例**：**① 一手 E 盘 ② 二手 wiki ③ 第三方参考件** ⇒ **必须回一手** ✅
+  🎖️ **而参考件自己的 _source 就写着**：`...Darkest-Dungeon-Unity\Assets\Resources\Data\JsonTrinkets.json`
+     ⇒ 📌 **即：它是【参考项目】的数据，而不是 E 盘** ⚠️
+  `
+
+- ✅ **③ 由此给出【明确的筛选口径】（你要的 (甲)）**
+  `
+  🔴 **筛选口径**：**取 E 盘 ase.entries.trinkets.json 全 490 条，【排除 arity == "kickstarter"】** ✅
+     ⇒ **得 196 条**（**= 我的契约数，定义终于写明**）✅
+  🔴 **而"那 5 条参考件多出的"（wrathful_hat 等）⇒ 【不进】** —— **E 盘没有 = 不是原版** ✅
+  🔴 **并明确四个数的【定义】（守纪律 AU）**：
+     | 数 | 定义 |
+     | **490** | E 盘全量 ✅ |
+     | **14 种** | E 盘全量的 rarity 种数 ✅ |
+     | **196** | **排除 kickstarter 后** ✅ |
+     | **13 种** | **排除 kickstarter 后**的 rarity 种数 ✅ |
+     | **15 条** | **排除后**的 price ≤ 1 条数 ✅ |
+     | **26 条** | **排除后**的【非 universal】条数 ✅（**而那是"不可购买"的正确判据**）|
+  `
+
+- 🔴🔴 **④ 而我要更正【我自己两处错】（**你那份对不上的数字，有一半是我造成的**）**
+  `
+  🔴 **错误 ①**：我在 dd1_baseline §26.2 写了「**price ≤ 1 ⇔ ward_category ≠ universal**」
+     ⇒ 🔴 **而实测【不成立】**：**price≤1 = 15 条 · 非 universal = 26 条** ⇒ **15 ≠ 26** ❗
+     ⇒ ✅ **已更正为"⊂"** —— 而**根因是【我把"非 universal 的条数"当成了"price≤1 的条数"】** ⚠️
+        🎖️ **那正是【纪律 AU】的实例：26 与 15 是【两个定义】下的数** ✅
+  🔴 **错误 ②**：我在 	rinkets.md 的 **T5** 写了「**price ≤ 1 的 26 条不可购买**」
+     ⇒ ✅ **已更正为**「**非 universal 的 26 条不可购买**」——
+        🔴 **因为判据必须是 ward_category**（**attle 12 条里 11 条 price>1，用 price 判会漏**）✅
+  ⇒ 📌 **所以你那三处不符（196/26/13）里，【196 与 13 是定义没写】，而【26 是我口径用错】** ✅
+  `
+
+- ✅ **⑤ 落库口径（**你可以动手了**）**
+  `
+  ✅ **源**：E 盘 	rinkets/base.entries.trinkets.json（**一手**）✅
+  ✅ **筛选**：**排除 arity == "kickstarter"** ⇒ **196 条** ✅
+  ✅ **rarity 表**：**E 盘 ase.rarities.trinkets.json（14 条）· 含 ward_category**（**13 条排除后**）✅
+  ✅ **每条约 origin="dd1"** ✅ · ✅ **写进 darkest/data/trinkets.json** ✅
+  🔴 **并请**：**若你现有的提取器读的是参考件 ⇒ 改读 E 盘**（**那是唯一一手**）✅
+     📌 **而 extract_dd1_hero_tables.py 那条路（参考件 .bytes）【可以保留】** ——
+        因为**它那 15 英雄 × 5 阶与 E 盘一致**（**我已核**）✅
+  `
+
+- **阻塞 / 待裁定**：无（口径 + 来源 + 定义已给全）
+- **权威在哪**：doc/modules/trinkets.md（**T5/§1.4 已更正**）· doc/modules/dd1_baseline.md **§26.2（已更正）** · state.md **#452**

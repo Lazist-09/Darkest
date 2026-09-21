@@ -189,6 +189,106 @@
 
 ---
 
+## 5.5 潜行 Stealth（C-1，2026-09-18 补录）
+
+**权威规格**：`darkestdungeon.wiki.gg/wiki/Stealth_(Darkest_Dungeon)` + Shieldbreaker DLC 官方补丁说明
+（BUILD #21049, 2017-10-27），**并已用 `borrow/` 原版解包数据交叉验证**。
+
+### 5.5.1 四条核心规则（逐条附原文实据）
+
+| # | 规则 | 权威原文 / 实据 | 我们的落点 |
+|---|---|---|---|
+| ① | 潜行者**不可被直接指定**（单体技能打不到） | wiki：*"prevents the affected character from being targeted directly"*；补丁：*"Stealthed monsters cannot be targeted by direct attacks unless that attack has the Bypass Stealth quality"* | `SkillTargetResolver.Resolve` 候选池剔除（带 `IBuffLedger` 时） |
+| ② | **多目标技能可穿过潜行**，但**必须至少打到 1 个非潜行者** | wiki：*"may still be hit by attacks that hit multiple targets. However, such multi-target abilities must be targeting at least one non-Stealthed target."*（例：Grapeshot 对全体潜行的 Swine Gorers **不可用**） | 同处：`hits.Any(非潜行)` 为假 ⇒ 返回空 ⇒ NoTarget |
+| ③ | **带 Bypass Stealth 的技能可指定潜行者，且** **De-Stealth**（命中即解除） | 补丁：*"These Skills have been given Bypass Stealth and De-Stealth… the attacks can hit stealthed monsters AND pull those monsters out of stealth"*；一手实据 `playwright.effects.darkest:5` `.stun 1 .unstealth 1` | `FuncTag.IgnoreStealth` 豁免 ①②；`SkillExecutor` 走 `ClearStateFlag(u,"stealth")` |
+| ③b | 🔴 **AOE 命中潜行者「不」解除潜行**（唯一例外 Rallying Flare） | wiki 早期修订：*"Hitting a stealthed unit with an area-of-effect attack will not de-stealth, except for Rallying Flare."* | 我们的 De-Stealth **只挂在 `ignore_stealth` 技能上**，AOE 不解除 ✓ |
+| ④ | 潜行**一般持续前 2 回合** | wiki：*"it will only last for the first two rounds"*；补丁：*"Stealth generally lasts for the first 2 rounds of combat"*；一手实据 `.stealth 1 .duration 2` | `buff_defs.json` `stealth.duration = rounds/value 2`（⚠️ `placeholder: true` #307） |
+
+### 5.5.2 原版数据字段（`borrow/` 一手实据）
+
+| 字段 | 出现位置 | 语义 |
+|---|---|---|
+| `.stealth 1` | `borrow/3440502939/effects/playwright.effects.darkest:26`（`flying knife combo`，`.duration 2`/`3`）<br>`borrow/3424145711/effects/snor_wakamo.effects.darkest:95`（`.duration 2`） | 施加潜行（`.target performer` = 自己） |
+| `.unstealth 1` | `borrow/3440502939/effects/playwright.effects.darkest:5-6`（`gunfire shattered zero/one`，**与 `.stun` 同挂**） | 按值解除潜行 |
+| `.ignore_stealth true` | `borrow/3440502939/heroes/playwright/playwright.info.darkest`（`playwright_skill_7` 投掷油壶、`playwright_skill_8` 地狱之炎） | 技能级"穿透潜行"（= Bypass Stealth） |
+| 文案 | `borrow/3424145711/project.xml:126` `"Stealth Self (2 Rds)"`；`:139-140` `"+30% DMG while Stealthed"` / `"+10 ACC while Stealthed"` | 潜行期间的增益（我们的 `stealth` buff 目前**不含**伤害/命中加成 ⇒ 未实现，见下） |
+
+### 5.5.3 敌人配发（原版，**我们未接**）
+
+原版从 **Veteran 难度**开始给以下 6 种敌人开场潜行（补丁原文 / wiki 表格一致）：
+
+`Brigand Fusilier` · `Brigand Hunter` · `Crone` · `Pelagic Shaman` · `Bone Soldier` · `Swine Slasher`
+
+另：`Plow Horse` 用 `Paw the Ground` 给自己 1 回合潜行，作为 `Trample` 的前置。
+
+### 5.5.4 我方带 Bypass Stealth 的原版技能
+
+| 英雄 | 技能 |
+|---|---|
+| Shieldbreaker（DLC） | （整套） |
+| Highwayman | Tracking Shot |
+| Arbalest / Musketeer | Rallying Flare（**唯一**能 AOE 解潜行的） |
+| Antiquarian | Flash Powder |
+| Occultist | Vulnerability Hex |
+| Leper | Intimidate |
+
+### 5.5.5 收口状态（C-1a 后：剩 0 项未决）
+
+| 项 | 现状 | 说明 |
+|---|---|---|
+| 持续回合数 | ✅ **已定案 = 2**（C-1a） | 原版 `playwright.effects.darkest` 一手实据 ⇒ `.stealth` 效果 duration 分布 **1×2 / 2×4 / 3×2**；取最常见的 **2**。🔴 **原版 `duration` 是【技能级】且随阶递增**（`flying knife combo` zero~two ⇒ 2，three/four ⇒ 3）⇒ 高阶的 3 属**技能阶**维度，归 **M8.1**（`#283` 7.6 已裁定本轮不做） |
+| De-Stealth 时机 | ✅ **已精确化 = 真·命中即解除**（C-1a） | 原版 `.on_hit true`。实现：结算后读 `HitEvent`，**只对 `Hit == true` 的目标**解除（`ApplyDeStealthOnHits`）。⇒ **未命中保留潜行**、同目标多段只解除一次、纯支援/移动技能不会误解除 |
+| 潜行期间增益 | ✅ **已实现（2026-09-20）** | `stealth` buff 补 `damage_mod: dealt_damage_mult 30` + `prob_mod: hit_mod 10`；两个 effect 名**原本就在** `ConsumedEffectNames` 白名单 ⇒ 只加 modifier、**无需改白名单代码**。`StealthTests` 扩到 13 例（含读数断言 30 / 10） |
+| 敌人开场潜行 | ⏸ **刻意不配发**（C-1a 裁定） | 不是"漏了"：① 我方原型池只有 3 个**通用**原型（`melee_soldier` / `ranged_archer` / `caster`），与 DD 的 6 种潜行敌人**不是同一套单位概念**，硬套等于编造数据；② `enemy_ai.json` 的 archetype 结构**没有开场 buff 字段**。⇒ 真正需要它的场合（Veteran 难度起、地牢专属敌人）属 **M8 内容层** |
+| 我方 `ignore_stealth` 技能 | ✅ **已配发（C-1a）** | 按原版精神（泼洒型火器穿过潜行）配给**敌方 AOE 输出**：`caster_mental_shock`。⚠️ 注意 `target.side` 是「打谁」不是「谁打」—— 归属看 `owner_unit` 的阵营 |
+
+---
+
+## 5.6 地牢层：回头代价 + 重访刷新（D-1 / D-2，2026-09-20 补录）
+
+> **为什么记在这里**：D-1/D-2 的**口径来源是 DD wiki**（探索压力轴），不是我们的发明；
+> 但 DD 的光照刻度与我们的 `light.tiers` 不同 ⇒ 必须**换算**，这一条极易搞错（我们已踩过，见下）。
+
+### 5.6.1 两条规则
+
+| 规则 | DD 原文口径 | 我们的落地 |
+|---|---|---|
+| **D-1 回头代价** | 重走已探索的格**仍要付**光照/时间代价，只是比走新格便宜 | `DungeonWalker._visited`（**亲自站过** ≠ `_revealed` 见过）⇒ `TryStep(out wasRevisit)`；回头**额外**扣 `dungeon_layer.revisit_light_cost`（走廊格只补差额 `max(0, revisit − perTile)`，避免与段守恒重复计费） |
+| **D-2 重访刷新威胁** | 反复走同一格会刷新威胁，**越黑越频繁**（wiki：光照 ≤50 ⇒ +2.5%；=0 ⇒ +5%） | `tuning.dungeon_layer.revisit.tiers`（**按暗 → 亮**，取首个命中档）；触发后**再掷一次**选 `battle` / `trap`；两次抽取**都写 `RngDraw`** |
+
+### 5.6.2 🔴 刻度换算（**我们踩过的坑，务必先看这里**）
+
+DD wiki 的 "+2.5% @ ≤50 / +5% @ 0" 用的是 **DD 自己的裸光照刻度**；
+本项目的刻度是 `light.tiers`：`radiant 76-100 / dim 51-75 / shadowy 26-50 / dark 1-25 / black 0`（`enter_value` = 100）。
+
+⇒ **直接照抄 `max_light: 50 / 0` 是错的**：光照 51..100 一档都不命中 ⇒ **完全不掷骰**（`RevisitSpawner` 在不命中任何档时提前返回）
+⇒ **"亮着走一趟永远平安"**，D-2 在最常见情形下**静默失效**。这是我第一版真实数据里的实际缺陷。
+
+**已加的两道门禁**（`TuningConfig.Validate`）：
+1. `tiers` 必须**按暗 → 亮**（`max_light` 严格递增）—— `RevisitSpawner` **不排序**，乱序会静默错；
+2. **末档必须 ≥ 满光照**（`light.enter_value`）—— 否则拒载（报错文案直接写明"静默失效"，见 `RevisitTiers_MustCoverFullLight_ElseRejected`）。
+
+现取值（**全 `placeholder: true`，待 M8 内容层定实**）：`0 ⇒ 5%` / `25 ⇒ 4%` / `50 ⇒ 2.5%` / `100 ⇒ 0.5%`。
+
+### 5.6.3 两层并存（**不是矛盾**）
+
+| 层 | 文件 / 类 | "回头"口径 |
+|---|---|---|
+| **按段移动**（旧，M7.6 片②） | `expedition_map.json` 的 `move.revisit_cost` / `MapTraversal.Step` | "回头**更便宜**"（原样保留，自洽） |
+| **瓷砖网格**（新，D-1 落点） | `DungeonWalker` / `ExpeditionFlow.TryStepTile` | 回头**必付**代价（DD 口径） |
+
+§7 ④ 裁定：**旧层不动、新网格层用 DD 口径**，两层各自自洽、互不覆盖。
+
+### 5.6.4 未实现 / 待裁定
+
+| 项 | 现状 | 说明 |
+|---|---|---|
+| 威胁**实际效果** | **只登记不结算** | 现在只记"是 `battle` 还是 `trap`"（`DungeonTileKind.Trap` 同族"暂留"）；真正生成遭遇 / 陷阱要等 M8 内容层（D-4 陷阱转真） |
+| 数值定实 | `placeholder: true` | 档位 percent / `revisit_light_cost` / 两个权重**全部是拍的值**，`#307` 要求标占位 |
+| UI 读数 | 未接 | `TileBacktrackCount` / `RevisitThreatCount` / `LastRevisitThreat` 已就位，表现层尚未渲染 |
+
+---
+
 ## 6. 验收总纲（本包）
 
 | 用例 | 期望 |
