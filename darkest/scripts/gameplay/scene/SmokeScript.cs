@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
+using Darkest.Data;   // 🆕 C4：步骤分类器（零 Godot ⇒ 可单测）在数据层 ✓
+
 namespace Darkest.Gameplay.Scene;
 
 /// <summary>
@@ -80,7 +82,7 @@ public static class SmokeScript
         if (_stepCalls < 24)
         {
             _stepCalls++;
-            GD.Print($"[冒烟·仪表 #{_stepCalls}] Step　场景={node.GetType().Name}　待办={(Steps.Count == 0 ? "（空）" : Steps.Peek())}" +
+            GD.Print($"[冒烟·仪表 #{_stepCalls}] Step　场景={node.GetType().Name}　待办={(Steps.Count == 0 ? "（空）" : SmokeStepSpec.Describe(Steps.Peek()))}" +
                      $"　可执行={(Steps.Count > 0 && Applies(Steps.Peek(), node))} ✓");
         }
 
