@@ -170,6 +170,33 @@ public sealed class BuffLedger : IBuffLedger
         return total;
     }
 
+    /// <summary>
+    /// 🆕 **M2 激活用**：跨 **所有 kind** 求百分比之和（`DamageMod`/`ProbMod`/`StatMod` 都算 ✓）。
+    /// 🔴 **附加式**：不改动既有的 `PercentMod`（它只读前两类 ✓ ⇒ 现有调用者行为一字不变 ✓）
+    /// </summary>
+    public int PercentModAny(UnitId u, string effect)
+    {
+        if (!_byUnit.TryGetValue(u, out List<BuffInstance>? list))
+        {
+            return 0;
+        }
+
+        int total = 0;
+        foreach (BuffInstance b in list)
+        {
+            BuffDefConfig def = _defs.Get(b.BuffId);
+            foreach (BuffModifierSpec m in def.Modifiers ?? Array.Empty<BuffModifierSpec>())
+            {
+                if (m.Effect == effect)
+                {
+                    total += m.Percent ?? 0;
+                }
+            }
+        }
+
+        return total;
+    }
+
     public bool HasStateFlag(UnitId u, string flag)
     {
         if (!_byUnit.TryGetValue(u, out List<BuffInstance>? list))

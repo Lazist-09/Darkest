@@ -34,6 +34,9 @@ public interface IBuffLedger
     /// <summary>per-cent 修改器汇总（如 勇猛 dealt_damage_mult +25）。</summary>
     int PercentMod(UnitId u, string effect);
 
+    /// <summary>🆕 M2 激活用：跨所有 kind 求百分比之和（附加式 ✓ 不改 PercentMod 语义）✓</summary>
+    int PercentModAny(UnitId u, string effect);
+
     /// <summary>回合推进：Rounds 型时长递减，归零移除（回合钩子由导演调用）。</summary>
     void TickRounds();
 

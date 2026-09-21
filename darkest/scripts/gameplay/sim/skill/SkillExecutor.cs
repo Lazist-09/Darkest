@@ -359,7 +359,18 @@ public sealed class SkillExecutor
                     double critChance = targets.Length > 1 ? _balance.HealCritMultiPercent : _balance.HealCritSinglePercent;
                     bool critHeal = critRoll < critChance;
 
-                    int healed = Math.Min(target.MaxHp - target.CurrentHp, critHeal ? heal * 2 : heal);
+                    // 🆕 **M2 激活（架构裁 (丙) · 第 1 条）**：`hp_heal_percent` ⇒ 治疗量 ×(1 + pct/100) ✓
+                    //    语义（原版）：**施法者**的"治疗量"修正 ⇒ 故读 `caster` 的 buff 修正 ✓
+                    //    🔴 无该 buff ⇒ pct = 0 ⇒ **行为与激活前逐位相同** ✓（前后读数见 reports/m2_activation_readings.md）
+                    int healPct = _buffs?.PercentModAny(caster, "hp_heal_percent") ?? 0;
+                    int baseHeal = critHeal ? heal * 2 : heal;
+                    int scaledHeal = HealAmount.Scale(baseHeal, healPct);   // 🆕 算法在 HealAmount（可单测 ✓）
+                    if (healPct != 0)
+                    {
+                        _log.Append(new EffectEvent(caster, "hp_heal_percent", healPct, true, caster));
+                    }
+
+                    int healed = Math.Min(target.MaxHp - target.CurrentHp, scaledHeal);
                     target.CurrentHp += healed;
                     _log.Append(new HealEvent(target.Id, healed, caster, skill.Id)); // G0：治疗来源 + 技能
                     if (critHeal)
