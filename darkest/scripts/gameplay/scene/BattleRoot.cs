@@ -103,6 +103,12 @@ public partial class BattleRoot : Node2D
         {
             ShellInstanceAudit.Run(this);
         }
+
+        // 🔴 **形态 B 一键状态（我域）**：`--shell-status` ⇒ 绘层 + 回落账本 + 实例数 一次看全 ✓
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--shell-status"))
+        {
+            ShellStatus.Run(this);
+        }
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--shell-layer"))
         {
             ShellLayerAudit.Run(this);
