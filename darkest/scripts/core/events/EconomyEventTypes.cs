@@ -52,3 +52,11 @@ public sealed record StressReliefEvent(
     bool PenaltyTriggered,
     int NextRunPenalty) : BattleEvent;
 
+/// <summary>🆕 **M7③（策划 `#423`）**：马车"今日新兵"的**每一次高级判定掷骰**（确定性 & 可审计 ✓）。
+/// `SlotIndex` 从 0 起；`DrawPercent` / `ThresholdPct` 单位都是**百分比**（与 `upgraded_recruit_chances_pct` 同）✓</summary>
+public sealed record StagecoachRecruitRolledEvent(
+    int SlotIndex,
+    int StagecoachLevel,
+    double DrawPercent,
+    double ThresholdPct,
+    bool Upgraded) : BattleEvent;
