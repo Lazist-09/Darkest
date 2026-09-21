@@ -13,3 +13,17 @@ buff_defs.json | protectors_def_after_redirect | buff 语义注解：守护者�
 buff_defs.json | recalc_range_at_resolution | buff 语义注解：结算时是否重算射程（设计说明）
 buff_defs.json | weak_protector_triggers_deaths_door | buff 语义注解：虚弱守护者是否触发死门（设计说明）
 sanitarium.json | trait_rule | 规则语义注解（疗养院特质规则的可读说明）
+
+# ── 2026-09-20（C-1a 收口轮）补登记：`extra_rules` / `hooks` 的**文档性键** ──────────────────
+# 🔴 判据（`buff_defs.json` 顶部 `_field_classes` 已明文分类）：`hooks` 与 `extra_rules` 是
+#    **`doc` 类**（"仅说明、不参与行为"）⇒ 它们的**子键**本就不该有 C# 读取点 ✓
+#    ⚠️ 这不是"放行让工具变绿"：这些键**明确是给人读的设计说明**（P29 允许的"显式登记未消费"形态），
+#       且 `_field_classes` 自己就写明了 `doc = hooks / extra_rules` ⇒ 登记是**落实那条分类**，不是绕过 ✓
+buff_defs.json | duration_is_per_skill_tier | `extra_rules` 文档键：原版 `.stealth` 的 duration 是**技能级**且随技能阶递增（低阶 2 / 高阶 3）⇒ 本 buff 取 2，高阶差异归 M8.1 技能升级。标记此待办供人读（`_field_classes` 已把 extra_rules 归 doc 类）
+buff_defs.json | blocks_direct_targeting | `extra_rules` 文档键：潜行**阻断单体指定**（`SkillTargetResolver` / `EnemyAi` 已用 `state_flag` 实现同义行为；此键是可读说明）
+buff_defs.json | aoe_pass_requires_visible_target | `extra_rules` 文档键：AOE 可穿过潜行，但要求 **≥1 个可见目标**（行为在 `SkillTargetResolver` 里；此键是说明）
+buff_defs.json | removed_by_bypass_hit | `extra_rules` 文档键：`ignore_stealth` 命中即解除潜行（行为在 `SkillExecutor.ApplyDeStealthOnHits`；此键是说明）
+buff_defs.json | timing | `hooks[].timing` 文档键：钩子**时机**的人读说明（如 `before_enemy_ai` / `round_end`）——🔴 `_field_classes` 已明文 `doc = hooks / extra_rules`，且 `timing` 在 `empty` 分类里曾被"已删"提及，但实际仍作为 `hooks` 子键存在且**被文档依赖** ⇒ 显式登记为文档键 ✓
+buff_defs.json | note_max_per_turn_physical_only_guarded_morale | 文档键（`note_` 前缀的自定义名）：守护的 `once_per_turn / physical_only / guarded_morale` 三条约束的人读说明 —— 🔴 命名未走 `*_note` 约定（是 `note_*` 前缀），故在此显式登记 ✓
+buff_defs.json | _field_classes | **文件级** schema 文档键：说明本文件字段的**四分类**（behavior=引擎读并改结果 / constraint=只被 Validate 读 / doc=hooks·extra_rules 仅说明 / empty=已删）—— 它是给**维护者**读的分类表，不参与任何行为 ✓（同族文件级键 `_note` 已由工具内置放行；此前缀 `_*` 未覆盖 ⇒ 显式登记）
+

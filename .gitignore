@@ -47,3 +47,13 @@ reports/archive/
 # and "clean worktree" is the precondition for the pre-commit check)
 darkest/.tmp_appdata/
 darkest/Godot/
+# --- 主程序 2026-09-21 追加（用户授权处理在飞改动；防大目录被误入库，红线 O-90）---
+.tools/
+dd_ref_ui/
+.workbuddy/
+doc/dd_ref/
+doc/_ui_reverse/
+doc/_backups/
+*.bak
+*.bak[0-9]
+*.bak.*

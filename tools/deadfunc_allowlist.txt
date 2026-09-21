@@ -7,3 +7,10 @@
 
 scripts/core/math/BattleMath.cs | PhysicalHit | §7.1 八个伤害样例的**逐字参考实现**（生产管线走 `DamageStep` + `PhysicalMitigation`，不需要它）⇒ 它存在是为了让用例能对照契约样例，属**契约可读性资产**
 scripts/core/math/BattleMath.cs | SpiritHit | 同上（精神伤害样例的参考实现）
+
+# ── 2026-09-20 登记：**刻意不接线**（接上去就得编造数据 ⇒ 违反 `#307`）─────────────────────────────
+# 🔴 判据：它需要的数据键（`torch` / `dark` 两条分支）在 `expedition_nodes.json` 里**根本不存在**。
+#    硬接 = 代码替策划**发明规则**（"举火把消耗什么、摸黑前进给什么"），这是造数据、不是实现功能。
+#    ⇒ 归**内容层待办**：等策划把 `torch`/`dark` 选项写进事件节点数据，本方法的调用点才有意义。
+#    ⚠️ 这不是"漏接"：本方法 + 它的用例是**契约载体**（`survival.md` 的光源/事件交互），留着是对的。
+scripts/gameplay/sim/survival/LightMeter.cs | ApplyEventChoice | `expedition_nodes.json` **无 torch/dark 选项键** ⇒ 接线等于编造数据（`#307`）；归内容层待办，等数据补上再连
