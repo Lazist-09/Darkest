@@ -23,7 +23,10 @@ public static class ShellStatus
         bool layerOk = ShellLayerAudit.Run(anyNode);
 
         GD.Print("【② B-3 回落留痕】还差哪几屏没面板化");
-        GD.Print("   " + Darkest.Data.UiShellLedger.Report());
+        // 🔴 架构回执点名：**"未触发"不该打印成 `0`** ✗（否则读的人会以为"已经 0 屏 = 都面板化了"）
+        GD.Print(Darkest.Data.UiShellLedger.Count == 0
+            ? "   （**本趟未触发**：没有发生「回城/回落」 ⇒ 账本为空 —— **这不是「还差 0 屏」** ✓）"
+            : "   " + Darkest.Data.UiShellLedger.Report());
 
         GD.Print("【③ C4 终态】外壳实例数 / main_scene / autoload");
         bool terminalOk = ShellInstanceAudit.Run(anyNode);
