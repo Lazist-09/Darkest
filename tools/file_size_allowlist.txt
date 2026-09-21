@@ -1,2 +1,5 @@
 # 白名单（临时豁免）—— 目前为空：所有程序文件均 <= 600 行。
 # 格式：键（片段/路径通配）<TAB>理由（必填）
+darkest/scripts/data/TuningConfig.cs	临时豁免(811 行):职责=架构 §1.2 的『根+解析+顶层校验 / .Combat / .Expedition / .Hamlet』;主程序认账;拆分条件=先把 Validate 按域段拆成三支(需逐条比对校验顺序,属高风险手术),完成即删本行
+darkest/scripts/gameplay/sim/run/ExpeditionSession.cs	临时豁免(670 行):待抽 .Inventory 或 .Scout(架构 §1.2);主程序认账;拆分条件=同上(该文件成员跨度过大,自动化切片已失败 3 次,改人工逐段搬),完成即删本行
+darkest/scripts/gameplay/scene/BattleRoot.cs	临时豁免(626 行):待抽 .FlowBridge(流程驱动口:ExpeditionFlowOrNull/MapModeAdvance/PreviewIntent/EnterDungeonInScene/GoToHamlet);主程序认账;拆分条件=同上,完成即删本行
