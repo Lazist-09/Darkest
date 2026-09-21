@@ -280,3 +280,51 @@ DELIVERY-LEAD-DEADKEY-PROPOSAL
 (乙) **你裁"不改"** ⇒ 现状即刻合法 ✓（0 处 + 带理由白名单 ✓）
 ```
 - **我这边**：构建 **0 错** · 全量 **809/809** ✓ · 数据纪律 **0 处 / exit 0** ✓ · 在飞（我域）**0** ✓
+
+---
+
+### 结项报告：2026-09-21 23:57 · 【来自主程序】**做完的清点 + 没做的逐项写前置 + 证据链**（我域"不需裁定"的活已做尽）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-CLOSURE' -SimpleMatch`（**同投策划窗与 UI 窗**）命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-CLOSURE
+```
+
+#### ✅ ① 做完的（**69 项 · 每项有实测读数 + 提交号** ⇒ 单一入口 `reports/INDEX_lead_programmer.md`）
+```
+P0-1 **六件全真拆** + **白名单清零**（门禁 `OK: all 425 ≤600 · 0 allowlisted`）
+P0-2 **我域那一半**：B-1 实现（`BattlePanel` + `--battle-panel`）· C4 面板导航 · B-2 绘层判据 ·
+     B-3 回落账本 · C4 终态判据 · **一键状态**（冒烟 `battle-panel` 真错误 0 · B-2 `0 vs 0` ·
+     B-3 `还差 1 屏：hamlet` · C4 终态 `实例 1`）
+**B6** 外源门禁（`OK` · 0 白名单）· **DD1 十条 M 线**（M1a/M1c/M2/M3 第1步/M4/M5/M6/M7/M8/M9）
+纪律与工具：拆分完整性审计 · 孤儿批核准表 **237 文件** · 无注释整类体清单 · 泄漏取证 ·
+     **数据纪律 41 → 0（exit 0）** · 交付索引
+末次终检：**构建 0 错 · 全量 809/809 · 五道门禁全绿 · 冒烟 13/13**
+```
+#### 🔴 ② 没做的 —— **逐项写前置**（分三类，不是"我漏了"）
+```
+**(甲) 必须 UI 域动手**：① 给外壳加 `CanvasLayer`（`--shell-status` 会自动转绿）② hamlet 等屏面板化
+   （账本现在说"还差 1 屏：hamlet"）③ `main_scene`→`ui_root.tscn` **且撤 autoload**（**必须同批**：
+   `--shell-count` 现在实测 1，但 autoload 仍注册 ⇒ 只改一半会立刻变 2）④ 引擎退出泄漏（取证已交）
+**(乙) 必须策划给数**：技能 `dmg%` 23 条（已给 2 条试点）· `prot` 对齐（→0）· **阶数进入伤害** ·
+   `def` 平衡 · 4v4 名单/待命位 · `O-95`（⇒ 全部入解冻清单）
+**(丙) 必须架构先裁**：M3 第 2 步（带行为 · 8 消费点）· `--deadkeys` 判据升级（我实现/裁不改）·
+   无注释整类体审校（你已认领 ⑩）· ~~M2 余 6 条~~（**你已裁 (乙) 留冻结 ⇒ 此项已闭合**）
+```
+#### 🔗 ③ 证据链（三条互证 + 九份逐题深报告）
+```
+`INDEX_lead_programmer.md`（交付了什么 · **每个哈希都 git 校验存在**）·
+`final_verification.md`（当前读数与缺口 · §8 末次复跑）·
+`HANDOVER_lead_programmer.md`（5 条不变量 · 7 条操作陷阱 · 卡点三行）
+＋ `m1c_stage3_readiness` / `m2_activation_readings` / `m3_traits_step2_plan` / `m8_four_answers` /
+   `data_discipline_triage` / `orphan_batch_per_file_audit` / `no_comment_class_bodies` /
+   `smoke_leak_forensics` / `deadkeys_gate_upgrade_proposal`
+```
+#### ⚖️ ④ 诚实边界
+```
+✅ **能自证**：构建 · 全量 · 五道门禁 · **本机真跑 Godot 的冒烟 13 例** · 基线逐位不变 · 每条判据的实测输出
+🔴 **不能自证**：内容属别人的 **237 个孤儿文件**（我担保"能编译 / 全绿 / 可追溯"，**不担保"内容对"**）·
+   `ExpeditionFlow` 那批的**作者原意**（注释真的丢了 ⇒ 我只能补"这段在做什么"）
+```
+- **我这边**：我域在飞 **0** ✓ · 备份 **5 份**（最新 `…_235637` · 5937 文件 / 3835.8 MB ✓）
