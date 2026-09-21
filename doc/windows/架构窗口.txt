@@ -1431,3 +1431,44 @@ SP：`start 3 · cap 4 · **regen/round 1**`（P19 要求 ≥ 1 ⇒ **M9 不动�
   （每处 `IsSupportSlotActor` 的实际影响）再动 ✓ 或者你直接给顺序 ✓
 - 🔴 **过程如实**：本轮我又犯了"**workdir 前缀**"错一次（补丁没生效 ✗）+ 猜错两次类型名 ⇒ 最后用 `var` 绕开
   ⇒ 教训记下：**先查类型名或直接用 `var`，别猜** ✓
+
+---
+
+### 交付：2026-09-21 19:00 · 【来自主程序】**M9 B/C 影响面细读数** —— 并**请裁三处规则**（我不代裁）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-M9-IMPACT' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M9-IMPACT
+```
+
+#### ✅ ① 结论：**B 基本是改名（零行为）· C 是行为改动**
+```
+**B（`SupportSlots` ⇒ 通用扩展位）**：`SlotLayout`（8 处）是**纯模型** ⇒ **改名即可、零行为** ✓
+**C（SP 去掉支援位维度）**：`BattleDirector.cs:189` + `BattleProjector.cs:80` 的兜底删掉 ⇒ **行为改动** ✓
+   （两处**必须同步改** —— 一处是结算、一处是投影预览 ✓）
+```
+#### 🔴 ② 但发现一条**比卡里描述的更深**的事实：**支援位不只承载 SP**
+```
+它还承载三处规则 ⇒ **我请你们裁**（这是本轮最重要的产出）：
+① **`BattleDirector.cs:268`**：用支援位判断**目标规则**（谁能打到支援位）⇒ 4v4 后这条要不要留？
+② **`MoraleLedger.cs:312`**：遍历支援位做**士气结算** ⇒ 要不要留？
+③ **`FormationConfig.cs:107`**：校验"**敌方不得有支援位**" ⇒ 语义变成"通用扩展位"后还成立吗？
+⇒ 这三条**都不是名字问题，是行为问题** ⇒ 我不代裁 ✓（若要去掉 ⇒ 各做一次带前后读数的行为改动 ✓）
+```
+#### 📋 ③ 全部站点（**10 文件 / 32 处**）与回归面（**12 个测试文件**）
+```
+站点：`SlotLayout 8` · `FormationConfig 3` · `FormationBoard 3` · `FormationBoardFactory 1` ·
+   `BattleDirector 9` · `BattleProjector 3` · `MoraleLedger 1` · `SkillExecutor 1` · `SkillUseResolver 2` · `SkillsConfig 1`
+回归面（引用数）：`SupportPointTests 30` · `M9SlotContractTests 12` · `SupportPackSpTests 10` · `BoardTests 9` ·
+   `Policies 7` · `BoardTests.Movement 6` · `M6FixPack 5` · `PassPenalty 3` · `G0a 3` · `M75 2` · `Affliction 1` · `Morale 1`
+   ⇒ C 要改读数的我估计集中在 **`SupportPointTests` / `SupportPackSpTests` / `Policies`** 三件 ✓
+```
+#### 🔜 ④ 建议顺序（等你答 ①②③ 之后我按此执行）
+```
+① **B-改名**（零行为 · 判据 = 全量用例数不变 797/797）② **C-SP 去维度**（前后读数 + 改 3 个用例）
+③ 目标规则/士气/敌方校验按裁定 ④ **A-数据**（`6→4` 槽 + 名单 4 人 ⇒ 需**策划点头** + 与 ①②③ **同批**）
+```
+- **我这边**：全量 **797/797** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓ · `reports/m9_support_impact.md` ✓ 入库
+- **仍等 9 件一句话**：`M8 四问` · `def 合并` · `M2 映射` · `M1c dmg%` · `M5 空分类` · `M3 自加 5 条` · `误提处置` ·
+  **M9 名单保留哪 4 人** · **M9 上面这三处规则**
