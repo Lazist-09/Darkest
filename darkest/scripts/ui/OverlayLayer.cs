@@ -31,8 +31,38 @@ public partial class OverlayLayer : Control
 
     public Control? TooltipHost => GetNodeOrNull<Control>("TooltipHost");
 
+    /// <summary>
+    /// 🔴 **遮罩层**（2026-09-20 L2/L3 布局整改）：打开任意 L2/L3 时压暗背景 + **吃掉点击**。
+    /// 决策依据：DD 原版**没有**黑遮罩（用 `building_zoom_anim` 推近+模糊+LUT 调色代替），
+    /// 但 Godot 里全屏模糊需自研 shader（违反红线 26）⇒ 改用半透明黑遮罩，成本最低且能吃点击 ✓
+    /// ⚠️ 节点缺失 ⇒ 返回 null（遮罩成为可选增强，不崩不静默）✓
+    /// </summary>
+    public ColorRect? DimMask => GetNodeOrNull<ColorRect>("DimMask");
+
+    /// <summary>遮罩透明度（调色板未接管前先放这里；后续可移进 `UIPalette`）✓</summary>
+    public const float DimAlpha = 0.55f;
+
     /// <summary>当前模态栈深（供冒烟/自检读数）✓</summary>
     public int ModalDepth => _modals.Count;
+
+    /// <summary>
+    /// 🔴 **遮罩跟随栈深显隐**：栈非空 ⇒ 显示；栈空 ⇒ 隐藏。
+    /// 纪律：**只在这里改** `Visible` —— 调用方不许直接动遮罩（否则栈与遮罩会分叉）✓
+    /// </summary>
+    private void SyncDimMask()
+    {
+        ColorRect? mask = DimMask;
+        if (mask is null)
+        {
+            return;
+        }
+
+        bool want = _modals.Count > 0;
+        if (mask.Visible != want)
+        {
+            mask.Visible = want;
+        }
+    }
 
     /// <summary>实例化骨架；场景缺失/类型不符 ⇒ null（宿主回落旧路径，不崩不静默）✓</summary>
     public static OverlayLayer? TryInstantiate()
@@ -64,9 +94,14 @@ public partial class OverlayLayer : Control
         }
 
         modal.Visible = true;
+
+        // 🔴 去重（2026-09-20）：同一面板重复开 ⇒ **移到栈顶**，不重复入栈。
+        //    修的是"连开 QuestSelect → Provision → 传家宝 ⇒ 三个满屏面板互相重叠"（此前 `MakePopup` 每次新建）
         _modals.Remove(modal);
         _modals.Add(modal);
-        GD.Print($"[UI Overlay] OpenModal：`{modal.Name}`（栈深 {_modals.Count}）✓");
+
+        SyncDimMask();
+        GD.Print($"[UI Overlay] OpenModal：`{modal.Name}`（栈深 {_modals.Count}，遮罩 {(_modals.Count > 0 ? "开" : "关")}）✓");
     }
 
     /// <summary>关掉栈顶模态（✕ / Esc 的第二出口由此统一）✓</summary>
@@ -76,6 +111,7 @@ public partial class OverlayLayer : Control
         {
             Control top = _modals[^1];
             _modals.RemoveAt(_modals.Count - 1);
+            SyncDimMask();
             if (GodotObject.IsInstanceValid(top))
             {
                 top.Visible = false;
@@ -84,7 +120,31 @@ public partial class OverlayLayer : Control
             }
         }
 
+        SyncDimMask();
         return false;
+    }
+
+    /// <summary>🔴 关掉指定模态（不论是否在栈顶）—— 供 ✕ 按钮精确关闭自己，避免误关别的层 ✓</summary>
+    public bool CloseModal(Control? modal)
+    {
+        if (modal is null)
+        {
+            return false;
+        }
+
+        bool removed = _modals.Remove(modal);
+        if (GodotObject.IsInstanceValid(modal))
+        {
+            modal.Visible = false;
+        }
+
+        SyncDimMask();
+        if (removed)
+        {
+            GD.Print($"[UI Overlay] CloseModal：`{modal.Name}`（余 {_modals.Count}）✓");
+        }
+
+        return removed;
     }
 
     /// <summary>悬停说明（§11.4⑤ 的中间层）：只读、不接管点击；**优先用模板场景** ✓</summary>

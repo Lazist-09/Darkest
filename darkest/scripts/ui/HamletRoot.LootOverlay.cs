@@ -10,15 +10,16 @@ public partial class HamletRoot : Control
     /// 数据未接入 ⇒ 格子/描述/按钮全为**色块占位**（不换不删），仅 ✕ 关闭可用 ✓</summary>
     public void OpenLootOverlay()
     {
-        (_, _, VBoxContainer body) = MakePopup("LootOverlayPopup", "🎁 【战利品】");
+        (PanelContainer self, _, VBoxContainer body) = MakePopup("LootOverlayPopup", "🎁 【战利品】", Darkest.UI.PopupLayout.Modal);
         LootOverlaySkeleton? skel = LootOverlaySkeleton.TryInstantiate();
         if (skel is not null)
         {
             body.AddChild(skel);
             if (skel.Close is Button close)
             {
-                PanelContainer? self = body.GetParent()?.GetParent() as PanelContainer;
-                close.Pressed += () => { if (self is not null) { self.Visible = false; } CloseTopPopup(); };
+                // 🔴 2026-09-20：`self` 由 `MakePopup` 直接返回（此前 `body.GetParent()?.GetParent() as PanelContainer`
+                //    在代码回落路径下取到的是 MarginContainer ⇒ cast 失败 ⇒ **关不掉**）✓
+                close.Pressed += () => ClosePopup(self, "LootOverlayPopup");
             }
         }
         else

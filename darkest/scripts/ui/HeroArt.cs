@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Godot;
 
 namespace Darkest.UI;
@@ -52,12 +53,14 @@ public static class HeroArt
             Darkest.Data.HeroAssetsConfig cfg = Darkest.Data.HeroAssets.Parse(
                 Godot.FileAccess.GetFileAsString(jsonPath));
 
+            // 🔴 **改用 `HeroAssets` 的现成访问器**（2026-09-20）——
+            //    此前这里**内联重写**了"取帧 / 取头像引用"的逻辑 ⇒ 那三个纯函数（`FramesOf`/`PortraitRef`/`RootFor`）
+            //    **无人调用**、成了疑似死代码 ⚠️；而且这里还把根**硬编码**成 `PlaceholderRoot`（绕过了 `RootFor`）⚠️
+            //    ⇒ 现在：取引用 / 取根 / 拼路径 **全部走 `HeroAssets`**（单一真值、不再重复实现）✓
             string? rel = which switch
             {
-                "combat" => cfg.Actions.TryGetValue("combat", out Darkest.Data.HeroActionSlot? slot) && slot.Frames.Count > 0
-                    ? slot.Frames[0]
-                    : null,
-                "portrait" => cfg.Portrait, // 🔴 `P31` 的 `portrait` 字段（引用；允许缺失 ⇒ 缺就回落）✓
+                "combat" => Darkest.Data.HeroAssets.FramesOf(cfg, "combat").FirstOrDefault(),
+                "portrait" => Darkest.Data.HeroAssets.PortraitRef(cfg) is { Length: > 0 } p ? p : null,
                 _ => null,
             };
 
@@ -68,7 +71,7 @@ public static class HeroArt
                 return null;
             }
 
-            string full = $"{Darkest.Data.HeroAssets.PlaceholderRoot}/{rel}";
+            string full = Darkest.Data.HeroAssets.Resolve(cfg, rel!); // 🔴 根 + 引用（`RootFor` 内部判占位/正式）✓
 
             // 🔴 **关键修正**（主程序 2026-09-16 抓到的异常正文）：
             //    `Image.LoadFromFile` 只接受**文件系统路径** ⇒ 传 `res://…` **必失败**，

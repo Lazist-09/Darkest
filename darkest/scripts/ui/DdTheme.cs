@@ -357,6 +357,7 @@ public static class DdTheme
     public static Color MapCurrent => Palette.MapCurrent;
     public static Color MapReachable => Palette.MapReachable;
     public static Color MapVisited => Palette.MapVisited;
+    public static Color MapScouted => Palette.MapScouted;   // 🔴 D-3：三态中间态（暗 + 亮轮廓）
     public static Color MapUnknown => Palette.MapUnknown;
     public static Color MapFrame => Palette.MapFrame;
     public static Color TeamDot => Palette.TeamDot;

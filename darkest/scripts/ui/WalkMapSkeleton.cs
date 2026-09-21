@@ -35,6 +35,9 @@ public partial class WalkMapSkeleton : Control
 
     public const int TileVisited = 1;
 
+    /// <summary>🔴 `D-3`：**侦察态**（暗 + 亮轮廓）—— 已揭示但看不清内容 ✓</summary>
+    public const int TileScouted = 4;
+
     public const int TileCurrent = 2;
 
     public const int TileGoal = 3;
@@ -71,16 +74,19 @@ public partial class WalkMapSkeleton : Control
     /// <summary>用**引擎内置**造两个图集（**不读任何美术文件**）✓</summary>
     public void EnsureTileSets()
     {
-        // ① 房间：14×14 × 4 格（横排）—— 未知 / 已访 / 当前 / 终点
+        // ① 房间：14×14 × 5 格（横排）—— 未知 / 已访 / 当前 / 终点 / 侦察（D-3）
         if (RoomLayer is TileMapLayer room && (room.TileSet is null || room.TileSet.GetSourceCount() == 0))
         {
-            var img = Image.CreateEmpty(RoomPx * 4, RoomPx, false, Image.Format.Rgba8);
+            // 🔴 `D-3`：**4 → 5 格**（新增 Scouted）。⚠️ 前 4 格**顺序不变** —— 它们的列号
+            //    就是 `TileUnknown/TileVisited/TileCurrent/TileGoal` 常量，挪动会静默改所有旧瓦片 ✓
+            var img = Image.CreateEmpty(RoomPx * 5, RoomPx, false, Image.Format.Rgba8);
             Color[] colors =
             {
                 Opaque(Darkest.UI.DdTheme.MapUnknown),
                 Opaque(Darkest.UI.DdTheme.MapVisited),
                 Opaque(Darkest.UI.DdTheme.Highlight),
                 Opaque(Darkest.UI.DdTheme.Danger),
+                Opaque(Darkest.UI.DdTheme.MapScouted),   // 🔴 D-3：列 4 = TileScouted ✓
             };
             for (int i = 0; i < colors.Length; i++)
             {

@@ -64,7 +64,9 @@ public partial class HamletRoot : Control, IUiPanel
     private PanelContainer? _buildingPopup;
     private Darkest.UI.OverlayLayer? _overlay;   // 🔴 Track 3：Overlay 层（模态统一住这里；缺失回落到旧父容器）✓
     private Label? _buildingPopupTitle;
-    private VBoxContainer? _buildingPopupBody;
+    private VBoxContainer? _buildingPopupBody;      // 正文区（DD body_base_pos 596,102）
+    private VBoxContainer? _buildingPopupUpgrade;   // 升级按钮区（DD upgrade_base_pos 172,259）
+    private HBoxContainer? _buildingPopupTrees;     // 升级树区（DD upgrade_trees_offset → 172,454）
     private string? _buildingPopupId;
     private readonly Darkest.Core.Events.CombatLog _log = new();
     private readonly Darkest.Core.Rng.RngProvider _rng = new(20260909);
@@ -138,7 +140,7 @@ public partial class HamletRoot : Control, IUiPanel
         GD.Print($"[HamletRoot] PressUpgrade({building})：① 发出真实 Pressed（按钮「{btn.Text}」，置灰={btn.Disabled}）⇒ 开二级窗口");
         btn.EmitSignal(BaseButton.SignalName.Pressed);
 
-        Button? up = _buildingPopupBody?.GetNodeOrNull<Button>("PopupUpgrade");
+        Button? up = _buildingPopupUpgrade?.GetNodeOrNull<Button>("PopupUpgrade");
         if (up is null)
         {
             GD.Print($"[HamletRoot] PressUpgrade({building})：弹窗里没有升级按钮（没打开？）⇒ 未升级");

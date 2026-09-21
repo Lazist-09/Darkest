@@ -87,6 +87,7 @@ public partial class BattleUI : Control, IUiPanel
     private Darkest.UI.BattleMiniMap? _mfMap;
     private Darkest.UI.WalkMapView? _mfMapWalk;      // 🔴 主程序 (A)：地图页的【格子主画面】（拓扑模式）✓
     private string _lastMapPageSketch = string.Empty;
+    private string _lastTileRowsSketch = string.Empty;   // 🔴 瓷砖网格字符留档的去重（`DungeonGrid.ToRows` 消费点）✓
     private int _mfPage;
     private readonly List<Button> _mfTabs = new();
 
@@ -478,7 +479,7 @@ public partial class BattleUI : Control, IUiPanel
         }
 
         bool targetsEnemy = s.Target.Side == "enemy";
-        int[] candidates = SkillTargetResolver.Resolve(s, actor, d.Player, d.Enemy).ToArray();
+        int[] candidates = SkillTargetResolver.Resolve(s, actor, d.Player, d.Enemy, d.Buffs).ToArray();
         foreach (int slot in candidates)
         {
             TargetEstimate est = _host!.Projector!.Estimate(skillId, actor, slot, targetIsPlayer: !targetsEnemy);

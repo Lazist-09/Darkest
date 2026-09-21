@@ -6,8 +6,25 @@ using Godot;
 
 namespace Darkest.UI;
 
-/// <summary>🔴 行走层【渲染快照】的一格（表现层自己的输入格式，**不含任何内核类型**）✓</summary>
-public sealed record SketchCell(int Id, int Depth, int Lane, string Type, bool Revealed, bool IsCurrent, bool IsGoal, bool Movable);
+/// <summary>
+/// 🔴 行走层【渲染快照】的一格（表现层自己的输入格式，**不含任何内核类型**）✓
+///
+/// 🔴🔴 `D-3`（2026-09-20）：**`Revealed` 是二态，画不出 DD 的三态雾** ⇒ 新增 <see cref="State"/>。
+///   · `State` = `Unexplored`（暗）/ `Scouted`（暗 + 亮轮廓）/ `Visited`（浅灰）—— **三态真值** ✓
+///   · `Revealed` = `State != Unexplored` 的**便捷读法**（保留：它已有 6 个消费点，且语义没变）✓
+///   ⚠️ 用 `RevealState`（内核**枚举**）而不是另一套 UI 枚举 —— 这是**纯值类型**、零 Godot、零行为，
+///      在表现层复制一份只会有两套真值（纪律 `#325` D6）✓
+/// </summary>
+public sealed record SketchCell(
+    int Id,
+    int Depth,
+    int Lane,
+    string Type,
+    bool Revealed,
+    bool IsCurrent,
+    bool IsGoal,
+    bool Movable,
+    Darkest.Gameplay.Sim.Run.RevealState State = Darkest.Gameplay.Sim.Run.RevealState.Unexplored);
 
 /// <summary>🔴 行走层【渲染快照】的一条连线（两端格子 id）✓</summary>
 public sealed record SketchLink(int From, int To);
@@ -160,7 +177,12 @@ public partial class WalkMapView : PanelContainer
                     revealedSet.Contains(room.Id),
                     room.Id == currentRoomId,
                     room.Id == map.GoalId,
-                    movable.Contains(room.Id)));
+                    movable.Contains(room.Id),
+                    // 🔴 `D-3`：房间层（旧图）没有"侦察态"这个来源 ⇒ 沿用二态映射
+                    //    （`RevealedRoomIds` 在房间层就是"已走过"⇒ `Visited`）—— **不是**偷偷造第三态 ✓
+                    revealedSet.Contains(room.Id)
+                        ? Darkest.Gameplay.Sim.Run.RevealState.Visited
+                        : Darkest.Gameplay.Sim.Run.RevealState.Unexplored));
                 lane++;
             }
         }
@@ -180,7 +202,8 @@ public partial class WalkMapView : PanelContainer
         (int X, int Y) party,
         IReadOnlyList<int> revealed,
         int remainingSegments,
-        Darkest.Gameplay.Sim.Run.DungeonTileKind here)
+        Darkest.Gameplay.Sim.Run.DungeonTileKind here,
+        Func<(int X, int Y), Darkest.Gameplay.Sim.Run.RevealState>? stateOf = null)
     {
         var revealedSet = new HashSet<int>(revealed);
         var cells = new List<SketchCell>();
@@ -198,11 +221,43 @@ public partial class WalkMapView : PanelContainer
                     continue; // 墙不画（DD 的迷宫就是"画出来的可走格"）✓
                 }
 
+                // 🔴🔴 `D-6`（2026-09-20）：**隐藏房在地图上【完全不显示】**。
+                //
+                //   DD 口径（`dungeon_layer_design.md §F3d` / wiki ④）：隐藏房不是"暗"（暗格还在图上，
+                //   只是没内容），而是**根本不画** —— 玩家在侦察成功之前**不知道那一格存在** ⚠️
+                //   ⇒ 与 `Wall` 同待遇：**跳过**（既不画格、也不加连线、更不加点击热区）。
+                //
+                //   🔴 **为什么必须在这里判、而不是"画成未知色"**：
+                //      `Unexplored` 的格也是会画的（`MapUnknown` 色块）—— 若隐藏房也画成未知色，
+                //      玩家只要**数格子**就能发现"这里多一块" ⇒ 隐藏房**立刻被看穿**（等于地图上明示）⚠️
+                //   🔴 **揭示之后**（侦察成功 ⇒ `Scouted` ⇒ 本类读到 `Secret` 格 + 非 `Unexplored`）
+                //      就会照常画出来（`MapScouted` 色）⇒ "揭示后成 rewards 房"在视觉上真的成立 ✓
+                bool secretUndiscovered = kind == Darkest.Gameplay.Sim.Run.DungeonTileKind.Secret
+                    && (stateOf?.Invoke((x, y)) ?? Darkest.Gameplay.Sim.Run.RevealState.Unexplored)
+                        == Darkest.Gameplay.Sim.Run.RevealState.Unexplored;
+                if (secretUndiscovered)
+                {
+                    continue; // 未揭示的隐藏房 ⇒ **连"未知格"都不给**（给了就等于告诉她这里有东西）⚠️
+                }
+
                 int roomId = tw.TileRoom.TryGetValue((x, y), out int r) ? r : -1;
                 bool isCurrent = party.X == x && party.Y == y;
                 bool isGoal = tw.Grid.Goal == (x, y);
                 bool adjacent = Math.Abs(party.X - x) + Math.Abs(party.Y - y) == 1;
-                cells.Add(new SketchCell(Id(x, y), x, y, kind.ToString(), revealedSet.Contains(roomId), isCurrent, isGoal, adjacent));
+
+                // 🔴 `D-3`：**三态**优先由内核给出（`stateOf`）—— 它是唯一真值（含"视野临时可见"）✓
+                //    ⚠️ 未接 `stateOf`（旧调用点/测试）⇒ 退化成**二态**：房间"走过"就 Visited，其余 Unexplored
+                //       （这正是旧行为 ⇒ 既有调用点不接也不变）✓
+                Darkest.Gameplay.Sim.Run.RevealState state = stateOf is not null
+                    ? stateOf((x, y))
+                    : revealedSet.Contains(roomId)
+                        ? Darkest.Gameplay.Sim.Run.RevealState.Visited
+                        : Darkest.Gameplay.Sim.Run.RevealState.Unexplored;
+
+                cells.Add(new SketchCell(
+                    Id(x, y), x, y, kind.ToString(),
+                    state != Darkest.Gameplay.Sim.Run.RevealState.Unexplored,
+                    isCurrent, isGoal, adjacent, state));
 
                 // 连线只连"右/下"两个方向（避免重复），且两端都不是墙 ✓
                 if (x + 1 < tw.Grid.Width && tw.Grid.TileAt(x + 1, y) != Darkest.Gameplay.Sim.Run.DungeonTileKind.Wall)
@@ -226,8 +281,15 @@ public partial class WalkMapView : PanelContainer
         int currentId = sketch.Cells.FirstOrDefault(c => c.IsCurrent)?.Id ?? -1;
         int goalId = sketch.Cells.FirstOrDefault(c => c.IsGoal)?.Id ?? -1;
 
-        // 只在"画的东西会变"时重画（格子/连线/揭示/当前/终点任一变化）——避免每帧重建 ✓
-        int key = HashCode.Combine(sketch.Cells.Count, sketch.Links.Count, sketch.Cells.Count(c => c.Revealed), currentId, goalId);
+        // 只在"画的东西会变"时重画（格子/连线/**三态分布**/当前/终点任一变化）——避免每帧重建 ✓
+        // 🔴 `D-3`：key 必须把**三态**算进去（只数 `Revealed` 的话，"Scouted 升级成 Visited" 不会触发重绘 ⚠️）
+        int key = HashCode.Combine(
+            sketch.Cells.Count,
+            sketch.Links.Count,
+            sketch.Cells.Count(c => c.Revealed),
+            sketch.Cells.Count(c => c.State == Darkest.Gameplay.Sim.Run.RevealState.Scouted),
+            currentId,
+            goalId);
         if (key == _lastKey && _canvas.GetChildCount() > 0)
         {
             return;
@@ -249,11 +311,7 @@ public partial class WalkMapView : PanelContainer
         _walkSkel?.ClearTiles();
 
         // 摆位：x = 深度，y = 同深度内序号（由适配器给定 ⇒ 确定性）
-        var pos = new Dictionary<int, (int X, int Y)>();
-        foreach (SketchCell c in sketch.Cells)
-        {
-            pos[c.Id] = (Pad + c.Depth * StepX, Pad + c.Lane * StepY);
-        }
+        Dictionary<int, (int X, int Y)> pos = Layout(sketch);
 
         // ① 走廊 = 小方块（沿两端连线铺；DD 的走廊就是这种小方块串）
         foreach (SketchLink link in sketch.Links)
@@ -301,9 +359,11 @@ public partial class WalkMapView : PanelContainer
         foreach (SketchCell c in sketch.Cells)
         {
             (int X, int Y) p = pos[c.Id];
+            // 🔴 `D-3`：**三态三配色** —— Scouted 用"暗 + 亮轮廓"（`MapScouted`：比未知亮、比已知暗）
             Color color = c.IsCurrent ? Darkest.UI.DdTheme.Highlight
                 : c.IsGoal ? Darkest.UI.DdTheme.Danger
-                : !c.Revealed ? Darkest.UI.DdTheme.MapUnknown
+                : c.State == Darkest.Gameplay.Sim.Run.RevealState.Unexplored ? Darkest.UI.DdTheme.MapUnknown
+                : c.State == Darkest.Gameplay.Sim.Run.RevealState.Scouted ? Darkest.UI.DdTheme.MapScouted
                 : Darkest.UI.DdTheme.MapVisited;
 
             if (_walkSkel?.RoomLayer is TileMapLayer roomLayer)
@@ -311,9 +371,10 @@ public partial class WalkMapView : PanelContainer
                 const int rp = Darkest.UI.WalkMapSkeleton.RoomPx;
                 int tile = c.IsCurrent ? Darkest.UI.WalkMapSkeleton.TileCurrent
                     : c.IsGoal ? Darkest.UI.WalkMapSkeleton.TileGoal
-                    : !c.Revealed ? Darkest.UI.WalkMapSkeleton.TileUnknown
+                    : c.State == Darkest.Gameplay.Sim.Run.RevealState.Unexplored ? Darkest.UI.WalkMapSkeleton.TileUnknown
+                    : c.State == Darkest.Gameplay.Sim.Run.RevealState.Scouted ? Darkest.UI.WalkMapSkeleton.TileScouted
                     : Darkest.UI.WalkMapSkeleton.TileVisited;
-                roomLayer.SetCell(new Vector2I(p.X / rp, p.Y / rp), _walkSkel.RoomSourceId, new Vector2I(tile, 0));   // 🔴 四态瓦片 ✓
+                roomLayer.SetCell(new Vector2I(p.X / rp, p.Y / rp), _walkSkel.RoomSourceId, new Vector2I(tile, 0));   // 🔴 五态瓦片（未知/侦察/已访/当前/终点）✓
             }
             else
             {
@@ -335,7 +396,12 @@ public partial class WalkMapView : PanelContainer
                 Size = new Vector2(RoomSize, RoomSize),
                 Flat = true,
                 Disabled = !c.Movable,
-                TooltipText = $"房间 {c.Id}（{(string.IsNullOrEmpty(c.Type) ? "?" : c.Type)}）" + (c.Movable ? "　点击 ⇒ 走一格" : "　（不可达）"),
+                TooltipText = $"房间 {c.Id}（{(string.IsNullOrEmpty(c.Type) ? "?" : c.Type)}）" +
+                              // 🔴 `D-3`：三态**必须**在提示里说清 —— 玩家要能分辨"知道有东西" vs "进去过" ✓
+                              (c.State == Darkest.Gameplay.Sim.Run.RevealState.Scouted ? "　（已侦察：只知轮廓）"
+                                  : c.State == Darkest.Gameplay.Sim.Run.RevealState.Visited ? "　（已看清）"
+                                  : "　（未知）") +
+                              (c.Movable ? "　点击 ⇒ 走一格" : "　（不可达）"),
             };
             int rid = c.Id;
             hit.Pressed += () => OnRoomClicked?.Invoke(rid);
@@ -351,17 +417,37 @@ public partial class WalkMapView : PanelContainer
 
         if (_info is not null)
         {
+            // 🔴 `D-3`：读数**必须**把三态分开报（否则"已揭示 5/9"盖住了"其中 3 格只是轮廓" ⚠️）
+            int scouted = sketch.Cells.Count(x => x.State == Darkest.Gameplay.Sim.Run.RevealState.Scouted);
+            int visited = sketch.Cells.Count(x => x.State == Darkest.Gameplay.Sim.Run.RevealState.Visited);
+            int explored = sketch.Cells.Count(x => x.State != Darkest.Gameplay.Sim.Run.RevealState.Unexplored);
             _info.Text = $"当前：{(string.IsNullOrEmpty(sketch.CurrentType) ? "?" : sketch.CurrentType)}" +
                          (sketch.RemainingSegments >= 0 ? $"　剩余 {sketch.RemainingSegments} 段" : string.Empty) +
-                         $"　已揭示 {sketch.Cells.Count(x => x.Revealed)}/{sketch.Cells.Count}";
+                         $"　已揭示 {explored}/{sketch.Cells.Count}" +
+                         (scouted > 0 ? $"（轮廓 {scouted} · 已看 {visited}）" : string.Empty);
         }
 
         _lastSketch = Sketch(sketch, pos);
     }
 
+    /// <summary>🔴 `D-3`：文字速写的**只读入口**（headless 验收用 —— 画面看不见，靠文字证明三态可分辨）✓</summary>
+    public static string SketchText(MapSketch sketch) => Sketch(sketch, Layout(sketch));
+
+    /// <summary>🔴 `D-3`：格子摆位（x = 深度、y = 同深度内序号；确定性）—— `SketchText` 与 `Refresh` **共用一份** ✓</summary>
+    private static Dictionary<int, (int X, int Y)> Layout(MapSketch sketch)
+    {
+        var pos = new Dictionary<int, (int X, int Y)>();
+        foreach (SketchCell c in sketch.Cells)
+        {
+            pos[c.Id] = (Pad + c.Depth * StepX, Pad + c.Lane * StepY);
+        }
+
+        return pos;
+    }
+
     /// <summary>
     /// 文字速写（**布局自证**）：每行 = 一个 lane、每列 = 一个 depth。
-    /// `■`=当前 `◆`=终点 `□`=已揭示 `·`=未揭示。
+    /// 🔴 `D-3`：**三态各一个字形** —— `■`=当前 `◆`=终点 `□`=已看清（Visited）`▒`=只有轮廓（Scouted）`·`=未知。
     /// ⚠️ **只画房间**：走廊在这里**不画**（它在画面上是两房之间的小方块，共 N 条，见行首计数）——
     ///    图例不得承诺没画的东西（我自己立的规矩：读数与事实必须一致）✓
     /// </summary>
@@ -381,13 +467,18 @@ public partial class WalkMapView : PanelContainer
         foreach (SketchCell c in sketch.Cells)
         {
             (int X, int Y) p = pos[c.Id];
-            char ch = c.IsCurrent ? '■' : c.IsGoal ? '◆' : c.Revealed ? '□' : '·';
+            // 🔴 `D-3`：三态各一个字形（`▒` = "知道有东西、但没看清"—— 与画面上的"亮轮廓"同义）✓
+            char ch = c.IsCurrent ? '■'
+                : c.IsGoal ? '◆'
+                : c.State == Darkest.Gameplay.Sim.Run.RevealState.Scouted ? '▒'
+                : c.Revealed ? '□'
+                : '·';
             grid[p.Y / StepY, (p.X / StepX) * 2] = ch;
         }
 
         var sb = new StringBuilder();
         sb.Append($"房间方块 {sketch.Cells.Count} 个／走廊小方块 {sketch.Links.Count} 条（x=深度 · y=同深度内序号）");
-        sb.Append("　图例：■当前 ◆终点 □已揭示 ·未揭示（**只画房间**；走廊在画面上是两房之间的小方块）");
+        sb.Append("　图例：■当前 ◆终点 □已看清 ▒只有轮廓 ·未知（**只画房间**；走廊在画面上是两房之间的小方块）");
         for (int y = 0; y < lanes; y++)
         {
             sb.Append('\n');

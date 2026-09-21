@@ -39,15 +39,17 @@ public partial class HamletRoot : Control
 
         if (_detailPanel is null)
         {
-            // 🔴 `ui_spec §14`（`#319`）：详情面板**不再用绝对坐标 + 也不再是透明浮层** ——
-            //    改【**满屏 `PanelContainer`（不透明）+ 容器树**】：Margin → VBox（标题行 ／ 左右两栏 ／ 返回行）
-            //    左栏 `VBox`（立绘/属性/特质/疾病）· 右栏 `VBox`（技能/抗性/扎营技能/装备）✓
-            var detailRoot = new PanelContainer { Name = "HeroDetailPanel" };
-            detailRoot.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            // 🔴 2026-09-20 L2/L3 布局整改：**不再满屏** ——
+            //    改按 DD `shared/character/character.layout.darkest`：**1395×776 @ (144,132)**（左偏，不居中）✓
+            //    数值实测：`.character_pos 144 132` + `characterpanel_bg.png` = 1395×776 ✓
+            //    ⚠️ 此前是 `SetAnchorsAndOffsetsPreset(FullRect)` ⇒ 铺满 1920×1080，挡住整个主城 ✓
+            var detailRoot = new PanelContainer { Name = "HeroDetailPanel", Visible = false };
             // ⚠️ **必须显式挂 Theme**：本节点是 `HamletRoot`(Node2D) 的子节点，**不在带 Theme 的 `margin` 之下**
             //    ⇒ 否则它用**引擎默认面板样式**（实测 `a=0.6` ⇒ 判据 2 直接抓到"框透明"）✓
             Darkest.UI.DdTheme.Apply(detailRoot);
             AddChild(detailRoot);
+            Darkest.UI.UILayoutSpec.Place(detailRoot, Darkest.UI.PopupLayout.Sheet);
+            GD.Print($"[UI 布局] HeroDetailPanel：{Darkest.UI.UILayoutSpec.Describe(Darkest.UI.PopupLayout.Sheet)}");
             _detailPanel = detailRoot;
 
             var dMargin = new MarginContainer { Name = "DetailMargin" };

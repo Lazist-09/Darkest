@@ -8,15 +8,16 @@ public partial class HamletRoot : Control
     /// <summary>开【传家宝兑换】屏（骨架优先；缺失 ⇒ 回落一行说明，不崩不静默）</summary>
     public void OpenHeirloomExchange()
     {
-        (_, _, VBoxContainer body) = MakePopup("HeirloomExchangePopup", "💎 【传家宝兑换】");
+        (PanelContainer self, _, VBoxContainer body) = MakePopup("HeirloomExchangePopup", "💎 【传家宝兑换】", Darkest.UI.PopupLayout.Heirloom);
         HeirloomExchangeSkeleton? skel = HeirloomExchangeSkeleton.TryInstantiate();
         if (skel is not null)
         {
             body.AddChild(skel);
             if (skel.Close is Button close)
             {
-                PanelContainer? self = body.GetParent()?.GetParent() as PanelContainer;
-                close.Pressed += () => { if (self is not null) { self.Visible = false; } CloseTopPopup(); };
+                // 🔴 2026-09-20：`self` 由 `MakePopup` 直接返回（此前 `body.GetParent()?.GetParent() as PanelContainer`
+                //    在代码回落路径下取到的是 MarginContainer ⇒ cast 失败 ⇒ **关不掉**）✓
+                close.Pressed += () => ClosePopup(self, "HeirloomExchangePopup");
             }
         }
         else

@@ -9,6 +9,7 @@ using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
+using Darkest.Gameplay.Sim.Survival;
 using Godot;
 
 namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）✓
@@ -187,7 +188,7 @@ public partial class BattleUI : Control
             {
                 _topTorch.Visible = true;
                 _topTorch.Refresh(torchFlow.Meter,
-                    Darkest.Gameplay.Sim.Run.LightMeter.BoundariesFrom(torchFlow.Tuning.Light!.Tiers));
+                    Darkest.Gameplay.Sim.Survival.LightMeter.BoundariesFrom(torchFlow.Tuning.Light!.Tiers));
             }
             else
             {
@@ -333,7 +334,9 @@ public partial class BattleUI : Control
 
         RefreshSkillBar(d, p);
 
-        _resultPanel.Visible = _host.GameOver;
+        // 🔴 走模态栈（此前直接赋 Visible ⇒ 遮罩不同步、Esc 关不掉）
+        if (_host.GameOver && !_resultPanel.Visible) { _overlay?.OpenModal(_resultPanel); }
+        else if (!_host.GameOver && _resultPanel.Visible) { _resultPanel.Visible = false; _overlay?.CloseModal(_resultPanel); }
         if (_host.GameOver)
         {
             int[] c = _host.ResultCounts;

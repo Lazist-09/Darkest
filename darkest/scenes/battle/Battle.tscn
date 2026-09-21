@@ -9,5 +9,10 @@ script = ExtResource("1_root")
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(640, 360)
 
-[node name="BattleUI" type="Control" parent="."]
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="BattleUI" type="Control" parent="UILayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource("2_ui")

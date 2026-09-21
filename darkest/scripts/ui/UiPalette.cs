@@ -63,6 +63,7 @@ public partial class UiPalette : Resource
     [Export] public Color MapCurrent { get; set; }
     [Export] public Color MapReachable { get; set; }
     [Export] public Color MapVisited { get; set; }
+    [Export] public Color MapScouted { get; set; }   // 🔴 D-3：三态中间态（暗 + 亮轮廓：知道"那边有东西"、没看清）
     [Export] public Color MapUnknown { get; set; }
     [Export] public Color MapFrame { get; set; }
     [Export] public Color TeamDot { get; set; }
@@ -86,7 +87,8 @@ public partial class UiPalette : Resource
         ("MoraleEnemy", MoraleEnemy.ToHtml()), ("Positive", Positive.ToHtml()), ("Highlight", Highlight.ToHtml()),
         ("Ally", Ally.ToHtml()), ("Muted", Muted.ToHtml()), ("Mental", Mental.ToHtml()), ("Shock", Shock.ToHtml()),
         ("MapEdge", MapEdge.ToHtml()), ("MapCurrent", MapCurrent.ToHtml()), ("MapReachable", MapReachable.ToHtml()),
-        ("MapVisited", MapVisited.ToHtml()), ("MapUnknown", MapUnknown.ToHtml()), ("MapFrame", MapFrame.ToHtml()),
+        ("MapVisited", MapVisited.ToHtml()), ("MapScouted", MapScouted.ToHtml()),
+        ("MapUnknown", MapUnknown.ToHtml()), ("MapFrame", MapFrame.ToHtml()),
         ("TeamDot", TeamDot.ToHtml()),
     };
 
@@ -177,6 +179,8 @@ public partial class UiPalette : Resource
         MapCurrent = new Color(1.00f, 0.85f, 0.30f),
         MapReachable = new Color(0.55f, 0.72f, 0.45f),
         MapVisited = new Color(0.35f, 0.35f, 0.40f),
+        // 🔴 D-3：Scouted 必须**严格夹在** Unknown(0.18) 与 Visited(0.35) 之间 ⇒ 三态肉眼可分
+        MapScouted = new Color(0.26f, 0.26f, 0.32f),
         MapUnknown = new Color(0.18f, 0.18f, 0.24f),
         MapFrame = new Color(0.45f, 0.42f, 0.38f),
         TeamDot = new Color(1.00f, 0.70f, 0.20f),

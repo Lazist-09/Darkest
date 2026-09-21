@@ -3,217 +3,128 @@
 [ext_resource type="Script" path="res://scripts/ui/BuildingPopupSkeleton.cs" id="1_bp"]
 [ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="9_theme"]
 
-[node name="BuildingPopupBody" type="VBoxContainer"]
-; ⚠️ 更正：950x800 属 DD **[building_store_list_layout].base_size**（商店列表），**不是**整个弹窗 ⇒ 不套用（E 盘逐 section 直读实证 ✓）
+; ============================================================================
+; building_popup —— DD 建筑弹窗（1:1 结构还原）
+; ============================================================================
+; 坐标空间（实测实证，见 doc/UI_STRUCTURE_DECISIONS.md §5.2）：
+;   面板整体 = 662 x 764  ← E盘 campaign/town/buildings/blgupgradebg.png 实测
+;   building_base_layout 的 name_pos(104,126) / body_base_pos(596,102) /
+;   upgrade_base_pos(172,259) 三者均落在 662x764 内且分布合理（左列/右列/中下）
+;   ⇒ 本面板所有 *.darkest 锚点 = 662x764 局部像素空间，原点左上
+;   ⇒ close_pos(1496,144) 超出 662 ⇒ 属屏幕空间 1920x1080，不在本面板内
+;
+; 尺寸来源优先级：布局自带 size > 尺寸表参数 > 资产 PNG 固有尺寸（兜底）
+;   blgupgradebg.png              662 x 764  → 面板外框
+;   blg_name_background.png       208 x 224  → 名称底
+;   blg_townupgrade_costframe.png 103 x 139  → 花费框
+;
+; 合规口径（红线27 学构图不抄素材）：只取尺寸数字与锚点构图，不使用像素
+; 占位色块 UiPalette.PlaceholderFill = Color(0.62,0.6,0.58,0.22)，数据接入前不换不删
+; ============================================================================
+
+[node name="BuildingPopupBody" type="Control"]
+; 面板顶容器：承载 662x764 坐标空间（居中于屏幕，便于编辑器查看）
 theme = ExtResource("9_theme")
 script = ExtResource("1_bp")
-
-[node name="BuildingSplit" type="HBoxContainer" parent="."]
-theme_override_constants/separation = 12
-size_flags_vertical = 3
-
-[node name="BuildingList" type="VBoxContainer" parent="BuildingSplit"]
-custom_minimum_size = Vector2(220, 0)
-theme_override_constants/separation = 6
-
-[node name="ShopkeeperSlot" type="PanelContainer" parent="BuildingSplit/BuildingList"]
-custom_minimum_size = Vector2(0, 96)
-
-
-[node name="PurposeLabel" type="Label" parent="ShopkeeperSlot"]
-layout_mode = 2
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -331.0
+offset_top = -382.0
+offset_right = 331.0
+offset_bottom = 382.0
+; 🔴 2026-09-20：挂进 `VBoxContainer`(body) 时**容器会忽略锚点与 offsets** ⇒ 必须显式给最小尺寸，
+;    否则整块塌成 0×0（这就是"骨架错挂"的直接后果）。给了它 ⇒ 容器内仍能保持 662×764 ✓
+custom_minimum_size = Vector2(662, 764)
 mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "店主"
-[node name="ShopkeeperPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingList/ShopkeeperSlot"]
+
+[node name="PanelFrame" type="Control" parent="."]
+; DD building_base_layout 容器 · 662x764 局部坐标空间承载（原点左上）
+; clip_contents：800x200 活动条目 / 1000x160 坟场条目 / 720x600 坟场列表均宽于面板 ⇒ DD 行为=被面板裁剪
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+clip_contents = true
+mouse_filter = 2
+
+[node name="PanelBackground" type="ColorRect" parent="PanelFrame"]
+; 面板外框 · blgupgradebg.png 662x764（尺寸=资产实测，色块占位）
 color = Color(0.62, 0.6, 0.58, 0.22)
-
-[node name="BuildingContent" type="VBoxContainer" parent="BuildingSplit"]
-theme_override_constants/separation = 6
-size_flags_horizontal = 3
-
-; DD 1:1 升级树进骨架（编辑器可见可改）：等级链三态；数据由 HamletRoot.BuildingPopup 填（HeirloomStock 同源）
-[node name="UpgradeTree" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-; P1.4（DD 严格贴合）：按 DD 建筑范本(activity_layout/activity_slot_layout)补三分区；
-; 数据未接入的位置一律 **ColorRect 色块占位**（用户硬规矩 §14.0.68：不换不删）
-
-[node name="PurposeLabel" type="Label" parent="UpgradeTree"]
-layout_mode = 2
-mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "升级树区"
-[node name="HeroSlotRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
-layout_mode = 2
-theme_override_constants/separation = 135   ; DD activity hero_slot 间距 135（原值）
-
-
-[node name="PurposeLabel" type="Label" parent="HeroSlotRow"]
-layout_mode = 2
-mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "英雄槽行"
-[node name="HeroSlot1" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(60, 80)
-mouse_filter = 2
-tooltip_text = "英雄槽 1（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
-
-[node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot1"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-
-[node name="HeroSlot2" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(60, 80)
-mouse_filter = 2
-tooltip_text = "英雄槽 2（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
-
-[node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot2"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-
-[node name="HeroSlot3" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(60, 80)
-mouse_filter = 2
-tooltip_text = "英雄槽 3（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
-
-[node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot3"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-
-[node name="HeroSlot4" type="PanelContainer" parent="BuildingSplit/BuildingContent/HeroSlotRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(60, 80)
-mouse_filter = 2
-tooltip_text = "英雄槽 4（DD activity hero_slot · 数据未接入 ⇒ 色块占位，不换不删）"
-
-[node name="SlotPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/HeroSlotRow/HeroSlot4"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-
-[node name="CostRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
-layout_mode = 2
-mouse_filter = 2
-tooltip_text = "花费（DD activity cost · 数据未接入 ⇒ 色块占位，不换不删）"
-
-
-[node name="PurposeLabel" type="Label" parent="CostRow"]
-layout_mode = 2
-mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "花费行"
-[node name="CostPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/CostRow"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-custom_minimum_size = Vector2(160, 24)
-
-[node name="ConfirmRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
-layout_mode = 2
-mouse_filter = 2
-tooltip_text = "确认（DD activity confirm · 数据未接入 ⇒ 色块占位，不换不删）"
-
-
-[node name="PurposeLabel" type="Label" parent="ConfirmRow"]
-layout_mode = 2
-mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "确认行"
-[node name="ConfirmPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/ConfirmRow"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-custom_minimum_size = Vector2(120, 28)
-
-; P1.4 补足：DD 建筑 activity_layout 的名称/描述行（数据未接入 ⇒ 色块占位，不换不删）
-[node name="NameRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
-layout_mode = 2
-mouse_filter = 2
-tooltip_text = "活动名称（DD activity name · 数据未接入 ⇒ 色块占位，不换不删）"
-
-
-[node name="PurposeLabel" type="Label" parent="NameRow"]
-layout_mode = 2
-mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "名称行"
-[node name="NamePlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/NameRow"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-custom_minimum_size = Vector2(200, 22)
-
-[node name="DescRow" type="HBoxContainer" parent="BuildingSplit/BuildingContent"]
-layout_mode = 2
-mouse_filter = 2
-tooltip_text = "活动描述（DD activity description · 数据未接入 ⇒ 色块占位，不换不删）"
-
-
-[node name="PurposeLabel" type="Label" parent="DescRow"]
-layout_mode = 2
-mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "描述行"
-[node name="DescPlaceholder" type="ColorRect" parent="BuildingSplit/BuildingContent/DescRow"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-custom_minimum_size = Vector2(260, 40)
-
-; 阶段2 城池批(2)：DD buildings/building.layout 自带 base_size 950x800 ⇒ 偏移 ÷950、÷800 精确换算（比例锚点）
-
-[node name="BpNameAnchor" type="ColorRect" parent="."]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
-anchor_left = 0.1095
-anchor_top = 0.1575
-anchor_right = 0.2595
-anchor_bottom = 0.2075
+anchor_right = 1.0
+anchor_bottom = 1.0
 mouse_filter = 2
-tooltip_text = "名称位（DD building.layout name_pos 104,126 · 基准 950x800） · 数据未接入 ⇒ 色块占位，不换不删"
+tooltip_text = "建筑弹窗外框 662x764（DD blgupgradebg.png 实测尺寸） · 数据未接入 ⇒ 色块占位，不换不删"
 
+[node name="PanelSizeLabel" type="Label" parent="PanelFrame"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = 260.0
+offset_bottom = 22.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "L2 建筑弹窗 · 662x764"
 
-[node name="PurposeLabel" type="Label" parent="BpNameAnchor"]
+; ---------------------------------------------------------------------------
+; [1] 名称底  blg_name_background.png 208x224 @ name_pos 104,126
+; ---------------------------------------------------------------------------
+[node name="BpNameBack" type="PanelContainer" parent="PanelFrame"]
+; DD building_base_layout.name_pos 104,126 = 名称底**左上角**；尺寸取资产实测 208x224
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 104.0
+offset_top = 126.0
+custom_minimum_size = Vector2(208, 224)
+mouse_filter = 2
+tooltip_text = "名称底 208x224 @ DD name_pos 104,126（左上角，662x764 局部空间） · blg_name_background.png 实测尺寸"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/BpNameBack"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "名称"
-[node name="BpBodyAnchor" type="ColorRect" parent="."]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
-layout_mode = 0
-anchor_left = 0.6274
-anchor_top = 0.1275
-anchor_right = 0.7774
-anchor_bottom = 0.1775
+text = "名称底"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/BpNameBack"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
 mouse_filter = 2
-tooltip_text = "主体位（DD body_base_pos 596,102） · 数据未接入 ⇒ 色块占位，不换不删"
 
+; ---------------------------------------------------------------------------
+; [2] 主体区  body_base_pos 596,102 —— 建筑立绘/店主/活动列表区
+; ---------------------------------------------------------------------------
+[node name="BpBodyLayout" type="Control" parent="PanelFrame"]
+; DD building_base_body_layout（info_text_offset 580,760）
+; 注意：body_base_pos 596,102 是 body 区**锚点原点**（贴面板右侧 66px 处），
+;       区块向右/向下延展而非居中 ⇒ 用 offset 表达原点，尺寸向内收（不越出 662）
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
 
-[node name="PurposeLabel" type="Label" parent="BpBodyAnchor"]
+[node name="BpBodyAnchor" type="PanelContainer" parent="PanelFrame/BpBodyLayout"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 430.0
+offset_top = 102.0
+offset_right = 650.0
+offset_bottom = 198.0
+mouse_filter = 2
+tooltip_text = "主体区 DD body_base_pos 596,102（原点）· 尺寸未取得 ⇒ 向左收至面板内 220x96 占位（不猜）"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/BpBodyLayout/BpBodyAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -221,18 +132,37 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "主体"
-[node name="BpUpgradeAnchor" type="ColorRect" parent="."]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
-layout_mode = 0
-anchor_left = 0.1811
-anchor_top = 0.3238
-anchor_right = 0.3311
-anchor_bottom = 0.3738
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/BpBodyLayout/BpBodyAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
 mouse_filter = 2
-tooltip_text = "升级区位（DD upgrade_base_pos 172,259） · 数据未接入 ⇒ 色块占位，不换不删"
 
+; ---------------------------------------------------------------------------
+; [3] 升级区  building_base_upgrade_layout · upgrade_base_pos 172,259
+;     frame_offset -18,-115 ⇒ 内容区相对面板外框外扩（负值语义）
+; ---------------------------------------------------------------------------
+[node name="BpUpgradeLayout" type="Control" parent="PanelFrame"]
+; DD building_base_upgrade_layout（父容器 = building_base_layout）
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
 
-[node name="PurposeLabel" type="Label" parent="BpUpgradeAnchor"]
+[node name="BpUpgradeAnchor" type="PanelContainer" parent="PanelFrame/BpUpgradeLayout"]
+; DD upgrade_base_pos 172,259 = 升级区**原点**（左上角）
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 172.0
+offset_top = 259.0
+custom_minimum_size = Vector2(200, 180)
+mouse_filter = 2
+tooltip_text = "升级区 DD upgrade_base_pos 172,259（原点）· frame_offset -18,-115 负值=升级内容框向外扩张"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/BpUpgradeLayout/BpUpgradeAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -240,20 +170,27 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "升级区"
-[node name="BpTreesAnchor" type="ColorRect" parent="BpUpgradeLayer"]
-; 归位(第2步)：父容器 = DD building_base_upgrade_layout（其容器 = building_base_layout）
-;   本块 DD 来源 = upgrade_trees_offset 0,195（offset 类）⇒ 现挂其真实父容器 ✓（数值与符号未改 ✓）
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/BpUpgradeLayout/BpUpgradeAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BpTreesAnchor" type="PanelContainer" parent="PanelFrame/BpUpgradeLayout"]
+; 归位：DD building_base_upgrade_tree_layout · upgrade_trees_offset 0,195（offset 类，负值语义见 §1.6）
+;   基准点 = upgrade_base_pos(172,259) + offset(0,195) = 绝对 (172,454)
 layout_mode = 0
 anchor_left = 0.0
-anchor_top = 0.2438
-anchor_right = 0.15
-anchor_bottom = 0.2938
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 172.0
+offset_top = 454.0
+custom_minimum_size = Vector2(180, 120)
 mouse_filter = 2
-tooltip_text = "升级树位（DD upgrade_trees_offset 0,195） · 数据未接入 ⇒ 色块占位，不换不删"
+tooltip_text = "升级树位 DD upgrade_trees_offset 0,195 → 绝对(172,454) · upgrade_trees_spacing 0,160 · divider_offset 0,118"
 
-
-[node name="PurposeLabel" type="Label" parent="BpTreesAnchor"]
+[node name="PurposeLabel" type="Label" parent="PanelFrame/BpUpgradeLayout/BpTreesAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -261,18 +198,65 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "升级树"
-[node name="BpSlotListAnchor" type="ColorRect" parent="."]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
-layout_mode = 0
-anchor_left = 0.4632
-anchor_top = 0.1488
-anchor_right = 0.6132
-anchor_bottom = 0.1988
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/BpUpgradeLayout/BpTreesAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
 mouse_filter = 2
-tooltip_text = "英雄槽列表位（DD slot_list_pos 440,119 · slot_spacing 135） · 数据未接入 ⇒ 色块占位，不换不删"
 
+; ---------------------------------------------------------------------------
+; [4] 活动区  building_activity_layout · base_size 800x200
+;     slot_list_pos 440,119 · slot_spacing 135,0
+; ---------------------------------------------------------------------------
+[node name="BpActivityLayout" type="Control" parent="PanelFrame"]
+; DD building_activity_layout · base_size 800x200
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
 
-[node name="PurposeLabel" type="Label" parent="BpSlotListAnchor"]
+[node name="BpActivityBase" type="PanelContainer" parent="PanelFrame/BpActivityLayout"]
+; DD building_activity_layout.base_size 800x200（尺寸=DD 原值）
+; 但 800 > 面板宽 662 ⇒ 与坟场 entry_size 1000x160 同理，DD 行为是**被父面板裁剪**
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 70.0
+offset_top = 50.0
+custom_minimum_size = Vector2(800, 200)
+mouse_filter = 2
+tooltip_text = "活动条目 DD building_activity_layout.base_size 800x200 @ base_pos 70,50 · 800>面板宽662 ⇒ 被面板裁剪（与 DD 行为一致）"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/BpActivityLayout/BpActivityBase"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "活动条目 800x200"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/BpActivityLayout/BpActivityBase"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BpSlotListAnchor" type="PanelContainer" parent="PanelFrame/BpActivityLayout/BpActivityBase"]
+; DD slot_list_pos 440,119（相对活动条目 800x200 局部空间）
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 440.0
+offset_top = 119.0
+custom_minimum_size = Vector2(135, 80)
+mouse_filter = 2
+tooltip_text = "英雄槽列表位 DD slot_list_pos 440,119 · slot_spacing 135,0（相对 800x200 条目局部空间）"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/BpActivityLayout/BpActivityBase/BpSlotListAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -280,20 +264,26 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "英雄槽"
-[node name="BpChoiceListAnchor" type="ColorRect" parent="."]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/BpActivityLayout/BpActivityBase/BpSlotListAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BpChoiceListAnchor" type="PanelContainer" parent="PanelFrame/BpActivityLayout"]
+; DD building_choice_activity_slot_layout · choice_list_pos 0,250 · 热区 120x20
 layout_mode = 0
 anchor_left = 0.0
-anchor_top = 0.3125
-anchor_right = 0.1263
-anchor_bottom = 0.3375
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 250.0
+custom_minimum_size = Vector2(120, 20)
 mouse_filter = 2
-tooltip_text = "选项列表位（DD choice_list_pos 0,250 · choice_hot_spot_size 120x20 尺寸） · 数据未接入 ⇒ 色块占位，不换不删"
+tooltip_text = "选项列表位 DD choice_list_pos 0,250 · choice_hot_spot_size 120x20 · choice_spacing 0,26"
 
-; 阶段2 城池批(4)：6 栋自带尺寸的块 —— 尺寸直接取 DD 原值（最可信来源①）；位置取 body 区约定（各栋 *_position 需父基准，未取得 ✗）
-
-
-[node name="PurposeLabel" type="Label" parent="BpChoiceListAnchor"]
+[node name="PurposeLabel" type="Label" parent="PanelFrame/BpActivityLayout/BpChoiceListAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -301,269 +291,368 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "选项"
-[node name="BpGraveyardEntry" type="PanelContainer" parent="GraveyardPanel"]
-; 拆树(第3步)：DD graveyard_main_layout（容器 dead_hero_layout）· entry_size 1000x160 属**坟场列表**；list_position 148,148 · list_area_size 720x600（entry 宽于列表 ⇒ 画面上被列表裁剪 ✓）
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/BpActivityLayout/BpChoiceListAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+mouse_filter = 2
+
+; ---------------------------------------------------------------------------
+; [5] 花费框  blg_townupgrade_costframe.png 103x139
+; ---------------------------------------------------------------------------
+[node name="BpCostFrame" type="PanelContainer" parent="PanelFrame"]
+; DD blg_townupgrade_costframe.png 实测 103x139；位置：贴面板右下角内缩（DD 布局未给独立 pos ⇒ 取右下对齐，不猜具体值）
 layout_mode = 0
-anchor_left = 0.4792   ; A 修正：1000 宽框 @920 使整框入屏（DD entry_size 1000x160 + 列表裁剪）
-anchor_top = 0.1275
+anchor_left = 1.0
+anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 0.2075
+anchor_bottom = 1.0
+offset_left = -115.0
+offset_top = -151.0
+offset_right = -12.0
+offset_bottom = -12.0
+mouse_filter = 2
+tooltip_text = "花费框 103x139（DD blg_townupgrade_costframe.png 实测尺寸） · 右下角对齐"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/BpCostFrame"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "花费框"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/BpCostFrame"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+mouse_filter = 2
+
+; ===========================================================================
+; [6] 各栋建筑独立子面板（L2 子层）
+;     依据 doc/UI_STRUCTURE_DECISIONS.md §1：建筑屏按方案 A 建独立 L2 子面板
+;     尺寸/锚点全部取自各栋自身 *.layout.darkest，坐标空间为 662x764 局部
+; ===========================================================================
+
+; --- 坟场 graveyard.layout.darkest ---
+[node name="GraveyardPanel" type="Control" parent="PanelFrame"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="LayerTitle" type="Label" parent="PanelFrame/GraveyardPanel"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 22.0
+offset_right = 180.0
+offset_bottom = 38.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "L2 坟场 · dead_hero_layout"
+
+[node name="BpGraveyardList" type="PanelContainer" parent="PanelFrame/GraveyardPanel"]
+; DD graveyard_main_layout · list_position 148,148 · list_area_size 720x600
+;   注意：720x600 超出 662x764 右下 ⇒ 与 DD 一致被面板裁剪（clip_contents 由父 PanelFrame 承担）
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 148.0
+offset_top = 148.0
+custom_minimum_size = Vector2(720, 600)
+mouse_filter = 2
+tooltip_text = "坟场列表区 DD graveyard .list_area_size 720x600 @ list_position 148,148 · 超出面板 ⇒ 裁剪"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/GraveyardPanel/BpGraveyardList"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "坟场列表 720x600"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/GraveyardPanel/BpGraveyardList"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BpGraveyardEntry" type="PanelContainer" parent="PanelFrame/GraveyardPanel/BpGraveyardList"]
+; DD graveyard_main_layout.entry_size 1000x160（宽于列表 720 ⇒ 画面上被列表裁剪 ✓）
+layout_mode = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
 custom_minimum_size = Vector2(1000, 160)
 mouse_filter = 2
-tooltip_text = "坟场条目（DD graveyard .entry_size 1000x160 · 尺寸=DD 原值；该栋 *_position 偏移需父基准 ⇒ 位置取 body 区约定，未取得不猜） · 数据未接入 ⇒ 色块占位，不换不删"
+clip_contents = true
+tooltip_text = "坟场条目 DD graveyard .entry_size 1000x160 · entry_spacing 20 · 宽于列表720 ⇒ 被列表裁剪（DD 行为一致）"
 
-
-[node name="PurposeLabel" type="Label" parent="BpGraveyardEntry"]
+[node name="PurposeLabel" type="Label" parent="PanelFrame/GraveyardPanel/BpGraveyardList/BpGraveyardEntry"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "坟场条目"
-[node name="BlockPlaceholder" type="ColorRect" parent="BpGraveyardEntry"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
-layout_mode = 2
+text = "坟场条目 1000x160"
 
-[node name="BpStatueList" type="PanelContainer" parent="StatuePanel"]
-; 拆树(第3步)：DD statue_main_layout（顶层）· list_area_size 600x580 · list_position 270,170
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/GraveyardPanel/BpGraveyardList/BpGraveyardEntry"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+mouse_filter = 2
+
+; --- 雕像 statue.layout.darkest ---
+[node name="StatuePanel" type="Control" parent="PanelFrame"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="LayerTitle" type="Label" parent="PanelFrame/StatuePanel"]
 layout_mode = 0
-anchor_left = 0.6274
-anchor_top = 0.2175
-anchor_right = 0.9
-anchor_bottom = 0.2975
+offset_left = 6.0
+offset_top = 38.0
+offset_right = 180.0
+offset_bottom = 54.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "L2 雕像 · statue_main_layout"
+
+[node name="BpStatueList" type="PanelContainer" parent="PanelFrame/StatuePanel"]
+; DD statue_main_layout · list_position 270,170 · list_area_size 600x580
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 270.0
+offset_top = 170.0
 custom_minimum_size = Vector2(600, 580)
 mouse_filter = 2
-tooltip_text = "雕像列表区（DD statue .list_area_size 600x580 · 同上位置口径） · 数据未接入 ⇒ 色块占位，不换不删"
+tooltip_text = "雕像列表区 DD statue .list_area_size 600x580 @ list_position 270,170 · entry_spacing 10"
 
-
-[node name="PurposeLabel" type="Label" parent="BpStatueList"]
+[node name="PurposeLabel" type="Label" parent="PanelFrame/StatuePanel/BpStatueList"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "雕像列表"
-[node name="BlockPlaceholder" type="ColorRect" parent="BpStatueList"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+text = "雕像列表 600x580"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/StatuePanel/BpStatueList"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
-
-[node name="BpUpgradeSlot" type="PanelContainer" parent="."]
-layout_mode = 0
-anchor_left = 0.6274
-anchor_top = 0.3075
-anchor_right = 0.9
-anchor_bottom = 0.3875
-custom_minimum_size = Vector2(102, 72)
 mouse_filter = 2
-tooltip_text = "升级图标位（DD upgrade .base_size 102x72 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
 
+; --- 驿站 stage_coach.layout.darkest ---
+[node name="StageCoachPanel" type="Control" parent="PanelFrame"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
 
-[node name="PurposeLabel" type="Label" parent="BpUpgradeSlot"]
+[node name="LayerTitle" type="Label" parent="PanelFrame/StageCoachPanel"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 54.0
+offset_right = 200.0
+offset_bottom = 70.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "L2 驿站 · hero_recruit_store"
+
+[node name="BpHeroRecruitStore" type="PanelContainer" parent="PanelFrame/StageCoachPanel"]
+; DD hero_recruit_store · base_size 780x780 · store_item_pos 450,80
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 0.0
+custom_minimum_size = Vector2(780, 780)
+mouse_filter = 2
+tooltip_text = "驿站招募商店 DD hero_recruit_store.base_size 780x780 · store_item_pos 450,80 · store_item_spacing 0,100"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/StageCoachPanel/BpHeroRecruitStore"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "升级图标"
-[node name="BlockPlaceholder" type="ColorRect" parent="BpUpgradeSlot"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
-layout_mode = 2
+text = "招募商店 780x780"
 
-[node name="BpHeroActionBase" type="PanelContainer" parent="HeroActionPanel"]
-; 拆树(第3步)：DD hero_action_layout（顶层）· base_pos 220,44 · base_size 100x100
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/StageCoachPanel/BpHeroRecruitStore"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BpStageCoachTextBox" type="PanelContainer" parent="PanelFrame/StageCoachPanel"]
+; DD add_hero_dialog_contents · text_box_size 350x200 · character_limit 32
 layout_mode = 0
-anchor_left = 0.6274
-anchor_top = 0.3975
-anchor_right = 0.9
-anchor_bottom = 0.4775
-custom_minimum_size = Vector2(100, 100)
-mouse_filter = 2
-tooltip_text = "英雄动作基准（DD hero_action .base_size 100x100 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
-
-
-[node name="PurposeLabel" type="Label" parent="BpHeroActionBase"]
-layout_mode = 2
-mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "英雄动作"
-[node name="BlockPlaceholder" type="ColorRect" parent="BpHeroActionBase"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
-layout_mode = 2
-
-[node name="BpSanitariumChoice" type="PanelContainer" parent="."]
-layout_mode = 0
-anchor_left = 0.6274
-anchor_top = 0.4875
-anchor_right = 0.9
-anchor_bottom = 0.5675
-custom_minimum_size = Vector2(120, 20)
-mouse_filter = 2
-tooltip_text = "疗养院选项热区（DD sanitarium .choice_hot_spot_size 120x20 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
-
-
-[node name="PurposeLabel" type="Label" parent="BpSanitariumChoice"]
-layout_mode = 2
-mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "疗养院选项"
-[node name="BlockPlaceholder" type="ColorRect" parent="BpSanitariumChoice"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
-layout_mode = 2
-
-[node name="BpStageCoachTextBox" type="PanelContainer" parent="StageCoachPanel"]
-; 拆树(第3步)：DD add_hero_dialog_contents（容器 hero_recruit_store，base_size 780x780）· text_box_size 350x200
-layout_mode = 0
-anchor_left = 0.6274
-anchor_top = 0.5775
-anchor_right = 0.9
-anchor_bottom = 0.6575
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 40.0
+offset_top = 620.0
 custom_minimum_size = Vector2(350, 200)
 mouse_filter = 2
-tooltip_text = "驿站文本框（DD stage_coach .text_box_size 350x200 · 同上） · 数据未接入 ⇒ 色块占位，不换不删"
+tooltip_text = "驿站文本框 DD add_hero_dialog_contents.text_box_size 350x200（挂招募商店下方）"
 
-
-[node name="PurposeLabel" type="Label" parent="BpStageCoachTextBox"]
+[node name="PurposeLabel" type="Label" parent="PanelFrame/StageCoachPanel/BpStageCoachTextBox"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "驿站文本框"
-[node name="BlockPlaceholder" type="ColorRect" parent="BpStageCoachTextBox"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+text = "驿站文本框 350x200"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/StageCoachPanel/BpStageCoachTextBox"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
+mouse_filter = 2
 
-; 归位(第2步)：父容器 = DD building_base_upgrade_layout（其容器 = building_base_layout）
-;   本块 DD 来源 = upgrade_trees_offset 0,195（offset 类）⇒ 现挂其真实父容器 ✓（数值与符号未改 ✓）
-[node name="BpUpgradeLayer" type="Control" parent="."]
+; --- 疗养院 sanitarium.layout.darkest ---
+[node name="SanitariumPanel" type="Control" parent="PanelFrame"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-; 拆树(第3步)：DD building_base_layout 的 body 区与各栋子面板（容器名取自 v4 的 section/归属容器 ✓）
-
-[node name="LayerTitle" type="Label" parent="BpUpgradeLayer"]
+[node name="LayerTitle" type="Label" parent="PanelFrame/SanitariumPanel"]
 layout_mode = 0
-anchor_left = 0.004
-anchor_top = 0.004
-anchor_right = 0.05
-anchor_bottom = 0.02
+offset_left = 6.0
+offset_top = 70.0
+offset_right = 200.0
+offset_bottom = 86.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
-text = "二级面板 · 升级树区"
-[node name="BpBodyLayout" type="Control" parent="."]
+text = "L2 疗养院 · quirk_treatment"
+
+[node name="BpSanitariumChoice" type="PanelContainer" parent="PanelFrame/SanitariumPanel"]
+; DD sanitarium_activity_slot_layout · choice_list_pos 0,250 是**相对活动条目**的偏移
+;   基准 = 活动条目 base_pos(70,50) + (0,250) = 面板级 (70,300)
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 70.0
+offset_top = 300.0
+custom_minimum_size = Vector2(120, 20)
+mouse_filter = 2
+tooltip_text = "疗养院选项热区 DD choice_hot_spot_size 120x20 · choice_list_pos 0,250 相对活动条目 → 面板级(70,300) · choice_spacing 0,28"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/SanitariumPanel/BpSanitariumChoice"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "疗养院选项 120x20"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/SanitariumPanel/BpSanitariumChoice"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+mouse_filter = 2
+
+; --- 英雄动作 hero_action.layout.darkest ---
+[node name="HeroActionPanel" type="Control" parent="PanelFrame"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-; DD dead_hero_layout（顶层，L2）：坟场死英灵页的父层
-
-[node name="LayerTitle" type="Label" parent="BpBodyLayout"]
+[node name="LayerTitle" type="Label" parent="PanelFrame/HeroActionPanel"]
 layout_mode = 0
-anchor_left = 0.004
-anchor_top = 0.004
-anchor_right = 0.05
-anchor_bottom = 0.02
+offset_left = 6.0
+offset_top = 86.0
+offset_right = 200.0
+offset_bottom = 102.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
-text = "二级面板 · 建筑弹窗·主体"
-[node name="BpDeadHeroLayer" type="Control" parent="."]
+text = "L2 英雄动作 · hero_action_layout"
+
+[node name="BpHeroActionBase" type="PanelContainer" parent="PanelFrame/HeroActionPanel"]
+; DD hero_action_layout · base_pos 220,44 · base_size 100x100
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 220.0
+offset_top = 44.0
+custom_minimum_size = Vector2(100, 100)
+mouse_filter = 2
+tooltip_text = "英雄动作基准 DD hero_action_layout.base_pos 220,44 · base_size 100x100"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/HeroActionPanel/BpHeroActionBase"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "英雄动作 100x100"
+
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/HeroActionPanel/BpHeroActionBase"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+mouse_filter = 2
+
+; --- 升级需求 upgrade.layout.darkest ---
+[node name="UpgradePanel" type="Control" parent="PanelFrame"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-
-[node name="LayerTitle" type="Label" parent="BpDeadHeroLayer"]
+[node name="LayerTitle" type="Label" parent="PanelFrame/UpgradePanel"]
 layout_mode = 0
-anchor_left = 0.004
-anchor_top = 0.004
-anchor_right = 0.05
-anchor_bottom = 0.02
+offset_left = 6.0
+offset_top = 102.0
+offset_right = 220.0
+offset_bottom = 118.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
-text = "二级面板 · 死英灵页"
-[node name="GraveyardPanel" type="Control" parent="BpBodyLayout"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
+text = "L2 升级需求 · upgrade_requirement_layout"
 
-
-[node name="LayerTitle" type="Label" parent="GraveyardPanel"]
+[node name="BpUpgradeSlot" type="PanelContainer" parent="PanelFrame/UpgradePanel"]
+; DD upgrade_requirement_layout · base_size 102x72
 layout_mode = 0
-anchor_left = 0.004
-anchor_top = 0.004
-anchor_right = 0.05
-anchor_bottom = 0.02
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 172.0
+offset_top = 454.0
+custom_minimum_size = Vector2(102, 72)
 mouse_filter = 2
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
-text = "坟场   列表"
-[node name="StatuePanel" type="Control" parent="BpBodyLayout"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+tooltip_text = "升级需求图标 DD upgrade_requirement_layout.base_size 102x72 · cost_offset 62,72"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/UpgradePanel/BpUpgradeSlot"]
+layout_mode = 2
 mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "升级图标 102x72"
 
-
-[node name="LayerTitle" type="Label" parent="StatuePanel"]
-layout_mode = 0
-anchor_left = 0.004
-anchor_top = 0.004
-anchor_right = 0.05
-anchor_bottom = 0.02
+[node name="BlockPlaceholder" type="ColorRect" parent="PanelFrame/UpgradePanel/BpUpgradeSlot"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
 mouse_filter = 2
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
-text = "雕像   列表"
-[node name="StageCoachPanel" type="Control" parent="BpBodyLayout"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-
-
-[node name="LayerTitle" type="Label" parent="StageCoachPanel"]
-layout_mode = 0
-anchor_left = 0.004
-anchor_top = 0.004
-anchor_right = 0.05
-anchor_bottom = 0.02
-mouse_filter = 2
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
-text = "驿站   招募商店"
-[node name="HeroActionPanel" type="Control" parent="BpBodyLayout"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-
-
-[node name="LayerTitle" type="Label" parent="HeroActionPanel"]
-layout_mode = 0
-anchor_left = 0.004
-anchor_top = 0.004
-anchor_right = 0.05
-anchor_bottom = 0.02
-mouse_filter = 2
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
-text = "英雄动作"
-

@@ -40,6 +40,14 @@ public partial class HamletRoot : Control
             roster.ApplyRelief(_log, heroId, restore, buildingId);
         }
 
+        // 🔴 `#283` 7.3（2026-09-20 接线）：**副作用的"下一趟开局 −N"必须真的登记** ——
+        //    此前它只出现在打印里（`o.NextRunPenalty`），**从不施加** ⇒ 玩家看到代价却毫无影响 ⚠️
+        //    ⇒ 登记到名册的待罚表；下一趟开趟时由 `Roster.OpeningMorale` 扣掉（`StressRelief.NextRunOpeningMorale`）✓
+        if (o.PenaltyTriggered)
+        {
+            roster.ScheduleOpeningPenalty(heroId, o.NextRunPenalty);
+        }
+
         GD.Print($"[HamletRoot] 减压·{buildingId}：{(o.Paid ? "成交" : "拒绝（钱不够）")}" +
                  $"　{heroId} 士气 {o.NewMorale}　副作用 {(o.PenaltyTriggered ? $"触发（下趟 −{o.NextRunPenalty}）" : "未触发")}" +
                  $"　剩余金钱 {economy.Gold}");

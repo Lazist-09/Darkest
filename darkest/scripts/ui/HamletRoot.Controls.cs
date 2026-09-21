@@ -10,7 +10,7 @@ public partial class HamletRoot : Control
     /// <summary>开【按键提示】屏（骨架优先；缺失 ⇒ 回落一行说明，不崩不静默）✓</summary>
     public void OpenControls()
     {
-        (_, _, VBoxContainer body) = MakePopup("ControlsPopup", "🎮 【按键提示】");
+        (_, _, VBoxContainer body) = MakePopup("ControlsPopup", "🎮 【按键提示】", Darkest.UI.PopupLayout.Modal);
         ControlsSkeleton? skel = ControlsSkeleton.TryInstantiate();
         if (skel is not null)
         {

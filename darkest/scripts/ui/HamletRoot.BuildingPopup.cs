@@ -30,63 +30,43 @@ public partial class HamletRoot : Control
 
         if (_buildingPopup is null)
         {
-            (PanelContainer panel, Label title, VBoxContainer body) = MakePopup("BuildingPopup", "🏛 【建筑】");
+            (PanelContainer panel, Label title, VBoxContainer body) = MakePopup("BuildingPopup", "🏛 【建筑】", Darkest.UI.PopupLayout.Building);
             _buildingPopup = panel;
             _buildingPopupTitle = title;
 
-            // 🔴 骨架优先（2026-09-17）：建筑详情的**内容布局**从 `scenes/ui/building_popup.tscn` 取
-            //    ⇒ 左列宽 / 店长位高 / 左右间距 / 内容列占比 **在编辑器里直接改** ✓
+            // 🔴 骨架优先：建筑详情的**内容布局**从 `scenes/ui/building_popup.tscn` 取
+            //    ⇒ 662x764 局部像素空间、三处 DD 锚点各承一类内容，**全部可在编辑器里改** ✓
             //    ⚠️ 场景缺失/类型不符 ⇒ **回落代码构建**（不崩、不静默）
-            //    🔴 节点名保持一致：BuildingSplit / BuildingList / ShopkeeperSlot / BuildingContent ✓
+            //    🔴 DD 分工：`BpBodyAnchor`=正文 ／ `BpUpgradeAnchor`=升级按钮 ／ `BpTreesAnchor`=升级树
+            //       （节点名贯通 DD 的 body_base_pos 596,102 / upgrade_base_pos 172,259 / upgrade_trees_offset→172,454）✓
             Darkest.UI.BuildingPopupSkeleton? bpSkel = Darkest.UI.BuildingPopupSkeleton.TryInstantiate();
-            HBoxContainer split;
-            VBoxContainer leftCol;
-            VBoxContainer rightCol;
+            VBoxContainer bodyHost;
             if (bpSkel is not null)
             {
                 body.AddChild(bpSkel);
-                split = bpSkel.Split!;
-                leftCol = bpSkel.List!;
-                rightCol = bpSkel.Content!;
-                if (bpSkel.ShopkeeperPlaceholder is ColorRect bpPh)
+                bodyHost = TakeAnchor<VBoxContainer>(bpSkel.BodyAnchor, "BpRuntimeBody");
+                _buildingPopupUpgrade = TakeAnchor<VBoxContainer>(bpSkel.UpgradeAnchor, "BpRuntimeUpgrade");
+                _buildingPopupTrees = TakeAnchor<HBoxContainer>(bpSkel.TreesAnchor, "BpRuntimeTrees");
+                if (_buildingPopupTrees is not null)
                 {
-                    bpPh.Color = Darkest.UI.DdTheme.PlaceholderFill; // 🔴 规则②：半透明占位（α 来自调色板）✓
+                    _buildingPopupTrees.AddThemeConstantOverride("separation", 6);
                 }
+                GD.Print("[UI 建筑弹窗] 采用 662x764 骨架三锚点（正文/升级按钮/升级树）✓");
             }
             else
             {
-                split = new HBoxContainer { Name = "BuildingSplit", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
-                split.AddThemeConstantOverride("separation", 12);
-                body.AddChild(split);
-
-                leftCol = new VBoxContainer { Name = "BuildingList", CustomMinimumSize = new Vector2(230, 0) };
-                leftCol.AddThemeConstantOverride("separation", 6);
-                split.AddChild(leftCol);
-
-                // 🔴 **店长位留框**（用户原话"为店长位置留一个空间"）：不透明面板样式(1px 边框) + **色块占位** ✓
-                var shopFrame = new PanelContainer { Name = "ShopkeeperSlot", CustomMinimumSize = new Vector2(0, 96) };
-                leftCol.AddChild(shopFrame);
-                // 🔴 规则②：空闲位改**半透明占位**（α 来自调色板 `PlaceholderFill`）✓
-                shopFrame.AddChild(new ColorRect { Name = "ShopkeeperPlaceholder", Color = Darkest.UI.DdTheme.PlaceholderFill });
-
-                rightCol = new VBoxContainer { Name = "BuildingContent", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-                rightCol.AddThemeConstantOverride("separation", 6);
-                split.AddChild(rightCol);
+                // 回落：三区退化为同一竖列（DD 布局全部丢失 ⇒ 如实留痕，由 syslog 可见）
+                GD.Print("[UI 建筑弹窗] 骨架不可用 ⇒ 回落单列布局（三区合一，非 DD 布局）");
+                bodyHost = new VBoxContainer { Name = "BuildingFallback" };
+                bodyHost.AddThemeConstantOverride("separation", 6);
+                body.AddChild(bodyHost);
+                _buildingPopupUpgrade = bodyHost;
+                _buildingPopupTrees = new HBoxContainer { Name = "BpRuntimeTrees" };
+                _buildingPopupTrees.AddThemeConstantOverride("separation", 6);
+                bodyHost.AddChild(_buildingPopupTrees);
             }
 
-            for (int k = 0; k < _buildingIds.Length; k++)
-            {
-                string bid = _buildingIds[k];
-                // 🔴 用户要求（2026-09-17）：**重复元素抽模板** ⇒ 建筑切换按钮（3 处同构）实例化 `building_nav_button.tscn`
-                //    ⚠️ 场景缺失 ⇒ **回落代码构建**（不崩、不静默）；节点名 `BuildingNav_<id>` 保持不变 ✓
-                Button nav = Darkest.UI.BuildingNavButtonTemplate.TryCreate(_buildingLabels[k])
-                    ?? new Button { Text = _buildingLabels[k], CustomMinimumSize = new Vector2(220, 32) };
-                nav.Name = $"BuildingNav_{bid}";
-                nav.Pressed += () => { _buildingPopupId = bid; RefreshBuildingPopup(); }; // 🔴 左列切换（只换右侧内容）✓
-                leftCol.AddChild(nav);
-            }
-
-            _buildingPopupBody = rightCol; // 右侧 = 建筑内容（骨架或回落）✓
+            _buildingPopupBody = bodyHost; // 正文区（骨架锚点 or 回落容器）✓
         }
 
         _buildingPopupId = building;
@@ -110,13 +90,9 @@ public partial class HamletRoot : Control
         }
 
         string building = _buildingPopupId;
-        string label = building switch
-        {
-            "tavern" => "酒馆 Tavern",
-            "abbey" => "修道院 Abbey",
-            "stagecoach" => "驿站 Stage Coach",
-            _ => building,
-        };
+        // 🔴 建筑名取自**同一份清单**（`_buildingIds` / `_buildingLabels`），此处不抄第二份（P3 纪律）✓
+        int idx = Array.IndexOf(_buildingIds, building);
+        string label = idx >= 0 ? _buildingLabels[idx] : building;
 
         // 先**摘除**旧内容（`RemoveChild` 立即生效 ⇒ 不会与新建内容同帧并存、判据也不会误报重叠）✓
         foreach (Node child in _buildingPopupBody.GetChildren().ToArray())
@@ -150,8 +126,8 @@ public partial class HamletRoot : Control
         bool affordable = next is not null && h.CanUpgrade(building);
         // 🔴 DD 1:1 ①【升级树】照 `building.layout.darkest` 的 `.upgrade_trees_offset 0 195`：等级链三态（已达成/下一级/未达成）
         //    数据全部用**已有** `HeirloomStock.LevelOf` 与 `NextLevel().Cost`（不新造数字）✓
-        HBoxContainer tree = _buildingPopupBody.FindChild("UpgradeTree", true, false) as HBoxContainer ?? new HBoxContainer { Name = "UpgradeTree" };   // DD 1:1：骨架优先（递归查找），缺失才代码建
-        if (tree.GetParent() is null) { tree.AddThemeConstantOverride("separation", 6); } else { foreach (Node old in tree.GetChildren()) { old.Free(); } }   // 骨架节点 ⇒ 清空重填
+        HBoxContainer tree = _buildingPopupTrees ?? new HBoxContainer { Name = "UpgradeTree" };   // DD 1:1：骨架锚点优先，缺失才代码建
+        foreach (Node old in tree.GetChildren()) { old.Free(); }   // 换一栋 ⇒ 清空重填（复用同一节点，不重复挂载）
         int curLv = h.LevelOf(building);
         int shownLv = curLv + 2;   // 展示 0..当前+2（保守：不虚构更高上限）
         for (int lv = 0; lv <= shownLv; lv++)
@@ -185,7 +161,7 @@ public partial class HamletRoot : Control
             RefreshBuildingPopup(); // 等级/花费随之刷新（弹窗不关，玩家能连续看）
             Refresh();
         };
-        _buildingPopupBody.AddChild(upgrade);
+        _buildingPopupUpgrade?.AddChild(upgrade);   // DD 布局：升级按钮落 `BpUpgradeAnchor`（非正文列）✓
 
         // 🔴 P3 文案精简：去掉"怎么关窗"的提示行（关闭按钮与 Esc 已自明）✓
         GD.Print($"[HamletRoot] 建筑弹窗内容：{label} Lv{level}　下一级 {nextText}　可升级={affordable}");
@@ -203,6 +179,31 @@ public partial class HamletRoot : Control
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
             CustomMinimumSize = new Vector2(0, 20),
         };
+
+    /// <summary>
+    /// 🔴 接管 DD 骨架锚点：锚点容器内的**占位**（`PurposeLabel` + `BlockPlaceholder`）在**数据接入时**让位给真实内容，
+    ///    返回宿主容器承载动态行。
+    ///    ⚠️ 硬规矩 §14.0.68 原文是「数据未接入 ⇒ 占位不换不删」——本方法只在**真接数据**的锚点上调用 ✓
+    ///    ⚠️ 锚点缺失 ⇒ **打留痕并返回游离容器**（红线 21：如实上报，不静默丢弃）
+    /// </summary>
+    private static T TakeAnchor<T>(PanelContainer? anchor, string name) where T : Control, new()
+    {
+        T host = new() { Name = name };
+        if (anchor is null)
+        {
+            GD.Print($"[UI 骨架] 建筑弹窗缺锚点 `{name}` ⇒ 宿主容器游离（内容可能不可见，红线 21 如实上报）");
+            return host;
+        }
+
+        foreach (Node old in anchor.GetChildren().ToArray())
+        {
+            anchor.RemoveChild(old);
+            old.QueueFree();
+        }
+
+        anchor.AddChild(host);
+        return host;
+    }
 
     public void ShowBuildingInfo(string building)
     {

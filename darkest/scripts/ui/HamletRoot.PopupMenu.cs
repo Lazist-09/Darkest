@@ -18,13 +18,39 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 public partial class HamletRoot : Control
 {
     /// <summary>
-    /// 🔴 **二级窗口（弹窗）工厂**（用户 2026-09-14：「弹窗要能打开、也要能关闭」）：
-    /// 满屏不透明 `PanelContainer`（判据据此把它认成**模态** ⇒ 只审它内部）+ 标题行（**含 `✕ 关闭` 按钮**）+ 内容 `VBox`。
-    /// ⚠️ 两条纪律：① **必须显式挂 Theme**（本屏根是 `Node2D`，主题链不经过它 ⇒ 否则框是引擎默认 `a=0.6`）
-    ///            ② **`Esc`（`ui_cancel`）也必须能关**（"能开不能关"是弹窗最常见的坑）✓
+    /// 🔴 **面板复用注册表**（2026-09-20 L2/L3 布局整改）✓
+    /// 修的是：`QuestSelect` / `Provision` / `HeirloomExchange` / `LootOverlay` **每次开屏都新建**一个满屏面板
+    /// ⇒ 四个屏互相重叠堆积、且 `Esc` 不认它们（此前 `CloseTopPopup` 只硬编码认 2 个面板）✓
+    /// ⚠️ 这是**最小实现**：只做"同名复用"，**不是**新的面板管理器架构（`UIRoot` 外壳本轮仍不接管）✓
     /// </summary>
-    private (PanelContainer Panel, Label Title, VBoxContainer Body) MakePopup(string name, string titleText)
+    private readonly System.Collections.Generic.Dictionary<string, (PanelContainer Panel, Label Title, VBoxContainer Body)> _popups
+        = new(System.StringComparer.Ordinal);
+
+    /// <summary>
+    /// 🔴 **二级窗口（弹窗）工厂**（用户 2026-09-14：「弹窗要能打开、也要能关闭」）：
+    /// 按 `UILayoutSpec` 档位定位的 `PanelContainer`（**不再一律满屏**）+ 标题行（**含 `✕ 关闭` 按钮**）+ 内容 `VBox`。
+    /// ⚠️ 三条纪律：① **必须显式挂 Theme**（本屏根是 `Node2D`，主题链不经过它 ⇒ 否则框是引擎默认 `a=0.6`）
+    ///            ② **`Esc`（`ui_cancel`）也必须能关**（"能开不能关"是弹窗最常见的坑）✓
+    ///            ③ **同名复用**（不再每次新建 ⇒ 不堆叠）✓
+    /// </summary>
+    private (PanelContainer Panel, Label Title, VBoxContainer Body) MakePopup(
+        string name, string titleText, PopupLayout layout = PopupLayout.Modal)
     {
+        // 🔴 ① 同名复用：命中 ⇒ 清空 body 后直接返回（不再新建，杜绝堆叠）✓
+        if (_popups.TryGetValue(name, out (PanelContainer Panel, Label Title, VBoxContainer Body) existed))
+        {
+            foreach (Node child in existed.Body.GetChildren().ToArray())
+            {
+                existed.Body.RemoveChild(child);
+                child.QueueFree();
+            }
+
+            existed.Title.Text = titleText;
+            Darkest.UI.UILayoutSpec.Place(existed.Panel, layout);
+            OpenInOverlay(existed.Panel, name);
+            return existed;
+        }
+
         // 🔴 Track 3（DD `fe_flow/overlays`）：**模态统一住 Overlay 层**（缺失则回落旧父容器，不崩不静默）✓
         _overlay ??= Darkest.UI.OverlayLayer.TryInstantiate();
         if (_overlay is not null && _overlay.GetParent() is null)
@@ -39,22 +65,30 @@ public partial class HamletRoot : Control
         {
             tplPanel.Name = name;
             tplPanel.Visible = false;
-            tplPanel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
             tplTitle.ThemeTypeVariation = Darkest.UI.DdTheme.TitleVariation;   // 与代码构建路径一致（标题 Bold）✓
             PanelContainer tplLocal = tplPanel;
             Darkest.UI.ModalDialogTemplate.BindClose(tplPanel, () =>
             {
-                tplLocal.Visible = false;
+                // 🔴 关自己 + **出栈**（此前只 `Visible = false` ⇒ 栈里还留着，遮罩不消失）
+                ClosePopup(tplLocal, name);
                 GD.Print($"[HamletRoot] {name} 关闭（模板 ✕）✓");
             });
             (_overlay?.ModalHost ?? tplPanel.GetParent()!).AddChild(tplPanel);
+
+            // 🔴 尺寸/位置按档位（不再一律满屏）✓
+            Darkest.UI.UILayoutSpec.Place(tplPanel, layout);
+            OpenInOverlay(tplPanel, name);
+            _popups[name] = (tplPanel, tplTitle, tplBody);
             return (tplPanel, tplTitle, tplBody);
         }
 
         var panel = new PanelContainer { Name = name, Visible = false };
-        panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         Darkest.UI.DdTheme.Apply(panel);
         (_overlay?.ModalHost ?? panel.GetParent()!).AddChild(panel);
+
+        // 🔴 尺寸/位置按档位（此前是 `SetAnchorsAndOffsetsPreset(FullRect)` ⇒ 一律铺满 1920×1080）✓
+        Darkest.UI.UILayoutSpec.Place(panel, layout);
+        GD.Print($"[UI 布局] `{name}`：{Darkest.UI.UILayoutSpec.Describe(layout)}");
 
         var margin = new MarginContainer();
         foreach (string side in new[] { "margin_left", "margin_top", "margin_right", "margin_bottom" })
@@ -85,7 +119,8 @@ public partial class HamletRoot : Control
         var close = new Button { Name = $"{name}Close", Text = "✕ 关闭", CustomMinimumSize = new Vector2(110, 34) };
         close.Pressed += () =>
         {
-            panel.Visible = false;
+            // 🔴 关自己 + **出栈**（此前只 `Visible = false` ⇒ 栈里还留着，遮罩不消失）
+            ClosePopup(panel, name);
             _buildingPopupId = null;
             GD.Print($"[HamletRoot] {name} 关闭（✕ 按钮）⇒ 回到城池");
         };
@@ -96,7 +131,45 @@ public partial class HamletRoot : Control
         var body = new VBoxContainer { Name = $"{name}Body", SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         body.AddThemeConstantOverride("separation", 6);
         col.AddChild(body);
+
+        _popups[name] = (panel, title, body);
+        OpenInOverlay(panel, name);
         return (panel, title, body);
+    }
+
+    /// <summary>
+    /// 🔴 **开屏 = 挂进 Overlay + 压栈**（2026-09-20）✓
+    /// 修的是：此前 `MakePopup` 只是 `AddChild(panel)`，**绕过了** `OverlayLayer.OpenModal`
+    /// ⇒ `_modals` 恒空 ⇒ `Esc` 兜底失效、遮罩不出现、面板互相堆叠 ✓
+    /// </summary>
+    private void OpenInOverlay(PanelContainer panel, string name)
+    {
+        if (_overlay is not null)
+        {
+            // 🔴 已在栈里 ⇒ 移到栈顶（不重复入栈）；不在 ⇒ 入栈
+            _overlay.OpenModal(panel);
+        }
+        else
+        {
+            // Overlay 不可用 ⇒ 回落：至少保证可见（不崩不静默，与既有纪律一致）
+            panel.Visible = true;
+            GD.Print($"[HamletRoot] `{name}`：Overlay 不可用 ⇒ 直接显示（未入栈，Esc 可能关不掉）");
+        }
+    }
+
+    /// <summary>
+    /// 🔴 **关屏 = 隐藏 + 出栈**（2026-09-20）✓
+    /// 修的是：此前 ✕ 只 `Visible = false` ⇒ 模态栈里还留着它 ⇒ 遮罩不消失、`Esc` 会关到"隐形"的层 ✓
+    /// </summary>
+    private void ClosePopup(PanelContainer panel, string name)
+    {
+        panel.Visible = false;
+        if (_overlay is not null)
+        {
+            _overlay.CloseModal(panel);
+        }
+
+        GD.Print($"[HamletRoot] `{name}` 已关闭并出栈（栈深 {_overlay?.ModalDepth ?? 0}）✓");
     }
 
     /// <summary>🔴 `Esc`（`ui_cancel`，引擎内置动作）关最上层弹窗 —— 与 `✕ 关闭` 等价的第二条出口 ✓</summary>
@@ -108,12 +181,23 @@ public partial class HamletRoot : Control
         }
     }
 
-    /// <summary>关掉最上层的弹窗（建筑弹窗 → 角色详情）；返回是否真的关了一个。</summary>
+    /// <summary>
+    /// 关掉最上层的弹窗；返回是否真的关了一个。
+    /// 🔴 **优先委托模态栈**（2026-09-20）：栈里有 ⇒ 关栈顶（**任意**面板，不再只认 2 个）✓
+    ///    此前是硬编码 if 链，只认 `_buildingPopup` 与 `_detailPanel` ⇒ QuestSelect/Provision/传家宝/战利品 **Esc 关不掉** ✓
+    /// </summary>
     public bool CloseTopPopup()
     {
+        // ① 栈优先：Overlay 可用且栈非空 ⇒ 关栈顶（含所有后来接进来的面板）
+        if (_overlay is not null && _overlay.ModalDepth > 0)
+        {
+            return _overlay.CloseTopModal();
+        }
+
+        // ② 回落：Overlay 不可用（骨架缺失）⇒ 保留旧行为，不至于"能开不能关"
         if (_buildingPopup is { Visible: true })
         {
-            _buildingPopup.Visible = false;
+            ClosePopup(_buildingPopup, "BuildingPopup");
             _buildingPopupId = null;
             GD.Print("[HamletRoot] 建筑弹窗关闭（Esc）⇒ 回到城池");
             return true;
@@ -137,7 +221,7 @@ public partial class HamletRoot : Control
         GD.Print("[UI-TRACE] hamlet-menu-open");   // ASCII 留痕（供 ui_sweep 断言：避免 PS5.1 读中文的编码坑）
         if (_hamletMenu is null)
         {
-            (PanelContainer panel, Label title, VBoxContainer body) = MakePopup("HamletMenu", "☰ 【城池菜单】");
+            (PanelContainer panel, Label title, VBoxContainer body) = MakePopup("HamletMenu", "☰ 【城池菜单】", Darkest.UI.PopupLayout.Modal);
             _hamletMenu = panel;
             _hamletMenuBody = body;
         }
@@ -152,7 +236,7 @@ public partial class HamletRoot : Control
         var bBuilding = new Button { Name = "Menu_Building", Text = "🏛 建筑", CustomMinimumSize = new Vector2(320, 34) };
         bBuilding.Pressed += () =>
         {
-            _hamletMenu!.Visible = false;
+            ClosePopup(_hamletMenu!, "HamletMenu");   // 🔴 关菜单 + 出栈（此前只 Visible=false ⇒ 遮罩不消失）
             OpenBuildingPopup(_buildingIds.Length > 0 ? _buildingIds[0] : "tavern");
         };
         _hamletMenuBody.AddChild(bBuilding);
@@ -166,7 +250,7 @@ public partial class HamletRoot : Control
             string pick = heroPick;
             bHero.Pressed += () =>
             {
-                _hamletMenu!.Visible = false;
+                ClosePopup(_hamletMenu!, "HamletMenu");
                 OpenHeroDetail(pick);
             };
             _hamletMenuBody.AddChild(bHero);
@@ -179,21 +263,21 @@ public partial class HamletRoot : Control
             var bBag = new Button { Name = "Menu_Inventory", Text = "🎒 库存", CustomMinimumSize = new Vector2(320, 34) };
             bBag.Pressed += () =>
             {
-                _hamletMenu!.Visible = false;
+                ClosePopup(_hamletMenu!, "HamletMenu");
                 GD.Print($"[城池菜单] 库存：本趟背包 {bag.Slots.Count}/{bag.SlotCap}（详情面板在远征层；此处先只报读数）");
             };
             _hamletMenuBody.AddChild(bBag);
 
         var bProvision = new Button { Name = "Menu_Provision", Text = "🛒 供应", CustomMinimumSize = new Vector2(220, 32) };   // DD 1:1 ②：供应屏入口
-        bProvision.Pressed += () => OpenProvision();
+        bProvision.Pressed += () => { ClosePopup(_hamletMenu!, "HamletMenu"); OpenProvision(); };
         _hamletMenuBody.AddChild(bProvision);
 
         var bQuest = new Button { Name = "Menu_QuestSelect", Text = "📜 任务选择", CustomMinimumSize = new Vector2(220, 32) };   // DD 1:1 ②：任务选择入口
-        bQuest.Pressed += () => OpenQuestSelect();
+        bQuest.Pressed += () => { ClosePopup(_hamletMenu!, "HamletMenu"); OpenQuestSelect(); };
         _hamletMenuBody.AddChild(bQuest);
 
         var bExchange = new Button { Name = "Menu_HeirloomExchange", Text = "💎 传家宝兑换", CustomMinimumSize = new Vector2(220, 32) };   // DD 1:1 P5：传家宝兑换入口
-        bExchange.Pressed += () => OpenHeirloomExchange();
+        bExchange.Pressed += () => { ClosePopup(_hamletMenu!, "HamletMenu"); OpenHeirloomExchange(); };
         _hamletMenuBody.AddChild(bExchange);
         }
         else

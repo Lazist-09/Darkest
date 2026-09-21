@@ -168,8 +168,24 @@ public partial class BattleUI : Control
                 {
                     Darkest.UI.MapSketch ts = Darkest.UI.WalkMapView.FromTileWalk(
                         mFlow.TileWalk, mFlow.TilePosition, mFlow.RevealedRoomIds,
-                        mFlow.RemainingSegmentsToGoal, mFlow.TileHere);
-            GD.Print($"[UI 瓷砖] ✅ 主画面（引擎内置 TileMapLayer）：格 {ts.Cells.Count} ／ 连线 {ts.Links.Count}　队伍在已揭示格 {ts.Cells.Count(c => c.Revealed)} ／ {ts.Cells.Count}");
+                        mFlow.RemainingSegmentsToGoal, mFlow.TileHere, mFlow.TileStateAt);
+            // 🔴 `D-3`：三态读数与文字速写**必须打出来**（画面在 headless 看不见 ⇒ 靠文字自证三态可分辨）✓
+            GD.Print($"[UI 瓷砖] ✅ 主画面（引擎内置 TileMapLayer）：格 {ts.Cells.Count} ／ 连线 {ts.Links.Count}" +
+                     $"　已揭示 {ts.Cells.Count(c => c.Revealed)} ／ {ts.Cells.Count}" +
+                     $"（其中只有轮廓 {ts.Cells.Count(c => c.State == Darkest.Gameplay.Sim.Run.RevealState.Scouted)}" +
+                     $" · 已看清 {ts.Cells.Count(c => c.State == Darkest.Gameplay.Sim.Run.RevealState.Visited)}）");
+            GD.Print($"[UI 瓷砖·三态速写] {Darkest.UI.WalkMapView.SketchText(ts)}");
+
+                    // 🔴 **网格字符留档**（`DungeonGrid.ToRows` 的**生产消费点**，2026-09-20 接线）——
+                    //    主画面是图形（headless 看不见）⇒ 把网格按**字符行**打一遍：可审计、可比对、可复现 ✓
+                    //    ⚠️ 只在**首次**（`_lastTileRowsSketch` 空）打一次，避免切页签时刷屏 ✓
+                    string rowsSketch = string.Join(" / ", mFlow.TileWalk.Grid.ToRows());
+                    if (rowsSketch != _lastTileRowsSketch)
+                    {
+                        _lastTileRowsSketch = rowsSketch;
+                        GD.Print($"[UI 瓷砖·网格留档] {mFlow.TileWalk.Grid.Width}×{mFlow.TileWalk.Grid.Height} 字符网格：" +
+                                 $"`{rowsSketch}`（墙/地板/起点/终点 ⇒ 与 `TileWalk` 同源）✓");
+                    }
                     _mfMapWalk.MovableRooms = ts.Cells.Where(c => c.Movable).Select(c => c.Id).ToList();
                     _mfMapWalk.OnRoomClicked = id =>
                     {
@@ -181,9 +197,25 @@ public partial class BattleUI : Control
 
                         int dx = cell.Depth - mFlow.TilePosition.X;
                         int dy = cell.Lane - mFlow.TilePosition.Y;
+                        // 🔴 `D-3` / `D-1`：**走之前**先记下"这格站过没" —— 因为走完它就必然变"站过"，
+                        //    事后读只能得到 true（会把"第一次探索"误报成"回头"）⚠️
+                        bool wasVisited = mFlow.VisitedTileAt((cell.Depth, cell.Lane));
                         bool moved = mFlow.TryStepTile(dx, dy);
                         GD.Print($"[UI 走格] 点格 ({cell.Depth},{cell.Lane}) ⇒ `TryStepTile({dx},{dy})`={moved}" +
-                                 $"（现在 {mFlow.TilePosition}：{mFlow.TileHere}　已走 {mFlow.TileStepsTaken} 格）✓");
+                                 $"（{(wasVisited ? "回头" : "新格")}　现在 {mFlow.TilePosition}：{mFlow.TileHere}" +
+                                 $"　已走 {mFlow.TileStepsTaken} 格　三态 {mFlow.TileStateAt((cell.Depth, cell.Lane))}）✓");
+
+                        // 🔴🔴 `D-5`：**走完一格 ⇒ 检查队伍是否饿了**（`HasPendingHunger` 是唯一入口，
+                        //    它同时确认"名册台账已建" ⇒ 首场战斗之前**不会**弹，因为那时无人可结算）✓
+                        //    DD 铁律：饥饿触发后**必须二选一**（不能拖、不能跳）⇒ 立刻弹面板 ✓
+                        if (moved && TryOpenHunger())
+                        {
+                            GD.Print("[UI 走格] 🔴 队伍**饿了** ⇒ 已弹【吃 / 不吃】面板（必须选）✓");
+                        }
+                        else if (moved)
+                        {
+                            HostDungeonPanels(); // 没饿也要刷新读数（光照/位置/投影都变了）✓
+                        }
                     };
                     _mfMapWalk.Refresh(ts);
 
@@ -209,6 +241,21 @@ public partial class BattleUI : Control
                 {
                     var outcome = mFlow.StepTo(rid);
                     GD.Print($"[UI 行走] 点击房间 {rid} ⇒ `StepTo` 结果={outcome}（当前房间 {mFlow.CurrentRoomId}：{mFlow.CurrentRoomType}）剩余 {mFlow.RemainingSegmentsToGoal} 段 ✓");
+
+                    // 🔴 **已处理过的格 ⇒ 不再触发遭遇**（`IsRoomResolved` 的**生产消费点**，2026-09-20 接线）——
+                    //    口径（`#352` / `retreat.md §2`）：**撤退后那格算"避过"** ⇒ 走回它**不重打** ✓
+                    //    此前本方法只推进位置、**从不问"这格是否已处理"** ⇒ 死字段 `_resolvedRooms` 形同虚设 ⚠️
+                    if (outcome.Moved && mFlow.IsRoomResolved(rid))
+                    {
+                        GD.Print($"[UI 行走] 🔴 房间 {rid} **已处理过**（撤退后标记）⇒ **不触发遭遇/战斗**，" +
+                                 "只把位置挪过去（`#352`：撤退后不重打）✓");
+                    }
+                    else if (outcome.Moved && !string.IsNullOrEmpty(mFlow.EventNodeIdForRoom(rid)) && mFlow.CurrentRoomType == "event")
+                    {
+                        // 🔴 **事件房 ⇒ 开内容面板**（`EventNodeIdForRoom` + `EnterRoomCurio` 的生产消费点）✓
+                        GD.Print($"[UI 行走] 走进事件房 {rid} ⇒ 取事件节点 `{mFlow.EventNodeIdForRoom(rid)}` ⇒ 开房间内容 ✓");
+                        EnterRoomCurio(rid, isBranch: false);
+                    }
                 };
                 _mfMapWalk.Refresh(mFlow.Map!, mFlow.CurrentRoomId, mFlow.RevealedRoomIds, movable,
                     mFlow.RemainingSegmentsToGoal, mFlow.CurrentRoomType);

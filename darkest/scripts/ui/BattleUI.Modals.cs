@@ -38,7 +38,8 @@ public partial class BattleUI : Control
     /// · `ExpandFill` + `autowrap` ⇒ 长文本不溢出（`§14.2`④ / `§14.6`）✓
     /// </summary>
         // （体首守卫在下方 if 内；此处仅占位不改语义）
-    private Label MakeOpaqueModal(string name, out PanelContainer panel)
+    private Label MakeOpaqueModal(string name, out PanelContainer panel,
+        Darkest.UI.PopupLayout layout = Darkest.UI.PopupLayout.Modal)
     {
         // 🔴 Track 3：**模态优先用模板** `scenes/ui/modal_dialog.tscn`（外观在编辑器可改）；
         //    模板缺失 ⇒ **回落下面原有的代码构建**（一字不改，不崩不静默）✓
@@ -62,13 +63,19 @@ public partial class BattleUI : Control
             PanelContainer tplLocal = tplPanel;
             Darkest.UI.ModalDialogTemplate.BindClose(tplPanel, () =>
             {
+                // 🔴 关自己 + **出栈**（此前只 Visible=false ⇒ 栈里还留着 ⇒ 遮罩不消失）
                 tplLocal.Visible = false;
+                _overlay?.CloseModal(tplLocal);
                 GD.Print($"[UI] {name} 关闭（模板 ✕）✓");
             });
 
             panel = tplPanel;
             (_overlay?.ModalHost ?? _uiRoot).AddChild(panel);
-            panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            // 🔴 不再一律满屏：按 DD `shared/modal_dialog` ⇒ 840×464 居中 ✓
+            Darkest.UI.UILayoutSpec.Place(panel, layout);
+            GD.Print($"[UI 布局] `{name}`：{Darkest.UI.UILayoutSpec.Describe(layout)}");
+            // ⚠️ **不在这里入栈**：`OpenModal` 会把面板设为可见，而 ResultPanel/DevLogPanel
+            //    是 **Build 期创建、之后才显示** ⇒ 入栈时机交给调用方（见 `Refresh`/`ToggleDevLog`）✓
             return tplLabel;
         }
 
@@ -103,7 +110,9 @@ public partial class BattleUI : Control
         col.AddChild(label);
 
         (_overlay?.ModalHost ?? _uiRoot).AddChild(panel);   // 🔴 Track 3：**统一走 Overlay**（缺失回落 _uiRoot）✓
-        panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect); // 父是真 Control ⇒ 锚点算得出满屏 ✓
+        // 🔴 不再一律满屏：按档位定位（此前 FullRect ⇒ 铺满 1920×1080）✓
+        Darkest.UI.UILayoutSpec.Place(panel, layout);
+        // ⚠️ 同上：**入栈交给调用方**（本工厂只负责建 + 摆位）✓
         return label;
     }
 
@@ -218,7 +227,10 @@ public partial class BattleUI : Control
     /// <summary>G2：开发者日志开/关（每次打开重绘整个事件流尾部）。</summary>
     public void ToggleDevLog()
     {
-        _devLogPanel.Visible = !_devLogPanel.Visible;
+        // 🔴 走模态栈（此前直接翻 Visible ⇒ 遮罩不同步、Esc 关不掉）
+        bool nowOpen = !_devLogPanel.Visible;
+        if (nowOpen) { _overlay?.OpenModal(_devLogPanel); }
+        else { _devLogPanel.Visible = false; _overlay?.CloseModal(_devLogPanel); }
         _devLogRendered = -1;
         _devLogButton.Text = _devLogPanel.Visible ? "日志 F1（开）" : "日志 F1";
     }

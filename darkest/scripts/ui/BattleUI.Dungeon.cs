@@ -195,8 +195,34 @@ public partial class BattleUI : Control
                 : $"→ 房间 {next}（{map.Rooms.FirstOrDefault(r => r.Id == next)?.Type ?? "?"}" +
                   $"／相邻={Darkest.Gameplay.Sim.Run.MapTraversal.IsAdjacent(map, cur, next)}）";
             int remain = cur == map.GoalId ? 0 : Darkest.Gameplay.Sim.Run.MapTraversal.ShortestPathLength(map, cur, map.GoalId);
+            // 🔴 **路线光照预算**（`DungeonWalkLight.PlanPath` 的生产消费点，2026-09-20 接线）——
+            //    显示"按当前路线走到终点要花掉多少光"；走格未开启 / 不可达 ⇒ 如实标不可预测 ✓
+            int target = map.GoalId;
+            int? forecast = flow.ForecastLightTo(target);
+            string forecastText = forecast is { } f
+                ? $"需扣 {f} 光（现 {flow.Meter.Value} ⇒ 预计剩 {System.Math.Max(0, flow.Meter.Value - f)}）"
+                : "（不可预测：走格未开启 / 不可达）";
             _walkHud.Text = $"[行走] 当前 房间 {cur}（{curType}）　下一跳 {nextText}　到终点 {remain} 间" +
-                            $"　已揭示 {flow.RevealedRoomIds.Count}/{map.Rooms.Count}　光照 {flow.Meter.Value}（{flow.Meter.Tier}）";
+                            $"　已揭示 {flow.RevealedRoomIds.Count}/{map.Rooms.Count}　光照 {flow.Meter.Value}（{flow.Meter.Tier}）" +
+                            $"　路线预算：{forecastText}";
+        }
+
+        // 🔴 **展示值 == 事件流复算值**（纪律 V）—— `LightMeter.Recompute` 的**生产调用点**：
+        //    光照条显示的是 `Meter.Value`（内存值），而它**必须**能从 `LightChangedEvent` 流复算出来；
+        //    两者不等 ⇒ 说明"有变化没写事件"（真缺陷）⇒ **当场如实报**（不静默、不自动修正）⚠️
+        Darkest.Core.Events.CombatLog? meterLog = Darkest.Gameplay.Scene.ExpeditionContext.Log;
+        if (meterLog is not null)
+        {
+            int recomputed = Darkest.Gameplay.Sim.Survival.LightMeter.Recompute(meterLog, flow.Meter.Value);
+            // ⚠️ 口径：`Recompute(log, enterValue)` 取**最后一条** `LightChangedEvent.To`；
+            //    无事件 ⇒ 返回 `enterValue`（此处传当前值 ⇒ 恒等）。因此本检查的语义 = "**若事件流非空，
+            //    其末值必须等于内存值**"（不是"必然相等" —— 无事件时按设计返回入参）✓
+            bool hasEvent = meterLog.Events.OfType<Darkest.Core.Events.LightChangedEvent>().Any();
+            if (hasEvent && recomputed != flow.Meter.Value)
+            {
+                GD.Print($"🔴 [UI 光照校验] **展示值 {flow.Meter.Value} ≠ 事件流复算 {recomputed}** ⇒ " +
+                         "有光照变化**没写 `LightChangedEvent`**（纪律 V 违反：数字必须能从事件流复算）⚠️");
+            }
         }
 
         if (_walkHud.Text != _lastWalkHud)
@@ -247,7 +273,9 @@ public partial class BattleUI : Control
         if (_abandonConfirm is null)
         {
             // ⚠️ 战斗屏的模态工厂是 `MakeOpaqueModal`（返回正文 Label + out 面板）；按钮挂在**正文的父容器**（col）上 ✓
-            Label abandonText = MakeOpaqueModal("AbandonConfirm", out PanelContainer abandonPanel);
+            // 🔴 DD `shared/confirm_dialog` ⇒ 840×600 居中（二次确认框比普通模态高）✓
+            Label abandonText = MakeOpaqueModal("AbandonConfirm", out PanelContainer abandonPanel,
+                Darkest.UI.PopupLayout.Confirm);
             _abandonConfirm = abandonPanel;
             abandonText.Text = "放弃远征 = **结束本次远征、回城**（本趟未完成）。\n此操作**不可逆**；若只是想退出本场战斗，请用【撤退】。";
             var row = new HBoxContainer { Name = "AbandonConfirmRow" };
@@ -259,6 +287,7 @@ public partial class BattleUI : Control
             {
                 GD.Print("[UI 撤退/放弃] ✅ 二次确认通过 ⇒ 调宿主【放弃远征】动作 ✓");
                 _abandonConfirm!.Visible = false;
+                _overlay?.CloseModal(_abandonConfirm!);
                 _abandonExpedition?.Invoke();
             };
             row.AddChild(yes);
@@ -268,11 +297,12 @@ public partial class BattleUI : Control
             {
                 GD.Print("[UI 撤退/放弃] 取消放弃远征 ⇒ 继续走 ✓");
                 _abandonConfirm!.Visible = false;
+                _overlay?.CloseModal(_abandonConfirm!);
             };
             row.AddChild(no);
         }
 
-        _abandonConfirm.Visible = true;
+        _overlay?.OpenModal(_abandonConfirm);   // 🔴 入栈 ⇒ 遮罩出现 + Esc 可关 ✓
         GD.Print("[UI 撤退/放弃] 弹出【放弃远征】二次确认（不可逆；取消 ⇒ 继续走）✓");
     }
 

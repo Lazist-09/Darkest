@@ -3,7 +3,15 @@
 [ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="1_theme"]
 [ext_resource type="Script" path="res://scripts/ui/HeirloomExchangeSkeleton.cs" id="2_hx"]
 
-; DD 1:1 heirloom_exchange（传家宝兑换）：标题 215,24 · from 起 79,110 间距 44 · to 起 256,75（1920x1080 基准）
+; DD 1:1 heirloom_exchange（传家宝兑换）
+; ── 面板尺寸：DD 布局文件未给 size；取自面板自身资产
+;    campaign/town/heirloom_exchange/heirloom_exchange.background.png = 429x268
+;    佐证：title_pos 215,24 的 x=215 恰为 429/2（标题正中）；全部 offset 落在 429x268 内
+; ── 坐标空间：429x268 局部空间（from/to 两列各以自己 heirloom_from_pos / heirloom_to_pos 0,0 为原点）
+; ── 结构（对应 DD section）：
+;    heirloom_exchange_layout              根，title_pos 215,24
+;    heirloom_exchange_heirloom_from_layout  转入列，choice_start_offset 79,110 / spacing 44，图标 icon_offset 0,32
+;    heirloom_exchange_heirloom_to_layout    转出列，choice_start_offset 256,75 / spacing 0,44，箭头 arrow_offset 148,80
 [node name="HeirloomExchangeSkeleton" type="Control"]
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,207 +20,328 @@ mouse_filter = 2
 theme = ExtResource("1_theme")
 script = ExtResource("2_hx")
 
-[node name="ExchangeCol" type="VBoxContainer" parent="."]
-layout_mode = 0
-anchor_left = 0.112   ; DD 标题 215/1920
-anchor_top = 0.022    ; DD 标题 24/1080
+; ── 面板本体：429x268 居中承载（DD 未给屏幕级 pos，此处仅承载尺寸，不猜屏幕位置）
+[node name="PanelFrame" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -214.5
+offset_top = -134.0
+offset_right = 214.5
+offset_bottom = 134.0
+grow_horizontal = 2
+grow_vertical = 2
+; 🔴 2026-09-20：同上 —— 挂进容器时锚点失效 ⇒ 显式最小尺寸保住 429×268 ✓
+custom_minimum_size = Vector2(429, 268)
+mouse_filter = 2
+
+; 面板背景占位（尺寸 = DD heirloom_exchange.background.png 429x268 · 资产未接入 ⇒ 色块占位，不换不删）
+[node name="PanelBackground" type="ColorRect" parent="PanelFrame"]
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/separation = 8
-
-[node name="HeaderRow" type="HBoxContainer" parent="ExchangeCol"]
-layout_mode = 2
-
-[node name="ExchangeTitle" type="Label" parent="ExchangeCol/HeaderRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "💎 传家宝兑换"
-
-[node name="ExchangeClose" type="Button" parent="ExchangeCol/HeaderRow"]
-layout_mode = 2
-text = "✕ 关闭"
-
-[node name="BodyRow" type="HBoxContainer" parent="ExchangeCol"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 12
-
-[node name="FromCol" type="VBoxContainer" parent="ExchangeCol/BodyRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 44   ; DD from 间距 44（原值）
-
-[node name="ToCol" type="VBoxContainer" parent="ExchangeCol/BodyRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 29
-
-[node name="FromSlot1" type="PanelContainer" parent="ExchangeCol/BodyRow/FromCol"]
-layout_mode = 2
-custom_minimum_size = Vector2(120, 40)
-mouse_filter = 2
-tooltip_text = "FROM 1（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）"
-
-[node name="FromPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/FromCol/FromSlot1"]
+grow_horizontal = 2
+grow_vertical = 2
 color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-
-[node name="ToSlot1" type="PanelContainer" parent="ExchangeCol/BodyRow/ToCol"]
-layout_mode = 2
-custom_minimum_size = Vector2(120, 40)
 mouse_filter = 2
-tooltip_text = "TO 1（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）"
+tooltip_text = "面板背景（DD heirloom_exchange.background.png 429x268 · 尺寸=资产文件头 · 资产未接入 ⇒ 色块占位，不换不删）"
 
-[node name="ToPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/ToCol/ToSlot1"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-
-[node name="FromSlot2" type="PanelContainer" parent="ExchangeCol/BodyRow/FromCol"]
-layout_mode = 2
-custom_minimum_size = Vector2(120, 40)
-mouse_filter = 2
-tooltip_text = "FROM 2（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）"
-
-[node name="FromPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/FromCol/FromSlot2"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-
-[node name="ToSlot2" type="PanelContainer" parent="ExchangeCol/BodyRow/ToCol"]
-layout_mode = 2
-custom_minimum_size = Vector2(120, 40)
-mouse_filter = 2
-tooltip_text = "TO 2（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）"
-
-[node name="ToPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/ToCol/ToSlot2"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-
-[node name="FromSlot3" type="PanelContainer" parent="ExchangeCol/BodyRow/FromCol"]
-layout_mode = 2
-custom_minimum_size = Vector2(120, 40)
-mouse_filter = 2
-tooltip_text = "FROM 3（DD heirloom_exchange from 79,110 间距 44 · 数据未接入 ⇒ 色块占位，不换不删）"
-
-[node name="FromPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/FromCol/FromSlot3"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-
-[node name="ToSlot3" type="PanelContainer" parent="ExchangeCol/BodyRow/ToCol"]
-layout_mode = 2
-custom_minimum_size = Vector2(120, 40)
-mouse_filter = 2
-tooltip_text = "TO 3（DD heirloom_exchange to 256,75 · 数据未接入 ⇒ 色块占位，不换不删）"
-
-[node name="ToPlaceholder" type="ColorRect" parent="ExchangeCol/BodyRow/ToCol/ToSlot3"]
-color = Color(0.62, 0.6, 0.58, 0.22)
-layout_mode = 2
-
-; 阶段2 子流程批(3)：heirloom_exchange 屏幕级位置块（÷1920、÷1080）
-
-[node name="HxChoiceStartAnchor" type="PanelContainer" parent="."]
-layout_mode = 0
-anchor_left = 0.1333
-anchor_top = 0.0694
-anchor_right = 0.2133
-anchor_bottom = 0.1094
-mouse_filter = 2
-tooltip_text = "选项起点（DD heirloom_exchange choice_start_offset 256,75） · 数据未接入 ⇒ 色块占位，不换不删"
-
-
-[node name="PurposeLabel" type="Label" parent="HxChoiceStartAnchor"]
-layout_mode = 2
-mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "选项起点"
-[node name="Fill" type="ColorRect" parent="HxChoiceStartAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
-layout_mode = 2
-
-[node name="HxIconOffsetAnchor" type="PanelContainer" parent="HxFromLayer"]
-; 归位(第1步)：本块 DD 来源 = heirloom_exchange_heirloom_from_layout.icon_offset 0,32（offset 类）
-;   ⇒ 父容器 = heirloom_exchange_layout 的【转入列】；列锚点 heirloom_from_pos 0,0 + choice_start_offset 79,110
-;   ⚠️ 面板尺寸 DD 未给 ⇒ 列层为坐标空间承载，块位置仍为近似（未取得，不猜）
+[node name="PanelSizeLabel" type="Label" parent="PanelFrame"]
 layout_mode = 0
 anchor_left = 0.0
-anchor_top = 0.0296
-anchor_right = 0.08
-anchor_bottom = 0.0696
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_bottom = 16.0
 mouse_filter = 2
-tooltip_text = "图标位（DD icon_offset 0,32） · 数据未接入 ⇒ 色块占位，不换不删"
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.5, 0.72, 0.9, 0.85)
+text = "heirloom_exchange 429x268（资产尺寸）"
+horizontal_alignment = 1
 
+; ── 标题（DD title_pos 215,24 · x=215=429/2 正中）
+[node name="ExchangeTitle" type="Label" parent="PanelFrame"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_top = 18.0
+offset_bottom = 34.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.9)
+text = "💎 传家宝兑换"
+horizontal_alignment = 1
 
-[node name="PurposeLabel" type="Label" parent="HxIconOffsetAnchor"]
+[node name="CloseBtn" type="Button" parent="PanelFrame"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -44.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = 22.0
+mouse_filter = 0
+theme_override_font_sizes/font_size = 10
+text = "✕"
+
+; ══════════════════════════════════════════════════════════
+; 转入列（from）· 父锚点 heirloom_from_pos 0,0
+;   choice_start_offset 79,110 · choice_spacing 44,0（横排）
+;   icon_offset 0,32 / text_offset 0,36
+; ══════════════════════════════════════════════════════════
+[node name="HxFromLayer" type="Control" parent="PanelFrame"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+tooltip_text = "转入列（DD heirloom_exchange_heirloom_from_layout · 父锚点 heirloom_from_pos 0,0）"
+
+[node name="LayerTitle" type="Label" parent="PanelFrame/HxFromLayer"]
+layout_mode = 0
+anchor_left = 0.02
+anchor_top = 0.0
+anchor_right = 0.5
+anchor_bottom = 0.0
+offset_top = 36.0
+offset_bottom = 50.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "转入列"
+
+; 选项起点（DD choice_start_offset 79,110）⇒ 429x268 局部 (79,110)
+[node name="HxChoiceStartAnchor" type="PanelContainer" parent="PanelFrame/HxFromLayer"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 79.0
+offset_top = 110.0
+offset_right = 139.0
+offset_bottom = 130.0
+mouse_filter = 2
+tooltip_text = "选项起点（DD choice_start_offset 79,110 · 局部空间 429x268） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/HxFromLayer/HxChoiceStartAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "选项起点"
+
+[node name="Fill" type="ColorRect" parent="PanelFrame/HxFromLayer/HxChoiceStartAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+
+; 图标位（DD icon_offset 0,32 · 相对选项起点）⇒ (79, 142)
+[node name="HxIconOffsetAnchor" type="PanelContainer" parent="PanelFrame/HxFromLayer"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 79.0
+offset_top = 142.0
+offset_right = 111.0
+offset_bottom = 174.0
+mouse_filter = 2
+tooltip_text = "图标位（DD icon_offset 0,32 · 相对选项起点） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/HxFromLayer/HxIconOffsetAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "图标位"
-[node name="Fill" type="ColorRect" parent="HxIconOffsetAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+
+[node name="Fill" type="ColorRect" parent="PanelFrame/HxFromLayer/HxIconOffsetAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
-[node name="HxArrowAnchor" type="PanelContainer" parent="HxToLayer"]
-; 归位(第1步)：本块 DD 来源 = heirloom_exchange_heirloom_to_layout.arrow_offset 148,80（offset 类）
-;   ⇒ 父容器 = heirloom_exchange_layout 的【转出列】；列锚点 heirloom_to_pos 0,0 + choice_start_offset 256,75
+; 上箭头（DD arrow_up_offset 0,-10 · 相对选项起点）⇒ (79, 100)
+[node name="HxArrowUpAnchor" type="PanelContainer" parent="PanelFrame/HxFromLayer"]
 layout_mode = 0
-anchor_left = 0.0771
-anchor_top = 0.0741
-anchor_right = 0.1571
-anchor_bottom = 0.1141
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 79.0
+offset_top = 96.0
+offset_right = 111.0
+offset_bottom = 112.0
 mouse_filter = 2
-tooltip_text = "箭头位（DD arrow_offset 148,80） · 数据未接入 ⇒ 色块占位，不换不删"
+tooltip_text = "上箭头（DD arrow_up_offset 0,-10 · 32x30 资产） · 数据未接入 ⇒ 色块占位，不换不删"
 
+[node name="Fill" type="ColorRect" parent="PanelFrame/HxFromLayer/HxArrowUpAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
 
-[node name="PurposeLabel" type="Label" parent="HxArrowAnchor"]
+; 下箭头（DD arrow_down_offset 0,84 · 相对选项起点）⇒ (79, 194)
+[node name="HxArrowDownAnchor" type="PanelContainer" parent="PanelFrame/HxFromLayer"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 79.0
+offset_top = 194.0
+offset_right = 111.0
+offset_bottom = 210.0
+mouse_filter = 2
+tooltip_text = "下箭头（DD arrow_down_offset 0,84 · 32x30 资产） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="PanelFrame/HxFromLayer/HxArrowDownAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+
+; ══════════════════════════════════════════════════════════
+; 转出列（to）· 父锚点 heirloom_to_pos 0,0
+;   choice_start_offset 256,75 · choice_spacing 0,44（竖排）
+;   arrow_offset 148,80 / frame_offset -32,-8 / heirloom_icon_offset 0,20
+;   heirloom_amount_offset 52,4 / confirm_offset 112,20
+; ══════════════════════════════════════════════════════════
+[node name="HxToLayer" type="Control" parent="PanelFrame"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+tooltip_text = "转出列（DD heirloom_exchange_heirloom_to_layout · 父锚点 heirloom_to_pos 0,0）"
+
+[node name="LayerTitle" type="Label" parent="PanelFrame/HxToLayer"]
+layout_mode = 0
+anchor_left = 0.55
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_top = 36.0
+offset_bottom = 50.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "转出列"
+horizontal_alignment = 2
+
+; 选项起点（DD choice_start_offset 256,75）⇒ 局部 (256,75)
+[node name="HxChoiceStartAnchorTo" type="PanelContainer" parent="PanelFrame/HxToLayer"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 256.0
+offset_top = 75.0
+offset_right = 316.0
+offset_bottom = 95.0
+mouse_filter = 2
+tooltip_text = "选项起点（DD choice_start_offset 256,75 · 转出列） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/HxToLayer/HxChoiceStartAnchorTo"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "箭头"
-[node name="Fill" type="ColorRect" parent="HxArrowAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+text = "选项起点"
+
+[node name="Fill" type="ColorRect" parent="PanelFrame/HxToLayer/HxChoiceStartAnchorTo"]
+color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
-; 第1步：转出/转入两列的坐标层（DD heirloom_exchange_layout 的 heirloom_from_pos / heirloom_to_pos 均为 0,0）
-; ⚠️ 面板尺寸 DD 未给 ⇒ 列层取满屏坐标空间，仅作 offset 挂载父级（位置未取得，不猜）
-[node name="HxFromLayer" type="Control" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-
-
-[node name="LayerTitle" type="Label" parent="HxFromLayer"]
+; 箭头位（DD arrow_offset 148,80 · 相对选项起点）⇒ (404,155) —— 注意 x=404 < 429 边缘
+[node name="HxArrowAnchor" type="PanelContainer" parent="PanelFrame/HxToLayer"]
 layout_mode = 0
-anchor_left = 0.004
-anchor_top = 0.004
-anchor_right = 0.05
-anchor_bottom = 0.02
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 368.0
+offset_top = 152.0
+offset_right = 404.0
+offset_bottom = 240.0
 mouse_filter = 2
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
-text = "二级面板 · 传家宝 转入列"
-[node name="HxToLayer" type="Control" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
+tooltip_text = "箭头位（DD arrow_offset 148,80 · 资产 72x180） · 数据未接入 ⇒ 色块占位，不换不删"
 
-[node name="LayerTitle" type="Label" parent="HxToLayer"]
+[node name="PurposeLabel" type="Label" parent="PanelFrame/HxToLayer/HxArrowAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "箭头"
+
+[node name="Fill" type="ColorRect" parent="PanelFrame/HxToLayer/HxArrowAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+
+; 兑换框（DD frame_offset -32,-8 · 资产 frame.png 189x56）⇒ 相对选项起点 (224,67)
+[node name="HxFrameAnchor" type="PanelContainer" parent="PanelFrame/HxToLayer"]
 layout_mode = 0
-anchor_left = 0.004
-anchor_top = 0.004
-anchor_right = 0.05
-anchor_bottom = 0.02
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 224.0
+offset_top = 67.0
+offset_right = 320.0
+offset_bottom = 123.0
 mouse_filter = 2
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
-text = "二级面板 · 传家宝 转出列"
+tooltip_text = "兑换框（DD frame_offset -32,-8 · 资产 frame.png 189x56） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/HxToLayer/HxFrameAnchor"]
+layout_mode = 2
 mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "兑换框"
+
+[node name="Fill" type="ColorRect" parent="PanelFrame/HxToLayer/HxFrameAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2
+
+; 确认按钮（DD confirm_offset 112,20 · 资产 confirm.png 48x24）⇒ 相对选项起点 (368,95)
+[node name="HxConfirmAnchor" type="PanelContainer" parent="PanelFrame/HxToLayer"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 340.0
+offset_top = 95.0
+offset_right = 388.0
+offset_bottom = 119.0
+mouse_filter = 2
+tooltip_text = "确认按钮（DD confirm_offset 112,20 · 资产 confirm.png 48x24） · 数据未接入 ⇒ 色块占位，不换不删"
+
+[node name="PurposeLabel" type="Label" parent="PanelFrame/HxToLayer/HxConfirmAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "确认"
+
+[node name="Fill" type="ColorRect" parent="PanelFrame/HxToLayer/HxConfirmAnchor"]
+color = Color(0.62, 0.6, 0.58, 0.22)
+layout_mode = 2

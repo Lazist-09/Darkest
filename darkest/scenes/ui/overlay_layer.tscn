@@ -9,6 +9,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("1_ov")
 
+; 🔴 遮罩层（2026-09-20 L2/L3 布局整改）：打开任意 L2/L3 时压暗背景并**吃掉点击**（防点透下层）。
+;    必须排在 ModalHost **之前**（兄弟序越靠前越先绘制 ⇒ 遮罩在下、模态在上）✓
+;    ⚠️ mouse_filter = 0 (Stop)：默认 Ignore 会让点击穿透到下层 UI（"模态点得到底下的按钮"）✓
+[node name="DimMask" type="ColorRect" parent="."]
+visible = false
+mouse_filter = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.54902)
+
 [node name="ModalHost" type="Control" parent="."]
 mouse_filter = 2
 anchors_preset = 15
