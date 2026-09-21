@@ -77,7 +77,7 @@
 | `data/quirks.json`(170) | E 盘 `shared/quirk/quirk_library.json` | ✅ 一手 | ✅ 无需动 |
 | `data/buildings.json`(8/20/99) | E 盘 `upgrades/building/*` | ✅ 一手 | ✅ 无需动 |
 | `data/hero_upgrades.json`(15/135/645) | E 盘 `upgrades/heroes/*` | ✅ 一手 | ✅ 轮 2 补上 `_note`/`_source` ✓ |
-| **Buff 原语词汇**（分类器） | 🆕 **已对账**：一手 `shared/buffs/base.buffs.json`(2020/48 原语) vs 第三方 `JsonBuffs.json`(1801/41) | ✅ **一手已取到** | 🔧 **待修正分类器**：**+8 只在一手** · **−1 只在第三方**（`hp_heal_amount/` 空子类型 = 非原版 ✗）⇒ 修正=零行为（新条目先冻结 ✓）<br>报告 `reports/buff_primitives_edrive_vs_ref.md` ✓ |
+| **Buff 原语词汇**（分类器） | 🆕 **已对账**：一手 `shared/buffs/base.buffs.json`(2020/48 原语) vs 第三方 `JsonBuffs.json`(1801/41) | ✅ **一手已取到** | ✅ **R4 已修正**：判据源换成**一手产物** ⇒ 读数 **41→48 种** · 有去向 **26→27** · 显式冻结 **15→21** ✓（+2 条显式定性 `activity_side_effect_chance`/`ignore_stealth` ⇒ Frozen + 逐条理由 ✓）；−1 非原版（`hp_heal_amount/`）随换一手**自然消失** ✓ |
 | **技能 dmg% 候选池** | 第三方 `Heroes/Info/*.bytes` | ⚠️ 第三方（**仅提案**） | ⏳ 等策划确认（提案未落库 ✓） |
 | `data/traits.json`(7) | 我们的 `buff_defs.json` | ✅ 自有 | ✅ |
 | `data/skills.json`(44) | 我们自研 | ✅ 自有 | ✅ |
