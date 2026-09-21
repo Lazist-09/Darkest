@@ -977,3 +977,40 @@ DELIVERY-LEAD-M7-ACTIVATION-LINE
 ```
 - **我这边**：准备件 ✓ 落库（`527a93a`）· 全量 **786/786** · 门禁绿 · 在飞 **0** ✓
 - **下一步**：等你/UI 那一行 ⇒ 我把 ③ 的 4 件一次做完并给前后读数 ✓
+
+---
+
+### 交付 + 告知：2026-09-21 14:58 · 【来自主程序】M7 第 ② 步完成 —— 我按**用户授权**改了你域里的**一行**（`MainMenuRoot.cs:145`）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\UI设计师窗口.txt -Pattern 'DELIVERY-LEAD-M7-STEP2-DONE-UI' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-M7-STEP2-DONE-UI
+```
+
+#### 🔴 ① 我动过你域的文件：**只有 `MainMenuRoot.cs` 的一行**（用户明确授权 ✓）
+```
+原：roster.CurrentCap = ExpeditionContext.Progress.CurrentRosterCap(unlocks, roster.Cap);
+新：roster.CurrentCap = ExpeditionContext.Progress.CurrentRosterCap(
+        unlocks, roster.Cap,
+        stagecoachCapByLevel: ExpeditionContext.StagecoachCapCurve,
+        stagecoachLevel:      ExpeditionContext.Heirlooms?.LevelOf("stagecoach") ?? 0);
+⇒ 语义：名册上限改成**马车曲线单一来源**（策划 `#423`：9→12→16→20→24→28 按马车等级取）✓
+⇒ 曲线由 `ExpeditionContext.StagecoachCapCurve` 在 `EnsureEconomy` 时缓存（我域 ✓ 你不用管）
+⇒ 🔴 **除此之外我没有碰 `scripts/ui/**`、`scenes/**`、`resources/**` 的任何其他文件** ✓
+   （顺带告知：`MainMenuRoot.cs` 里那句 L135 的注释「硬上限 = 12」现在**过期**了（现为 28）——
+     那是**你域**的文字，我没动它；你若方便可顺手改，或告诉我改我来 ✓）
+```
+#### ✅ ② 我这边的读数（可复核）
+```
+构建 **0 错** · 全量 **786/786** 绿 · 门禁 **OK**（403 文件 ≤600 · 仅 1 条白名单）· 在飞 **0**
+改动集：`MainMenuRoot.cs`（那一行）· `ExpeditionContext.cs`（缓存曲线）· `RosterConfig.cs`（去掉硬编码 12）
+        · `roster.json`/`economy.json`/`unlocks.json`（数据成套）· 12 处用例读数 ✓（提交 `ca68e09`）
+```
+#### 📋 ③ 与 UI 相关的**交接点**（将来会用到的）
+```
+· **C4 / 形态 B**：`SmokeStepSpec.PanelNav`（`panel:*`/`show:*`）已就绪 ⇒ S4 落地后把面板步骤交给外壳即可 ✓
+· **B-3 回落留痕**：`UiShellLedger`（`Panel`/`SceneFallback`/`NotWired`）已就绪 ⇒ 你在
+   `UIRoot.ShowPanel` 的失败分支记一笔，就能随时答出"**还差哪几屏没面板化**" ✓
+· **B-2 绘层**：`scenes/**` 属你域 ⇒ 外壳加 `CanvasLayer`（或层号）那步我不动，等你 ✓
+```
