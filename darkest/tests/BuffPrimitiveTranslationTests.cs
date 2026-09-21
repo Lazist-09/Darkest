@@ -13,7 +13,9 @@ namespace Darkest.Tests;
 ///   要么落到我们的某个去向（`damage_mod`/`prob_mod`/`stat_mod`/`state_flag`/单位抗性），
 ///   要么进**显式冻结**清单（带理由）✓
 ///
-/// 输入：`reports/dd1_buff_primitives.json`（我此前从参考件抽出的 41 种原语，**已入库** ✓）
+/// 输入：`reports/dd1_buff_primitives_primary.json`（🆕 **R4：判据源已换成【一手 E 盘】** ⇒ 48 种原语 ✓）
+/// ⚠️ 此前读的是 `dd1_buff_primitives.json`（**第三方** 41 种）⇒ 一手对账发现**漏 8 多 1**（见
+/// `reports/buff_primitives_edrive_vs_ref.md`）⇒ 判据源必须是一手 ✓
 ///   ⇒ 若该文件不存在 ⇒ `Assert.Inconclusive`（不假装通过 ✓）
 /// 🔴 本用例**不落任何数据、不改 `buff_defs.json`**（只是把"翻译到哪一步"变成可数 ✓）
 /// </summary>
@@ -25,7 +27,7 @@ public sealed class BuffPrimitiveTranslationTests
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir is not null)
         {
-            string c = Path.Combine(dir.FullName, "reports", "dd1_buff_primitives.json");
+            string c = Path.Combine(dir.FullName, "reports", "dd1_buff_primitives_primary.json");
             if (File.Exists(c))
             {
                 return c;
@@ -43,7 +45,7 @@ public sealed class BuffPrimitiveTranslationTests
         string? path = FindReport();
         if (path is null)
         {
-            Assert.Inconclusive("reports/dd1_buff_primitives.json 不在（未跑提取器）⇒ 不假装通过 ✓");
+            Assert.Inconclusive("reports/dd1_buff_primitives_primary.json 不在（未跑提取器）⇒ 不假装通过 ✓");
             return;
         }
 

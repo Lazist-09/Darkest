@@ -59,6 +59,18 @@ public static class BuffPrimitiveTranslation
             return Target.UnitResistance;
         }
 
+        // 🆕 ③′ **R4 一手对账新增**：这两条**不是战斗 modifier** ⇒ 必须先于通用 `_chance` 规则判掉 ✓
+        //    （否则会被 "③ 概率类" 误吸进 prob_mod ✗ —— 那正是"硬凑"，纪律不许 ✓）
+        if (st == "activity_side_effect_chance")
+        {
+            return Target.Frozen;   // 活动副作用（加/减货币·饰品）= 城镇/远征层 ✓
+        }
+
+        if (st == "ignore_stealth")
+        {
+            return Target.Frozen;   // 潜行/侦测 = 可见性轴，我们无此轴 ✓
+        }
+
         // ③ 概率/命中类（原版的 chance 家族）⇒ prob_mod ✓
         if (st.EndsWith("_chance", StringComparison.Ordinal))
         {
@@ -91,6 +103,10 @@ public static class BuffPrimitiveTranslation
         "party_surprise_chance" or "monsters_surprise_chance" or "monster_surpirse_chance" => "伏击/惊喜（远征层）✓",
         "remove_quirk_chance" or "remove_negative_quirk_chance" => "怪癖移除（M5 之后）✓",
         "debuff_chance" or "dmg_received_percent" => "概率/减伤轴（待与 prob_mod/damage_mod 的细分口径一起定）✓",
+        // 🆕 R4 一手对账新增（一手有、第三方没有 ⇒ 必须显式给出理由，不许落进"未定"兜底 ✓）
+        "activity_side_effect_chance" => "活动副作用（加/减货币·饰品）= **城镇/远征层**，不是战斗 modifier ✓",
+        "ignore_stealth" => "潜行/侦测 = **可见性轴**（我们无此轴）⇒ 显式冻结 ✓",
+        "crit_received_chance" => "受方暴击率 ⇒ 经 ③ 归 prob_mod（**有去向** ✓ 无需冻结理由）✓",
         _ => "未定（需先定规则再翻）✓",
     };
 
