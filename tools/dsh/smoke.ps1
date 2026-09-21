@@ -34,6 +34,8 @@ $Cases = @(
     @{ Name = 'dungeon-in-scene'; Args = @('--dungeon-in-scene');          Desc = '宿主内进地牢（片 3.1：进 Walking 不起战斗）' }
     @{ Name = 'tile-walk';    Args = @('--smoke=main:1', '--tile-walk');   Desc = '瓷砖主画面（走格开启 + UI 自证行）' }
     # 🔴 主程序 2026-09-21 补（B-1 主程序侧）：战斗作为 panel 挂进外壳（S4 第一步 ✓）
+    # 🔴 主程序 2026-09-21 补（C4）：**面板步骤**导航 —— 战斗不再是场景根，步骤要能指向面板 ✓
+    @{ Name = 'battle-panel-nav'; Args = @('--smoke=main:1,panel:battle', '--battle-panel'); Desc = 'C4：面板步骤导航（panel:battle 被面板内的战斗消费 ⇒ B-1 判据）' }
     @{ Name = 'battle-panel'; Args = @('--smoke=main:1', '--battle-panel');                    Desc = '战斗成面板（B-1：场景根交出驱动权 + 挂进外壳 ScreenLayer）' }
     @{ Name = 'abandon';      Args = @('--smoke=main:1,abandon');          Desc = '放弃远征（行走模式按按钮 ⇒ 结束本趟回城）' }
 )

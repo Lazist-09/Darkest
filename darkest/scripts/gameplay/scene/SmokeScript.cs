@@ -173,6 +173,9 @@ public static class SmokeScript
         "auto" => node is BattleRoot,
         "hover:tavern" or "hover:abbey" or "hover:stagecoach" or "row:0" or "row:1" or "row:2"
             or "back" or "embark" => node is Darkest.UI.HamletRoot,
+        // 🆕 **C4（形态 B）**：面板步骤 —— 只有**确实运行在面板里**的那个战斗实例才能消费它 ✓
+        //    （判据不是"名字对上了"，而是**祖先链里真的有 BattlePanel** ✓）
+        "panel:battle" => node is Darkest.Gameplay.Scene.BattleRoot && IsInsidePanel(node),
         _ => true, // 未知步骤 ⇒ 交给 Apply 报错退出
     };
 
@@ -196,6 +199,23 @@ public static class SmokeScript
         _timer = t;
     }
 
+    /// <summary>🆕 C4：本节点是否运行在 `BattlePanel` 里（**按祖先链判**，不按名字 ✓）</summary>
+    private static bool IsInsidePanel(Node node) => FindPanel(node) is not null;
+
+    /// <summary>🆕 C4：向上找 `BattlePanel`（找不到 ⇒ null ⇒ 如实不匹配 ✓）</summary>
+    private static Darkest.Gameplay.Scene.BattlePanel? FindPanel(Node node)
+    {
+        for (Node? cur = node; cur is not null; cur = cur.GetParent())
+        {
+            if (cur is Darkest.Gameplay.Scene.BattlePanel p)
+            {
+                return p;
+            }
+        }
+
+        return null;
+    }
+
     private static void Apply(string step, Node node)
     {
         switch (step)
@@ -205,7 +225,17 @@ public static class SmokeScript
             case "main:2":
                 PressMainMenu(node, step[^1] - '0');
                 break;
-            case "map:0":
+            // 🆕 **C4**：面板步骤的动作 = **自证**（把"战斗确实作为面板在跑"打成可核对的读数 ✓）
+        case "panel:battle":
+            {
+                Darkest.Gameplay.Scene.BattlePanel? p = FindPanel(node);
+                GD.Print($"[冒烟·C4] ✅ 面板步骤 `panel:battle` 被消费："
+                    + $"节点={node.GetType().Name} · 面板={(p is null ? "(未知)" : p.PanelName)}"
+                    + $" · 路径={node.GetPath()} ✓（B-1：战斗不再是场景根）");
+                break;
+            }
+
+        case "map:0":
             case "map:1":
             case "map:2":
                 // 🔴 片 4④：**宿主内**（`BattleRoot`）的行走步骤 —— 选第 N 条出路；若该步是战斗步骤 ⇒ **场景内起战斗** ✓
