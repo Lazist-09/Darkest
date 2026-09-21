@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Run;
+using Darkest.Gameplay.Sim.Survival;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Darkest.Tests;

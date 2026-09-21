@@ -8,6 +8,7 @@ using Darkest.Core.Rng;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Run;
+using Darkest.Gameplay.Sim.Survival;
 using Darkest.Tests.MonteCarlo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

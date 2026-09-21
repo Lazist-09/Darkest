@@ -8,6 +8,7 @@ using Darkest.Core.Rng;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Buffs;
+using Darkest.Gameplay.Sim.Morale;
 using Darkest.Gameplay.Sim.Pipeline;
 using Darkest.Gameplay.Sim.Survival;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Darkest.Core.Contracts;
 using Darkest.Core.Events;
+using Darkest.Gameplay.Sim.Morale;
 using Darkest.Tests.MonteCarlo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

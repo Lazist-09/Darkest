@@ -482,6 +482,82 @@ public sealed partial class BoardTests
         Assert.AreEqual(SlotState.Empty, board.GetSlot(4), "靠齐后空位收敛到队尾");
     }
 
+    [TestMethod]
+    public void DamageObstacle_PartialDamage_KeepsObstacleWithReducedHp()
+    {
+        // 🔴 2026-09-20 接线：障碍**受击**（此前 `TryGetObstacleHp`/`RemoveObstacle` 只有测试在调
+        //    ⇒ 实机障碍是"纯无敌墙"）。未归零 ⇒ **仍在**，但血条减少 ✓
+        FormationBoard board = MakeBoardWithObstacles(FormationSide.Enemy,
+            new[] { (1, "A", false) },
+            (2, 5));
+
+        Assert.IsTrue(board.DamageObstacle(2, 3), "扣 3 后仍剩 2 ⇒ 返回 true（槽仍被占据）");
+        Assert.AreEqual(SlotState.Blocked, board.GetSlot(2), "未归零 ⇒ 障碍保留");
+        Assert.IsTrue(board.TryGetObstacleHp(2, out int? hp) && hp == 2, "血量应 5 → 2");
+    }
+
+    [TestMethod]
+    public void DamageObstacle_Lethal_RemovesObstacle()
+    {
+        // 归零 ⇒ **自动移除**（调用方随后自行编排靠齐，GDD §1.1："立即靠齐由调用方负责任务编排"）✓
+        FormationBoard board = MakeBoardWithObstacles(FormationSide.Enemy,
+            new[] { (1, "A", false), (3, "B", false) },
+            (2, 5));
+
+        Assert.IsFalse(board.DamageObstacle(2, 5), "正好归零 ⇒ 返回 false（槽已空）");
+        Assert.AreEqual(SlotState.Empty, board.GetSlot(2), "归零 ⇒ 障碍被移除");
+        Assert.IsFalse(board.TryGetObstacleHp(2, out _), "移除后读不到障碍");
+    }
+
+    [TestMethod]
+    public void DamageObstacle_Overkill_RemovesAndNeverGoesNegative()
+    {
+        FormationBoard board = MakeBoardWithObstacles(FormationSide.Enemy,
+            new[] { (1, "A", false) },
+            (2, 3));
+
+        Assert.IsFalse(board.DamageObstacle(2, 999), "超额伤害 ⇒ 同样移除（血量不为负）");
+        Assert.AreEqual(SlotState.Empty, board.GetSlot(2));
+    }
+
+    [TestMethod]
+    public void DamageObstacle_Indestructible_AbsorbsWithoutRemoval()
+    {
+        // `hp == null` = 不可摧毁占位（`data_schema §3.6` 缺省 / #73/#105 口径）⇒ **吸收、不掉血、不移除** ✓
+        FormationBoard board = MakeBoardWithObstacles(FormationSide.Player,
+            new[] { (1, "A", false) },
+            (2, null));
+
+        Assert.IsTrue(board.DamageObstacle(2, 9999), "不可摧毁 ⇒ 永远返回 true（仍在）");
+        Assert.AreEqual(SlotState.Blocked, board.GetSlot(2));
+        Assert.IsTrue(board.TryGetObstacleHp(2, out int? hp) && hp is null, "血量仍为 null（免疫）");
+    }
+
+    [TestMethod]
+    public void DamageObstacle_NonObstacleSlot_ReturnsFalse()
+    {
+        FormationBoard board = MakeBoardWithObstacles(FormationSide.Enemy,
+            new[] { (1, "A", false) },
+            (2, 5));
+
+        Assert.IsFalse(board.DamageObstacle(1, 5), "该槽是单位不是障碍 ⇒ false（调用方应先 TryGetObstacleHp 判存在）");
+        Assert.AreEqual(1, board.UnitAtPosition(UnitId.Of("A")), "单位不受影响");
+    }
+
+    [TestMethod]
+    public void DamageObstacle_DoesNotPollutePreviewSnapshot()
+    {
+        // record 不可变 ⇒ 打快照里的障碍**不会**回头改真实板（dry-run 隔离性）✓
+        FormationBoard board = MakeBoardWithObstacles(FormationSide.Enemy,
+            new[] { (1, "A", false) },
+            (2, 5));
+        FormationBoard snapshot = board.CreatePreviewSnapshot();
+
+        Assert.IsFalse(snapshot.DamageObstacle(2, 5), "快照里被摧毁");
+        Assert.AreEqual(SlotState.Blocked, board.GetSlot(2), "🔴 真实板不受快照改动影响");
+        Assert.IsTrue(board.TryGetObstacleHp(2, out int? hp) && hp == 5, "真实板血量原封不动");
+    }
+
     // ------------------------------------------------------------------
     // T-M1-05：位移预览 dry-run（内核同源）
     // ------------------------------------------------------------------

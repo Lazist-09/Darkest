@@ -8,6 +8,7 @@ using Darkest.Core.Rng;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Buffs;
+using Darkest.Gameplay.Sim.Morale;
 using Darkest.Gameplay.Sim.Pipeline;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -84,11 +85,11 @@ public sealed class StateMachineTests
         UnitRuntime u = Warrior(0);
         u.CollapseEmber = true; // 先经 Apply 达成停在 0 的余烬态
         buffLedger.Add(u.Id, "affliction_fear", source: null);
-        Assert.IsTrue(ledger.IsCollapseEmber(u));
+        Assert.IsTrue(u.CollapseEmber);
 
         ledger.Apply(u, 50, "morale_recovery", log); // 士气回 50
         Assert.IsFalse(buffLedger.Has(u.Id, "affliction_fear"), "折磨结束 = 士气回 50（morale §4.0）");
-        Assert.IsFalse(ledger.IsCollapseEmber(u), "同一时刻恢复判定资格");
+        Assert.IsFalse(u.CollapseEmber, "同一时刻恢复判定资格");
     }
 
     [TestMethod]
