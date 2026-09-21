@@ -131,7 +131,7 @@ public sealed partial class BattleDirector
         ApplyReinforcement(rng);
 
         // 支援位每回合 +3（morale_events support_slot_turn_start，#60）
-        foreach (int slot in _player.Layout.SupportSlots)
+        foreach (int slot in _player.Layout.ExtensionSlots)
         {
             if (_player.GetSlot(slot) == SlotState.Occupied)
             {
@@ -265,7 +265,7 @@ public sealed partial class BattleDirector
         }
 
         UnitRuntime? b = _player.UnitRuntimeAt(bSlot);
-        if (b is null || !_player.Layout.SupportSlots.Contains(bSlot))
+        if (b is null || !_player.Layout.ExtensionSlots.Contains(bSlot))
         {
             return false;
         }
@@ -356,7 +356,7 @@ public sealed partial class BattleDirector
 
     /// <summary>该单位是否位于支援位（5/6）——只有支援位技能与增援消耗 SP。</summary>
     public bool IsSupportSlotActor(UnitId actor)
-        => _player.UnitAtPosition(actor) is { } pos && _player.Layout.SupportSlots.Contains(pos);
+        => _player.UnitAtPosition(actor) is { } pos && _player.Layout.ExtensionSlots.Contains(pos);
 
     /// <summary>
     /// 🔴 M7.5 D2 / `#268`（架构裁定）：**支援包（`support_pack`，消耗品）的 SP 结算入口**。

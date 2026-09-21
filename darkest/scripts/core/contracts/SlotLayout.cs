@@ -13,9 +13,9 @@ public sealed record SlotLayout
 
     public int CombatSlots { get; }
 
-    public IReadOnlyList<int> SupportSlots { get; }
+    public IReadOnlyList<int> ExtensionSlots { get; }
 
-    public SlotLayout(int slotCount, int combatSlots, IReadOnlyList<int> supportSlots)
+    public SlotLayout(int slotCount, int combatSlots, IReadOnlyList<int> extensionSlots)
     {
         if (slotCount <= 0)
         {
@@ -28,18 +28,18 @@ public sealed record SlotLayout
                 $"CombatSlots({combatSlots}) 越界 [0, {slotCount}]。");
         }
 
-        if (supportSlots is null)
+        if (extensionSlots is null)
         {
-            throw new ArgumentNullException(nameof(supportSlots));
+            throw new ArgumentNullException(nameof(extensionSlots));
         }
 
         var seen = new HashSet<int>();
-        var copy = new List<int>(supportSlots.Count);
-        foreach (int slot in supportSlots)
+        var copy = new List<int>(extensionSlots.Count);
+        foreach (int slot in extensionSlots)
         {
             if (slot < 1 || slot > slotCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(supportSlots),
+                throw new ArgumentOutOfRangeException(nameof(extensionSlots),
                     $"支援位 {slot} 越界 [1, {slotCount}]。");
             }
 
@@ -53,6 +53,6 @@ public sealed record SlotLayout
 
         SlotCount = slotCount;
         CombatSlots = combatSlots;
-        SupportSlots = copy.AsReadOnly();
+        ExtensionSlots = copy.AsReadOnly();
     }
 }

@@ -47,17 +47,17 @@ public sealed class M9SlotContractTests
         var six = new SlotLayout(6, 4, new[] { 5, 6 });
         Assert.AreEqual(6, six.SlotCount, "6 槽仍可表达 ✓");
         Assert.AreEqual(4, six.CombatSlots, "其中 4 个是战斗位 ✓");
-        CollectionAssert.AreEqual(new[] { 5, 6 }, six.SupportSlots.ToArray(), "5/6 是扩展（原支援）位 ✓");
+        CollectionAssert.AreEqual(new[] { 5, 6 }, six.ExtensionSlots.ToArray(), "5/6 是扩展（原支援）位 ✓");
 
         var four = new SlotLayout(4, 4, Array.Empty<int>());
         Assert.AreEqual(4, four.SlotCount, "4 槽同样成立 ✓");
-        Assert.AreEqual(0, four.SupportSlots.Count, "4v4 没有扩展位 ✓");
+        Assert.AreEqual(0, four.ExtensionSlots.Count, "4v4 没有扩展位 ✓");
 
-        // 通用扩展位：**可为空**（卡里"SupportSlots ⇒ 通用扩展位（可为空）"✓）
+        // 通用扩展位：**可为空**（卡里"ExtensionSlots ⇒ 通用扩展位（可为空）"✓）
         var noExt = new SlotLayout(5, 5, Array.Empty<int>());
-        Assert.AreEqual(0, noExt.SupportSlots.Count, "扩展位可以为空 ✓");
+        Assert.AreEqual(0, noExt.ExtensionSlots.Count, "扩展位可以为空 ✓");
 
-        Console.WriteLine($"[M9·D] 6 槽 ✓（combat {six.CombatSlots} + 扩展 [{string.Join(",", six.SupportSlots)}]）· "
+        Console.WriteLine($"[M9·D] 6 槽 ✓（combat {six.CombatSlots} + 扩展 [{string.Join(",", six.ExtensionSlots)}]）· "
             + $"4 槽 ✓ · 空扩展位 ✓ ⇒ **契约仍能表达 6 槽** ✓");
         TestContext.WriteLine("[M9·D] 6 槽契约回归 ✓");
     }
@@ -70,15 +70,15 @@ public sealed class M9SlotContractTests
         TuningConfig tuning = TuningConfig.Parse(ReadData("tuning.json"));
 
         string p = $"player: slot_count {formation.Player.SlotCount} · combat {formation.Player.CombatSlots}"
-            + $" · support [{string.Join(",", formation.Player.SupportSlots)}]";
+            + $" · support [{string.Join(",", formation.Player.ExtensionSlots)}]";
         string e = $"enemy: slot_count {formation.Enemy.SlotCount} · combat {formation.Enemy.CombatSlots}"
-            + $" · support [{string.Join(",", formation.Enemy.SupportSlots)}]";
+            + $" · support [{string.Join(",", formation.Enemy.ExtensionSlots)}]";
 
         Console.WriteLine($"[M9·B 改前] {p}");
         Console.WriteLine($"[M9·B 改前] {e}");
 
         // 支援位上现在坐着谁（一手数据 ✓）
-        var support = new HashSet<int>(formation.Player.SupportSlots);
+        var support = new HashSet<int>(formation.Player.ExtensionSlots);
         foreach (var u in formation.InitialRoster.Player.Where(x => support.Contains(x.Slot)))
         {
             Console.WriteLine($"[M9·B 改前] 支援位 {u.Slot} = {u.Unit}（未声明 SP 的技能会按兜底被扣）✓");
@@ -88,7 +88,7 @@ public sealed class M9SlotContractTests
             + $" · regen/round {tuning.SupportPoints.RegenPerRound}（P19 要求 ≥ 1 ✓）");
 
         // 🔴 这些是"before"数字，供 B/C 做前后对照（本用例不改它们 ✓）
-        Assert.IsTrue(formation.Player.SupportSlots.Count > 0, "改前我方**有**支援位（这正是 M9 要降级的对象 ✓）");
+        Assert.IsTrue(formation.Player.ExtensionSlots.Count > 0, "改前我方**有**支援位（这正是 M9 要降级的对象 ✓）");
         Assert.IsTrue(tuning.SupportPoints.RegenPerRound >= 1, "P19：regen_per_round ≥ 1 ✓（M9 不动它 ✓）");
         TestContext.WriteLine("[M9·B] 改前读数已输出 ✓");
     }

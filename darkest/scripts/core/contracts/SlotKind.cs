@@ -7,5 +7,5 @@ namespace Darkest.Core.Contracts;
 public enum SlotKind
 {
     Combat,
-    Support,
+    Extension,
 }

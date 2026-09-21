@@ -13,7 +13,7 @@ namespace Darkest.Data;
 public sealed record SlotLayoutConfig(
     [property: JsonPropertyName("slot_count")] int SlotCount,
     [property: JsonPropertyName("combat_slots")] int CombatSlots,
-    [property: JsonPropertyName("support_slots")] IReadOnlyList<int> SupportSlots);
+    [property: JsonPropertyName("support_slots")] IReadOnlyList<int> ExtensionSlots);
 
 /// <summary>编成行（data_schema §3.6 initial_roster 元素）：`unit` = units.json 原型 id。</summary>
 public sealed record RosterEntryConfig(
@@ -104,7 +104,7 @@ public sealed record FormationConfig(
 
         ValidateLayout("player", cfg.Player);
         ValidateLayout("enemy", cfg.Enemy);
-        if (cfg.Enemy.SupportSlots is { Count: > 0 })
+        if (cfg.Enemy.ExtensionSlots is { Count: > 0 })
         {
             throw new InvalidDataException($"{ResPath}: 敌方无支援位（enemy.md §1），support_slots 必须为空。");
         }
@@ -177,7 +177,7 @@ public sealed record FormationConfig(
             throw new InvalidDataException($"{ResPath}: {side}.combat_slots 越界 [0, {layout.SlotCount}]。");
         }
 
-        foreach (int slot in layout.SupportSlots)
+        foreach (int slot in layout.ExtensionSlots)
         {
             if (slot < 1 || slot > layout.SlotCount)
             {

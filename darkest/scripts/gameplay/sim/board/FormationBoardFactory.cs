@@ -40,7 +40,7 @@ public static class FormationBoardFactory
         IReadOnlyList<RosterEntryConfig> roster =
             side == FormationSide.Player ? cfg.InitialRoster.Player : cfg.InitialRoster.Enemy;
 
-        var layout = new SlotLayout(layoutCfg.SlotCount, layoutCfg.CombatSlots, layoutCfg.SupportSlots);
+        var layout = new SlotLayout(layoutCfg.SlotCount, layoutCfg.CombatSlots, layoutCfg.ExtensionSlots);
         var unitsBySlot = new Dictionary<int, UnitRuntime>();
         var archetypeCount = new Dictionary<string, int>();
         foreach (RosterEntryConfig entry in roster)

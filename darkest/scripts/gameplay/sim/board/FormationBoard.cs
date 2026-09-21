@@ -16,7 +16,7 @@ public sealed class FormationBoard : IFormation
     private readonly FormationRules _rules;
     private readonly UnitRuntime?[] _units;           // index = pos - 1
     private readonly ObstacleRuntime?[] _obstacles;   // index = pos - 1
-    private readonly HashSet<int> _supportSlots;
+    private readonly HashSet<int> _extensionSlots;
 
     public FormationBoard(
         FormationSide side,
@@ -30,7 +30,7 @@ public sealed class FormationBoard : IFormation
         _rules = rules ?? throw new ArgumentNullException(nameof(rules));
         _units = new UnitRuntime?[layout.SlotCount];
         _obstacles = new ObstacleRuntime?[layout.SlotCount];
-        _supportSlots = new HashSet<int>(layout.SupportSlots);
+        _extensionSlots = new HashSet<int>(layout.ExtensionSlots);
 
         if (initialUnits is not null)
         {
@@ -85,7 +85,7 @@ public sealed class FormationBoard : IFormation
     public SlotKind SlotKindAt(int pos)
     {
         ValidateSlot(pos);
-        return _supportSlots.Contains(pos) ? SlotKind.Support : SlotKind.Combat;
+        return _extensionSlots.Contains(pos) ? SlotKind.Extension : SlotKind.Combat;
     }
 
     /// <summary>

@@ -111,7 +111,7 @@ public sealed class SkillExecutor
         if (_buffs is not null && _buffs.Has(caster, "affliction_uncontrolled"))
         {
             int casterPos = allyBoard.UnitAtPosition(caster) ?? -1;
-            if (allyBoard.Layout.SupportSlots.Contains(casterPos))
+            if (allyBoard.Layout.ExtensionSlots.Contains(casterPos))
             {
                 _buffs.Add(caster, "bound", source: null);
                 _log.Append(new EffectEvent(caster, "uncontrolled_bound", 100.0, true));

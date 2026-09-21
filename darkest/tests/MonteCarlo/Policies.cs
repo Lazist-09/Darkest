@@ -206,7 +206,7 @@ public static class Policies
     /// <summary>S5（#211）②：支援位中有健康者（HP% ≥ 60%）→ 返回其槽位，供"救崩溃"增援换下虚弱战斗位。</summary>
     private static int? SupportHealthyAlly(BattleDirector director)
     {
-        foreach (int slot in director.Player.Layout.SupportSlots)
+        foreach (int slot in director.Player.Layout.ExtensionSlots)
         {
             UnitRuntime? u = director.Player.UnitRuntimeAt(slot);
             if (u is not null && !u.Weak && u.MaxHp > 0 && (double)u.CurrentHp / u.MaxHp >= 0.6)
@@ -288,7 +288,7 @@ public static class Policies
 
         int priority(string archetype) => archetype switch { "medic" => 0, "commissar" => 1, _ => 2 };
         int? best = null;
-        foreach (int slot in director.Player.Layout.SupportSlots)
+        foreach (int slot in director.Player.Layout.ExtensionSlots)
         {
             UnitRuntime? ally = director.Player.UnitRuntimeAt(slot);
             if (ally is null || ally.Weak || ally.Id == unit.Id)

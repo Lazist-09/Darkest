@@ -34,8 +34,8 @@ public sealed partial class BoardTests
         }
 
         Assert.AreEqual(SlotKind.Combat, player.SlotKindAt(1));
-        Assert.AreEqual(SlotKind.Support, player.SlotKindAt(5));
-        Assert.AreEqual(SlotKind.Support, player.SlotKindAt(6));
+        Assert.AreEqual(SlotKind.Extension, player.SlotKindAt(5));
+        Assert.AreEqual(SlotKind.Extension, player.SlotKindAt(6));
 
         FormationBoard enemy = FormationBoardFactory.CreateEnemyBoard(cfg, units);
         Assert.AreEqual(4, enemy.SlotCount);
@@ -58,7 +58,7 @@ public sealed partial class BoardTests
     }
 
     [TestMethod]
-    public void FormationConfig_InvalidEnemySupportSlots_Throws()
+    public void FormationConfig_InvalidEnemyExtensionSlots_Throws()
     {
         string json = """
             { "player": { "slot_count": 6, "combat_slots": 4, "support_slots": [5,6] },

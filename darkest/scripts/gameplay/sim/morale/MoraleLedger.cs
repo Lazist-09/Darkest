@@ -309,7 +309,7 @@ public sealed class MoraleLedger
     public int SupportSlotRegen(UnitRuntime unit, FormationBoard player)
     {
         int healthySupport = 0;
-        foreach (int slot in player.Layout.SupportSlots)
+        foreach (int slot in player.Layout.ExtensionSlots)
         {
             UnitRuntime? ally = player.UnitRuntimeAt(slot);
             if (ally is not null && !ally.Weak && ally.Id != unit.Id)
