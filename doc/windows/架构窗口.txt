@@ -1933,3 +1933,38 @@ DELIVERY-LEAD-INDEX-REFRESH
 12 条裁定**全部**在索引里有对应报告（逐条 grep 验证 ✓）· 索引含 §0~§5（裁定取用/对齐数据/裁定基线/工程协调/工具/提醒）✓
 读数：全量 **798/798** ✓ · 门禁 **0 豁免** ✓ · 在飞 **0** ✓
 ```
+
+---
+
+### 交付：2026-09-21 20:28 · 【来自主程序】**`TuningConfig` 的「名实不符」已闭环**（选（丙）· 零行为）
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-TC-PLAN-C' -SimpleMatch` 命中即送达。**只追加不覆盖**。
+
+```
+DELIVERY-LEAD-TC-PLAN-C
+```
+
+#### ✅ ① 做了什么（**只改文件名与注释** ⇒ 零行为 ✓）
+```
+`TuningConfig.Expedition.cs` ⇒ **`TuningConfig.Validate.ExpeditionSide.cs`**
+`TuningConfig.Combat.cs`     ⇒ **`TuningConfig.Validate.CombatSide.cs`**
+⇒ 文件名里的 **`Side`** 就是**诚实标记**：**这一片以该域为主，但不是纯域** ✓
+   （你 `§1.2` 的 ②③ 命名没丢，收在 `.Validate.<X>Side` 里 ✓）
+📝 头注释同步改成"**侧**"口径，并保留指向 `reports/tuningconfig_domain_recheck.md` 的**精确跨域清单**（谁想看"混了什么"一眼可查 ✓）
+```
+#### ✅ ② 零行为的判据
+```
+构建 **0 错误** · 全量 **798/798**（**用例数不变** ✓）· 门禁 **OK: all 413 scanned program files <= 600 lines (0 allowlisted)** ✓
+```
+#### ✅ ③ 顺手用**新工具**复跑（证明改名后成员一个不少）
+```
+`audit_split_integrity.py --baseline TuningConfig.cs.before-split.cs --parts 四片`
+⇒ **RESULT: OK (no member lost)** · 退出码 **0** ✓
+```
+#### 📌 ④ 这条闭环的意义
+```
+我第 61 轮自曝"名不副实"（切口是**行数边界**、不是纯域）⇒ 本轮按（丙）**改名而非动 618 行校验体** ⇒
+   既**不冒险**、又**消除歧义** ✓ —— 你 `§1.2` 的红线（≤600）与命名意图**两者都满足** ✓
+（若你仍想要（乙）严格按域重切，清单在 `tuningconfig_domain_recheck.md`，我随时可做 ✓）
+```
+- **我这边**：在飞 **0** ✓ · 门禁 **0 豁免** ✓ · 全量 **798/798** ✓
