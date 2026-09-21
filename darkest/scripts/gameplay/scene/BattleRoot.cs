@@ -96,6 +96,13 @@ public partial class BattleRoot : Node2D
 
         // 🔴 **B-2 判据（我域）**：`--shell-layer` ⇒ 打印「外壳有效绘层 vs 当前场景有效绘层」✓
         //    （架构要的"外壳三层都在当前场景之上"的**可核对读数** ⇒ 判据本体在 `ShellLayerAudit` ✓）
+
+        // 🔴 **C4 终态判据（我域）**：`--shell-count` ⇒ 数外壳实例数 + 看 `main_scene`/`autoload` ✓
+        //    （架构原话：判据「外壳现在有几个实例？」**必须是 1** ✓）
+        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--shell-count"))
+        {
+            ShellInstanceAudit.Run(this);
+        }
         if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--shell-layer"))
         {
             ShellLayerAudit.Run(this);
