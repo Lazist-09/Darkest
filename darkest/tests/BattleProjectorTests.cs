@@ -132,7 +132,7 @@ public sealed class BattleProjectorTests
     }
 
     private static UnitStats MakeStats()
-        => new(Hp: 50, Attack: 12, PhysDef: 8, Speed: 8, Dodge: 10, Crit: 5, Resilience: 55,
+        => new(Hp: 50, Attack: 12, Prot: 8, Speed: 8, Dodge: 10, Crit: 5, Resilience: 55,
             StunResist: 30, BleedResist: 30, StatDebuffResist: 25, DisplaceResist: 55, DeathsDoorResist: null);
 
     private static string Snapshot(IFormation board)

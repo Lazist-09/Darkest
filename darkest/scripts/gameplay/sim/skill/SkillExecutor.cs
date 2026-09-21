@@ -559,7 +559,7 @@ public sealed class SkillExecutor
         switch (effect.Stat)
         {
             case "attack": target.AttackMod += delta; break;
-            case "phys_def": target.PhysDefMod += delta; break;
+            case "phys_def": target.ProtMod += delta; break;
             case "resilience": target.ResilienceMod += delta; break;
             case "speed": target.SpeedMod += delta; break;
         }

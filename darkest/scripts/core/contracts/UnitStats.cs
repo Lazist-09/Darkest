@@ -11,7 +11,7 @@ public sealed record UnitStats(
     int Hp,
     int Attack,
     // 🔴 **我们自加**（原版只有一个 `def` = 我们的 `Dodge`；原版减伤走 `prot`）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
-    int PhysDef,
+    int Prot,
     int Speed,
     int Dodge,
     int Crit,
@@ -31,7 +31,6 @@ public sealed record UnitStats(
     //   🔴 语义来源（参考项目 `Character.cs`，一手）：
     //      `Protection = Mathf.Clamp(prot.ModifiedValue, -1, Mathf.Max(0.85f, prot.RawValue))`
     //      ⇒ **prot 是 0~0.85 的【比例/减伤百分比】，封顶 85%**（**不是固定减伤**）✓
-    int? Prot = null,
     int MoveDistance = 0,
     // 🆕 **M1a 阶段 1**：原版 weapon/armour 各 5 阶（**只承载数据，零消费点**）✓
     IReadOnlyList<WeaponTier>? WeaponTiers = null,
@@ -55,7 +54,15 @@ public sealed record UnitStats(
     /// 🔴 上限 0.85 的来源 = 参考项目 `Character.cs` 的 `Mathf.Max(0.85f, raw)` 钳制 ✓
     /// ⚠️ **本阶段没有消费点**（接结算属后续）⇒ 加它不改变任何读数 ✓
     /// </summary>
-    public double? ProtFraction => Prot is { } p ? System.Math.Clamp(p / 100.0, 0.0, 0.85) : null;
+    /// <summary>
+    /// 🔴 **兼容别名（临时 · 带到期条件）**：`PhysDef` 是**归位前**的旧名（= 原版的 `prot` ✓）。
+    ///   归位（`PhysDef → Prot`）后，**UI 域仍在读旧名** ⇒ 为了**不擅自改他们的文件**且**不弄红编译**，
+    ///   我在**自己的契约**里留这个别名 ✓
+    /// ⚠️ **到期条件**：UI 改用 `Prot` 之后**删除本行**（与我 `file_size_allowlist` 同款纪律 ✓）
+    /// </summary>
+    public int PhysDefAlias => Prot;
+
+    public double ProtFraction => System.Math.Clamp(Prot / 100.0, 0.0, 0.85);   // 🆕 归位后 Prot 非空 ✓
 
     public ArmourTier? ArmourAt(int tier)
         => ArmourTiers is not null && tier >= 0 && tier < ArmourTiers.Count ? ArmourTiers[tier] : null;

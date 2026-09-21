@@ -15,9 +15,10 @@ public sealed record UnitConfig(
     [property: JsonPropertyName("side")] string Side,
     [property: JsonPropertyName("hp")] int Hp,
     [property: JsonPropertyName("attack")] int Attack,
-    // 🔴 **我们自加**的字段（原版无 `phys_def`；原版减伤走 `prot`）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
-    [property: JsonPropertyName("phys_def")] int PhysDef,
+    // 🔴 **我们自加**的字段（原版无 `prot`；原版减伤走 `prot`）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
+    [property: JsonPropertyName("prot")] int Prot,
     [property: JsonPropertyName("speed")] int Speed,
+
     [property: JsonPropertyName("dodge")] int Dodge,
     [property: JsonPropertyName("crit")] int Crit,
     [property: JsonPropertyName("resilience")] int Resilience,
@@ -35,7 +36,6 @@ public sealed record UnitConfig(
     [property: JsonPropertyName("disease_resist")] int? DiseaseResist = null,
     [property: JsonPropertyName("trap_resist")] int? TrapResist = null,
     // 🆕 **M1a · 补 `prot`**：百分比整数 0~85（参考项目 `Character.cs` 把比例钳在 0.85）✓ 未配 = null ✓
-    [property: JsonPropertyName("prot")] int? Prot = null,
     [property: JsonPropertyName("weapon")] IReadOnlyList<WeaponTier>? Weapon = null,
     [property: JsonPropertyName("armour")] IReadOnlyList<ArmourTier>? Armour = null)
 {

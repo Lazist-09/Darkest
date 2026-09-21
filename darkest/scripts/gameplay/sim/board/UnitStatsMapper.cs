@@ -10,7 +10,7 @@ public static class UnitStatsMapper
         => new(
             Hp: c.Hp,
             Attack: c.Attack,
-            PhysDef: c.PhysDef,
+            Prot: c.Prot,
             Speed: c.Speed,
             Dodge: c.Dodge,
             Crit: c.Crit,
@@ -23,7 +23,6 @@ public static class UnitStatsMapper
         PoisonResist: c.PoisonResist,
         DiseaseResist: c.DiseaseResist,
         TrapResist: c.TrapResist,
-        Prot: c.Prot,
             MoveDistance: c.MoveDistance,
         WeaponTiers: c.Weapon,
         ArmourTiers: c.Armour);

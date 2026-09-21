@@ -44,7 +44,7 @@ public sealed class TurnOrderTests
     }
 
     private static UnitStats Stats(int speed)
-        => new(Hp: 10, Attack: 12, PhysDef: 8, Speed: speed, Dodge: 10, Crit: 5, Resilience: 50,
+        => new(Hp: 10, Attack: 12, Prot: 8, Speed: speed, Dodge: 10, Crit: 5, Resilience: 50,
             StunResist: 30, BleedResist: 30, StatDebuffResist: 25, DisplaceResist: 40,
             DeathsDoorResist: 70);
 

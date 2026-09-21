@@ -91,7 +91,7 @@ public static class EffectsStep
                 target.AttackMod += delta;
                 break;
             case "phys_def":
-                target.PhysDefMod += delta;
+                target.ProtMod += delta;
                 break;
             case "resilience":
                 target.ResilienceMod += delta;

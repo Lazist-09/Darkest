@@ -66,8 +66,8 @@ public sealed class UnitRuntime
     // ------------------------------------------------------------------
 
     public int AttackMod { get; set; }
-    // 🔴 战斗内修正叠加在**我们自加**的 `PhysDef` 上（原版无此拆分）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
-    public int PhysDefMod { get; set; }
+    // 🔴 战斗内修正叠加在**我们自加**的 `Prot` 上（原版无此拆分）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
+    public int ProtMod { get; set; }
     public int ResilienceMod { get; set; }
     public int SpeedMod { get; set; }
 
@@ -206,7 +206,7 @@ public sealed class UnitRuntime
     // ------------------------------------------------------------------
 
     public int EffectiveAttack => Math.Max(1, Base.Attack + AttackMod);
-    public int EffectivePhysDef => Math.Max(0, Base.PhysDef + PhysDefMod);
+    public int EffectiveProt => Math.Max(0, Base.Prot + ProtMod);
     public int EffectiveResilience => Math.Max(0, Base.Resilience + ResilienceMod);
 
     /// <summary>生效速度 = (基础+速度修正) × 虚弱因子（weak.speed_mult；加法先于乘法）。</summary>

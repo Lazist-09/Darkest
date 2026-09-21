@@ -175,7 +175,7 @@ public sealed class ShieldGuardTests
         buffs.Add(tank.Id, "guard_attach", source: null);
         pipeline.InitializeMorale(player);
 
-        // melee 打 2 号位（邻 1 号坦克）→ 重定向：伤害按坦克 def（12）算 → 9? 战士 def8 → 若直伤 9；坦克 def12 减免 12/42 → 12×1.0×0.7143=8.57→9（同 9？战士 def8 也是 9）。取 tank.PhysDef 12 → 9 vs warrior 8 → 9 相同（都 round 到 9）。改用精神? 护卫只物理。换验证：重定向后坦克 HP 减、战士 HP 不减。
+        // melee 打 2 号位（邻 1 号坦克）→ 重定向：伤害按坦克 def（12）算 → 9? 战士 def8 → 若直伤 9；坦克 def12 减免 12/42 → 12×1.0×0.7143=8.57→9（同 9？战士 def8 也是 9）。取 tank.Prot 12 → 9 vs warrior 8 → 9 相同（都 round 到 9）。改用精神? 护卫只物理。换验证：重定向后坦克 HP 减、战士 HP 不减。
         pipeline.Execute(new SkillFixture("probe", UnitId.Of("melee_soldier"), FormationSide.Player,
             new[] { 2 }, HitMod: 0, CritMod: 0, Axis: "physical", Segments: new[] { 1.0 }, IsAoe: false,
             Effects: Array.Empty<EffectRequest>(), Displacement: null), player, enemy, new ScriptedRng(0.0, 100.0));

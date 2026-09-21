@@ -129,7 +129,12 @@ public sealed class UnitTierStage1Tests
         Assert.AreEqual(70, shipped.Get("medic").PoisonResist, "medic 毒抗 = Plague Doctor 的 70 ✓");
         Assert.AreEqual(10, shipped.Get("tank").TrapResist, "tank 陷阱抗 = Man-at-Arms 的 10 ✓");
         Assert.AreEqual(40, shipped.Get("commissar").TrapResist, "commissar 陷阱抗 = Highwayman 的 40 ✓");
-        Assert.AreEqual(0, shipped.Get("warrior").Prot, "prot 四个原型均为 0（与参考一致）✓");
+        // 🔴 **归位后**（策划更正：我方 `phys_def` 对应的是**原版的 `prot`** ⇒ 已改名归位 ✓）：
+        //    现在 `prot` 装的是**我们的减伤**（= 归位前 `phys_def` 的 8/12/4/5 ✓）—— **值是原样搬过来的** ✓
+        // 🔴 而**原版的 `prot` = 0** ⇒ "对齐到原版" = **减伤归 0** ⇒ ⚠️ 那是**平衡步骤**（会大改行为 ⇒
+        //    走解冻口径四件）⇒ **已入解冻清单、本轮未执行** ✓（判据：本用例钉住"当前值"，对齐时**按登记表改** ✓）
+        Assert.AreEqual(8, shipped.Get("warrior").Prot, "归位后 prot = 我们的减伤 warrior 8（原值搬家，非新数 ✓）");
+        Assert.AreEqual(12, shipped.Get("tank").Prot, "tank 12 ✓（对齐原版 ⇒ 未来变 0 ⇒ 那时按登记表改本行 ✓）");
 
         Console.WriteLine($"[M1a·对齐] 4 原型已带 tier+三轴+prot（值取自参考项目对应职业 ✓）· 敌人不带（#448）✓");
         TestContext.WriteLine("[M1a·对齐] 4 原型有 tier、敌人没有、抽查值来自参考 ✓");

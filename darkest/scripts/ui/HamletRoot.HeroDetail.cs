@@ -177,7 +177,7 @@ public partial class HamletRoot : Control
             : new[]
             {
                 new[] { "攻击", statsUnit.Attack.ToString() },
-                new[] { "物防", statsUnit.PhysDef.ToString() },
+                new[] { "物防", statsUnit.Prot.ToString() },
                 new[] { "速度", statsUnit.Speed.ToString() },
                 new[] { "闪避", statsUnit.Dodge.ToString() },
                 new[] { "暴击", $"{statsUnit.Crit}%" },
@@ -312,7 +312,7 @@ public partial class HamletRoot : Control
         else
         {
             right.AppendLine("【属性】");
-            right.AppendLine($"　攻击 {unit.Attack}　物防 {unit.PhysDef}　速度 {unit.Speed}　" +
+            right.AppendLine($"　攻击 {unit.Attack}　物防 {unit.Prot}　速度 {unit.Speed}　" +
                              $"闪避 {unit.Dodge}　暴击 {unit.Crit}　韧性 {unit.Resilience}");
             right.AppendLine($"　（5 项抗性折叠）眩晕 {unit.StunResist}　流血 {unit.BleedResist}　" +
                              $"减益 {unit.StatDebuffResist}　位移 {unit.DisplaceResist}　死门 {unit.DeathsDoorResist}");

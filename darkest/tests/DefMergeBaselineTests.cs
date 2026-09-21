@@ -66,9 +66,9 @@ public sealed class DefMergeBaselineTests
                 int hit = BattleMath.HitRate(def.Dodge, 0, balance.HitClampMin, balance.HitClampMax);
 
                 // 🔴 真实路径：物理减伤只看目标 PhysDef（除数取自 tuning）✓
-                int mitigPct = (int)Math.Round(BattleMath.PhysicalMitigation(def.PhysDef, balance.PhysicalMitigationDivisor) * 100);
+                int mitigPct = (int)Math.Round(BattleMath.PhysicalMitigation(def.Prot, balance.PhysicalMitigationDivisor) * 100);
 
-                lines.Add($"[def 合并基线] {atk.Id}(atk {atk.Attack}) → {def.Id}(dodge {def.Dodge} / phys_def {def.PhysDef}) ⇒ 命中 {hit}% · 减伤 {mitigPct}%");
+                lines.Add($"[def 合并基线] {atk.Id}(atk {atk.Attack}) → {def.Id}(dodge {def.Dodge} / phys_def {def.Prot}) ⇒ 命中 {hit}% · 减伤 {mitigPct}%");
             }
         }
 
@@ -113,8 +113,8 @@ public sealed class DefMergeBaselineTests
         foreach (UnitConfig u in units.Units)
         {
             int hit = BattleMath.HitRate(u.Dodge, 0, balance.HitClampMin, balance.HitClampMax);
-            int oursPct = (int)Math.Round(BattleMath.PhysicalMitigation(u.PhysDef, balance.PhysicalMitigationDivisor) * 100);
-            int refPct = (int)Math.Round((UnitStatsMapper.From(u).ProtFraction ?? 0) * 100);   // 🔴 走**真实映射路径**（contract 的 ProtFraction ✓）
+            int oursPct = (int)Math.Round(BattleMath.PhysicalMitigation(u.Prot, balance.PhysicalMitigationDivisor) * 100);
+            int refPct = (int)Math.Round(UnitStatsMapper.From(u).ProtFraction * 100);   // 🔴 走**真实映射路径**（contract 的 ProtFraction ✓）
             int delta = oursPct - refPct;
             maxDelta = Math.Max(maxDelta, Math.Abs(delta));
             rows++;

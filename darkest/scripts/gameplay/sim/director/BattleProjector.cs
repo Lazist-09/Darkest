@@ -177,7 +177,7 @@ public sealed class BattleProjector
         return new UnitDetail(
             slot, u.Id.Value, archetype,
             u.CurrentHp, u.MaxHp, u.Morale,
-            u.Base.Attack, u.EffectivePhysDef, u.Base.Speed,
+            u.Base.Attack, u.EffectiveProt, u.Base.Speed,
             u.Base.Resilience, u.Base.StunResist, u.Base.BleedResist,
             u.Base.StatDebuffResist, u.Base.DisplaceResist, u.Base.DeathsDoorResist ?? 0,
             u.Weak, u.Base.MovementRange, skills);
@@ -222,7 +222,7 @@ public sealed class BattleProjector
             }
             else
             {
-                double mitig = Core.Math.BattleMath.PhysicalMitigation(victim.EffectivePhysDef, _balance.PhysicalMitigationDivisor);
+                double mitig = Core.Math.BattleMath.PhysicalMitigation(victim.EffectiveProt, _balance.PhysicalMitigationDivisor);
                 raw = attacker.EffectiveAttack * mult * (1.0 - mitig);
             }
 
@@ -248,8 +248,8 @@ public sealed record UnitDetail(
     int MaxHp,
     int Morale,
     int Attack,
-    // 🔴 投影里的 `PhysDef` 同样是**我们自加**的（不是原版字段）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
-    int PhysDef,
+    // 🔴 投影里的 `Prot` 同样是**我们自加**的（不是原版字段）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
+    int Prot,
     int Speed,
     int Resilience,
     int StunResist,

@@ -455,7 +455,7 @@ public partial class BattleUI : Control, IUiPanel
         var sb = new System.Text.StringBuilder();
         sb.AppendLine($"[{d.Slot}] {NameOf(d.Archetype)}（{(player ? "我方" : "敌方")}）");
         sb.AppendLine($"HP {d.Hp}/{d.MaxHp}　士气 {d.Morale}{(d.Weak ? "　虚弱" : string.Empty)}");
-        sb.AppendLine($"攻击 {d.Attack}　物防 {d.PhysDef}　速度 {d.Speed}　移动 {d.MoveDistance}");
+        sb.AppendLine($"攻击 {d.Attack}　物防 {d.Prot}　速度 {d.Speed}　移动 {d.MoveDistance}");
         sb.AppendLine($"韧性 {d.Resilience}　眩晕 {d.StunResist}　流血 {d.BleedResist}　减益 {d.StatDebuffResist}　位移 {d.DisplaceResist}　死门 {d.DeathsDoorResist}");
         sb.AppendLine($"Buff：{(buffs.Length > 0 ? buffs : "无")}");
         sb.Append($"技能：{string.Join("、", d.SkillIds.Select(SkillName))}");

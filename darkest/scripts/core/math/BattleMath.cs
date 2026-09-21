@@ -23,7 +23,7 @@ public static class BattleMath
     /// <summary>物理减免率（§2.1 递减公式，高防边际递减、收敛）：physDef / (physDef + 30)。</summary>
     // 🔴 数字外置（用户 2026-09-14）：`divisor`（原先硬编码 30）**必填** —— 由 `BalanceTable.PhysicalMitigationDivisor`
     //    从 `tuning.json` 的 `physical_mitigation.divisor` 传入 ✓（值不变 = 零数值改动）
-    // 🔴 入参 `physDef` 来自**我们自加**的 `PhysDef`；原版减伤走 `prot`（比例）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
+    // 🔴 入参 `physDef` 来自**我们自加**的 `Prot`；原版减伤走 `prot`（比例）⇒ 待裁：`reports/def_merge_three_plans.md` ✓
     public static double PhysicalMitigation(int physDef, int divisor)
         => physDef / (double)(physDef + divisor);
 

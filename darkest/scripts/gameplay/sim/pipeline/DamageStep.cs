@@ -89,7 +89,7 @@ public static class DamageStep
             }
             else
             {
-                double mitig = BattleMath.PhysicalMitigation(target.EffectivePhysDef, balance.PhysicalMitigationDivisor);
+                double mitig = BattleMath.PhysicalMitigation(target.EffectiveProt, balance.PhysicalMitigationDivisor);
                 raw = attacker.EffectiveAttack * multipliers[i] * (1.0 - mitig) * critMult * dmgFloat * buffDamageMult; // §2.1 + F2
             }
 
