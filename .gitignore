@@ -58,3 +58,4 @@ doc/_backups/
 *.bak[0-9]
 *.bak.*
 .workbuddy/
+*.bak-*
