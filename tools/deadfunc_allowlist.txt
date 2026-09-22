@@ -29,3 +29,7 @@ darkest/scripts/gameplay/sim/board/TierDefence.cs | DefAt | 目标 ③④ 减伤
 darkest/scripts/gameplay/sim/board/TierDefence.cs | ProtFractionAt | 同上（比例形式，供战斗减伤用；接线后即被调用 ✓）
 # ── R12：祖产任务奖励通道（步骤① 刚落库 ✓ 消费方 = 结算接线，按策划顺序取 (A) 先接线再删 ✓）
 darkest/scripts/data/HeirloomQuestRewardConfig.cs | AmountAt | 任务奖励查表口（kind/tier/length ⇒ 数量 ✓）；消费方 = 结算接线（策划取 (A) ⇒ 先接线再删 tier_drop ✓）
+# ── R14：祖产任务奖励接线机制（步骤② 的机制半 ✓ 真正调用等两个输入：任务长度概念 / 队伍 resolve level 模型）
+darkest/scripts/data/HeirloomQuestRewardConfig.cs | RewardFor | 任务奖励产出（每趟 4 种都给 · placeholder O11 ✓）；消费方 = 结算接线（等"任务长度"与"队伍 resolve level"两输入 ✓）
+darkest/scripts/data/HeirloomQuestRewardConfig.cs | RewardTotalFor | 同上（总份数，供读数/报表 ✓）
+darkest/scripts/data/HeirloomQuestRewardConfig.cs | DifficultyForResolveLevel | 一手难度带映射（[0,1,2]→1·[2,3,4]→3·[4,5,6]→5 ✓）；消费方 = 同上接线 ✓
