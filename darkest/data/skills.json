@@ -241,6 +241,8 @@
     },
     {
       "id": "warrior_battle_fury",
+    "dmg_pct": 0,
+    "_dmg_pct_source": "dd1:adrenaline_rush (语义同(自我强化) 中)",
       "name": "战意",
       "owner_unit": "warrior",
       "self_slots": [
@@ -311,6 +313,8 @@
     },
     {
       "id": "warrior_last_stand",
+    "dmg_pct": 20,
+    "_dmg_pct_source": "dd1:bleed_out (语义近似(濒死反扑) 中)",
       "name": "殊死一搏",
       "owner_unit": "warrior",
       "self_slots": [
@@ -398,6 +402,8 @@
     },
     {
       "id": "tank_taunt",
+    "dmg_pct": -100,
+    "_dmg_pct_source": "dd1:bellow (语义近似(吸引/威吓) 中)",
       "name": "嘲讽",
       "owner_unit": "tank",
       "self_slots": [
@@ -512,6 +518,8 @@
     },
     {
       "id": "tank_iron_wall",
+    "dmg_pct": 0,
+    "_dmg_pct_source": "dd1:bolster (候选(bolster=加强防御,语义偏))",
       "name": "铁壁",
       "owner_unit": "tank",
       "self_slots": [
@@ -543,6 +551,8 @@
     },
     {
       "id": "tank_war_cry",
+    "dmg_pct": 0,
+    "_dmg_pct_source": "dd1:command (语义近似(号令) 中)",
       "name": "战吼",
       "owner_unit": "tank",
       "self_slots": "all",
@@ -634,6 +644,8 @@
     },
     {
       "id": "tank_selfless_charge",
+    "dmg_pct": -75,
+    "_dmg_pct_source": "dd1:retribution (语义近似(自我牺牲式反击) 中)",
       "name": "舍身",
       "owner_unit": "tank",
       "self_slots": [
@@ -752,6 +764,8 @@
     },
     {
       "id": "medic_anesthetic",
+    "dmg_pct": -100,
+    "_dmg_pct_source": "dd1:blinding_gas (语义近似(使目标失效) 中)",
       "name": "麻醉针",
       "owner_unit": "medic",
       "self_slots": [
@@ -797,6 +811,8 @@
     },
     {
       "id": "medic_medicine_flask",
+    "dmg_pct": -90,
+    "_dmg_pct_source": "dd1:plague_grenade (名字像(瓶/弹)但语义反(治疗 vs 毒伤) —— 策划标只能进候选)",
       "name": "投掷药瓶",
       "owner_unit": "medic",
       "self_slots": [
@@ -1064,6 +1080,8 @@
     },
     {
       "id": "commissar_charge_order",
+    "dmg_pct": -20,
+    "_dmg_pct_source": "dd1:duelist_advance (语义近似(前冲) 中)",
       "name": "冲锋令",
       "owner_unit": "commissar",
       "self_slots": [
@@ -1102,6 +1120,8 @@
     },
     {
       "id": "commissar_pistol_shot",
+    "dmg_pct": -15,
+    "_dmg_pct_source": "dd1:pistol_shot (名字完全相同(type/dmg 吻合 ⇒ 候选里置信度最高))",
       "name": "手枪射击",
       "owner_unit": "commissar",
       "self_slots": [
@@ -1139,6 +1159,8 @@
     },
     {
       "id": "commissar_supervise",
+    "dmg_pct": -80,
+    "_dmg_pct_source": "dd1:take_aim (语义近似(瞄准/督战) 中)",
       "name": "督战",
       "owner_unit": "commissar",
       "self_slots": [
@@ -1259,6 +1281,8 @@
     },
     {
       "id": "commissar_execution_order",
+    "dmg_pct": -15,
+    "_dmg_pct_source": "dd1:opened_vein (语义近似(致命一击) 中)",
       "name": "处决令",
       "owner_unit": "commissar",
       "self_slots": [
