@@ -139,7 +139,13 @@ public sealed record HeirloomQuestRewardConfig
         }
     }
 
-    /// <summary>查表：某地牢 · 某档难度（1/3/5）· 某任务长度（1~4）⇒ 数量（查不到 ⇒ 0 ✓）</summary>
+    /// <summary>
+    /// 查表：某档难度 · 某**任务长度（1~4）**⇒ 数量 ✓
+    /// 🔴 **索引口径 = (ii)**（策划 `DELIVERY-DESIGNER-HEIRLOOM-ACK2` 裁定 ✓ 三条一手证据）：
+    ///   `amounts[difficulty][length - 1]` ✓ —— 即 **4 个数 = length 1,2,3,4**
+    ///   （`length` 从 **1** 起，不是 0；而 `length 1 ⇒ 0` 也说得通：**短任务不给传家宝** ✓）
+    /// ⚠️ 我第一版写成 `row[questLength]` ⇒ 那是 **(i) 形** ✗（会让 length 4 没有值 ⇒ 一手有 length=4 的任务 ⇒ 不成立 ✓）
+    /// </summary>
     public int AmountAt(string kind, int difficultyTier, int questLength)
     {
         if (!AmountTable.TryGetValue(kind, out List<List<int>>? tiers) || tiers is null
@@ -149,8 +155,39 @@ public sealed record HeirloomQuestRewardConfig
         }
 
         List<int> row = tiers[difficultyTier];
-        return questLength >= 0 && questLength < row.Count ? row[questLength] : 0;
+        return questLength >= 1 && questLength <= row.Count ? row[questLength - 1] : 0;
     }
+
+    /// <summary>
+    /// 🆕 **难度档 ← 队伍的 resolve level**（策划 `HEIRLOOM-STEP2-ANSWER` ① · **一手** ✓）：
+    ///   `generated_resolve_level_difficulties` = **[0,1,2]→1 · [2,3,4]→3 · [4,5,6]→5** ✓
+    ///   （间隔重叠：[2] 与 [4] 各出现两次 ⇒ 一手表如此 ✓ 取**最靠后的命中**以对上"档 1/3/5" ✓）
+    /// </summary>
+    public static int DifficultyForResolveLevel(int resolveLevel)
+        => resolveLevel >= 4 ? 5 : resolveLevel >= 2 ? 3 : 1;
+
+    /// <summary>
+    /// 🆕 **一趟的传家宝产出**（按裁定：**每趟 4 种都给** ✓ `placeholder` ⚠️ ⇒ 观察清单 O11 ✓）：
+    ///   ⇒ 返回 (kind ⇒ 数量) —— **只对角色的 4 种都给**，数量取自 `AmountAt` ✓
+    /// </summary>
+    public IReadOnlyDictionary<string, int> RewardFor(int difficultyTier, int questLength)
+    {
+        var outMap = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (string kind in new[] { "bust", "portrait", "deed", "crest" })
+        {
+            int n = AmountAt(kind, difficultyTier, questLength);
+            if (n > 0)
+            {
+                outMap[kind] = n;
+            }
+        }
+
+        return outMap;
+    }
+
+    /// <summary>一趟产出的**总份数**（读数用 ✓）</summary>
+    public int RewardTotalFor(int difficultyTier, int questLength)
+        => RewardFor(difficultyTier, questLength).Values.Sum();
 
     private static readonly JsonSerializerOptions Options = new()
     {
