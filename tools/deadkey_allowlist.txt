@@ -37,18 +37,3 @@ trinkets.json | _ruling | 同上（策划裁定标注 ✓）
 trinkets.json | _source | 同上
 units.json | _align | 同上（对齐说明 ✓）
 traits.json | timing | **第 1 步"值原样"搬运的载荷**（hook 时序 ✓ 消费方 = M3 第 2 步）⇒ 届时接线 ✓
-hero_upgrades.json | abomination | 🔴 **映射键**（15 职业之一）：由 `HeroUpgradesConfig` **按字典泛读** ⇒ 扫描器"字面量 grep"**不适用**（不是我漏接线）⚠️
-hero_upgrades.json | antiquarian | 同上（映射键）
-hero_upgrades.json | arbalest | 同上（映射键）
-hero_upgrades.json | bounty_hunter | 同上（映射键）
-hero_upgrades.json | crusader | 同上（映射键）
-hero_upgrades.json | grave_robber | 同上（映射键）
-hero_upgrades.json | hellion | 同上（映射键）
-hero_upgrades.json | highwayman | 同上（映射键）
-hero_upgrades.json | houndmaster | 同上（映射键）
-hero_upgrades.json | jester | 同上（映射键）
-hero_upgrades.json | leper | 同上（映射键）
-hero_upgrades.json | man_at_arms | 同上（映射键）
-hero_upgrades.json | occultist | 同上（映射键）
-hero_upgrades.json | plague_doctor | 同上（映射键）
-hero_upgrades.json | vestal | 同上（映射键）

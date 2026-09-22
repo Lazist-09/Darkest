@@ -225,6 +225,45 @@ def leaf_keys(obj, prefix: str = "") -> list[str]:
 # 🔴 **我方元数据键约定**（R5 补齐）：下划线前缀的注解键 = **给人读的出处/裁定/对齐说明** ✓
 #    （`_note` 说明 · `_source` 出处路径 · `_align` 对齐来源 · `_ruling` 裁定号 · `_field_classes` 字段分类 ✓）
 #    ⚠️ 判据必须**可审**：这些键的**值都是字符串注解**（不是游戏数值/集合）⇒ 不会藏住"该接线却没接"的字段 ✓
+def walk_paths(obj, prefix: str = "") -> list[tuple[str, str]]:
+    """(点号路径, 键) —— 与 `leaf_keys` 同源，但**保留深度**（升级后的 deadkeys 判据要用路径）✓"""
+    out: list[tuple[str, str]] = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            p = (prefix + "." + k) if prefix else k
+            out.append((p, k))
+            out.extend(walk_paths(v, p))
+    elif isinstance(obj, list):
+        for v in obj:
+            out.extend(walk_paths(v, prefix))
+    return out
+
+
+def generic_container_keys(obj, code: str) -> set[str]:
+    """数据文件里**被泛读**的顶层容器键（= 映射容器）✓
+
+    WHY（架构批准的取甲）：映射容器（如 `heroes.<id>.trees[...]`）的**子键是数据**，
+      不是 C# 字面量 ⇒ "字面量 grep" 的判据**在此不适用** ⇒ 升级判据而不是加白名单 ✓
+    🔴 **保守**：三条**同时**满足才算（任一不满足 ⇒ 行为与升级前**完全一致**，一条都不放过 ✓）
+        ① 数据形状 = 映射容器（dict → dict，且每个值都是 dict）
+        ② 代码里声明了该容器：`JsonPropertyName("<键>")`
+        ③ 该声明附近出现字典类型（`Dictionary<` / `IReadOnlyDictionary<`）
+    """
+    out: set[str] = set()
+    if not isinstance(obj, dict):
+        return out
+    for k, v in obj.items():
+        if not (isinstance(v, dict) and v and all(isinstance(x, dict) for x in v.values())):
+            continue
+        m = re.search(rf'JsonPropertyName\("{re.escape(k)}"\)', code)
+        if not m:
+            continue
+        window = code[max(0, m.start() - 200): m.end() + 200]
+        if re.search(r"(IReadOnly)?Dictionary<", window):
+            out.add(k)
+    return out
+
+
 DOC_ONLY_KEYS = {"_note", "_source", "_align", "_ruling", "_field_classes", "note", "source", "config", "version"}
 
 # 🔴 **文档键约定**（P29 允许的"显式登记未消费"形态之一）：以这些后缀结尾的键 = **给人读的设计说明**
@@ -275,6 +314,7 @@ def scan_deadkeys(verbose: bool) -> tuple[int, list[str]]:
     #    ⇒ 我第一版先 `strip_code()`（把字面量清空）再搜 ⇒ **395 个假死数据**（"buffs"/"duration" 全中招）⚠️
     code = "\n".join(f.read_text(encoding="utf-8", errors="replace") for f in cs_files([SCRIPTS]))
     allow = load_deadkey_allowlist()
+    generic_total = 0   # 🔧 映射容器判据放行计数（打印出来 ⇒ 判据可审 ✓）
     exempted = 0
     dead: list[str] = []
     for jf in sorted(DATA.glob("*.json")):
@@ -283,7 +323,12 @@ def scan_deadkeys(verbose: bool) -> tuple[int, list[str]]:
         except json.JSONDecodeError as ex:
             dead.append(f"{jf.name}: JSON 解析失败（{ex}）")
             continue
-        for key in sorted(set(leaf_keys(obj))):
+        gen = generic_container_keys(obj, code)
+        for path, key in walk_paths(obj):
+            # 🆕 升级（架构批准取甲）：**映射容器的子键是数据**、不是字面量 ⇒ 判据不适用 ✓
+            if path.split(".", 1)[0] in gen:
+                generic_total += 1
+                continue
             # 🔴 放行两类（都属 P29 允许的"显式登记未消费"）：
             #    ① 工具内置的文档键（`_note`/`source`/…）② **文档键约定**（`*_note` / `*_rule`）
             #    ③ 显式豁免清单（`tools/deadkey_allowlist.txt`，逐条带理由）✓
@@ -297,7 +342,7 @@ def scan_deadkeys(verbose: bool) -> tuple[int, list[str]]:
                 dead.append(f"{jf.name}: 键 \"{key}\" 在任何 .cs 里都不出现 ⇒ 疑似死数据")
     if verbose:
         print(f"[deadkeys] 数据键扫描完成 ⇒ 疑似死数据 {len(dead)} 个"
-              f"（按文档键约定/显式豁免放行 {exempted} 个）")
+              f"（按文档键约定/显式豁免放行 {exempted} 个；🔧 另按**映射容器**判据放行 {generic_total} 个 ✓）")
         show(dead, "deadkeys")
     return len(dead), dead
 
@@ -313,6 +358,14 @@ def selfcheck() -> int:
             "    public int Reads() => 1;                   // （这个也不被调用，但重复报同一类即可）\n"
             "}\n", encoding="utf-8")
         (tdp / "probe.json").write_text('{ "probe_key_xyz": 1 }', encoding="utf-8")
+        # 🆕 **反向探针**（架构要求"双向自检"）：一个**被泛读**的映射容器 ⇒ 它的子键**不得**被报成死数据 ✓
+        (tdp / "probe_map.json").write_text(
+            '{ "probe_map_items": { "alpha": { "v": 1 }, "beta": { "v": 2 } } }', encoding="utf-8")
+        (tdp / "ProbeMap.cs").write_text(
+            "namespace Probe;\npublic sealed class M {\n"
+            "    [System.Text.Json.Serialization.JsonPropertyName(\"probe_map_items\")]\n"
+            "    public IReadOnlyDictionary<string, int> Items { get; init; }"
+            " = new System.Collections.Generic.Dictionary<string, int>();\n}\n", encoding="utf-8")
 
         global SCRIPTS, DATA, KERNEL_DIRS
         old_scripts, old_data, old_kernel = SCRIPTS, DATA, KERNEL_DIRS
@@ -321,13 +374,15 @@ def selfcheck() -> int:
             KERNEL_DIRS = [tdp]
             n1, _ = scan_numbers([tdp / "Probe.cs"], verbose=False)
             n2, _ = scan_deadfuncs(verbose=False)
-            n3, _ = scan_deadkeys(verbose=False)
+            n3, dead3 = scan_deadkeys(verbose=False)
         finally:
             SCRIPTS, DATA, KERNEL_DIRS = old_scripts, old_data, old_kernel
 
-        ok = n1 >= 1 and n2 >= 1 and n3 >= 1
+        # 🆕 反向判据：泛读的映射容器若被报出来 ⇒ 说明"放过"没生效（或放得太宽）⇒ 自检失败 ✓
+        leaked = [d for d in dead3 if "probe_map" in d or "alpha" == d.split('"')[1] if '"' in d]
+        ok = n1 >= 1 and n2 >= 1 and n3 >= 1 and not leaked
         print(f"[selfcheck] 探针①数字={n1}（须≥1） ②死函数={n2}（须≥1） ③死数据={n3}（须≥1） "
-              f"=> {'✅ PASS' if ok else '🔴 FAIL'}")
+              f"④**映射容器不误报**={'✅' if not leaked else '🔴'} => {'✅ PASS' if ok else '🔴 FAIL'}")
         return 0 if ok else 1
 
 
