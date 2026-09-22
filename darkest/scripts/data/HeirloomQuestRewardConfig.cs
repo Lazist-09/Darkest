@@ -189,6 +189,26 @@ public sealed record HeirloomQuestRewardConfig
     public int RewardTotalFor(int difficultyTier, int questLength)
         => RewardFor(difficultyTier, questLength).Values.Sum();
 
+    // ── 🆕 **两个缺失输入的"代理量"**（用户 2026-09-22 指示「3 参考参考项目数值，你直接做」⇒ 我直接做 ✓）
+    //    🔴 **性质**：这两个是**我推的代理**（不是原版数据直接说的 ✗）⇒ 因此按策划判据
+    //       「**数据直接说 ⇒ 可用 · 我推的 ⇒ 标需观察**」⇒ ⚠️ **必须标 placeholder + 进观察清单 O11** ✓
+    //    WHY 需要它们：一手说"难度档 ← 队伍 resolve level""长度 ← 任务自身的 length"，
+    //       而我们**没有任务层**(无 quest length)、**没有队伍 resolve level 模型** ⇒ 只能先用代理 ✓
+
+    /// <summary>
+    /// ⚠️ **代理 ①：任务长度 ← 这趟走过的段数**（段数 1~4 ⇒ 长度 1~4；>4 钳到 4 ✓）
+    /// 🔴 **我推的**（一手：length 来自任务本身 ✗ 我们没有任务层）⇒ **placeholder** ✓ O11 ✓
+    /// </summary>
+    public static int ProxyQuestLengthFromSteps(int steps)
+        => steps <= 0 ? 1 : steps >= 4 ? 4 : steps;
+
+    /// <summary>
+    /// ⚠️ **代理 ②：难度档 ← 队伍平均等级**（用 `DifficultyForResolveLevel` 的带 ✓）
+    /// 🔴 **我推的**（一手：按**队伍 resolve level**；我们只有英雄 `level` ⇒ 先当作同义 ⚠️）⇒ placeholder ✓ O11 ✓
+    /// </summary>
+    public static int ProxyDifficultyFromAverageLevel(double averageLevel)
+        => DifficultyForResolveLevel((int)Math.Round(averageLevel));
+
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNameCaseInsensitive = true,

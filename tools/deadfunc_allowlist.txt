@@ -33,3 +33,6 @@ darkest/scripts/data/HeirloomQuestRewardConfig.cs | AmountAt | 任务奖励查�
 darkest/scripts/data/HeirloomQuestRewardConfig.cs | RewardFor | 任务奖励产出（每趟 4 种都给 · placeholder O11 ✓）；消费方 = 结算接线（等"任务长度"与"队伍 resolve level"两输入 ✓）
 darkest/scripts/data/HeirloomQuestRewardConfig.cs | RewardTotalFor | 同上（总份数，供读数/报表 ✓）
 darkest/scripts/data/HeirloomQuestRewardConfig.cs | DifficultyForResolveLevel | 一手难度带映射（[0,1,2]→1·[2,3,4]→3·[4,5,6]→5 ✓）；消费方 = 同上接线 ✓
+# ── R16：祖产的"缺失输入代理量"（用户指示"你直接做" ✓ 标注 placeholder + 观察清单 O11 ✓）
+darkest/scripts/data/HeirloomQuestRewardConfig.cs | ProxyQuestLengthFromSteps | 代理量①:段数 ⇒ 长度 1~4（**我推的** ⚠️ placeholder/O11）；消费方 = 结算接线（等"任务层"或授权用代理 ✓）
+darkest/scripts/data/HeirloomQuestRewardConfig.cs | ProxyDifficultyFromAverageLevel | 代理量②:队伍平均等级 ⇒ 难度档（**我推的** ⚠️ placeholder/O11）；消费方 = 同上 ✓
