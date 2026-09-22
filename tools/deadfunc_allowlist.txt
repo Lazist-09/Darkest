@@ -24,3 +24,6 @@ darkest/scripts/data/UiShellLedger.cs | Reset | **测试支持**（用例之间�
 darkest/scripts/gameplay/sim/pipeline/WeaponBaseDamage.cs | Damage | M1c 阶段 3 机制；消费方 = 阶段 3 默认切换（**现在必须无人调用** ✓ 见阶段1守卫）
 darkest/scripts/gameplay/sim/run/StagecoachRecruits.cs | StartingLevel | M7 新兵起始等级规则；消费方 = 招募 UI ✓
 darkest/scripts/gameplay/sim/skill/HealAmount.cs | ScaleByCaster | M2 激活的便利入口（纯函数）；消费方 = 后续按施法者取修正的调用点 ✓
+# ── R6：减伤侧阶机制（与 WeaponBaseDamage 同族：**机制已就位、消费方未到** ✓）
+darkest/scripts/gameplay/sim/board/TierDefence.cs | DefAt | 目标 ③④ 减伤侧机制；消费方 = 「伤害/减伤读阶」接线（**当前阶**三选项见 reports/tier_source_options.md，待裁 ✓）
+darkest/scripts/gameplay/sim/board/TierDefence.cs | ProtFractionAt | 同上（比例形式，供战斗减伤用；接线后即被调用 ✓）

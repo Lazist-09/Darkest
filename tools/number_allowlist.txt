@@ -63,3 +63,5 @@ darkest/scripts/data/TuningConfig.Validate.ExpeditionSide.cs | Math.Max(3, | **�
 darkest/scripts/data/UnitsConfig.cs | prot < 0 | prot 的**上限 85**（原版比例上限，结构性）
 darkest/scripts/data/UnitsConfig.cs | count != 5 | **阶数结构**：weapon/armour 各 5 阶（结构计数）
 darkest/scripts/gameplay/sim/run/ExpeditionFlow.TileWalk.cs | valueOrDefault > 0.0 | **派生阈值分支**（结构判断，不是平衡数字）
+# ── R6：TierDefence 的 prot 封顶（与 UnitStats.ProtFraction 同一规则 ✓ 结构性，不是平衡数字）
+darkest/scripts/gameplay/sim/board/TierDefence.cs | 0.85 | 原版 prot 的**比例上限 0.85**（沿用 M1a 已定规则 ✓ 与 UnitStats.ProtFraction 同源）
