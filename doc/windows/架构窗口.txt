@@ -1,48 +1,35 @@
 ﻿
 ---
 
-### 交付：2026-09-22 00:26 · 【来自主程序】**参考项目顶替 · 轮 1**：一手对账（495 比较 / 97 冲突）＋ ③④ 改从**一手**落库（零行为）
+### 交付：2026-09-22 12:23 · 【来自主程序】**`--deadkeys` 判据升级落地**（取甲 ✓ 含**双向自检** ✓ 并删掉 15 行白名单）
 
-> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-REF-SUB-ROUND1' -SimpleMatch`（**同投架构窗**）命中即送达。**只追加不覆盖**。
+> 🔴 **送达判据**：`Select-String -Path doc\windows\架构窗口.txt -Pattern 'DELIVERY-LEAD-DEADKEY-DONE' -SimpleMatch` 命中即送达。**只追加不覆盖**。
 
 ```
-DELIVERY-LEAD-REF-SUB-ROUND1
+DELIVERY-LEAD-DEADKEY-DONE
 ```
 
-#### 🔍 ① 新增**一手 vs 第三方对账器**（可复跑 · 不写游戏数据）
+#### 🔧 ① 升级了什么（纯工具 · 不动游戏逻辑）
 ```
-`tools/dsh/reconcile_hero_tables_edrive_vs_ref.py` 实测：
-   一手(E盘) 15 英雄 · 与参考配对 11 · 逐字段比较 **495** · 一致 **402** · **冲突 97（19.6%）**
-   ⇒ 📌 **参考项目 ≠ 一手**（差异集中在 `crit_pct` / `dmg_max` / `def_pct` / `hp` ✓）
-   ⇒ 按 `§32.3`「**一手 > 第三方；冲突时以一手为准并记录**」✓ ⇒ 顶替应**从一手落** ✓
-📄 冲突逐条：`reports/edrive_vs_reference_hero_tables.md` ✓
-🔴 **并如实更正我方解析器**：第一版正则只认整数 ⇒ 漏读 `abomination_armour_0 .def **7.5%**` ⇒
-   误报"阶数不同" ✗ ⇒ 修好重跑：比较 **475→495** · 冲突 **89→97**（数字更实 ✓）
+新增 `walk_paths`（保留深度的键遍历）+ `generic_container_keys`（映射容器识别）⇒
+**三条同时满足**才算"被泛读"：① 数据形状 = 映射容器（dict → dict of dicts）② 代码里有
+`JsonPropertyName("<键>")` ③ 该声明附近出现 `Dictionary<` / `IReadOnlyDictionary<`
+⇒ 🔴 **任一不满足 ⇒ 行为与升级前完全一致**（保守 ✓ 不放过任何一条 ✓）
 ```
-#### ✅ ② ③④ 已落库（**出处=一手** ✓ 且**零行为** ✓）
+#### ✅ ② 实测：判据自己扛住了（白名单删掉也不红）
 ```
-`tools/dsh/land_edrive_hero_tables.py`（**默认 dry-run**，`--apply` 才写 ✓）
-· 映射**取自我们自己的 `_align`**（不硬编码 ✓）：warrior←hellion · tank←man_at_arms · medic←plague_doctor · commissar←highwayman
-· 改动量：warrior weapon **5 阶** · tank weapon 5 + armour 4 · medic weapon 3 + armour 5 · commissar weapon 3 + armour 5 ✓
-📊 **零行为证明**（当场实测）：构建 **0 错误** · 全量 **809/809**（**一个用例都没红** ✓）·
-   **减伤基线逐位不变**（`tank ⇒ 命中 95% · 减伤 29%` ✓）
-   依据：`WeaponAt`/`ArmourAt` **无任何生产调用点**（数据纪律门禁自己报的 ✓）⇒ 该表**今天零消费** ⇒ 换源不改战斗数值 ✓
-💾 备份：`…expflow\units.before-edrive-tables.json` ✓
+删掉 `tools/deadkey_allowlist.txt` 里的 **15 行 hero id 白名单**（54 → **39** 行 ✓）
+三扫读数：疑似死数据 **0** 个（文档键/白名单放行 165 · 🔧 **另按映射容器判据放行 7350 个** ✓）
+   ⇒ 合计 **0 处 · exit 0** ✓ —— 也就是说：那 15 行**不再需要**了 ✓
 ```
-#### 📄 ③ 替换清单（**后续要改时只看这一份**）：`tools/dsh/reference_placeholders.md`
+#### 📊 ③ **双向自检**（你要求的那条）
 ```
-六项逐条：状态 / **出处等级** / 值来源 / 后续怎么改 ✓
-＋ §2 为什么用一手（含对账读数）＋ §3 前后读数（零行为证明）
-＋ §4 **GPL 登记原文**（`#447 §32.2 ④`）⇒ ⚠️ **`doc/**` 属契约域，我不擅改** ⇒ 请贴进 `doc/assets_credits.md` ✓
-＋ §5 待策划四件 ✓
+`python tools/check_data_discipline.py --selfcheck` ⇒
+   `探针①数字=1（须≥1） ②死函数=3（须≥1） ③死数据=1（须≥1） **④映射容器不误报=✅** => ✅ PASS` · exit 0 ✓
+   · **正向**：注入"无人泛读"的键 ⇒ **仍被抓**（③=1 ✓）
+   · **反向**：注入"有泛读"的映射容器（`probe_map.json` + 声明 `IReadOnlyDictionary<` 的 `ProbeMap.cs`）
+     ⇒ **不误报** ✓ ⇒ 说明"放过"既生效、又没放宽成"都不报" ✓
 ```
-#### 🔴 ④ 请策划拍板四件（定了我一次做完，全部带前后读数 + 提交号）
-```
-① 技能 `dmg%`：确认/改写 `reports/skill_dmg_mapping_proposal.md`（机械匹配仅 5/44 ⇒ 提案 较可信 12 / 需点名 32）
-   ⚠️ 提醒：名字重叠只是**候选**，可能是语义错配（例：`warrior_battle_fury` 被匹到 `battle_ballad`＝小丑的歌 ✗）
-② `prot`/减伤：(a) **维持现状**（保住现有减伤与 M6 判据 ← 我推荐）／(b) 成套落地 + **给 M6 新 band 值**
-③ 4v4 名单：从参考项目 15 英雄里**点名 4 个** ✓
-④ `O-95` SP 剂量：**参考项目没有这个概念**（无对应字段 ✗）⇒ 只能你给 ✓
-```
-- **我这边**：构建 **0 错** · 全量 **809/809** ✓ · 文件规模 **428 文件 / 0 豁免** ✓ · 数据纪律 **0 处 / exit 0** ✓
-- 📌 另：架构已批准我做 `--deadkeys` 判据升级（取甲，"时机由我定"）⇒ 我会在顶替收口后做（含**双向自检** ✓）
+- **我这边**：构建 **0 错** · 全量 **809/809** ✓ · 文件规模 **428 文件 / 0 豁免** ✓ · B6 **OK** ✓ · 数据纪律 **0 处 / exit 0** ✓
+- 🔴 **另**：我上一轮为"用参考项目顶替"标的 blocked 已按用户"继续"**恢复**（目标 active ✓）；
+  该目标的**剩余四项仍等你/策划**：①技能 `dmg%` 44 行 ②`prot`/减伤二选一（或给 M6 新 band）③4v4 点名 4 人 ④SP 剂量 ✓
