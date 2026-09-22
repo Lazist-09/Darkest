@@ -10,6 +10,132 @@
     "black": { "crests": 3, "deeds": 2, "portraits": 2, "busts": 2 }
   },
   "drop_note": "与光照档挂钩（越暗越多，与金钱同源）；P23 一 校验：每档总份数单调不减、且 shadowy 起必须 > 0",
+  "quest_reward": {
+      "_note": "步骤 ①（策划 «传家宝改任务奖励» 的第一步）：**只加通道、零行为** ✓ 由 tools/dsh/extract_dd1_quest_heirloom_rewards.py 从 E 盘【一手】campaign/quest/quest.generation.json 转写；每条约 origin=dd1 ✓",
+      "_source": "E:\\SteamLibrary\\steamapps\\common\\DarkestDungeon\\campaign\\quest",
+      "_origin": "dd1",
+      "_placeholder": true,
+      "dungeon_types": {
+          "crypts": [
+              "bust",
+              "portrait",
+              "deed",
+              "crest"
+          ],
+          "warrens": [
+              "bust",
+              "portrait",
+              "deed",
+              "crest"
+          ],
+          "weald": [
+              "bust",
+              "portrait",
+              "deed",
+              "crest"
+          ],
+          "cove": [
+              "bust",
+              "portrait",
+              "deed",
+              "crest"
+          ]
+      },
+      "amount_table": {
+          "bust": [
+              [],
+              [
+                  0,
+                  2,
+                  2,
+                  4
+              ],
+              [],
+              [
+                  0,
+                  2,
+                  3,
+                  6
+              ],
+              [],
+              [
+                  0,
+                  3,
+                  5,
+                  9
+              ]
+          ],
+          "portrait": [
+              [],
+              [
+                  0,
+                  2,
+                  2,
+                  4
+              ],
+              [],
+              [
+                  0,
+                  2,
+                  3,
+                  6
+              ],
+              [],
+              [
+                  0,
+                  3,
+                  5,
+                  9
+              ]
+          ],
+          "deed": [
+              [],
+              [
+                  0,
+                  3,
+                  5,
+                  9
+              ],
+              [],
+              [
+                  0,
+                  4,
+                  6,
+                  12
+              ],
+              [],
+              [
+                  0,
+                  6,
+                  9,
+                  18
+              ]
+          ],
+          "crest": [
+              [],
+              [
+                  0,
+                  3,
+                  5,
+                  9
+              ],
+              [],
+              [
+                  0,
+                  4,
+                  6,
+                  12
+              ],
+              [],
+              [
+                  0,
+                  6,
+                  9,
+                  18
+              ]
+          ]
+      }
+  },
   "upgrade_paths": [
     {
       "building": "tavern",
