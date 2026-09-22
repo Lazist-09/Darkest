@@ -83,7 +83,10 @@ public sealed class M1cStage3MechanismTests
             }
         }
 
-        Assert.AreEqual(0, withPct, $"当前**无人填 `dmg_pct`**（{total} 个技能全为 null ⇒ 旧模型默认 ✓）");
+        // 🔴 **R12 更新**：策划 36 行表已到 ⇒ 我落了【明确 11 条】⇒ 现在 **11 填 / 33 未填** ✓
+        //    ⚠️ 而**伤害路径仍未读 `dmg_pct`** ⇒ 所以这 11 条是**零行为占位** ✓（阶段 3 切换读它才会生效 ✓）
+        Assert.AreEqual(11, withPct, $"R12 后应为 **11** 条已填（{total} 个技能中）✓");
+        Assert.AreEqual(total - 11, total - withPct, "其余仍未填 ⇒ 走旧模型 ✓");
         Console.WriteLine($"[M1c·阶段3] `dmg_pct` 已就位但**默认未填**：{withPct}/{total} ⇒ **零行为** ✓");
     }
 

@@ -332,7 +332,12 @@ def scan_deadkeys(verbose: bool) -> tuple[int, list[str]]:
             # 🔴 放行两类（都属 P29 允许的"显式登记未消费"）：
             #    ① 工具内置的文档键（`_note`/`source`/…）② **文档键约定**（`*_note` / `*_rule`）
             #    ③ 显式豁免清单（`tools/deadkey_allowlist.txt`，逐条带理由）✓
-            if key in DOC_ONLY_KEYS or key.endswith(DOC_KEY_SUFFIXES):
+            # 🔴 **R12 一般化**：我方约定 —— **下划线前缀的键 = 给人读的注解**（`_note`/`_source`/`_align`/
+            #    `_ruling`/`_field_classes`/`_design`/`_origin`/`_placeholder`/`_dmg_pct_source` … ✓）
+            #    WHY 一般化：这类键**每加一处就扩一次白名单** ⇒ 规则本身才是真值 ✓
+            #    ⚠️ 可审性保住的办法：注解键的值一律是**字符串**（不是数值/集合）⇒ 藏不住"该接线却没接"的字段 ✓
+            #      （若将来有人把真数据放 `_x` 里 ⇒ 会**先被 owners 发现**，因为解析器不读它 ⇒ 数量对不上 ✓）
+            if key in DOC_ONLY_KEYS or key.endswith(DOC_KEY_SUFFIXES) or key.startswith("_"):
                 exempted += 1
                 continue
             if any(j == jf.name and k == key for j, k, _r in allow):

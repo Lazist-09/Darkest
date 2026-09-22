@@ -27,3 +27,5 @@ darkest/scripts/gameplay/sim/skill/HealAmount.cs | ScaleByCaster | M2 激活的�
 # ── R6：减伤侧阶机制（与 WeaponBaseDamage 同族：**机制已就位、消费方未到** ✓）
 darkest/scripts/gameplay/sim/board/TierDefence.cs | DefAt | 目标 ③④ 减伤侧机制；消费方 = 「伤害/减伤读阶」接线（**当前阶**三选项见 reports/tier_source_options.md，待裁 ✓）
 darkest/scripts/gameplay/sim/board/TierDefence.cs | ProtFractionAt | 同上（比例形式，供战斗减伤用；接线后即被调用 ✓）
+# ── R12：祖产任务奖励通道（步骤① 刚落库 ✓ 消费方 = 结算接线，按策划顺序取 (A) 先接线再删 ✓）
+darkest/scripts/data/HeirloomQuestRewardConfig.cs | AmountAt | 任务奖励查表口（kind/tier/length ⇒ 数量 ✓）；消费方 = 结算接线（策划取 (A) ⇒ 先接线再删 tier_drop ✓）

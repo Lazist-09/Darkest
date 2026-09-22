@@ -1,7 +1,10 @@
 {
+  "_dmg_pct_note": "R12 顶替:M1c 阶段3 的技能 dmg% —— 来源=策划 36 行表(dd1_baseline §43);本次落【明确 11 + 接近 1】;另有【候选 12 / 无对应 13】未落(等策划裁)。🔴 伤害路径尚未读 dmg_pct ⇒ 本批**零行为** ✓",
   "skills": [
     {
       "id": "warrior_cleave",
+    "dmg_pct": 0,
+    "_dmg_pct_source": "dd1:wicked_hack (同 type+语义同(近战劈砍))",
       "name": "劈砍",
       "owner_unit": "warrior",
       "self_slots": [
@@ -39,6 +42,8 @@
     },
     {
       "id": "warrior_sweep",
+    "dmg_pct": 0,
+    "_dmg_pct_source": "dd1:iron_swan (语义同(挥击))",
       "name": "横扫",
       "owner_unit": "warrior",
       "self_slots": [
@@ -78,6 +83,8 @@
     },
     {
       "id": "warrior_lunge",
+    "dmg_pct": -50,
+    "_dmg_pct_source": "dd1:breakthru (接近明确(策划原话))",
       "name": "突刺",
       "owner_unit": "warrior",
       "self_slots": [
@@ -205,6 +212,8 @@
     },
     {
       "id": "warrior_war_cry",
+    "dmg_pct": -100,
+    "_dmg_pct_source": "dd1:barbaric_yawp (语义同(战吼))",
       "name": "战吼",
       "owner_unit": "warrior",
       "self_slots": "all",
@@ -346,6 +355,8 @@
     },
     {
       "id": "tank_guard_wall",
+    "dmg_pct": 0,
+    "_dmg_pct_source": "dd1:defender (语义同(守护队友))",
       "name": "盾墙",
       "owner_unit": "tank",
       "self_slots": [
@@ -417,6 +428,8 @@
     },
     {
       "id": "tank_shield_bash",
+    "dmg_pct": 0,
+    "_dmg_pct_source": "dd1:crush (同 type+语义同(近战重击))",
       "name": "盾击",
       "owner_unit": "tank",
       "self_slots": [
@@ -460,6 +473,8 @@
     },
     {
       "id": "tank_heavy_ram",
+    "dmg_pct": -60,
+    "_dmg_pct_source": "dd1:rampart (语义同(冲撞/位移))",
       "name": "重盾猛撞",
       "owner_unit": "tank",
       "self_slots": [
@@ -660,6 +675,8 @@
     },
     {
       "id": "medic_scalpel",
+    "dmg_pct": 0,
+    "_dmg_pct_source": "dd1:incision (同 type(melee)+语义同)",
       "name": "手术刀",
       "owner_unit": "medic",
       "self_slots": [
@@ -911,6 +928,8 @@
     },
     {
       "id": "medic_lethal_injection",
+    "dmg_pct": -80,
+    "_dmg_pct_source": "dd1:noxious_blast (语义同(注入毒素))",
       "name": "致命注射",
       "owner_unit": "medic",
       "self_slots": [
@@ -1006,6 +1025,8 @@
     },
     {
       "id": "commissar_command_blade",
+    "dmg_pct": 15,
+    "_dmg_pct_source": "dd1:wicked_slice (语义同(近战斩击))",
       "name": "指挥刀",
       "owner_unit": "commissar",
       "self_slots": [
@@ -1281,6 +1302,8 @@
     },
     {
       "id": "commissar_burst_fire",
+    "dmg_pct": -50,
+    "_dmg_pct_source": "dd1:grape_shot_blast (语义同(多发/散射))",
       "name": "连射",
       "owner_unit": "commissar",
       "self_slots": [
