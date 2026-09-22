@@ -1,83 +1,90 @@
-# 参考项目顶替 · **替换清单**（单一入口 · 后续要改时只看这一份）
+# 参考项目顶替 · **替换清单（单一入口 · 末次全面同步）**
 
 > 🔴 **用途**：用户指示「先用 `F:\GithubPro\Darkest-Dungeon-Unity` 的数值顶替，后续再改」⇒
->   本文件记录**每一项当前的替换状态、出处等级、值从哪来、后续怎么改** ✓
-> 🔴 **出处等级**（我们自己的 `dd1_baseline` §32.1）：**一手 E 盘 > 二手 wiki > 第三方参考项目** ✓
-> 🔴 **GPL 边界**（§32.2 可操作四条）：只读结构与数值 · 不逐行誊写代码 · **明显衍生要登记 `assets_credits`** ✓
+>   本文件记录**每一项的当前状态、出处等级、值从哪来、后续怎么改、读数与提交号** ✓
+> 🔴 **出处等级**（`dd1_baseline` §32.1）：**一手 E 盘 > 二手 wiki > 第三方参考项目** ✓
+> 🔴 **GPL 边界**（§32.2 四条）：只读结构与数值 · 不逐行誊写代码 · **明显衍生要登记 `assets_credits`** ✓
 
-## §1 六项待定值的**当前状态**（当场实测）
+## §1 待定项 · 现状总表
 | # | 项 | 状态 | **出处等级** | 值 / 来源 | 后续怎么改 |
 |---|---|---|---|---|---|
-| ① | 技能 `dmg%`（44 个） | 🟡 **提案就绪 · 未落库** | —（无值） | `reports/skill_dmg_mapping_proposal.md`：机械匹配仅 **5/44** ⇒ 提案表 **较可信 12 / 需点名 32** | 🔴 **等策划确认/改写** ⇒ 我一次落库 + 前后读数 |
-| ② | 顶层 `prot`（4 原型） | 🔴 **未顶替（有意）** | 参考=**0** ✓ **且**一手=**0** ✓（两源一致） | 现值仍是旧的 8/12/4/5（原 `phys_def`） | 🔴 单独落 **0** 会打穿 **M6 判据 A1（死门 1.30/场 > 0.4）** ⇒ 需策划二选一：成套落地 + 重设 band，或维持现状 |
-| ③ | **5 阶武器表**（4 原型） | ✅ **已顶替 · 出处=一手** | **一手 E 盘** ✓（原先=第三方） | `tools/dsh/land_edrive_hero_tables.py --apply`（提交见 §3）⇒ `_align` 已改写为「一手 E 盘 `<hero>.info.darkest`」✓ | 将来换一手新版/自定义值 ⇒ 改 `units.json` 的 `weapon[]` 即可（**该表今天零消费** ⇒ 改了不影响战斗 ✓） |
+| ① | **技能 `dmg%`**（44 个） | 🟡 **提案就绪 · 未落库** | —（无值） | `reports/skill_dmg_mapping_proposal.md`：名字匹配 **12** ⇒ **✅ 可用 7 · ⚠️ 可疑（类型不符）5** · **🔴 需点名 32** | 🔴 **等策划确认/改写**（或给 44 行 `our_id = dmg%`）⇒ 我一次落库 + 前后读数 |
+| ② | **顶层 `prot`**（4 原型） | 🔴 **未顶替（有意）** | 参考=**0** ✓ **且**一手=**0** ✓（**两源一致**） | 现值仍是旧的 8/12/4/5（原 `phys_def`） | 🔴 单独落 0 会打穿 **M6 判据 A1（死门 1.30/场 > 0.4）** ✗ ⇒ 二选一：(a) 维持现状（我推荐）／(b) 成套落地 + 给新 band |
+| ③ | **5 阶武器表**（4 原型） | ✅ **已顶替 · 出处=一手** | **一手 E 盘** ✓ | `land_edrive_hero_tables.py --apply`（`_align` 已写明一手 + 与第三方差异处数 ✓） | 改 `units.json` 的 `weapon[]`（**该表今天零消费** ⇒ 不影响战斗 ✓） |
 | ④ | **5 阶护甲表**（4 原型） | ✅ **已顶替 · 出处=一手** | **一手 E 盘** ✓ | 同 ③（`armour[]`：`def_pct/prot/hp/spd` ✓） | 同 ③ |
-| ⑤ | 4v4 名单 4 人 | 🔴 **未定** | — | 可用池：参考项目 15 英雄名 ✓ | 🔴 **等策划点名 4 个** |
-| ⑥ | `O-95` SP 剂量 | 🔴 **无法顶替** | — | **SP 不是原版概念** ⇒ 参考项目**无对应字段** ✗ | 🔴 只能策划给数 |
+| ⑤ | **4v4 名单 4 人** | 🔴 **未定** | — | 可用池：参考项目 **15 英雄**（`dd1_hero_tables_from_unity_ref.json` ✓） | 🔴 等策划点名（我的建议：hellion / man_at_arms / plague_doctor / highwayman ✓） |
+| ⑥ | **`O-95` SP 剂量** | 🔴 **无法顶替** | — | **SP 不是原版概念** ⇒ 参考项目**无对应字段** ✗（实测） | 🔴 只能策划给数 ✓ |
+| ⑤b | 🆕 **「当前阶从哪来」** | 🔴 **未定（③④ 接线的唯一前置）** | — | 机制已备（见 §3 ✓） | 🔴 三选项：**(A) 升级树等级驱动（我推荐）** /(B) 远征进度 /(C) 固定 0 ⇒ 见 `reports/tier_source_options.md` |
 
 ## §2 为什么 ③④ 用**一手**而不是参考项目（现场证据）
 ```
-`tools/dsh/reconcile_hero_tables_edrive_vs_ref.py`（可复跑 · 不写游戏数据 ✓）实测：
+`tools/dsh/reconcile_hero_tables_edrive_vs_ref.py`（可复跑 · **不写游戏数据** ✓）实测：
    一手可读英雄 **15** · 与参考配对 **11** · 逐字段比较 **495** · 一致 **402** · **冲突 97（19.6%）**
    ⇒ 📌 **参考项目与一手不是一回事**（差异集中在 `crit_pct` / `dmg_max` / `def_pct` / `hp` ✓）
-   ⇒ 按 §32.3「**一手 > 第三方；冲突时以一手为准并记录**」⇒ ③④ 改从**一手**落 ✓
+   ⇒ 按 §32.3「**一手 > 第三方；冲突时一手为准并记录**」⇒ ③④ 改从**一手**落 ✓
    📄 冲突逐条：`reports/edrive_vs_reference_hero_tables.md` ✓
-🔴 并记一条**我方解析器的更正**（如实）：第一版正则只认整数 ⇒ `abomination_armour_0 .def 7.5%` 读不到 ⇒
-   误报"阶数不同" ✗ ⇒ 已支持小数后重跑（比较数 475→495 ✓ 冲突 89→97 ✓ 数字更实 ✓）
+🔴 我方解析器的更正（如实）：第一版正则只认整数 ⇒ 漏读 `abomination_armour_0 .def 7.5%` ⇒ 误报"阶数不同" ✗
+   ⇒ 修好重跑：比较 **475→495** · 冲突 **89→97**（数字更实 ✓）
 ```
 
-## §3 落库的**前后读数**（零行为证明）
+## §3 已落地的**前后读数**（零行为证明）
 ```
-· 应用前：4 原型的 `weapon[]`/`armour[]` = 从**第三方**逐阶照抄（且 crit 被四舍五入成整数 ✓）
-· 应用：`python tools/dsh/land_edrive_hero_tables.py --apply`
-  ⇒ 备份 `…expflow\units.before-edrive-tables.json` ✓
-  ⇒ 改动量：warrior(hellion) weapon **5 阶** · tank(man_at_arms) weapon 5 + armour 4 ·
-             medic(plague_doctor) weapon 3 + armour 5 · commissar(highwayman) weapon 3 + armour 5 ✓
-· 应用后（当场实测）：构建 **0 错误** ✓ · 全量 **809/809**（一个未红 ✓）·
-  **减伤基线逐位不变**（`tank ⇒ 命中 95% · 减伤 29%` ✓）
-  ✅ 依据：`WeaponAt`/`ArmourAt` **无任何生产调用点**（数据纪律门禁自己报的 ✓）⇒ 该表**今天零消费** ⇒
-     换源**不改变任何战斗数值** ✓
-```
-
-## §4 🔴 GPL 登记（`#447 §32.2 ④`）· 请贴进 `doc/assets_credits.md`
-```
-> 🔴 说明：`doc/**` 属**契约域**（不是我的域 ✗）⇒ 我**不擅自改**它 ⇒ 以下为**待贴入的原文** ✓
-```
-```markdown
-## Darkest-Dungeon-Unity（第三方参考项目）
-- **用途**：仅用于**结构与数值**的比对/顶替（阶段 A 对齐）；**未复制任何代码** ✓
-- **涉及数据**：`darkest/data/units.json` 的 4 原型 5 阶武器/护甲表（**现已改为一手 E 盘** ✓）；
-  其逐英雄表抽取产物 `reports/dd1_hero_tables_from_unity_ref.json`（派生表，不含原始资源字节 ✓）；
-  技能候选池 `reports/skill_dmg_mapping_proposal.md`（仅提案 ✓）
-- **许可**：GPL（见其仓库）⇒ **我们未分发其任何内容**；若将来分发含其派生物 ⇒ 需重新评估 ✓
-- **是否修改过**：是（**我们只取数值，未逐行誊写代码** ✓）
-- **校准记录**：一手 vs 参考 495 字段比较 ⇒ **97 处冲突**，**以一手为准** ✓（见
-  `reports/edrive_vs_reference_hero_tables.md`）
+③④ 的**值**：`python tools/dsh/land_edrive_hero_tables.py --apply`
+   改动量：warrior(hellion) weapon 5 阶 · tank(man_at_arms) weapon 5+armour 4 ·
+           medic(plague_doctor) weapon 3+armour 5 · commissar(highwayman) weapon 3+armour 5 ✓
+   📊 应用后：构建 **0 错** · 全量 **809/809** · **减伤基线逐位不变** · 🆕 **冒烟 13/13 全绿**（R7 ✓）
+   依据：`WeaponAt`/`ArmourAt` **无生产调用点** ⇒ 该表**今天零消费** ⇒ 换源不改战斗数值 ✓
+   备份：`…expflow\units.before-edrive-tables.json` ✓
+③④ 的**机制**（阶数接线用 · 两者**都无生产调用方** ⇒ 被"无人消费"守卫钉住 ✓）：
+   · 伤害侧 `WeaponBaseDamage`（一手 5 阶区间 × (1+dmg%) ✓）
+   · 🆕 减伤侧 `TierDefence`（`ProtAt`/`DefAt`/`ProtFractionAt`/`ArmourViewAt` ⇒ 复用 `UnitStats.ArmourAt` **单一出处** ✓）
+     实测：warrior 逐阶 prot 全 0 · def 逐阶递增；敌人（无 5 阶）**回退顶层**；越界**钳制**（-3⇒0 · 99⇒4）✓
 ```
 
-## §5 待策划拍板的四件（改完这一份就闭环）
+## §4 GPL 登记（`#447 §32.2 ④`）· ✅ **已闭环**
 ```
-① 技能 `dmg%`：确认/改写 `reports/skill_dmg_mapping_proposal.md`（或直接给 44 行 `our_id = dmg%`）
-② `prot`/减伤：(a) 维持现状（我推荐，判据不动）／(b) 成套落地 + 给新 band 值
-③ 4v4 名单：点名 4 个（池子见 §1 ⑤）
-④ SP 剂量：参考项目没有 ⇒ 只能你给
+架构已把登记原文贴入 **`doc/assets_credits.md` §10**（L131 起 · +23 行 ✓ 我核过）
+   （原文出自我 `reports/reference_substitution_findings.md` §4 ⇒ 已被采纳 ✓）
 ```
 
----
-
-## §6 🆕 数据出处等级与对账状态（2026-09-22 · 轮 2/3 补）
-> 本节把「**每个数据集的来源等级**」也纳进单一入口 ⇒ 后续要改时**只看这一份** ✓
-> 全量审计：`reports/data_provenance_audit.md` ✓
-
+## §5 数据出处等级与对账状态（全量审计见 `reports/data_provenance_audit.md`）
 | 数据集 | 源 | 出处等级 | 对账状态 |
 |---|---|---|---|
-| `units.json` **5 阶武器/护甲** | E 盘 `<h>.info.darkest` | ✅ **一手** | ✅ 轮 1 已落一手（一手 vs 第三方：495 比较 / **97 冲突** ⇒ 一手为准 ✓） |
-| `units.json` **顶层基础属性** | （非 `<h>.info.darkest` —— 实测该文件只有 weapon/armour ✗） | ⚠️ **我们的设计（含手调）** | ✅ 已核对：**不是第 0 阶投影**（`reports/top_level_vs_tier0_consistency.md`）⇒ **不列为待回一手**，列为「阶机制差异清单」✓ |
+| `units.json` **5 阶武器/护甲** | E 盘 `<h>.info.darkest` | ✅ **一手** | ✅ 轮 1 已落一手（一手 vs 第三方 495/97 ✓） |
+| `units.json` **顶层基础属性** | 非 `<h>.info.darkest`（实测该文件只有 weapon/armour ✗） | ⚠️ **我们的设计（含手调）** | ✅ 已核对（**不是**第 0 阶投影 ✓）⇒ 不列为待回一手，列为「阶机制差异清单」✓ |
 | `data/trinkets.json`(196) | E 盘 `trinkets/base.entries.trinkets.json` | ✅ 一手 | ✅ 无需动 |
 | `data/quirks.json`(170) | E 盘 `shared/quirk/quirk_library.json` | ✅ 一手 | ✅ 无需动 |
 | `data/buildings.json`(8/20/99) | E 盘 `upgrades/building/*` | ✅ 一手 | ✅ 无需动 |
 | `data/hero_upgrades.json`(15/135/645) | E 盘 `upgrades/heroes/*` | ✅ 一手 | ✅ 轮 2 补上 `_note`/`_source` ✓ |
-| **Buff 原语词汇**（分类器） | 🆕 **已对账**：一手 `shared/buffs/base.buffs.json`(2020/48 原语) vs 第三方 `JsonBuffs.json`(1801/41) | ✅ **一手已取到** | ✅ **R4 已修正**：判据源换成**一手产物** ⇒ 读数 **41→48 种** · 有去向 **26→27** · 显式冻结 **15→21** ✓（+2 条显式定性 `activity_side_effect_chance`/`ignore_stealth` ⇒ Frozen + 逐条理由 ✓）；−1 非原版（`hp_heal_amount/`）随换一手**自然消失** ✓ |
-| **技能 dmg% 候选池** | 第三方 `Heroes/Info/*.bytes` | ⚠️ 第三方（**仅提案**） | ⏳ 等策划确认（提案未落库 ✓） |
+| **Buff 原语词汇**（分类器） | 一手 `shared/buffs/base.buffs.json`(2020/48) vs 第三方 `JsonBuffs.json`(1801/41) | ✅ **一手已取到** | ✅ **轮 3-4 已修正**：41→**48** 种 · 有去向 26→**27** · 冻结 15→**21** ✓ |
+| **技能 dmg% 候选池** | 参考项目 `Heroes/Info/*.bytes` | ⚠️ 第三方（**仅提案**） | ⏳ 等策划确认（提案未落库 ✓） |
 | `data/traits.json`(7) | 我们的 `buff_defs.json` | ✅ 自有 | ✅ |
 | `data/skills.json`(44) | 我们自研 | ✅ 自有 | ✅ |
+
+## §6 本目标（轮 1~8）的**提交索引**（硬要求 (d)：每项有读数 + 提交号）
+| 轮 | 内容 | 提交 |
+|---|---|---|
+| 1 | 一手对账器 + ③④ 一手落库 + 顶替可行性报告（含 GPL 原文） | `d87af63` |
+| 1 | 投策划 + 架构 | `3ac0c7a` |
+| 2 | 数据出处等级审计（+ `hero_upgrades` 来源标记） | `da2ba96` |
+| 2 | 顶层属性 vs 第 0 阶一致性核对 | `f21cfbc` |
+| 3 | buff 原语一手对账（+ 抽取器 `--out-suffix`） | `31aa237` |
+| 3 | 替换清单补出处等级一节 | `dafca86` |
+| 4 | 分类器按一手修正（41→48 · 26→27 · 15→21） | `06ca079` |
+| 4 | 清单该行改为"已修正" | `9950bcc` |
+| 5 | 修我自己引入的门禁回红（`_source` 元数据键约定） | `5338fa2` |
+| 5 | `--deadkeys` 判据升级（架构批准取甲 · 双向自检 PASS · 删 15 行白名单） | `d4fbce2` |
+| 5 | 投架构（升级完成） | `7b66658` |
+| 6 | 减伤侧机制 `TierDefence` + 守卫扩展 + 用例 + 当前阶三选项提案 | `fd8dee7` |
+| 6 | 新件带来的 3 处门禁项按机制登记（纪律回 0） | `59f873c` |
+| 7 | 技能映射提案升级（加类型一致性判据） | `5e9247b` |
+| 7 | 冒烟重跑 13/13 全绿（换源未伤运行时） | `1c8239f` |
+
+## §7 🔴 等策划/架构的 **5 件**（给了我就一次做完：每项附前后读数 + 提交号）
+```
+① 技能 `dmg%`：在 `reports/skill_dmg_mapping_proposal.md` 上确认/改写（7 可用 / 5 可疑 / 32 需点名）
+② `prot`/减伤：(a) 维持现状（我推荐）／(b) 成套落地 + 给 M6 新 band
+③ 4v4 名单：点名 4 个（建议 hellion / man_at_arms / plague_doctor / highwayman）
+④ SP 剂量：参考项目无此概念 ⇒ 只能你给
+⑤ **当前阶从哪来**：(A) 升级树等级驱动（我推荐）／(B) 远征进度／(C) 固定 0 ⇒ 给了就能把 ③④ 接线 ✓
+```
