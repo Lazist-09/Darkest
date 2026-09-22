@@ -29,7 +29,20 @@ public sealed record HeroConfig(
     //    P22⑦ 规定"**新兵（level=1）入场士气必须 = 50**"（校验器强制）⇒ 数据里新兵可以不写 morale，
     //    此时取契约值 ✓（我一度直接去掉默认值 + 要求 morale 必填 ⇒ 实测**打红了 3 条既有用例** ⚠️
     //    —— 教训：**先看契约怎么规定，再决定"该不该有默认值"**，别把"契约默认"误当"静默兜底"）
-    [property: JsonPropertyName("morale")] int Morale = RosterConfig.RookieMorale);
+    [property: JsonPropertyName("morale")] int Morale = RosterConfig.RookieMorale,
+
+    /// <summary>
+    /// 🆕 **O-101 的「当前阶」· 武器**（策划 `DELIVERY-DESIGNER-FOUR-MEANINGS-TO-LEAD` ③ 的裁定原话）：
+    ///   **「『当前阶』= 装备/升级等级 ⇒ 由 Roster/Hero 持有（`weaponTier`/`armourTier`）」** ✓
+    ///   ⇒ 取值域 **0~4**（对应 `units.json` 的 5 阶武器表 ✓）
+    /// 🔴 **默认 0** ⇒ 未声明 = 第 0 阶 ⇒ **与今天行为一致** ✓
+    ///   （因为"伤害/减伤读阶"的两侧机制虽已备 —— `WeaponBaseDamage` / `TierDefence` —— 但**尚未接线** ✓ 零行为 ✓）
+    /// ⚠️ **激活条件**：M1c 阶段 3（伤害读阶）与减伤读阶接线时，从本字段取阶 ✓
+    /// </summary>
+    [property: JsonPropertyName("weapon_tier")] int WeaponTier = 0,
+
+    /// <summary>🆕 **O-101 的「当前阶」· 护甲**（同上 ✓ 取值域 0~4 ⇒ 对应 `armour[]` 5 阶 ✓ 默认 0 = 零行为 ✓）</summary>
+    [property: JsonPropertyName("armour_tier")] int ArmourTier = 0);
 
 /// <summary>等级成长（7.6：**只给属性小幅度**，HP+2 / 攻击+1；**不升技能**）。</summary>
 /// <summary>
