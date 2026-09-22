@@ -107,7 +107,7 @@ public sealed class WeaponDamageModelStage1Tests
         var modelConsumers = new List<string>();
         foreach (string f in Directory.EnumerateFiles(Path.Combine(root.FullName, "darkest", "scripts"), "*.cs", SearchOption.AllDirectories))
         {
-            if (Path.GetFileName(f) is "WeaponBaseDamage.cs")
+            if (Path.GetFileName(f) is "WeaponBaseDamage.cs" or "TierDefence.cs")
             {
                 continue;
             }
@@ -124,7 +124,7 @@ public sealed class WeaponDamageModelStage1Tests
                     continue;   // 注释不算 ✓
                 }
 
-                if (line.Contains("WeaponBaseDamage", StringComparison.Ordinal))
+                if (line.Contains("WeaponBaseDamage", StringComparison.Ordinal) || line.Contains("TierDefence", StringComparison.Ordinal))
                 {
                     callsIt = true;
                     break;
@@ -138,7 +138,7 @@ public sealed class WeaponDamageModelStage1Tests
         }
 
         Assert.AreEqual(0, modelConsumers.Count,
-            $"阶段 3 的机制**必须无人消费**（机制在、接线等解冻）⇒ 实际调用者：{string.Join(", ", modelConsumers)}");
+            $"阶段 3 的机制（WeaponBaseDamage / TierDefence）**必须无人消费**（机制在、接线等解冻）⇒ 实际调用者：{string.Join(", ", modelConsumers)}");
 
         Assert.AreEqual(0, offenders.Count,
             $"阶段 1 必须对**生产代码**零消费点 ⇒ 除 `BattleMath.cs`，`darkest/scripts/**` 不应有人调用新模型；实际：{string.Join(", ", offenders)}");
