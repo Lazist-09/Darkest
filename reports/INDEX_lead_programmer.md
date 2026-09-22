@@ -96,3 +96,20 @@ B6 外源门禁 **OK**（0 白名单）✓ · **数据纪律 三扫 0 处 / exit
   `orphan_batch_per_file_audit.md` · `no_comment_class_bodies.md` · `planner_briefing_work_summary.md` ·
   `m1c_stage3_readiness.md` · `m2_activation_readings.md` · `m3_traits_step2_plan.md` · `m8_four_answers.md` ✓
 ```
+
+---
+
+## §6.6 🆕 「参考项目顶替」这一目标的单一入口（2026-09-22）
+```
+· `tools/dsh/reference_placeholders.md` —— **替换清单**（①~⑥+⑤b 现状 / 出处等级 / 值来源 / 后续怎么改 /
+  **轮 1~8 的提交索引 15 条** / 待策划 5 件 ✓）
+· 配套证据：`reports/reference_substitution_findings.md`（可行性：六项逐项实测）·
+  `reports/edrive_vs_reference_hero_tables.md`（一手 vs 第三方：**495 比较 / 97 冲突**）·
+  `reports/data_provenance_audit.md`（10 个数据集的出处等级）·
+  `reports/top_level_vs_tier0_consistency.md`（顶层 vs 第 0 阶）·
+  `reports/buff_primitives_edrive_vs_ref.md`（原语对账 48 vs 41）·
+  `reports/skill_dmg_mapping_proposal.md`（技能映射提案：可用 7 / 可疑 5 / 需点名 32）·
+  `reports/tier_source_options.md`（当前阶 A/B/C）✓
+· 工具：`reconcile_hero_tables_edrive_vs_ref.py` · `land_edrive_hero_tables.py` ·
+  `reconcile…`（buff 原语用 `extract_dd1_buff_primitives.py --out-suffix`）· `make_skill_mapping_proposal.py` ✓
+```
