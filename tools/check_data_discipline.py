@@ -264,7 +264,7 @@ def generic_container_keys(obj, code: str) -> set[str]:
     return out
 
 
-DOC_ONLY_KEYS = {"_note", "_source", "_align", "_ruling", "_field_classes", "note", "source", "config", "version"}
+DOC_ONLY_KEYS = {"_note", "_source", "_align", "_ruling", "_field_classes", "_design", "note", "source", "config", "version"}
 
 # 🔴 **文档键约定**（P29 允许的"显式登记未消费"形态之一）：以这些后缀结尾的键 = **给人读的设计说明**
 #    （`*_note` 写"为什么这么定/决策号"，`*_rule` 写规则语义）⇒ 它们**不进**死数据报告 ✓
