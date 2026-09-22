@@ -1,0 +1,103 @@
+{
+  "_note": "M8 祖产：兑换表 12 条 —— 由 tools/dsh/extract_dd1_heirloom_exchange.py 从 E 盘【一手】campaign/heirloom_exchange/heirloom_exchange.json 转写；每条约 origin=dd1 + placeholder=true ✓",
+  "_source": "E:\\SteamLibrary\\steamapps\\common\\DarkestDungeon\\campaign\\heirloom_exchange",
+  "_design": "一手实测的设计：**所有兑换都损失 50%** ⇒ 相对价值 portrait : bust : deed : crest = **6 : 3 : 3 : 2** ✓（校验器把它当作硬判据 ✓）",
+  "exchange_rates": [
+    {
+      "exchange_from_type": "bust",
+      "exchange_from_amount": 3,
+      "exchange_to_type": "portrait",
+      "exchange_to_amount": 1,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "bust",
+      "exchange_from_amount": 3,
+      "exchange_to_type": "deed",
+      "exchange_to_amount": 2,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "bust",
+      "exchange_from_amount": 2,
+      "exchange_to_type": "crest",
+      "exchange_to_amount": 3,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "portrait",
+      "exchange_from_amount": 2,
+      "exchange_to_type": "bust",
+      "exchange_to_amount": 3,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "portrait",
+      "exchange_from_amount": 2,
+      "exchange_to_type": "deed",
+      "exchange_to_amount": 3,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "portrait",
+      "exchange_from_amount": 1,
+      "exchange_to_type": "crest",
+      "exchange_to_amount": 3,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "deed",
+      "exchange_from_amount": 3,
+      "exchange_to_type": "bust",
+      "exchange_to_amount": 2,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "deed",
+      "exchange_from_amount": 3,
+      "exchange_to_type": "portrait",
+      "exchange_to_amount": 1,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "deed",
+      "exchange_from_amount": 2,
+      "exchange_to_type": "crest",
+      "exchange_to_amount": 3,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "crest",
+      "exchange_from_amount": 3,
+      "exchange_to_type": "bust",
+      "exchange_to_amount": 1,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "crest",
+      "exchange_from_amount": 6,
+      "exchange_to_type": "portrait",
+      "exchange_to_amount": 1,
+      "origin": "dd1",
+      "placeholder": true
+    },
+    {
+      "exchange_from_type": "crest",
+      "exchange_from_amount": 3,
+      "exchange_to_type": "deed",
+      "exchange_to_amount": 1,
+      "origin": "dd1",
+      "placeholder": true
+    }
+  ]
+}
