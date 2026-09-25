@@ -24,9 +24,12 @@ public sealed class HeirloomStock
     private readonly Dictionary<string, int> _levels = new();
 
     /// <summary>
-    /// 🆕 **传家宝产出通道 = 任务奖励**（策划 `HEIRLOOM-STEP2-ANSWER` 的**步骤 ②** ✓）。
-    /// 🔴 **可空**：缺它 ⇒ `AwardForRun` **回落**旧的「按光照档掉落」（= **P4 前的桥** ⚠️）；
-    ///    P4（删 `tier_drop`）之后本字段变**必填**、桥与 `AwardForTier` 一起删 ✓
+    /// 🆕 **本趟发放：按【任务奖励】通道**（策划 `HEIRLOOM-STEP2-ANSWER` 的**步骤 ②** ✓）。
+    ///
+    /// 🔴 **步骤 ② 之后旧通道 `tier_drop` 已删**（`#470` 顺序 (A)：先接线（`49b1908`）**再删**（本件））⇒
+    ///    · 本字段**仍是可空**：因为 `HamletRoot.Build` 会**先**建库存（**不带通道** —— 那是 **UI 域**文件，
+    ///      我不改它）⇒ 靠 `BindQuestReward` 由远征组合根**补绑** ✓
+    ///    · ⚠️ **通道缺失时不再静默回落旧行为**（旧行为已不存在）⇒ 直接**抛**（**不静默发 0** ✓）
     /// </summary>
     private HeirloomQuestRewardConfig? _reward;
 
@@ -70,28 +73,13 @@ public sealed class HeirloomStock
         : throw new InvalidOperationException($"未知建筑 \"{building}\"（P23 ④）。");
 
     /// <summary>
-    /// 🔴 **按【光照档】发放本趟的传家宝**（**旧通道**；`#470` 顺序 (A) 里的"**旧源**"）。
+    /// 🔴 **按【光照档】发放本趟的传家宝**（**旧通道**）—— **本轮已删**（步骤 ② · `#470` 顺序 (A) 的第二步）。
     ///
-    /// ⚠️ **现状**：`#472` 之前它是**生产路径唯一入口**；步骤 ② 之后**生产路径改走 `AwardForRun`**，
-    ///    本方法**只作为回落桥**（`_reward` 缺失时）存活 ⇒ 🆕 **P4 删 `tier_drop` 时连同它一起删** ✓
+    /// 🗑️ **删除理由**：策划裁定传家宝**不按光照档掉，改走任务奖励** ⇒ 保留它 = **同一个语义两处真值** ⚠️
+    ///    （数据段 `tier_drop` / 校验 P23 ① / `HeirloomDropSpec` / `DropFor` **同批删除** ✓）
+    /// 🔴 **替代口**：<see cref="AwardForRun"/> ✓
     /// </summary>
-    public int AwardForTier(CombatLog log, string tierId, string reason = "battle")
-    {
-        HeirloomDropSpec drop = _cfg.DropFor(tierId);
-        int total = 0;
-        foreach (string kind in _cfg.Kinds)
-        {
-            int amount = KindAmount(drop, kind);
-            if (amount > 0)
-            {
-                Add(log, kind, amount, reason);
-                total += amount;
-            }
-        }
-
-        return total;
-    }
-
+    /// <remarks>⚠️ 历史读数（`reports/logic_completion_plan.md` P3/P4）：旧通道 5 档合计 = 0/1/2/4/9 = 16 ✓</remarks>
     /// <summary>
     /// 🆕 **步骤 ②（接线）：按【任务奖励】通道发放本趟的传家宝** —— 与金钱同一结算点（每场战斗胜利）。
     ///
@@ -102,24 +90,22 @@ public sealed class HeirloomStock
     /// 🔴 **两个输入都要代理**（我们**没有任务层**、**没有 resolve level 模型** ⚠️）：
     ///   · `averageLevel` ⇒ `ProxyDifficultyFromAverageLevel`（⚠️ 我推的）
     ///   · `steps`        ⇒ `ProxyQuestLengthFromSteps`（⚠️ 我推的）
-    ///   ⇒ 两个代理都在 `HeirloomQuestRewardConfig` 里**标了 placeholder**，并登记 `observe_list.md` **O11** ✓
+    ///   ⇒ 两个代理都在 `HeirloomQuestRewardConfig` 里**标了 placeholder**，并登记 `observe_list.md` **O11/O12** ✓
     ///
     /// 🔴 **口径 (ii)**：`amounts[difficulty][length - 1]` ⇒ **length 1 ⇒ 0（短任务不给）** ✓
+    /// 🔴 **通道缺失 ⇒ 抛**（旧行为已删 ⇒ **不许静默发 0**；且**不假装**有产出 ✓ 红线 20 ⑤ 的同族）
     /// </summary>
     /// <param name="log">结算账本（变更必写事件 ✓）</param>
     /// <param name="steps">**这趟【已走过】的段数**（1 起 ⇒ 长度 1~4，>4 钳 4；长度 1 ⇒ 0 ✓）</param>
     /// <param name="averageLevel">**队伍平均等级**（代理量 ⚠️ ⇒ 用它查难度带 1/3/5）</param>
-    /// <param name="lightTierId">
-    /// 🔴 **仅用于 P4 前的回落桥**：`_reward` 缺失时按这个光照档走 `AwardForTier`。
-    ///    ⇒ **P4 删 `tier_drop` 时连本参数一起删**（那时通道是必填的）✓
-    /// </param>
     /// <param name="reason">事件理由（与金钱同源口径 ✓）</param>
-    public int AwardForRun(CombatLog log, int steps, double averageLevel, string lightTierId, string reason = "battle")
+    public int AwardForRun(CombatLog log, int steps, double averageLevel, string reason = "battle")
     {
         if (_reward is null)
         {
-            // ⚠️ **P4 前的桥**：通道没挂上 ⇒ 退回旧行为（不静默不发 ✓）
-            return AwardForTier(log, lightTierId, reason);
+            throw new InvalidOperationException(
+                "传家宝通道（quest_reward）未注入 ⇒ 拒绝发放（步骤 ② 之后**没有**\"按光照档掉落\"这条退路；"
+                + "组合根须调 BindQuestReward / EnsureHeirlooms(cfg, reward)）。");
         }
 
         int difficulty = HeirloomQuestRewardConfig.ProxyDifficultyFromAverageLevel(averageLevel);
@@ -244,15 +230,6 @@ public sealed class HeirloomStock
 
         return new UpgradeEffect(costDown, restore, cap, rookie);
     }
-
-    private static int KindAmount(HeirloomDropSpec d, string kind) => kind switch
-    {
-        "busts" => d.Busts,
-        "crests" => d.Crests,
-        "deeds" => d.Deeds,
-        "portraits" => d.Portraits,
-        _ => 0,
-    };
 
     /// <summary>
     /// 🔴 **两套 kind 名的桥**（**实测出来的真陷阱**，不是洁癖）：

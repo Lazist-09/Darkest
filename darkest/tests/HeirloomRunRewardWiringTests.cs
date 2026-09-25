@@ -12,21 +12,31 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Darkest.Tests;
 
 /// <summary>
-/// 🆕 **步骤 ②（接线）的验收**：传家宝产出**从「光照档」改走「任务奖励」通道** ✓
-/// （策划 `HEIRLOOM-STEP2-ANSWER` · 用户·`#470` 顺序 **(A) 先接线，后删旧源** ✓）
+/// 🆕 **传家宝「步骤 ②」的验收：产出通道 = 任务奖励**（策划 `HEIRLOOM-STEP2-ANSWER` ✓）
+/// （`#470` 顺序 **(A) 先接线（`49b1908`）→ 后删旧源（本件）** ✓）
 ///
 /// 🔴 本件要证明的**四件事**（每条都有断言，不是"打印一下" ✓ 纪律 BJ）：
-///   ① **通道真的被用**：长度 1 ⇒ 发 **0**（旧通道按 `black` 会给 9）⇒ 两条路**读数不同**才叫换了 ✓
+///   ① **通道真的被用**：长度 1 ⇒ 发 **0**（旧通道按 `black` 会给 9）✓
 ///   ② **两套 kind 名的桥是对的**：`kinds` 是**复数**、`amount_table` 是**单数** —— 🔴 不桥 ⇒ **静默一件不发** ⚠️
 ///   ③ **难度档真的来自队伍平均等级**：avg 1 / 3 / 5 ⇒ 档 1 / 3 / 5（读数 26 / 36 / 54）✓
-///   ④ **回落桥有覆盖**：通道缺失 ⇒ `AwardForRun` **等于** `AwardForTier`（P4 前的桥，不是死代码 ✓）
+///   ④ 🆕 **旧通道已删 ⇒ 通道缺失时【抛】**（不静默发 0、也没有退路 ✓）
 ///
 /// 🔴 **口径 (ii)**：`amounts[difficulty][length - 1]` ⇒ **length 1 ⇒ 0** ✓
-/// ⚠️ **两个代理量**（`averageLevel` / `steps`）都是**我推的** ⇒ `placeholder` + 观察清单 **O11** ✓
+/// ⚠️ **两个代理量**（`averageLevel` / `steps`）都是**我推的** ⇒ `placeholder` + 观察清单 **O11 / O12** ✓
 /// </summary>
 [TestClass]
 public sealed class HeirloomRunRewardWiringTests
 {
+    /// <summary>
+    /// 🔴 **旧通道（按光照档掉落）的历史读数** —— **步骤 ② 已把它从数据里删掉** ⇒
+    ///    这些数字**不再能从 `heirlooms.json` 读出来** ⇒ 按纪律 **AR/BJ 留档成常量 + 指明出处** ✓
+    ///    （🗑️ 出处：`dd1_baseline §54.2` 前读数 · 删源提交见 §55 ⇒ 旧段 = `tier_drop` ✓）
+    /// </summary>
+    private static readonly Dictionary<string, int> OldTierDropReadings = new()
+    {
+        ["radiant"] = 0, ["dim"] = 1, ["shadowy"] = 2, ["dark"] = 4, ["black"] = 9,
+    };
+
     private static string ReadData(string name)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
@@ -53,10 +63,10 @@ public sealed class HeirloomRunRewardWiringTests
         return cfg;
     }
 
-    /// <summary>挂上通道的库存（真实路径的形状 ✓）</summary>
+    /// <summary>挂上通道的库存（= 步骤 ② 之后生产路径的形状 ✓）</summary>
     private static HeirloomStock Stock() => new(Cfg(), Reward());
 
-    // ── ① 通道真的被用（两条路读数必须不同）────────────────────────────
+    // ── ① 通道真的被用（旧通道读数已不可能复现）────────────────────────
 
     [TestMethod]
     public void RunChannel_IsActuallyUsed_NotTheOldTierDrop()
@@ -65,20 +75,20 @@ public sealed class HeirloomRunRewardWiringTests
         HeirloomStock stock = Stock();
 
         // 长度 1：任务奖励口径 = **0**（一手：[0,3,5,9] 首项为 0 ⇒ 短任务不给 ✓）
-        int len1 = stock.AwardForRun(log, steps: 1, averageLevel: 5, lightTierId: "black");
+        int len1 = stock.AwardForRun(log, steps: 1, averageLevel: 5);
         Assert.AreEqual(0, len1, "长度 1 ⇒ **0** ✓（一手首项为 0）");
 
         // 长度 4：档 5 ⇒ **54**（= deed 18 + crest 18 + bust 9 + portrait 9 ✓）
-        int len4 = stock.AwardForRun(log, steps: 4, averageLevel: 5, lightTierId: "black");
+        int len4 = stock.AwardForRun(log, steps: 4, averageLevel: 5);
         Assert.AreEqual(54, len4, "档5 长度4 ⇒ **54** ✓");
 
-        // 🔴 反证：**旧通道**按 `black` 会发 9（`tier_drop` 一手读数 ✓）
-        var oldLog = new CombatLog();
-        int old = new HeirloomStock(Cfg()).AwardForTier(oldLog, "black");
-        Assert.AreEqual(9, old, "旧通道 black ⇒ 9（前读数 ✓）");
-        Assert.AreNotEqual(old, len1, "🔴 长度 1 时**两条路读数不同**（0 vs 9）⇒ 证明【真的换了通道】✓");
+        // 🔴 旧通道**已从数据删除** ⇒ 它的读数只能作为历史常量对照（不能再从 json 读出来 ✓）
+        Assert.AreEqual(9, OldTierDropReadings["black"], "旧通道 black ⇒ 9（历史读数 · 出处 §54.2）✓");
+        Assert.AreNotEqual(OldTierDropReadings["black"], len1,
+            "🔴 长度 1 时**两条路读数不同**（0 vs 9）⇒ 证明【真的换了通道】✓");
+        Assert.AreEqual(16, OldTierDropReadings.Values.Sum(), "旧通道 5 档合计 = 0+1+2+4+9 = 16（历史·已删）✓");
 
-        Console.WriteLine($"[传家宝·步骤②] 通道在用：长度1 ⇒ 新通道 **{len1}** / 旧通道 **{old}**（不同 ⇒ 换源生效 ✓）；" +
+        Console.WriteLine($"[传家宝·步骤②] 通道在用：长度1 ⇒ **{len1}**（旧通道 black 会给 **9** ⇒ 不同 ⇒ 换源生效 ✓）；" +
                           $"长度4 档5 ⇒ **{len4}** ✓");
     }
 
@@ -88,10 +98,10 @@ public sealed class HeirloomRunRewardWiringTests
         var log = new CombatLog();
 
         // 段数 0 / 负数 ⇒ 长度 1（钳）⇒ 0 ✓；段数 >4 ⇒ 长度 4 ✓
-        Assert.AreEqual(0, Stock().AwardForRun(log, 0, 5, "black"), "段数 0 ⇒ 钳到长度 1 ⇒ 0 ✓");
-        Assert.AreEqual(0, Stock().AwardForRun(log, -3, 5, "black"), "段数负数 ⇒ 钳到长度 1 ⇒ 0 ✓");
-        Assert.AreEqual(54, Stock().AwardForRun(log, 9, 5, "black"), "段数 9 ⇒ 钳到长度 4 ⇒ 54 ✓");
-        Assert.AreEqual(54, Stock().AwardForRun(log, 4, 5, "black"), "段数 4 ⇒ 长度 4 ⇒ 54 ✓");
+        Assert.AreEqual(0, Stock().AwardForRun(log, 0, 5), "段数 0 ⇒ 钳到长度 1 ⇒ 0 ✓");
+        Assert.AreEqual(0, Stock().AwardForRun(log, -3, 5), "段数负数 ⇒ 钳到长度 1 ⇒ 0 ✓");
+        Assert.AreEqual(54, Stock().AwardForRun(log, 9, 5), "段数 9 ⇒ 钳到长度 4 ⇒ 54 ✓");
+        Assert.AreEqual(54, Stock().AwardForRun(log, 4, 5), "段数 4 ⇒ 长度 4 ⇒ 54 ✓");
 
         Console.WriteLine("[传家宝·步骤②] `ProxyQuestLengthFromSteps`：0/-3 ⇒ 1 · 4/9 ⇒ 4（钳位生效 ✓）");
     }
@@ -104,7 +114,7 @@ public sealed class HeirloomRunRewardWiringTests
         var log = new CombatLog();
         HeirloomStock stock = Stock();
 
-        int total = stock.AwardForRun(log, 4, 5, "black"); // 档5 长度4
+        int total = stock.AwardForRun(log, 4, 5); // 档5 长度4
 
         Assert.AreEqual(54, total, "总数对上 ✓");
         // 🔴 `kinds`（库存）= 复数；`amount_table`（奖励表）= 单数 ⇒ 必须逐条对上（不是"总数对就算过"）
@@ -132,45 +142,67 @@ public sealed class HeirloomRunRewardWiringTests
     {
         var log = new CombatLog();
 
-        Assert.AreEqual(26, Stock().AwardForRun(log, 4, 1.0, "black"), "avg 1 ⇒ 档1 长度4 ⇒ **26** ✓");
-        Assert.AreEqual(26, Stock().AwardForRun(log, 4, 1.4, "black"), "avg 1.4 ⇒ 四舍五入 1 ⇒ 档1 ⇒ 26 ✓");
+        Assert.AreEqual(26, Stock().AwardForRun(log, 4, 1.0), "avg 1 ⇒ 档1 长度4 ⇒ **26** ✓");
+        Assert.AreEqual(26, Stock().AwardForRun(log, 4, 1.4), "avg 1.4 ⇒ 四舍五入 1 ⇒ 档1 ⇒ 26 ✓");
         // 🔴 **当场修正我自己写错的一条**：`avg 1.9` ⇒ `Math.Round` = **2** ⇒ 而 2 落**靠后档** `[2,3,4]→3`
         //    ⇒ 读数 **36**（我第一版写 26 ✗ ⇒ 是**断言错**，不是代码错 —— 纪律 BJ：假红灯更要命 ⚠️）
-        Assert.AreEqual(36, Stock().AwardForRun(log, 4, 1.9, "black"),
+        Assert.AreEqual(36, Stock().AwardForRun(log, 4, 1.9),
             "avg 1.9 ⇒ round=2 ⇒ **靠后档 3**（重叠取靠后，一手口径 ✓）⇒ 36 ✓");
-        Assert.AreEqual(36, Stock().AwardForRun(log, 4, 3.0, "black"), "avg 3 ⇒ 档3 长度4 ⇒ **36** ✓");
-        Assert.AreEqual(54, Stock().AwardForRun(log, 4, 5.0, "black"), "avg 5 ⇒ 档5 长度4 ⇒ **54** ✓");
-        Assert.AreEqual(54, Stock().AwardForRun(log, 4, 6.0, "black"), "avg 6 ⇒ 档5（带上限）⇒ 54 ✓");
-
-        // 🔴 与 `tier_drop` 无关的**独立证明**：光照档换成最亮的 radiant（旧口径给 0），通道照样发 54 ✓
-        Assert.AreEqual(54, Stock().AwardForRun(log, 4, 5, "radiant"),
-            "🔴 光照档 = radiant（旧口径 **0**）而通道照发 **54** ⇒ 产出**已与光照解耦** ✓");
+        Assert.AreEqual(36, Stock().AwardForRun(log, 4, 3.0), "avg 3 ⇒ 档3 长度4 ⇒ **36** ✓");
+        Assert.AreEqual(54, Stock().AwardForRun(log, 4, 5.0), "avg 5 ⇒ 档5 长度4 ⇒ **54** ✓");
+        Assert.AreEqual(54, Stock().AwardForRun(log, 4, 6.0), "avg 6 ⇒ 档5（带上限）⇒ 54 ✓");
 
         Console.WriteLine("[传家宝·步骤②] 难度档 ← 平均等级：1 / 1.4 ⇒ 档1(26) · **1.9 ⇒ round=2 ⇒ 靠后档3(36)** · " +
-                          "3 ⇒ 档3(36) · 5/6 ⇒ 档5(54) ✓ ／ 光照改 radiant 仍 54 ⇒ 与光照档解耦 ✓");
+                          "3 ⇒ 档3(36) · 5/6 ⇒ 档5(54) ✓");
     }
 
-    // ── ④ 回落桥（P4 前的桥，必须有用例覆盖 —— 否则它就是"只为过门禁"的空壳 ⚠️）
-
+    /// <summary>
+    /// 🔴 **与光照解耦的判据在步骤 ② 变了形**（旧版：拿 `radiant`/`black` 两个光照档比读数）：
+    ///   现在**没有光照档参数了** ⇒ 解耦的证明变成【**结构性的**】：
+    ///   `AwardForRun` 的签名里**没有光照档**，且数据里**没有 `tier_drop`** ✓
+    ///   （🎖️ 这比"读数不变"更强：**不是"换了值也一样"，而是"这个输入已经不存在了"** ✓）
+    /// </summary>
     [TestMethod]
-    public void Bridge_WhenChannelMissing_FallsBackToTheOldTierDrop()
+    public void AwardNoLongerTakesALightTier_SoItIsDecoupledByConstruction()
     {
-        var aLog = new CombatLog();
-        var bLog = new CombatLog();
+        var sig = typeof(HeirloomStock).GetMethod(nameof(HeirloomStock.AwardForRun))!;
+        string[] names = sig.GetParameters().Select(p => p.Name!).ToArray();
+        CollectionAssert.AreEqual(new[] { "log", "steps", "averageLevel", "reason" }, names,
+            "🔴 签名里**没有**光照档参数 ⇒ 产出与光照**结构上**解耦 ✓");
+        Assert.IsNull(typeof(HeirloomStock).GetMethod("AwardForTier"),
+            "🔴 旧口 `AwardForTier` **已删**（不是留着不用 ⇒ 纪律：同一个 vs 恰好一样 ✓）");
+        Assert.IsNull(typeof(HeirloomConfig).GetMethod("DropFor"), "🔴 `DropFor` 同批删 ✓");
 
-        var bridged = new HeirloomStock(Cfg());                 // 🔴 不带通道
-        Assert.IsFalse(bridged.HasRunReward, "未挂通道 ⇒ `HasRunReward` = false ✓");
+        Console.WriteLine("[传家宝·步骤②] 解耦是**结构性**的：`AwardForRun(log, steps, averageLevel, reason)` " +
+                          "无光照档 · `AwardForTier`/`DropFor` 已删 ✓");
+    }
 
-        int viaRun = bridged.AwardForRun(aLog, 4, 5, "black");
-        int viaTier = new HeirloomStock(Cfg()).AwardForTier(bLog, "black");
+    // ── ④ 步骤 ②：**旧通道已删** ⇒ 通道缺失时**抛**（不静默发 0，也没有退路）────────────
 
-        Assert.AreEqual(9, viaRun, "通道缺失 ⇒ **回落旧行为**（black ⇒ 9）—— 不静默不发 ✓");
-        Assert.AreEqual(viaTier, viaRun, "回落读数 **等于** `AwardForTier` ✓");
-        Assert.AreEqual(bLog.Events.OfType<HeirloomChangedEvent>().Count(),
-            aLog.Events.OfType<HeirloomChangedEvent>().Count(), "事件条数也一致 ✓");
+    /// <summary>
+    /// 🔴 **前提被步骤 ② 推翻 ⇒ 当场重写**（旧名 `Bridge_WhenChannelMissing_FallsBackToTheOldTierDrop`）：
+    ///   · **P3 当时**：通道缺失 ⇒ 回落 `AwardForTier`（桥，读数 = 9）
+    ///   · **P4 现在**：旧通道**已删** ⇒ 通道缺失 ⇒ **抛**（**不静默发 0** ✓ 红线 20 ⑤ 的同族）
+    ///   ⇒ 📌 **"桥"的生命周期被钉住**：接线那轮它有用例覆盖，删源那轮它的用例**同时消失**（不留空壳）✓
+    /// </summary>
+    [TestMethod]
+    public void NoChannel_ThrowsInsteadOfSilentlyAwardingZero()
+    {
+        var bare = new HeirloomStock(Cfg());           // 🔴 不带通道
+        Assert.IsFalse(bare.HasRunReward, "未挂通道 ⇒ `HasRunReward` = false ✓");
 
-        Console.WriteLine($"[传家宝·步骤②] 回落桥：通道缺失 ⇒ `AwardForRun` = **{viaRun}** = `AwardForTier` ✓" +
-                          "（P4 删 `tier_drop` 时**桥与它一起删** ⚠️）");
+        InvalidOperationException ex = Assert.ThrowsException<InvalidOperationException>(
+            () => bare.AwardForRun(new CombatLog(), steps: 4, averageLevel: 5.0),
+            "🔴 通道缺失 ⇒ **必须抛**（旧行为已删 ⇒ 不许静默发 0、也不许装作有产出）✓");
+        Assert.IsTrue(ex.Message.Contains("quest_reward", StringComparison.Ordinal),
+            "错误信息要**点名缺的是哪个通道**（可检索 ✓）");
+
+        // ✅ 而挂上通道之后同一调用就正常（证明"抛"是通道问题，不是参数问题 ✓）
+        HeirloomStock bound = Stock();
+        Assert.AreEqual(54, bound.AwardForRun(new CombatLog(), 4, 5.0), "挂了通道 ⇒ 54 ✓");
+
+        Console.WriteLine("[传家宝·步骤②] 通道缺失 ⇒ **抛**（点名 `quest_reward`）；挂上 ⇒ 54 ✓" +
+                          "（旧通道 `tier_drop` 已删 ⇒ **没有退路** ✓）");
     }
 
     [TestMethod]
@@ -183,12 +215,12 @@ public sealed class HeirloomRunRewardWiringTests
         Assert.IsFalse(late.HasRunReward, "建时无通道 ✓");
         late.BindQuestReward(Reward());
         Assert.IsTrue(late.HasRunReward, "🔴 **后到者补绑生效**（实测的顺序陷阱：Hamlet 先建 · 远征后补）✓");
-        Assert.AreEqual(54, late.AwardForRun(log, 4, 5, "black"), "补绑后走通道 ⇒ 54 ✓");
+        Assert.AreEqual(54, late.AwardForRun(log, 4, 5), "补绑后走通道 ⇒ 54 ✓");
 
         // 已挂 ⇒ 再挂 / 挂 null 都不覆盖（不降级 ✓）
         late.BindQuestReward(null);
         Assert.IsTrue(late.HasRunReward, "再挂 null ⇒ **不覆盖**（不降级 ✓）");
-        Assert.AreEqual(54, late.AwardForRun(log, 4, 5, "black"), "仍然走通道 ✓");
+        Assert.AreEqual(54, late.AwardForRun(log, 4, 5), "仍然走通道 ✓");
 
         Console.WriteLine("[传家宝·步骤②] `BindQuestReward`：晚绑生效 ✓ · 再绑 null 不降级 ✓");
     }
@@ -198,13 +230,12 @@ public sealed class HeirloomRunRewardWiringTests
     [TestMethod]
     public void Readings_BeforeAndAfter_ForThePlanner()
     {
-        HeirloomConfig cfg = Cfg();
         HeirloomQuestRewardConfig reward = Reward();
 
-        Console.WriteLine("[传家宝·步骤②] 📊 **前读数**（旧通道 = `tier_drop` 按光照档 · 每场战斗一次）：");
+        Console.WriteLine("[传家宝·步骤②] 📊 **前读数**（旧通道 = `tier_drop` 按光照档 · 每场战斗一次 · **已删**）：");
         foreach (string tier in HeirloomConfig.TierOrder)
         {
-            Console.WriteLine($"    {tier,-8} ⇒ 合计 **{cfg.DropFor(tier).Total}**");
+            Console.WriteLine($"    {tier,-8} ⇒ 合计 **{OldTierDropReadings[tier]}**");
         }
 
         Console.WriteLine("[传家宝·步骤②] 📊 **后读数**（新通道 = 任务奖励 · 每场战斗一次 · 难度档 ← 队伍平均等级）：");
@@ -228,9 +259,9 @@ public sealed class HeirloomRunRewardWiringTests
                 $"档{kv.Key.Tier} 长度{kv.Key.Len} 应为 {kv.Value}");
         }
 
-        // 旧通道 5 档合计 = 16；新通道 3 档 × 4 长度合计 = 50 + 66 + 100 = **216**
+        // 旧通道逐档合计（历史常量）= 0+1+2+4+9 = 16；新通道 3 档 × 4 长度 = 50 + 66 + 100 = **216**
         //   （🔴 我第一版写 206 ✗ ⇒ **我算错了**，不是数据错 —— 当场改成逐档相加的实测值 216 ✓）
-        Assert.AreEqual(16, HeirloomConfig.TierOrder.Sum(t => cfg.DropFor(t).Total), "旧通道逐档合计 = 0+1+2+4+9 = 16 ✓");
+        Assert.AreEqual(16, OldTierDropReadings.Values.Sum(), "旧通道逐档合计 = 0+1+2+4+9 = 16 ✓");
         Assert.AreEqual(50, new[] { 1, 2, 3, 4 }.Sum(l => reward.RewardTotalFor(1, l)), "档1 四长度合计 0+10+14+26 = 50 ✓");
         Assert.AreEqual(66, new[] { 1, 2, 3, 4 }.Sum(l => reward.RewardTotalFor(3, l)), "档3 四长度合计 0+12+18+36 = 66 ✓");
         Assert.AreEqual(100, new[] { 1, 2, 3, 4 }.Sum(l => reward.RewardTotalFor(5, l)), "档5 四长度合计 0+18+28+54 = 100 ✓");
@@ -248,7 +279,7 @@ public sealed class HeirloomRunRewardWiringTests
 
     /// <summary>
     /// 🔴 **生产路径的判据**：不打桩、不直接调 `AwardForRun` ⇒ 走 `OnBattleFinished("PlayerVictory")` ✓
-    /// 🔴 **用拓扑模式**（= 生产唯一形态 ✓ `ExpeditionComposition`："必须是拓扑模式"）：
+    /// 🔴 **用拓扑模式**（= 生产唯一形态 ✓ `ExpeditionComposition`：必须是拓扑模式）：
     ///    · 生产在拓扑模式下结算 ⇒ `OnBattleFinished` **跳过**"当前步骤必须是战斗节点"的守卫 ✓
     ///    · ⚠️ 我第一版用线性模式 ⇒ 该 seed 的 3 段路径**可能全是事件步** ⇒ 走不到战斗格 ⇒ 抛 ✗
     ///      （**是测试的驱动方式错**，不是被测代码错 ⇒ 改成生产的真实形态 ✓）
@@ -289,12 +320,12 @@ public sealed class HeirloomRunRewardWiringTests
             shape.Add($"{steps}⇒{band}");
         }
 
-        // 前 3 场 = 长度 1/2/3 ⇒ 0 + 18 + 28 = 46（旧通道 3 场会发 9+9+9 = 27 ⇒ **读数不同** ✓）
+        // 前 3 场 = 长度 1/2/3 ⇒ 0 + 18 + 28 = 46 ✓
         Assert.AreEqual(46, Total(stock), "3 场累计 **46** ✓");
         Assert.IsTrue(shape[0].EndsWith("⇒0"), "第 1 场长度 1 ⇒ **0**（口径 (ii) ✓）");
 
         Console.WriteLine($"[传家宝·步骤②] 端到端（真走 `OnBattleFinished` · 拓扑模式）：3 场胜利 ⇒ 长度{string.Join(" / ", shape)} " +
-                          $"= **{Total(stock)}** ✓（旧通道 3 场 = 9×3 = 27 ⇒ 读数不同 ⇒ 换源生效 ✓）");
+                          $"= **{Total(stock)}** ✓");
     }
 
     private static int Total(HeirloomStock stock)

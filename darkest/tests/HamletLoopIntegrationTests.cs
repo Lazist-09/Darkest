@@ -57,7 +57,9 @@ public sealed class HamletLoopIntegrationTests
 
         var log = new CombatLog();
         var roster = new Roster(cfg);
-        var stock = new HeirloomStock(heirCfg);
+        // 🔴 步骤 ② 之后：库存必须**挂上任务奖励通道**才能发（旧通道已删 ⇒ 不挂会抛，不静默）✓
+        var stock = new HeirloomStock(heirCfg,
+            HeirloomQuestRewardConfig.Parse(ReadData("heirlooms.json")));
         var economy = new Economy(ecoCfg);
         StagecoachConfig coach = ecoCfg.Coach;
         string diseaseId = saniCfg.Diseases.First().Id;
@@ -74,7 +76,9 @@ public sealed class HamletLoopIntegrationTests
             {
                 roster.AwardExperienceForBattle(log, win: true, reason: "loop_battle");
                 economy.AwardBattle(log, "dark", "loop_battle");
-                stock.AwardForTier(log, "dark", "loop_battle");
+
+                // 🆕 步骤 ②：传家宝走**任务奖励**（长度 = 本趟第几场 ⇒ 与生产 `StepsDone + 1` 同口径）✓
+                stock.AwardForRun(log, steps: b + 1, averageLevel: 3.0, reason: "loop_battle");
             }
 
             if (run % 3 == 0 && roster.Heroes.Count > 0)

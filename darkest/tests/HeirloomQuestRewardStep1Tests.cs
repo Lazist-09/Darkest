@@ -48,16 +48,27 @@ public sealed class HeirloomQuestRewardStep1Tests
         Console.WriteLine("[传家宝·步骤①] 通道可加载 + 可校验 ✓（4 地牢 × 4 种 · 6 档 × 4 长度）");
     }
 
+    /// <summary>
+    /// 🔴 **本用例的判据在步骤 ② 被【反转】**（而不是被删掉 —— 那次"零行为"的证据必须留档）：
+    ///   · **步骤 ① 当时**：判据 = `tier_drop` **必须还在**（证明步骤 ① 只加通道、零行为 ✓）
+    ///   · **步骤 ② 现在**：判据 = `tier_drop` **必须不在**（它已被删 ⇒ 两处真值消除 ✓）
+    ///   ⇒ 📌 **同一个断言的两次取值，正好把「步骤 ① → 步骤 ②」的边界钉住了** ✓（纪律 AY：一次只改一类）
+    /// </summary>
     [TestMethod]
-    public void Step1_DidNotTouchTierDrop_SoBehaviorIsUnchanged()
+    public void Step2_RemovedTierDrop_SoTheOldChannelIsGone()
     {
-        // 🔴 **这就是"零行为"的机械证据**：步骤 ① 只加通道 ⇒ `tier_drop` 必须**原封不动** ✓
         string json = ReadData("heirlooms.json");
-        Assert.IsTrue(json.Contains("\"tier_drop\"", StringComparison.Ordinal),
-            "**步骤 ① 不许删 `tier_drop`** ⇒ 删它是步骤 ②（另起一轮 ✓ 纪律 AY：一次只改一类 ✓）");
-        Assert.IsTrue(json.Contains("\"quest_reward\"", StringComparison.Ordinal), "通道已加入 ✓");
 
-        Console.WriteLine("[传家宝·步骤①] `tier_drop` **仍在** + `quest_reward` **已加** ⇒ 本步零行为 ✓");
+        // 步骤 ① 时代的证据（留档）：当时 `tier_drop` 必须在 ⇒ 这一条现在**已不再成立**
+        Assert.IsFalse(json.Contains("\"tier_drop\"", StringComparison.Ordinal),
+            "🆕 **步骤 ② 已删 `tier_drop`**（步骤 ① 时它在，是那一轮的零行为证据 ✓）");
+        Assert.IsFalse(json.Contains("\"drop_note\"", StringComparison.Ordinal), "配套说明键同批删 ✓");
+        Assert.IsTrue(json.Contains("\"quest_reward\"", StringComparison.Ordinal),
+            "替代通道 `quest_reward` 仍在，且现在是**唯一**产出通道 ✓");
+        Assert.IsTrue(json.Contains("\"upgrade_paths\"", StringComparison.Ordinal),
+            "升级曲线不受影响（步骤 ② 只动产出通道 ✓ 纪律 AY）");
+
+        Console.WriteLine("[传家宝·步骤②] `tier_drop` **已删** + `quest_reward` **唯一** ⇒ 旧通道退场 ✓");
     }
 
     [TestMethod]

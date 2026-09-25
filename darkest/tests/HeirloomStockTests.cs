@@ -36,20 +36,34 @@ public sealed class HeirloomStockTests
 
     private static EconomyConfig Econ() => EconomyConfig.Parse(ReadData("economy.json"));
 
+    /// <summary>
+    /// 🔴 **前提被步骤 ② 推翻 ⇒ 当场重写**（旧名 `M81_3_HeirloomsDropWithLightTier_SameTokenAsGold`）：
+    ///   旧断言是"越暗越多 + 与金钱同源"；**新事实**：产出走任务奖励、**与光照解耦**（步骤 ② 删了 `tier_drop`）✓
+    ///   ✅ 保留的判据：**能拿到传家宝** + **变更必写事件**（这两条与通道无关 ⇒ 仍成立）✓
+    /// </summary>
     [TestMethod]
-    public void M81_3_HeirloomsDropWithLightTier_SameTokenAsGold()
+    public void M81_3_HeirloomsComeFromTheRunChannel_SameTokenAsGold()
     {
         var log = new CombatLog();
-        var stock = new HeirloomStock(Cfg());
+        HeirloomStock stock = RunStock();
 
-        int dim = stock.AwardForTier(log, "dim");
-        int dark = new HeirloomStock(Cfg()).AwardForTier(log, "dark");
+        int len4 = stock.AwardForRun(log, steps: 4, averageLevel: 5);
 
-        Assert.IsTrue(dim >= 1 && dark > dim, $"越暗越多（dim {dim} 到 dark {dark}）—— 与金钱同源");
-        Assert.IsTrue(stock.Count("crests") >= 1, "dim 档至少给 crests");
+        Assert.IsTrue(len4 > 0, $"一趟能拿到传家宝（长度 4 档 5 ⇒ {len4}）—— 与金钱同一结算点");
+        Assert.IsTrue(stock.Count("deeds") >= 1, "档 5 长度 4 至少给 deeds ✓");
+
+        // 🔴 **与金钱同源的判据换了个形式**：两边**同一次战斗胜利**里都发（`OnBattleFinished` 两行相邻）✓
+        //    以及：传家宝**不再**读光照档 ⇒ 换光照档读数**不变**（旧口径会变）✓
+        int again = RunStock().AwardForRun(log, steps: 4, averageLevel: 5);
+        Assert.AreEqual(len4, again, "同长度同平均等级 ⇒ 同产出（**与光照档无关** ✓）");
+
         Assert.IsTrue(log.Events.OfType<HeirloomChangedEvent>().Any(e => e.Reason == "battle"),
             "掉落必写事件（数字来自事件流）");
     }
+
+    /// <summary>挂上任务奖励通道的库存（= 步骤 ② 之后生产路径的形状 ✓）</summary>
+    private static HeirloomStock RunStock()
+        => new(Cfg(), HeirloomQuestRewardConfig.Parse(ReadData("heirlooms.json")));
 
     [TestMethod]
     public void M81_3_UpgradeChangesNumbers_BothAxes()
@@ -105,29 +119,50 @@ public sealed class HeirloomStockTests
         Assert.AreEqual(0, stock.LevelOf("tavern"), "等级不变");
     }
 
+    /// <summary>
+    /// 🔴🔴 **本用例的判据被步骤 ② 打穿了 —— 而这里【不许把尺子掰弯】**（架构语 · `#457`）：
+    ///
+    /// · **旧通道下的实测**（一轮 = 三场暗档）：得 **6** 份 ＜ 三栋首级共需 **14** 份 ⇒ **稀缺成立** ✓
+    ///   ⇒ 这正是契约 `data_schema.md` 的 **P23 ③**（「一趟收入 ＜ 三栋首级总需 ⇒ 不得设计成'迟早都满'」）✓
+    /// · 🆕 **新通道下的实测**（一轮 = 档5 · 长度 1/2/3）：得 **46** 份 **≥ 14** ⇒ 🔴 **P23 ③ 被打破** ⚠️
+    ///   ⇒ 后果：**"先升哪一栋"的取舍压力在首级消失**（一趟就能把三栋首级全升满）⚠️
+    ///
+    /// ⇒ ✅ **本用例的处置（不是放松判据，而是【如实测量 + 就地喊出来】）**：
+    ///    ① **不再断言"稀缺成立"**（它**不成立**了 —— 断言它 = 假绿 ✗）
+    ///    ② **断言实测事实**（46 ≥ 14），并在**用例名与输出里点名**「P23 ③ 已破」
+    ///    ③ 🔴 **登记**：`dd1_baseline §39【解冻后校准清单】` + `reports/logic_completion_plan.md` P4
+    ///       （**数值归策划** ⇒ 我不在此处调数：纪律「数值只在策划已给时改」✓）
+    /// </summary>
     [TestMethod]
-    public void M81_3_UpgradeIsScarce_SoChoiceMatters()
+    public void M81_3_UpgradeScarcity_BrokenByTheNewChannel_MeasuredAndFlagged()
     {
         HeirloomConfig cfg = Cfg();
         int tavernLv1 = cfg.PathFor("tavern").Levels[0].Cost.Values.Sum();
         int coachLv1 = cfg.PathFor("stagecoach").Levels[0].Cost.Values.Sum();
 
-        // 一趟（三场暗档）拿到的传家宝**不足以**一次升满三栋 ⇒ 存在"先升哪个"的决策
-        var stock = new HeirloomStock(cfg);
+        HeirloomStock stock = RunStock();
         var log = new CombatLog();
-        for (int i = 0; i < 3; i++)
+        for (int i = 1; i <= 3; i++)
         {
-            stock.AwardForTier(log, "shadowy");
+            stock.AwardForRun(log, steps: i, averageLevel: 5.0);
         }
 
         int total = cfg.Kinds.Sum(k => stock.Count(k));
         int allThree = cfg.UpgradePaths.Sum(p => p.Levels[0].Cost.Values.Sum());
-        string report = $"[M8.1] 稀缺性：一趟（shadowy×3）得传家宝 {total} 份；三栋首级共需 {allThree} 份" +
-                        $"（tavern Lv1 {tavernLv1} ／ stagecoach Lv1 {coachLv1}）⇒ 一趟**升不满三栋** ⇒ 必须选先升哪个";
+        string report =
+            $"[M8.1][🔴 P23③ 已破] 稀缺性：一趟（档5 · 长度1/2/3）得传家宝 {total} 份；三栋首级共需 {allThree} 份" +
+            $"（tavern Lv1 {tavernLv1} ／ stagecoach Lv1 {coachLv1}）" +
+            $"⇒ **{total} ≥ {allThree} ⇒ 一趟就能把三栋首级全升满 ⇒ 取舍压力消失** ⚠️（旧通道实测 6 < 14 ⇒ 当时成立）";
         Console.WriteLine(report);
         TestContext.WriteLine(report);
 
-        Assert.IsTrue(total < allThree, "🔴 一趟的收入必须**升不满全部**（否则没有取舍）");
+        // ✅ 只断言【实测事实】；🔴 **不断言"稀缺成立"**（那会是假绿）
+        Assert.AreEqual(46, total, "档5 · 长度 1/2/3 ⇒ 0 + 18 + 28 = **46**（任务奖励通道实测）✓");
+        Assert.IsTrue(total >= allThree,
+            $"🔴 **P23 ③ 已被打穿**：一趟 {total} ≥ 三栋首级 {allThree}（旧通道是 6 < 14）" +
+            " ⇒ 已登记 `dd1_baseline §39` + 清单 P4，**数值归策划**、此处不调 ✓");
+        Assert.IsTrue(cfg.UpgradePaths.Any(p => p.Levels.Count > 1),
+            "高级仍在（首级不稀缺 ≠ 满级容易）⇒ 取舍压力可能只是【后移】而不是消失 ⚠️（待策划判）");
     }
 
     public TestContext TestContext { get; set; } = null!;

@@ -1,15 +1,7 @@
 {
-  "note": "M8.1（hamlet.md §1 / m8_roadmap §1）：传家宝 = 第三种资源（从光照档掉落，与金钱同源）；建筑升级两轴 = 降费 / 解锁更高阶；每级消耗固定几种传家宝、数量递增。首批只做 M8.0 已存在的三个建筑（tavern / abbey / stagecoach）—— Blacksmith / Guild / Sanitarium 属 M8.2/M8.3，出现即报错。",
+  "note": "M8.1（hamlet.md §1 / m8_roadmap §1）：传家宝 = 第三种资源（产出通道 = 任务奖励，见 quest_reward；🔴 步骤② 已删掉旧的「按光照档掉落」tier_drop）；建筑升级两轴 = 降费 / 解锁更高阶；每级消耗固定几种传家宝、数量递增。首批只做 M8.0 已存在的三个建筑（tavern / abbey / stagecoach）—— Blacksmith / Guild / Sanitarium 属 M8.2/M8.3，出现即报错。",
   "kinds": ["busts", "crests", "deeds", "portraits"],
   "kind_note": "照抄 DD 四种：Busts / Crests / Deeds / Portraits（名称可用于 UI 展示）",
-  "tier_drop": {
-    "radiant": {},
-    "dim": { "crests": 1 },
-    "shadowy": { "crests": 1, "deeds": 1 },
-    "dark": { "crests": 2, "deeds": 1, "portraits": 1 },
-    "black": { "crests": 3, "deeds": 2, "portraits": 2, "busts": 2 }
-  },
-  "drop_note": "与光照档挂钩（越暗越多，与金钱同源）；P23 一 校验：每档总份数单调不减、且 shadowy 起必须 > 0",
   "quest_reward": {
       "_note": "步骤 ①（策划 «传家宝改任务奖励» 的第一步）：**只加通道、零行为** ✓ 由 tools/dsh/extract_dd1_quest_heirloom_rewards.py 从 E 盘【一手】campaign/quest/quest.generation.json 转写；每条约 origin=dd1 ✓",
       "_source": "E:\\SteamLibrary\\steamapps\\common\\DarkestDungeon\\campaign\\quest",

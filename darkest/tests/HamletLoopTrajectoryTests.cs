@@ -74,7 +74,8 @@ public sealed class HamletLoopTrajectoryTests
 
         var log = new CombatLog();
         var roster = new Roster(rosterCfg);
-        var stock = new HeirloomStock(heirCfg);
+        var stock = new HeirloomStock(heirCfg,
+            HeirloomQuestRewardConfig.Parse(ReadData("heirlooms.json"))); // 🔴 步骤 ②：必须挂任务奖励通道
         var economy = new Economy(ecoCfg);
 
         var lines = new List<string>();
@@ -124,11 +125,12 @@ public sealed class HamletLoopTrajectoryTests
 
             prev = snap;
 
-            // ② **跑一趟**（本用例用"确定性推图"代替真实战斗：走到终点 = 完成；只为产生**光照档收益**）✓
+            // ② **跑一趟**（本用例用"确定性推图"代替真实战斗：走到终点 = 完成；只为产生**传家宝收益**）✓
+            //    🆕 步骤 ②：传家宝改走**任务奖励**（长度 = 这趟第几场；平均等级取 3.0 ⇒ 档 3）✓
             int heirloomGainPerTier = 0;
-            foreach (string tier in new[] { "dim", "shadowy", "dark" })
+            foreach (int step in new[] { 2, 3, 4 })
             {
-                heirloomGainPerTier += stock.AwardForTier(log, tier, "trajectory");
+                heirloomGainPerTier += stock.AwardForRun(log, steps: step, averageLevel: 3.0, reason: "trajectory");
             }
 
             // 🔴🆕 **让等级轴真的动**（占位数值是策划 `#399` 明示的 ⇒ 用起来 ✓）：
@@ -202,7 +204,8 @@ public sealed class HamletLoopTrajectoryTests
 
         var log = new CombatLog();
         var roster = new Roster(rosterCfg);
-        var stock = new HeirloomStock(heirCfg);
+        var stock = new HeirloomStock(heirCfg,
+            HeirloomQuestRewardConfig.Parse(ReadData("heirlooms.json"))); // 🔴 步骤 ②：必须挂任务奖励通道
         var economy = new Economy(ecoCfg);
 
         var lines = new List<string>();
@@ -252,10 +255,10 @@ public sealed class HamletLoopTrajectoryTests
 
             prev = snap;
 
-            // 收益（确定性）✓
-            foreach (string tier in new[] { "dim", "shadowy", "dark" })
+            // 收益（确定性）✓　🆕 步骤 ②：同上一趟口径（任务奖励 · 档 3 · 长度 2/3/4）✓
+            foreach (int step in new[] { 2, 3, 4 })
             {
-                stock.AwardForTier(log, tier, "trajectory_loss");
+                stock.AwardForRun(log, steps: step, averageLevel: 3.0, reason: "trajectory_loss");
             }
 
             // 🔴🆕 同上：**让等级轴在损耗版里也真的动** ⇒ A9 的"其余轴仍在动"才有实料 ✓

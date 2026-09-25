@@ -33,27 +33,34 @@ public sealed class HeirloomConfigTests
 
     private static HeirloomConfig Cfg() => HeirloomConfig.Parse(ReadData("heirlooms.json"));
 
+    /// <summary>
+    /// 🔴 **本用例的前提在步骤 ② 被推翻，故当场重写**（不是删掉了事 —— 纪律：不许把过期用例静默丢掉）：
+    ///   · **旧前提**：`P23 ①` 要求「四种传家宝齐备 **且** 掉落与光照档挂钩（越暗越多）」
+    ///   · **新事实**：策划裁定传家宝**不按光照档掉，改走任务奖励** ⇒ `tier_drop` 与其校验**已删**（步骤 ②）
+    ///   ⇒ ✅ **保留 ① 里与光照无关的那半条**（四种齐备）；把"越暗越多"换成**与光照解耦**的正向判据 ✓
+    /// </summary>
     [TestMethod]
-    public void P23_1_FourHeirlooms_DropTiedToLightTier_LikeGold()
+    public void P23_1_FourHeirlooms_AndNoLightTierCouplingAnymore()
     {
         HeirloomConfig h = Cfg();
 
-        Assert.AreEqual(4, h.Kinds.Count, "四种传家宝（P23 ①）");
-        Assert.AreEqual(0, h.DropFor("radiant").Total, "最亮档不掉传家宝");
+        Assert.AreEqual(4, h.Kinds.Count, "四种传家宝齐备（P23 ① 的另一半 ⇒ 保留）");
+        Assert.IsTrue(h.Kinds.Contains("busts") && h.Kinds.Contains("crests")
+            && h.Kinds.Contains("deeds") && h.Kinds.Contains("portraits"), "四种种名齐备 ✓");
 
-        int prev = -1;
-        foreach (string tier in HeirloomConfig.TierOrder)
-        {
-            int total = h.DropFor(tier).Total;
-            Assert.IsTrue(total >= prev, $"{tier} 档总份数不得少于更亮档（P23 ①：与光照档挂钩）");
-            prev = total;
-        }
+        // 🔴 步骤 ② 的判据：**产出通道不再挂在光照档上** ⇒ `heirlooms.json` 里 must NOT 再有 tier_drop ✓
+        string raw = ReadData("heirlooms.json");
+        Assert.IsFalse(raw.Contains("\"tier_drop\"", StringComparison.Ordinal),
+            "🔴 步骤 ② 已删 `tier_drop` ⇒ 数据里不得再有它（否则 = 两处真值 ⚠️）");
+        Assert.IsFalse(raw.Contains("\"drop_note\"", StringComparison.Ordinal), "它的说明键同批删掉 ✓");
+        Assert.IsTrue(raw.Contains("\"quest_reward\"", StringComparison.Ordinal), "替代通道仍在 ✓");
 
-        Assert.AreEqual(0, h.DropFor("dim").Total - h.DropFor("dim").Crests + h.DropFor("dim").Crests - h.DropFor("dim").Total,
-            "（自检：单档总量可分解）");
-        Assert.IsTrue(h.DropFor("black").Total > h.DropFor("shadowy").Total, "越暗越多（与金钱同源）");
-        Assert.IsTrue(HeirloomConfig.TierOrder.SequenceEqual(EconomyConfig.TierOrder),
-            "光照档顺序必须与 economy 同序（同源口径）");
+        // 🔴 而**光照档顺序**这个口径本身没消失（经济侧 `EconomyConfig.TierOrder` 仍在用 ✓）
+        Assert.AreEqual(5, EconomyConfig.TierOrder.Count, "光照档仍是 5 档（经济侧在用 ⇒ 不许跟着删）✓");
+        Assert.AreEqual("radiant", EconomyConfig.TierOrder[0], "同序（radiant 最亮）✓");
+
+        Console.WriteLine("[传家宝·步骤②] P23 ① 的「越暗越多」已退出；四种齐备保留；"
+            + "`tier_drop`/`drop_note` 已从数据删除 ✓；光照档口径由经济侧保留 ✓");
     }
 
     [TestMethod]
@@ -112,9 +119,11 @@ public sealed class HeirloomConfigTests
             () => HeirloomConfig.Parse(raw.Replace("\"crests\": 5, \"portraits\": 3", "\"crests\": 3, \"portraits\": 2", StringComparison.Ordinal)),
             "消耗不递增 ⇒ 报错（P23 ②）");
 
-        // 反例 3：最亮档也掉传家宝（破坏"越暗越多"的单调性）
-        Assert.ThrowsException<InvalidDataException>(
-            () => HeirloomConfig.Parse(raw.Replace("\"radiant\": {}", "\"radiant\": { \"crests\": 9 }", StringComparison.Ordinal)),
-            "radiant 掉 9 份 ⇒ monotonic 被破坏 ⇒ 报错（P23 ①）");
+        // 反例 3：🔴 **已随 `tier_drop` 删除**（步骤 ②）——
+        //    它原本构造「`radiant` 也掉 9 份 ⇒ 破坏越暗越多」来验 P23 ① 的单调性校验；
+        //    `tier_drop` 与其校验**已删** ⇒ 这个反例**没有对应的被验对象了** ⇒ 如实删除（不是松掉它）✓
+        //    🗑️ 替代覆盖：**「通道缺失 ⇒ 抛」**由 `HeirloomRunRewardWiringTests.NoChannel_ThrowsInsteadOfSilentlyAwardingZero` 承担 ✓
+        Assert.IsFalse(raw.Contains("\"tier_drop\"", StringComparison.Ordinal),
+            "🔴 反例 3 的前提已不存在（`tier_drop` 已删）⇒ 本用例不再验它，且**数据里确实没有它** ✓");
     }
 }
