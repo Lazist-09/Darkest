@@ -71,7 +71,8 @@ public sealed class M1cStage3MechanismTests
     [TestMethod]
     public void SkillField_DefaultsToNull_SoTheOldModelStaysDefault()
     {
-        // 🔴 **默认零行为**的证据：已入库的 skills.json **没有任何技能填了 `dmg_pct`** ⇒ 全走旧模型 ✓
+        // 🔴 **默认零行为**的证据：已入库的 skills.json **只填了有依据的 11 条**（其余 33 条为 null）
+        //    而**伤害路径尚未读 `dmg_pct`** ⇒ 无论填没填都走旧模型 ✓
         SkillsConfig shipped = SkillsConfig.Parse(ReadData("skills.json"));
         int withPct = 0, total = 0;
         foreach (SkillTemplateConfig s in shipped.Skills)
@@ -83,11 +84,14 @@ public sealed class M1cStage3MechanismTests
             }
         }
 
-        // 🔴 **R12 更新**：策划 36 行表已到 ⇒ 我落了【明确 11 条】⇒ 现在 **11 填 / 33 未填** ✓
+        // 🔴 **R16 更新（#472①）**：策划 36 行表已到 ⇒ 我落**有依据**的【明确 11 条】⇒ 现在 **11 填 / 33 未填** ✓
+        //    🔴 而 `89ad718` 曾把【候选 12 条】【我推的值】也落进 `darkest/data` ⇒ **违反纪律 BL** ✓
+        //    ✅ **#472① 已裁**：候选 12 条**撤出** `darkest/data` · 改登记 `observe_list.md` **D5** 待查
+        //       （留档规则①：本表项**不许填进** `darkest/data/`；未核实前不得回填 ✓）
         //    ⚠️ 而**伤害路径仍未读 `dmg_pct`** ⇒ 所以这 11 条是**零行为占位** ✓（阶段 3 切换读它才会生效 ✓）
-        Assert.AreEqual(23, withPct, $"用户 2026-09-22「就按候选表落」后应为 **23** 条已填（明确 10 + 接近 1 + 候选 12 ✓；其余 {total - 23} 条 = 无对应 origin:ours ⇒ 不落 ✓）");
-        Assert.AreEqual(total - 23, total - withPct, "其余仍未填 ⇒ 走旧模型 ✓");
-        Console.WriteLine($"[M1c·阶段3] `dmg_pct` 已就位但**默认未填**：{withPct}/{total} ⇒ **零行为** ✓");
+        Assert.AreEqual(11, withPct, $"#472① 后应为 **11** 条已填（= 有依据的【明确 11】：{total - 11} 条未填 ✓；候选 12 条已撤出并登记 D5 ✓）");
+        Assert.AreEqual(total - 11, total - withPct, "其余仍未填 ⇒ 走旧模型 ✓");
+        Console.WriteLine($"[M1c·阶段3] `dmg_pct` 已就位（有依据的 {withPct}/{total}）但**伤害路径未读** ⇒ **零行为** ✓");
     }
 
     public TestContext TestContext { get; set; } = null!;

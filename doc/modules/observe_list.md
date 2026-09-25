@@ -161,3 +161,80 @@
 为什么卡：E 盘 `trinkets/` 排除 kickstarter 后 196 条里，**有 10 条 price=0 / 5 条 price=1** ⚠️
    ⇒ 假设是"任务/成就奖励（不卖）"，**但没证据** ⇒ ✅ **要辨**（守纪律 AE）✅
 ```
+---
+
+## §2 🔴 "待查"留档（`#464` · 2026-09-22 · **不许猜 · 但必须留档**）
+
+> 🎖️ **架构要求**：**"待查"是【可推进的状态】；"猜一个"会把【不确定性固化进数据】** ✅
+> 🔴 **所以：定不下来的 ⇒ 进本表，【不许填进数据】** ✅
+
+| # | 待查项 | 候选 | 卡在哪 | 怎么推进 |
+|---|---|---|---|---|
+| **D1** | `medic_group_bandage`（群体绷带）| `vestal/gods_comfort` 或 `crusader/battle_heal` | ⚠️ **两个候选都"像"，但一个是"群体"、一个是"单体"** | **读两者的 `effect` 全串**（**看 target 数**）|
+| **D2** | `commissar_total_mobilization`（总动员）| `man_at_arms/bolster` | ⚠️ **`bolster` 是"加强防御"，而"总动员"像"全员位移"** | **读 `bolster` 的 effect + MaA 的 `command`** |
+| **D3** | `commissar_battle_inspiration` | `crusader/inspiring_cry` | ⚠️ **`HealStress` 语义同，但"inspiration" vs "cry" 待核** | **较可信** ⇒ 读 effect 即可定 |
+| **D4** | `commissar_mobilize` | `man_at_arms/command` | ⚠️ **"号令"语义同**，但 **MaA 的 `command` 是 ranged 增益** | **较可信** ⇒ 读 effect 即可定 |
+
+```
+🔴 **留档规则**：
+   ① ✅ **本表项【不许填进 `darkest/data/`】**（**否则就是把猜测固化了**）✅
+   ② ✅ **推进后 ⇒ 从本表【移出】并写入 `dd1_baseline §43/§44`**（**带出处等级**）✅
+   ③ 🔴 **`§44` 的 13 条里，`④ 自加 8 条` 【不是待查】** —— 它们**已定性**（**原版真的没有**）✅
+```
+### O11 ⚠️ **每趟任务给传家宝，是【4 种都给】还是【随机挑几种】**
+
+```
+要看什么：**完成一趟任务后，拿到的传家宝有几种** ⚠️
+怎么看：**任务结算画面** —— 数一下传家宝的【种类数】
+要记什么：是 **4 种都有**（bust/portrait/deed/crest）还是**只有 1~2 种**
+为什么卡：原版 `quest.generation.json` 的 `heirloom_type_map` 只说【4 个地牢都给哪几种】，
+   而**没说"每趟给几种"** ⇒ 🔴 **consumer 在 C++ 引擎里，数据说不出** ⚠️
+```
+### D5 🔴 `dmg%` 的【候选 12 条】—— 已从 `darkest/data/` 撤出，待定
+
+```
+是什么：`dd1_baseline §43` 里【中 / 候选】档的 **12 条**技能映射 —— 按原型分组实测为：
+   · **medic 2**：  `medic_anesthetic`←`blinding_gas`(−100) · `medic_medicine_flask`←`plague_grenade`(−90)
+   · **tank  4**：  `tank_taunt`←`bellow`(−100) · `tank_war_cry`←`command`(0) ·
+                   `tank_iron_wall`←`bolster`(—) · `tank_selfless_charge`←`retribution`(−75)
+   · **warrior 2**：`warrior_battle_fury`←`adrenaline_rush`(0) · `warrior_last_stand`←`bleed_out`(+20)
+   · **commissar 4**：`commissar_pistol_shot`←`pistol_shot`(−15 · 名字完全相同) ·
+                   `commissar_charge_order`←`duelist_advance`(−20) ·
+                   `commissar_execution_order`←`opened_vein`(−15) · `commissar_supervise`←`take_aim`(−80)
+
+为什么卡：🔴 **它们的依据是【名字像】或【语义近似】** ⇒ 按纪律 BL（推的不能落库）**不能直接落** ⚠️
+怎么推进：**逐条读原版技能的 `effect` 全串**（看效果是否真同）⇒ 同 ⇒ 升"明确"；不同 ⇒ 归"无对应"
+   📌 一手源：`E:\SteamLibrary\steamapps\common\DarkestDungeon` 里对应职业的 `*.info.darkest`
+   ⇒ **12 条各读一次 `effect` 全串**（不是抽读）✓
+
+🔴 **撤出声明（`#472①` · 2026-09-25）**：
+   `89ad718`（2026-09-22）曾把这 12 条**落了库**（每条带 `dmg_pct` + `_dmg_pct_source`）⚠️
+   ⇒ ✅ **本轮的处置**：**12 条两行全部撤出 `darkest/data/skills.json`** ⇒ 现存 **11 条**（= 有依据的）✓
+   ⇒ 🔴 **在"逐条读 `effect`"推进完之前，这 12 条【不得回填 `darkest/data/`】**（留档规则①）✓
+
+🆕 **而本条在 2026-09-25 当场更动了两处（守纪律 AW/BH —— 我先量再改）**：
+   ① 🔴 **原 D5 列了 `warrior_lunge` 却没列 `medic_medicine_flask`** ⇒ ✅ **与实测的落库/撤出台账不符**：
+      · `warrior_lunge`：**策划 `#461` ③ 亲口写「＋ warrior_lunge←`breakthru` −50% 也接近明确」**，
+        且**他数的"明确的 11 条"就是含它的那 11 条** ⇒ ✅ **它【不是候选】** ⇒ **留在库里** ✓
+      · `medic_medicine_flask`：**策划 `#461` ④ 亲口点它是「典型的"名字像"陷阱」** ⇒ ✅ **它【是候选】** ✓
+      ⇒ 🎖️ **本节已按【策划原话】更正为上方那 12 条**（计数仍 = 12 ✓）
+   ② 📌 **依据**：`doc/windows/主程序窗口.txt` **L7161-7176**（③ 明确的 11 条）+ **L7178-7185**（④ 名字像陷阱）
+```
+
+### D6 🔴 **我们自己的两对"同语义"技能** —— 按判据 (b) 待核实（`#462` 架构请主程序核）
+
+```
+是什么：`dd1_baseline §43.4` 暴露的**两对**：
+   · `warrior_shield_bash`  vs  `tank_shield_bash`
+   · `warrior_catch_breath` vs  `tank_catch_breath`
+
+为什么卡：🔴 **要回答的是判据 (b)**：**"这两个技能是【同一个】还是【恰好一样】？"**
+   · **同一个** ⇒ 🔴 **必须共享定义**（否则 = **两处真值家族**）⚠️
+   · **恰好一样** ⇒ ✅ **允许，但必须知道**（并**在数据里可区分**）✓
+如何推进（**可直接执行的步骤串**）：
+   ① 实测两对各自的**全字段逐项对比**（`type` · `damage.segments` · `effect` · 槽位 · 消耗 · 冷却）
+      ⇒ 输出【相同字段 / 不同字段】两张清单 ✓
+   ② 若**全字段相同** ⇒ 判"同一个" ⇒ 🔴 **问架构要不要共享定义**（不自行合并 ✓）
+   ③ 若**有字段不同** ⇒ 判"恰好一样" ⇒ ✅ **在数据里加可区分标记**（并写进 `dd1_baseline`）✓
+🔴 **纪律 BL**：本项**只登记 + 只做对比读数** ⇒ **不许在核实前改数据** ✓
+```
