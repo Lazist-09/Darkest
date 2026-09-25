@@ -143,6 +143,11 @@ public sealed record UnitsConfig(
             }
 
             // 🆕 **M1a 阶段 1 校验（只查结构、不查平衡）**：给了就得是**整 5 阶**（原版 0~4）✓
+            // 🆕 **M1b 补齐**（P6）：先查**缺阶**（数组里出现 null 元素）⇒ 再查**阶数越界**（不是整 5 阶）✓
+            //    🔴 顺序有讲究：**缺阶必须先查** —— 否则 `Select(x => x.DmgMin)` 会先 **NRE**（报错信息变成
+            //       "未将对象引用设置到对象的实例"⇒ **把"数据缺阶"伪装成"代码崩了"** ⚠️）
+            RequireNoNullTier(u, "weapon", u.Weapon);
+            RequireNoNullTier(u, "armour", u.Armour);
             ValidateTiers(u, "weapon", u.Weapon?.Count, u.Weapon?.Select(x => x.DmgMin).ToArray(), u.Weapon?.Select(x => x.DmgMax).ToArray());
             ValidateTiers(u, "armour", u.Armour?.Count, null, null);
 
@@ -190,6 +195,31 @@ public sealed record UnitsConfig(
         }
     }
 
+    /// <summary>
+    /// 🆕 **M1b · 缺阶报错**（P6 ②）：`weapon` / `armour` 数组里**出现 `null` 元素** ⇒ **明确报错** ✓
+    /// 🔴 **为什么必须显式查**：不查 ⇒ 后面 `Select(x => x.DmgMin)` 直接 **NRE**
+    ///    ⇒ **错误信息会变成"代码崩了"，而不是"数据第 i 阶缺了"** ⚠️（同族：不许把数据问题伪装成代码问题）
+    /// ⚠️ **数组整个缺席**（`null`）= **合法**（阶段 1 允许不配）⇒ 本方法**不管**那种情形 ✓
+    /// </summary>
+    private static void RequireNoNullTier<T>(UnitConfig u, string name, IReadOnlyList<T>? tiers)
+        where T : class
+    {
+        if (tiers is null)
+        {
+            return; // 整个不给 = 合法（"未配阶"由调用方按旧路径处理 ✓）
+        }
+
+        for (int i = 0; i < tiers.Count; i++)
+        {
+            if (tiers[i] is null)
+            {
+                throw new InvalidDataException(
+                    $"{ResPath}: \"{u.Id}\" {name}[{i}] 是 null（**缺阶**）—— 要么整段不给、要么给足 5 阶，"
+                    + "不许留空洞（P6 ②）✓");
+            }
+        }
+    }
+
     private static void ValidateTiers(UnitConfig u, string name, int? count, int[]? mins, int[]? maxs)
     {
         if (count is null)
@@ -197,9 +227,14 @@ public sealed record UnitsConfig(
             return; // 缺省 = 不参与（阶段 1 允许）✓
         }
 
+        // 🆕 **M1b · 阶数校验**（P6 ①）：**阶数必须恰好 5**（= 原版 `weapon_0..4` / `armour_0..4` ⇒ 阶序 **1~5**）✓
+        //    🔴 口径声明（纪律 AU：**先定义再数**）：这里数的**不是**"当前第几阶"，而是**数组里有几阶**；
+        //       "当前第几阶"那件事属 `O-101`（由 `Roster`/`Hero` 持有 `weaponTier`/`armourTier`）⇒ **本阶段没有它** ✓
         if (count != 5)
         {
-            throw new InvalidDataException($"{ResPath}: \"{u.Id}\" {name} 必须是 5 阶（原版 0~4）—— 实际 {count}。");
+            throw new InvalidDataException(
+                $"{ResPath}: \"{u.Id}\" {name} 必须是**整 5 阶**（原版 `0..4` ⇒ 阶序 1~5）—— 实际 {count} 阶。"
+                + $"{((count < 5) ? "阶数不足 ⇒ 后面按阶取属性会取到空位 ✓" : "阶数过多 ⇒ 超出原版口径 ✓")}");
         }
 
         if (mins is not null && maxs is not null)
