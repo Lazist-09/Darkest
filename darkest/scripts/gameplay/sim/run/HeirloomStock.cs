@@ -23,15 +23,38 @@ public sealed class HeirloomStock
     private readonly Dictionary<string, int> _counts;
     private readonly Dictionary<string, int> _levels = new();
 
-    public HeirloomStock(HeirloomConfig config)
+    /// <summary>
+    /// 🆕 **传家宝产出通道 = 任务奖励**（策划 `HEIRLOOM-STEP2-ANSWER` 的**步骤 ②** ✓）。
+    /// 🔴 **可空**：缺它 ⇒ `AwardForRun` **回落**旧的「按光照档掉落」（= **P4 前的桥** ⚠️）；
+    ///    P4（删 `tier_drop`）之后本字段变**必填**、桥与 `AwardForTier` 一起删 ✓
+    /// </summary>
+    private HeirloomQuestRewardConfig? _reward;
+
+    public HeirloomStock(HeirloomConfig config, HeirloomQuestRewardConfig? questReward = null)
     {
         _cfg = config ?? throw new ArgumentNullException(nameof(config));
+        _reward = questReward;
         _counts = config.Kinds.ToDictionary(k => k, _ => 0);
         foreach (UpgradePath p in config.UpgradePaths)
         {
             _levels[p.Building] = 0; // 未升级
         }
     }
+
+    /// <summary>
+    /// 🆕 **补挂任务奖励通道**（幂等 · 只补不换）。
+    /// 🔴 **为什么需要它**（实测出来的顺序陷阱）：`HamletRoot.Build` 先调 `EnsureHeirlooms(heirloomCfg)`
+    ///    （**不带通道** —— 那是 UI 域的文件，我不改它），远征组合根后调带通道的那次 ⇒
+    ///    若 `EnsureHeirlooms` 只是 `??=`，**通道永远不会被注入** ⇒ 步骤 ② 在真实路径上**静默不生效** ⚠️
+    ///    ⇒ 故按本仓既有惯例（`session.BindTrapRng` / `ExpeditionContext.BindConfigs`）给一个**补绑**口 ✓
+    /// </summary>
+    public void BindQuestReward(HeirloomQuestRewardConfig? reward)
+    {
+        _reward ??= reward; // 已有通道 ⇒ 不覆盖（不降级）
+    }
+
+    /// <summary>本库存是否已挂上任务奖励通道（读数 / 用例判据用 ✓）。</summary>
+    public bool HasRunReward => _reward is not null;
 
     /// <summary>四种传家宝的 kind 名（UI 只读渲染用）。</summary>
     public IReadOnlyList<string> Kinds => _cfg.Kinds;
@@ -46,7 +69,12 @@ public sealed class HeirloomStock
         ? lv
         : throw new InvalidOperationException($"未知建筑 \"{building}\"（P23 ④）。");
 
-    /// <summary>按当前光照档发放本趟的传家宝（**与金钱同一结算点**）；返回发放总数。</summary>
+    /// <summary>
+    /// 🔴 **按【光照档】发放本趟的传家宝**（**旧通道**；`#470` 顺序 (A) 里的"**旧源**"）。
+    ///
+    /// ⚠️ **现状**：`#472` 之前它是**生产路径唯一入口**；步骤 ② 之后**生产路径改走 `AwardForRun`**，
+    ///    本方法**只作为回落桥**（`_reward` 缺失时）存活 ⇒ 🆕 **P4 删 `tier_drop` 时连同它一起删** ✓
+    /// </summary>
     public int AwardForTier(CombatLog log, string tierId, string reason = "battle")
     {
         HeirloomDropSpec drop = _cfg.DropFor(tierId);
@@ -57,6 +85,54 @@ public sealed class HeirloomStock
             if (amount > 0)
             {
                 Add(log, kind, amount, reason);
+                total += amount;
+            }
+        }
+
+        return total;
+    }
+
+    /// <summary>
+    /// 🆕 **步骤 ②（接线）：按【任务奖励】通道发放本趟的传家宝** —— 与金钱同一结算点（每场战斗胜利）。
+    ///
+    /// 策划口径（`HEIRLOOM-STEP2-ANSWER` · 一手两条 + 一条数据说不出）：
+    ///   · **难度档 ← 队伍 resolve level**：`[0,1,2]→1 · [2,3,4]→3 · [4,5,6]→5`（重叠取靠后档 ✓ 一手）
+    ///   · **任务长度 ← 任务自身的 `length`**（一手）
+    ///   · **每趟 4 种都给**（数据说不出 ⇒ 最直接读法 ⇒ ⚠️ `placeholder` + 观察清单 **O11**）
+    /// 🔴 **两个输入都要代理**（我们**没有任务层**、**没有 resolve level 模型** ⚠️）：
+    ///   · `averageLevel` ⇒ `ProxyDifficultyFromAverageLevel`（⚠️ 我推的）
+    ///   · `steps`        ⇒ `ProxyQuestLengthFromSteps`（⚠️ 我推的）
+    ///   ⇒ 两个代理都在 `HeirloomQuestRewardConfig` 里**标了 placeholder**，并登记 `observe_list.md` **O11** ✓
+    ///
+    /// 🔴 **口径 (ii)**：`amounts[difficulty][length - 1]` ⇒ **length 1 ⇒ 0（短任务不给）** ✓
+    /// </summary>
+    /// <param name="log">结算账本（变更必写事件 ✓）</param>
+    /// <param name="steps">**这趟【已走过】的段数**（1 起 ⇒ 长度 1~4，>4 钳 4；长度 1 ⇒ 0 ✓）</param>
+    /// <param name="averageLevel">**队伍平均等级**（代理量 ⚠️ ⇒ 用它查难度带 1/3/5）</param>
+    /// <param name="lightTierId">
+    /// 🔴 **仅用于 P4 前的回落桥**：`_reward` 缺失时按这个光照档走 `AwardForTier`。
+    ///    ⇒ **P4 删 `tier_drop` 时连本参数一起删**（那时通道是必填的）✓
+    /// </param>
+    /// <param name="reason">事件理由（与金钱同源口径 ✓）</param>
+    public int AwardForRun(CombatLog log, int steps, double averageLevel, string lightTierId, string reason = "battle")
+    {
+        if (_reward is null)
+        {
+            // ⚠️ **P4 前的桥**：通道没挂上 ⇒ 退回旧行为（不静默不发 ✓）
+            return AwardForTier(log, lightTierId, reason);
+        }
+
+        int difficulty = HeirloomQuestRewardConfig.ProxyDifficultyFromAverageLevel(averageLevel);
+        int length = HeirloomQuestRewardConfig.ProxyQuestLengthFromSteps(steps);
+        IReadOnlyDictionary<string, int> reward = _reward.RewardFor(difficulty, length);
+
+        int total = 0;
+        foreach (string stockKind in _cfg.Kinds) // 按 kinds 顺序 ⇒ 事件顺序确定（用例可复现 ✓）
+        {
+            if (TryStockKindToReward(stockKind, out string rewardKind)
+                && reward.TryGetValue(rewardKind, out int amount) && amount > 0)
+            {
+                Add(log, stockKind, amount, reason);
                 total += amount;
             }
         }
@@ -177,4 +253,23 @@ public sealed class HeirloomStock
         "portraits" => d.Portraits,
         _ => 0,
     };
+
+    /// <summary>
+    /// 🔴 **两套 kind 名的桥**（**实测出来的真陷阱**，不是洁癖）：
+    ///   · `heirlooms.json` 的 **`kinds`**（= `HeirloomConfig.Kinds` / 库存的键）= **复数** `busts / crests / deeds / portraits` ✓
+    ///   · 一手 `quest.generation.json` 的 **`amount_table`** 键（= `HeirloomQuestRewardConfig`）= **单数** `bust / crest / deed / portrait` ✓
+    /// ⇒ 🔴 不桥 ⇒ `reward.TryGetValue("busts")` **永远 miss** ⇒ **静默一件都不发**（`Add` 都不会被调）⚠️
+    ///    ⇒ 故这里**显式列出**（不用 `TrimEnd('s')` 之类的猜法 —— 那是推断，不是数据 ✓ 纪律 BL）✓
+    /// </summary>
+    private static bool TryStockKindToReward(string stockKind, out string rewardKind)
+    {
+        switch (stockKind)
+        {
+            case "busts": rewardKind = "bust"; return true;
+            case "crests": rewardKind = "crest"; return true;
+            case "deeds": rewardKind = "deed"; return true;
+            case "portraits": rewardKind = "portrait"; return true;
+            default: rewardKind = string.Empty; return false;
+        }
+    }
 }

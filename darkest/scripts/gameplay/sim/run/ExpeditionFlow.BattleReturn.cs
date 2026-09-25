@@ -60,7 +60,14 @@ public sealed partial class ExpeditionFlow
 		}
 		LootFirewood += tuningLootSpec.Firewood;
 		_economy?.AwardBattle(_log, LightMeter.TierId(_meter.Tier));
-		_heirlooms?.AwardForTier(_log, LightMeter.TierId(_meter.Tier));
+
+		// 🆕 **步骤 ②（接线）**：传家宝改走【任务奖励】通道（`#470` 顺序 (A)：**先接线，后删旧源**）✓
+		//    · **难度档** ← `_partyAverageLevel`（⚠️ 代理量，一手要的是队伍 resolve level ⇒ placeholder · O11）
+		//    · **长度** ← **这趟【已走过】的段数** ⇒ 本场打完才算走过 ⇒ `StepsDone + 1`
+		//      （`StepsDone` 的语义实测 = **已完成段数**：`Advance` 里用 `_path[StepsDone]` 取下一段 ✓
+		//        而第 65 行的 `StepsDone++` 在**发放之后** ⇒ 此处手动 +1，口径写死在一处 ✓）
+		//    · 第 4 个实参只有 `_reward` **缺失时**才被用（P4 前的回落桥 ⇒ 与 `AwardForTier` 同款）✓
+		_heirlooms?.AwardForRun(_log, StepsDone + 1, _partyAverageLevel, LightMeter.TierId(_meter.Tier));
 		Wins++;
 		StepsDone++;
 		_session.ConsumeRunBuffsAfterBattle();

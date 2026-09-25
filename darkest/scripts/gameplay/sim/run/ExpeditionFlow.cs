@@ -53,6 +53,14 @@ public sealed partial class ExpeditionFlow
 
 	private readonly HeirloomConfig? _heirloomConfig;
 
+	/// <summary>
+	/// 🆕 **队伍平均等级**（步骤 ② 的**难度档代理输入** ⚠️）。
+	/// 🔴 **为什么必须注入**（实测）：`UnitRuntime` **不存 `Level`** —— 等级是组合根在装配时
+	///    `ApplyLevelGrowth(hero.Level, …)` **投影**进去的 ⇒ 走上层**取不回**等级 ⇒ 只能在组合根算好带进来 ✓
+	/// ⚠️ 代理量 ⇒ `placeholder` + 观察清单 **O11**（一手要的是队伍的 **resolve level**）✓
+	/// </summary>
+	private readonly double _partyAverageLevel;
+
 	private ExpeditionMapConfig? _mapCfg;
 
 	private ExpeditionMap? _map;
@@ -303,11 +311,12 @@ public sealed partial class ExpeditionFlow
 		return null;
 	}
 
-	public ExpeditionFlow(ExpeditionSession session, LightMeter meter, Inventory bag, Scouting scout, ExpeditionNodesConfig nodes, TuningConfig tuning, CombatLog log, IRngProvider rng, Economy? economy = null, HeirloomStock? heirlooms = null, HeirloomConfig? heirloomConfig = null)
+	public ExpeditionFlow(ExpeditionSession session, LightMeter meter, Inventory bag, Scouting scout, ExpeditionNodesConfig nodes, TuningConfig tuning, CombatLog log, IRngProvider rng, Economy? economy = null, HeirloomStock? heirlooms = null, HeirloomConfig? heirloomConfig = null, double partyAverageLevel = 0.0)
 	{
 		_economy = economy;
 		_heirlooms = heirlooms;
 		_heirloomConfig = heirloomConfig;
+		_partyAverageLevel = partyAverageLevel;
 		_session = session ?? throw new ArgumentNullException("session");
 		_meter = meter ?? throw new ArgumentNullException("meter");
 		_bag = bag ?? throw new ArgumentNullException("bag");

@@ -159,9 +159,16 @@ public static class ExpeditionContext
     public static HeirloomStock? Heirlooms { get; private set; }
 
     /// <summary>确保跨趟传家宝库存存在（复用同一实例 ⇒ 库存与升级等级不被重置）。</summary>
-    public static HeirloomStock EnsureHeirlooms(HeirloomConfig config)
+    /// <param name="config">传家宝表（四种 kind + 升级曲线）</param>
+    /// <param name="questReward">
+    /// 🆕 **步骤 ② 的任务奖励通道**（`heirlooms.json` 的 `quest_reward`）。
+    /// 🔴 **为什么带 `BindQuestReward` 补绑**：`HamletRoot.Build` **先**调本方法（不带通道）⇒
+    ///    若只 `??=`，后到的带通道那次**不会生效** ⇒ 步骤 ② 在真实路径上**静默不生效** ⚠️
+    /// </param>
+    public static HeirloomStock EnsureHeirlooms(HeirloomConfig config, HeirloomQuestRewardConfig? questReward = null)
     {
-        Heirlooms ??= new HeirloomStock(config);
+        Heirlooms ??= new HeirloomStock(config, questReward);
+        Heirlooms.BindQuestReward(questReward); // 幂等：已有通道不覆盖（不降级 ✓）
         return Heirlooms;
     }
 

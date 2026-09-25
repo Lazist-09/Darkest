@@ -147,7 +147,22 @@ public static class ExpeditionComposition
         EconomyConfig econCfg = EconomyConfig.Parse(FileAccess.GetFileAsString(EconomyConfig.ResPath));
         Economy economy = ExpeditionContext.EnsureEconomy(econCfg);
         HeirloomConfig heirloomCfg = HeirloomConfig.Parse(FileAccess.GetFileAsString(HeirloomConfig.ResPath));
-        HeirloomStock heirlooms = ExpeditionContext.EnsureHeirlooms(heirloomCfg);
+
+        // 🆕 **步骤 ②（接线）**：任务奖励通道 = **同一个 `heirlooms.json` 的 `quest_reward` 段** ✓
+        //    🔴 必须在这里**补绑**：`HamletRoot.Build` 会**先**用不带通道的那次调用把跨趟库存建出来
+        //       （那是 UI 域文件 ⇒ 我不动它）⇒ 靠 `BindQuestReward`（幂等 · 只补不换）把通道补上 ✓
+        HeirloomQuestRewardConfig questRewardCfg =
+            HeirloomQuestRewardConfig.Parse(FileAccess.GetFileAsString(HeirloomConfig.ResPath));
+        questRewardCfg.Validate(); // 🔴 一手形状校验（4 地牢全 4 种 / 6 档只有 1·3·5 有值 / 首项 0 ✓）
+        HeirloomStock heirlooms = ExpeditionContext.EnsureHeirlooms(heirloomCfg, questRewardCfg);
+
+        // 🆕 步骤 ② 的**难度档代理输入**：队伍平均等级（⚠️ 我推的 ⇒ placeholder + O11 ✓）
+        //    · 用 `sortie`（**实际出征的人**）而不是整本名册 —— 一手说的是"队伍"的 resolve level ✓
+        //    · 等级实测来自 `HeroConfig.Level`（组合根后面就是用它做 `ApplyLevelGrowth` 投影的 ✓）
+        double partyAverageLevel = sortie.Count == 0 ? 0.0 : sortie.Average(h => h.Level);
+        GD.Print($"[片4] 传家宝步骤②接线：通道={(heirlooms.HasRunReward ? "已挂" : "缺失")} · " +
+                 $"队伍平均等级 {partyAverageLevel:0.##} ⇒ 难度档 " +
+                 $"{HeirloomQuestRewardConfig.ProxyDifficultyFromAverageLevel(partyAverageLevel)} ✓");
 
         // 🔴 `2b34478` 真缺陷修复的注入点：解锁表必须在**构造前**备好（`Unlocks` 是 `init` 属性）✓
         CuriosConfig curiosCfg = CuriosConfig.Parse(FileAccess.GetFileAsString(CuriosConfig.ResPath));
@@ -164,7 +179,7 @@ public static class ExpeditionComposition
         session.BindTrapRng(runRng);
 
         var flow = new ExpeditionFlow(session, meter, bag, new Scouting(tuning.Scouting!, tuning.Light!),
-            handle.Nodes, tuning, log, runRng, economy, heirlooms, heirloomCfg)
+            handle.Nodes, tuning, log, runRng, economy, heirlooms, heirloomCfg, partyAverageLevel)
         {
             Progress = ExpeditionContext.Progress,
             Unlocks = unlocksCfg,

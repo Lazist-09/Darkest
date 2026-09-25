@@ -189,6 +189,30 @@
 要记什么：是 **4 种都有**（bust/portrait/deed/crest）还是**只有 1~2 种**
 为什么卡：原版 `quest.generation.json` 的 `heirloom_type_map` 只说【4 个地牢都给哪几种】，
    而**没说"每趟给几种"** ⇒ 🔴 **consumer 在 C++ 引擎里，数据说不出** ⚠️
+🆕 **落地状态（2026-09-25 · 步骤 ② 接线）**：⚠️ **暂取"4 种都给"**（= 数据最直接的读法）⇒ **已接线生效** ✓
+   · 代码：`HeirloomStock.AwardForRun`（走 `HeirloomQuestRewardConfig.RewardFor`）✓
+   · 读数（档 5 长度 4）：`busts 9 · portraits 9 · deeds 18 · crests 18` = **54**，**四种全发** ✓
+   · 🔴 **本条【仍是待观察】**（接线 ≠ 数据被证实 ⇒ **BK**）：一旦看到原版结算画面是"只给 1~2 种"，
+     **这一处就是要改的点** ⇒ 所以留档 ✓
+```
+
+### O12 ⚠️ **传家宝的两个【代理输入】：难度档 ← 队伍平均等级 · 长度 ← 这趟已走过的段数**
+
+```
+是什么：一手 `quest.generation.json` 说传家宝数量查表要两个输入 ——
+   · **难度档 ← 队伍的 resolve level**（一手：`generated_resolve_level_difficulties` = `[0,1,2]→1 · [2,3,4]→3 · [4,5,6]→5` ✓）
+   · **任务长度 ← 任务自身的 `length`**（一手：`plot_tutorial_crypts length=1 …` ✓）
+🔴 **我们两个都没有** ⇒ **没有任务层**、**`UnitRuntime` 不存 `Level`**（等级是组合根 `ApplyLevelGrowth` **投影**进去的 ⚠️）
+⇒ 故用**我推的**代理（**纪律 BL：推的必须标出来** ✓）：
+   · `averageLevel`（**队伍平均等级** = 出征几人的 `HeroConfig.Level` 平均）⇒ `ProxyDifficultyFromAverageLevel` ⚠️
+   · `steps`（**这趟【已走过】的段数** ⇒ 本场打完 = `StepsDone + 1`）⇒ `ProxyQuestLengthFromSteps` ⚠️
+要记什么：**原版的 quest 是【出发前就定好长度与难度】还是【边走边算】**
+   ⇒ 若是前者 ⇒ 本代理的"长度随进度增长"**是错的** ⇒ 应先算总段数、整趟用同一个长度 ✓
+怎么推进：**任务选择画面上有没有写"长度/难度"** —— 有 ⇒ 前者（出发前定）⇒ 代理要改成一趟恒定 ✓
+
+🆕 **落地状态（本轮）**：两个代理**已接进生产路径**（`ExpeditionFlow.OnBattleFinished` ⇒ `AwardForRun`）✓
+   · 读数：平均等级 1 → 档1(26) · 3 → 档3(36) · 5 → 档5(54)（长度 4）✓
+   · 🔴 **仍是待观察**：接的是**代理**，不是一手输入 ⇒ 原版一旦能读 ⇒ **以原版为准** ✓
 ```
 ### D5 🔴 `dmg%` 的【候选 12 条】—— 已从 `darkest/data/` 撤出，待定
 
