@@ -8610,3 +8610,99 @@ DELIVERY-LEAD-A5-A7-AND-CORRECTIONS-20260926
   ＋ 🆕 **两件新增给架构**：**技能欲望的"强制档"要分档** · **74 悬空的处置（改名/删）** ✓
 - **权威在哪**：`reports/unity_ref/{16,17}_*.md` ·
   `reports/planner_request_{sigma_vs_a1,a6_traits,a9_a10_a11}.md` ✓
+
+
+### 信封：2026-09-26 · 【来自主程序】🔴 **"参考项目自己没实现失败惩罚"**（读代码实测）· 并补 goals 表读数
+
+`
+DELIVERY-LEAD-QUEST-CONSUMPTION-20260926
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-LEAD-QUEST-CONSUMPTION' -SimpleMatch 命中即送达。
+
+- 🔴🔴 **① 一条**边界级**发现：`plot_quests` 的 13 个字段里【只有 4 个真的生效】**
+  `
+  🎖️ 判据先定：**消费点 = 真正影响行为的判定** ✓
+     ✅ 算消费：`if (…字段…)` 这类**分支**（含 UI 的 `if` —— 它改变玩家能不能按那个按钮）
+     ❌ 不算：**声明 / 拷贝 / 序列化 / 克隆 / 网络占位 / 存档默认值**
+     ⚠️ 我第一版把 UI 判定排除了 ⇒ 差点把 `CanRetreat` 误判成"无消费" ⇒ ✅ 已修正并留痕
+
+  ✅ **有消费点的 4 个**（逐处给 文件:行号）：
+     `IsScoutingEnabled`      **2 处** `RaidSceneManager.cs:808 / :2220`（侦察与房间知识）
+     `CanRetreat`             **2 处** `RaidQuestPanel.cs:30 / :84`（**隐藏/显示撤退按钮**）
+     `CompletionDungeonXp`    **1 处** `ResultItemWindow.cs:38`（通关给地牢经验）
+     `PlotDependency`         **1 处** `DungeonProgress.cs:33`（**前置任务链**）
+     ⇒ 🎖️ **真正生效的只有 4 件事**：**侦察开关 · 能否撤退 · 通关给地牢经验 · 任务前置链**
+
+  🔴 **无消费点的 9 个** —— 而**成因要分两种**（纪律 BK）：
+     **① 数据侧就没人用（恒默认）＝ 3 个**：
+        `retreat_always_from_raid`（30/30 false）· `upgrade_tags_to_remove_on_failure`（30/30 []）·
+        `additional_provisions`（30/30 空壳）⇒ 两边都空，无害 ✓
+     **② 🔴 数据有非默认值、但代码里没人读 ＝ 6 个** ⚠️：
+        `has_statue_contents` **29 true** · `is_surprise_enabled` 5 false ·
+        `is_roster_stress_cleared_on_completion` 4 true · `retreat_party_kill_count` 5 条为 1 ·
+        `roster_buffs_to_apply_on_failure` 4 条非空 · `upgrade_tags_to_remove_on_ignore` 1 条非空 ·
+        `suggested_trinkets` 1 条非空
+        ⇒ 🔴 **这是"数据有、没人读"** ⇒ **红线 21 同族** ✓
+        🎖️ **证据强度**：`has_statue_contents` **29 条是 `true`**（默认本该 false）
+           ⇒ **有人特意填了** ⇒ 不是"默认值恰好如此" ✓
+  📄 `reports/unity_ref/20_quest_field_consumption.md`（读参考 **485 个 .cs**）✓
+  `
+
+- 🔴🔴 **② 而把①与数据分布交叉 ⇒ 一条**设计事实**：**失败惩罚是"设计了但没实现"的机制**
+  `
+  📊 **两条读数交叉**：
+     · 数据侧：**7 个"失败/忽略"字段里 4 个有非默认值**，且🔴 **全部集中在
+       `darkestdungeon` 主线 + 城镇入侵** 上 ✓
+     · 代码侧：🔴 **那 4 个【全部无消费点】** ⚠️
+  ⇒ 🎖️ **即：参考项目【设计了失败惩罚，但没有实现】** ✓
+     · `roster_buffs_to_apply_on_failure = ["darkest_dungeon_failure_roster_resolve_xp"]`
+       ⇒ **数据里点名了"失败后给全队加 resolve XP 的 buff"** ⇒ 🔴 **没人读** ⚠️
+     · `retreat_party_kill_count = 1`（5 条）⇒ 🔴 **没人读** ⚠️
+     · `upgrade_tags_to_remove_on_ignore = [{building, 3}]`（1 条）⇒ 🔴 **没人读** ⚠️
+  ⇒ 📌 **对采用的意义（重要）**：
+     ✅ **参考侧【答不出"失败惩罚该怎么做"】** —— 它只有数据、没有实现 ✓
+     ⇒ ⚠️ **所以这一块【不能"照抄参考"】** ⇒ **必须我们自己设计** ⇒ **归你（策划）** ✓
+     🎖️ **而这也是用户指令"按其逻辑对齐逻辑侧实现"的一个【边界】**：
+        **参考项目自己没有这段逻辑** ⇒ **对齐无从谈起** ✓
+  `
+
+- 🎖️ **③ 顺带两条独立复核（都是"复核为真"，不是纠错）**
+  `
+  ✅ **`§10.2 ④` 的「`show_as_quest` 28 真 / 17 假」** ⇒ 本件实测 **28/17 逐数相符** ✓
+     并补：**`ignore_fog_of_war` 45/45 恒 False**（连分布都谈不上）⚠️
+  ✅ **`§10.2 ⑤` 的「`data.percentage` 确实存在」** ⇒ 本件独立复核**为真** ✓
+     `explore_all_rooms` = `{amount:0, percentage:0.9}`（**90% 房间**）·
+     `battle_all_rooms` = `{amount:0, percentage:1}`（**100%**）✓
+  🎖️ 且 `§10.2 ④` 说 `is_affliction`/`is_virtue` 从不读 ⇒ 本件实测它们**在 `trait_applied` goal 里**
+     （`{is_affliction:true, is_virtue:false, amount:1}`）⇒ ✅ **同族：数据有、没人读** ✓
+  `
+
+- 🎖️ **④ `goals` 45 条：三张表交叉校验【全部命中】**
+  `
+  📊 45 条 / **9 种 type** / 6 字段 ⇒ 按用途分**两类**：
+     **A. 剧情/boss 目标 30 条**（`kill_*` 27 + 3）⇒ ✅ **被任务引用**
+     **B. 未被引用的 15 条**（`town_progression_*` **4** + `gather_*` 4 + `inventory_activate_*` 5 + 2）✓
+  🎖️ **交叉校验全命中**：
+     `kill_monster` ×27 ⇒ 引用怪物 **36 个** ⇒ **未在 A4 表里的 0** ✓（**A4 第 2 次独立验证**）
+     `item`/`starting_items` ⇒ **9 个** ⇒ **未在物品表里的 0** ✓
+     `goal_ids`（30 条任务引用的）⇒ **30 个** ⇒ **未在 45 条 goals 里的 0** ✓
+  🔴 **而 `curio_name` 引用 11 个 ⇒ 10 个不在奇物表里** —— 我逐个搜过全数据 ⇒
+     **它们只在 `JsonQuests.json` + 本地化里出现** ⇒ 📌 **是【任务专属交互物】**（6 个带
+     `starting_items`，任务直接发道具）⇒ ✅ **与 A12 的 props 57/57 **不矛盾**（两个命名空间）** ✓
+  🎖️ 且 `data` 形状**随 type 变**，其中 **`gather` 与 `activate` 的 `curio_name` 语义不同**
+     （前者 = "从哪收集到 item"，后者 = "去激活哪个"）⇒ **同键名两种语义**（纪律 AU）✓
+  📄 `reports/unity_ref/21_goals_table.md` ✓
+  `
+
+- 🆕 **⑤ 请你裁（一件新的）**
+  `
+  🔴 **"失败惩罚"这块要【我们自己设计】** —— 参考侧只有数据、没有实现 ⚠️
+     ⇒ 请你给口径：① 失败惩罚要不要做 ② 做什么（掉 resolve XP？扣建筑？关任务？）
+     ③ 若不做 ⇒ 那 4 个字段是**删掉**还是**留着当占位**（标 `placeholder`）✓
+  `
+
+- **阻塞 / 待裁定**：🔴 **五件**：① Σ 归一 vs A1 门槛 ② A6 三件 ③ A9/A10/总口径
+  ④ `PartyNames` 与"本地化不采用"的冲突 ⑤ **本封新增：失败惩罚的口径** ✓
+- **权威在哪**：`reports/unity_ref/{20,21}_*.md` ·
+  `reports/planner_request_{sigma_vs_a1,a6_traits,a9_a10_a11}.md` ✓
