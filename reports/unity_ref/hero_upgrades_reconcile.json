@@ -1,0 +1,3613 @@
+{
+ "note": "英雄升级消耗逐值对账（参考 vs 我方）。只读不落库 ✓",
+ "summary": {
+  "消耗相同": 345,
+  "消耗不同": 300,
+  "英雄缺失": 1
+ },
+ "diff_currency": {
+  "gold": 300
+ },
+ "rows": [
+  {
+   "hero": "abomination",
+   "tree": "abomination.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.transform",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.transform",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.manacles",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.manacles",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.vomit",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.vomit",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.absolution",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.absolution",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.rake",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.rake",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.rage",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.rage",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.slam",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "tree": "abomination.slam",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.kris_stab",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.kris_stab",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.festering_vapours",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.festering_vapours",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.cower",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.cower",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.flashpowder",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.flashpowder",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.fortifying_vapours",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.fortifying_vapours",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.invigorating_vapours",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.invigorating_vapours",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.protect_me",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "tree": "antiquarian.protect_me",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.sniper_shot",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.sniper_shot",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.suppressing_fire",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.suppressing_fire",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.sniper_mark",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.sniper_mark",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.bola",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.bola",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.blindfire",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.blindfire",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.battlefield_bandage",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.battlefield_bandage",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.flare",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "tree": "arbalest.flare",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.collect_bounty",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.collect_bounty",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.target_tag",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.target_tag",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.come_hither",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.come_hither",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.uppercut",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.uppercut",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.flashbang",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.flashbang",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.finish_him",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.finish_him",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.hook_and_slice",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "tree": "bounty_hunter.hook_and_slice",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.smite",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.smite",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.zealous_accusation",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.zealous_accusation",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.stunning_blow",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.stunning_blow",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.bulwark_of_faith",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.bulwark_of_faith",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.battle_heal",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.battle_heal",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.holy_lance",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.holy_lance",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.inspiring_cry",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "tree": "crusader.inspiring_cry",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.pick",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.pick",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.lunge",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.lunge",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.flashing_daggers",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.flashing_daggers",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.shadow_fade",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.shadow_fade",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.thrown_dagger",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.thrown_dagger",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.poison_dart",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.poison_dart",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.toxin_trickery",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "tree": "grave_robber.toxin_trickery",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.wicked_hack",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.wicked_hack",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.iron_swan",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.iron_swan",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.barbaric_yawp",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.barbaric_yawp",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.if_it_bleeds",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.if_it_bleeds",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.breakthru",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.breakthru",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.adrenaline_rush",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.adrenaline_rush",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.bleed_out",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "tree": "hellion.bleed_out",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.wicked_slice",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.wicked_slice",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.pistol_shot",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.pistol_shot",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.point_blank_shot",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.point_blank_shot",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.grape_shot_blast",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.grape_shot_blast",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.take_aim",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.take_aim",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.duelist_advance",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.duelist_advance",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.opened_vein",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "tree": "highwayman.opened_vein",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.hounds_rush",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.hounds_rush",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.hounds_harry",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.hounds_harry",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.whistle",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.whistle",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.howl",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.howl",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.guard_dog",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.guard_dog",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.lick_wounds",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.lick_wounds",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.blackjack",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "tree": "houndmaster.blackjack",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.dirk_stab",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.dirk_stab",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.harvest",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.harvest",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.heroic_end",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.heroic_end",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.solo",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.solo",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.slice_off",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.slice_off",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.battle_ballad",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.battle_ballad",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.inspiring_tune",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "tree": "jester.inspiring_tune",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.chop",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.chop",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.hew",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.hew",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.focus",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.focus",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.revenge",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.revenge",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.withstand",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.withstand",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.solemnity",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.solemnity",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.intimidate",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "tree": "leper.intimidate",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.crush",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.crush",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.rampart",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.rampart",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.bellow",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.bellow",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.defender",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.defender",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.retribution",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.retribution",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.command",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.command",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.bolster",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "tree": "man_at_arms.bolster",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.bloodlet",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.bloodlet",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.abyssal_artillery",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.abyssal_artillery",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.weakening_curse",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.weakening_curse",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.wyrd_reconstruction",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.wyrd_reconstruction",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.disruptive_curse",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.disruptive_curse",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.hands_from_abyss",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.hands_from_abyss",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.daemons_pull",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "tree": "occultist.daemons_pull",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.noxious_blast",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.noxious_blast",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.plague_grenade",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.plague_grenade",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.blinding_gas",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.blinding_gas",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.incision",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.incision",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.battlefield_medicine",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.battlefield_medicine",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.emboldening_vapours",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.emboldening_vapours",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.disorienting_blast",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "tree": "plague_doctor.disorienting_blast",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.weapon",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.weapon",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.weapon",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.armour",
+   "code": "1",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 2000
+   },
+   "ours": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.armour",
+   "code": "2",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 4000
+   },
+   "ours": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.armour",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 8000
+   },
+   "ours": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.mace_bash",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.mace_bash",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.judgement",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.judgement",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.dazzling_light",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.dazzling_light",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.divine_grace",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.divine_grace",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.gods_comfort",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.gods_comfort",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.gods_illumination",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.gods_illumination",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.gods_hand",
+   "code": "3",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 1500
+   },
+   "ours": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "tree": "vestal.gods_hand",
+   "code": "4",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 3000
+   },
+   "ours": {
+    "gold": 2500
+   }
+  }
+ ]
+}
