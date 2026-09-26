@@ -192,7 +192,35 @@ dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMo
 
 ---
 
-## 8. 本目录的产物
+## 9. 🆕 数据总账的 5 条更正（`01_data_inventory.md` · 2026-09-26 分队交付）
+
+```
+① 🔴 **我先前的手扫漏了一个文件形态**：真实是 **49 json / 30 bytes / 232 txt / 18 xml / 1 csv = 330 个数据文件**；
+   而 **奇物不在 `Curios.json`（不存在），在 `Curios/Curios.csv` ⇒ 60 条**（我方 `curios.json` 只有 **7** 条）⚠️
+   ⇒ ✅ **A 系列要加一项：csv 形态**（我方现有抽取器只处理 json/bytes/txt）✓
+② 🔴 **7 个 JSON 是【非法 JSON】（尾随逗号）**：`abbey` / `nomad_wagon` / `sanitarium` / `tavern` 的 `.building.json` ·
+   `Curios/Traps.json` · `JsonAI.json` · `JsonQuests.json`
+   ⇒ 🔴 **`json.loads` 直接抛 `Illegal trailing comma`** ⇒ ✅ **任何导入工具必须先清洗**（我方 C# 侧要 `AllowTrailingCommas`）✓
+③ 🎖️ **营地技能的位置被我猜错了**：`Heroes/Info/*.bytes` 里 **`camp_skill:` 出现 0 次** ⇒
+   营地技能**只在 `JsonCamping.json` 的 64 条跨职业共享技能里**（带 `hero_classes` 白名单）✓
+   ⇒ ✅ **A6/A8 的取数位置按此更正**（不要再去 Info bytes 里找）✓
+④ 🔴 **两个 join 陷阱（会静默少配）**：
+   · `JsonAI` 的 **brain id ≠ 怪物名**：230 怪 ⇒ **107 精确命中** · **50 需去掉 `_A/_B/_C/_D` 后缀回退** ·
+     **73 无 AI**；另有 **28 个 brain 无对应怪物** ⇒ ✅ **A5 必须写"回退规则 + 未命中清单"，不许静默跳过**⚠️
+   · `Heroes/Info` **15** 个 vs `Upgrades/Heroes` **16** 个（**Musketeer 无 Info，共用 Arbalest**）✓
+   · 每个英雄 `combat_skill:` **42 条 = 7 技能的 `art:` 段 + 35 条数值**（与我方抽取结果 **art=7/stat=35** 一致 ✓）
+⑤ ⚠️ **`Maps/*.bytes` 是 Unity 二进制序列化**（控制字节占 50%+，**没有** DD1 前缀，只能抽到 `room:`/`plot_*`/`*_to_*` 可打印串）
+   ⇒ 🔴 **它是"已烘焙布局"，与我方参数化 `expedition_map.json` 语义不对等** ⇒ ✅ **A12 只能作参考，不能当数据源**⚠️
+```
+
+### 9.1 顺带确认的**大缺口**（我方整表缺）
+
+```
+· `Localization/*.xml` **12.37 MB = 全部字节的 80%**：**12617 唯一 key × 8 语言 = 100875 entry** ⇒ 我方无对应
+  📌 **但它只是文本，与逻辑侧无关** ⇒ ✅ **明确列入"不采用"**（采用计划里划掉）✓
+· `JsonQuests`（**任务系统的唯一数据源**）· `JsonLoot` · `Narration` · `PartyNames` · `Obstacles` ⇒ 我方**全部无对应** ✓
+· **奇物 60 → 我方 7** 也是大缺口（先前只看到 curios.json 7 条，没意识到参考有 60）✓
+```
 
 | 文件 | 内容 |
 |---|---|
