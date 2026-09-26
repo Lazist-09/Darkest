@@ -54,6 +54,31 @@ public sealed class ExpeditionMapTests
             "不许分叉 ⇒ 报错（P25 ③：会退化成线性）");
     }
 
+    /// <summary>
+    /// 🔴 **报错文案里的 `branch_special_kind` 清单 = 校验用的那份**
+    /// （防 `157_*.md` 那处"可钉未钉"）：
+    ///   一个非法的 kind ⇒ 报错必须**列出 `SpecialBranchKinds` 的全部内容** ✓
+    ///   若将来有人只改常量、不改文案 ⇒ 本用例红 ✓
+    /// </summary>
+    [TestMethod]
+    public void P25_UnknownSpecialBranchKind_MessageListsAllKinds()
+    {
+        string raw = ReadData("expedition_map.json");
+        // 🔴 `branch_special_kind` 只在 `branch_special_weight > 0` 时才校验（`ExpeditionMapConfig.cs:125`）
+        //    ⇒ 而**出货数据该权重为 0** ⇒ 必须**同时**把它改成 >0，否则那条分支走不到（实测踩过）✓
+        string bad = raw
+            .Replace("\"branch_special_weight\": 0", "\"branch_special_weight\": 10", StringComparison.Ordinal)
+            .Replace("\"branch_special_kind\": \"free_light\"",
+                     "\"branch_special_kind\": \"bogus_kind\"", StringComparison.Ordinal);
+        var ex = Assert.ThrowsException<InvalidDataException>(() => ExpeditionMapConfig.Parse(bad));
+
+        // 🔴 断言**全角分隔**形式（插值产物）：手写若用半角 ` / ` ⇒ 不同形 ⇒ 能红 ✓
+        //    （教训 `155_*.md`/`156_*.md`：断言与手写同形时会假过）✓
+        string expected = string.Join(" ／ ", ExpeditionMapConfig.SpecialBranchKinds);
+        StringAssert.Contains(ex.Message, expected,
+            $"报错须含全角分隔的 `{expected}`（插值产物；防手写漂移）✓");
+    }
+
     [TestMethod]
     public void Map_SpineSixToEight_Connected_AndRandomIsAudited()
     {

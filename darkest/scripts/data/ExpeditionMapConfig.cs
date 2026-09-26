@@ -125,7 +125,7 @@ public sealed record ExpeditionMapConfig(
         if (m.BranchSpecialWeight > 0 && !SpecialBranchKinds.Contains(m.BranchSpecialKind))
         {
             throw new InvalidDataException(
-                $"{ResPath}: branch_special_kind 必须是【降低撤退风险】类（允许：{string.Join(" / ", SpecialBranchKinds)}；" +
+                $"{ResPath}: branch_special_kind 必须是【降低撤退风险】类（允许：{string.Join(" ／ ", SpecialBranchKinds)}；" +
                 $"**不得只加资源类**；P25 ⑧ / #298）。");
         }
 
