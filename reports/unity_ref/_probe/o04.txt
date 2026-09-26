@@ -1,0 +1,1003 @@
+﻿==============================================================================
+BUILDING FILE: abbey.building.json
+ on_start_town_visit_priority = 1
+ number_of_quests_finished = 2
+ highest_dungeon_level = 0
+ meditation:
+   side_effects:
+     chance = 0.4
+     results:
+       [0]
+         type = "activity_lock"
+         chance = 1
+         data:
+       [1]
+         type = "go_missing"
+         chance = 1
+         data:
+           [0]
+             chance = 3
+             duration = 1
+           [1]
+             chance = 1
+             duration = 2
+       [2]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "enlightened"
+       [3]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "improved_balance"
+       [4]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "meditator"
+       [5]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "calm"
+       [6]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "unquiet_mind"
+   quirk_library_names:
+     [0] = "unquiet_mind"
+     [1] = "alcoholism"
+     [2] = "gambler"
+     [3] = "love_interest"
+     [4] = "god_fearing"
+     [5] = "flagellant"
+   caretaker_friendly = true
+   cost_upgrades:
+     [0]
+       cost_currency:
+         type = "gold"
+         amount = 1000
+     [1]
+       cost_currency:
+         type = "gold"
+         amount = 850
+       upgrade_requirement_code = "b"
+     [2]
+       cost_currency:
+         type = "gold"
+         amount = 700
+       upgrade_requirement_code = "e"
+   slot_upgrades:
+     [0]
+       number_of_slots = 1
+     [1]
+       number_of_slots = 2
+       upgrade_requirement_code = "c"
+     [2]
+       number_of_slots = 3
+       upgrade_requirement_code = "f"
+   stress_upgrades:
+     [0]
+       heal_low = 45
+       heal_high = 45
+     [1]
+       heal_low = 56
+       heal_high = 56
+       upgrade_requirement_code = "a"
+     [2]
+       heal_low = 70
+       heal_high = 70
+       upgrade_requirement_code = "d"
+   affliction_cure_upgrades:
+     [0]
+       chance = 1.0
+     [1]
+       chance = 0.1
+       upgrade_requirement_code = "g"
+ prayer:
+   side_effects:
+     chance = 0.35
+     results:
+       [0]
+         type = "activity_lock"
+         chance = 1
+         data:
+       [1]
+         type = "go_missing"
+         chance = 1
+         data:
+           [0]
+             chance = 3
+             duration = 1
+           [1]
+             chance = 1
+             duration = 2
+       [2]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "god_fearing"
+       [3]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "witness"
+       [4]
+         type = "change_currency"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             type = "gold"
+             amount = -1000
+   quirk_library_names:
+     [0] = "witness"
+     [1] = "faithless"
+     [2] = "alcoholism"
+     [3] = "gambler"
+     [4] = "love_interest"
+     [5] = "enlightened"
+     [6] = "flagellant"
+   caretaker_friendly = true
+   cost_upgrades:
+     [0]
+       cost_currency:
+         type = "gold"
+         amount = 1250
+     [1]
+       cost_currency:
+         type = "gold"
+         amount = 1050
+       upgrade_requirement_code = "b"
+     [2]
+       cost_currency:
+         type = "gold"
+         amount = 900
+       upgrade_requirement_code = "e"
+   slot_upgrades:
+     [0]
+       number_of_slots = 1
+     [1]
+       number_of_slots = 2
+       upgrade_requirement_code = "c"
+     [2]
+       number_of_slots = 3
+       upgrade_requirement_code = "f"
+   stress_upgrades:
+     [0]
+       heal_low = 55
+       heal_high = 55
+     [1]
+       heal_low = 69
+       heal_high = 69
+       upgrade_requirement_code = "a"
+     [2]
+       heal_low = 86
+       heal_high = 86
+       upgrade_requirement_code = "d"
+   affliction_cure_upgrades:
+     [0]
+       chance = 1.0
+     [1]
+       chance = 0.1
+       upgrade_requirement_code = "g"
+ flagellation:
+   side_effects:
+     chance = 0.3
+     results:
+       [0]
+         type = "activity_lock"
+         chance = 1
+         data:
+       [1]
+         type = "go_missing"
+         chance = 1
+         data:
+           [0]
+             chance = 3
+             duration = 1
+           [1]
+             chance = 1
+             duration = 2
+       [2]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "flagellant"
+       [3]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "faithless"
+       [4]
+         type = "apply_buff"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             buff_library_ids:
+               [0] = "townFlagellationDMGLowBuff"
+               [1] = "townFlagellationDMGHighBuff"
+       [5]
+         type = "apply_buff"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             buff_library_ids:
+               [0] = "townFlagellationDMGLowDebuff"
+               [1] = "townFlagellationDMGHighDebuff"
+   quirk_library_names:
+     [0] = "faithless"
+     [1] = "alcoholism"
+     [2] = "gambler"
+     [3] = "love_interest"
+     [4] = "enlightened"
+     [5] = "god_fearing"
+   caretaker_friendly = true
+   cost_upgrades:
+     [0]
+       cost_currency:
+         type = "gold"
+         amount = 1500
+     [1]
+       cost_currency:
+         type = "gold"
+         amount = 1300
+       upgrade_requirement_code = "b"
+     [2]
+       cost_currency:
+         type = "gold"
+         amount = 1100
+       upgrade_requirement_code = "e"
+   slot_upgrades:
+     [0]
+       number_of_slots = 1
+     [1]
+       number_of_slots = 2
+       upgrade_requirement_code = "c"
+     [2]
+       number_of_slots = 3
+       upgrade_requirement_code = "f"
+   stress_upgrades:
+     [0]
+       heal_low = 65
+       heal_high = 65
+     [1]
+       heal_low = 81
+       heal_high = 81
+       upgrade_requirement_code = "a"
+     [2]
+       heal_low = 100
+       heal_high = 100
+       upgrade_requirement_code = "d"
+   affliction_cure_upgrades:
+     [0]
+       chance = 1.0
+     [1]
+       chance = 0.1
+       upgrade_requirement_code = "g"
+==============================================================================
+BUILDING FILE: blacksmith.building.json
+ on_start_town_visit_priority = 1
+ number_of_quests_finished = 3
+ highest_dungeon_level = 0
+ equipment_cost_discount_upgrades:
+   [0]
+     discount_percent = 0.1
+     upgrade_tree_id = "blacksmith.cost"
+     upgrade_requirement_code = "a"
+   [1]
+     discount_percent = 0.1
+     upgrade_tree_id = "blacksmith.cost"
+     upgrade_requirement_code = "b"
+   [2]
+     discount_percent = 0.1
+     upgrade_tree_id = "blacksmith.cost"
+     upgrade_requirement_code = "c"
+   [3]
+     discount_percent = 0.1
+     upgrade_tree_id = "blacksmith.cost"
+     upgrade_requirement_code = "d"
+   [4]
+     discount_percent = 0.1
+     upgrade_tree_id = "blacksmith.cost"
+     upgrade_requirement_code = "e"
+==============================================================================
+BUILDING FILE: camping_trainer.building.json
+ on_start_town_visit_priority = 1
+ number_of_quests_finished = 0
+ highest_dungeon_level = 2
+ camping_skill_cost_discount_upgrades:
+   [0]
+     discount_percent = 0.1
+     upgrade_tree_id = "camping_trainer.cost"
+     upgrade_requirement_code = "a"
+   [1]
+     discount_percent = 0.1
+     upgrade_tree_id = "camping_trainer.cost"
+     upgrade_requirement_code = "b"
+   [2]
+     discount_percent = 0.1
+     upgrade_tree_id = "camping_trainer.cost"
+     upgrade_requirement_code = "c"
+   [3]
+     discount_percent = 0.1
+     upgrade_tree_id = "camping_trainer.cost"
+     upgrade_requirement_code = "d"
+   [4]
+     discount_percent = 0.1
+     upgrade_tree_id = "camping_trainer.cost"
+     upgrade_requirement_code = "e"
+==============================================================================
+BUILDING FILE: guild.building.json
+ on_start_town_visit_priority = 1
+ number_of_quests_finished = 3
+ highest_dungeon_level = 0
+ combat_skill_cost_discount_upgrades:
+   [0]
+     discount_percent = 0.1
+     upgrade_tree_id = "guild.cost"
+     upgrade_requirement_code = "a"
+   [1]
+     discount_percent = 0.1
+     upgrade_tree_id = "guild.cost"
+     upgrade_requirement_code = "b"
+   [2]
+     discount_percent = 0.1
+     upgrade_tree_id = "guild.cost"
+     upgrade_requirement_code = "c"
+   [3]
+     discount_percent = 0.1
+     upgrade_tree_id = "guild.cost"
+     upgrade_requirement_code = "d"
+   [4]
+     discount_percent = 0.1
+     upgrade_tree_id = "guild.cost"
+     upgrade_requirement_code = "e"
+==============================================================================
+BUILDING FILE: nomad_wagon.building.json
+ on_start_town_visit_priority = 1
+ number_of_quests_finished = 0
+ highest_dungeon_level = 2
+ number_of_trinkets_upgrades:
+   [0]
+     number_of_slots = 2
+   [1]
+     number_of_slots = 4
+     upgrade_tree_id = "nomad_wagon.numitems"
+     upgrade_requirement_code = "a"
+   [2]
+     number_of_slots = 6
+     upgrade_tree_id = "nomad_wagon.numitems"
+     upgrade_requirement_code = "b"
+   [3]
+     number_of_slots = 8
+     upgrade_tree_id = "nomad_wagon.numitems"
+     upgrade_requirement_code = "c"
+   [4]
+     number_of_slots = 12
+     upgrade_tree_id = "nomad_wagon.numitems"
+     upgrade_requirement_code = "d"
+ trinket_cost_discount_upgrades:
+   [0]
+     discount_percent = 0.1
+     upgrade_tree_id = "nomad_wagon.cost"
+     upgrade_requirement_code = "a"
+   [1]
+     discount_percent = 0.1
+     upgrade_tree_id = "nomad_wagon.cost"
+     upgrade_requirement_code = "b"
+   [2]
+     discount_percent = 0.1
+     upgrade_tree_id = "nomad_wagon.cost"
+     upgrade_requirement_code = "c"
+   [3]
+     discount_percent = 0.1
+     upgrade_tree_id = "nomad_wagon.cost"
+     upgrade_requirement_code = "d"
+   [4]
+     discount_percent = 0.1
+     upgrade_tree_id = "nomad_wagon.cost"
+     upgrade_requirement_code = "e"
+==============================================================================
+BUILDING FILE: sanitarium.building.json
+ on_start_town_visit_priority = 1
+ number_of_quests_finished = 4
+ highest_dungeon_level = 0
+ treatment:
+   positive_quirk_cost_upgrades:
+     [0]
+       cost_currency:
+         type = "gold"
+         amount = 7500
+     [1]
+       cost_currency:
+         type = "gold"
+         amount = 6750
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "a"
+     [2]
+       cost_currency:
+         type = "gold"
+         amount = 6000
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "b"
+     [3]
+       cost_currency:
+         type = "gold"
+         amount = 5250
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "c"
+     [4]
+       cost_currency:
+         type = "gold"
+         amount = 4500
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "d"
+     [5]
+       cost_currency:
+         type = "gold"
+         amount = 3750
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "e"
+   negative_quirk_cost_upgrades:
+     [0]
+       cost_currency:
+         type = "gold"
+         amount = 1500
+     [1]
+       cost_currency:
+         type = "gold"
+         amount = 1350
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "a"
+     [2]
+       cost_currency:
+         type = "gold"
+         amount = 1200
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "b"
+     [3]
+       cost_currency:
+         type = "gold"
+         amount = 1050
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "c"
+     [4]
+       cost_currency:
+         type = "gold"
+         amount = 900
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "d"
+     [5]
+       cost_currency:
+         type = "gold"
+         amount = 750
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "e"
+   permanent_negative_quirk_cost_upgrades:
+     [0]
+       cost_currency:
+         type = "gold"
+         amount = 5000
+     [1]
+       cost_currency:
+         type = "gold"
+         amount = 4500
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "a"
+     [2]
+       cost_currency:
+         type = "gold"
+         amount = 4000
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "b"
+     [3]
+       cost_currency:
+         type = "gold"
+         amount = 3500
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "c"
+     [4]
+       cost_currency:
+         type = "gold"
+         amount = 3000
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "d"
+     [5]
+       cost_currency:
+         type = "gold"
+         amount = 2500
+       upgrade_tree_id = "sanitarium.cost"
+       upgrade_requirement_code = "e"
+   slot_upgrades:
+     [0]
+       number_of_slots = 1
+     [1]
+       number_of_slots = 2
+       upgrade_tree_id = "sanitarium.slots"
+       upgrade_requirement_code = "b"
+     [2]
+       number_of_slots = 3
+       upgrade_tree_id = "sanitarium.slots"
+       upgrade_requirement_code = "d"
+   quirk_treatment_chance = 1.0
+ disease_treatment:
+   disease_quirk_cost_upgrades:
+     [0]
+       cost_currency:
+         type = "gold"
+         amount = 750
+     [1]
+       cost_currency:
+         type = "gold"
+         amount = 650
+       upgrade_tree_id = "sanitarium.disease_quirk_cost"
+       upgrade_requirement_code = "a"
+     [2]
+       cost_currency:
+         type = "gold"
+         amount = 550
+       upgrade_tree_id = "sanitarium.disease_quirk_cost"
+       upgrade_requirement_code = "c"
+     [3]
+       cost_currency:
+         type = "gold"
+         amount = 450
+       upgrade_tree_id = "sanitarium.disease_quirk_cost"
+       upgrade_requirement_code = "e"
+   disease_quirk_cure_all_chance_upgrades:
+     [0]
+       chance = 0.33
+     [1]
+       chance = 0.67
+       upgrade_tree_id = "sanitarium.disease_quirk_cost"
+       upgrade_requirement_code = "b"
+     [2]
+       chance = 1.0
+       upgrade_tree_id = "sanitarium.disease_quirk_cost"
+       upgrade_requirement_code = "d"
+   slot_upgrades:
+     [0]
+       number_of_slots = 1
+     [1]
+       number_of_slots = 2
+       upgrade_tree_id = "sanitarium.slots"
+       upgrade_requirement_code = "a"
+     [2]
+       number_of_slots = 3
+       upgrade_tree_id = "sanitarium.slots"
+       upgrade_requirement_code = "c"
+   quirk_treatment_chance = 1.0
+==============================================================================
+BUILDING FILE: stage_coach.building.json
+ on_start_town_visit_priority = 0
+ number_of_quests_finished = 0
+ highest_dungeon_level = 0
+ number_of_recruits_upgrades:
+   [0]
+     number_of_slots = 2
+   [1]
+     number_of_slots = 3
+     upgrade_tree_id = "stage_coach.numrecruits"
+     upgrade_requirement_code = "a"
+   [2]
+     number_of_slots = 4
+     upgrade_tree_id = "stage_coach.numrecruits"
+     upgrade_requirement_code = "b"
+   [3]
+     number_of_slots = 5
+     upgrade_tree_id = "stage_coach.numrecruits"
+     upgrade_requirement_code = "c"
+   [4]
+     number_of_slots = 6
+     upgrade_tree_id = "stage_coach.numrecruits"
+     upgrade_requirement_code = "d"
+   [5]
+     number_of_slots = 7
+     upgrade_tree_id = "stage_coach.numrecruits"
+     upgrade_requirement_code = "e"
+ roster_size_upgrades:
+   [0]
+     number_of_slots = 9
+   [1]
+     number_of_slots = 12
+     upgrade_tree_id = "stage_coach.rostersize"
+     upgrade_requirement_code = "a"
+   [2]
+     number_of_slots = 15
+     upgrade_tree_id = "stage_coach.rostersize"
+     upgrade_requirement_code = "b"
+   [3]
+     number_of_slots = 18
+     upgrade_tree_id = "stage_coach.rostersize"
+     upgrade_requirement_code = "c"
+   [4]
+     number_of_slots = 21
+     upgrade_tree_id = "stage_coach.rostersize"
+     upgrade_requirement_code = "d"
+   [5]
+     number_of_slots = 25
+     upgrade_tree_id = "stage_coach.rostersize"
+     upgrade_requirement_code = "e"
+ upgraded_recruits_upgrades:
+   [0]
+     level = 1
+     chance = 0.1875
+     number_of_extra_positive_quirks = 1
+     number_of_extra_negative_quirks = 1
+     number_of_extra_combat_skills = 0
+     number_of_extra_camping_skills = 1
+     guaranteed_previous_raid_dead_hero_levels:
+       [0] = 3
+     upgrade_tree_id = "stage_coach.upgraded_recruits"
+     upgrade_requirement_code = "a"
+   [1]
+     level = 2
+     chance = 0.125
+     number_of_extra_positive_quirks = 2
+     number_of_extra_negative_quirks = 2
+     number_of_extra_combat_skills = 1
+     number_of_extra_camping_skills = 1
+     guaranteed_previous_raid_dead_hero_levels:
+       [0] = 4
+     upgrade_tree_id = "stage_coach.upgraded_recruits"
+     upgrade_requirement_code = "b"
+   [2]
+     level = 3
+     chance = 0.0625
+     number_of_extra_positive_quirks = 3
+     number_of_extra_negative_quirks = 3
+     number_of_extra_combat_skills = 2
+     number_of_extra_camping_skills = 2
+     guaranteed_previous_raid_dead_hero_levels:
+       [0] = 5
+       [1] = 6
+     upgrade_tree_id = "stage_coach.upgraded_recruits"
+     upgrade_requirement_code = "c"
+==============================================================================
+BUILDING FILE: tavern.building.json
+ on_start_town_visit_priority = 1
+ number_of_quests_finished = 2
+ highest_dungeon_level = 0
+ bar:
+   side_effects:
+     chance = 0.4
+     results:
+       [0]
+         type = "activity_lock"
+         chance = 1
+         data:
+       [1]
+         type = "go_missing"
+         chance = 1
+         data:
+           [0]
+             chance = 3
+             duration = 1
+           [1]
+             chance = 1
+             duration = 2
+       [2]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "alcoholism"
+       [3]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "resolution"
+       [4]
+         type = "apply_buff"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             buff_library_ids:
+               [0] = "townHungoverAccDebuff"
+           [1]
+             chance = 1
+             buff_library_ids:
+               [0] = "townHungoverDEFDebuff"
+       [5]
+         type = "change_currency"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             type = "gold"
+             amount = -500
+       [6]
+         type = "remove_trinket"
+         chance = 1
+         data:
+   quirk_library_names:
+     [0] = "resolution"
+     [1] = "gambler"
+     [2] = "love_interest"
+     [3] = "enlightened"
+     [4] = "god_fearing"
+     [5] = "flagellant"
+   caretaker_friendly = true
+   cost_upgrades:
+     [0]
+       cost_currency:
+         type = "gold"
+         amount = 1000
+     [1]
+       cost_currency:
+         type = "gold"
+         amount = 850
+       upgrade_requirement_code = "b"
+     [2]
+       cost_currency:
+         type = "gold"
+         amount = 700
+       upgrade_requirement_code = "e"
+   slot_upgrades:
+     [0]
+       number_of_slots = 1
+     [1]
+       number_of_slots = 2
+       upgrade_requirement_code = "c"
+     [2]
+       number_of_slots = 3
+       upgrade_requirement_code = "f"
+   stress_upgrades:
+     [0]
+       heal_low = 45
+       heal_high = 45
+     [1]
+       heal_low = 56
+       heal_high = 56
+       upgrade_requirement_code = "a"
+     [2]
+       heal_low = 70
+       heal_high = 70
+       upgrade_requirement_code = "d"
+   affliction_cure_upgrades:
+     [0]
+       chance = 1.0
+     [1]
+       chance = 0.1
+       upgrade_requirement_code = "g"
+ gambling:
+   side_effects:
+     chance = 0.35
+     results:
+       [0]
+         type = "activity_lock"
+         chance = 1
+         data:
+       [1]
+         type = "go_missing"
+         chance = 1
+         data:
+           [0]
+             chance = 3
+             duration = 1
+           [1]
+             chance = 1
+             duration = 2
+       [2]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "gambler"
+       [3]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "known_cheat"
+       [4]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "bad_gambler"
+       [5]
+         type = "change_currency"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             type = "gold"
+             amount = 500
+           [1]
+             chance = 1
+             type = "gold"
+             amount = -500
+       [6]
+         type = "add_trinket"
+         chance = 1
+         data:
+       [7]
+         type = "remove_trinket"
+         chance = 1
+         data:
+   quirk_library_names:
+     [0] = "known_cheat"
+     [1] = "alcoholism"
+     [2] = "love_interest"
+     [3] = "enlightened"
+     [4] = "god_fearing"
+     [5] = "flagellant"
+   caretaker_friendly = true
+   cost_upgrades:
+     [0]
+       cost_currency:
+         type = "gold"
+         amount = 1250
+     [1]
+       cost_currency:
+         type = "gold"
+         amount = 1050
+       upgrade_requirement_code = "b"
+     [2]
+       cost_currency:
+         type = "gold"
+         amount = 900
+       upgrade_requirement_code = "e"
+   slot_upgrades:
+     [0]
+       number_of_slots = 1
+     [1]
+       number_of_slots = 2
+       upgrade_requirement_code = "c"
+     [2]
+       number_of_slots = 3
+       upgrade_requirement_code = "f"
+   stress_upgrades:
+     [0]
+       heal_low = 55
+       heal_high = 55
+     [1]
+       heal_low = 69
+       heal_high = 69
+       upgrade_requirement_code = "a"
+     [2]
+       heal_low = 86
+       heal_high = 86
+       upgrade_requirement_code = "d"
+   affliction_cure_upgrades:
+     [0]
+       chance = 1.0
+     [1]
+       chance = 0.1
+       upgrade_requirement_code = "g"
+ brothel:
+   side_effects:
+     chance = 0.3
+     results:
+       [0]
+         type = "activity_lock"
+         chance = 1
+         data:
+       [1]
+         type = "go_missing"
+         chance = 1
+         data:
+           [0]
+             chance = 3
+             duration = 1
+           [1]
+             chance = 1
+             duration = 2
+       [2]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "love_interest"
+       [3]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "syphilis"
+       [4]
+         type = "add_quirk"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             quirk_library_name = "deviant_tastes"
+       [5]
+         type = "apply_buff"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             buff_library_ids:
+               [0] = "townBrothelSPDBuff"
+       [6]
+         type = "apply_buff"
+         chance = 1
+         data:
+           [0]
+             chance = 1
+             buff_library_ids:
+               [0] = "townBrothelSPDDebuff"
+   quirk_library_names:
+     [0] = "deviant_tastes"
+     [1] = "alcoholism"
+     [2] = "gambler"
+     [3] = "enlightened"
+     [4] = "god_fearing"
+     [5] = "flagellant"
+   caretaker_friendly = true
+   cost_upgrades:
+     [0]
+       cost_currency:
+         type = "gold"
+         amount = 1500
+     [1]
+       cost_currency:
+         type = "gold"
+         amount = 1300
+       upgrade_requirement_code = "b"
+     [2]
+       cost_currency:
+         type = "gold"
+         amount = 1100
+       upgrade_requirement_code = "e"
+   slot_upgrades:
+     [0]
+       number_of_slots = 1
+     [1]
+       number_of_slots = 2
+       upgrade_requirement_code = "c"
+     [2]
+       number_of_slots = 3
+       upgrade_requirement_code = "f"
+   stress_upgrades:
+     [0]
+       heal_low = 65
+       heal_high = 65
+     [1]
+       heal_low = 81
+       heal_high = 81
+       upgrade_requirement_code = "a"
+     [2]
+       heal_low = 100
+       heal_high = 100
+       upgrade_requirement_code = "d"
+   affliction_cure_upgrades:
+     [0]
+       chance = 1.0
+     [1]
+       chance = 0.1
+       upgrade_requirement_code = "g"

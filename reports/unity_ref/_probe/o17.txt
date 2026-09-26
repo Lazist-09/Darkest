@@ -1,0 +1,23 @@
+﻿TABLE B diff=0 dungeon=''
+    {"type": "nothing", "chances": 0, "data": {}}
+    {"type": "table", "chances": 3, "data": {"table": "C"}}
+    {"type": "table", "chances": 1, "data": {"table": "G"}}
+TABLE NONE diff=0 dungeon=''
+    {"type": "nothing", "chances": 1, "data": {}}
+    {"type": "item", "chances": 0, "data": {"type": "heirloom", "id": "bust", "amount": 1}}
+
+### H table weight/amount matrix
+diff | dungeon | bust | portrait | deed | crest
+1 | crypts | w3/a2 | w1/a1 | w1/a2 | w3/a4
+1 | weald | w1/a2 | w1/a1 | w3/a2 | w3/a4
+1 | warrens | w1/a2 | w3/a1 | w1/a2 | w3/a4
+1 | cove | w1/a2 | w1/a1 | w1/a2 | w3/a4
+3 | crypts | w3/a3 | w1/a2 | w1/a3 | w3/a6
+3 | weald | w1/a3 | w1/a2 | w3/a3 | w3/a6
+3 | warrens | w1/a3 | w3/a2 | w1/a3 | w3/a6
+3 | cove | w1/a3 | w1/a2 | w1/a3 | w3/a6
+5 | crypts | w3/a4 | w1/a2 | w1/a4 | w3/a8
+5 | weald | w1/a4 | w1/a2 | w3/a4 | w3/a8
+5 | warrens | w1/a4 | w3/a2 | w1/a4 | w3/a8
+5 | cove | w1/a4 | w1/a2 | w1/a4 | w3/a8
+6 | (any) | w1/a4 | w1/a2 | w2/a4 | w2/a8

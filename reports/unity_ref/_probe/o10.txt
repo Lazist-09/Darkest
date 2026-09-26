@@ -1,0 +1,155 @@
+﻿==============================================================================
+FILE Curios/Obstacles.json
+RAW (777 bytes):
+{
+    "props" : 
+    [
+	    {
+            "name" : "thorny_thicket",
+			"fail_effects" : [ "Stress 2" ],
+			"health" : -0.05,
+			"torchlight" : -20.0,
+			"ancestor_talk" : false
+	    },
+ 	    {
+			"name" : "rubble",
+			"fail_effects" : [ "Stress 2" ],
+			"health" : -0.05,
+			"torchlight" : -20.0,
+			"ancestor_talk" : false
+	    },
+        {
+            "name" : "shipwreck",
+			"fail_effects" : [ "Stress 2" ],
+			"health" : -0.05,
+			"torchlight" : -20.0,
+			"ancestor_talk" : false
+        },
+		{
+			"name": "ancestor",
+			"fail_effects": [],
+			"health": 0.0,
+			"torchlight": 0.0,
+			"ancestor_talk" : true
+		},
+		{
+			"name" : "town_rubble",
+			"fail_effects" : [ "Stress 2" ],
+			"health" : -0.05,
+			"torchlight" : -20.0,
+			"ancestor_talk" : false
+		}        
+    ]
+}
+==============================================================================
+FILE Curios/Traps.json
+RAW (2871 bytes):
+{
+    "props" : 
+    [
+	    {
+            "name" : "poison_cloud",
+            "success_effects" : [ "Heal Stress TrapD" ],
+            "fail_effects" : [ "Blight 1", "Stress 2" ],
+			"health" : 0,
+			
+            "difficulty_variations" : 
+            [
+                 {
+                    "level" : 3,
+                    "success_effects" : [ "Heal Stress TrapD" ],
+                    "fail_effects" : [ "Blight 2", "Stress 2" ],
+					"health" : 0,
+                 },
+                 {
+                    "level" : 5,
+                    "success_effects" : [ "Heal Stress TrapD" ],
+                    "fail_effects" : [ "Blight 3", "Stress 2" ],
+					"health" : 0,
+                 }                 
+            ]
+	    },
+ 	    {
+            "name" : "spikes",
+			"success_effects" : [ "Heal Stress TrapD" ],
+			"fail_effects" : [ "Stress 2" ],
+			"health" : -0.25,
+			
+            "difficulty_variations" : 
+            [
+                 {
+                    "level" : 3,
+					"success_effects" : [ "Heal Stress TrapD" ],
+					"fail_effects" : [ "Stress 2" ],
+                    "health" : -0.28,
+                 },            
+                 {
+                    "level" : 5,
+					"success_effects" : [ "Heal Stress TrapD" ],
+					"fail_effects" : [ "Stress 2" ],
+                    "health" : -0.30,
+                 }
+            ]
+	    },
+        {
+            "name" : "blade_wheel",
+			"success_effects" : [ "Heal Stress TrapD" ],
+			"fail_effects" : [ "Bleed 1", "Stress 2" ],
+			"health" : -0.10,
+			
+            "difficulty_variations" : 
+            [
+                 {
+                    "level" : 3,
+                    "success_effects" : [ "Heal Stress TrapD" ],
+                    "fail_effects" : [ "Bleed 2", "Stress 2" ],
+                    "health" : -0.10,
+                 },            
+                 {
+                    "level" : 5,
+                    "success_effects" : [ "Heal Stress TrapD" ],
+                    "fail_effects" : [ "Bleed 3", "Stress 2" ],
+                    "health" : -0.10,
+                 }
+            ]
+        },
+        {
+            "name" : "lurker",
+			"success_effects" : [ "Heal Stress TrapD" ],
+			"fail_effects" : [ "Lurker Trap Debuff 1", "Stress 2" ],
+			"health" : -0.10,
+			
+            "difficulty_variations" : 
+            [
+                 {
+                    "level" : 3,
+                    "success_effects" : [ "Heal Stress TrapD" ],
+                    "fail_effects" : [ "Lurker Trap Debuff 1", "Stress 2" ],
+                    "health" : -0.10,
+                 },            
+                 {
+                    "level" : 5,
+                    "success_effects" : [ "Heal Stress TrapD" ],
+                    "fail_effects" : [ "Lurker Trap Debuff 1", "Stress 2" ],
+                    "health" : -0.10,
+                 }
+            ]
+        }
+    ]
+}
+==============================================================================
+FILE Curios/Curios.csv
+BYTES: 51069 header hex: 2c2c2c2c2c2c2c2c
+LINES: 898 ENCODING guess: utf-8-sig ok
+  [0] ,,,,,,,,,,,,,,,,,
+  [1] ,,,,,,,,,,,,,,,,,
+  [2] ,1,Unlocked Strongbox,,Good,,,,,,,,,,,,,
+  [3] ,,ID STRING,,RESULT TYPES,WEIGHT,% CHANCE,RESULT 1,R1 WEIGHT,R1 %,RESULT 2,R2 WEIGHT,R2 %,RESULT 3,R3 WEIGHT,R3 %,STRING,NOTES
+  [4] ,,unlocked_strongbox,,Nothing,,,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,The strongbox is empty.,
+  [5] ,,REGION FOUND,,Loot,3,75.00%,A,2,<- # Draws,,,<- # Draws,,,<- # Draws,The strongbox contains valuable treasures.,
+
+CSV parse:
+  header cols = 18
+  header      = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+  data rows   = 897
+  first row   = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']

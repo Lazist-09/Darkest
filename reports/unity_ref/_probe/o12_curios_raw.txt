@@ -1,0 +1,110 @@
+﻿0 |||||||||||||||||
+1 |||||||||||||||||
+2 |1|Unlocked Strongbox||Good|||||||||||||
+3 ||ID STRING||RESULT TYPES|WEIGHT|% CHANCE|RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+4 ||unlocked_strongbox||Nothing|||N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|The strongbox is empty.|
+5 ||REGION FOUND||Loot|3|75.00%|A|2|<- # Draws|||<- # Draws|||<- # Draws|The strongbox contains valuable treasures.|
+6 ||ALL||Quirk|||||||||||||
+7 ||FULL CURIO?||Effect|1|25.00%|Blight 1|1|100.00%|||||||The strongbox is a trap!|
+8 ||Yes||Purge|||||||||||||
+9 ||TAGS||Scouting|||||||||||||
+10 ||Treasure|All|Teleport|||||||||||||
+11 ||||Disease|||||||||||||
+12 ||Item Interactions||ITEM|RESULT TYPE||RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+13 |||||||||||||||||
+14 |||||||||||||||||
+15 |||||||||||||||||
+16 |||||||||||||||||
+17 |2|Locked Strongbox||Mixed|||||||||||||
+18 ||ID STRING||RESULT TYPES|WEIGHT|% CHANCE|RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+19 ||locked_strongbox||Nothing|||N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A||
+20 ||REGION FOUND||Loot|1|50.00%|A|2|<- # Draws|||<- # Draws|||<- # Draws||
+21 ||ALL||Quirk|||||||||||||
+22 ||FULL CURIO?||Effect|1|50.00%|Blight 1|1|50.00%|Bleed 1|1|50.00%|||||
+23 ||Yes||Purge|||||||||||||
+24 ||TAGS||Scouting|||||||||||||
+25 ||Treasure|All|Teleport|||||||||||||
+26 ||||Disease|||||||||||||
+27 ||Item Interactions||ITEM|RESULT TYPE||RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+28 ||||skeleton_key|Loot||A|3|<- # Draws|||<- # Draws||||The Skeleton Key unlocks the strongbox to reveal its contents.|
+29 ||||shovel|Loot||Nothing|1|50.00%|A|2|<- # Draws||||The Shovel smashes the strongbox, risking the integrity of its contents.|
+30 |||||||||||||||||
+31 |||||||||||||||||
+32 |3|Goal Strongbox||Good|||||||||||||
+33 ||ID STRING||RESULT TYPES|WEIGHT|% CHANCE|RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+34 ||goal_strongbox||Nothing|||N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A||
+35 ||REGION FOUND||Loot|1|100.00%|B|3|<- # Draws|T|1|<- # Draws|||<- # Draws|Found the sought after treasure!|
+36 ||ALL||Quirk|||||||||||||
+37 ||FULL CURIO?||Effect|||||||||||||
+38 ||Yes||Purge|||||||||||||
+39 ||TAGS||Scouting|||||||||||||
+40 ||Treasure|Goal|Teleport|||||||||||||
+41 ||All||Disease|||||||||||||
+42 ||Item Interactions||ITEM|RESULT TYPE||RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+43 |||||||||||||||||
+44 |||||||||||||||||
+45 |||||||||||||||||
+46 |||||||||||||||||
+47 |4|Heirloom Chest||Mixed|||||||||||||
+48 ||ID STRING||RESULT TYPES|WEIGHT|% CHANCE|RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+49 ||heirloom_chest||Nothing|||N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|The chest has already been rummaged.|
+50 ||REGION FOUND||Loot|3|75.00%|H|2|<- # Draws|||<- # Draws|||<- # Draws|The chest contains valuable treasures.|
+51 ||ALL||Quirk|||||||||||||
+52 ||FULL CURIO?||Effect|1|25.00%|Blight 1|1|50.00%|Bleed 1|1|50.00%|||||
+53 ||Yes||Purge|||||||||||||
+54 ||TAGS||Scouting|||||||||||||
+55 ||Treasure|All|Teleport|||||||||||||
+56 ||||Disease|||||||||||||
+57 ||Item Interactions||ITEM|RESULT TYPE||RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+58 ||||skeleton_key|Loot||H|3|<- # Draws||||||||
+59 ||||antivenom|Loot||H|3|<- # Draws||||||||
+60 |||||||||||||||||
+61 |||||||||||||||||
+62 |5|Eldritch Altar||Mixed|||||||||||||
+63 ||ID STRING||RESULT TYPES|WEIGHT|% CHANCE|RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+64 ||eldritch_altar||Nothing|5|50.00%|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A||
+65 ||REGION FOUND||Loot|||||<- # Draws|||<- # Draws|||<- # Draws||
+66 ||ALL||Quirk|||||||||||||
+67 ||FULL CURIO?||Effect|4|40.00%|Stress 3|1|100.00%||||||||
+68 ||Yes||Purge|1|10.00%|negative|1|100.00%||||||||
+69 ||TAGS||Scouting|||||||||||||
+70 ||Haunted|Unholy|Teleport|||||||||||||
+71 ||All||Disease|||||||||||||
+72 ||Item Interactions||ITEM|RESULT TYPE||RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+73 ||||holy_water|Purge||negative|1|100.00%||||||||
+74 |||||||||||||||||
+75 |||||||||||||||||
+76 |||||||||||||||||
+77 |6|Altar of Light||Good|||||||||||||
+78 ||ID STRING||RESULT TYPES|WEIGHT|% CHANCE|RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+79 ||altar_of_light||Nothing|||N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A||
+80 ||REGION FOUND||Loot|||||<- # Draws|||<- # Draws|||<- # Draws||
+81 ||Ruins||Quirk|||||||||||||
+82 ||FULL CURIO?||Effect|1|100.00%|Curio Damage Buff|1|100.00%|||||||The altar invigorates the hero.|
+83 ||Yes||Purge|||||||||||||
+84 ||TAGS||Scouting|||||||||||||
+85 ||Worship||Teleport|||||||||||||
+86 ||||Disease|||||||||||||
+87 ||Item Interactions||ITEM|RESULT TYPE||RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+88 ||||holy_water|Effect||Curio Damage BuffStrong|1|100.00%|||||||You have curried favor from the gods!|
+89 |||||||||||||||||
+90 |||||||||||||||||
+91 |||||||||||||||||
+92 |7|Stack of Books||Mixed|||||||||||||
+93 ||ID STRING||RESULT TYPES|WEIGHT|% CHANCE|RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+94 ||stack_of_books||Nothing|2|18.18%|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|The volumes are dull and uninteresting.|
+95 ||REGION FOUND||Loot|1|9.09%|JOURNALONLY|1|<- # Draws|||<- # Draws|||<- # Draws||
+96 ||ALL||Quirk|4|36.36%|positive|2|66.67%|negative|1|33.33%||||The text has a lasting impact on the hero.|
+97 ||FULL CURIO?||Effect|4|36.36%|Stress 3|2|66.67%|Darkness 3|1|33.33%||||The text is dark and unsettling.|
+98 ||Yes||Purge|||||||||||||
+99 ||TAGS||Scouting|||||||||||||
+100 ||Knowledge|All|Teleport|||||||||||||
+101 ||||Disease|||||||||||||
+102 ||Item Interactions||ITEM|RESULT TYPE||RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+103 ||||torch|Effect||Stress 5|1|100.00%|||||||The hero has destroyed knowledge and now must bear the guilt!|
+104 |||||||||||||||||
+105 |||||||||||||||||
+106 |||||||||||||||||
+107 |8|Iron Maiden||Mixed|||||||||||||
+108 ||ID STRING||RESULT TYPES|WEIGHT|% CHANCE|RESULT 1|R1 WEIGHT|R1 %|RESULT 2|R2 WEIGHT|R2 %|RESULT 3|R3 WEIGHT|R3 %|STRING|NOTES
+109 ||iron_maiden||Nothing|1|20.00%|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|N/A|Nothing but a foul odour...|

@@ -1,0 +1,53 @@
+﻿BUILDING FILES: 8 ['abbey.building.json', 'blacksmith.building.json', 'camping_trainer.building.json', 'guild.building.json', 'nomad_wagon.building.json', 'sanitarium.building.json', 'stage_coach.building.json', 'tavern.building.json']
+
+=== abbey.building.json ===
+   {on_start_town_visit_priority:int, number_of_quests_finished:int, highest_dungeon_level:int, meditation:{side_effects:{chance:float, results:list[7] of {type:str('activity_lock'), chance:int, data:list[0]}}, quirk_library_names:list[6] of str('unquiet_mind'), caretaker_friendly:bool, cost_upgrades:list[3] of {cost_currency:{type:str('gold'), amount:int}}, slot_upgrades:list[3] of {number_of_slots:int}, stress_upgrades:list[3] of {heal_low:int, heal_high:int}, affliction_cure_upgrades:list[2] of {chance:float}}, prayer:{side_effects:{chance:float, results:list[5] of {type:str('activity_lock'), chance:int, data:list[0]}}, quirk_library_names:list[7] of str('witness'), caretaker_friendly:bool, cost_upgrades:list[3] of {cost_currency:{type:str('gold'), amount:int}}, slot_upgrades:list[3] of {number_of_slots:int}, stress_upgrades:list[3] of {heal_low:int, heal_high:int}, affliction_cure_upgrades:list[2] of {chance:float}}, flagellation:{side_effects:{chance:float, results:list[6] of {type:str('activity_lock'), chance:int, data:list[0]}}, quirk_library_names:list[6] of str('faithless'), caretaker_friendly:bool, cost_upgrades:list[3] of {cost_currency:{type:str('gold'), amount:int}}, slot_upgrades:list[3] of {number_of_slots:int}, stress_upgrades:list[3] of {heal_low:int, heal_high:int}, affliction_cure_upgrades:list[2] of {chance:float}}}
+
+=== blacksmith.building.json ===
+   {on_start_town_visit_priority:int, number_of_quests_finished:int, highest_dungeon_level:int, equipment_cost_discount_upgrades:list[5] of {discount_percent:float, upgrade_tree_id:str('blacksmith.cost'), upgrade_requirement_code:str('a')}}
+
+=== camping_trainer.building.json ===
+   {on_start_town_visit_priority:int, number_of_quests_finished:int, highest_dungeon_level:int, camping_skill_cost_discount_upgrades:list[5] of {discount_percent:float, upgrade_tree_id:str('camping_trainer.cost'), upgrade_requirement_code:str('a')}}
+
+=== guild.building.json ===
+   {on_start_town_visit_priority:int, number_of_quests_finished:int, highest_dungeon_level:int, combat_skill_cost_discount_upgrades:list[5] of {discount_percent:float, upgrade_tree_id:str('guild.cost'), upgrade_requirement_code:str('a')}}
+
+=== nomad_wagon.building.json ===
+   {on_start_town_visit_priority:int, number_of_quests_finished:int, highest_dungeon_level:int, number_of_trinkets_upgrades:list[5] of {number_of_slots:int}, trinket_cost_discount_upgrades:list[5] of {discount_percent:float, upgrade_tree_id:str('nomad_wagon.cost'), upgrade_requirement_code:str('a')}}
+
+=== sanitarium.building.json ===
+   {on_start_town_visit_priority:int, number_of_quests_finished:int, highest_dungeon_level:int, treatment:{positive_quirk_cost_upgrades:list[6] of {cost_currency:{type:str('gold'), amount:int}}, negative_quirk_cost_upgrades:list[6] of {cost_currency:{type:str('gold'), amount:int}}, permanent_negative_quirk_cost_upgrades:list[6] of {cost_currency:{type:str('gold'), amount:int}}, slot_upgrades:list[3] of {number_of_slots:int}, quirk_treatment_chance:float}, disease_treatment:{disease_quirk_cost_upgrades:list[4] of {cost_currency:{type:str('gold'), amount:int}}, disease_quirk_cure_all_chance_upgrades:list[3] of {chance:float}, slot_upgrades:list[3] of {number_of_slots:int}, quirk_treatment_chance:float}}
+
+=== stage_coach.building.json ===
+   {on_start_town_visit_priority:int, number_of_quests_finished:int, highest_dungeon_level:int, number_of_recruits_upgrades:list[6] of {number_of_slots:int}, roster_size_upgrades:list[6] of {number_of_slots:int}, upgraded_recruits_upgrades:list[3] of {level:int, chance:float, number_of_extra_positive_quirks:int, number_of_extra_negative_quirks:int, number_of_extra_combat_skills:int, number_of_extra_camping_skills:int, guaranteed_previous_raid_dead_hero_levels:list[1] of int, upgrade_tree_id:str('stage_coach.upgraded_recruits'), upgrade_requirement_code:str('a')}}
+
+=== tavern.building.json ===
+   {on_start_town_visit_priority:int, number_of_quests_finished:int, highest_dungeon_level:int, bar:{side_effects:{chance:float, results:list[7] of {type:str('activity_lock'), chance:int, data:list[0]}}, quirk_library_names:list[6] of str('resolution'), caretaker_friendly:bool, cost_upgrades:list[3] of {cost_currency:{type:str('gold'), amount:int}}, slot_upgrades:list[3] of {number_of_slots:int}, stress_upgrades:list[3] of {heal_low:int, heal_high:int}, affliction_cure_upgrades:list[2] of {chance:float}}, gambling:{side_effects:{chance:float, results:list[8] of {type:str('activity_lock'), chance:int, data:list[0]}}, quirk_library_names:list[6] of str('known_cheat'), caretaker_friendly:bool, cost_upgrades:list[3] of {cost_currency:{type:str('gold'), amount:int}}, slot_upgrades:list[3] of {number_of_slots:int}, stress_upgrades:list[3] of {heal_low:int, heal_high:int}, affliction_cure_upgrades:list[2] of {chance:float}}, brothel:{side_effects:{chance:float, results:list[7] of {type:str('activity_lock'), chance:int, data:list[0]}}, quirk_library_names:list[6] of str('deviant_tastes'), caretaker_friendly:bool, cost_upgrades:list[3] of {cost_currency:{type:str('gold'), amount:int}}, slot_upgrades:list[3] of {number_of_slots:int}, stress_upgrades:list[3] of {heal_low:int, heal_high:int}, affliction_cure_upgrades:list[2] of {chance:float}}}
+
+======================================================================
+BUILDING UPGRADE FILES: 8 ['abbey.upgrades.json', 'blacksmith.upgrades.json', 'camping_trainer.upgrades.json', 'guild.upgrades.json', 'nomad_wagon.upgrades.json', 'sanitarium.upgrades.json', 'stage_coach.upgrades.json', 'tavern.upgrades.json']
+
+=== abbey.upgrades.json ===
+   {trees:list[3] of {id:str('abbey.meditation'), is_instanced:bool, tags:list[2] of str('building'), requirements:list[6] of {code:str('a'), currency_cost:list[3] of {type:str('gold'), amount:int}, prerequisite_requirements:list[0]}}}
+
+=== blacksmith.upgrades.json ===
+   {trees:list[3] of {id:str('blacksmith.weapon'), is_instanced:bool, tags:list[2] of str('building'), requirements:list[4] of {code:str('a'), currency_cost:list[3] of {type:str('gold'), amount:int}, prerequisite_requirements:list[0]}}}
+
+=== camping_trainer.upgrades.json ===
+   {trees:list[1] of {id:str('camping_trainer.cost'), is_instanced:bool, tags:list[2] of str('building'), requirements:list[5] of {code:str('a'), currency_cost:list[2] of {type:str('gold'), amount:int}, prerequisite_requirements:list[0]}}}
+
+=== guild.upgrades.json ===
+   {trees:list[2] of {id:str('guild.skill_levels'), is_instanced:bool, tags:list[2] of str('building'), requirements:list[4] of {code:str('a'), currency_cost:list[3] of {type:str('gold'), amount:int}, prerequisite_requirements:list[0]}}}
+
+=== nomad_wagon.upgrades.json ===
+   {trees:list[2] of {id:str('nomad_wagon.numitems'), is_instanced:bool, tags:list[2] of str('building'), requirements:list[4] of {code:str('a'), currency_cost:list[2] of {type:str('gold'), amount:int}, prerequisite_requirements:list[0]}}}
+
+=== sanitarium.upgrades.json ===
+   {trees:list[3] of {id:str('sanitarium.cost'), is_instanced:bool, tags:list[2] of str('building'), requirements:list[5] of {code:str('a'), currency_cost:list[3] of {type:str('gold'), amount:int}, prerequisite_requirements:list[0]}}}
+
+=== stage_coach.upgrades.json ===
+   {trees:list[3] of {id:str('stage_coach.numrecruits'), is_instanced:bool, tags:list[2] of str('building'), requirements:list[5] of {code:str('a'), currency_cost:list[3] of {type:str('gold'), amount:int}, prerequisite_requirements:list[0]}}}
+
+=== tavern.upgrades.json ===
+   {trees:list[3] of {id:str('tavern.bar'), is_instanced:bool, tags:list[2] of str('building'), requirements:list[6] of {code:str('a'), currency_cost:list[3] of {type:str('gold'), amount:int}, prerequisite_requirements:list[0]}}}
+

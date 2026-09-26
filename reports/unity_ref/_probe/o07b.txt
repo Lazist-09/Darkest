@@ -1,0 +1,346 @@
+﻿### resolve_xp_table
+[[0, 0, 0, 0], [0, 2, 3, 4], [0, 0, 0, 0], [0, 4, 6, 8], [0, 0, 0, 0], [0, 8, 12, 16], [0, 0, 0, 0]]
+
+### trinket_chance_table
+[
+ {
+  "comment": "ROWS are DIFFICULTY, COLs are QUEST LENGTH",
+  "rarity": "very_common",
+  "chances": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ {
+  "rarity": "common",
+  "chances": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ {
+  "rarity": "uncommon",
+  "chances": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ {
+  "rarity": "rare",
+  "chances": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ {
+  "rarity": "very_rare",
+  "chances": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ {
+  "rarity": "ancestral",
+  "chances": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ }
+]
+
+### item_table (full)
+[[], [[], [{"type": "gold", "id": "", "amount": 3000}], [{"type": "gold", "id": "", "amount": 4500}], [{"type": "gold", "id": "", "amount": 7500}]], [], [[], [{"type": "gold", "id": "", "amount": 4500}], [{"type": "gold", "id": "", "amount": 6750}], [{"type": "gold", "id": "", "amount": 11250}]], [], [[], [{"type": "gold", "id": "", "amount": 6000}], [{"type": "gold", "id": "", "amount": 9000}], [{"type": "gold", "id": "", "amount": 15000}]], [[], [{"type": "gold", "id": "", "amount": 9000}], [{"type": "gold", "id": "", "amount": 13500}], [{"type": "gold", "id": "", "amount": 22500}]]]
+
+### comment
+"This table determines how much Resolve XP is awarded for a successful quest. ROWS are DIFFICULTY, COLs are QUEST LENGTH"
+
+COUNTS:
+  goals                = 45
+  town_progression_ids = 4
+  types                = 6 ['kill_boss', 'explore', 'cleanse', 'gather', 'activate', 'inventory_activate']
+  plot_quests          = 30
+  generation.type.available_quests_table = 4
+    dungeon=crypts mastery_levels=8 rows=[1, 4, 6, 8, 8, 8, 8, 8]
+    dungeon=weald mastery_levels=8 rows=[1, 4, 6, 8, 8, 8, 8, 8]
+    dungeon=warrens mastery_levels=8 rows=[1, 4, 6, 8, 8, 8, 8, 8]
+    dungeon=cove mastery_levels=8 rows=[1, 4, 6, 8, 8, 8, 8, 8]
+
+PLOT QUESTS:
+  id=plot_tutorial_crypts             dlvl=0  diff=1 len=1 type=explore              dungeon=crypts   xp=2 items=[gold:=3000;heirloom:crest=4]
+  id=plot_kill_necromancer_1          dlvl=2  diff=1 len=2 type=kill_boss            dungeon=crypts   xp=4 items=[gold:=4500;heirloom:bust=3;heirloom:crest=4]
+  id=plot_kill_prophet_1              dlvl=3  diff=1 len=2 type=kill_boss            dungeon=crypts   xp=4 items=[gold:=4500;heirloom:bust=3;heirloom:crest=4]
+  id=plot_kill_necromancer_2          dlvl=4  diff=3 len=2 type=kill_boss            dungeon=crypts   xp=8 items=[gold:=6750;heirloom:bust=4;heirloom:crest=5]
+  id=plot_kill_prophet_2              dlvl=5  diff=3 len=2 type=kill_boss            dungeon=crypts   xp=8 items=[gold:=6750;heirloom:bust=4;heirloom:crest=5]
+  id=plot_kill_necromancer_3          dlvl=6  diff=5 len=2 type=kill_boss            dungeon=crypts   xp=16 items=[gold:=9000;trinket:boss_necromancer=1]
+  id=plot_kill_prophet_3              dlvl=7  diff=5 len=2 type=kill_boss            dungeon=crypts   xp=16 items=[gold:=9000;trinket:boss_prophet=1]
+  id=plot_kill_hag_1                  dlvl=2  diff=1 len=2 type=kill_boss            dungeon=weald    xp=4 items=[gold:=4500;heirloom:deed=6;heirloom:crest=4]
+  id=plot_kill_brigand_cannon_1       dlvl=3  diff=1 len=2 type=kill_boss            dungeon=weald    xp=4 items=[gold:=4500;heirloom:deed=6;heirloom:crest=4]
+  id=plot_kill_hag_2                  dlvl=4  diff=3 len=2 type=kill_boss            dungeon=weald    xp=8 items=[gold:=6750;heirloom:deed=8;heirloom:crest=5]
+  id=plot_kill_brigand_cannon_2       dlvl=5  diff=3 len=2 type=kill_boss            dungeon=weald    xp=8 items=[gold:=6750;heirloom:deed=8;heirloom:crest=5]
+  id=plot_kill_hag_3                  dlvl=6  diff=5 len=2 type=kill_boss            dungeon=weald    xp=16 items=[gold:=9000;trinket:boss_hag=1]
+  id=plot_kill_brigand_cannon_3       dlvl=7  diff=5 len=2 type=kill_boss            dungeon=weald    xp=16 items=[gold:=9000;trinket:boss_cannon=1]
+  id=plot_kill_swine_prince_1         dlvl=2  diff=1 len=2 type=kill_boss            dungeon=warrens  xp=4 items=[gold:=4500;heirloom:portrait=3;heirloom:crest=4]
+  id=plot_kill_formless_flesh_1       dlvl=3  diff=1 len=2 type=kill_boss            dungeon=warrens  xp=4 items=[gold:=4500;heirloom:portrait=3;heirloom:crest=4]
+  id=plot_kill_swine_prince_2         dlvl=4  diff=3 len=2 type=kill_boss            dungeon=warrens  xp=8 items=[gold:=6750;heirloom:portrait=4;heirloom:crest=5]
+  id=plot_kill_formless_flesh_2       dlvl=5  diff=3 len=2 type=kill_boss            dungeon=warrens  xp=8 items=[gold:=6750;heirloom:portrait=4;heirloom:crest=5]
+  id=plot_kill_swine_prince_3         dlvl=6  diff=5 len=2 type=kill_boss            dungeon=warrens  xp=16 items=[gold:=9000;trinket:boss_wilbur=1]
+  id=plot_kill_formless_flesh_3       dlvl=7  diff=5 len=2 type=kill_boss            dungeon=warrens  xp=16 items=[gold:=9000;trinket:boss_flesh=1]
+  id=plot_kill_siren_1                dlvl=2  diff=1 len=2 type=kill_boss            dungeon=cove     xp=4 items=[gold:=4500;heirloom:crest=4]
+  id=plot_kill_drowned_crew_1         dlvl=3  diff=1 len=2 type=kill_boss            dungeon=cove     xp=4 items=[gold:=4500;heirloom:crest=4]
+  id=plot_kill_siren_2                dlvl=4  diff=3 len=2 type=kill_boss            dungeon=cove     xp=8 items=[gold:=6750;heirloom:crest=6]
+  id=plot_kill_drowned_crew_2         dlvl=5  diff=3 len=2 type=kill_boss            dungeon=cove     xp=8 items=[gold:=6750;heirloom:crest=6]
+  id=plot_kill_siren_3                dlvl=6  diff=5 len=2 type=kill_boss            dungeon=cove     xp=16 items=[gold:=9000;trinket:boss_siren=1]
+  id=plot_kill_drowned_crew_3         dlvl=7  diff=5 len=2 type=kill_boss            dungeon=cove     xp=16 items=[gold:=9000;trinket:boss_crew=1]
+  id=plot_town_invasion_0             dlvl=0  diff=6 len=1 type=kill_boss            dungeon=town     xp=0 items=[trinket:boss_tassle=1]
+  id=plot_darkest_dungeon_1           dlvl=0  diff=6 len=2 type=kill_boss            dungeon=darkestdungeon xp=16 items=[gold:=15000;heirloom:crest=18;trinket:dd_trinket=3]
+  id=plot_darkest_dungeon_2           dlvl=0  diff=6 len=3 type=inventory_activate   dungeon=darkestdungeon xp=16 items=[gold:=15000;heirloom:crest=18]
+  id=plot_darkest_dungeon_3           dlvl=0  diff=6 len=4 type=activate             dungeon=darkestdungeon xp=16 items=[gold:=15000;heirloom:crest=18]
+  id=plot_darkest_dungeon_4           dlvl=0  diff=6 len=1 type=kill_boss            dungeon=darkestdungeon xp=16 items=[gold:=15000;heirloom:crest=18]
+
+PLOT QUEST KEYS: ['id', 'dungeon_level', 'quest', 'additional_trinket_completion_rewards', 'is_progression', 'has_statue_contents', 'completion_dungeon_xp', 'can_retreat', 'retreat_always_from_raid', 'retreat_party_kill_count', 'is_surprise_enabled', 'is_scouting_enabled', 'is_roster_stress_cleared_on_completion', 'roster_buff_on_failure_minimum_party_resolve_level', 'upgrade_tags_to_remove_on_ignore', 'upgrade_tags_to_remove_on_failure', 'roster_buffs_to_apply_on_failure', 'suggested_trinkets', 'additional_provisions']
+PLOT QUEST.quest KEYS: ['is_plot_quest', 'type', 'dungeon', 'difficulty', 'length', 'map_name', 'goal_ids', 'completion_reward']
+GOAL KEYS: ['id', 'type', 'starting_items', 'ignore_fog_of_war', 'show_as_quest', 'data']
+GOAL TYPES: ['activate', 'battle', 'battle_room', 'deaths_door', 'explore_room', 'gather', 'kill_monster', 'trait_applied', 'tutorial_room']
+PLOT (difficulty,length) counts: [((1, 1), 1), ((1, 2), 8), ((3, 2), 8), ((5, 2), 8), ((6, 1), 2), ((6, 2), 1), ((6, 3), 1), ((6, 4), 1)]
+STRESS_DAMAGE: 20
+RESTRICTION: {"difficulty": {"resolve_level_threshold_table": [2, 2, 3, 4, 5, 99, 99]}}

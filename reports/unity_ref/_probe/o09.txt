@@ -1,0 +1,146 @@
+﻿LOOT TABLES: 54
+KEYS: ['id', 'difficulty', 'dungeon', 'entries']
+IDS: ['A', 'B', 'CH', 'CS', 'CT', 'GH', 'GT', 'SC', 'C', 'C', 'C', 'C', 'G', 'G', 'G', 'G', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'NONE', 'P', 'S', 'Tbase', 'T', 'T', 'T', 'T', 'T_COLLECTOR', 'T_ANTIQ_CAMP', 'T_MADMAN', 'T_INCURSIONSACK', 'TORCHONLY', 'SHOVELONLY', 'KEYONLY', 'HOLYONLY', 'SHAMBLER', 'PEW', 'COLLECTOR', 'MADMAN', 'T_ANCESTOR', 'ANTIQ', 'JOURNALONLY', 'THANKS', 'test']
+(id,difficulty,dungeon) triples:
+   A    diff=0  dungeon=''       entries=9
+   B    diff=0  dungeon=''       entries=3
+   CH   diff=0  dungeon=''       entries=3
+   CS   diff=0  dungeon=''       entries=3
+   CT   diff=0  dungeon=''       entries=3
+   GH   diff=0  dungeon=''       entries=3
+   GT   diff=0  dungeon=''       entries=3
+   SC   diff=0  dungeon=''       entries=3
+   C    diff=1  dungeon=''       entries=8
+   C    diff=3  dungeon=''       entries=8
+   C    diff=5  dungeon=''       entries=8
+   C    diff=6  dungeon=''       entries=8
+   G    diff=1  dungeon=''       entries=7
+   G    diff=3  dungeon=''       entries=7
+   G    diff=5  dungeon=''       entries=7
+   G    diff=6  dungeon=''       entries=7
+   H    diff=1  dungeon='crypts' entries=5
+   H    diff=1  dungeon='weald'  entries=5
+   H    diff=1  dungeon='warrens' entries=5
+   H    diff=1  dungeon='cove'   entries=5
+   H    diff=3  dungeon='crypts' entries=5
+   H    diff=3  dungeon='weald'  entries=5
+   H    diff=3  dungeon='warrens' entries=5
+   H    diff=3  dungeon='cove'   entries=5
+   H    diff=5  dungeon='crypts' entries=5
+   H    diff=5  dungeon='weald'  entries=5
+   H    diff=5  dungeon='warrens' entries=5
+   H    diff=5  dungeon='cove'   entries=5
+   H    diff=6  dungeon=''       entries=5
+   NONE diff=0  dungeon=''       entries=2
+   P    diff=0  dungeon=''       entries=5
+   S    diff=0  dungeon=''       entries=10
+   Tbase diff=0  dungeon=''       entries=2
+   T    diff=1  dungeon=''       entries=8
+   T    diff=3  dungeon=''       entries=8
+   T    diff=5  dungeon=''       entries=8
+   T    diff=6  dungeon=''       entries=8
+   T_COLLECTOR diff=0  dungeon=''       entries=7
+   T_ANTIQ_CAMP diff=0  dungeon=''       entries=8
+   T_MADMAN diff=0  dungeon=''       entries=7
+   T_INCURSIONSACK diff=0  dungeon=''       entries=3
+   TORCHONLY diff=0  dungeon=''       entries=1
+   SHOVELONLY diff=0  dungeon=''       entries=1
+   KEYONLY diff=0  dungeon=''       entries=1
+   HOLYONLY diff=0  dungeon=''       entries=1
+   SHAMBLER diff=0  dungeon=''       entries=2
+   PEW  diff=0  dungeon=''       entries=2
+   COLLECTOR diff=0  dungeon=''       entries=3
+   MADMAN diff=0  dungeon=''       entries=3
+   T_ANCESTOR diff=0  dungeon=''       entries=2
+   ANTIQ diff=0  dungeon=''       entries=3
+   JOURNALONLY diff=0  dungeon=''       entries=1
+   THANKS diff=0  dungeon=''       entries=1
+   test diff=0  dungeon=''       entries=1
+
+DISTINCT ENTRY TYPES: ['item', 'journal_page', 'nothing', 'table', 'trinket']
+ENTRY TYPE COUNTS: {'nothing': 48, 'table': 25, 'journal_page': 3, 'item': 126, 'trinket': 51}
+TOTAL ENTRIES: 253
+
+HEIRLOOM ENTRIES ACROSS ALL LOOT TABLES:
+   COUNT = 0
+
+ENTRY TYPE 'item'/'gold' SAMPLES:
+
+ENTRY TYPE 'table' TARGET SET: ['C', 'G', 'H', 'J', 'P', 'S', 'T', 'T_COLLECTOR', 'T_MADMAN']
+ENTRY TYPE data key sets per type:
+   item         ['amount', 'id', 'type']
+   journal_page ['max_page_index', 'min_page_index', 'specific_page_index']
+   nothing      []
+   table        ['table']
+   trinket      ['rarity']
+
+ALL ENTRIES of table A (full):
+{
+ "id": "A",
+ "difficulty": 0,
+ "dungeon": "",
+ "entries": [
+  {
+   "type": "nothing",
+   "chances": 0,
+   "data": {}
+  },
+  {
+   "type": "table",
+   "chances": 14,
+   "data": {
+    "table": "C"
+   }
+  },
+  {
+   "type": "table",
+   "chances": 8,
+   "data": {
+    "table": "G"
+   }
+  },
+  {
+   "type": "table",
+   "chances": 12,
+   "data": {
+    "table": "H"
+   }
+  },
+  {
+   "type": "table",
+   "chances": 0,
+   "data": {
+    "table": "J"
+   }
+  },
+  {
+   "type": "table",
+   "chances": 0,
+   "data": {
+    "table": "P"
+   }
+  },
+  {
+   "type": "table",
+   "chances": 7,
+   "data": {
+    "table": "S"
+   }
+  },
+  {
+   "type": "table",
+   "chances": 2,
+   "data": {
+    "table": "T"
+   }
+  },
+  {
+   "type": "journal_page",
+   "chances": 0.05,
+   "data": {
+    "min_page_index": 1,
+    "max_page_index": 21
+   }
+  }
+ ]
+}

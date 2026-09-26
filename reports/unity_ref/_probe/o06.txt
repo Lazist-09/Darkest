@@ -1,0 +1,632 @@
+﻿TOP KEYS: ['stress_damage', 'goals', 'town_progression_goal_ids', 'types', 'plot_quests', 'generation', 'restriction']
+  stress_damage                  int
+  goals                          list[45] of dict(6 keys)
+  town_progression_goal_ids      list[4] of str('town_progression_explore')
+  types                          list[6] of dict(2 keys)
+  plot_quests                    list[30] of dict(19 keys)
+  generation                     {number:dict(1 keys), dungeon:dict(2 keys), difficulty:dict(1 keys), type:dict(1 keys), rewards:dict(6 keys)}
+  restriction                    {difficulty:dict(1 keys)}
+
+FULL SKELETON:
+== stress_damage ==
+20
+
+== goals ==
+[
+ {
+  "id": "tutorial_final_room",
+  "type": "tutorial_room",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": false,
+  "data": {
+   "room_id": "room2_1"
+  }
+ },
+ {
+  "id": "kill_necromancer_A",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": true,
+  "data": {
+   "monster_class_ids": [
+    "necromancer_A"
+   ],
+   "amount": 1
+  }
+ },
+ {
+  "id": "kill_necromancer_B",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": true,
+  "data": {
+   "monster_class_ids": [
+    "necromancer_B"
+   ],
+   "amount": 1
+  }
+ },
+ {
+  "id": "kill_necromancer_C",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": true,
+  "data": {
+   "monster_class_ids": [
+    "necromancer_C"
+   ],
+   "amount": 1
+  }
+ },
+ {
+  "id": "kill_hag_A",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": true,
+  "data": {
+   "monster_class_ids": [
+    "hag_A"
+   ],
+   "amount": 1
+  }
+ },
+ {
+  "id": "kill_hag_B",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": true,
+  "data": {
+   "monster_class_ids": [
+    "hag_B"
+   ],
+   "amount": 1
+  }
+ },
+ {
+  "id": "kill_hag_C",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": true,
+  "data": {
+   "monster_class_ids": [
+    "hag_C"
+   ],
+   "amount": 1
+  }
+ },
+ {
+  "id": "kill_swine_prince_A",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": true,
+  "data": {
+   "monster_class_ids": [
+    "swine_prince_A"
+   ],
+   "amount": 1
+  }
+ },
+ {
+  "id": "kill_swine_prince_B",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": true,
+  "data": {
+   "monster_class_ids": [
+    "swine_prince_B"
+   ],
+   "amount": 1
+  }
+ },
+ {
+  "id": "kill_swine_prince_C",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": true,
+  "data": {
+   "monster_class_ids": [
+    "swine_prince_C"
+   ],
+   "amount": 1
+  }
+ },
+ {
+  "id": "kill_prophet_A",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "show_as_quest": true,
+  "data": {
+   "monster_class_ids": [
+    "prophet_A"
+   ],
+   "amount": 1
+  }
+ },
+ {
+  "id": "kill_prophet_B",
+  "type": "kill_monster",
+  "starting_items": [],
+  "ignore_fog_of_war": false,
+  "s
+
+== town_progression_goal_ids ==
+[
+ "town_progression_explore",
+ "town_progression_battle",
+ "town_progression_trait",
+ "town_progression_deaths_door"
+]
+
+== types ==
+[
+ {
+  "id": "kill_boss",
+  "goal_lists": [
+   {
+    "dungeon": "all",
+    "goals": [
+     []
+    ]
+   },
+   {
+    "dungeon": "cove",
+    "goals": [
+     []
+    ]
+   },
+   {
+    "dungeon": "crypts",
+    "goals": [
+     []
+    ]
+   },
+   {
+    "dungeon": "warrens",
+    "goals": [
+     []
+    ]
+   },
+   {
+    "dungeon": "weald",
+    "goals": [
+     []
+    ]
+   }
+  ]
+ },
+ {
+  "id": "explore",
+  "goal_lists": [
+   {
+    "dungeon": "all",
+    "goals": [
+     [
+      "explore_all_rooms"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "id": "cleanse",
+  "goal_lists": [
+   {
+    "dungeon": "all",
+    "goals": [
+     [
+      "battle_all_rooms"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gather",
+  "goal_lists": [
+   {
+    "dungeon": "all",
+    "goals": [
+     []
+    ]
+   },
+   {
+    "dungeon": "cove",
+    "goals": [
+     [
+      "gather_shipments"
+     ]
+    ]
+   },
+   {
+    "dungeon": "crypts",
+    "goals": [
+     [
+      "gather_holy_relic"
+     ]
+    ]
+   },
+   {
+    "dungeon": "warrens",
+    "goals": [
+     [
+      "gather_grain"
+     ]
+    ]
+   },
+   {
+    "dungeon": "weald",
+    "goals": [
+     [
+      "gather_medicines"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "id": "activate",
+  "goal_lists": [
+   {
+    "dungeon": "all",
+    "goals": [
+     [
+      "activate_iron_maiden"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "id": "inventory_activate",
+  "goal_lists": [
+   {
+    "dungeon": "all",
+    "goals": [
+     []
+    ]
+   },
+   {
+    "dungeon": "cove",
+    "goals": [
+     [
+      "inventory_activate_wards"
+     ]
+    ]
+   },
+   {
+    "dungeon": "crypts",
+    "goals": [
+     [
+      "inventory_activate_corrupted_altar"
+     ]
+    ]
+   },
+   {
+    "dungeon": "warrens",
+    "goals": [
+     [
+      "inventory_activate_animalistic_shrine"
+     ]
+    ]
+   },
+   {
+    "dungeon": "weald",
+    "goals": [
+     [
+      "inventory_activate_infected_corpse"
+     ]
+    ]
+   }
+  ]
+ }
+]
+
+== plot_quests ==
+[
+ {
+  "id": "plot_tutorial_crypts",
+  "dungeon_level": 0,
+  "quest": {
+   "is_plot_quest": true,
+   "type": "explore",
+   "dungeon": "crypts",
+   "difficulty": 1,
+   "length": 1,
+   "map_name": "tutorial_crypts",
+   "goal_ids": [
+    "explore_all_rooms"
+   ],
+   "completion_reward": {
+    "resolve_xp": 2,
+    "items_definition": {
+     "system_config_type": "quest_rewards",
+     "items": {
+      "0": {
+       "id": "",
+       "type": "gold",
+       "amount": 3000
+      },
+      "1": {
+       "id": "crest",
+       "type": "heirloom",
+       "amount": 4
+      }
+     }
+    }
+   }
+  },
+  "additional_trinket_completion_rewards": [
+   {
+    "rarity": "very_common",
+    "amount": 1
+   }
+  ],
+  "is_progression": true,
+  "has_statue_contents": true,
+  "completion_dungeon_xp": true,
+  "can_retreat": true,
+  "retreat_always_from_raid": false,
+  "retreat_party_kill_count": 0,
+  "is_surprise_enabled": true,
+  "is_scouting_enabled": true,
+  "is_roster_stress_cleared_on_completion": false,
+  "roster_buff_on_failure_minimum_party_resolve_level": 0,
+  "upgrade_tags_to_remove_on_ignore": [],
+  "upgrade_tags_to_remove_on_failure": [],
+  "roster_buffs_to_apply_on_failure": [],
+  "suggested_trinkets": [],
+  "additional_provisions": {
+   "system_config_type": "quest_provision",
+   "items": {}
+  }
+ },
+ {
+  "id": "plot_kill_necromancer_1",
+  "dungeon_level": 2,
+  "quest": {
+   "is_plot_quest": true,
+   "type": "kill_boss",
+   "dungeon": "crypts",
+   "difficulty": 1,
+   "length": 2,
+   "goal_ids": [
+    "kill_necromancer_A"
+   ],
+   "completion_reward": {
+    "resolve_xp": 4,
+    "items_definition": {
+     "system_config_type": "quest_rewards",
+     "items": {
+      "0": {
+       "id": "",
+       "type": "gold",
+       "amount": 4500
+      },
+      "1": {
+       "id": "bust",
+       "type": "heirloom",
+       "amount": 3
+      },
+      "2": {
+       "id": "crest",
+       "type": "heirloom",
+       "amount": 4
+      }
+     }
+    }
+   }
+  },
+  "additional_trinket_completion_rewards": [
+   {
+    "rarity": "very_rare",
+    "amount": 1
+   }
+  ],
+  "is_progression": true,
+  "has_statue_contents": true,
+  "completion_dungeon_xp": false,
+  "can_retreat": true,
+  "retreat_always_from_raid": false,
+  "retreat_party_kill_count": 0,
+  "is_surprise_enabled": true,
+  "is_scouting_enabled": true,
+  "is_roster_stress_cleared_on_completion": false,
+  "upgrade_tags_to_remove_on_ignore": [],
+  "upgrade_tags_to_remove_on_failure": [],
+  "roster_buffs_to_apply_on_failure": [],
+  "roster_buff_on_failu
+
+== generation ==
+{
+ "number": {
+  "number_of_quests_per_town_visit_table": [
+   2,
+   5,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12
+  ]
+ },
+ "dungeon": {
+  "max_number_of_generated_quests_per_dungeon": 4,
+  "generated_dungeons": [
+   {
+    "id": "crypts",
+    "required_number_of_quests_finished": 2
+   },
+   {
+    "id": "weald",
+    "required_number_of_quests_finished": 3
+   },
+   {
+    "id": "warrens",
+    "required_number_of_quests_finished": 4
+   },
+   {
+    "id": "cove",
+    "required_number_of_quests_finished": 4
+   }
+  ]
+ },
+ "difficulty": {
+  "generated_resolve_level_difficulties": [
+   {
+    "resolve_levels": [
+     0,
+     1,
+     2
+    ],
+    "difficulty": 1
+   },
+   {
+    "resolve_levels": [
+     2,
+     3,
+     4
+    ],
+    "difficulty": 3
+   },
+   {
+    "resolve_levels": [
+     4,
+     5,
+     6
+    ],
+    "difficulty": 5
+   }
+  ]
+ },
+ "type": {
+  "available_quests_table": [
+   {
+    "dungeon": "crypts",
+    "generated_quest_table": [
+     [
+      {
+       "type": "cleanse",
+       "chance": 1,
+       "length": 1
+      }
+     ],
+     [
+      {
+       "type": "explore",
+       "chance": 1,
+       "length": 1
+      },
+      {
+       "type": "cleanse",
+       "chance": 1,
+       "length": 1
+      },
+      {
+       "type": "cleanse",
+       "chance": 1,
+       "length": 2
+      },
+      {
+       "type": "explore",
+       "chance": 1,
+       "length": 2
+      }
+     ],
+     [
+      {
+       "type": "explore",
+       "chance": 1,
+       "length": 1
+      },
+      {
+       "type": "cleanse",
+       "chance": 1,
+       "length": 1
+      },
+      {
+       "type": "explore",
+       "chance": 1,
+       "length": 2
+      },
+      {
+       "type": "cleanse",
+       "chance": 1,
+       "length": 2
+      },
+      {
+       "type": "inventory_activate",
+       "chance": 1,
+       "length": 2
+      },
+      {
+       "type": "gather",
+       "chance": 1,
+       "length": 2
+      }
+     ],
+     [
+      {
+       "type": "explore",
+       "chance": 1,
+       "length": 1
+      },
+      {
+       "type": "cleanse",
+       "chance": 1,
+       "length": 1
+      },
+      {
+       "type": "explore",
+       "chance": 1,
+       "length": 2
+      },
+      {
+       "type": "cleanse",
+       "chance": 1,
+       "length": 2
+      },
+      {
+       "type": "explore",
+       "chance": 1,
+       "length": 3
+      },
+      {
+       "type": "cleanse",
+       "chance": 1,
+       "length": 3
+      },
+      {
+       "type": "inventory_activate",
+       "chance": 1,
+       "length": 2
+      },
+      {
+       
+
+== restriction ==
+{
+ "difficulty": {
+  "resolve_level_threshold_table": [
+   2,
+   2,
+   3,
+   4,
+   5,
+   99,
+   99
+  ]
+ }
+}
+

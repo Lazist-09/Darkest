@@ -1,0 +1,8258 @@
+{
+ "Abomination": {
+  "stat_records": [
+   {
+    "id": "transform",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "",
+    "is_crit_valid": "True",
+    "valid_modes": "human beast",
+    "human_effects": "switch_mode_beast_self beast_buff_1 xform_damage_1 beast_stress_party",
+    "beast_effects": "switch_mode_human_self beast_debuff_1 Transform_HealSelf_1 human_stress_heal_party_1",
+    "is_continue_turn": "true",
+    "per_turn_limit": "1",
+    "per_battle_limit": "2"
+   },
+   {
+    "id": "transform",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "",
+    "is_crit_valid": "True",
+    "valid_modes": "human beast",
+    "human_effects": "switch_mode_beast_self beast_buff_2 xform_damage_2 beast_stress_party",
+    "beast_effects": "switch_mode_human_self beast_debuff_2 Transform_HealSelf_2 human_stress_heal_party_2",
+    "is_continue_turn": "true",
+    "per_turn_limit": "1",
+    "per_battle_limit": "2"
+   },
+   {
+    "id": "transform",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "",
+    "is_crit_valid": "True",
+    "valid_modes": "human beast",
+    "human_effects": "switch_mode_beast_self beast_buff_3 xform_damage_3 beast_stress_party",
+    "beast_effects": "switch_mode_human_self beast_debuff_3 Transform_HealSelf_3 human_stress_heal_party_3",
+    "is_continue_turn": "true",
+    "per_turn_limit": "1",
+    "per_battle_limit": "2"
+   },
+   {
+    "id": "transform",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "",
+    "is_crit_valid": "True",
+    "valid_modes": "human beast",
+    "human_effects": "switch_mode_beast_self beast_buff_4 xform_damage_4 beast_stress_party",
+    "beast_effects": "switch_mode_human_self beast_debuff_4 Transform_HealSelf_4 human_stress_heal_party_4",
+    "is_continue_turn": "true",
+    "per_turn_limit": "1",
+    "per_battle_limit": "2"
+   },
+   {
+    "id": "transform",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "",
+    "is_crit_valid": "True",
+    "valid_modes": "human beast",
+    "human_effects": "switch_mode_beast_self beast_buff_5 xform_damage_5 beast_stress_party",
+    "beast_effects": "switch_mode_human_self beast_debuff_5 Transform_HealSelf_5 human_stress_heal_party_5",
+    "is_continue_turn": "true",
+    "per_turn_limit": "1",
+    "per_battle_limit": "2"
+   },
+   {
+    "id": "manacles",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-60%",
+    "crit": "0%",
+    "launch": "32",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 1",
+    "valid_modes": "human"
+   },
+   {
+    "id": "manacles",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-60%",
+    "crit": "0%",
+    "launch": "32",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 2",
+    "valid_modes": "human"
+   },
+   {
+    "id": "manacles",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-60%",
+    "crit": "1%",
+    "launch": "32",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 3",
+    "valid_modes": "human"
+   },
+   {
+    "id": "manacles",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-60%",
+    "crit": "2%",
+    "launch": "32",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 4",
+    "valid_modes": "human"
+   },
+   {
+    "id": "manacles",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-60%",
+    "crit": "2%",
+    "launch": "32",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 5",
+    "valid_modes": "human"
+   },
+   {
+    "id": "vomit",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-100%",
+    "crit": "1%",
+    "launch": "32",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "Abom Vomit 1\" \"Vomit Debuff 1",
+    "valid_modes": "human"
+   },
+   {
+    "id": "vomit",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "2%",
+    "launch": "32",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "Abom Vomit 2\" \"Vomit Debuff 2",
+    "valid_modes": "human"
+   },
+   {
+    "id": "vomit",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "2%",
+    "launch": "32",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "Abom Vomit 3\" \"Vomit Debuff 3",
+    "valid_modes": "human"
+   },
+   {
+    "id": "vomit",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "2%",
+    "launch": "32",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "Abom Vomit 4\" \"Vomit Debuff 4",
+    "valid_modes": "human"
+   },
+   {
+    "id": "vomit",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-100%",
+    "crit": "3%",
+    "launch": "32",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "Abom Vomit 5\" \"Vomit Debuff 5",
+    "valid_modes": "human"
+   },
+   {
+    "id": "absolution",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Absolution HealStress 1\" \"Absolution Heal 1",
+    "valid_modes": "human"
+   },
+   {
+    "id": "absolution",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Absolution HealStress 2\" \"Absolution Heal 2",
+    "valid_modes": "human"
+   },
+   {
+    "id": "absolution",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Absolution HealStress 3\" \"Absolution Heal 3",
+    "valid_modes": "human"
+   },
+   {
+    "id": "absolution",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Absolution HealStress 4\" \"Absolution Heal 4",
+    "valid_modes": "human"
+   },
+   {
+    "id": "absolution",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Absolution HealStress 5\" \"Absolution Heal 5",
+    "valid_modes": "human"
+   },
+   {
+    "id": "rake",
+    "level": "0",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-40%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "rakebuff_1",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "rake",
+    "level": "1",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-40%",
+    "crit": "3%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "rakebuff_2",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "rake",
+    "level": "2",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-40%",
+    "crit": "4%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "rakebuff_3",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "rake",
+    "level": "3",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-40%",
+    "crit": "4%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "rakebuff_4",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "rake",
+    "level": "4",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "-40%",
+    "crit": "4%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "rakebuff_5",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "rage",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "5%",
+    "launch": "21",
+    "target": "123",
+    "is_crit_valid": "True",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "rage",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "21",
+    "target": "123",
+    "is_crit_valid": "True",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "rage",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "21",
+    "target": "123",
+    "is_crit_valid": "True",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "rage",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "21",
+    "target": "123",
+    "is_crit_valid": "True",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "rage",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "7%",
+    "launch": "21",
+    "target": "123",
+    "is_crit_valid": "True",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "slam",
+    "level": "0",
+    "type": "melee",
+    "atk": "80%",
+    "dmg": "-25%",
+    "crit": "2%",
+    "move": "0 1",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Push 2A\" \"Slam Debuff 1",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "slam",
+    "level": "1",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "-25%",
+    "crit": "3%",
+    "move": "0 1",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Push 2B\" \"Slam Debuff 2",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "slam",
+    "level": "2",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-25%",
+    "crit": "4%",
+    "move": "0 1",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Push 2C\" \"Slam Debuff 3",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "slam",
+    "level": "3",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-25%",
+    "crit": "4%",
+    "move": "0 1",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Push 2D\" \"Slam Debuff 4",
+    "valid_modes": "beast"
+   },
+   {
+    "id": "slam",
+    "level": "4",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-25%",
+    "crit": "4%",
+    "move": "0 1",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Push 2E\" \"Slam Debuff 5",
+    "valid_modes": "beast"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "transform",
+    "icon": "one",
+    "anim": "attack_transform",
+    "fx": "transform"
+   },
+   {
+    "id": "manacles",
+    "icon": "two",
+    "anim": "attack_chain",
+    "targfx": "manacles_target"
+   },
+   {
+    "id": "vomit",
+    "icon": "three",
+    "anim": "attack_barf",
+    "fx": "vomit",
+    "targfx": "vomit_target"
+   },
+   {
+    "id": "absolution",
+    "icon": "four",
+    "anim": "attack_kneel",
+    "fx": "absolution"
+   },
+   {
+    "id": "rake",
+    "icon": "five",
+    "anim": "attack_claw",
+    "fx": "rake",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "rage",
+    "icon": "six",
+    "anim": "attack_shout",
+    "fx": "rage",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "slam",
+    "icon": "seven",
+    "anim": "attack_horns",
+    "fx": "slam",
+    "targchestfx": "blood_splatter"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "abomination_weapon_0",
+    "atk": "0%",
+    "dmg": "6 11",
+    "crit": "2.5%",
+    "spd": "7"
+   },
+   {
+    "name": "abomination_weapon_1",
+    "atk": "0%",
+    "dmg": "7 13",
+    "crit": "3%",
+    "spd": "7",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "abomination_weapon_2",
+    "atk": "0%",
+    "dmg": "8 15",
+    "crit": "3.5%",
+    "spd": "8",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "abomination_weapon_3",
+    "atk": "0%",
+    "dmg": "10 18",
+    "crit": "4%",
+    "spd": "8",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "abomination_weapon_4",
+    "atk": "0%",
+    "dmg": "11 20",
+    "crit": "4.5%",
+    "spd": "9",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "abomination_armour_0",
+    "def": "7.5%",
+    "prot": "0",
+    "hp": "26",
+    "spd": "0"
+   },
+   {
+    "name": "abomination_armour_1",
+    "def": "12.5%",
+    "prot": "0",
+    "hp": "33",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "abomination_armour_2",
+    "def": "17.5%",
+    "prot": "0",
+    "hp": "40",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "abomination_armour_3",
+    "def": "22.5%",
+    "prot": "0",
+    "hp": "47",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "abomination_armour_4",
+    "def": "27.5%",
+    "prot": "0",
+    "hp": "54",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 73
+ },
+ "Antiquarian": {
+  "stat_records": [
+   {
+    "id": "kris_stab",
+    "level": "0",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "kris_stab",
+    "level": "1",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "kris_stab",
+    "level": "2",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "1%",
+    "launch": "4321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "kris_stab",
+    "level": "3",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "kris_stab",
+    "level": "4",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "festering_vapours",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-75%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Blight 1\" \"Antiq Blight Debuff 1"
+   },
+   {
+    "id": "festering_vapours",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-75%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Blight 2\" \"Antiq Blight Debuff 2"
+   },
+   {
+    "id": "festering_vapours",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-75%",
+    "crit": "1%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Blight 3\" \"Antiq Blight Debuff 3"
+   },
+   {
+    "id": "festering_vapours",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-75%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Blight 4\" \"Antiq Blight Debuff 4"
+   },
+   {
+    "id": "festering_vapours",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-75%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Blight 5\" \"Antiq Blight Debuff 5"
+   },
+   {
+    "id": "cower",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Antiq Cower 1\" \"Antiq Self Speed 1"
+   },
+   {
+    "id": "cower",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Antiq Cower 2\" \"Antiq Self Speed 2"
+   },
+   {
+    "id": "cower",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Antiq Cower 3\" \"Antiq Self Speed 3"
+   },
+   {
+    "id": "cower",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Antiq Cower 4\" \"Antiq Self Speed 4"
+   },
+   {
+    "id": "cower",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Antiq Cower 5\" \"Antiq Self Speed 5"
+   },
+   {
+    "id": "flashpowder",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Distract 1"
+   },
+   {
+    "id": "flashpowder",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Distract 2"
+   },
+   {
+    "id": "flashpowder",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Distract 3"
+   },
+   {
+    "id": "flashpowder",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Distract 4"
+   },
+   {
+    "id": "flashpowder",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Distract 5"
+   },
+   {
+    "id": "fortifying_vapours",
+    "level": "0",
+    "heal": "1 1",
+    "launch": "43",
+    "target": "@1234"
+   },
+   {
+    "id": "fortifying_vapours",
+    "level": "1",
+    "heal": "1 2",
+    "launch": "43",
+    "target": "@1234"
+   },
+   {
+    "id": "fortifying_vapours",
+    "level": "2",
+    "heal": "2 2",
+    "launch": "43",
+    "target": "@1234"
+   },
+   {
+    "id": "fortifying_vapours",
+    "level": "3",
+    "heal": "2 3",
+    "launch": "43",
+    "target": "@1234"
+   },
+   {
+    "id": "fortifying_vapours",
+    "level": "4",
+    "heal": "3 3",
+    "launch": "43",
+    "target": "@1234"
+   },
+   {
+    "id": "invigorating_vapours",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Dodge 1"
+   },
+   {
+    "id": "invigorating_vapours",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Dodge 2"
+   },
+   {
+    "id": "invigorating_vapours",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Dodge 3"
+   },
+   {
+    "id": "invigorating_vapours",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Dodge 4"
+   },
+   {
+    "id": "invigorating_vapours",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq Dodge 5"
+   },
+   {
+    "id": "protect_me",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq DefBuff 1\" \"Antiq ProtectMe ClearGuardsPerformer\" \"Antiq ProtectMe ClearGuardsTarget\" \"Antiq ProtectMe Guard",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "protect_me",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq DefBuff 2\" \"Antiq ProtectMe ClearGuardsPerformer\" \"Antiq ProtectMe ClearGuardsTarget\" \"Antiq ProtectMe Guard"
+   },
+   {
+    "id": "protect_me",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq DefBuff 3\" \"Antiq ProtectMe ClearGuardsPerformer\" \"Antiq ProtectMe ClearGuardsTarget\" \"Antiq ProtectMe Guard"
+   },
+   {
+    "id": "protect_me",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq DefBuff 4\" \"Antiq ProtectMe ClearGuardsPerformer\" \"Antiq ProtectMe ClearGuardsTarget\" \"Antiq ProtectMe Guard"
+   },
+   {
+    "id": "protect_me",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "Antiq DefBuff 5\" \"Antiq ProtectMe ClearGuardsPerformer\" \"Antiq ProtectMe ClearGuardsTarget\" \"Antiq ProtectMe Guard"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "kris_stab",
+    "icon": "one",
+    "anim": "attack_melee",
+    "fx": "kris_stab",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "festering_vapours",
+    "icon": "two",
+    "anim": "attack_censer",
+    "fx": "festering_vapours",
+    "targchestfx": "festering_vapours_target"
+   },
+   {
+    "id": "cower",
+    "icon": "three",
+    "anim": "defend",
+    "fx": "cower"
+   },
+   {
+    "id": "flashpowder",
+    "icon": "four",
+    "anim": "attack_ranged",
+    "fx": "flashpowder",
+    "targfx": "flashpowder_target"
+   },
+   {
+    "id": "fortifying_vapours",
+    "icon": "five",
+    "anim": "attack_heal",
+    "fx": "fortifying_vapours",
+    "targfx": "fortifying_vapours_target"
+   },
+   {
+    "id": "invigorating_vapours",
+    "icon": "six",
+    "anim": "attack_heal",
+    "fx": "invigorating_vapours",
+    "targfx": "invigorating_vapours_target"
+   },
+   {
+    "id": "protect_me",
+    "icon": "seven",
+    "anim": "attack_guard",
+    "fx": "protect_me"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "antiquarian_weapon_0",
+    "atk": "0%",
+    "dmg": "3 5",
+    "crit": "2.5%",
+    "spd": "5"
+   },
+   {
+    "name": "antiquarian_weapon_1",
+    "atk": "0%",
+    "dmg": "4 6",
+    "crit": "3%",
+    "spd": "7",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "antiquarian_weapon_2",
+    "atk": "0%",
+    "dmg": "4 7",
+    "crit": "3.5%",
+    "spd": "8",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "antiquarian_weapon_3",
+    "atk": "0%",
+    "dmg": "5 8",
+    "crit": "4%",
+    "spd": "8",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "antiquarian_weapon_4",
+    "atk": "0%",
+    "dmg": "5 9",
+    "crit": "4.5%",
+    "spd": "9",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "antiquarian_armour_0",
+    "def": "10%",
+    "prot": "0",
+    "hp": "17",
+    "spd": "0"
+   },
+   {
+    "name": "antiquarian_armour_1",
+    "def": "15%",
+    "prot": "0",
+    "hp": "24",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "antiquarian_armour_2",
+    "def": "20%",
+    "prot": "0",
+    "hp": "31",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "antiquarian_armour_3",
+    "def": "25%",
+    "prot": "0",
+    "hp": "38",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "antiquarian_armour_4",
+    "def": "30%",
+    "prot": "0",
+    "hp": "45",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 72
+ },
+ "Arbalest": {
+  "stat_records": [
+   {
+    "id": "sniper_shot",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "5%",
+    "launch": "43",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Sniper Damage 1",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "sniper_shot",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Sniper Damage 2"
+   },
+   {
+    "id": "sniper_shot",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Sniper Damage 3"
+   },
+   {
+    "id": "sniper_shot",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Sniper Damage 4"
+   },
+   {
+    "id": "sniper_shot",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "0%",
+    "crit": "7%",
+    "launch": "43",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Sniper Damage 5"
+   },
+   {
+    "id": "suppressing_fire",
+    "level": "0",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-80%",
+    "crit": "-5%",
+    "launch": "43",
+    "target": "~234",
+    "is_crit_valid": "True",
+    "effect": "Suppression 1"
+   },
+   {
+    "id": "suppressing_fire",
+    "level": "1",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-80%",
+    "crit": "-5%",
+    "launch": "43",
+    "target": "~234",
+    "is_crit_valid": "True",
+    "effect": "Suppression 2"
+   },
+   {
+    "id": "suppressing_fire",
+    "level": "2",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-80%",
+    "crit": "-4%",
+    "launch": "43",
+    "target": "~234",
+    "is_crit_valid": "True",
+    "effect": "Suppression 3"
+   },
+   {
+    "id": "suppressing_fire",
+    "level": "3",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-80%",
+    "crit": "-4%",
+    "launch": "43",
+    "target": "~234",
+    "is_crit_valid": "True",
+    "effect": "Suppression 4"
+   },
+   {
+    "id": "suppressing_fire",
+    "level": "4",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-80%",
+    "crit": "-3%",
+    "launch": "43",
+    "target": "~234",
+    "is_crit_valid": "True",
+    "effect": "Suppression 5"
+   },
+   {
+    "id": "sniper_mark",
+    "level": "0",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "234",
+    "is_crit_valid": "False",
+    "effect": "Arb Mark Target\" \"Arb Mark Debuff 1"
+   },
+   {
+    "id": "sniper_mark",
+    "level": "1",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "234",
+    "is_crit_valid": "False",
+    "effect": "Arb Mark Target\" \"Arb Mark Debuff 2"
+   },
+   {
+    "id": "sniper_mark",
+    "level": "2",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "234",
+    "is_crit_valid": "False",
+    "effect": "Arb Mark Target\" \"Arb Mark Debuff 3"
+   },
+   {
+    "id": "sniper_mark",
+    "level": "3",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "234",
+    "is_crit_valid": "False",
+    "effect": "Arb Mark Target\" \"Arb Mark Debuff 4"
+   },
+   {
+    "id": "sniper_mark",
+    "level": "4",
+    "type": "ranged",
+    "atk": "120%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "234",
+    "is_crit_valid": "False",
+    "effect": "Arb Mark Target\" \"Arb Mark Debuff 5"
+   },
+   {
+    "id": "bola",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-50%",
+    "crit": "5%",
+    "launch": "43",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "Bolo Push 1A"
+   },
+   {
+    "id": "bola",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-50%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "Bolo Push 1B"
+   },
+   {
+    "id": "bola",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-50%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "Bolo Push 1C"
+   },
+   {
+    "id": "bola",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-50%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "Bolo Push 1D"
+   },
+   {
+    "id": "bola",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-50%",
+    "crit": "7%",
+    "launch": "43",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "Bolo Push 1D"
+   },
+   {
+    "id": "blindfire",
+    "level": "0",
+    "type": "ranged",
+    "atk": "80%",
+    "dmg": "-10%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "?1234",
+    "is_crit_valid": "True",
+    "effect": "Arb Self Speed 1"
+   },
+   {
+    "id": "blindfire",
+    "level": "1",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-10%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "?1234",
+    "is_crit_valid": "True",
+    "effect": "Arb Self Speed 2"
+   },
+   {
+    "id": "blindfire",
+    "level": "2",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-10%",
+    "crit": "1%",
+    "launch": "4321",
+    "target": "?1234",
+    "is_crit_valid": "True",
+    "effect": "Arb Self Speed 3"
+   },
+   {
+    "id": "blindfire",
+    "level": "3",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-10%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "?1234",
+    "is_crit_valid": "True",
+    "effect": "Arb Self Speed 4"
+   },
+   {
+    "id": "blindfire",
+    "level": "4",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-10%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "?1234",
+    "is_crit_valid": "True",
+    "effect": "Arb Self Speed 5"
+   },
+   {
+    "id": "battlefield_bandage",
+    "level": "0",
+    "heal": "2 3",
+    "launch": "43",
+    "target": "@123",
+    "effect": "Arb Stacking Heal 1"
+   },
+   {
+    "id": "battlefield_bandage",
+    "level": "1",
+    "heal": "3 3",
+    "launch": "43",
+    "target": "@123",
+    "effect": "Arb Stacking Heal 2"
+   },
+   {
+    "id": "battlefield_bandage",
+    "level": "2",
+    "heal": "3 4",
+    "launch": "43",
+    "target": "@123",
+    "effect": "Arb Stacking Heal 3"
+   },
+   {
+    "id": "battlefield_bandage",
+    "level": "3",
+    "heal": "4 4",
+    "launch": "43",
+    "target": "@123",
+    "effect": "Arb Stacking Heal 4"
+   },
+   {
+    "id": "battlefield_bandage",
+    "level": "4",
+    "heal": "4 5",
+    "launch": "43",
+    "target": "@123",
+    "effect": "Arb Stacking Heal 5"
+   },
+   {
+    "id": "flare",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "FlareClear 1\" \"FlareLight 1\" \"FlareBuff 1"
+   },
+   {
+    "id": "flare",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "FlareClear 1\" \"FlareLight 2\" \"FlareBuff 2"
+   },
+   {
+    "id": "flare",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "FlareClear 1\" \"FlareLight 3\" \"FlareBuff 3"
+   },
+   {
+    "id": "flare",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "FlareClear 1\" \"FlareLight 4\" \"FlareBuff 4"
+   },
+   {
+    "id": "flare",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "FlareClear 1\" \"FlareLight 5\" \"FlareBuff 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "sniper_shot",
+    "icon": "one",
+    "anim": "attack_ranged",
+    "fx": "sniper_shot",
+    "targchestfx": "sniper_shot_target",
+    "area_pos_offset": "100 0"
+   },
+   {
+    "id": "suppressing_fire",
+    "icon": "two",
+    "anim": "attack_artillery",
+    "fx": "suppressing_fire",
+    "targfx": "suppressing_fire_target",
+    "area_pos_offset": "100 0",
+    "target_area_pos_offset": "-100 20"
+   },
+   {
+    "id": "sniper_mark",
+    "icon": "three",
+    "anim": "attack_point",
+    "fx": "sniper_mark",
+    "targchestfx": "sniper_mark_target"
+   },
+   {
+    "id": "bola",
+    "icon": "four",
+    "anim": "attack_ranged",
+    "fx": "sniper_shot",
+    "targchestfx": "bola_target"
+   },
+   {
+    "id": "blindfire",
+    "icon": "five",
+    "anim": "attack_ranged",
+    "fx": "sniper_shot",
+    "targchestfx": "sniper_shot_target",
+    "area_pos_offset": "100 0"
+   },
+   {
+    "id": "battlefield_bandage",
+    "icon": "six",
+    "anim": "attack_bandage",
+    "fx": "battlefield_bandage",
+    "targfx": "battlefield_bandage_target"
+   },
+   {
+    "id": "flare",
+    "icon": "seven",
+    "anim": "attack_artillery",
+    "fx": "flare",
+    "area_pos_offset": "-100 -50",
+    "target_area_pos_offset": "-50 -50"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "arbalest_weapon_0",
+    "atk": "0%",
+    "dmg": "4 9",
+    "crit": "7.5%",
+    "spd": "3"
+   },
+   {
+    "name": "arbalest_weapon_1",
+    "atk": "0%",
+    "dmg": "5 11",
+    "crit": "8%",
+    "spd": "3",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "arbalest_weapon_2",
+    "atk": "0%",
+    "dmg": "6 13",
+    "crit": "8.5%",
+    "spd": "4",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "arbalest_weapon_3",
+    "atk": "0%",
+    "dmg": "6 14",
+    "crit": "9%",
+    "spd": "4",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "arbalest_weapon_4",
+    "atk": "0%",
+    "dmg": "7 16",
+    "crit": "9.5%",
+    "spd": "5",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "arbalest_armour_0",
+    "def": "0%",
+    "prot": "0",
+    "hp": "27",
+    "spd": "0"
+   },
+   {
+    "name": "arbalest_armour_1",
+    "def": "5%",
+    "prot": "0",
+    "hp": "34",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "arbalest_armour_2",
+    "def": "10%",
+    "prot": "0",
+    "hp": "41",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "arbalest_armour_3",
+    "def": "15%",
+    "prot": "0",
+    "hp": "48",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "arbalest_armour_4",
+    "def": "20%",
+    "prot": "0",
+    "hp": "55",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 69
+ },
+ "BountyHunter": {
+  "stat_records": [
+   {
+    "id": "collect_bounty",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "5%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "BH Dmg Marked\" \"Man Killer 1",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "collect_bounty",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "BH Dmg Marked\" \"Man Killer 2"
+   },
+   {
+    "id": "collect_bounty",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "BH Dmg Marked\" \"Man Killer 3"
+   },
+   {
+    "id": "collect_bounty",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "BH Dmg Marked\" \"Man Killer 4"
+   },
+   {
+    "id": "collect_bounty",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "7%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "BH Dmg Marked\" \"Man Killer 5"
+   },
+   {
+    "id": "target_tag",
+    "level": "0",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "BH Mark Target\" \"BH Mark Debuff 1"
+   },
+   {
+    "id": "target_tag",
+    "level": "1",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "BH Mark Target\" \"BH Mark Debuff 2"
+   },
+   {
+    "id": "target_tag",
+    "level": "2",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "BH Mark Target\" \"BH Mark Debuff 3"
+   },
+   {
+    "id": "target_tag",
+    "level": "3",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "BH Mark Target\" \"BH Mark Debuff 4"
+   },
+   {
+    "id": "target_tag",
+    "level": "4",
+    "type": "ranged",
+    "atk": "120%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "BH Mark Target\" \"BH Mark Debuff 5"
+   },
+   {
+    "id": "come_hither",
+    "level": "0",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-67%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Pull 2A"
+   },
+   {
+    "id": "come_hither",
+    "level": "1",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-67%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Pull 2B"
+   },
+   {
+    "id": "come_hither",
+    "level": "2",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-67%",
+    "crit": "1%",
+    "launch": "4321",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Pull 2C"
+   },
+   {
+    "id": "come_hither",
+    "level": "3",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-67%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Pull 2D"
+   },
+   {
+    "id": "come_hither",
+    "level": "4",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-67%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Pull 2E"
+   },
+   {
+    "id": "uppercut",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "-67%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Push 2A\" \"Strong Stun 1"
+   },
+   {
+    "id": "uppercut",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-67%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Push 2B\" \"Strong Stun 2"
+   },
+   {
+    "id": "uppercut",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-67%",
+    "crit": "1%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Push 2C\" \"Strong Stun 3"
+   },
+   {
+    "id": "uppercut",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-67%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Push 2D\" \"Strong Stun 4"
+   },
+   {
+    "id": "uppercut",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-67%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Push 2E\" \"Strong Stun 5"
+   },
+   {
+    "id": "flashbang",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "Strong Stun 1\" \"Disorient 1"
+   },
+   {
+    "id": "flashbang",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "Strong Stun 2\" \"Disorient 2"
+   },
+   {
+    "id": "flashbang",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "Strong Stun 3\" \"Disorient 3"
+   },
+   {
+    "id": "flashbang",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "Strong Stun 4\" \"Disorient 4"
+   },
+   {
+    "id": "flashbang",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "Strong Stun 5\" \"Disorient 5"
+   },
+   {
+    "id": "finish_him",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "321",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun Killer 1"
+   },
+   {
+    "id": "finish_him",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "321",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun Killer 2"
+   },
+   {
+    "id": "finish_him",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "3%",
+    "launch": "321",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun Killer 3"
+   },
+   {
+    "id": "finish_him",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "4%",
+    "launch": "321",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun Killer 4"
+   },
+   {
+    "id": "finish_him",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "4%",
+    "launch": "321",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun Killer 5"
+   },
+   {
+    "id": "hook_and_slice",
+    "level": "0",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-85%",
+    "crit": "2%",
+    "launch": "234",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 1"
+   },
+   {
+    "id": "hook_and_slice",
+    "level": "1",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-85%",
+    "crit": "2%",
+    "launch": "234",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 2"
+   },
+   {
+    "id": "hook_and_slice",
+    "level": "2",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-85%",
+    "crit": "3%",
+    "launch": "234",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 3"
+   },
+   {
+    "id": "hook_and_slice",
+    "level": "3",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-85%",
+    "crit": "4%",
+    "launch": "234",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 4"
+   },
+   {
+    "id": "hook_and_slice",
+    "level": "4",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-85%",
+    "crit": "4%",
+    "launch": "234",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "collect_bounty",
+    "icon": "one",
+    "anim": "attack_axe",
+    "fx": "collect_bounty",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "target_tag",
+    "icon": "two",
+    "anim": "attack_point",
+    "fx": "target_tag",
+    "targchestfx": "target_tag_target"
+   },
+   {
+    "id": "come_hither",
+    "icon": "three",
+    "anim": "attack_hook",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "uppercut",
+    "icon": "four",
+    "anim": "attack_punch",
+    "fx": "uppercut",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "flashbang",
+    "icon": "five",
+    "anim": "attack_throw",
+    "fx": "flashbang",
+    "targfx": "flashbang_target"
+   },
+   {
+    "id": "finish_him",
+    "icon": "six",
+    "anim": "attack_axe",
+    "fx": "finish_him",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "hook_and_slice",
+    "icon": "seven",
+    "anim": "attack_slice",
+    "targchestfx": "blood_splatter"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "bounty_hunter_weapon_0",
+    "atk": "0%",
+    "dmg": "5 10",
+    "crit": "5%",
+    "spd": "5"
+   },
+   {
+    "name": "bounty_hunter_weapon_1",
+    "atk": "0%",
+    "dmg": "6 12",
+    "crit": "5.5%",
+    "spd": "5",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "bounty_hunter_weapon_2",
+    "atk": "0%",
+    "dmg": "7 13",
+    "crit": "6%",
+    "spd": "6",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "bounty_hunter_weapon_3",
+    "atk": "0%",
+    "dmg": "7 15",
+    "crit": "6.5%",
+    "spd": "6",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "bounty_hunter_weapon_4",
+    "atk": "0%",
+    "dmg": "8 16",
+    "crit": "7%",
+    "spd": "7",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "bounty_hunter_armour_0",
+    "def": "5%",
+    "prot": "0",
+    "hp": "25",
+    "spd": "0"
+   },
+   {
+    "name": "bounty_hunter_armour_1",
+    "def": "10%",
+    "prot": "0",
+    "hp": "30",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "bounty_hunter_armour_2",
+    "def": "15%",
+    "prot": "0",
+    "hp": "35",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "bounty_hunter_armour_3",
+    "def": "20%",
+    "prot": "0",
+    "hp": "40",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "bounty_hunter_armour_4",
+    "def": "25%",
+    "prot": "0",
+    "hp": "45",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 70
+ },
+ "Crusader": {
+  "stat_records": [
+   {
+    "id": "smite",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Unholy Killer 1",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "smite",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Unholy Killer 2"
+   },
+   {
+    "id": "smite",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "1%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Unholy Killer 3"
+   },
+   {
+    "id": "smite",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Unholy Killer 4"
+   },
+   {
+    "id": "smite",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Unholy Killer 5"
+   },
+   {
+    "id": "zealous_accusation",
+    "level": "0",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-40%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "zealous_accusation",
+    "level": "1",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-40%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "zealous_accusation",
+    "level": "2",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-40%",
+    "crit": "1%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "zealous_accusation",
+    "level": "3",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-40%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "zealous_accusation",
+    "level": "4",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-40%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "stunning_blow",
+    "level": "0",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-75%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Stun 1"
+   },
+   {
+    "id": "stunning_blow",
+    "level": "1",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-75%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Stun 2"
+   },
+   {
+    "id": "stunning_blow",
+    "level": "2",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-75%",
+    "crit": "1%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Stun 3"
+   },
+   {
+    "id": "stunning_blow",
+    "level": "3",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-75%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Stun 4"
+   },
+   {
+    "id": "stunning_blow",
+    "level": "4",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "-75%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Stun 5"
+   },
+   {
+    "id": "bulwark_of_faith",
+    "level": "0",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Crusader Bulwark 1\" \"Light 1"
+   },
+   {
+    "id": "bulwark_of_faith",
+    "level": "1",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Crusader Bulwark 2\" \"Light 1"
+   },
+   {
+    "id": "bulwark_of_faith",
+    "level": "2",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Crusader Bulwark 3\" \"Light 1"
+   },
+   {
+    "id": "bulwark_of_faith",
+    "level": "3",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Crusader Bulwark 4\" \"Light 1"
+   },
+   {
+    "id": "bulwark_of_faith",
+    "level": "4",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Crusader Bulwark 5\" \"Light 1"
+   },
+   {
+    "id": "battle_heal",
+    "level": "0",
+    "heal": "2 2",
+    "launch": "12",
+    "target": "@123"
+   },
+   {
+    "id": "battle_heal",
+    "level": "1",
+    "heal": "2 3",
+    "launch": "12",
+    "target": "@123"
+   },
+   {
+    "id": "battle_heal",
+    "level": "2",
+    "heal": "3 4",
+    "launch": "12",
+    "target": "@123"
+   },
+   {
+    "id": "battle_heal",
+    "level": "3",
+    "heal": "4 4",
+    "launch": "12",
+    "target": "@123"
+   },
+   {
+    "id": "battle_heal",
+    "level": "4",
+    "heal": "5 6",
+    "launch": "12",
+    "target": "@123"
+   },
+   {
+    "id": "holy_lance",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "5%",
+    "move": "0 1",
+    "launch": "34",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Unholy Killer 1"
+   },
+   {
+    "id": "holy_lance",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "6%",
+    "move": "0 1",
+    "launch": "34",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Unholy Killer 2"
+   },
+   {
+    "id": "holy_lance",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "6%",
+    "move": "0 1",
+    "launch": "34",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Unholy Killer 3"
+   },
+   {
+    "id": "holy_lance",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "6%",
+    "move": "0 1",
+    "launch": "34",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Unholy Killer 4"
+   },
+   {
+    "id": "holy_lance",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "7%",
+    "move": "0 1",
+    "launch": "34",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Unholy Killer 5"
+   },
+   {
+    "id": "inspiring_cry",
+    "level": "0",
+    "heal": "1 1",
+    "launch": "1234",
+    "target": "@1234",
+    "effect": "Crusader HealStress 1\" \"Crusader Light 1"
+   },
+   {
+    "id": "inspiring_cry",
+    "level": "1",
+    "heal": "1 1",
+    "launch": "1234",
+    "target": "@1234",
+    "effect": "Crusader HealStress 2\" \"Crusader Light 2"
+   },
+   {
+    "id": "inspiring_cry",
+    "level": "2",
+    "heal": "1 2",
+    "launch": "1234",
+    "target": "@1234",
+    "effect": "Crusader HealStress 3\" \"Crusader Light 3"
+   },
+   {
+    "id": "inspiring_cry",
+    "level": "3",
+    "heal": "1 2",
+    "launch": "1234",
+    "target": "@1234",
+    "effect": "Crusader HealStress 4\" \"Crusader Light 4"
+   },
+   {
+    "id": "inspiring_cry",
+    "level": "4",
+    "heal": "2 2",
+    "launch": "1234",
+    "target": "@1234",
+    "effect": "Crusader HealStress 5\" \"Crusader Light 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "smite",
+    "icon": "one",
+    "anim": "attack_sword",
+    "fx": "smite",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "zealous_accusation",
+    "icon": "two",
+    "anim": "attack_scroll",
+    "fx": "zealous_accusation",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "stunning_blow",
+    "icon": "three",
+    "anim": "attack_stun",
+    "fx": "stunning_blow",
+    "targheadfx": "stunning_blow_target"
+   },
+   {
+    "id": "bulwark_of_faith",
+    "icon": "four",
+    "anim": "attack_scroll",
+    "fx": "bulwark_of_faith"
+   },
+   {
+    "id": "battle_heal",
+    "icon": "five",
+    "anim": "attack_heal",
+    "fx": "battle_heal",
+    "targfx": "battle_heal_target"
+   },
+   {
+    "id": "holy_lance",
+    "icon": "six",
+    "anim": "attack_charge",
+    "fx": "holy_lance",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "inspiring_cry",
+    "icon": "seven",
+    "anim": "attack_banner",
+    "fx": "inspiring_cry"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "crusader_weapon_0",
+    "atk": "0%",
+    "dmg": "6 12",
+    "crit": "5%",
+    "spd": "1"
+   },
+   {
+    "name": "crusader_weapon_1",
+    "atk": "0%",
+    "dmg": "7 14",
+    "crit": "5.5%",
+    "spd": "1",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "crusader_weapon_2",
+    "atk": "0%",
+    "dmg": "8 16",
+    "crit": "6%",
+    "spd": "2",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "crusader_weapon_3",
+    "atk": "0%",
+    "dmg": "9 17",
+    "crit": "6.5%",
+    "spd": "2",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "crusader_weapon_4",
+    "atk": "0%",
+    "dmg": "10 19",
+    "crit": "7%",
+    "spd": "3",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "crusader_armour_0",
+    "def": "5%",
+    "prot": "0",
+    "hp": "33",
+    "spd": "0"
+   },
+   {
+    "name": "crusader_armour_1",
+    "def": "10%",
+    "prot": "0",
+    "hp": "40",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "crusader_armour_2",
+    "def": "15%",
+    "prot": "0",
+    "hp": "47",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "crusader_armour_3",
+    "def": "20%",
+    "prot": "0",
+    "hp": "54",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "crusader_armour_4",
+    "def": "25%",
+    "prot": "0",
+    "hp": "61",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 69
+ },
+ "GraveRobber": {
+  "stat_records": [
+   {
+    "id": "pick",
+    "level": "0",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "5%",
+    "launch": "321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "pick",
+    "level": "1",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "pick",
+    "level": "2",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "pick",
+    "level": "3",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "pick",
+    "level": "4",
+    "type": "melee",
+    "atk": "115%",
+    "dmg": "0%",
+    "crit": "7%",
+    "launch": "321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "lunge",
+    "level": "0",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "40%",
+    "crit": "10%",
+    "move": "0 2",
+    "launch": "43",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "lunge",
+    "level": "1",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "40%",
+    "crit": "11%",
+    "move": "0 2",
+    "launch": "43",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "lunge",
+    "level": "2",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "40%",
+    "crit": "11%",
+    "move": "0 2",
+    "launch": "43",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "lunge",
+    "level": "3",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "40%",
+    "crit": "12%",
+    "move": "0 2",
+    "launch": "43",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "lunge",
+    "level": "4",
+    "type": "melee",
+    "atk": "115%",
+    "dmg": "40%",
+    "crit": "12%",
+    "move": "0 2",
+    "launch": "43",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "flashing_daggers",
+    "level": "0",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-33%",
+    "crit": "5%",
+    "launch": "432",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "GR Bleed Debuff 1"
+   },
+   {
+    "id": "flashing_daggers",
+    "level": "1",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-33%",
+    "crit": "6%",
+    "launch": "432",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "GR Bleed Debuff 2"
+   },
+   {
+    "id": "flashing_daggers",
+    "level": "2",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-33%",
+    "crit": "6%",
+    "launch": "432",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "GR Bleed Debuff 3"
+   },
+   {
+    "id": "flashing_daggers",
+    "level": "3",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-33%",
+    "crit": "6%",
+    "launch": "432",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "GR Bleed Debuff 4"
+   },
+   {
+    "id": "flashing_daggers",
+    "level": "4",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-33%",
+    "crit": "7%",
+    "launch": "432",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "GR Bleed Debuff 5"
+   },
+   {
+    "id": "shadow_fade",
+    "level": "0",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "False",
+    "effect": "Stun 1\" \"Dodge 1"
+   },
+   {
+    "id": "shadow_fade",
+    "level": "1",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "False",
+    "effect": "Stun 2\" \"Dodge 2"
+   },
+   {
+    "id": "shadow_fade",
+    "level": "2",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "False",
+    "effect": "Stun 3\" \"Dodge 3"
+   },
+   {
+    "id": "shadow_fade",
+    "level": "3",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "False",
+    "effect": "Stun 4\" \"Dodge 4"
+   },
+   {
+    "id": "shadow_fade",
+    "level": "4",
+    "type": "melee",
+    "atk": "115%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "False",
+    "effect": "Stun 5\" \"Dodge 5"
+   },
+   {
+    "id": "thrown_dagger",
+    "level": "0",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "10%",
+    "launch": "432",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "GR Acc Buff 1\" \"GR Dagger Dmg Marked"
+   },
+   {
+    "id": "thrown_dagger",
+    "level": "1",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "11%",
+    "launch": "432",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "GR Acc Buff 2\" \"GR Dagger Dmg Marked"
+   },
+   {
+    "id": "thrown_dagger",
+    "level": "2",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "11%",
+    "launch": "432",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "GR Acc Buff 3\" \"GR Dagger Dmg Marked"
+   },
+   {
+    "id": "thrown_dagger",
+    "level": "3",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "12%",
+    "launch": "432",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "GR Acc Buff 4\" \"GR Dagger Dmg Marked"
+   },
+   {
+    "id": "thrown_dagger",
+    "level": "4",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "0%",
+    "crit": "12%",
+    "launch": "432",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "GR Acc Buff 5\" \"GR Dagger Dmg Marked"
+   },
+   {
+    "id": "poison_dart",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-90%",
+    "crit": "5%",
+    "launch": "43",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "GR Blight 1\" \"GR Blight Debuff 1",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "poison_dart",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-90%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "GR Blight 2\" \"GR Blight Debuff 2"
+   },
+   {
+    "id": "poison_dart",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-90%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "GR Blight 3\" \"GR Blight Debuff 3"
+   },
+   {
+    "id": "poison_dart",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-90%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "GR Blight 4\" \"GR Blight Debuff 4"
+   },
+   {
+    "id": "poison_dart",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-90%",
+    "crit": "7%",
+    "launch": "43",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "GR Blight 5\" \"GR Blight Debuff 5"
+   },
+   {
+    "id": "toxin_trickery",
+    "level": "0",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Shadow Blood 1\" \"GR Self Speed 1"
+   },
+   {
+    "id": "toxin_trickery",
+    "level": "1",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Shadow Blood 2\" \"GR Self Speed 2"
+   },
+   {
+    "id": "toxin_trickery",
+    "level": "2",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Shadow Blood 3\" \"GR Self Speed 3"
+   },
+   {
+    "id": "toxin_trickery",
+    "level": "3",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Shadow Blood 4\" \"GR Self Speed 4"
+   },
+   {
+    "id": "toxin_trickery",
+    "level": "4",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Shadow Blood 5\" \"GR Self Speed 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "pick",
+    "icon": "one",
+    "anim": "attack_pick",
+    "fx": "pick",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "lunge",
+    "icon": "two",
+    "anim": "attack_melee",
+    "fx": "lunge",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "flashing_daggers",
+    "icon": "three",
+    "anim": "attack_dagger",
+    "targchestfx": "flashing_daggers_target"
+   },
+   {
+    "id": "shadow_fade",
+    "icon": "four",
+    "anim": "attack_fade",
+    "fx": "shadow_fade",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "thrown_dagger",
+    "icon": "five",
+    "anim": "attack_dagger",
+    "targchestfx": "thrown_dagger_target"
+   },
+   {
+    "id": "poison_dart",
+    "icon": "six",
+    "anim": "attack_throw",
+    "fx": "poison_dart",
+    "targchestfx": "poison_dart_target"
+   },
+   {
+    "id": "toxin_trickery",
+    "icon": "seven",
+    "anim": "attack_potion",
+    "fx": "toxin_trickery"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "grave_robber_weapon_0",
+    "atk": "0%",
+    "dmg": "4 9",
+    "crit": "5%",
+    "spd": "8"
+   },
+   {
+    "name": "grave_robber_weapon_1",
+    "atk": "0%",
+    "dmg": "5 11",
+    "crit": "5.5%",
+    "spd": "8",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "grave_robber_weapon_2",
+    "atk": "0%",
+    "dmg": "6 13",
+    "crit": "6%",
+    "spd": "9",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "grave_robber_weapon_3",
+    "atk": "0%",
+    "dmg": "6 14",
+    "crit": "6.5%",
+    "spd": "9",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "grave_robber_weapon_4",
+    "atk": "0%",
+    "dmg": "7 16",
+    "crit": "7%",
+    "spd": "10",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "grave_robber_armour_0",
+    "def": "10%",
+    "prot": "0",
+    "hp": "20",
+    "spd": "0"
+   },
+   {
+    "name": "grave_robber_armour_1",
+    "def": "15%",
+    "prot": "0",
+    "hp": "24",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "grave_robber_armour_2",
+    "def": "20%",
+    "prot": "0",
+    "hp": "28",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "grave_robber_armour_3",
+    "def": "25%",
+    "prot": "0",
+    "hp": "32",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "grave_robber_armour_4",
+    "def": "30%",
+    "prot": "0",
+    "hp": "36",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 69
+ },
+ "Hellion": {
+  "stat_records": [
+   {
+    "id": "wicked_hack",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "5%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "wicked_hack",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "wicked_hack",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "wicked_hack",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "wicked_hack",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "7%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "iron_swan",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "5%",
+    "launch": "1",
+    "target": "4",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "iron_swan",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "1",
+    "target": "4",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "iron_swan",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "1",
+    "target": "4",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "iron_swan",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "1",
+    "target": "4",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "iron_swan",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "7%",
+    "launch": "1",
+    "target": "4",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "barbaric_yawp",
+    "level": "0",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "False",
+    "effect": "Strong Stun 1\" \"Hellion Exhaust"
+   },
+   {
+    "id": "barbaric_yawp",
+    "level": "1",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "False",
+    "effect": "Strong Stun 2\" \"Hellion Exhaust"
+   },
+   {
+    "id": "barbaric_yawp",
+    "level": "2",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "False",
+    "effect": "Strong Stun 3\" \"Hellion Exhaust"
+   },
+   {
+    "id": "barbaric_yawp",
+    "level": "3",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "False",
+    "effect": "Strong Stun 4\" \"Hellion Exhaust"
+   },
+   {
+    "id": "barbaric_yawp",
+    "level": "4",
+    "type": "melee",
+    "atk": "115%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "~12",
+    "is_crit_valid": "False",
+    "effect": "Strong Stun 5\" \"Hellion Exhaust"
+   },
+   {
+    "id": "if_it_bleeds",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "-35%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "23",
+    "is_crit_valid": "True",
+    "effect": "Bleed 1"
+   },
+   {
+    "id": "if_it_bleeds",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-35%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "23",
+    "is_crit_valid": "True",
+    "effect": "Bleed 2"
+   },
+   {
+    "id": "if_it_bleeds",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-35%",
+    "crit": "1%",
+    "launch": "321",
+    "target": "23",
+    "is_crit_valid": "True",
+    "effect": "Bleed 3"
+   },
+   {
+    "id": "if_it_bleeds",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-35%",
+    "crit": "2%",
+    "launch": "321",
+    "target": "23",
+    "is_crit_valid": "True",
+    "effect": "Bleed 4"
+   },
+   {
+    "id": "if_it_bleeds",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-35%",
+    "crit": "2%",
+    "launch": "321",
+    "target": "23",
+    "is_crit_valid": "True",
+    "effect": "Bleed 5"
+   },
+   {
+    "id": "breakthru",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "-55%",
+    "crit": "0%",
+    "move": "0 1",
+    "launch": "4321",
+    "target": "~123",
+    "is_crit_valid": "True",
+    "effect": "Hellion Exhaust"
+   },
+   {
+    "id": "breakthru",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-55%",
+    "crit": "0%",
+    "move": "0 1",
+    "launch": "4321",
+    "target": "~123",
+    "is_crit_valid": "True",
+    "effect": "Hellion Exhaust"
+   },
+   {
+    "id": "breakthru",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-55%",
+    "crit": "1%",
+    "move": "0 1",
+    "launch": "4321",
+    "target": "~123",
+    "is_crit_valid": "True",
+    "effect": "Hellion Exhaust"
+   },
+   {
+    "id": "breakthru",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-55%",
+    "crit": "2%",
+    "move": "0 1",
+    "launch": "4321",
+    "target": "~123",
+    "is_crit_valid": "True",
+    "effect": "Hellion Exhaust"
+   },
+   {
+    "id": "breakthru",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-55%",
+    "crit": "2%",
+    "move": "0 1",
+    "launch": "4321",
+    "target": "~123",
+    "is_crit_valid": "True",
+    "effect": "Hellion Exhaust"
+   },
+   {
+    "id": "adrenaline_rush",
+    "level": "0",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Adrenaline 1\" \"HellionHealSelf 1"
+   },
+   {
+    "id": "adrenaline_rush",
+    "level": "1",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Adrenaline 2\" \"HellionHealSelf 2"
+   },
+   {
+    "id": "adrenaline_rush",
+    "level": "2",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Adrenaline 3\" \"HellionHealSelf 3"
+   },
+   {
+    "id": "adrenaline_rush",
+    "level": "3",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Adrenaline 4\" \"HellionHealSelf 4"
+   },
+   {
+    "id": "adrenaline_rush",
+    "level": "4",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Adrenaline 5\" \"HellionHealSelf 5"
+   },
+   {
+    "id": "bleed_out",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "15%",
+    "crit": "5%",
+    "launch": "1",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 1\" \"Hellion Exhaust"
+   },
+   {
+    "id": "bleed_out",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "15%",
+    "crit": "6%",
+    "launch": "1",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 2\" \"Hellion Exhaust"
+   },
+   {
+    "id": "bleed_out",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "15%",
+    "crit": "6%",
+    "launch": "1",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 3\" \"Hellion Exhaust"
+   },
+   {
+    "id": "bleed_out",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "15%",
+    "crit": "6%",
+    "launch": "1",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 4\" \"Hellion Exhaust"
+   },
+   {
+    "id": "bleed_out",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "15%",
+    "crit": "7%",
+    "launch": "1",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 5\" \"Hellion Exhaust"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "wicked_hack",
+    "icon": "one",
+    "anim": "attack_high",
+    "fx": "wicked_hack",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "iron_swan",
+    "icon": "two",
+    "anim": "attack_leap",
+    "fx": "iron_swan",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "barbaric_yawp",
+    "icon": "three",
+    "anim": "attack_ranged",
+    "fx": "barbaric_yawp",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "if_it_bleeds",
+    "icon": "four",
+    "anim": "attack_high",
+    "fx": "if_it_bleeds",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "breakthru",
+    "icon": "five",
+    "anim": "attack_charge",
+    "fx": "breakthru",
+    "targchestfx": "blood_splatter",
+    "area_pos_offset": "50 0",
+    "target_area_pos_offset": "-50 0"
+   },
+   {
+    "id": "adrenaline_rush",
+    "icon": "six",
+    "anim": "attack_buff",
+    "fx": "adrenaline_rush"
+   },
+   {
+    "id": "bleed_out",
+    "icon": "seven",
+    "anim": "attack_low",
+    "fx": "bleed_out",
+    "targchestfx": "blood_splatter"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "hellion_weapon_0",
+    "atk": "0%",
+    "dmg": "6 12",
+    "crit": "2.5%",
+    "spd": "4"
+   },
+   {
+    "name": "hellion_weapon_1",
+    "atk": "0%",
+    "dmg": "7 14",
+    "crit": "3%",
+    "spd": "4",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "hellion_weapon_2",
+    "atk": "0%",
+    "dmg": "8 16",
+    "crit": "3.5%",
+    "spd": "5",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "hellion_weapon_3",
+    "atk": "0%",
+    "dmg": "9 17",
+    "crit": "4%",
+    "spd": "5",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "hellion_weapon_4",
+    "atk": "0%",
+    "dmg": "10 19",
+    "crit": "4.5%",
+    "spd": "6",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "hellion_armour_0",
+    "def": "10%",
+    "prot": "0",
+    "hp": "26",
+    "spd": "0"
+   },
+   {
+    "name": "hellion_armour_1",
+    "def": "15%",
+    "prot": "0",
+    "hp": "31",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "hellion_armour_2",
+    "def": "20%",
+    "prot": "0",
+    "hp": "36",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "hellion_armour_3",
+    "def": "25%",
+    "prot": "0",
+    "hp": "41",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "hellion_armour_4",
+    "def": "30%",
+    "prot": "0",
+    "hp": "46",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 69
+ },
+ "Highwayman": {
+  "stat_records": [
+   {
+    "id": "wicked_slice",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "15%",
+    "crit": "5%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "wicked_slice",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "15%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "wicked_slice",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "15%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "wicked_slice",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "15%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "wicked_slice",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "15%",
+    "crit": "7%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "pistol_shot",
+    "level": "0",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-25%",
+    "crit": "10%",
+    "launch": "432",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Highwayman Pistol Dmg Marked",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "pistol_shot",
+    "level": "1",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-25%",
+    "crit": "11%",
+    "launch": "432",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Highwayman Pistol Dmg Marked"
+   },
+   {
+    "id": "pistol_shot",
+    "level": "2",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-25%",
+    "crit": "11%",
+    "launch": "432",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Highwayman Pistol Dmg Marked"
+   },
+   {
+    "id": "pistol_shot",
+    "level": "3",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-25%",
+    "crit": "12%",
+    "launch": "432",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Highwayman Pistol Dmg Marked"
+   },
+   {
+    "id": "pistol_shot",
+    "level": "4",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-25%",
+    "crit": "12%",
+    "launch": "432",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Highwayman Pistol Dmg Marked"
+   },
+   {
+    "id": "point_blank_shot",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "50%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "1",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Push 1A"
+   },
+   {
+    "id": "point_blank_shot",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "50%",
+    "crit": "0%",
+    "move": "1 0",
+    "launch": "1",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Push 1B"
+   },
+   {
+    "id": "point_blank_shot",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "50%",
+    "crit": "1%",
+    "move": "1 0",
+    "launch": "1",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Push 1C"
+   },
+   {
+    "id": "point_blank_shot",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "50%",
+    "crit": "2%",
+    "move": "1 0",
+    "launch": "1",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Push 1D"
+   },
+   {
+    "id": "point_blank_shot",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "50%",
+    "crit": "2%",
+    "move": "1 0",
+    "launch": "1",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Push 1E"
+   },
+   {
+    "id": "grape_shot_blast",
+    "level": "0",
+    "type": "ranged",
+    "atk": "80%",
+    "dmg": "-60%",
+    "crit": "-7%",
+    "launch": "23",
+    "target": "~123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "grape_shot_blast",
+    "level": "1",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-60%",
+    "crit": "-6%",
+    "launch": "23",
+    "target": "~123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "grape_shot_blast",
+    "level": "2",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-60%",
+    "crit": "-6%",
+    "launch": "23",
+    "target": "~123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "grape_shot_blast",
+    "level": "3",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-60%",
+    "crit": "-6%",
+    "launch": "23",
+    "target": "~123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "grape_shot_blast",
+    "level": "4",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-60%",
+    "crit": "-5%",
+    "launch": "23",
+    "target": "~123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "take_aim",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-80%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Highwayman Buff 1"
+   },
+   {
+    "id": "take_aim",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-80%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Highwayman Buff 2"
+   },
+   {
+    "id": "take_aim",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-80%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Highwayman Buff 3"
+   },
+   {
+    "id": "take_aim",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-80%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Highwayman Buff 4"
+   },
+   {
+    "id": "take_aim",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-80%",
+    "crit": "1%",
+    "launch": "4321",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Highwayman Buff 5"
+   },
+   {
+    "id": "duelist_advance",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "-20%",
+    "crit": "2%",
+    "move": "0 1",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Hwy Riposte 1"
+   },
+   {
+    "id": "duelist_advance",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-20%",
+    "crit": "2%",
+    "move": "0 1",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Hwy Riposte 2"
+   },
+   {
+    "id": "duelist_advance",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-20%",
+    "crit": "3%",
+    "move": "0 1",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Hwy Riposte 3"
+   },
+   {
+    "id": "duelist_advance",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-20%",
+    "crit": "4%",
+    "move": "0 1",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Hwy Riposte 4"
+   },
+   {
+    "id": "duelist_advance",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-20%",
+    "crit": "4%",
+    "move": "0 1",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Hwy Riposte 5"
+   },
+   {
+    "id": "opened_vein",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "-15%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Bleed 1\" \"Bleed Debuff 1"
+   },
+   {
+    "id": "opened_vein",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-15%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Bleed 2\" \"Bleed Debuff 2"
+   },
+   {
+    "id": "opened_vein",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-15%",
+    "crit": "1%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Bleed 3\" \"Bleed Debuff 3"
+   },
+   {
+    "id": "opened_vein",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-15%",
+    "crit": "2%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Bleed 4\" \"Bleed Debuff 4"
+   },
+   {
+    "id": "opened_vein",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-15%",
+    "crit": "2%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Bleed 5\" \"Bleed Debuff 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "wicked_slice",
+    "icon": "one",
+    "anim": "attack_slice",
+    "fx": "wicked_slice",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "pistol_shot",
+    "icon": "two",
+    "anim": "attack_pistol",
+    "fx": "pistol_shot",
+    "targchestfx": "pistol_shot_target"
+   },
+   {
+    "id": "point_blank_shot",
+    "icon": "three",
+    "anim": "attack_hipshot",
+    "fx": "point_blank_shot",
+    "targchestfx": "point_blank_shot_target"
+   },
+   {
+    "id": "grape_shot_blast",
+    "icon": "four",
+    "anim": "attack_pistol",
+    "fx": "grape_shot_blast",
+    "targchestfx": "grape_shot_blast_target",
+    "area_pos_offset": "75 0",
+    "target_area_pos_offset": "-75 0"
+   },
+   {
+    "id": "take_aim",
+    "icon": "five",
+    "anim": "attack_pistol",
+    "fx": "tracking_shot",
+    "targchestfx": "tracking_shot_target"
+   },
+   {
+    "id": "duelist_advance",
+    "icon": "six",
+    "anim": "attack_lunge",
+    "fx": "duelist_advance",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "opened_vein",
+    "icon": "seven",
+    "anim": "attack_slice",
+    "fx": "opened_vein",
+    "targchestfx": "blood_splatter"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "highwayman_weapon_0",
+    "atk": "0%",
+    "dmg": "5 10",
+    "crit": "5%",
+    "spd": "5"
+   },
+   {
+    "name": "highwayman_weapon_1",
+    "atk": "0%",
+    "dmg": "6 12",
+    "crit": "5.5%",
+    "spd": "5",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "highwayman_weapon_2",
+    "atk": "0%",
+    "dmg": "7 13",
+    "crit": "6%",
+    "spd": "6",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "highwayman_weapon_3",
+    "atk": "0%",
+    "dmg": "7 15",
+    "crit": "6.5%",
+    "spd": "6",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "highwayman_weapon_4",
+    "atk": "0%",
+    "dmg": "8 16",
+    "crit": "7%",
+    "spd": "7",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "highwayman_armour_0",
+    "def": "10%",
+    "prot": "0",
+    "hp": "22",
+    "spd": "0"
+   },
+   {
+    "name": "highwayman_armour_1",
+    "def": "15%",
+    "prot": "0",
+    "hp": "26",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "highwayman_armour_2",
+    "def": "20%",
+    "prot": "0",
+    "hp": "30",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "highwayman_armour_3",
+    "def": "25%",
+    "prot": "0",
+    "hp": "34",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "highwayman_armour_4",
+    "def": "30%",
+    "prot": "0",
+    "hp": "38",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 71
+ },
+ "HoundMaster": {
+  "stat_records": [
+   {
+    "id": "hounds_rush",
+    "level": "0",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Beast Killer 1\" \"HM Dmg Marked 1\" \"Hound Bleed 1",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "hounds_rush",
+    "level": "1",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "3%",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Beast Killer 2\" \"HM Dmg Marked 2\" \"Hound Bleed 2"
+   },
+   {
+    "id": "hounds_rush",
+    "level": "2",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "4%",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Beast Killer 3\" \"HM Dmg Marked 3\" \"Hound Bleed 3"
+   },
+   {
+    "id": "hounds_rush",
+    "level": "3",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "4%",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Beast Killer 4\" \"HM Dmg Marked 4\" \"Hound Bleed 4"
+   },
+   {
+    "id": "hounds_rush",
+    "level": "4",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "4%",
+    "launch": "432",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Beast Killer 5\" \"HM Dmg Marked 5\" \"Hound Bleed 5"
+   },
+   {
+    "id": "hounds_harry",
+    "level": "0",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-80%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "~1234",
+    "is_crit_valid": "True",
+    "effect": "Hound Bleed 1"
+   },
+   {
+    "id": "hounds_harry",
+    "level": "1",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-80%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "~1234",
+    "is_crit_valid": "True",
+    "effect": "Hound Bleed 2"
+   },
+   {
+    "id": "hounds_harry",
+    "level": "2",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-80%",
+    "crit": "1%",
+    "launch": "4321",
+    "target": "~1234",
+    "is_crit_valid": "True",
+    "effect": "Hound Bleed 3"
+   },
+   {
+    "id": "hounds_harry",
+    "level": "3",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-80%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "~1234",
+    "is_crit_valid": "True",
+    "effect": "Hound Bleed 4"
+   },
+   {
+    "id": "hounds_harry",
+    "level": "4",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-80%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "~1234",
+    "is_crit_valid": "True",
+    "effect": "Hound Bleed 5"
+   },
+   {
+    "id": "whistle",
+    "level": "0",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "HM Mark Target\" \"Hound Debuff 1"
+   },
+   {
+    "id": "whistle",
+    "level": "1",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "HM Mark Target\" \"Hound Debuff 2"
+   },
+   {
+    "id": "whistle",
+    "level": "2",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "HM Mark Target\" \"Hound Debuff 3"
+   },
+   {
+    "id": "whistle",
+    "level": "3",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "HM Mark Target\" \"Hound Debuff 4"
+   },
+   {
+    "id": "whistle",
+    "level": "4",
+    "type": "ranged",
+    "atk": "120%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "1234",
+    "is_crit_valid": "False",
+    "effect": "HM Mark Target\" \"Hound Debuff 5"
+   },
+   {
+    "id": "howl",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "@~1234",
+    "is_crit_valid": "True",
+    "effect": "Hound Howl 1"
+   },
+   {
+    "id": "howl",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "@~1234",
+    "is_crit_valid": "True",
+    "effect": "Hound Howl 2"
+   },
+   {
+    "id": "howl",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "@~1234",
+    "is_crit_valid": "True",
+    "effect": "Hound Howl 3"
+   },
+   {
+    "id": "howl",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "@~1234",
+    "is_crit_valid": "True",
+    "effect": "Hound Howl 4"
+   },
+   {
+    "id": "howl",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "@~1234",
+    "is_crit_valid": "True",
+    "effect": "Hound Howl 5"
+   },
+   {
+    "id": "guard_dog",
+    "level": "0",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "HM Guard 1\" \"Hound Protect 1"
+   },
+   {
+    "id": "guard_dog",
+    "level": "1",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "HM Guard 1\" \"Hound Protect 2"
+   },
+   {
+    "id": "guard_dog",
+    "level": "2",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "HM Guard 1\" \"Hound Protect 3"
+   },
+   {
+    "id": "guard_dog",
+    "level": "3",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "HM Guard 1\" \"Hound Protect 4"
+   },
+   {
+    "id": "guard_dog",
+    "level": "4",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "HM Guard 1\" \"Hound Protect 5"
+   },
+   {
+    "id": "lick_wounds",
+    "level": "0",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "432",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Lick Wounds 1"
+   },
+   {
+    "id": "lick_wounds",
+    "level": "1",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "432",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Lick Wounds 2"
+   },
+   {
+    "id": "lick_wounds",
+    "level": "2",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "432",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Lick Wounds 3"
+   },
+   {
+    "id": "lick_wounds",
+    "level": "3",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "432",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Lick Wounds 4"
+   },
+   {
+    "id": "lick_wounds",
+    "level": "4",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "432",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Lick Wounds 5"
+   },
+   {
+    "id": "blackjack",
+    "level": "0",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-60%",
+    "crit": "1%",
+    "launch": "21",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Strong Stun 1"
+   },
+   {
+    "id": "blackjack",
+    "level": "1",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-60%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Strong Stun 2"
+   },
+   {
+    "id": "blackjack",
+    "level": "2",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-60%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Strong Stun 3"
+   },
+   {
+    "id": "blackjack",
+    "level": "3",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "-60%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Strong Stun 4"
+   },
+   {
+    "id": "blackjack",
+    "level": "4",
+    "type": "melee",
+    "atk": "115%",
+    "dmg": "-60%",
+    "crit": "3%",
+    "launch": "21",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Strong Stun 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "hounds_rush",
+    "icon": "one",
+    "anim": "attack_sickem",
+    "fx": "hounds_rush",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "hounds_harry",
+    "icon": "two",
+    "anim": "attack_rush",
+    "fx": "hounds_harry",
+    "targchestfx": "blood_splatter",
+    "area_pos_offset": "100 0",
+    "target_area_pos_offset": "-100 0"
+   },
+   {
+    "id": "whistle",
+    "icon": "three",
+    "anim": "attack_point",
+    "fx": "whistle",
+    "targchestfx": "whistle_target"
+   },
+   {
+    "id": "howl",
+    "icon": "four",
+    "anim": "attack_howl",
+    "fx": "baleful_howl"
+   },
+   {
+    "id": "guard_dog",
+    "icon": "five",
+    "anim": "attack_guard",
+    "fx": "guard_dog"
+   },
+   {
+    "id": "lick_wounds",
+    "icon": "six",
+    "anim": "attack_heal",
+    "fx": "lick_wounds"
+   },
+   {
+    "id": "blackjack",
+    "icon": "seven",
+    "anim": "attack_club",
+    "fx": "blackjack",
+    "targchestfx": "blood_splatter"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "houndmaster_weapon_0",
+    "atk": "0%",
+    "dmg": "4 7",
+    "crit": "5%",
+    "spd": "6"
+   },
+   {
+    "name": "houndmaster_weapon_1",
+    "atk": "0%",
+    "dmg": "5 8",
+    "crit": "5.5%",
+    "spd": "6",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "houndmaster_weapon_2",
+    "atk": "0%",
+    "dmg": "6 10",
+    "crit": "6%",
+    "spd": "7",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "houndmaster_weapon_3",
+    "atk": "0%",
+    "dmg": "6 11",
+    "crit": "6.5%",
+    "spd": "7",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "houndmaster_weapon_4",
+    "atk": "0%",
+    "dmg": "7 13",
+    "crit": "7%",
+    "spd": "8",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "houndmaster_armour_0",
+    "def": "10%",
+    "prot": "0",
+    "hp": "21",
+    "spd": "0"
+   },
+   {
+    "name": "houndmaster_armour_1",
+    "def": "15%",
+    "prot": "0",
+    "hp": "28",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "houndmaster_armour_2",
+    "def": "20%",
+    "prot": "0",
+    "hp": "35",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "houndmaster_armour_3",
+    "def": "25%",
+    "prot": "0",
+    "hp": "42",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "houndmaster_armour_4",
+    "def": "30%",
+    "prot": "0",
+    "hp": "49",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 69
+ },
+ "Jester": {
+  "stat_records": [
+   {
+    "id": "dirk_stab",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "2%",
+    "move": "0 1",
+    "launch": "4321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "dirk_stab",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "3%",
+    "move": "0 1",
+    "launch": "4321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "dirk_stab",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "4%",
+    "move": "0 1",
+    "launch": "4321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "dirk_stab",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "4%",
+    "move": "0 1",
+    "launch": "4321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "dirk_stab",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "4%",
+    "move": "0 1",
+    "launch": "4321",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "harvest",
+    "level": "0",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-50%",
+    "crit": "0%",
+    "launch": "32",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "Bleed 1",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "harvest",
+    "level": "1",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-50%",
+    "crit": "0%",
+    "launch": "32",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "Bleed 2"
+   },
+   {
+    "id": "harvest",
+    "level": "2",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-50%",
+    "crit": "1%",
+    "launch": "32",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "Bleed 3"
+   },
+   {
+    "id": "harvest",
+    "level": "3",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-50%",
+    "crit": "2%",
+    "launch": "32",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "Bleed 4"
+   },
+   {
+    "id": "harvest",
+    "level": "4",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "-50%",
+    "crit": "2%",
+    "launch": "32",
+    "target": "~23",
+    "is_crit_valid": "True",
+    "effect": "Bleed 5"
+   },
+   {
+    "id": "heroic_end",
+    "level": "0",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "150%",
+    "crit": "8%",
+    "move": "3 0",
+    "launch": "1",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Mortal Weakness"
+   },
+   {
+    "id": "heroic_end",
+    "level": "1",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "150%",
+    "crit": "8%",
+    "move": "3 0",
+    "launch": "1",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Mortal Weakness"
+   },
+   {
+    "id": "heroic_end",
+    "level": "2",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "150%",
+    "crit": "8%",
+    "move": "3 0",
+    "launch": "1",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Mortal Weakness"
+   },
+   {
+    "id": "heroic_end",
+    "level": "3",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "150%",
+    "crit": "8%",
+    "move": "3 0",
+    "launch": "1",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Mortal Weakness"
+   },
+   {
+    "id": "heroic_end",
+    "level": "4",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "150%",
+    "crit": "9%",
+    "move": "3 0",
+    "launch": "1",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Mortal Weakness"
+   },
+   {
+    "id": "solo",
+    "level": "0",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "move": "0 3",
+    "launch": "4321",
+    "target": "~1234",
+    "is_crit_valid": "False",
+    "effect": "Distract Enemies 1\" \"Jester Self Speed 1"
+   },
+   {
+    "id": "solo",
+    "level": "1",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "move": "0 3",
+    "launch": "4321",
+    "target": "~1234",
+    "is_crit_valid": "False",
+    "effect": "Distract Enemies 2\" \"Jester Self Speed 2"
+   },
+   {
+    "id": "solo",
+    "level": "2",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "move": "0 3",
+    "launch": "4321",
+    "target": "~1234",
+    "is_crit_valid": "False",
+    "effect": "Distract Enemies 3\" \"Jester Self Speed 3"
+   },
+   {
+    "id": "solo",
+    "level": "3",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "move": "0 3",
+    "launch": "4321",
+    "target": "~1234",
+    "is_crit_valid": "False",
+    "effect": "Distract Enemies 4\" \"Jester Self Speed 4"
+   },
+   {
+    "id": "solo",
+    "level": "4",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "move": "0 3",
+    "launch": "4321",
+    "target": "~1234",
+    "is_crit_valid": "False",
+    "effect": "Distract Enemies 5\" \"Jester Self Speed 5"
+   },
+   {
+    "id": "slice_off",
+    "level": "0",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-33%",
+    "crit": "8%",
+    "launch": "32",
+    "target": "23",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 1"
+   },
+   {
+    "id": "slice_off",
+    "level": "1",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-33%",
+    "crit": "8%",
+    "launch": "32",
+    "target": "23",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 2"
+   },
+   {
+    "id": "slice_off",
+    "level": "2",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-33%",
+    "crit": "8%",
+    "launch": "32",
+    "target": "23",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 3"
+   },
+   {
+    "id": "slice_off",
+    "level": "3",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "-33%",
+    "crit": "9%",
+    "launch": "32",
+    "target": "23",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 4"
+   },
+   {
+    "id": "slice_off",
+    "level": "4",
+    "type": "melee",
+    "atk": "115%",
+    "dmg": "-33%",
+    "crit": "10%",
+    "launch": "32",
+    "target": "23",
+    "is_crit_valid": "True",
+    "effect": "Strong Bleed 5"
+   },
+   {
+    "id": "battle_ballad",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "34",
+    "target": "@~1234",
+    "is_crit_valid": "True",
+    "effect": "Embolden Team 1"
+   },
+   {
+    "id": "battle_ballad",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "34",
+    "target": "@~1234",
+    "is_crit_valid": "True",
+    "effect": "Embolden Team 2"
+   },
+   {
+    "id": "battle_ballad",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "34",
+    "target": "@~1234",
+    "is_crit_valid": "True",
+    "effect": "Embolden Team 3"
+   },
+   {
+    "id": "battle_ballad",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "34",
+    "target": "@~1234",
+    "is_crit_valid": "True",
+    "effect": "Embolden Team 4"
+   },
+   {
+    "id": "battle_ballad",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "34",
+    "target": "@~1234",
+    "is_crit_valid": "True",
+    "effect": "Embolden Team 5"
+   },
+   {
+    "id": "inspiring_tune",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "InspiringTune 1\" \"Jester Tune Buff 1"
+   },
+   {
+    "id": "inspiring_tune",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "InspiringTune 2\" \"Jester Tune Buff 2"
+   },
+   {
+    "id": "inspiring_tune",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "InspiringTune 3\" \"Jester Tune Buff 3"
+   },
+   {
+    "id": "inspiring_tune",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "InspiringTune 4\" \"Jester Tune Buff 4"
+   },
+   {
+    "id": "inspiring_tune",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "InspiringTune 5\" \"Jester Tune Buff 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "dirk_stab",
+    "icon": "one",
+    "anim": "attack_dirk",
+    "fx": "dirk_stab",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "harvest",
+    "icon": "two",
+    "anim": "attack_sickle",
+    "fx": "harvest",
+    "targchestfx": "blood_splatter",
+    "area_pos_offset": "0 25"
+   },
+   {
+    "id": "heroic_end",
+    "icon": "three",
+    "anim": "attack_bow",
+    "fx": "finale",
+    "targchestfx": "finale_target"
+   },
+   {
+    "id": "solo",
+    "icon": "four",
+    "anim": "attack_powerslide",
+    "fx": "solo",
+    "targchestfx": "solo_target",
+    "area_pos_offset": "75 25",
+    "target_area_pos_offset": "-150 25"
+   },
+   {
+    "id": "slice_off",
+    "icon": "five",
+    "anim": "attack_sickle",
+    "fx": "slice_off",
+    "targchestfx": "blood_splatter",
+    "area_pos_offset": "0 25"
+   },
+   {
+    "id": "battle_ballad",
+    "icon": "six",
+    "anim": "attack_lute",
+    "fx": "battle_ballad",
+    "targchestfx": "battle_ballad_target"
+   },
+   {
+    "id": "inspiring_tune",
+    "icon": "seven",
+    "fx": "inspiring_tune",
+    "anim": "attack_lute"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "jester_weapon_0",
+    "atk": "0%",
+    "dmg": "4 7",
+    "crit": "7.5%",
+    "spd": "7"
+   },
+   {
+    "name": "jester_weapon_1",
+    "atk": "0%",
+    "dmg": "5 8",
+    "crit": "8%",
+    "spd": "7",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "jester_weapon_2",
+    "atk": "0%",
+    "dmg": "6 10",
+    "crit": "8.5%",
+    "spd": "8",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "jester_weapon_3",
+    "atk": "0%",
+    "dmg": "6 11",
+    "crit": "9%",
+    "spd": "8",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "jester_weapon_4",
+    "atk": "0%",
+    "dmg": "7 13",
+    "crit": "9.5%",
+    "spd": "9",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "jester_armour_0",
+    "def": "15%",
+    "prot": "0",
+    "hp": "19",
+    "spd": "0"
+   },
+   {
+    "name": "jester_armour_1",
+    "def": "20%",
+    "prot": "0",
+    "hp": "23",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "jester_armour_2",
+    "def": "25%",
+    "prot": "0",
+    "hp": "27",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "jester_armour_3",
+    "def": "30%",
+    "prot": "0",
+    "hp": "31",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "jester_armour_4",
+    "def": "35%",
+    "prot": "0",
+    "hp": "35",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 69
+ },
+ "Leper": {
+  "stat_records": [
+   {
+    "id": "chop",
+    "level": "0",
+    "type": "melee",
+    "atk": "75%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "12",
+    "target": "12",
+    "is_crit_valid": "True",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "chop",
+    "level": "1",
+    "type": "melee",
+    "atk": "80%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "12",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "chop",
+    "level": "2",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "3%",
+    "launch": "12",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "chop",
+    "level": "3",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "4%",
+    "launch": "12",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "chop",
+    "level": "4",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "4%",
+    "launch": "12",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "hew",
+    "level": "0",
+    "type": "melee",
+    "atk": "75%",
+    "dmg": "-40%",
+    "crit": "2%",
+    "launch": "12",
+    "target": "~12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "hew",
+    "level": "1",
+    "type": "melee",
+    "atk": "80%",
+    "dmg": "-40%",
+    "crit": "2%",
+    "launch": "12",
+    "target": "~12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "hew",
+    "level": "2",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "-40%",
+    "crit": "3%",
+    "launch": "12",
+    "target": "~12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "hew",
+    "level": "3",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-40%",
+    "crit": "4%",
+    "launch": "12",
+    "target": "~12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "hew",
+    "level": "4",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-40%",
+    "crit": "4%",
+    "launch": "12",
+    "target": "~12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "focus",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "-90%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Push 3A\" \"clear_corpses"
+   },
+   {
+    "id": "focus",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-90%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Push 3B\" \"clear_corpses"
+   },
+   {
+    "id": "focus",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-90%",
+    "crit": "1%",
+    "launch": "12",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Push 3C\" \"clear_corpses"
+   },
+   {
+    "id": "focus",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-90%",
+    "crit": "2%",
+    "launch": "12",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Push 3D\" \"clear_corpses"
+   },
+   {
+    "id": "focus",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-90%",
+    "crit": "2%",
+    "launch": "12",
+    "target": "1",
+    "is_crit_valid": "True",
+    "effect": "Push 3E\" \"clear_corpses"
+   },
+   {
+    "id": "revenge",
+    "level": "0",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Leper Strength 1\" \"Leper Vulnerability"
+   },
+   {
+    "id": "revenge",
+    "level": "1",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Leper Strength 2\" \"Leper Vulnerability"
+   },
+   {
+    "id": "revenge",
+    "level": "2",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Leper Strength 3\" \"Leper Vulnerability"
+   },
+   {
+    "id": "revenge",
+    "level": "3",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Leper Strength 4\" \"Leper Vulnerability"
+   },
+   {
+    "id": "revenge",
+    "level": "4",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "Leper Strength 5\" \"Leper Vulnerability"
+   },
+   {
+    "id": "withstand",
+    "level": "0",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "LeperHealSelfStress 1\" \"Leper Protect 1"
+   },
+   {
+    "id": "withstand",
+    "level": "1",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "LeperHealSelfStress 2\" \"Leper Protect 2"
+   },
+   {
+    "id": "withstand",
+    "level": "2",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "LeperHealSelfStress 3\" \"Leper Protect 3"
+   },
+   {
+    "id": "withstand",
+    "level": "3",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "LeperHealSelfStress 4\" \"Leper Protect 4"
+   },
+   {
+    "id": "withstand",
+    "level": "4",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "LeperHealSelfStress 5\" \"Leper Protect 5"
+   },
+   {
+    "id": "solemnity",
+    "level": "0",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "LeperHealSelf 1\" \"Leper Resist Buff 1"
+   },
+   {
+    "id": "solemnity",
+    "level": "1",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "LeperHealSelf 2\" \"Leper Resist Buff 1"
+   },
+   {
+    "id": "solemnity",
+    "level": "2",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "LeperHealSelf 3\" \"Leper Resist Buff 1"
+   },
+   {
+    "id": "solemnity",
+    "level": "3",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "LeperHealSelf 4\" \"Leper Resist Buff 1"
+   },
+   {
+    "id": "solemnity",
+    "level": "4",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "",
+    "is_crit_valid": "True",
+    "effect": "LeperHealSelf 5\" \"Leper Resist Buff 1"
+   },
+   {
+    "id": "intimidate",
+    "level": "0",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-75%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "Leper Intimidate 1"
+   },
+   {
+    "id": "intimidate",
+    "level": "1",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-75%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "Leper Intimidate 2"
+   },
+   {
+    "id": "intimidate",
+    "level": "2",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-75%",
+    "crit": "1%",
+    "launch": "12",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "Leper Intimidate 3"
+   },
+   {
+    "id": "intimidate",
+    "level": "3",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "-75%",
+    "crit": "2%",
+    "launch": "12",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "Leper Intimidate 4"
+   },
+   {
+    "id": "intimidate",
+    "level": "4",
+    "type": "melee",
+    "atk": "115%",
+    "dmg": "-75%",
+    "crit": "2%",
+    "launch": "12",
+    "target": "~12",
+    "is_crit_valid": "True",
+    "effect": "Leper Intimidate 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "chop",
+    "icon": "one",
+    "anim": "attack_chop",
+    "fx": "chop",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "hew",
+    "icon": "two",
+    "anim": "attack_hew",
+    "fx": "hew",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "focus",
+    "icon": "three",
+    "anim": "attack_intimidate",
+    "fx": "purge",
+    "targfx": "purge_target"
+   },
+   {
+    "id": "revenge",
+    "icon": "four",
+    "anim": "attack_buff",
+    "fx": "revenge"
+   },
+   {
+    "id": "solemnity",
+    "icon": "five",
+    "anim": "attack_buff",
+    "fx": "solemnity"
+   },
+   {
+    "id": "withstand",
+    "icon": "six",
+    "anim": "defend",
+    "fx": "withstand"
+   },
+   {
+    "id": "intimidate",
+    "icon": "seven",
+    "anim": "attack_intimidate",
+    "fx": "intimidate",
+    "targchestfx": "blood_splatter"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "leper_weapon_0",
+    "atk": "0%",
+    "dmg": "8 16",
+    "crit": "2.5%",
+    "spd": "2"
+   },
+   {
+    "name": "leper_weapon_1",
+    "atk": "0%",
+    "dmg": "9 18",
+    "crit": "3%",
+    "spd": "2",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "leper_weapon_2",
+    "atk": "0%",
+    "dmg": "10 21",
+    "crit": "3.5%",
+    "spd": "3",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "leper_weapon_3",
+    "atk": "0%",
+    "dmg": "12 23",
+    "crit": "4%",
+    "spd": "3",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "leper_weapon_4",
+    "atk": "0%",
+    "dmg": "13 26",
+    "crit": "4.5%",
+    "spd": "4",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "leper_armour_0",
+    "def": "0%",
+    "prot": "0",
+    "hp": "35",
+    "spd": "0"
+   },
+   {
+    "name": "leper_armour_1",
+    "def": "5%",
+    "prot": "0",
+    "hp": "42",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "leper_armour_2",
+    "def": "10%",
+    "prot": "0",
+    "hp": "49",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "leper_armour_3",
+    "def": "15%",
+    "prot": "0",
+    "hp": "56",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "leper_armour_4",
+    "def": "20%",
+    "prot": "0",
+    "hp": "63",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 69
+ },
+ "ManAtArms": {
+  "stat_records": [
+   {
+    "id": "crush",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "5%",
+    "launch": "12",
+    "target": "123",
+    "is_crit_valid": "True",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "crush",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "12",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "crush",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "12",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "crush",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "12",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "crush",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "7%",
+    "launch": "12",
+    "target": "123",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "rampart",
+    "level": "0",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-60%",
+    "crit": "5%",
+    "move": "0 1",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Push 1A\" \"Stun 1"
+   },
+   {
+    "id": "rampart",
+    "level": "1",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-60%",
+    "crit": "6%",
+    "move": "0 1",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Push 1B\" \"Stun 2"
+   },
+   {
+    "id": "rampart",
+    "level": "2",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-60%",
+    "crit": "6%",
+    "move": "0 1",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Push 1C\" \"Stun 3"
+   },
+   {
+    "id": "rampart",
+    "level": "3",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-60%",
+    "crit": "6%",
+    "move": "0 1",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Push 1D\" \"Stun 4"
+   },
+   {
+    "id": "rampart",
+    "level": "4",
+    "type": "melee",
+    "atk": "110%",
+    "dmg": "-60%",
+    "crit": "7%",
+    "move": "0 1",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Push 1E\" \"Stun 5"
+   },
+   {
+    "id": "bellow",
+    "level": "0",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-90%",
+    "crit": "0%",
+    "launch": "123",
+    "target": "~1234",
+    "is_crit_valid": "True",
+    "effect": "Disrupt 1"
+   },
+   {
+    "id": "bellow",
+    "level": "1",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-90%",
+    "crit": "0%",
+    "launch": "123",
+    "target": "~1234",
+    "is_crit_valid": "True",
+    "effect": "Disrupt 2"
+   },
+   {
+    "id": "bellow",
+    "level": "2",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-90%",
+    "crit": "1%",
+    "launch": "123",
+    "target": "~1234",
+    "is_crit_valid": "True",
+    "effect": "Disrupt 3"
+   },
+   {
+    "id": "bellow",
+    "level": "3",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-90%",
+    "crit": "2%",
+    "launch": "123",
+    "target": "~1234",
+    "is_crit_valid": "True",
+    "effect": "Disrupt 4"
+   },
+   {
+    "id": "bellow",
+    "level": "4",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-90%",
+    "crit": "2%",
+    "launch": "123",
+    "target": "~1234",
+    "is_crit_valid": "True",
+    "effect": "Disrupt 5"
+   },
+   {
+    "id": "defender",
+    "level": "0",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "1234",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "MAA Guard 1\" \"Defender 1"
+   },
+   {
+    "id": "defender",
+    "level": "1",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "1234",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "MAA Guard 1\" \"Defender 2"
+   },
+   {
+    "id": "defender",
+    "level": "2",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "1234",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "MAA Guard 1\" \"Defender 3"
+   },
+   {
+    "id": "defender",
+    "level": "3",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "1234",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "MAA Guard 1\" \"Defender 4"
+   },
+   {
+    "id": "defender",
+    "level": "4",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "self_target_valid": "false",
+    "launch": "1234",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "MAA Guard 1\" \"Defender 5"
+   },
+   {
+    "id": "retribution",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "-75%",
+    "crit": "0%",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "MAA Riposte 1\" \"Mark Self"
+   },
+   {
+    "id": "retribution",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "-75%",
+    "crit": "0%",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "MAA Riposte 2\" \"Mark Self"
+   },
+   {
+    "id": "retribution",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "-75%",
+    "crit": "1%",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "MAA Riposte 3\" \"Mark Self"
+   },
+   {
+    "id": "retribution",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "-75%",
+    "crit": "2%",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "MAA Riposte 4\" \"Mark Self"
+   },
+   {
+    "id": "retribution",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "-75%",
+    "crit": "2%",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "MAA Riposte 5\" \"Mark Self"
+   },
+   {
+    "id": "command",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "1234",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Command 1"
+   },
+   {
+    "id": "command",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "1234",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Command 2"
+   },
+   {
+    "id": "command",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "1234",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Command 3"
+   },
+   {
+    "id": "command",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "1234",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Command 4"
+   },
+   {
+    "id": "command",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "1234",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Command 5"
+   },
+   {
+    "id": "bolster",
+    "level": "0",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "1234",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Bolster 1"
+   },
+   {
+    "id": "bolster",
+    "level": "1",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "1234",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Bolster 2"
+   },
+   {
+    "id": "bolster",
+    "level": "2",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "1234",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Bolster 3"
+   },
+   {
+    "id": "bolster",
+    "level": "3",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "1234",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Bolster 4"
+   },
+   {
+    "id": "bolster",
+    "level": "4",
+    "type": "ranged",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "1234",
+    "target": "~@1234",
+    "is_crit_valid": "True",
+    "effect": "Bolster 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "crush",
+    "icon": "one",
+    "anim": "attack_mace",
+    "fx": "crush",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "rampart",
+    "icon": "two",
+    "anim": "attack_shield",
+    "fx": "rampart",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "bellow",
+    "icon": "three",
+    "anim": "attack_shout",
+    "fx": "bellow",
+    "targchestfx": "blood_splatter",
+    "area_pos_offset": "100 0",
+    "target_area_pos_offset": "-125 0"
+   },
+   {
+    "id": "defender",
+    "icon": "four",
+    "anim": "attack_ranged",
+    "fx": "defender"
+   },
+   {
+    "id": "retribution",
+    "icon": "five",
+    "anim": "attack_mace",
+    "fx": "retribution",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "command",
+    "icon": "six",
+    "anim": "attack_shout",
+    "fx": "command"
+   },
+   {
+    "id": "bolster",
+    "icon": "seven",
+    "anim": "attack_ranged",
+    "fx": "bolster",
+    "area_pos_offset": "0 -35",
+    "target_area_pos_offset": "0 -35"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "man_at_arms_weapon_0",
+    "atk": "0%",
+    "dmg": "5 10",
+    "crit": "3.75%",
+    "spd": "3"
+   },
+   {
+    "name": "man_at_arms_weapon_1",
+    "atk": "0%",
+    "dmg": "6 12",
+    "crit": "4.25%",
+    "spd": "3",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "man_at_arms_weapon_2",
+    "atk": "0%",
+    "dmg": "7 13",
+    "crit": "4.75%",
+    "spd": "4",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "man_at_arms_weapon_3",
+    "atk": "0%",
+    "dmg": "7 15",
+    "crit": "5.25%",
+    "spd": "4",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "man_at_arms_weapon_4",
+    "atk": "0%",
+    "dmg": "8 16",
+    "crit": "5.75%",
+    "spd": "5",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "man_at_arms_armour_0",
+    "def": "5%",
+    "prot": "0",
+    "hp": "31",
+    "spd": "0"
+   },
+   {
+    "name": "man_at_arms_armour_1",
+    "def": "10%",
+    "prot": "0",
+    "hp": "38",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "man_at_arms_armour_2",
+    "def": "15%",
+    "prot": "0",
+    "hp": "45",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "man_at_arms_armour_3",
+    "def": "20%",
+    "prot": "0",
+    "hp": "52",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "man_at_arms_armour_4",
+    "def": "25%",
+    "prot": "0",
+    "hp": "59",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 71
+ },
+ "Occultist": {
+  "stat_records": [
+   {
+    "id": "bloodlet",
+    "level": "0",
+    "type": "melee",
+    "atk": "80%",
+    "dmg": "0%",
+    "crit": "10%",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Eldritch Killer 1"
+   },
+   {
+    "id": "bloodlet",
+    "level": "1",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "11%",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Eldritch Killer 2"
+   },
+   {
+    "id": "bloodlet",
+    "level": "2",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "11%",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Eldritch Killer 3"
+   },
+   {
+    "id": "bloodlet",
+    "level": "3",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "12%",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Eldritch Killer 4"
+   },
+   {
+    "id": "bloodlet",
+    "level": "4",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "12%",
+    "launch": "123",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Eldritch Killer 5"
+   },
+   {
+    "id": "abyssal_artillery",
+    "level": "0",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-25%",
+    "crit": "5%",
+    "launch": "34",
+    "target": "~34",
+    "is_crit_valid": "True",
+    "effect": "Eldritch Killer 1"
+   },
+   {
+    "id": "abyssal_artillery",
+    "level": "1",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-25%",
+    "crit": "6%",
+    "launch": "34",
+    "target": "~34",
+    "is_crit_valid": "True",
+    "effect": "Eldritch Killer 2"
+   },
+   {
+    "id": "abyssal_artillery",
+    "level": "2",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-25%",
+    "crit": "6%",
+    "launch": "34",
+    "target": "~34",
+    "is_crit_valid": "True",
+    "effect": "Eldritch Killer 3"
+   },
+   {
+    "id": "abyssal_artillery",
+    "level": "3",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-25%",
+    "crit": "6%",
+    "launch": "34",
+    "target": "~34",
+    "is_crit_valid": "True",
+    "effect": "Eldritch Killer 4"
+   },
+   {
+    "id": "abyssal_artillery",
+    "level": "4",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-25%",
+    "crit": "7%",
+    "launch": "34",
+    "target": "~34",
+    "is_crit_valid": "True",
+    "effect": "Eldritch Killer 5"
+   },
+   {
+    "id": "weakening_curse",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-75%",
+    "crit": "5%",
+    "launch": "1234",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Occ Weakening Curse 1"
+   },
+   {
+    "id": "weakening_curse",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-75%",
+    "crit": "6%",
+    "launch": "1234",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Occ Weakening Curse 2"
+   },
+   {
+    "id": "weakening_curse",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-75%",
+    "crit": "6%",
+    "launch": "1234",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Occ Weakening Curse 3"
+   },
+   {
+    "id": "weakening_curse",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-75%",
+    "crit": "6%",
+    "launch": "1234",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Occ Weakening Curse 4"
+   },
+   {
+    "id": "weakening_curse",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-75%",
+    "crit": "7%",
+    "launch": "1234",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Occ Weakening Curse 5"
+   },
+   {
+    "id": "wyrd_reconstruction",
+    "level": "0",
+    "heal": "0 12",
+    "launch": "34",
+    "target": "@1234",
+    "effect": "Wyrd Bleed 1",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "wyrd_reconstruction",
+    "level": "1",
+    "heal": "0 14",
+    "launch": "34",
+    "target": "@1234",
+    "effect": "Wyrd Bleed 2"
+   },
+   {
+    "id": "wyrd_reconstruction",
+    "level": "2",
+    "heal": "0 16",
+    "launch": "34",
+    "target": "@1234",
+    "effect": "Wyrd Bleed 3"
+   },
+   {
+    "id": "wyrd_reconstruction",
+    "level": "3",
+    "heal": "0 18",
+    "launch": "34",
+    "target": "@1234",
+    "effect": "Wyrd Bleed 4"
+   },
+   {
+    "id": "wyrd_reconstruction",
+    "level": "4",
+    "heal": "0 20",
+    "launch": "34",
+    "target": "@1234",
+    "effect": "Wyrd Bleed 5"
+   },
+   {
+    "id": "disruptive_curse",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-90%",
+    "crit": "5%",
+    "launch": "1234",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Occ Vulnerability Curse 1\" \"Mark Target"
+   },
+   {
+    "id": "disruptive_curse",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-90%",
+    "crit": "6%",
+    "launch": "1234",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Occ Vulnerability Curse 2\" \"Mark Target"
+   },
+   {
+    "id": "disruptive_curse",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-90%",
+    "crit": "6%",
+    "launch": "1234",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Occ Vulnerability Curse 3\" \"Mark Target"
+   },
+   {
+    "id": "disruptive_curse",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-90%",
+    "crit": "6%",
+    "launch": "1234",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Occ Vulnerability Curse 4\" \"Mark Target"
+   },
+   {
+    "id": "disruptive_curse",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-90%",
+    "crit": "7%",
+    "launch": "1234",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Occ Vulnerability Curse 5\" \"Mark Target"
+   },
+   {
+    "id": "hands_from_abyss",
+    "level": "0",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-50%",
+    "crit": "10%",
+    "launch": "12",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 1\" \"Darkness 1"
+   },
+   {
+    "id": "hands_from_abyss",
+    "level": "1",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-50%",
+    "crit": "11%",
+    "launch": "12",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 2\" \"Darkness 1"
+   },
+   {
+    "id": "hands_from_abyss",
+    "level": "2",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-50%",
+    "crit": "11%",
+    "launch": "12",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 3\" \"Darkness 1"
+   },
+   {
+    "id": "hands_from_abyss",
+    "level": "3",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-50%",
+    "crit": "12%",
+    "launch": "12",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 4\" \"Darkness 1"
+   },
+   {
+    "id": "hands_from_abyss",
+    "level": "4",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-50%",
+    "crit": "12%",
+    "launch": "12",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 5\" \"Darkness 1"
+   },
+   {
+    "id": "daemons_pull",
+    "level": "0",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-50%",
+    "crit": "5%",
+    "launch": "234",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Pull 2A\" \"clear_corpses"
+   },
+   {
+    "id": "daemons_pull",
+    "level": "1",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-50%",
+    "crit": "6%",
+    "launch": "234",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Pull 2B\" \"clear_corpses"
+   },
+   {
+    "id": "daemons_pull",
+    "level": "2",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-50%",
+    "crit": "6%",
+    "launch": "234",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Pull 2C\" \"clear_corpses"
+   },
+   {
+    "id": "daemons_pull",
+    "level": "3",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-50%",
+    "crit": "6%",
+    "launch": "234",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Pull 2D\" \"clear_corpses"
+   },
+   {
+    "id": "daemons_pull",
+    "level": "4",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-50%",
+    "crit": "7%",
+    "launch": "234",
+    "target": "34",
+    "is_crit_valid": "True",
+    "effect": "Pull 2E\" \"clear_corpses"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "bloodlet",
+    "icon": "one",
+    "anim": "attack_melee",
+    "fx": "bloodlet",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "abyssal_artillery",
+    "icon": "two",
+    "anim": "attack_skull",
+    "fx": "abyssal_artillery",
+    "targfx": "abyssal_artillery_target"
+   },
+   {
+    "id": "weakening_curse",
+    "icon": "three",
+    "anim": "attack_ranged",
+    "fx": "weakening_curse",
+    "targchestfx": "weakening_curse_target"
+   },
+   {
+    "id": "wyrd_reconstruction",
+    "icon": "four",
+    "anim": "attack_heal",
+    "fx": "wyrd_reconstruction",
+    "targfx": "wyrd_reconstruction_target"
+   },
+   {
+    "id": "disruptive_curse",
+    "icon": "five",
+    "anim": "attack_ranged",
+    "fx": "weakening_curse",
+    "targchestfx": "disruptive_curse_target"
+   },
+   {
+    "id": "hands_from_abyss",
+    "icon": "six",
+    "anim": "attack_skull",
+    "fx": "abyssal_artillery",
+    "targfx": "hands_from_abyss_target"
+   },
+   {
+    "id": "daemons_pull",
+    "icon": "seven",
+    "anim": "attack_ranged",
+    "fx": "weakening_curse",
+    "targchestfx": "daemons_pull_target"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "occultist_weapon_0",
+    "atk": "0%",
+    "dmg": "4 7",
+    "crit": "7.5%",
+    "spd": "6"
+   },
+   {
+    "name": "occultist_weapon_1",
+    "atk": "0%",
+    "dmg": "5 8",
+    "crit": "8%",
+    "spd": "6",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "occultist_weapon_2",
+    "atk": "0%",
+    "dmg": "6 10",
+    "crit": "8.5%",
+    "spd": "7",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "occultist_weapon_3",
+    "atk": "0%",
+    "dmg": "6 11",
+    "crit": "9%",
+    "spd": "7",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "occultist_weapon_4",
+    "atk": "0%",
+    "dmg": "7 13",
+    "crit": "9.5%",
+    "spd": "8",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "occultist_armour_0",
+    "def": "10%",
+    "prot": "0",
+    "hp": "19",
+    "spd": "0"
+   },
+   {
+    "name": "occultist_armour_1",
+    "def": "15%",
+    "prot": "0",
+    "hp": "23",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "occultist_armour_2",
+    "def": "20%",
+    "prot": "0",
+    "hp": "27",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "occultist_armour_3",
+    "def": "25%",
+    "prot": "0",
+    "hp": "31",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "occultist_armour_4",
+    "def": "30%",
+    "prot": "0",
+    "hp": "35",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 69
+ },
+ "PlagueDoctor": {
+  "stat_records": [
+   {
+    "id": "noxious_blast",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-80%",
+    "crit": "2%",
+    "launch": "432",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "PD Single Blight 1"
+   },
+   {
+    "id": "noxious_blast",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-80%",
+    "crit": "2%",
+    "launch": "432",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "PD Single Blight 2"
+   },
+   {
+    "id": "noxious_blast",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-80%",
+    "crit": "3%",
+    "launch": "432",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "PD Single Blight 3"
+   },
+   {
+    "id": "noxious_blast",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-80%",
+    "crit": "4%",
+    "launch": "432",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "PD Single Blight 4"
+   },
+   {
+    "id": "noxious_blast",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-80%",
+    "crit": "4%",
+    "launch": "432",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "PD Single Blight 5"
+   },
+   {
+    "id": "plague_grenade",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-90%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~34",
+    "is_crit_valid": "True",
+    "effect": "PD Blight 1",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "plague_grenade",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-90%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~34",
+    "is_crit_valid": "True",
+    "effect": "PD Blight 2"
+   },
+   {
+    "id": "plague_grenade",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-90%",
+    "crit": "1%",
+    "launch": "43",
+    "target": "~34",
+    "is_crit_valid": "True",
+    "effect": "PD Blight 3"
+   },
+   {
+    "id": "plague_grenade",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-90%",
+    "crit": "2%",
+    "launch": "43",
+    "target": "~34",
+    "is_crit_valid": "True",
+    "effect": "PD Blight 4"
+   },
+   {
+    "id": "plague_grenade",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-90%",
+    "crit": "2%",
+    "launch": "43",
+    "target": "~34",
+    "is_crit_valid": "True",
+    "effect": "PD Blight 5"
+   },
+   {
+    "id": "blinding_gas",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~34",
+    "is_crit_valid": "False",
+    "effect": "Stun 1"
+   },
+   {
+    "id": "blinding_gas",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~34",
+    "is_crit_valid": "False",
+    "effect": "Stun 2"
+   },
+   {
+    "id": "blinding_gas",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~34",
+    "is_crit_valid": "False",
+    "effect": "Stun 3"
+   },
+   {
+    "id": "blinding_gas",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~34",
+    "is_crit_valid": "False",
+    "effect": "Stun 4"
+   },
+   {
+    "id": "blinding_gas",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "43",
+    "target": "~34",
+    "is_crit_valid": "False",
+    "effect": "Stun 5"
+   },
+   {
+    "id": "incision",
+    "level": "0",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "5%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Minor Bleed 1"
+   },
+   {
+    "id": "incision",
+    "level": "1",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Minor Bleed 2"
+   },
+   {
+    "id": "incision",
+    "level": "2",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Minor Bleed 3"
+   },
+   {
+    "id": "incision",
+    "level": "3",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "6%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Minor Bleed 4"
+   },
+   {
+    "id": "incision",
+    "level": "4",
+    "type": "melee",
+    "atk": "105%",
+    "dmg": "0%",
+    "crit": "7%",
+    "launch": "321",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Minor Bleed 5"
+   },
+   {
+    "id": "battlefield_medicine",
+    "level": "0",
+    "heal": "1 1",
+    "launch": "43",
+    "target": "@1234",
+    "effect": "Cure\" \"Cureself"
+   },
+   {
+    "id": "battlefield_medicine",
+    "level": "1",
+    "heal": "1 2",
+    "launch": "43",
+    "target": "@1234",
+    "effect": "Cure\" \"Cureself"
+   },
+   {
+    "id": "battlefield_medicine",
+    "level": "2",
+    "heal": "2 2",
+    "launch": "43",
+    "target": "@1234",
+    "effect": "Cure\" \"Cureself"
+   },
+   {
+    "id": "battlefield_medicine",
+    "level": "3",
+    "heal": "2 3",
+    "launch": "43",
+    "target": "@1234",
+    "effect": "Cure\" \"Cureself"
+   },
+   {
+    "id": "battlefield_medicine",
+    "level": "4",
+    "heal": "3 3",
+    "launch": "43",
+    "target": "@1234",
+    "effect": "Cure\" \"Cureself"
+   },
+   {
+    "id": "emboldening_vapours",
+    "level": "0",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "PD Vapours Buff 1"
+   },
+   {
+    "id": "emboldening_vapours",
+    "level": "1",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "PD Vapours Buff 2"
+   },
+   {
+    "id": "emboldening_vapours",
+    "level": "2",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "PD Vapours Buff 3"
+   },
+   {
+    "id": "emboldening_vapours",
+    "level": "3",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "PD Vapours Buff 4"
+   },
+   {
+    "id": "emboldening_vapours",
+    "level": "4",
+    "type": "melee",
+    "atk": "0%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "@1234",
+    "is_crit_valid": "True",
+    "effect": "PD Vapours Buff 5"
+   },
+   {
+    "id": "disorienting_blast",
+    "level": "0",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Disorient 1\" \"clear_corpses\" \"PD Disorienting Stun 1"
+   },
+   {
+    "id": "disorienting_blast",
+    "level": "1",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-100%",
+    "crit": "0%",
+    "launch": "4321",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Disorient 2\" \"clear_corpses\" \"PD Disorienting Stun 2"
+   },
+   {
+    "id": "disorienting_blast",
+    "level": "2",
+    "type": "ranged",
+    "atk": "105%",
+    "dmg": "-100%",
+    "crit": "1%",
+    "launch": "4321",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Disorient 3\" \"clear_corpses\" \"PD Disorienting Stun 3"
+   },
+   {
+    "id": "disorienting_blast",
+    "level": "3",
+    "type": "ranged",
+    "atk": "110%",
+    "dmg": "-100%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Disorient 4\" \"clear_corpses\" \"PD Disorienting Stun 4"
+   },
+   {
+    "id": "disorienting_blast",
+    "level": "4",
+    "type": "ranged",
+    "atk": "115%",
+    "dmg": "-100%",
+    "crit": "2%",
+    "launch": "4321",
+    "target": "234",
+    "is_crit_valid": "True",
+    "effect": "Disorient 5\" \"clear_corpses\" \"PD Disorienting Stun 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "noxious_blast",
+    "icon": "one",
+    "anim": "attack_blast",
+    "targfx": "noxious_blast_target"
+   },
+   {
+    "id": "plague_grenade",
+    "icon": "two",
+    "anim": "attack_grenade",
+    "targfx": "plague_grenade_target"
+   },
+   {
+    "id": "blinding_gas",
+    "icon": "three",
+    "anim": "attack_grenade",
+    "targfx": "blinding_gas_target"
+   },
+   {
+    "id": "incision",
+    "icon": "four",
+    "anim": "attack_dagger",
+    "fx": "incision",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "battlefield_medicine",
+    "icon": "five",
+    "anim": "attack_heal",
+    "fx": "battlefield_medicine",
+    "targfx": "battlefield_medicine_target"
+   },
+   {
+    "id": "emboldening_vapours",
+    "icon": "six",
+    "anim": "attack_buff",
+    "fx": "emboldening_vapours",
+    "targfx": "emboldening_vapours_target"
+   },
+   {
+    "id": "disorienting_blast",
+    "icon": "seven",
+    "anim": "attack_blast",
+    "targfx": "disorienting_blast_target"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "plague_doctor_weapon_0",
+    "atk": "0%",
+    "dmg": "4 7",
+    "crit": "2.5%",
+    "spd": "7"
+   },
+   {
+    "name": "plague_doctor_weapon_1",
+    "atk": "0%",
+    "dmg": "5 8",
+    "crit": "3%",
+    "spd": "7",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "plague_doctor_weapon_2",
+    "atk": "0%",
+    "dmg": "6 10",
+    "crit": "3.5%",
+    "spd": "8",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "plague_doctor_weapon_3",
+    "atk": "0%",
+    "dmg": "6 11",
+    "crit": "4%",
+    "spd": "8",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "plague_doctor_weapon_4",
+    "atk": "0%",
+    "dmg": "7 13",
+    "crit": "4.5%",
+    "spd": "9",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "plague_doctor_armour_0",
+    "def": "5%",
+    "prot": "0",
+    "hp": "22",
+    "spd": "0"
+   },
+   {
+    "name": "plague_doctor_armour_1",
+    "def": "10%",
+    "prot": "0",
+    "hp": "26",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "plague_doctor_armour_2",
+    "def": "15%",
+    "prot": "0",
+    "hp": "30",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "plague_doctor_armour_3",
+    "def": "20%",
+    "prot": "0",
+    "hp": "34",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "plague_doctor_armour_4",
+    "def": "25%",
+    "prot": "0",
+    "hp": "38",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 69
+ },
+ "Vestal": {
+  "stat_records": [
+   {
+    "id": "mace_bash",
+    "level": "0",
+    "type": "melee",
+    "atk": "80%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "mace_bash",
+    "level": "1",
+    "type": "melee",
+    "atk": "85%",
+    "dmg": "0%",
+    "crit": "0%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "mace_bash",
+    "level": "2",
+    "type": "melee",
+    "atk": "90%",
+    "dmg": "0%",
+    "crit": "1%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "mace_bash",
+    "level": "3",
+    "type": "melee",
+    "atk": "95%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "mace_bash",
+    "level": "4",
+    "type": "melee",
+    "atk": "100%",
+    "dmg": "0%",
+    "crit": "2%",
+    "launch": "21",
+    "target": "12",
+    "is_crit_valid": "True"
+   },
+   {
+    "id": "judgement",
+    "level": "0",
+    "type": "ranged",
+    "atk": "80%",
+    "dmg": "-20%",
+    "crit": "5%",
+    "launch": "43",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "HealSelf 1"
+   },
+   {
+    "id": "judgement",
+    "level": "1",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-20%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "HealSelf 1"
+   },
+   {
+    "id": "judgement",
+    "level": "2",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-20%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "HealSelf 2"
+   },
+   {
+    "id": "judgement",
+    "level": "3",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-20%",
+    "crit": "6%",
+    "launch": "43",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "HealSelf 2"
+   },
+   {
+    "id": "judgement",
+    "level": "4",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-20%",
+    "crit": "7%",
+    "launch": "43",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "HealSelf 3"
+   },
+   {
+    "id": "dazzling_light",
+    "level": "0",
+    "type": "ranged",
+    "atk": "80%",
+    "dmg": "-75%",
+    "crit": "0%",
+    "launch": "34",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 1\" \"Dazzling Light 1"
+   },
+   {
+    "id": "dazzling_light",
+    "level": "1",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-75%",
+    "crit": "0%",
+    "launch": "34",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 2\" \"Dazzling Light 1"
+   },
+   {
+    "id": "dazzling_light",
+    "level": "2",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-75%",
+    "crit": "1%",
+    "launch": "34",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 3\" \"Dazzling Light 1"
+   },
+   {
+    "id": "dazzling_light",
+    "level": "3",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-75%",
+    "crit": "2%",
+    "launch": "34",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 4\" \"Dazzling Light 1"
+   },
+   {
+    "id": "dazzling_light",
+    "level": "4",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-75%",
+    "crit": "2%",
+    "launch": "34",
+    "target": "123",
+    "is_crit_valid": "True",
+    "effect": "Stun 5\" \"Dazzling Light 1"
+   },
+   {
+    "id": "divine_grace",
+    "level": "0",
+    "heal": "3 5",
+    "launch": "43",
+    "target": "@4321",
+    "generation_guaranteed": "true"
+   },
+   {
+    "id": "divine_grace",
+    "level": "1",
+    "heal": "4 6",
+    "launch": "43",
+    "target": "@4321"
+   },
+   {
+    "id": "divine_grace",
+    "level": "2",
+    "heal": "5 7",
+    "launch": "43",
+    "target": "@4321"
+   },
+   {
+    "id": "divine_grace",
+    "level": "3",
+    "heal": "6 8",
+    "launch": "43",
+    "target": "@4321"
+   },
+   {
+    "id": "divine_grace",
+    "level": "4",
+    "heal": "7 9",
+    "launch": "43",
+    "target": "@4321"
+   },
+   {
+    "id": "gods_comfort",
+    "level": "0",
+    "heal": "1 2",
+    "launch": "432",
+    "target": "@~1234"
+   },
+   {
+    "id": "gods_comfort",
+    "level": "1",
+    "heal": "1 3",
+    "launch": "432",
+    "target": "@~1234"
+   },
+   {
+    "id": "gods_comfort",
+    "level": "2",
+    "heal": "2 3",
+    "launch": "432",
+    "target": "@~1234"
+   },
+   {
+    "id": "gods_comfort",
+    "level": "3",
+    "heal": "2 4",
+    "launch": "432",
+    "target": "@~1234"
+   },
+   {
+    "id": "gods_comfort",
+    "level": "4",
+    "heal": "3 4",
+    "launch": "432",
+    "target": "@~1234"
+   },
+   {
+    "id": "gods_illumination",
+    "level": "0",
+    "type": "ranged",
+    "atk": "80%",
+    "dmg": "-50%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Dodge Curse 1\" \"Vestal Light 1"
+   },
+   {
+    "id": "gods_illumination",
+    "level": "1",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-50%",
+    "crit": "0%",
+    "launch": "321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Dodge Curse 2\" \"Vestal Light 2"
+   },
+   {
+    "id": "gods_illumination",
+    "level": "2",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-50%",
+    "crit": "1%",
+    "launch": "321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Dodge Curse 3\" \"Vestal Light 3"
+   },
+   {
+    "id": "gods_illumination",
+    "level": "3",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-50%",
+    "crit": "2%",
+    "launch": "321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Dodge Curse 4\" \"Vestal Light 4"
+   },
+   {
+    "id": "gods_illumination",
+    "level": "4",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-50%",
+    "crit": "2%",
+    "launch": "321",
+    "target": "1234",
+    "is_crit_valid": "True",
+    "effect": "Dodge Curse 5\" \"Vestal Light 5"
+   },
+   {
+    "id": "gods_hand",
+    "level": "0",
+    "type": "ranged",
+    "atk": "80%",
+    "dmg": "-50%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Vestal Weakening Curse 1\" \"Unholy Killer 1"
+   },
+   {
+    "id": "gods_hand",
+    "level": "1",
+    "type": "ranged",
+    "atk": "85%",
+    "dmg": "-50%",
+    "crit": "0%",
+    "launch": "12",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Vestal Weakening Curse 2\" \"Unholy Killer 2"
+   },
+   {
+    "id": "gods_hand",
+    "level": "2",
+    "type": "ranged",
+    "atk": "90%",
+    "dmg": "-50%",
+    "crit": "1%",
+    "launch": "12",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Vestal Weakening Curse 3\" \"Unholy Killer 3"
+   },
+   {
+    "id": "gods_hand",
+    "level": "3",
+    "type": "ranged",
+    "atk": "95%",
+    "dmg": "-50%",
+    "crit": "2%",
+    "launch": "12",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Vestal Weakening Curse 4\" \"Unholy Killer 4"
+   },
+   {
+    "id": "gods_hand",
+    "level": "4",
+    "type": "ranged",
+    "atk": "100%",
+    "dmg": "-50%",
+    "crit": "2%",
+    "launch": "12",
+    "target": "12",
+    "is_crit_valid": "True",
+    "effect": "Vestal Weakening Curse 5\" \"Unholy Killer 5"
+   }
+  ],
+  "art_records": [
+   {
+    "id": "judgement",
+    "icon": "one",
+    "anim": "attack_lectionary",
+    "fx": "judgement",
+    "targfx": "judgement_target"
+   },
+   {
+    "id": "mace_bash",
+    "icon": "two",
+    "anim": "attack_mace",
+    "fx": "mace_bash",
+    "targchestfx": "blood_splatter"
+   },
+   {
+    "id": "dazzling_light",
+    "icon": "three",
+    "anim": "attack_miracle",
+    "fx": "dazzling_light",
+    "targheadfx": "dazzling_light_target"
+   },
+   {
+    "id": "divine_grace",
+    "icon": "four",
+    "anim": "attack_heal",
+    "fx": "divine_grace",
+    "targfx": "divine_grace_target"
+   },
+   {
+    "id": "gods_comfort",
+    "icon": "five",
+    "anim": "attack_heal",
+    "fx": "gods_comfort",
+    "targfx": "gods_comfort_target"
+   },
+   {
+    "id": "gods_illumination",
+    "icon": "six",
+    "anim": "attack_miracle",
+    "fx": "gods_illumination",
+    "targchestfx": "gods_illumination_target"
+   },
+   {
+    "id": "gods_hand",
+    "icon": "seven",
+    "anim": "attack_lectionary",
+    "fx": "gods_hand",
+    "targchestfx": "gods_hand_target"
+   }
+  ],
+  "weapon_tiers": [
+   {
+    "name": "vestal_weapon_0",
+    "atk": "0%",
+    "dmg": "4 9",
+    "crit": "2.5%",
+    "spd": "4"
+   },
+   {
+    "name": "vestal_weapon_1",
+    "atk": "0%",
+    "dmg": "5 11",
+    "crit": "3%",
+    "spd": "4",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "vestal_weapon_2",
+    "atk": "0%",
+    "dmg": "6 13",
+    "crit": "3.5%",
+    "spd": "5",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "vestal_weapon_3",
+    "atk": "0%",
+    "dmg": "6 14",
+    "crit": "4%",
+    "spd": "5",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "vestal_weapon_4",
+    "atk": "0%",
+    "dmg": "7 16",
+    "crit": "4.5%",
+    "spd": "6",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "armour_tiers": [
+   {
+    "name": "vestal_armour_0",
+    "def": "0%",
+    "prot": "0",
+    "hp": "24",
+    "spd": "0"
+   },
+   {
+    "name": "vestal_armour_1",
+    "def": "5%",
+    "prot": "0",
+    "hp": "29",
+    "spd": "0",
+    "upgradeRequirementCode": "0"
+   },
+   {
+    "name": "vestal_armour_2",
+    "def": "10%",
+    "prot": "0",
+    "hp": "34",
+    "spd": "0",
+    "upgradeRequirementCode": "1"
+   },
+   {
+    "name": "vestal_armour_3",
+    "def": "15%",
+    "prot": "0",
+    "hp": "39",
+    "spd": "0",
+    "upgradeRequirementCode": "2"
+   },
+   {
+    "name": "vestal_armour_4",
+    "def": "20%",
+    "prot": "0",
+    "hp": "44",
+    "spd": "0",
+    "upgradeRequirementCode": "3"
+   }
+  ],
+  "file_lines": 69
+ }
+}

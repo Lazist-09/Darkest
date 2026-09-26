@@ -1,0 +1,82 @@
+﻿ROWS: 898 COLS(max): 18
+DETECTED BLOCKS: 60
+first 8 block indices: [2, 17, 32, 47, 62, 77, 92, 107]
+
+PARSED CURIOS: 60
+QUALITY (col3) COUNTS: {'': 60}
+INDEX RANGE: 1 .. 60 unique: 60
+DUPLICATE INDICES: []
+
+MAIN RESULT ROWS (RESULT TYPES col4): 0
+CURIOS WITH >=1 MAIN RESULT ROW: 0
+RESULT TYPE FREQUENCY: {}
+
+ITEM-INTERACTION ROWS: 46
+DISTINCT INTERACTION ITEMS (9): {'holy_water': 10, 'shovel': 8, 'medicinal_herbs': 8, 'skeleton_key': 7, 'antivenom': 4, 'torch': 4, 'bandage': 3, 'provision': 1, 'dog_treats': 1}
+INTERACTION RESULT TYPES: {'Loot': 27, 'Effect': 12, 'Purge': 4, 'Quirk': 2, 'Summon': 1}
+
+ID STRINGS distinct: 60 nulls: 0
+REGION COUNTS: {'Ruins': 15, 'ALL': 14, 'Weald': 12, 'Warrens': 9, 'Cove': 8, 'Darkest Dungeon': 2}
+CATEGORY(col2 in known set) COUNTS: {'Treasure': 7, 'Haunted': 7, 'Unholy': 5, 'Worship': 4, 'Knowledge': 4, 'Food': 3, 'Fountain': 2, 'Drink': 2}
+
+ALL CURIO NAMES + ID + QUALITY:
+    1 Unlocked Strongbox           unlocked_strongbox       
+    2 Locked Strongbox             locked_strongbox         
+    3 Goal Strongbox               goal_strongbox           
+    4 Heirloom Chest               heirloom_chest           
+    5 Eldritch Altar               eldritch_altar           
+    6 Altar of Light               altar_of_light           
+    7 Stack of Books               stack_of_books           
+    8 Iron Maiden                  iron_maiden              
+    9 Pile of Bones                pile_of_bones            
+   10 Discarded Pack               discarded_pack           
+   11 Sconce                       sconce                   
+   12 Crate                        crate                    
+   13 Sack                         sack                     
+   14 Suit of Armor                suit_of_armor            
+   15 Dinner Cart                  dinner_cart              
+   16 Decorative Urn               decorative_urn           
+   17 Locked Display Cabinet       locked_display_cabinet   
+   18 Confession Booth             confession_booth         
+   19 Holy Fountain                holy_fountain            
+   20 Bookshelf                    bookshelf                
+   21 Alchemy Table                alchemy_table            
+   22 Knife Rack                   knife_rack               
+   23 Sarcophagus                  sarcophagus              
+   24 Mummified Remains            mummified_remains        
+   25 Sacrificial Stone            sacrificial_stone        
+   26 Skull Altar                  skull_altar              
+   27 Occult Scrawlings            occult_scrawlings        
+   28 Moonshine Barrel             moonshine_barrel         
+   29 Locked Sarcophagus           locked_sarcophagus       
+   30 Makeshift Dining Table       makeshift_dining_table   
+   31 Pile of Scrolls              pile_of_scrolls          
+   32 Ancient Coffin               ancient_coffin           
+   33 Old Tree                     old_tree                 
+   34 Beast Carcass                beast_carcass            
+   35 Pristine Fountain            pristine_fountain        
+   36 Traveller's Tent             travellers_tent          
+   37 Cosmic Spiderweb             cosmic_spiderweb         
+   38 Lost Luggage                 lost_luggage             
+   39 Shallow Grave                shallow_grave            
+   40 Troubling Effigy             troubling_effigy         
+   41 Barnacle Crusted Chest       barnacle_crusted_chest   
+   42 Brackish Tidepool            brackish_tidepool        
+   43 Fish Idol                    fish_idol                
+   44 Giant Oyster                 giant_oyster             
+   45 Giant Fish Carcass           giant_fish_carcass       
+   46 Ship's Figurehead            ships_figurehead         
+   47 Eerie Coral                  eerie_coral              
+   48 Traveller's Tent (tutorial)  travellers_tent_tutorial 
+   49 Bandit's Trapped Chest (tuto bandits_trapped_chest    
+   50 Shambler's Altar             shamblers_altar          
+   51 Bas-Relief                   bas_relief               
+   52 Secret Stash                 secret_stash             
+   53 Ancestor's Knapsack          ancestors_knapsack       
+   54 Tutorial Shovel              tutorial_shovel          
+   55 Tutorial Key                 tutorial_key             
+   56 Tutorial Holy                tutorial_holy            
+   57 Tutorial Food                tutorial_food            
+   58 Thanks Chest                 thanks_chest             
+   59 Open Grave                   open_grave               
+   60 Ancestor's Knapsack          incursion_knapsack       

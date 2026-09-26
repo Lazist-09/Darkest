@@ -1,0 +1,263 @@
+﻿GENERATION KEYS: ['number', 'dungeon', 'difficulty', 'type', 'rewards']
+-- number : {number_of_quests_per_town_visit_table:list[8] of int}
+-- dungeon : {max_number_of_generated_quests_per_dungeon:int, generated_dungeons:list[4] of dict(2 keys)}
+-- difficulty : {generated_resolve_level_difficulties:list[3] of dict(2 keys)}
+-- type : {available_quests_table:list[4] of dict(2 keys)}
+-- rewards : {heirloom_type_map:list[4] of dict(2 keys), comment:str('This table determines how much Resolve X'), heirloom_amount_table:list[4] of dict(2 keys), item_table:list[7] of list[0], resolve_xp_table:list[7] of list[4] of int, trinket_chance_table:list[6] of dict(3 keys)}
+
+REWARDS KEYS: ['heirloom_type_map', 'comment', 'heirloom_amount_table', 'item_table', 'resolve_xp_table', 'trinket_chance_table']
+
+### heirloom_type_map
+[
+ {
+  "dungeon": "crypts",
+  "types": [
+   "bust",
+   "crest"
+  ]
+ },
+ {
+  "dungeon": "warrens",
+  "types": [
+   "portrait",
+   "crest"
+  ]
+ },
+ {
+  "dungeon": "weald",
+  "types": [
+   "deed",
+   "crest"
+  ]
+ },
+ {
+  "dungeon": "cove",
+  "types": [
+   "portrait",
+   "deed"
+  ]
+ }
+]
+
+### heirloom_amount_table
+[
+ {
+  "type": "bust",
+  "amounts": [
+   [],
+   [
+    0,
+    2,
+    2,
+    4
+   ],
+   [],
+   [
+    0,
+    2,
+    3,
+    6
+   ],
+   [],
+   [
+    0,
+    3,
+    5,
+    9
+   ]
+  ]
+ },
+ {
+  "type": "portrait",
+  "amounts": [
+   [],
+   [
+    0,
+    2,
+    2,
+    4
+   ],
+   [],
+   [
+    0,
+    2,
+    3,
+    6
+   ],
+   [],
+   [
+    0,
+    3,
+    5,
+    9
+   ]
+  ]
+ },
+ {
+  "type": "deed",
+  "amounts": [
+   [],
+   [
+    0,
+    3,
+    5,
+    9
+   ],
+   [],
+   [
+    0,
+    4,
+    6,
+    12
+   ],
+   [],
+   [
+    0,
+    6,
+    9,
+    18
+   ]
+  ]
+ },
+ {
+  "type": "crest",
+  "amounts": [
+   [],
+   [
+    0,
+    3,
+    5,
+    9
+   ],
+   [],
+   [
+    0,
+    4,
+    6,
+    12
+   ],
+   [],
+   [
+    0,
+    6,
+    9,
+    18
+   ]
+  ]
+ }
+]
+
+### resolve_xp_reward
+null
+
+### trinket_chances
+null
+
+### item_table
+[
+ [],
+ [
+  [],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 3000
+   }
+  ],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 4500
+   }
+  ],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 7500
+   }
+  ]
+ ],
+ [],
+ [
+  [],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 4500
+   }
+  ],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 6750
+   }
+  ],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 11250
+   }
+  ]
+ ],
+ [],
+ [
+  [],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 6000
+   }
+  ],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 9000
+   }
+  ],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 15000
+   }
+  ]
+ ],
+ [
+  [],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 9000
+   }
+  ],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 13500
+   }
+  ],
+  [
+   {
+    "type": "gold",
+    "id": "",
+    "amount": 22500
+   }
+  ]
+ ]
+]
+REWARDKEY heirloom_type_map : list[4] of {dungeon:str('crypts'), types:list[2] of str('bust')}
+REWARDKEY comment : str('This table determines how much Resolve X')
+REWARDKEY heirloom_amount_table : list[4] of {type:str('bust'), amounts:list[6] of list[0]}
+REWARDKEY item_table : list[7] of list[0]
+REWARDKEY resolve_xp_table : list[7] of list[4] of int
+REWARDKEY trinket_chance_table : list[6] of {comment:str('ROWS are DIFFICULTY, COLs are QUEST LENG'), rarity:str('very_common'), chances:list[7] of list[4] of int}

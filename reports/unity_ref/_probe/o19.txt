@@ -1,0 +1,62 @@
+﻿==========================================================================
+Maps/DD_map1.bytes bytes=6643
+  hex head: 0e6461726b65737464756e67656f6e310000000d00000005
+  1-byte-len title='darkestdungeon'  then int32 x2 = (49, 13)  offset=23
+  reading 49 x[1-byte-len]strings -> ok=False consumed=7 of 6643
+  failed at index 1, byte=0x00
+==========================================================================
+Maps/DD_map2.bytes bytes=7728
+  hex head: 0e6461726b65737464756e67656f6e1f000000200000000a
+  1-byte-len title='darkestdungeon'  then int32 x2 = (31, 32)  offset=23
+  reading 31 x[1-byte-len]strings -> ok=False consumed=12 of 7728
+  failed at index 1, byte=0x00
+==========================================================================
+Maps/DD_map3.bytes bytes=14287
+  hex head: 0e6461726b65737464756e67656f6e2d0000001e00000009
+  1-byte-len title='darkestdungeon'  then int32 x2 = (45, 30)  offset=23
+  reading 45 x[1-byte-len]strings -> ok=False consumed=11 of 14287
+  failed at index 1, byte=0x00
+==========================================================================
+Maps/DD_map4.bytes bytes=970
+  hex head: 0e6461726b65737464756e67656f6e150000000500000008
+  1-byte-len title='darkestdungeon'  then int32 x2 = (21, 5)  offset=23
+  reading 21 x[1-byte-len]strings -> ok=False consumed=10 of 970
+  failed at index 1, byte=0x00
+==========================================================================
+Maps/post_game_complete_start_map.bytes bytes=480
+  hex head: 057765616c64090000000100000007726f6f6d315f310200
+  1-byte-len title='weald'  then int32 x2 = (9, 1)  offset=14
+  reading 9 x[1-byte-len]strings -> ok=False consumed=9 of 480
+  failed at index 1, byte=0x00
+==========================================================================
+Maps/town_invasion_0.bytes bytes=3472
+  hex head: 04746f776e210000001e0000000a726f6f6d3a31372f3133
+  1-byte-len title='town'  then int32 x2 = (33, 30)  offset=13
+  reading 33 x[1-byte-len]strings -> ok=False consumed=12 of 3472
+  failed at index 1, byte=0x00
+==========================================================================
+Maps/tutorial_crypts.bytes bytes=2904
+  hex head: 066372797074731e0000001900000009726f6f6d3a31342f
+  1-byte-len title='crypts'  then int32 x2 = (30, 25)  offset=15
+  reading 30 x[1-byte-len]strings -> ok=False consumed=11 of 2904
+  failed at index 1, byte=0x00
+
+==========================================================================
+MARKER COUNTS in Maps/*.bytes
+  DD_map1.bytes                      rooms=189  links= 54  plot_= 2  curr=0
+  DD_map2.bytes                      rooms=107  links= 66  plot_= 4  curr=0
+  DD_map3.bytes                      rooms=204  links=129  plot_= 2  curr=0
+  DD_map4.bytes                      rooms=  7  links=  3  plot_= 2  curr=0
+  post_game_complete_start_map.bytes rooms= 13  links=  0  plot_= 0  curr=0
+  town_invasion_0.bytes              rooms= 36  links= 21  plot_= 0  curr=0
+  tutorial_crypts.bytes              rooms= 41  links= 24  plot_= 0  curr=0
+
+==========================================================================
+MARKER COUNTS in Dungeons/*.bytes (text)
+  Cove.bytes     lines=195 nonblank=191  'mash:'=3  '.chance'=176  'hall:'=74  'named:'=3  'room:'=62
+  Crypts.bytes   lines=217 nonblank=213  'mash:'=3  '.chance'=198  'hall:'=83  'named:'=8  'room:'=61
+  Darkest.bytes  lines= 69 nonblank= 67  'mash:'=1  '.chance'=58  'hall:'=1  'named:'=37  'room:'=1
+  Shared.bytes   lines= 28 nonblank= 24  'mash:'=4  '.chance'=8  'hall:'=8  'named:'=0  'room:'=0
+  Town.bytes     lines= 58 nonblank= 54  'mash:'=1  '.chance'=45  'hall:'=1  'named:'=14  'room:'=1
+  Warrens.bytes  lines=210 nonblank=206  'mash:'=3  '.chance'=191  'hall:'=94  'named:'=3  'room:'=52
+  Weald.bytes    lines=217 nonblank=211  'mash:'=3  '.chance'=196  'hall:'=94  'named:'=5  'room:'=54

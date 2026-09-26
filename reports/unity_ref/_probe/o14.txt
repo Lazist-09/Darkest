@@ -1,0 +1,438 @@
+﻿ROWS: 898 CURIOS: 60
+QUALITY CODES (col4): {'Good': 23, 'Mixed': 31, 'Bad': 6}
+REGION: {'ALL': 14, 'Ruins': 15, 'Warrens': 9, 'Weald': 12, 'Cove': 8, 'Darkest Dungeon': 2}
+MAIN RESULT ROWS TOTAL: 480
+RESULT TYPE FREQ: {'Nothing': 60, 'Loot': 60, 'Quirk': 60, 'Effect': 60, 'Purge': 60, 'Scouting': 60, 'Teleport': 60, 'Disease': 60}
+ITEM-INTERACTION ROWS TOTAL: 46
+INTERACTION ITEM FREQ: {'holy_water': 10, 'shovel': 8, 'medicinal_herbs': 8, 'skeleton_key': 7, 'antivenom': 4, 'torch': 4, 'bandage': 3, 'provision': 1, 'dog_treats': 1}
+INTERACTION RESULT TYPE FREQ: {'Loot': 27, 'Effect': 12, 'Purge': 4, 'Quirk': 2, 'Summon': 1}
+
+CURIOS with a Loot main-result:
+   Unlocked Strongbox       region=ALL              w=3 pct=75.00%   r1=('A', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Locked Strongbox         region=ALL              w=1 pct=50.00%   r1=('A', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Goal Strongbox           region=ALL              w=1 pct=100.00%  r1=('B', '3', '<- # Draws') r2=('T', '1', '<- # Draws') r3=('', '', '<- # Draws')
+   Heirloom Chest           region=ALL              w=3 pct=75.00%   r1=('H', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Eldritch Altar           region=ALL              w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Altar of Light           region=Ruins            w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Stack of Books           region=ALL              w=1 pct=9.09%    r1=('JOURNALONLY', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Iron Maiden              region=Ruins            w=2 pct=40.00%   r1=('A', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Pile of Bones            region=Warrens          w=1 pct=25.00%   r1=('A', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Discarded Pack           region=ALL              w=3 pct=60.00%   r1=('S', '1', '<- # Draws') r2=('B', '2', '<- # Draws') r3=('', '', '<- # Draws')
+   Sconce                   region=ALL              w=1 pct=100.00%  r1=('TORCHONLY', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Crate                    region=ALL              w=3 pct=75.00%   r1=('H', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Sack                     region=ALL              w=3 pct=75.00%   r1=('C', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Suit of Armor            region=Ruins            w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Dinner Cart              region=Warrens          w=3 pct=37.50%   r1=('P', '1', '<- # Draws') r2=('CT', '1', '<- # Draws') r3=('', '', '<- # Draws')
+   Decorative Urn           region=Ruins            w=4 pct=44.44%   r1=('GT', '1', '<- # Draws') r2=('G', '2', '<- # Draws') r3=('', '', '<- # Draws')
+   Locked Display Cabinet   region=Ruins            w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Confession Booth         region=Ruins            w=1 pct=25.00%   r1=('CT', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Holy Fountain            region=Ruins            w=1 pct=50.00%   r1=('B', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Bookshelf                region=Ruins            w=1 pct=11.11%   r1=('JOURNALONLY', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Alchemy Table            region=Ruins            w=1 pct=25.00%   r1=('B', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Knife Rack               region=Warrens          w=2 pct=40.00%   r1=('B', '1', '<- # Draws') r2=('P', '1', '<- # Draws') r3=('', '', '<- # Draws')
+   Sarcophagus              region=Ruins            w=3 pct=60.00%   r1=('CH', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Mummified Remains        region=Weald            w=2 pct=40.00%   r1=('CT', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Sacrificial Stone        region=Warrens          w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Skull Altar              region=Warrens          w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Occult Scrawlings        region=Warrens          w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Moonshine Barrel         region=Warrens          w=3 pct=33.33%   r1=('P', '1', '<- # Draws') r2=('CS', '1', '<- # Draws') r3=('', '', '<- # Draws')
+   Locked Sarcophagus       region=Ruins            w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Makeshift Dining Table   region=Warrens          w=1 pct=25.00%   r1=('P', '1', '<- # Draws') r2=('CS', '1', '<- # Draws') r3=('', '', '<- # Draws')
+   Pile of Scrolls          region=Warrens          w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Ancient Coffin           region=Weald            w=3 pct=50.00%   r1=('CH', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Old Tree                 region=Weald            w=2 pct=50.00%   r1=('A', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Beast Carcass            region=Weald            w=3 pct=42.86%   r1=('P', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Pristine Fountain        region=Weald            w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Traveller's Tent         region=Weald            w=3 pct=37.50%   r1=('SC', '2', '<- # Draws') r2=('CH', '2', '<- # Draws') r3=('', '', '<- # Draws')
+   Cosmic Spiderweb         region=Weald            w=2 pct=40.00%   r1=('B', '1', '<- # Draws') r2=('GT', '1', '<- # Draws') r3=('', '', '<- # Draws')
+   Lost Luggage             region=Weald            w=1 pct=50.00%   r1=('A', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Shallow Grave            region=Weald            w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Troubling Effigy         region=Weald            w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Barnacle Crusted Chest   region=Cove             w=2 pct=50.00%   r1=('A', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Brackish Tidepool        region=Cove             w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Fish Idol                region=Cove             w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Giant Oyster             region=Cove             w=2 pct=40.00%   r1=('CT', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Giant Fish Carcass       region=Cove             w=1 pct=16.67%   r1=('GT', '1', '<- # Draws') r2=('B', '1', '<- # Draws') r3=('S', '1', '<- # Draws')
+   Ship's Figurehead        region=Cove             w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Eerie Coral              region=Cove             w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Traveller's Tent (tutorial) region=Weald            w=1 pct=100.00%  r1=('B', '2', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Bandit's Trapped Chest (tutorial) region=Weald            w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Shambler's Altar         region=ALL              w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Bas-Relief               region=Cove             w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Secret Stash             region=ALL              w=1 pct=100.00%  r1=('B', '3', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Ancestor's Knapsack      region=Darkest Dungeon  w=1 pct=100.00%  r1=('T_ANCESTOR', '1', '<- # Draws') r2=('B', '5', '<- # Draws') r3=('', '', '<- # Draws')
+   Tutorial Shovel          region=Ruins            w=1 pct=100.00%  r1=('SHOVELONLY', '1', '<- # Draws') r2=('A', '2', '<- # Draws') r3=('', '', '<- # Draws')
+   Tutorial Key             region=Ruins            w=1 pct=100.00%  r1=('KEYONLY', '1', '<- # Draws') r2=('A', '1', '<- # Draws') r3=('', '', '<- # Draws')
+   Tutorial Holy            region=Ruins            w=1 pct=100.00%  r1=('HOLYONLY', '1', '<- # Draws') r2=('A', '1', '<- # Draws') r3=('', '', '<- # Draws')
+   Tutorial Food            region=Ruins            w=1 pct=100.00%  r1=('P', '2', '<- # Draws') r2=('A', '2', '<- # Draws') r3=('', '', '<- # Draws')
+   Thanks Chest             region=Darkest Dungeon  w=1 pct=100.00%  r1=('THANKS', '1', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Open Grave               region=ALL              w= pct=         r1=('', '', '<- # Draws') r2=('', '', '<- # Draws') r3=('', '', '<- # Draws')
+   Ancestor's Knapsack      region=ALL              w=1 pct=100.00%  r1=('T_INCURSIONSACK', '1', '<- # Draws') r2=('CH', '3', '<- # Draws') r3=('', '', '<- # Draws')
+
+ALL 'Heirloom' / H-table references in curio results:
+   Heirloom Chest           {"type": "Loot", "weight": "3", "chance": "75.00%", "r1": ["H", "2", "<- # Draws"], "r2": ["", "", "<- # Draws"], "r3": ["", "", "<- # Draws"]}
+   Heirloom Chest           {"item": "skeleton_key", "type": "Loot", "r1": ["H", "3", "<- # Draws"], "r2": ["", "", ""], "r3": ["", "", ""], "string": "", "notes": ""}
+   Heirloom Chest           {"item": "antivenom", "type": "Loot", "r1": ["H", "3", "<- # Draws"], "r2": ["", "", ""], "r3": ["", "", ""], "string": "", "notes": ""}
+   Crate                    {"type": "Loot", "weight": "3", "chance": "75.00%", "r1": ["H", "1", "<- # Draws"], "r2": ["", "", "<- # Draws"], "r3": ["", "", "<- # Draws"]}
+   Locked Display Cabinet   {"item": "skeleton_key", "type": "Loot", "r1": ["CH", "3", "<- # Draws"], "r2": ["B", "2", "<- # Draws"], "r3": ["", "", "<- # Draws"], "string": "Treasures are stashed in the cabinet!", "notes": ""}
+   Locked Display Cabinet   {"item": "shovel", "type": "Loot", "r1": ["CH", "2", "<- # Draws"], "r2": ["B", "2", "<- # Draws"], "r3": ["", "", ""], "string": "Smashed the cabinet open...", "notes": ""}
+   Sarcophagus              {"type": "Loot", "weight": "3", "chance": "60.00%", "r1": ["CH", "2", "<- # Draws"], "r2": ["", "", "<- # Draws"], "r3": ["", "", "<- # Draws"]}
+   Locked Sarcophagus       {"item": "skeleton_key", "type": "Loot", "r1": ["CH", "2", "<- # Draws"], "r2": ["CT", "1", "<- # Draws"], "r3": ["", "", "<- # Draws"], "string": "The Skeleton Key opens the sarcophagus to reveal its contents.", "notes": ""}
+   Locked Sarcophagus       {"item": "shovel", "type": "Loot", "r1": ["CH", "1", "<- # Draws"], "r2": ["CT", "1", "<- # Draws"], "r3": ["", "", ""], "string": "Broke into the sarcophagus...", "notes": ""}
+   Ancient Coffin           {"type": "Loot", "weight": "3", "chance": "50.00%", "r1": ["CH", "2", "<- # Draws"], "r2": ["", "", "<- # Draws"], "r3": ["", "", "<- # Draws"]}
+   Traveller's Tent         {"type": "Loot", "weight": "3", "chance": "37.50%", "r1": ["SC", "2", "<- # Draws"], "r2": ["CH", "2", "<- # Draws"], "r3": ["", "", "<- # Draws"]}
+   Shallow Grave            {"item": "shovel", "type": "Loot", "r1": ["GH", "3", "<- # Draws"], "r2": ["", "", "<- # Draws"], "r3": ["", "", "<- # Draws"], "string": "There is treasure hidden inside the grave.", "notes": ""}
+   Ancestor's Knapsack      {"type": "Loot", "weight": "1", "chance": "100.00%", "r1": ["T_INCURSIONSACK", "1", "<- # Draws"], "r2": ["CH", "3", "<- # Draws"], "r3": ["", "", "<- # Draws"]}
+
+CURIO TABLE (index | name | quality | region | #main | #inter):
+    1 | Unlocked Strongbox         | Good   | ALL              |  8 |  0
+    2 | Locked Strongbox           | Mixed  | ALL              |  8 |  2
+    3 | Goal Strongbox             | Good   | ALL              |  8 |  0
+    4 | Heirloom Chest             | Mixed  | ALL              |  8 |  2
+    5 | Eldritch Altar             | Mixed  | ALL              |  8 |  1
+    6 | Altar of Light             | Good   | Ruins            |  8 |  1
+    7 | Stack of Books             | Mixed  | ALL              |  8 |  1
+    8 | Iron Maiden                | Mixed  | Ruins            |  8 |  1
+    9 | Pile of Bones              | Mixed  | Warrens          |  8 |  1
+   10 | Discarded Pack             | Good   | ALL              |  8 |  0
+   11 | Sconce                     | Good   | ALL              |  8 |  0
+   12 | Crate                      | Good   | ALL              |  8 |  0
+   13 | Sack                       | Good   | ALL              |  8 |  0
+   14 | Suit of Armor              | Good   | Ruins            |  8 |  0
+   15 | Dinner Cart                | Mixed  | Warrens          |  8 |  1
+   16 | Decorative Urn             | Mixed  | Ruins            |  8 |  2
+   17 | Locked Display Cabinet     | Bad    | Ruins            |  8 |  2
+   18 | Confession Booth           | Mixed  | Ruins            |  8 |  1
+   19 | Holy Fountain              | Good   | Ruins            |  8 |  1
+   20 | Bookshelf                  | Mixed  | Ruins            |  8 |  0
+   21 | Alchemy Table              | Mixed  | Ruins            |  8 |  2
+   22 | Knife Rack                 | Mixed  | Warrens          |  8 |  1
+   23 | Sarcophagus                | Mixed  | Ruins            |  8 |  0
+   24 | Mummified Remains          | Mixed  | Weald            |  8 |  1
+   25 | Sacrificial Stone          | Mixed  | Warrens          |  8 |  1
+   26 | Skull Altar                | Good   | Warrens          |  8 |  0
+   27 | Occult Scrawlings          | Mixed  | Warrens          |  8 |  1
+   28 | Moonshine Barrel           | Mixed  | Warrens          |  8 |  1
+   29 | Locked Sarcophagus         | Bad    | Ruins            |  8 |  2
+   30 | Makeshift Dining Table     | Mixed  | Warrens          |  8 |  1
+   31 | Pile of Scrolls            | Mixed  | Warrens          |  8 |  1
+   32 | Ancient Coffin             | Good   | Weald            |  8 |  0
+   33 | Old Tree                   | Mixed  | Weald            |  8 |  1
+   34 | Beast Carcass              | Mixed  | Weald            |  8 |  1
+   35 | Pristine Fountain          | Good   | Weald            |  8 |  1
+   36 | Traveller's Tent           | Mixed  | Weald            |  8 |  0
+   37 | Cosmic Spiderweb           | Mixed  | Weald            |  8 |  1
+   38 | Lost Luggage               | Mixed  | Weald            |  8 |  2
+   39 | Shallow Grave              | Bad    | Weald            |  8 |  1
+   40 | Troubling Effigy           | Mixed  | Weald            |  8 |  1
+   41 | Barnacle Crusted Chest     | Good   | Cove             |  8 |  1
+   42 | Brackish Tidepool          | Bad    | Cove             |  8 |  1
+   43 | Fish Idol                  | Mixed  | Cove             |  8 |  1
+   44 | Giant Oyster               | Mixed  | Cove             |  8 |  2
+   45 | Giant Fish Carcass         | Mixed  | Cove             |  8 |  1
+   46 | Ship's Figurehead          | Good   | Cove             |  8 |  0
+   47 | Eerie Coral                | Mixed  | Cove             |  8 |  1
+   48 | Traveller's Tent (tutorial) | Good   | Weald            |  8 |  0
+   49 | Bandit's Trapped Chest (tutorial) | Bad    | Weald            |  8 |  1
+   50 | Shambler's Altar           | Mixed  | ALL              |  8 |  1
+   51 | Bas-Relief                 | Mixed  | Cove             |  8 |  1
+   52 | Secret Stash               | Good   | ALL              |  8 |  1
+   53 | Ancestor's Knapsack        | Good   | Darkest Dungeon  |  8 |  0
+   54 | Tutorial Shovel            | Good   | Ruins            |  8 |  0
+   55 | Tutorial Key               | Good   | Ruins            |  8 |  0
+   56 | Tutorial Holy              | Good   | Ruins            |  8 |  0
+   57 | Tutorial Food              | Good   | Ruins            |  8 |  0
+   58 | Thanks Chest               | Good   | Darkest Dungeon  |  8 |  0
+   59 | Open Grave                 | Bad    | ALL              |  8 |  0
+   60 | Ancestor's Knapsack        | Good   | ALL              |  8 |  0
+
+SAMPLE FULL CURIO BLOCK (Heirloom Chest):
+{
+ "index": 4,
+ "name": "Heirloom Chest",
+ "quality": "Mixed",
+ "main": [
+  {
+   "type": "Nothing",
+   "weight": "",
+   "chance": "",
+   "r1": [
+    "N/A",
+    "N/A",
+    "N/A"
+   ],
+   "r2": [
+    "N/A",
+    "N/A",
+    "N/A"
+   ],
+   "r3": [
+    "N/A",
+    "N/A",
+    "N/A"
+   ]
+  },
+  {
+   "type": "Loot",
+   "weight": "3",
+   "chance": "75.00%",
+   "r1": [
+    "H",
+    "2",
+    "<- # Draws"
+   ],
+   "r2": [
+    "",
+    "",
+    "<- # Draws"
+   ],
+   "r3": [
+    "",
+    "",
+    "<- # Draws"
+   ]
+  },
+  {
+   "type": "Quirk",
+   "weight": "",
+   "chance": "",
+   "r1": [
+    "",
+    "",
+    ""
+   ],
+   "r2": [
+    "",
+    "",
+    ""
+   ],
+   "r3": [
+    "",
+    "",
+    ""
+   ]
+  },
+  {
+   "type": "Effect",
+   "weight": "1",
+   "chance": "25.00%",
+   "r1": [
+    "Blight 1",
+    "1",
+    "50.00%"
+   ],
+   "r2": [
+    "Bleed 1",
+    "1",
+    "50.00%"
+   ],
+   "r3": [
+    "",
+    "",
+    ""
+   ]
+  },
+  {
+   "type": "Purge",
+   "weight": "",
+   "chance": "",
+   "r1": [
+    "",
+    "",
+    ""
+   ],
+   "r2": [
+    "",
+    "",
+    ""
+   ],
+   "r3": [
+    "",
+    "",
+    ""
+   ]
+  },
+  {
+   "type": "Scouting",
+   "weight": "",
+   "chance": "",
+   "r1": [
+    "",
+    "",
+    ""
+   ],
+   "r2": [
+    "",
+    "",
+    ""
+   ],
+   "r3": [
+    "",
+    "",
+    ""
+   ]
+  },
+  {
+   "type": "Teleport",
+   "weight": "",
+   "chance": "",
+   "r1": [
+    "",
+    "",
+    ""
+   ],
+   "r2": [
+    "",
+    "",
+    ""
+   ],
+   "r3": [
+    "",
+    "",
+    ""
+   ]
+  },
+  {
+   "type": "Disease",
+   "weight": "",
+   "chance": "",
+   "r1": [
+    "",
+    "",
+    ""
+   ],
+   "r2": [
+    "",
+    "",
+    ""
+   ],
+   "r3": [
+    "",
+    "",
+    ""
+   ]
+  }
+ ],
+ "inter": [
+  {
+   "item": "skeleton_key",
+   "type": "Loot",
+   "r1": [
+    "H",
+    "3",
+    "<- # Draws"
+   ],
+   "r2": [
+    "",
+    "",
+    ""
+   ],
+   "r3": [
+    "",
+    "",
+    ""
+   ],
+   "string": "",
+   "notes": ""
+  },
+  {
+   "item": "antivenom",
+   "type": "Loot",
+   "r1": [
+    "H",
+    "3",
+    "<- # Draws"
+   ],
+   "r2": [
+    "",
+    "",
+    ""
+   ],
+   "r3": [
+    "",
+    "",
+    ""
+   ],
+   "string": "",
+   "notes": ""
+  }
+ ],
+ "id": "heirloom_chest",
+ "region": "ALL"
+}
+
+RESULT-TYPE WORDING SAMPLES (distinct r1 values on main rows):
+{
+ "N/A": 180,
+ "Blight 1": 17,
+ "A": 11,
+ "B": 10,
+ "negative": 9,
+ "Bleed 1": 8,
+ "positive": 6,
+ "random": 6,
+ "P": 6,
+ "Stress 3": 4,
+ "CT": 4,
+ "Stress 2": 4,
+ "CH": 4,
+ "2 - all": 3,
+ "GT": 3,
+ "H": 2,
+ "JOURNALONLY": 2,
+ "S": 2,
+ "0 - all": 2,
+ "CS": 2,
+ "T": 1,
+ "Curio Damage Buff": 1,
+ "Darkness 3": 1,
+ "claustrophobia": 1,
+ "tetanus": 1,
+ "bloodthirsty": 1,
+ "3 - all": 1,
+ "TORCHONLY": 1,
+ "C": 1,
+ "ruins_adventurer": 1,
+ "ruins_tactician": 1,
+ "Suit of Armor Shield": 1,
+ "the_black_plague": 1,
+ "G": 1,
+ "creeping_cough": 1,
+ "HolyFountainEffects": 1,
+ "0 - curios": 1,
+ "thanatophobia": 1,
+ "warren_explorer": 1,
+ "warren_scrounger": 1,
+ "Stress 4": 1,
+ "Skull Altar Adrenaline": 1,
+ "alcoholism": 1,
+ "tapeworm": 1,
+ "0 - hall_battles": 1,
+ "0 - room_battles": 1,
+ "weald_explorer": 1,
+ "weald_adventurer": 1,
+ "zoophobia": 1,
+ "rabies": 1,
+ "PristineFountainHealStress": 1,
+ "SC": 1,
+ "3 - obstacles": 1,
+ "2 - traps": 1,
+ "slow_reflexes": 1,
+ "slowdraw": 1,
+ "brackish_tidepool": 1,
+ "fish_idol_curse_1": 1,
+ "fish_idol_curse_2": 1,
+ "Bleed 2": 1,
+ "the_red_plague": 1,
+ "Figurehead Buff": 1,
+ "Figurehead Heal Stress": 1,
+ "eerie_coral_healstress": 1,
+ "eerie_coral_stress": 1,
+ "T_ANCESTOR": 1,
+ "SHOVELONLY": 1,
+ "KEYONLY": 1,
+ "HOLYONLY": 1,
+ "THANKS": 1,
+ "Stress 5": 1,
+ "T_INCURSIONSACK": 1
+}

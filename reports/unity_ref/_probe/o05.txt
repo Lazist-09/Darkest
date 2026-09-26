@@ -1,0 +1,102 @@
+﻿==============================================================================
+FILE Mechanics/HeirloomExchange.json
+RAW BYTES: 1958
+{
+    "markets":
+    [
+        {
+            "id" : "default",
+            "exchange_rates":
+            [
+                { "exchange_from_type": "bust",         "exchange_from_amount": 3, "exchange_to_type": "portrait",      "exchange_to_amount": 1 },
+                { "exchange_from_type": "bust",         "exchange_from_amount": 3, "exchange_to_type": "deed",          "exchange_to_amount": 2 },
+                { "exchange_from_type": "bust",         "exchange_from_amount": 2, "exchange_to_type": "crest",         "exchange_to_amount": 3 },
+                
+                { "exchange_from_type": "portrait",     "exchange_from_amount": 2, "exchange_to_type": "bust",          "exchange_to_amount": 3 },
+                { "exchange_from_type": "portrait",     "exchange_from_amount": 2, "exchange_to_type": "deed",          "exchange_to_amount": 3 },
+                { "exchange_from_type": "portrait",     "exchange_from_amount": 1, "exchange_to_type": "crest",         "exchange_to_amount": 3 },
+
+                { "exchange_from_type": "deed",         "exchange_from_amount": 3, "exchange_to_type": "bust",          "exchange_to_amount": 2 },
+                { "exchange_from_type": "deed",         "exchange_from_amount": 3, "exchange_to_type": "portrait",      "exchange_to_amount": 1 },
+                { "exchange_from_type": "deed",         "exchange_from_amount": 2, "exchange_to_type": "crest",         "exchange_to_amount": 3 },
+                
+                { "exchange_from_type": "crest",        "exchange_from_amount": 3, "exchange_to_type": "bust",          "exchange_to_amount": 1 },
+                { "exchange_from_type": "crest",        "exchange_from_amount": 6, "exchange_to_type": "portrait",      "exchange_to_amount": 1 },
+                { "exchange_from_type": "crest",        "exchange_from_amount": 3, "exchange_to_type": "deed",          "exchange_to_amount": 1 }
+            ]
+            
+        }
+        
+    ]
+}
+...
+TYPESTRUCT: {markets:list[1] of {id:str('default'), exchange_rates:list[12] of {exchange_from_type:str('bust'), exchange_from_amount:int, exchange_to_type:str('portrait'), exchange_to_amount:int}}}
+==============================================================================
+FILE Mechanics/Campaign.json
+RAW BYTES: 408
+{
+    "quest_completion_xp_table":
+    [
+        0,
+        2,
+        3,
+        4
+    ],
+
+	"level_threshold_table":
+    [
+        0,
+		2,
+		6,
+		10,
+		16,
+		22,
+		32,
+		42
+    ],
+
+    "resolve_level_thresholds" : 
+    [
+        0,
+        2,
+        8,
+        14,
+        30,
+        62,
+        94
+    ],
+
+	"gold_icon_thresholds": [ 250, 500, 750, 1000 ],
+	"provision_icon_thresholds": [ 0, 5, 11, 14 ]
+}
+...
+TYPESTRUCT: {quest_completion_xp_table:list[4] of int, level_threshold_table:list[8] of int, resolve_level_thresholds:list[7] of int, gold_icon_thresholds:list[4] of int, provision_icon_thresholds:list[4] of int}
+==============================================================================
+FILE Mechanics/Roster.json
+RAW BYTES: 360
+    {
+    "name_id_format" :  "hero_name_%d",
+
+    "resolve_level_thresholds" : 
+    [
+        0,
+        2,
+        8,
+        14,
+        24,
+        36,
+        48
+    ],
+    
+    "town_visit_town_progression":
+    {
+        "idle_hero_stress_heal" : 5.0
+    },
+    
+    "town_visit_non_town_progression":
+    {
+        "idle_hero_stress_heal" : 0.0
+    }
+}
+...
+TYPESTRUCT: {name_id_format:str('hero_name_%d'), resolve_level_thresholds:list[7] of int, town_visit_town_progression:{idle_hero_stress_heal:float}, town_visit_non_town_progression:{idle_hero_stress_heal:float}}

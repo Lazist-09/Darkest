@@ -1,0 +1,135 @@
+﻿======================================================================
+FILE abbey.upgrades.json
+ TREE id=abbey.meditation instanced=False tags=['building', 'abbey'] reqs=6
+   req code=a prereq=[] cost[gold=0, bust=4, crest=4]
+   req code=b prereq=[{'tree_id': 'abbey.meditation', 'requirement_code': 'a'}] cost[gold=0, bust=8, crest=8]
+   req code=c prereq=[{'tree_id': 'abbey.meditation', 'requirement_code': 'b'}] cost[gold=0, bust=11, crest=11]
+   req code=d prereq=[{'tree_id': 'abbey.meditation', 'requirement_code': 'c'}] cost[gold=0, bust=15, crest=15]
+   req code=e prereq=[{'tree_id': 'abbey.meditation', 'requirement_code': 'd'}] cost[gold=0, bust=19, crest=19]
+   req code=f prereq=[{'tree_id': 'abbey.meditation', 'requirement_code': 'e'}] cost[gold=0, bust=23, crest=23]
+ TREE id=abbey.prayer instanced=False tags=['building', 'abbey'] reqs=6
+   req code=a prereq=[] cost[gold=0, bust=4, crest=4]
+   req code=b prereq=[{'tree_id': 'abbey.prayer', 'requirement_code': 'a'}] cost[gold=0, bust=8, crest=8]
+   req code=c prereq=[{'tree_id': 'abbey.prayer', 'requirement_code': 'b'}] cost[gold=0, bust=11, crest=11]
+   req code=d prereq=[{'tree_id': 'abbey.prayer', 'requirement_code': 'c'}] cost[gold=0, bust=15, crest=15]
+   req code=e prereq=[{'tree_id': 'abbey.prayer', 'requirement_code': 'd'}] cost[gold=0, bust=19, crest=19]
+   req code=f prereq=[{'tree_id': 'abbey.prayer', 'requirement_code': 'e'}] cost[gold=0, bust=23, crest=23]
+ TREE id=abbey.flagellation instanced=False tags=['building', 'abbey'] reqs=6
+   req code=a prereq=[] cost[gold=0, bust=4, crest=4]
+   req code=b prereq=[{'tree_id': 'abbey.flagellation', 'requirement_code': 'a'}] cost[gold=0, bust=8, crest=8]
+   req code=c prereq=[{'tree_id': 'abbey.flagellation', 'requirement_code': 'b'}] cost[gold=0, bust=11, crest=11]
+   req code=d prereq=[{'tree_id': 'abbey.flagellation', 'requirement_code': 'c'}] cost[gold=0, bust=15, crest=15]
+   req code=e prereq=[{'tree_id': 'abbey.flagellation', 'requirement_code': 'd'}] cost[gold=0, bust=19, crest=19]
+   req code=f prereq=[{'tree_id': 'abbey.flagellation', 'requirement_code': 'e'}] cost[gold=0, bust=23, crest=23]
+======================================================================
+FILE stage_coach.upgrades.json
+ TREE id=stage_coach.numrecruits instanced=False tags=['building', 'stage_coach'] reqs=5
+   req code=a prereq=[] cost[gold=0, deed=3, crest=3]
+   req code=b prereq=[{'tree_id': 'stage_coach.numrecruits', 'requirement_code': 'a'}] cost[gold=0, deed=8, crest=8]
+   req code=c prereq=[{'tree_id': 'stage_coach.numrecruits', 'requirement_code': 'b'}] cost[gold=0, deed=12, crest=12]
+   req code=d prereq=[{'tree_id': 'stage_coach.numrecruits', 'requirement_code': 'c'}] cost[gold=0, deed=16, crest=16]
+   req code=e prereq=[{'tree_id': 'stage_coach.numrecruits', 'requirement_code': 'd'}] cost[gold=0, deed=21, crest=21]
+ TREE id=stage_coach.rostersize instanced=False tags=['building', 'stage_coach'] reqs=5
+   req code=a prereq=[] cost[gold=0, deed=3, crest=3]
+   req code=b prereq=[{'tree_id': 'stage_coach.rostersize', 'requirement_code': 'a'}] cost[gold=0, deed=8, crest=8]
+   req code=c prereq=[{'tree_id': 'stage_coach.rostersize', 'requirement_code': 'b'}] cost[gold=0, deed=12, crest=12]
+   req code=d prereq=[{'tree_id': 'stage_coach.rostersize', 'requirement_code': 'c'}] cost[gold=0, deed=16, crest=16]
+   req code=e prereq=[{'tree_id': 'stage_coach.rostersize', 'requirement_code': 'd'}] cost[gold=0, deed=21, crest=21]
+ TREE id=stage_coach.upgraded_recruits instanced=False tags=['building', 'stage_coach'] reqs=3
+   req code=a prereq=[{'tree_id': 'guild.skill_levels', 'requirement_code': 'b'}, {'tree_id': 'blacksmith.weapon', 'requirement_code': 'b'}, {'tree_id': 'blacksmith.armour', 'requirement_code': 'b'}] cost[gold=0, bust=12, portrait=8]
+   req code=b prereq=[{'tree_id': 'stage_coach.upgraded_recruits', 'requirement_code': 'a'}, {'tree_id': 'guild.skill_levels', 'requirement_code': 'c'}, {'tree_id': 'blacksmith.weapon', 'requirement_code': 'c'}, {'tree_id': 'blacksmith.armour', 'requirement_code': 'c'}] cost[gold=0, bust=18, portrait=12]
+   req code=c prereq=[{'tree_id': 'stage_coach.upgraded_recruits', 'requirement_code': 'b'}, {'tree_id': 'guild.skill_levels', 'requirement_code': 'd'}, {'tree_id': 'blacksmith.weapon', 'requirement_code': 'd'}, {'tree_id': 'blacksmith.armour', 'requirement_code': 'd'}] cost[gold=0, bust=24, portrait=16]
+======================================================================
+FILE blacksmith.upgrades.json
+ TREE id=blacksmith.weapon instanced=False tags=['building', 'blacksmith'] reqs=4
+   req code=a prereq=[] cost[gold=0, deed=10, crest=6]
+   req code=b prereq=[{'tree_id': 'blacksmith.weapon', 'requirement_code': 'a'}] cost[gold=0, deed=26, crest=17]
+   req code=c prereq=[{'tree_id': 'blacksmith.weapon', 'requirement_code': 'b'}] cost[gold=0, deed=42, crest=28]
+   req code=d prereq=[{'tree_id': 'blacksmith.weapon', 'requirement_code': 'c'}] cost[gold=0, deed=58, crest=39]
+ TREE id=blacksmith.armour instanced=False tags=['building', 'blacksmith'] reqs=4
+   req code=a prereq=[] cost[gold=0, deed=10, crest=6]
+   req code=b prereq=[{'tree_id': 'blacksmith.armour', 'requirement_code': 'a'}] cost[gold=0, deed=26, crest=17]
+   req code=c prereq=[{'tree_id': 'blacksmith.armour', 'requirement_code': 'b'}] cost[gold=0, deed=42, crest=28]
+   req code=d prereq=[{'tree_id': 'blacksmith.armour', 'requirement_code': 'c'}] cost[gold=0, deed=58, crest=39]
+ TREE id=blacksmith.cost instanced=False tags=['building', 'blacksmith'] reqs=5
+   req code=a prereq=[] cost[gold=0, deed=5, crest=3]
+   req code=b prereq=[{'tree_id': 'blacksmith.cost', 'requirement_code': 'a'}] cost[gold=0, deed=12, crest=8]
+   req code=c prereq=[{'tree_id': 'blacksmith.cost', 'requirement_code': 'b'}] cost[gold=0, deed=18, crest=12]
+   req code=d prereq=[{'tree_id': 'blacksmith.cost', 'requirement_code': 'c'}] cost[gold=0, deed=24, crest=16]
+   req code=e prereq=[{'tree_id': 'blacksmith.cost', 'requirement_code': 'd'}] cost[gold=0, deed=31, crest=21]
+======================================================================
+FILE sanitarium.upgrades.json
+ TREE id=sanitarium.cost instanced=False tags=['building', 'sanitarium'] reqs=5
+   req code=a prereq=[] cost[gold=0, bust=3, crest=2]
+   req code=b prereq=[{'tree_id': 'sanitarium.cost', 'requirement_code': 'a'}] cost[gold=0, bust=8, crest=4]
+   req code=c prereq=[{'tree_id': 'sanitarium.cost', 'requirement_code': 'b'}] cost[gold=0, bust=12, crest=6]
+   req code=d prereq=[{'tree_id': 'sanitarium.cost', 'requirement_code': 'c'}] cost[gold=0, bust=16, crest=8]
+   req code=e prereq=[{'tree_id': 'sanitarium.cost', 'requirement_code': 'd'}] cost[gold=0, bust=21, crest=10]
+ TREE id=sanitarium.disease_quirk_cost instanced=False tags=['building', 'sanitarium'] reqs=5
+   req code=a prereq=[] cost[gold=0, bust=3, crest=2]
+   req code=b prereq=[{'tree_id': 'sanitarium.disease_quirk_cost', 'requirement_code': 'a'}] cost[gold=0, bust=8, crest=4]
+   req code=c prereq=[{'tree_id': 'sanitarium.disease_quirk_cost', 'requirement_code': 'b'}] cost[gold=0, bust=12, crest=6]
+   req code=d prereq=[{'tree_id': 'sanitarium.disease_quirk_cost', 'requirement_code': 'c'}] cost[gold=0, bust=16, crest=8]
+   req code=e prereq=[{'tree_id': 'sanitarium.disease_quirk_cost', 'requirement_code': 'd'}] cost[gold=0, bust=21, crest=10]
+ TREE id=sanitarium.slots instanced=False tags=['building', 'sanitarium'] reqs=4
+   req code=a prereq=[] cost[gold=0, bust=10, crest=5]
+   req code=b prereq=[{'tree_id': 'sanitarium.slots', 'requirement_code': 'a'}] cost[gold=0, bust=20, crest=10]
+   req code=c prereq=[{'tree_id': 'sanitarium.slots', 'requirement_code': 'b'}] cost[gold=0, bust=30, crest=15]
+   req code=d prereq=[{'tree_id': 'sanitarium.slots', 'requirement_code': 'c'}] cost[gold=0, bust=60, crest=30]
+======================================================================
+FILE nomad_wagon.upgrades.json
+ TREE id=nomad_wagon.numitems instanced=False tags=['building', 'nomad_wagon'] reqs=4
+   req code=a prereq=[] cost[gold=0, crest=17]
+   req code=b prereq=[{'tree_id': 'nomad_wagon.numitems', 'requirement_code': 'a'}] cost[gold=0, crest=46]
+   req code=c prereq=[{'tree_id': 'nomad_wagon.numitems', 'requirement_code': 'b'}] cost[gold=0, crest=74]
+   req code=d prereq=[{'tree_id': 'nomad_wagon.numitems', 'requirement_code': 'c'}] cost[gold=0, crest=103]
+ TREE id=nomad_wagon.cost instanced=False tags=['building', 'nomad_wagon'] reqs=5
+   req code=a prereq=[] cost[gold=0, crest=14]
+   req code=b prereq=[{'tree_id': 'nomad_wagon.cost', 'requirement_code': 'a'}] cost[gold=0, crest=31]
+   req code=c prereq=[{'tree_id': 'nomad_wagon.cost', 'requirement_code': 'b'}] cost[gold=0, crest=48]
+   req code=d prereq=[{'tree_id': 'nomad_wagon.cost', 'requirement_code': 'c'}] cost[gold=0, crest=65]
+   req code=e prereq=[{'tree_id': 'nomad_wagon.cost', 'requirement_code': 'd'}] cost[gold=0, crest=82]
+======================================================================
+FILE guild.upgrades.json
+ TREE id=guild.skill_levels instanced=False tags=['building', 'guild'] reqs=4
+   req code=a prereq=[] cost[gold=0, portrait=6, crest=11]
+   req code=b prereq=[{'tree_id': 'guild.skill_levels', 'requirement_code': 'a'}] cost[gold=0, portrait=15, crest=30]
+   req code=c prereq=[{'tree_id': 'guild.skill_levels', 'requirement_code': 'b'}] cost[gold=0, portrait=24, crest=48]
+   req code=d prereq=[{'tree_id': 'guild.skill_levels', 'requirement_code': 'c'}] cost[gold=0, portrait=33, crest=67]
+ TREE id=guild.cost instanced=False tags=['building', 'guild'] reqs=5
+   req code=a prereq=[] cost[gold=0, portrait=2, crest=5]
+   req code=b prereq=[{'tree_id': 'guild.cost', 'requirement_code': 'a'}] cost[gold=0, portrait=5, crest=11]
+   req code=c prereq=[{'tree_id': 'guild.cost', 'requirement_code': 'b'}] cost[gold=0, portrait=8, crest=17]
+   req code=d prereq=[{'tree_id': 'guild.cost', 'requirement_code': 'c'}] cost[gold=0, portrait=11, crest=23]
+   req code=e prereq=[{'tree_id': 'guild.cost', 'requirement_code': 'd'}] cost[gold=0, portrait=14, crest=29]
+======================================================================
+FILE camping_trainer.upgrades.json
+ TREE id=camping_trainer.cost instanced=False tags=['building', 'camping_trainer'] reqs=5
+   req code=a prereq=[] cost[gold=0, crest=27]
+   req code=b prereq=[{'tree_id': 'camping_trainer.cost', 'requirement_code': 'a'}] cost[gold=0, crest=62]
+   req code=c prereq=[{'tree_id': 'camping_trainer.cost', 'requirement_code': 'b'}] cost[gold=0, crest=96]
+   req code=d prereq=[{'tree_id': 'camping_trainer.cost', 'requirement_code': 'c'}] cost[gold=0, crest=130]
+   req code=e prereq=[{'tree_id': 'camping_trainer.cost', 'requirement_code': 'd'}] cost[gold=0, crest=165]
+======================================================================
+FILE tavern.upgrades.json
+ TREE id=tavern.bar instanced=False tags=['building', 'tavern'] reqs=6
+   req code=a prereq=[] cost[gold=0, portrait=2, crest=4]
+   req code=b prereq=[{'tree_id': 'tavern.bar', 'requirement_code': 'a'}] cost[gold=0, portrait=4, crest=8]
+   req code=c prereq=[{'tree_id': 'tavern.bar', 'requirement_code': 'b'}] cost[gold=0, portrait=6, crest=11]
+   req code=d prereq=[{'tree_id': 'tavern.bar', 'requirement_code': 'c'}] cost[gold=0, portrait=8, crest=15]
+   req code=e prereq=[{'tree_id': 'tavern.bar', 'requirement_code': 'd'}] cost[gold=0, portrait=10, crest=19]
+   req code=f prereq=[{'tree_id': 'tavern.bar', 'requirement_code': 'e'}] cost[gold=0, portrait=11, crest=23]
+ TREE id=tavern.gambling instanced=False tags=['building', 'tavern'] reqs=6
+   req code=a prereq=[] cost[gold=0, portrait=2, crest=4]
+   req code=b prereq=[{'tree_id': 'tavern.gambling', 'requirement_code': 'a'}] cost[gold=0, portrait=4, crest=8]
+   req code=c prereq=[{'tree_id': 'tavern.gambling', 'requirement_code': 'b'}] cost[gold=0, portrait=6, crest=11]
+   req code=d prereq=[{'tree_id': 'tavern.gambling', 'requirement_code': 'c'}] cost[gold=0, portrait=8, crest=15]
+   req code=e prereq=[{'tree_id': 'tavern.gambling', 'requirement_code': 'd'}] cost[gold=0, portrait=10, crest=19]
+   req code=f prereq=[{'tree_id': 'tavern.gambling', 'requirement_code': 'e'}] cost[gold=0, portrait=11, crest=23]
+ TREE id=tavern.brothel instanced=False tags=['building', 'tavern'] reqs=6
+   req code=a prereq=[] cost[gold=0, portrait=2, crest=4]
+   req code=b prereq=[{'tree_id': 'tavern.brothel', 'requirement_code': 'a'}] cost[gold=0, portrait=4, crest=8]
+   req code=c prereq=[{'tree_id': 'tavern.brothel', 'requirement_code': 'b'}] cost[gold=0, portrait=6, crest=11]
+   req code=d prereq=[{'tree_id': 'tavern.brothel', 'requirement_code': 'c'}] cost[gold=0, portrait=8, crest=15]
+   req code=e prereq=[{'tree_id': 'tavern.brothel', 'requirement_code': 'd'}] cost[gold=0, portrait=10, crest=19]
+   req code=f prereq=[{'tree_id': 'tavern.brothel', 'requirement_code': 'e'}] cost[gold=0, portrait=11, crest=23]

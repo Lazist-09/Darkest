@@ -1,0 +1,130 @@
+﻿### entries with data.type == 'heirloom'
+TOTAL heirloom-payload entries: 53
+   H(diff=1,dungeon=cove)           4
+   H(diff=1,dungeon=crypts)         4
+   H(diff=1,dungeon=warrens)        4
+   H(diff=1,dungeon=weald)          4
+   H(diff=3,dungeon=cove)           4
+   H(diff=3,dungeon=crypts)         4
+   H(diff=3,dungeon=warrens)        4
+   H(diff=3,dungeon=weald)          4
+   H(diff=5,dungeon=cove)           4
+   H(diff=5,dungeon=crypts)         4
+   H(diff=5,dungeon=warrens)        4
+   H(diff=5,dungeon=weald)          4
+   H(diff=6,dungeon=)               4
+   NONE(diff=0,dungeon=)            1
+
+### distinct payload types across all loot entries (data.type)
+{'heirloom': 53, 'gold': 28, 'gem': 28, 'supply': 12, 'provision': 5}
+
+### tables that reference the heirloom table 'H'
+   -> C              referenced by (6): ['A/d0/', 'B/d0/', 'CH/d0/', 'CS/d0/', 'CT/d0/', 'SC/d0/']
+   -> G              referenced by (4): ['A/d0/', 'B/d0/', 'GH/d0/', 'GT/d0/']
+   -> H              referenced by (3): ['A/d0/', 'CH/d0/', 'GH/d0/']
+   -> J              referenced by (1): ['A/d0/']
+   -> P              referenced by (1): ['A/d0/']
+   -> S              referenced by (4): ['A/d0/', 'CS/d0/', 'SC/d0/', 'MADMAN/d0/']
+   -> T              referenced by (4): ['A/d0/', 'CT/d0/', 'GT/d0/', 'Tbase/d0/']
+   -> T_COLLECTOR    referenced by (1): ['COLLECTOR/d0/']
+   -> T_MADMAN       referenced by (1): ['MADMAN/d0/']
+
+### full table H (all difficulties/dungeons)
+  H diff=1 dungeon=crypts   : item=heirloom:bust x2; item=heirloom:portrait x1; item=heirloom:deed x2; item=heirloom:crest x4
+  H diff=1 dungeon=weald    : item=heirloom:bust x2; item=heirloom:portrait x1; item=heirloom:deed x2; item=heirloom:crest x4
+  H diff=1 dungeon=warrens  : item=heirloom:bust x2; item=heirloom:portrait x1; item=heirloom:deed x2; item=heirloom:crest x4
+  H diff=1 dungeon=cove     : item=heirloom:bust x2; item=heirloom:portrait x1; item=heirloom:deed x2; item=heirloom:crest x4
+  H diff=3 dungeon=crypts   : item=heirloom:bust x3; item=heirloom:portrait x2; item=heirloom:deed x3; item=heirloom:crest x6
+  H diff=3 dungeon=weald    : item=heirloom:bust x3; item=heirloom:portrait x2; item=heirloom:deed x3; item=heirloom:crest x6
+  H diff=3 dungeon=warrens  : item=heirloom:bust x3; item=heirloom:portrait x2; item=heirloom:deed x3; item=heirloom:crest x6
+  H diff=3 dungeon=cove     : item=heirloom:bust x3; item=heirloom:portrait x2; item=heirloom:deed x3; item=heirloom:crest x6
+  H diff=5 dungeon=crypts   : item=heirloom:bust x4; item=heirloom:portrait x2; item=heirloom:deed x4; item=heirloom:crest x8
+  H diff=5 dungeon=weald    : item=heirloom:bust x4; item=heirloom:portrait x2; item=heirloom:deed x4; item=heirloom:crest x8
+  H diff=5 dungeon=warrens  : item=heirloom:bust x4; item=heirloom:portrait x2; item=heirloom:deed x4; item=heirloom:crest x8
+  H diff=5 dungeon=cove     : item=heirloom:bust x4; item=heirloom:portrait x2; item=heirloom:deed x4; item=heirloom:crest x8
+  H diff=6 dungeon=         : item=heirloom:bust x4; item=heirloom:portrait x2; item=heirloom:deed x4; item=heirloom:crest x8
+
+### darkness_bonuses (raw)
+[
+ {
+  "type": "battle",
+  "bonuses": [
+   {
+    "darkness": 0,
+    "chance": 0.75,
+    "codes": [
+     "B",
+     "B"
+    ]
+   },
+   {
+    "darkness": 1,
+    "chance": 0.75,
+    "codes": [
+     "B"
+    ]
+   },
+   {
+    "darkness": 26,
+    "chance": 0.5,
+    "codes": [
+     "B"
+    ]
+   },
+   {
+    "darkness": 51,
+    "chance": 0.25,
+    "codes": [
+     "B"
+    ]
+   },
+   {
+    "darkness": 76,
+    "chance": 0,
+    "codes": [
+     "B"
+    ]
+   }
+  ]
+ },
+ {
+  "type": "chest",
+  "bonuses": [
+   {
+    "darkness": 0,
+    "chance": 0.95,
+    "codes": [
+     "A"
+    ]
+   },
+   {
+    "darkness": 1,
+    "chance": 0.75,
+    "codes": [
+     "A"
+    ]
+   },
+   {
+    "darkness": 26,
+    "chance": 0.5,
+    "codes": [
+     "A"
+    ]
+   },
+   {
+    "darkness": 51,
+    "chance": 0.25,
+    "codes": [
+     "A"
+    ]
+   },
+   {
+    "darkness": 76,
+    "chance": 0,
+    "codes": [
+     "A"
+    ]
+   }
+  ]
+ }
+]
