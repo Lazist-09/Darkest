@@ -3675,3 +3675,125 @@ graveyard.character.png · .character_background.png · .dd.character.png · .ic
      而 `WeaponTier.CritPct` 是 **`int`** ⇒ 需一次类型改动（**该字段当前零消费点** ⇒ 改动本身零行为）✓
    · **P7（M1c 换伤害模型）** 现在**只等** 58.5 那两个裁定：30 条的取值 + Σ段倍率是否归一 ✓
 ```
+
+---
+
+## 59. A3 执行记录：英雄武器/护甲 **5 阶**改用【参考项目】（2026-09-26）
+
+### 59.1 🔴 口径声明（**先定口径再数数** —— 纪律 AU）
+
+```
+🔴 **"数值采用参考项目"这条指令，本件按下面这样落地**（先写死，避免事后解释）：
+   ① **来源** = 参考项目 `…/Assets/Resources/Data/Heroes/Info/<Hero>.bytes` 的 **`weapon:` / `armour:` 行**
+      （**直接读参考项目自己的文件**，不读我们转写过的中间件 ✓）
+   ② **顶替范围** = 我方 `darkest/data/units.json` 的 **4 个原型的 `weapon` / `armour` 各 5 阶**
+      ⇒ 字段数 **4 × 5 × 9 = 180** ✓
+   ③ **配对**（沿用 `_align` 里已记录过的配对，**本件不改配对**）：
+      `warrior ← Hellion` · `tank ← ManAtArms` · `medic ← PlagueDoctor` · `commissar ← Highwayman` ✓
+   ④ **双重读数**：解析参考 `.bytes` 后，**逐字段与本仓冻结件**
+      `reports/dd1_hero_tables_from_unity_ref.json` 对账（**180 个字段全等才继续**）✓
+   ⑤ 🔴 **不做的**：本件**只搬 `weapon`/`armour` 两表**。英雄的 **8 项抗性**、
+      以及顶层 `hp/attack/speed/dodge/crit/resilience/prot/move_distance`
+      **参考项目里根本没有对应**（实测：它每个英雄只有 `resistances`/`weapon`/`armour`/`skill_levels`
+      4 个键）⇒ **本件不碰** ⇒ 见 59.5 ② ✓
+```
+
+### 59.2 🎖️ **顺带解决的一条要求（新指令与它一致）**
+
+```
+用户新指令：「**数值就采用这个项目的**」 ⇒ 我方 `_align` 里原本写的
+   「一手 E 盘…**两者 N 处不同 ⇒ 按 §32.3 一手为准**」**这一句现在自相矛盾**（它让"值来自参考、
+    但口径写着一手优先"并存）⚠️ ⇒ ✅ 本件把 4 条 `_align` 全部改写成**点名参考项目 + 具体文件 + 行范围** ✓
+   ⇒ 🎖️ 这一段**正好就是架构三周前要求的那条纪律 AZ**（注释/数据注记要写【准确的关系】并标出处）✓
+```
+
+### 59.3 🔴 病灶（实测，不是估计）
+
+```
+🔴 ① **我方 4 英雄 5 阶的 180 个字段里，有 39 个不等于参考项目**（逐字段清单见 59.4）✓
+🔴 ② 其中 **13 个是"非整数"**，而 `WeaponTier.CritPct` 声明的类型是 **`int`**
+      ⇒ **照抄参考值装不进去** ⇒ 必须先放宽类型 ✓
+      实测：参考 15 英雄 × 5 阶的 `weapon.crit` 共 **42/75 个非整数**（20 个不同取值，2.5 ~ 9.5）✓
+      🔴 而 **`atk` / `armour.prot` / `armour.spd` 三列恒为 0**、其余 8 列**全是整数**
+      ⇒ **只有 `crit` 一列量纲不匹配**（不是"整套都要改小数"）✓
+🔴 ③ **真正该记的对账口径是这一层**：**我方 180 个值 vs 参考 180 个值**（39 个不同 ✓）
+      ⚠️ 而不是上一节里 130 那个数 —— 那个是**一手 vs 参考**全 15 英雄 × 675 字段的结果，
+      **不是"我们要改多少"**（纪律 AU：**先定义口径，再数**）✓
+```
+
+### 59.4 📊 实测读数（**改前 → 改后**）
+
+```
+--check（不写盘）⇒ 与冻结件对账 **180 个字段全部一致** ✓ · 我方 **180 个里 39 个不同** ✓
+分英雄：warrior 5 · tank 14 · medic 9 · commissar 11 ✓
+按字段：`crit_pct` **18** · `armour.hp` **9** · `dmg_max` **5** · `def_pct` **5** · `dmg_min` **2** ✓
+其中参考值为非整数的：**13** 个（全在 `weapon[*].crit_pct`）✓
+
+落库后：`units.json` sha256 前缀 `f612d40076179d2a` → **`5f921ca65f970e91`**（10384 → 11033 字节）✓
+幂等：连跑 3 遍 ⇒ `f612…→5f92…` / `5f92…→5f92…` / `5f92…→5f92…`（**第 2、3 遍 0 字段改动、字节不变**）✓
+逐条抽样（参考项目源文件原样）：
+   `Hellion.bytes:16` `.crit 2.5%` ⇒ warrior.weapon[0].crit_pct **5 → 2.5** ✓
+   `ManAtArms.bytes:24` `.dmg 7 13 .crit 4.75% .spd 4` ⇒ tank.weapon[2] `dmg_max 12→13` + `crit 4→4.75` ✓
+   `PlagueDoctor.bytes:21` `.def 5% .hp 22` ⇒ medic.armour[0] `def_pct 0→5` ✓
+   `Highwayman.bytes:26` `.def 30% .hp 38` ⇒ commissar.armour[4] `hp 43→38` ✓
+```
+
+### 59.5 ⚠️ 诚实边界（**能验 / 不能验分开写**）
+
+```
+✅ **能验**：
+   · 参考项目 `.bytes` 逐行可复算（`tools/dsh/land_ref_hero_tiers.py --check` 每次重读外部文件）✓
+   · 我方 180 个值 = 参考 180 个值 ⇒ **3 条用例机器守住**（见 59.6）✓
+   · 全量测试 **846/846** 绿 ⇒ **"搬了 39 个数、没有一条判据被打穿"**（含 A1 基线）✓
+🔴 **不能验 / 未做**：
+   ① **`WeaponTier.CritPct` 目前【没有任何读取点】**（`WeaponBaseDamage` 只读 `DmgMin`/`DmgMax`，
+      `TierDefence` 只读 armour）⇒ **"新值搬到位" ≠ "战斗里暴击变了"**（纪律 BK）✓
+      ⇒ 📌 所以本件的 846/846 绿**只能证明"旧读数没被动"，不能证明"新值生效"** ✓
+   ② **参考项目答不出英雄顶层数值**：它的每个英雄只有 4 个键 ⇒
+      我方 8 项抗性 + 顶层 8 字段**没有参考来源** ⇒ **本件未搬**（不等于"已经对齐"）✓
+   ③ **派生的 `armour.hp` 同步未做**：我方有派生态 `enemy_full_hp`（`DataGateTests` 拿它当判据）
+      ⇒ 它对应**敌方**满编总 HP；**本件只动 4 个玩家原型的 armour.hp（且只有阶表，不是顶层 hp）**
+      ⇒ 顶层 `hp` 未动 ⇒ 该判据自然不受影响 ✓（**若将来动顶层 hp，必须同批重算**）✓
+```
+
+### 59.6 🎖️ 三条守卫用例（`darkest/tests/A3HeroTierSourceTests.cs`）
+
+```
+① `AllFourHeroesTiersEqualTheReferenceProject` —— 180 个字段逐个与参考值比（含 5 阶齐全性断言）
+   ＋ **反向断言**：非整数**必须恰好 13 个**、且**全在 `crit_pct`**
+     ⇒ 若有人把值改回整数版，这条会**红**（不是"只要相等就过"的空转断言）✓
+② `CritPctHoldsFractions` —— 类型放宽的**编译期守卫**（`warrior.weapon[0].crit_pct == 2.5`）✓
+③ `AlignNotesPointAtTheReferenceProject` —— **出处守卫（纪律 AT/AZ）**：4 条 `_align`
+   **必须点名参考项目路径 + 具体 `<Hero>.bytes`**，且**不得残留「一手 E 盘」**（旧口径已作废）✓
+🎖️ **负向证明（纪律：只会通过的校验 = 空转）**：临时把 `warrior.weapon[0].crit_pct` 从 2.5 改成 5
+   ⇒ 用例 **当红**（`预期值 <2.5> 和实际值 <5>` 且信息点名 `Hellion.weapon[0].crit`）✓
+   ⇒ 再用 `git`/备份**逐字节还原**（sha 回到 `5f921ca65f970e91`）⇒ **绿回来** ✓
+```
+
+### 59.7 🔧 工具与顺带修掉的一处【静默改错】
+
+```
+🆕 `tools/dsh/land_ref_hero_tiers.py`（A3 落库器）：`--check` 不写盘 · 幂等 · 解析失败**响亮退出**
+🔴 **旧工具 `tools/dsh/land_edrive_hero_tables.py` 已被取代，且它有个静默陷阱**：
+   它用正则 `来源：([A-Za-z…])` 从 `_align` 里取英雄名；本件把 `_align` 写法改成 `…\Hellion.bytes` 后
+   ⇒ **正则配不上、返回 None** ⇒ 它会走 `"(无 _align ⇒ 跳过)"` 分支**打印"weapon 改 0 阶 · armour 改 0 阶"**
+   ⇒ 🔴 **把"我读不出来"伪装成"两边一样"**（同族：假绿 / 静默兜底 / 红线 20 ⑤ 空输出=失败）⚠️
+   处置（三件）：① **两种写法都认**（旧 `来源：<Hero>` / 新 `\<Hero>.bytes`）
+              ② 读不出 ⇒ **响亮失败**（`exit 2`，不再有"跳过"分支）
+              ③ **默认拒绝运行 + `--apply` 硬性禁止**（本工具的方向与现行判据相反，跑它就是反向操作）✓
+   📌 为什么**保留而不删**：`reports/edrive_vs_reference_hero_tables.md` 那份"一手 vs 参考"对账要用它复算 ✓
+```
+
+### 59.8 📌 门禁与提交号
+
+```
+· 构建 **0 错误 / 99 警告**（`-t:Rebuild` 全解重编）✓
+· 全量单测 **846/846**（843 + A3 的 3 条守卫）✓
+· `check_file_size` **446 文件 / 0 白名单** ✓ · B6 **OK**（36 文件）✓
+· `check_data_discipline` 三扫 **0 处**（`--numbers` 136 文件 1269 处 / deadfuncs 0 / deadkeys 0）✓
+· `check_godot_refs` **0 处** ✓ · `audit_split_integrity --selfcheck` **PASS** ✓
+· 冒烟 **`PROBE-EXIT bad=0 code=0`**（12 例全绿 · `reports/smoke_summary_20260926_1124.txt`）✓
+📌 提交：本件（A3）—— 见下方提交号 ✓
+📌 下一步：**A4 怪物（230 vs 我方 7）** ／ **A6 折磨+美德（缺 5 美德 + 14 回合开始 / 15 反应表）**
+   ⇒ ⚠️ **A5（AI）/ A7（饰品）/ A8（任务）** 依赖它们；**A9/A10/A11** 相对独立、可插空做 ✓
+```
