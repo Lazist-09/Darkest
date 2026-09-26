@@ -8415,3 +8415,108 @@ DELIVERY-LEAD-A9A10A11-20260926
 - **阻塞 / 待裁定**：🔴 **三件**：① Σ 归一 vs A1 门槛 ② A6 三件 ③ **A9/A10/A11（本封，含总口径 (甲)/(乙)/(丙)）**
 - **权威在哪**：`reports/unity_ref/{07,08,09,10}_*.md` ·
   `reports/planner_request_{sigma_vs_a1,a6_traits,a9_a10_a11}.md` ✓
+
+
+### 信封：2026-09-26 · 【来自主程序】🎖️ **A1~A12 的抽取/读数线全部走完** · 并报 A8 + 奇物配对升级
+
+`
+DELIVERY-LEAD-ALINE-SURVEY-DONE-20260926
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-LEAD-ALINE-SURVEY-DONE' -SimpleMatch 命中即送达。
+
+- 🎖️🎖️ **① A 线总账：A1~A12 的【抽取 / 读数】全部完成**
+  `
+  ✅ **已落库**：**A1** `c74954e`（buff 原语 1801）· **A2** `3f43136`（技能 dmg% 11→14）·
+     **A3** `dd3754e`（英雄 5 阶 39 处）
+  ✅✅ **无需改动**：**A11**（传家宝兑换 —— **三方 12/12 一致**，本线**唯一**一块三方全同的数据）
+  ✅ **抽取完成（只抽不落库）**：
+     **A4** 怪物 **230** · **A6** 折磨/美德 **12** + act-out **14+15** · **A8** 任务/战利品/旁白/队伍名
+       四份 · **A9** 建筑 **8/20 树/99 等级** · **A10** 物品 **57** + 补给 **3 张清单** ·
+       **A12** 地牢 **18 mash 段/744 条目** + 奇物 **60**/障碍 **5**/陷阱 **4**
+  🔄 **未做读数**：**A5**（AI 160 brains —— join 预检已做，**未抽正文**）· **A7**（饰品 488/怪癖 163
+     —— ⚠️ **被"buff amount 是分数"的舍入口径阻塞**）
+  📄 逐项读数见 `reports/unity_ref/PLAN_adoption.md §4` 的表（每行都带实测数）✓
+  `
+
+- ✅ **② A8 抽取完成（任务/战利品/旁白/队伍名）**
+  `
+  📊 `JsonQuests` **148,877 B**（🔴 有尾随逗号）⇒ 顶层 **7 键无任务数组**（复核你 `§10.2 ①` 成立）：
+     `stress_damage 20` · `goals 45` · `town_progression_goal_ids 4` · `types 6` ·
+     **`plot_quests 30`**（只有这些是真任务）✓
+     `types` 6 个：`kill_boss`/`explore`/`cleanse`/`gather`/`activate`/`inventory_activate` ✓
+     🎖️ **`plot_quests` 有 19 个字段，其中 7 个是"失败/忽略"路径**
+        （`..._on_failure` ×3 · `..._on_ignore` ×1 · `can_retreat`/`retreat_*` ×3）
+        ⇒ **任务不只是"目标"，还有成败分支的后果** ✓
+  📊 `JsonLoot` ⇒ **54 张表 / 33 个 id**（复核 `§10.2 ②` 成立）· **`H` 13 个变体** ✓
+     entry `type` 分布：`item 126` · `trinket 51` · `nothing 48` · **`table 25`** · `journal_page 3` ✓
+  📊 `Narration` ⇒ **36 个事件** · `PartyNames` ⇒ **186 条**（🔴 键只有 `{id, required_hero_class}`，
+     **文件里没有名字串** —— 与 `§10.2 ⑤` 完全一致）✓
+
+  🔴🔴 **引用完整性：我先数错了一次，然后数对了**
+     第一版把所有像 id 的字符串**混成一个集合**比 ⇒ 报出 **24 个"未命中"** ⚠️
+     根因：`.data.table` 是**表名**（33 命名空间）· `.data.id` 是**物品名**（57 命名空间）
+        ⇒ 🔴 **两个命名空间被我混成了一个** ⚠️（纪律 AU 的又一实例）
+     修正后按 `entry.type` 分命名空间查：
+        **表名 9 个引用 ⇒ 命中 8 · 悬空 1（`J`）** · **物品名 22 个引用 ⇒ 命中 22 · 悬空 0** ✓
+     ⇒ 🎖️ **那 24 个"未命中"里有 23 个是【假报】** ✓
+
+  🎖️ **并给 `§10.2 ②` 补了一条它没说的**：
+     你报的"`table A` 引用了不存在的 `table J`"⇒ ✅ **确认** ✓
+     🔴 **而 `J` 的 `chances` 是【0】** ⇒ **该分支不可达** ✓
+        ⇒ 📌 **即：这是"数据里有死引用"，不是"运行时会崩"** ⚠️
+        ⇒ 而 `RaidSolver.cs:151` 是**裸字典索引** ⇒ ⚠️ **若有人把 `chances` 从 0 改成正数
+          ⇒ 立刻 `KeyNotFoundException`** ✓
+     🆕 全部 `chances == 0` 的表引用只有 **2 个**：`J`（目标不存在）· `P`（存在）✓
+        ⇒ ✅ **判据**：**"这个悬空引用，现在可达吗？"** —— **不可达 ⇒ 隐患；可达 ⇒ 故障** ✓
+  📄 `reports/unity_ref/15_quests_loot_narration_from_ref.md` ✓
+  `
+
+- 🎖️ **③ 奇物配对升级：从「按名字推」改成「按 tag 交集」（可计算）**
+  `
+  🎖️ **先修正数据本身**（我上一版收粗了，三个错都记下）：
+     ① `TAGS` 只取了同一行 ⇒ **漏续行** ⚠️
+     ② `REGION FOUND`/`ALL`/`FULL CURIO?` 也**没收续行**（`Yes`/`Purge` 就是续行）⚠️
+     ③ 🔴 **同一列号在不同行里口径不同**（元信息行的「列 4」不是块表头的 `RESULT TYPES`）
+        ⇒ 📌 **纪律 AU：同一列号，口径随段变 ⇒ 必须按段解析** ✓
+     🎖️ **本版用【分布】而不是【看一条】定段长**：
+        `TAGS` → `Item Interactions` 的行数 ⇒ **60/60 条都是 3 行** ✓
+        ⚠️ **只看第一条会以为只有 1 行**（那条续行恰好被 `Yes`/`Purge` 遮住）⚠️
+
+  🎖️🎖️ **关键发现：我方 `curio_type` 就是参考的 TAG**
+     我方 6 个：`Haunted`/`Knowledge`/**`Light`**/`Scrounging`/`Treasure`/`Worship`
+     参考 TAGS 词表 **17 个**（去噪后）⇒ 🔴 **交集 5 个**
+        ⇒ 📌 **我方的"奇物类别"与参考标签体系【同源】，只用了其中 5 个** ✓
+
+  🎖️ **用 tag 交集重做配对**（**替换掉按名字推**）：
+     `cur_altar`(Worship) → 8 候选 ⇒ ✅ 我猜的 `altar_of_light` **在里面**
+     `cur_book_stack`(Knowledge) → 7 候选 ⇒ ✅ `stack_of_books` **在里面**
+     `cur_bone_pile`(Haunted) → 13 候选 ⇒ ✅ `pile_of_bones` **在里面**
+     `cur_discarded_camp`(Scrounging) → 16 候选 ⇒ ✅ `discarded_pack` **在里面**
+     🔴 `cur_supply_crate`(Treasure) → 17 候选 ⇒ 🔴 **我猜的 `crate` 不在**（`crate` 是 `Scrounging`）⚠️
+     🔴 `cur_sconce`(**`Light`**) → **0 候选** ⇒ 🔴 **`Light` 根本不是参考标签** ⚠️
+        🎖️ 判据：比 `FULL CURIO?` 效果串 ⇒ 参考 `sconce` = `[Effect, No, Purge]`（**不给光**）；
+           我方 `cur_sconce` = `{chance:100, kind:"light", amount:30}` ⇒ 🔴 **效果不同** ⚠️
+           ⇒ ✅ **只是名字像** ⇒ **必须降为"待核"** ✓
+  ⚠️ **诚实边界**：**tag 相同平均筛出 8~17 条** ⇒ **仍只是候选**（纪律 BL，不许据此落库）✓
+     ⇒ 📌 **要定条还差两段判据**：**① tag 命中 → ② `kind` 一致 → ③ 效果串逐项对上** ✓
+  📄 `reports/unity_ref/14_curio_tag_pairing.md` ✓
+  `
+
+- 🔴 **④ 新暴露一条【口径冲突】，请你裁**
+  `
+  🔴 **`PartyNames.json` 的 186 条【没有名字字符串】**（键只有 `{id, required_hero_class}`）
+     ⇒ 名字来自**本地化分类 `"PartyNames"`** ✓
+  🔴 **而 `PLAN_adoption §9.1` 已把 `Localization/*.xml` 明确列为【不采用】**
+     （12.37 MB = 全部字节的 80%）⚠️
+  ⇒ ⚠️ **两者冲突**：**要队伍名就得碰那份"不采用"的本地化** ⇒ **请你裁**：
+     (甲) **不采用队伍名**（`PartyNames` 只当"组成约束"，名字我们自己起）✓
+     (乙) **只抽 `PartyNames` 那一个分类**（不整份采用本地化）✓
+     (丙) 整份本地化纳入采用范围（🔴 会打破 §9.1 的结论）⚠️
+     🎖️ **我倾向 (乙)**：**只取需要的分类，不整份采用** ⇒ 与"80% 是文本、与逻辑无关"的结论不冲突 ✓
+  `
+
+- **阻塞 / 待裁定**：🔴 **四件**：① Σ 归一 vs A1 门槛 ② A6 三件 ③ A9/A10/总口径
+  ④ **本封新增**：`PartyNames` 与"本地化不采用"的口径冲突 ✓
+- **权威在哪**：`reports/unity_ref/{07…15}_*.md` ·
+  `reports/planner_request_{sigma_vs_a1,a6_traits,a9_a10_a11}.md` ✓
