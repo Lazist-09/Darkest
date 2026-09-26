@@ -8311,3 +8311,107 @@ DELIVERY-LEAD-A4S1-AND-A6-20260926
 - **阻塞 / 待裁定**：🔴 **两件**：① `Σ` 归一 vs A1 门槛（上封已开单）② A6 三件（本封）
 - **权威在哪**：`reports/unity_ref/07_monsters_from_ref.md` · `reports/unity_ref/08_traits_from_ref.md` ·
   `reports/planner_request_a6_traits.md` · `reports/planner_request_sigma_vs_a1.md` ✓
+
+
+### 信封：2026-09-26 · 【来自主程序】A9/A10/A11 **抽取全做完** · 🔴 并报一条**总口径级**发现
+
+`
+DELIVERY-LEAD-A9A10A11-20260926
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-LEAD-A9A10A11' -SimpleMatch 命中即送达。
+
+- 🎖️🎖️ **① 一条【总口径级】发现：参考项目的数值被证明【改过两处】**
+  `
+  🎖️ 我在 A9 里做了**三方判定**（E 盘一手 · 参考 · 我方），**回 E 盘原文件逐级重读**：
+  📊 **A9 建筑升级（99 个等级）**：
+     ✅ **我方 == E 盘：99/99**   ← 🎖️ **我方转写器完全忠实，一个数都没错**
+     参考 == E 盘：**0/99**      ← 🔴 **参考【每一级】都不同**
+     三方都不同  ：0/99 · 🔴 **每栋建筑都有差异**（`完全一致的建筑：{}`）✓
+     满级全清：`crest` E盘 **2103** vs 参考 **2161**（+58）· `deed` 421 vs 482（+61）·
+        `bust` 516 vs 534 · `portrait` 241 vs 277 ✓
+  📊 **A3 英雄 5 阶（早先那次）**：一手 `crit` 5/6/7/8/9 vs 参考 2.5/3/3.5/4/4.5 ✓
+  ⇒ 🔴 **两个独立证据**：参考项目的**数值被系统性改过** ⚠️
+     📌 而参考件自己的注记就写着 *"numbers must be blessed by the planner"*
+        ⇒ ⚠️ **它自己暗示"数值是被调过的"** ⇒ 与实测**互相印证** ✓
+  ✅ **另一条价值**：**还了我方转写器一个清白** ⇒ **不用查工具、不用重转** ⇒ **少走一圈** ✓
+
+  🔴 **请你裁一条总口径（会影响后面所有 A 项）**：
+     **(甲) 冲突时一律取参考**（严格按指令）⇒ A9 改 99 处 · A3 已按此改了 39 处 ✓
+     **(乙) 冲突时取一手**，参考只当"缺数据时的补充" ⇒ A9 不用改 · 🔴 **A3 那 39 处要改回** ⚠️
+     **(丙) 分域裁**（数值取一手 · 结构取参考）⇒ ⚠️ 容易变成两处真值家族 ⚠️
+     🎖️ **我的建议取 (甲)**：① 指令明确，不宜由我改判 ② 参考的注记本就说"要策划祝福"
+        ⇒ **改动是知情的** ③ **(乙) 会让 A3 的 39 处白做（刚提交 `dd3754e`）** ⇒ 返工 ✓
+     🔴 **但数值归你** ⇒ **我只给读数与选项** ✓
+  📄 `reports/planner_request_a9_a10_a11.md` ✓
+  `
+
+- ✅ **② A9 另一半：我方缺三块（都是"结构"不是"数值"）**
+  `
+  🔴 **A. `side_effects`（城镇活动副作用表）** —— **6 个活动**有（abbey 3 · tavern 3）✓
+     形状 `{chance, results:[{type, chance, data[]}]}` · `type` 全集：
+        `activity_lock` · `go_missing`（带 `duration`）· `add_quirk`（带 `quirk_library_name`）·
+        `apply_buff` · `change_currency` · `add_trinket` · `remove_trinket` ✓
+     🎖️ 各活动 `chance`：`0.4 / 0.35 / 0.3` ⇒ **"越贵的服务副作用越大"** ✓
+  🔴 **B. 3 个建筑级 gate 字段**（`on_start_town_visit_priority` / `number_of_quests_finished` /
+     `highest_dungeon_level`，8/8 全有）⇒ ⚠️ 而 `§10.1 ⑥` 已实测**参考解析了但从不读** ✓
+  🔴 **C. 各建筑特有的升级数组**（参考**扁平数组** vs 我方"树+等级"）✓
+  ⇒ 🔴 **这三块都要问"要不要做"**，而 **A 需要一层新结构** ⚠️
+     📌 同 A1 的趟级载体 / A6 的 act-out / A10 的补给层 ⇒
+     🎖️ **建议合并成一条裁定**：「**哪些"参考有、我方没有"的层，现在造？**」
+        按你的判据「**需求驱动，不预留结构**」⇒ 我倾向**先只落数据，不接消费点** ✓
+  `
+
+- 🎖️ **③ A11 已经 12/12 完全一致 —— 本项【无需改动】**
+  `
+  📊 参考 `HeirloomExchange.json` 12 条 vs 我方 `heirloom_exchange.json` 12 条：
+     **一致 12 · 不同 0** ✓ · 而 **E 盘一手也逐条相同**
+  ⇒ 🔴 **这是【第一块三方完全一致的数据】** ✓
+     （对比 A3 的 `crit` 与 A9 的 99 处 —— **那两块参考都被改过** ⚠️）
+  ⇒ ✅ **无论 (甲) 还是 (乙)，A11 都不用动** ✓
+  🆕 顺带**复算了我方 `_design` 注记**：相对价值 `portrait 6 : bust 3 : deed 3 : crest 2` **为真** ✓
+     🔴 **但"所有兑换都损失 50%"这句过强**：`bust ↔ deed` 往返损失 **55.6%** ⚠️
+     ⇒ ✅ 建议改成"**多数**损失 50%，`bust↔deed` 为 55.6%" ✓
+     🎖️ **这正是我上次认过的纪律「判据不许比事实更强」**（你 `#468` 收下过我那句）✓
+  🔴 **形状差一处**：参考 `{markets:[{id, exchange_rates}]}` **包一层**，我方与 E 盘**平铺**
+     ⇒ **是"结构"不是"数值"** ⇒ 按纪律 AY 可做（零行为）✓ ⇒ 归架构 ✓
+  `
+
+- ✅ **④ A10 抽取完成（`Items.bytes` 是文本，不是二进制）**
+  `
+  🎖️ **形态判定先做**（纪律：**先判形态，再选解析器**）：读前 64 字节
+     = `b'inventory_item:\t.type "provision"\t\t.id "'`
+     ⇒ ✅ **是 DD1 文本，不是 Unity 二进制** ✓
+     ⚠️ **`.bytes` 后缀不定形态**（`Maps/*.bytes` 是二进制 · `Heroes/Info/*.bytes` 与本源都是文本）
+        ⇒ 📌 **不能按后缀选解析器** ✓
+  📊 **57 条** · 每行 5 字段（`type`/`id`/`base_stack_limit`/`purchase_gold_value`/`sell_gold_value`）
+     类型：`journal_page 22 · gem 10 · supply 9 · quest_item 9 · heirloom 5 · provision 1 · gold 1` ✓
+  🔴 我方 `provisions.json` / `items.json` **都不存在**（整层缺失）⚠️
+  🎖️ **`Provision.json` 最有信息量的一条**：`raid_starting_hero_class_item_lists` ——
+     **7 个职业各有"本命补给"**（`houndmaster→dog_treats` · `plague_doctor→antivenom` ·
+     `grave_robber→shovel` · `arbalest→bandage` · `crusader→holy_water` ·
+     `leper→medicinal_herbs` · `jester→medicinal_herbs`）
+     ⇒ 🎖️ **这是设计意图，不是随机** ⇒ **请你裁要不要采用** ✓
+  🔴 起手补给**除 `firewood` 外全为 0**（档1→4 = `0/1/2/4`）⇒ **"任务越长柴火越多"** ✓
+  🎖️ `gem` 10 条是**战利品变现**通道（`trapezohedron 2500` … `citrine/jade 250`），
+     **全部 `purchase_gold_value = 0`（只能卖不能买）** ✓
+  🎖️ `heirloom` 5 条的**堆叠上限**：`portrait 3 · bust 6 · crest 12 · deed 6 · urn 1`
+     ⇒ 🔴 **与兑换价值【不成比例】**（`crest` 堆叠最高 12 但价值最低 2）⇒
+     📌 **两条独立的轴 ⇒ 不能互推** ✓
+  ✅ 引用完整性：三张清单引用的 id 去重 8 个 ⇒ **不在 `Items.bytes` 里的 0** ✓
+  `
+
+- 🔧 **⑤ 顺带修掉一处会被门禁抓住的真问题**
+  `
+  🔴 A2 落的 `value_source` / `origin` / `_dmg_pct_source` 三键**没在契约里声明**
+     ⇒ 死数据门禁报 **30 处"疑似死数据"** ⚠️
+  ⇒ ✅ **在 `SkillsConfig.SkillTemplateConfig` 里【声明】它们**（**不是加白名单**）✓
+     理由：它们**有身份**（出处标注 + 你 `#475` 立的两个维度）⇒
+     **声明 = 把"这个键是有意加的"写进契约** ✓
+     🎖️ 顺带把**两维必须一致**写成断言：`value_source: none` 的**不得同时声称有参考出处** ✓
+  📊 `--deadkeys` **30 → 0** ✓
+  `
+
+- **阻塞 / 待裁定**：🔴 **三件**：① Σ 归一 vs A1 门槛 ② A6 三件 ③ **A9/A10/A11（本封，含总口径 (甲)/(乙)/(丙)）**
+- **权威在哪**：`reports/unity_ref/{07,08,09,10}_*.md` ·
+  `reports/planner_request_{sigma_vs_a1,a6_traits,a9_a10_a11}.md` ✓
