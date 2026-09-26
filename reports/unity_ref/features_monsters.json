@@ -1,0 +1,697 @@
+{
+ "note": "`dlc/*/features/**/monsters/` 下的怪。只读不落库 ✓",
+ "locations": {
+  "580100_crimson_court::features\\crimson_court\\modes\\bloodmoon\\monsters": {
+   "brigand_sapper": [
+    "brigand_sapper_D"
+   ]
+  },
+  "580100_crimson_court::features\\crimson_court\\monsters": {
+   "baron": [
+    "baron_A",
+    "baron_B"
+   ],
+   "body_average": [
+    "body_average_A",
+    "body_average_B",
+    "body_average_C"
+   ],
+   "body_bloated": [
+    "body_bloated_A",
+    "body_bloated_B",
+    "body_bloated_C"
+   ],
+   "body_emaciated": [
+    "body_emaciated_A",
+    "body_emaciated_B",
+    "body_emaciated_C"
+   ],
+   "bulrush": [
+    "bulrush_A",
+    "bulrush_B",
+    "bulrush_C"
+   ],
+   "castellan": [
+    "castellan_A",
+    "castellan_B",
+    "castellan_C"
+   ],
+   "cattail": [
+    "cattail_A",
+    "cattail_B",
+    "cattail_C"
+   ],
+   "chevalier": [
+    "chevalier_A",
+    "chevalier_B",
+    "chevalier_C"
+   ],
+   "countess": [
+    "countess_D",
+    "countess_E",
+    "countess_F"
+   ],
+   "courtesan": [
+    "courtesan_A",
+    "courtesan_B",
+    "courtesan_C"
+   ],
+   "crocodile": [
+    "crocodile_A",
+    "crocodile_B",
+    "crocodile_C"
+   ],
+   "curtain": [
+    "curtain_A",
+    "curtain_B",
+    "curtain_C",
+    "curtain_E",
+    "curtain_F",
+    "curtain_G",
+    "curtain_H",
+    "curtain_I",
+    "curtain_J"
+   ],
+   "esquire": [
+    "esquire_A",
+    "esquire_B",
+    "esquire_C"
+   ],
+   "fanatic": [
+    "fanatic_A",
+    "fanatic_B",
+    "fanatic_C"
+   ],
+   "pyre_empty": [
+    "pyre_empty_A",
+    "pyre_empty_B",
+    "pyre_empty_C"
+   ],
+   "pyre_full": [
+    "pyre_full_A",
+    "pyre_full_B",
+    "pyre_full_C"
+   ],
+   "statue_hand": [
+    "statue_hand_A",
+    "statue_hand_B",
+    "statue_hand_C"
+   ],
+   "statue_head": [
+    "statue_head_A",
+    "statue_head_B",
+    "statue_head_C"
+   ],
+   "statue_shield": [
+    "statue_shield_A",
+    "statue_shield_B",
+    "statue_shield_C"
+   ],
+   "steward": [
+    "steward_A",
+    "steward_B",
+    "steward_C"
+   ],
+   "sycophant": [
+    "sycophant_A",
+    "sycophant_B",
+    "sycophant_C"
+   ],
+   "tick_zombie": [
+    "tick_zombie_A",
+    "tick_zombie_B",
+    "tick_zombie_C"
+   ],
+   "viscount": [
+    "viscount_A",
+    "viscount_B",
+    "viscount_C"
+   ]
+  },
+  "702540_shieldbreaker::monsters": {
+   "snake_big_adder": [
+    "snake_big_adder_A",
+    "snake_big_adder_B",
+    "snake_big_adder_C"
+   ],
+   "snake_cobra": [
+    "snake_cobra_A",
+    "snake_cobra_B",
+    "snake_cobra_C"
+   ],
+   "snake_rattler": [
+    "snake_rattler_A",
+    "snake_rattler_B",
+    "snake_rattler_C"
+   ]
+  },
+  "735730_color_of_madness::monsters": {
+   "cocoon": [
+    "cocoon_A",
+    "cocoon_B",
+    "cocoon_C"
+   ],
+   "com_bulrush": [
+    "com_bulrush_D"
+   ],
+   "com_cattail": [
+    "com_cattail_D"
+   ],
+   "com_crocodile": [
+    "com_crocodile_D"
+   ],
+   "corpse_crystal": [
+    "corpse_crystal_A",
+    "corpse_crystal_B",
+    "corpse_crystal_C",
+    "corpse_crystal_D"
+   ],
+   "farmer": [
+    "farmer_A",
+    "farmer_B",
+    "farmer_C"
+   ],
+   "foreman": [
+    "foreman_A",
+    "foreman_B",
+    "foreman_C"
+   ],
+   "galaxy": [
+    "galaxy_D"
+   ],
+   "gatekeeper": [
+    "gatekeeper_A",
+    "gatekeeper_B",
+    "gatekeeper_C"
+   ],
+   "miller": [
+    "miller_A",
+    "miller_B",
+    "miller_C"
+   ],
+   "plowhorse": [
+    "plowhorse_A",
+    "plowhorse_B",
+    "plowhorse_C"
+   ],
+   "revenant": [
+    "revenant_A",
+    "revenant_B",
+    "revenant_C"
+   ],
+   "scarecrow": [
+    "scarecrow_A",
+    "scarecrow_B",
+    "scarecrow_C"
+   ],
+   "seed_black": [
+    "seed_black_D"
+   ],
+   "seed_grey": [
+    "seed_grey_D"
+   ],
+   "seed_purple": [
+    "seed_purple_D"
+   ],
+   "seed_red": [
+    "seed_red_D"
+   ],
+   "seed_yellow": [
+    "seed_yellow_D"
+   ],
+   "seedling_black": [
+    "seedling_black_D"
+   ],
+   "seedling_grey": [
+    "seedling_grey_D"
+   ],
+   "seedling_purple": [
+    "seedling_purple_D"
+   ],
+   "seedling_red": [
+    "seedling_red_D"
+   ],
+   "seedling_yellow": [
+    "seedling_yellow_D"
+   ],
+   "spire": [
+    "spire_D"
+   ],
+   "sprout": [
+    "sprout_D"
+   ],
+   "thing": [
+    "thing_A",
+    "thing_B",
+    "thing_C"
+   ]
+  }
+ },
+ "missing_from_ref": [
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "baron",
+   "variants": [
+    "baron_A",
+    "baron_B"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "body_average",
+   "variants": [
+    "body_average_A",
+    "body_average_B",
+    "body_average_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "body_bloated",
+   "variants": [
+    "body_bloated_A",
+    "body_bloated_B",
+    "body_bloated_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "body_emaciated",
+   "variants": [
+    "body_emaciated_A",
+    "body_emaciated_B",
+    "body_emaciated_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "bulrush",
+   "variants": [
+    "bulrush_A",
+    "bulrush_B",
+    "bulrush_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "castellan",
+   "variants": [
+    "castellan_A",
+    "castellan_B",
+    "castellan_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "cattail",
+   "variants": [
+    "cattail_A",
+    "cattail_B",
+    "cattail_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "chevalier",
+   "variants": [
+    "chevalier_A",
+    "chevalier_B",
+    "chevalier_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "countess",
+   "variants": [
+    "countess_D",
+    "countess_E",
+    "countess_F"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "courtesan",
+   "variants": [
+    "courtesan_A",
+    "courtesan_B",
+    "courtesan_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "crocodile",
+   "variants": [
+    "crocodile_A",
+    "crocodile_B",
+    "crocodile_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "curtain",
+   "variants": [
+    "curtain_A",
+    "curtain_B",
+    "curtain_C",
+    "curtain_E",
+    "curtain_F",
+    "curtain_G",
+    "curtain_H",
+    "curtain_I",
+    "curtain_J"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "esquire",
+   "variants": [
+    "esquire_A",
+    "esquire_B",
+    "esquire_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "fanatic",
+   "variants": [
+    "fanatic_A",
+    "fanatic_B",
+    "fanatic_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "pyre_empty",
+   "variants": [
+    "pyre_empty_A",
+    "pyre_empty_B",
+    "pyre_empty_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "pyre_full",
+   "variants": [
+    "pyre_full_A",
+    "pyre_full_B",
+    "pyre_full_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "statue_hand",
+   "variants": [
+    "statue_hand_A",
+    "statue_hand_B",
+    "statue_hand_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "statue_head",
+   "variants": [
+    "statue_head_A",
+    "statue_head_B",
+    "statue_head_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "statue_shield",
+   "variants": [
+    "statue_shield_A",
+    "statue_shield_B",
+    "statue_shield_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "steward",
+   "variants": [
+    "steward_A",
+    "steward_B",
+    "steward_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "sycophant",
+   "variants": [
+    "sycophant_A",
+    "sycophant_B",
+    "sycophant_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "tick_zombie",
+   "variants": [
+    "tick_zombie_A",
+    "tick_zombie_B",
+    "tick_zombie_C"
+   ]
+  },
+  {
+   "where": "580100_crimson_court::features\\crimson_court\\monsters",
+   "monster": "viscount",
+   "variants": [
+    "viscount_A",
+    "viscount_B",
+    "viscount_C"
+   ]
+  },
+  {
+   "where": "702540_shieldbreaker::monsters",
+   "monster": "snake_big_adder",
+   "variants": [
+    "snake_big_adder_A",
+    "snake_big_adder_B",
+    "snake_big_adder_C"
+   ]
+  },
+  {
+   "where": "702540_shieldbreaker::monsters",
+   "monster": "snake_cobra",
+   "variants": [
+    "snake_cobra_A",
+    "snake_cobra_B",
+    "snake_cobra_C"
+   ]
+  },
+  {
+   "where": "702540_shieldbreaker::monsters",
+   "monster": "snake_rattler",
+   "variants": [
+    "snake_rattler_A",
+    "snake_rattler_B",
+    "snake_rattler_C"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "cocoon",
+   "variants": [
+    "cocoon_A",
+    "cocoon_B",
+    "cocoon_C"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "com_bulrush",
+   "variants": [
+    "com_bulrush_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "com_cattail",
+   "variants": [
+    "com_cattail_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "com_crocodile",
+   "variants": [
+    "com_crocodile_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "corpse_crystal",
+   "variants": [
+    "corpse_crystal_A",
+    "corpse_crystal_B",
+    "corpse_crystal_C",
+    "corpse_crystal_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "farmer",
+   "variants": [
+    "farmer_A",
+    "farmer_B",
+    "farmer_C"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "foreman",
+   "variants": [
+    "foreman_A",
+    "foreman_B",
+    "foreman_C"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "galaxy",
+   "variants": [
+    "galaxy_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "gatekeeper",
+   "variants": [
+    "gatekeeper_A",
+    "gatekeeper_B",
+    "gatekeeper_C"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "miller",
+   "variants": [
+    "miller_A",
+    "miller_B",
+    "miller_C"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "plowhorse",
+   "variants": [
+    "plowhorse_A",
+    "plowhorse_B",
+    "plowhorse_C"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "revenant",
+   "variants": [
+    "revenant_A",
+    "revenant_B",
+    "revenant_C"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "scarecrow",
+   "variants": [
+    "scarecrow_A",
+    "scarecrow_B",
+    "scarecrow_C"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "seed_black",
+   "variants": [
+    "seed_black_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "seed_grey",
+   "variants": [
+    "seed_grey_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "seed_purple",
+   "variants": [
+    "seed_purple_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "seed_red",
+   "variants": [
+    "seed_red_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "seed_yellow",
+   "variants": [
+    "seed_yellow_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "seedling_black",
+   "variants": [
+    "seedling_black_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "seedling_grey",
+   "variants": [
+    "seedling_grey_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "seedling_purple",
+   "variants": [
+    "seedling_purple_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "seedling_red",
+   "variants": [
+    "seedling_red_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "seedling_yellow",
+   "variants": [
+    "seedling_yellow_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "spire",
+   "variants": [
+    "spire_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "sprout",
+   "variants": [
+    "sprout_D"
+   ]
+  },
+  {
+   "where": "735730_color_of_madness::monsters",
+   "monster": "thing",
+   "variants": [
+    "thing_A",
+    "thing_B",
+    "thing_C"
+   ]
+  }
+ ],
+ "missing_monsters": 52,
+ "missing_variants": 130,
+ "already_in_ref": 1
+}
