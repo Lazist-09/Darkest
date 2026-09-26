@@ -69,12 +69,14 @@ public sealed class M1cStage3MechanismTests
     }
 
     [TestMethod]
-    public void SkillField_DefaultsToNull_SoTheOldModelStaysDefault()
+    public void EverySkillNowDeclaresDmgPct_AndTheReferencelessOnesAreExplicitlyZero()
     {
-        // 🔴 **默认零行为**的证据：已入库的 skills.json **只填了有依据的那些**（其余为 null）
-        //    而**伤害路径尚未读 `dmg_pct`** ⇒ 无论填没填都走旧模型 ✓
+        // 🔴 **可控性（不是"零行为"）的证据**：`skills.json` 的 44 条**全部**有了 `dmg_pct` ✓
+        //    ⇒ 策划 `#475` 裁定：**参考项目答不出来的 30 条一律取 0**（= 不做修正 = 最保守）✓
+        //    🔴 **关键**：那 30 条**必须能被分辨出来** —— 它们标了 `value_source: none` + `origin: ours` ✓
+        //       （否则将来审计会说"44 条都有值 ⇒ 我们完全对齐了"，而实际只有 14 条有出处 ⚠️）
         SkillsConfig shipped = SkillsConfig.Parse(ReadData("skills.json"));
-        int withPct = 0, total = 0;
+        int total = 0, withPct = 0, fromRef = 0, fromOurs = 0;
         foreach (SkillTemplateConfig s in shipped.Skills)
         {
             total++;
@@ -84,17 +86,33 @@ public sealed class M1cStage3MechanismTests
             }
         }
 
-        // 🔴 **A2 更新（2026-09-26）**：判据已改为【数值一律采用本地参考项目】⇒ 现在 **14 填 / 30 未填** ✓
-        //    14 = ①【明确】6 条（clean/war_cry 等，`ref:` 注记）
-        //       + ②【候选】但库里已有值、且**自己的注记点名了参考技能**、实测相等 ⇒ **保留** 6 条
-        //       + ③同上但实测**不等** ⇒ **纠正** 2 条（`warrior_lunge` -50→**-55** · `commissar_burst_fire` -50→**-60**）
-        //    🔴 旧的"非明确一律撤出"口径**已废**：它会把 ② 的 6 条**对的数**也撤掉
-        //       （`_dmg_pct_source` 里的 `dd1:<skill>` 就是【策划 §43 表】早已做过的映射声明 ⇒ 不是"我推的"）
-        //    ⚠️ 剩 30 条**无可落之值**：映射本身待**策划逐行裁定**（逐行请求见 `reports/ref_skill_dmg_source.md`）
-        //    ⚠️ 而**伤害路径仍未读 `dmg_pct`** ⇒ 所以这 14 条是**零行为占位** ✓（阶段 3 切换读它才会生效 ✓）
-        Assert.AreEqual(14, withPct, $"A2 后应为 **14** 条已填（{total - 14} 条未填 ✓；候选 30 条待策划逐行裁定 ✓）");
-        Assert.AreEqual(total - 14, total - withPct, "其余仍未填 ⇒ 走旧模型 ✓");
-        Console.WriteLine($"[M1c·阶段3] `dmg_pct` 已就位（{withPct}/{total}）但**伤害路径未读** ⇒ **零行为** ✓");
+        // 两个维度从**原始 JSON** 读（不进配置类型：它们是**出处标注**，不是玩法字段 ✓）
+        using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(ReadData("skills.json"));
+        foreach (System.Text.Json.JsonElement s in doc.RootElement.GetProperty("skills").EnumerateArray())
+        {
+            string? vs = s.TryGetProperty("value_source", out System.Text.Json.JsonElement v) ? v.GetString() : null;
+            string? org = s.TryGetProperty("origin", out System.Text.Json.JsonElement o) ? o.GetString() : null;
+            if (vs == "none" && org == "ours")
+            {
+                fromOurs++;
+                Assert.AreEqual(0, s.GetProperty("dmg_pct").GetInt32(),
+                    $"{s.GetProperty("id").GetString()}：`value_source: none` 的**必须恰好是 0**（不做修正）✓");
+            }
+            else
+            {
+                fromRef++;
+                Assert.IsTrue(s.TryGetProperty("_dmg_pct_source", out _),
+                    $"{s.GetProperty("id").GetString()}：有出处的那些**必须点名参考技能**（`_dmg_pct_source`）✓");
+            }
+        }
+
+        Assert.AreEqual(44, total, "技能总数 44 ✓");
+        Assert.AreEqual(44, withPct, $"策划 `#475` 后应为 **44/44 全有 `dmg_pct`**（实测 {withPct}）✓");
+        Assert.AreEqual(14, fromRef, $"**有参考出处**的应为 **14** 条（实测 {fromRef}）✓");
+        Assert.AreEqual(30, fromOurs, $"**我们自加、显式取 0** 的应为 **30** 条（实测 {fromOurs}）✓");
+        Console.WriteLine($"[M1c·阶段3] `dmg_pct` **{withPct}/{total}** 全覆盖：**有出处 {fromRef}**（`ref:` 点名）"
+            + $" + **自加取 0 {fromOurs}**（`value_source:none`/`origin:ours`）⇒ 两者**可分辨** ✓ "
+            + "⚠️ **伤害路径仍未读它** ⇒ 本件是**可控性**证明，不是行为证明 ✓");
     }
 
     public TestContext TestContext { get; set; } = null!;

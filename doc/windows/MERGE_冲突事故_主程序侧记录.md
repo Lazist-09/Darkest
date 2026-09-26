@@ -1,4 +1,4 @@
-﻿# merge 冲突事故 · 主程序侧记录（2026-09-22）
+# merge 冲突事故 · 主程序侧记录（2026-09-22）
 
 ## 现场（当场取真值）
 · 检出时点：R91 打「prot 顶替」时
@@ -12,7 +12,7 @@
 · R91 prot 顶替 已改好并取到读数：
   · 改前：4 原型顶层 prot = 8/12/4/5 ⇒ 减伤 **21% / 29% / 12% / 14%**
   · 改后：prot = 0/0/0/0 ⇒ 减伤 **0%**（敌人 melee_soldier/ranged_archer/caster 未动：**参考项目里没有对应英雄** ✓）
-  · 依据：参考项目 rmour[].prot 逐阶 **0** ✓ **且** 策划一手 E 盘 reading 亦为 0 ✓ ⇒ **两源一致、无冲突** ✓
+  · 依据：参考项目 armour[].prot 逐阶 **0** ✓ **且** 策划一手 E 盘 reading 亦为 0 ✓ ⇒ **两源一致、无冲突** ✓
 · 存盘：Darkest-backup-20260921_003105-expflow\units.after-protzero.json（改后）／units.before-protzero.json（改前）✓
 · 🔴 **我没有提交**：merge 进行中提交 = 提交冲突标记（或生成 merge commit）**不是我的决定** ✓
 

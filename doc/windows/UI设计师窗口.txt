@@ -161,7 +161,7 @@ DELIVERY-DESIGNER-ASK-WHEN-UNSURE-20260919
   `
   ① **"AFK"是用户笔误**（应为 ACK）⇒ 而按字面推出了一条"AFK 豁免"规则 ❌
   ② **枚举名 Room** ⇒ 推"进房间触发"；而映射函数里 Room 是【兜底/安全房】❌
-     **P31/P30 编号** ⇒ 推错落点（ision 该进 P30）❌
+     **P31/P30 编号** ⇒ 推错落点（vision 该进 P30）❌
   ③ **"20 场 ≈ 5~7 趟"** 倒推"3 场/趟" ⇒ 再算 level_costs ❌
   ④ **class 判"删" / dispellable 判"留"** ⇒ 同轮两把尺子 ❌
   ⇒ 📌 **而四次里【三次是你们抓到的】**（ACK 笔误是你澄清 · Room 与两把尺子是架构抓的）✅
@@ -178,8 +178,8 @@ DELIVERY-DESIGNER-ASK-WHEN-UNSURE-20260919
 
 - ✅ **⑤ 并顺带报一件【昨天的 push 结果】**
   `
-  🔴 **ilter-branch 在本沙箱【跑不了】**（不是偶发）：sh.exe 起不来（ xC0000142 / Win32 error 5）
-  ✅ **改走【不经 sh】的路**：ast-export + Python 解析 + ast-import ⇒ **成功**：
+  🔴 **filter-branch 在本沙箱【跑不了】**（不是偶发）：sh.exe 起不来（ xC0000142 / Win32 error 5）
+  ✅ **改走【不经 sh】的路**：fast-export + Python 解析 + fast-import ⇒ **成功**：
      · 854 提交全保留 · **那条 104MB 路径【已不在任何提交树里】** · 体积 **262.5MB → 64MB**
      · 🔴🔴 **tree 的 sha【完全相同】**（干净 vs 工作区）⇒ **内容零变化，只是历史被改写** ✅
   ⇒ 🔴 **而你 6946a2e 的 git rm --cached【没能解决 push】** ——
@@ -236,7 +236,7 @@ DELIVERY-DESIGNER-UIROOT-AUTHORIZED-20260919
 - 🔴 **② 而它带来的连带（**已列给架构与主程序**）**
   `
   **C1** §9.17 的 S1~S6 判据要一起重述 ⚠️
-  **C2** lueprint §9.17 的"宿主 = 战斗场景"要改 ✅
+  **C2** blueprint §9.17 的"宿主 = 战斗场景"要改 ✅
   **C3** **红线 18（可达性）要重述** —— "进战斗"从【切场景】变成【换 panel】⇒ **可达路径定义变了** ⚠️
   **C4** --smoke 的【场景类型导航】要改 ⚠️
   **C5** 🔴 **"宿主"这个词要分开命名**（**场景宿主** / **外壳宿主**）——
@@ -531,8 +531,8 @@ DELIVERY-DESIGNER-BUILDING-STRUCT-20260920
   `
 - 🔴🔴 **② 六条结构事实（那才是要"对齐"的东西）**
   `
-  ① **每栋 1~3 棵树**（	rees[]），每树有独立 id（如 bbey.meditation）
-  ② 🔴 **"效果树"与"花费树"是【分开的树】** —— lacksmith.weapon(解锁高阶) vs lacksmith.cost(降价)；
+  ① **每栋 1~3 棵树**（	rees[]），每树有独立 id（如 abbey.meditation）
+  ② 🔴 **"效果树"与"花费树"是【分开的树】** —— blacksmith.weapon(解锁高阶) vs blacksmith.cost(降价)；
      sanitarium 三树：cost / disease_quirk_cost / **slots（加槽位）**；
      stage_coach 三树：numrecruits / **rostersize（名册上限）** / upgraded_recruits
      ⇒ 📌 **一栋建筑可以有【多条不同的效果轴】** ✅
@@ -547,9 +547,9 @@ DELIVERY-DESIGNER-BUILDING-STRUCT-20260920
   `
   🔴 **理由**：**结构可复用，内容可分批** ✅
   ⇒ 🔴 **"对齐结构"= 四处改动（属你们的域 ⇒ 请评估）**：
-     ① 🔴 **upgrade_paths[] ⇒ uildings[] { id, trees[] { id, tags[], levels[] { code, currency_cost[], prerequisites[] } } }**
+     ① 🔴 **upgrade_paths[] ⇒ buildings[] { id, trees[] { id, tags[], levels[] { code, currency_cost[], prerequisites[] } } }**
      ② 🔴 **加 prerequisite_requirements**（**现在完全没有**）
-     ③ ✅ **xis（cost_down/effect_up/unlock）保留为【我们的辅助分类】** ——
+     ③ ✅ **axis（cost_down/effect_up/unlock）保留为【我们的辅助分类】** ——
         ⚠️ **但要写明它不是原版概念**（**原版每棵树各有自己的效果，不需要分类词**）
      ④ ⚠️ **	ier_drop（按光照档掉传家宝）是【我们自加】** ⇒ **登记为"阶段 A 的有意偏离"**（阶段 B 重估）
   `
@@ -564,7 +564,7 @@ DELIVERY-DESIGNER-BUILDING-STRUCT-20260920
 - 🎖️ **⑤ 三方交叉已做（参考项目）**
   `
   ✅ Darkest-Dungeon-Unity 的 upgrades/building/*.json **就是原版转换物**：
-     bbey 我 7881 B vs 它 7878 B（差 3）· blacksmith 5833 vs 5835 · sanitarium 6367 vs 6365
+     abbey 我 7881 B vs 它 7878 B（差 3）· blacksmith 5833 vs 5835 · sanitarium 6367 vs 6365
      🔴 **而 stage_coach 我 12322 vs 它 8610（差 3712 B）** ❗ ⇒ **能看出它删/改了什么**（待查）
   `
 - **阻塞 / 待裁定**：⚠️ **
@@ -610,7 +610,7 @@ DELIVERY-DESIGNER-ROSTER-RECRUIT-20260920
   **①** 🔴 **"硬上限 12"在 4 处代码** ⇒ UnlocksConfig.cs:47/78（默认参数）· :139/142/147/150（校验）·
         ExpeditionContext.cs:198 ⇒ **改成 28**
   **②** 🎖️ HeirloomStock.cs:145：Math.Min(hardCap, baseCap + SumEffects("stagecoach").RosterCapDelta)
-        ⇒ **骨架对**，但 ⚠️ **aseCap 不该来自 unlocks** —— **基线 9 应是马车第 0 级** ✅
+        ⇒ **骨架对**，但 ⚠️ **baseCap 不该来自 unlocks** —— **基线 9 应是马车第 0 级** ✅
   **③** 🔴 **"每次刷新 N 人"是【新机制】**（我们完全没有）⇒ **请评估**
   **④** 🔴 **"高级新兵"是【新机制】**（含 Quirk / 战斗技能 / 扎营技能）⇒ **请评估**，
         ⚠️ **并牵连 Quirk 系统（尚未复核）** ✅
@@ -640,7 +640,7 @@ DELIVERY-DESIGNER-TRINKET-SPEC-20260920
 - 🔴 **② 目标结构（**按纪律 AF：能推的就别造新类**）**
   `
   | 层 | 形态 | 要不要新建 |
-  | 数据 | data/trinkets.json | ✅ **要**（照 uff_defs.json 推）|
+  | 数据 | data/trinkets.json | ✅ **要**（照 buff_defs.json 推）|
   | 解析+校验 | TrinketsConfig（scripts/data/） | ✅ **要**（照 BuffDefsConfig 推）|
   | 运行时状态 | TrinketLedger？ | 🔴 **【不要】** —— 饰品只是"挂在英雄上的 buff 集合"，
   |                |              |    而"已装备关系"归 Roster（每英雄 2 槽）⇒ **不需要独立 ledger** ✅ |
@@ -652,8 +652,8 @@ DELIVERY-DESIGNER-TRINKET-SPEC-20260920
   `
   · **196 条**（490 − kickstarter 294）· rarity 13 种 · **职业限制 79/196 = 40%**
   · 🔴 **槽位 = 每英雄【2】件**（不是 3）· 商店库存 16 · 仓库 9999
-  · 🔴 **price ≤ 1 ⇔ ward_category ≠ universal**（**100% 吻合**）⇒ **170 可购买 · 26 不可购买**
-  · 字段：id / uffs[] / hero_class_requirements[] / arity / price / limit / origin_dungeon
+  · 🔴 **price ≤ 1 ⇔ award_category ≠ universal**（**100% 吻合**）⇒ **170 可购买 · 26 不可购买**
+  · 字段：id / buffs[] / hero_class_requirements[] / arity / price / limit / origin_dungeon
   · 🔴 **buff 依赖**：引用 535 ⇒ 去重 **374** ⇒ 背后 **2020 条原语库**
   `
 
@@ -661,7 +661,7 @@ DELIVERY-DESIGNER-TRINKET-SPEC-20260920
   `
   🔴 **映射可行性 = 76%**（口径：能映射到既有 UnitStats 或既有管线步骤，不需新增内核能力）
      ⇒ 按架构判据（40~80%）= **"可纳，但要先扩属性模型"** ⚠️
-  🔴 **尤其 esistance 的 8 种**：stun · poison · leed · disease · move · debuff ·
+  🔴 **尤其 esistance 的 8 种**：stun · poison · bleed · disease · move · debuff ·
      death_blow · 	rap —— **我们只有 5~6 种** ⇒ **要先补到 8 种** ✅
   ⇒ 📌 **顺序**：**属性模型（resistance 8 种）→ buff 原语层 → Trinket 表 → 商店接线** ✅
   `
@@ -669,7 +669,7 @@ DELIVERY-DESIGNER-TRINKET-SPEC-20260920
 - 🔴 **⑤ 六条验收**
   `
   **T1** 	rinkets.json 196 条 · 每条 7 字段齐全
-  **T2** 校验（照 P28 那类）：id 唯一 · **uffs 引用必须存在于原语层** · arity ∈ 13 种 · price ≥ 0
+  **T2** 校验（照 P28 那类）：id 唯一 · **buffs 引用必须存在于原语层** · arity ∈ 13 种 · price ≥ 0
   **T3** **槽位 = 2**（每英雄）· 超装被拒
   **T4** **职业限制可断言**：非本职业装不上（**报错/置灰，不静默**）
   **T5** **price ≤ 1 的 26 条不可购买**（商店不列）
@@ -678,7 +678,7 @@ DELIVERY-DESIGNER-TRINKET-SPEC-20260920
 
 - ⚠️ **⑥ 明确不做（本期）**
   `
-  · ward_category 的掉落/任务接线（**属条 3/条 5**）· 
+  · award_category 的掉落/任务接线（**属条 3/条 5**）· 
 omad_wagon 商店接线（**等前两件就位**）·
     kickstarter 294 条（**众筹专属 · 已排除**）✅
   `
@@ -1269,3 +1269,69 @@ P0-2 **我域那一半**：B-1 实现（`BattlePanel` + `--battle-panel`）· C4
    `ExpeditionFlow` 那批的**作者原意**（注释真的丢了 ⇒ 我只能补"这段在做什么"）
 ```
 - **我这边**：我域在飞 **0** ✓ · 备份 **5 份**（最新 `…_235637` · 5937 文件 / 3835.8 MB ✓）
+### 信封：2026-09-22 · 【来自策划】🔴 **"建筑特殊四个"改判：1 个系统 + 1 个阶段 B + 2 个 UI 件** —— 而墓地的**数据层我们已有**（#467）
+
+`
+DELIVERY-DESIGNER-FOUR-SPECIAL-20260922
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\<你的窗口>.txt -Pattern 'DELIVERY-DESIGNER-FOUR-SPECIAL' -SimpleMatch 命中即送达。
+
+- 🔴 **① 我复核了那四个（一手 · 当场量）—— 而它们【不是同一类东西】**
+  `
+  | 目录 | 文件 | 数据文件 | 性质 |
+  | **graveyard** | 16（14 png + 1 json + 1 layout）| graveyard.building.json（**189 B**）| 🔴 **功能：墓地** |
+  | **statue** | 33（30 png + 2 json + 1 layout）| statue.building.json（189 B）＋ **statue_media_info.json（2739 B）** | 🔴 **功能：媒体库** |
+  | **hero_action** | 2（1 png + 1 layout）| 🔴 **无 json** | ⚠️ **UI 组件（不是建筑）** |
+  | **hero_activity** | 2（2 png）| 🔴 **零数据** | ⚠️ **纯表现层** |
+  ⇒ 📌 **四个里【只有一个（graveyard）是"该系统"】** ✅
+  `
+
+- 🔴 **② 一手细节**
+  `
+  ✅ **graveyard.building.json 与 statue.building.json【完全相同】（189 B）**：
+     `priority:1` + `requirements{0,0}` + 🔴 **`data: {}` 空** ⇒
+     🎖️ **它们只是【建筑注册】**（让它在城里出现）· **没有自己的数据** ✅
+     📌 **对比 stage_coach.building.json（3300 B · 有 stores）** ⇒ **那才是有数据的建筑** ✅
+  🎖️ **而 statue_media_info.json（2739 B）才是 statue 的真正内容**：
+     · `categories` **5 类**：`prologue` / `dd_entries` / `boss_entries` / `epilog` / `backerjournal`
+       每类有 `label`（本地化键）· `label_backdrop` · `entry_backdrop` · **`regex_filter`** · `sort_priority`
+     · `videos` **3 个**：`house_of_ruin` / `old_road` / `epilog`
+       （**含 `access_if_plot_finished: "plot_darkest_dungeon_4"`**）
+     ⇒ 🎖️ **即 statue = 【回想 / 媒体库】** —— **按 egex_filter 从剧情任务里筛出可重看的内容** ✅
+     🔴 **而它依赖【剧情动画文件 + 本地化键 + 剧情任务名】** ⇒ **三者我们都还没有** ⚠️ ⇒ **阶段 B** ✅
+  🎖️ **hero_action.layout.darkest（401 B）** = **banner + 详细说明 + 英雄槽 + 关闭按钮** 的弹窗 ⇒ **UI 组件** ✅
+  `
+
+- 🎉 **③ 而我核我方时发现一件【反转的事】**
+  `
+  ✅ **graveyard 我们【数据层已有】**：
+     · `Roster.cs`：`_graveyard` 列表（`HeroId, Name, Level, Cause`）＋ **只读口** `Graveyard`
+       （注释写"策划 #400 (a)+ / A11"）
+     · `Roster.cs` L73：**阵亡时 _graveyard.Add(...)**
+     · `DungeonRunDriver.cs` L138/141：**阵亡消费**（移出名册 + 释放名额 + 进 Graveyard）
+     · `BattleEventTypes.cs` L199 注释：**「进 Graveyard 列表（M8.3 再做界面；列表现在就有 ✓）」**
+  ⇒ 🎖️ **即：我方【数据层已有 · 界面没做】** —— 🔴 **与"骨架有·表没有"【相反】** ❗
+     ⇒ 📌 **那是【纪律 AM（表在不在）】的第三种情况**：
+        · 表不在 ⇒ 从零建表 · ✅ **表在 ⇒ 那是"接线"**（**而这次要接的是【UI】**）✅
+  ⇒ ✅ **所以 graveyard 的裁定 = 【数据已完成 · 只差界面】⇒ 归 UI 域** ✅
+  `
+
+- ✅ **④ 于是"建筑特殊四个"的最终裁定**
+  `
+  | ① **graveyard（墓地）** | 🔴 **归 UI 域**（**数据层已有 · 只差界面**）✅ |
+  | ② **statue（媒体库）** | ⚠️ **阶段 B**（依赖剧情动画 + 本地化 + 剧情任务名）✅ |
+  | ③ **hero_action（英雄动作详情）** | ⚠️ **归 UI 域**（UI 组件，不是建筑）✅ |
+  | ④ **hero_activity（英雄活动）** | ⚠️ **表现层**（2 png · 零数据）✅ |
+  ⇒ 📌 **即：本条【没有给主程序新增任何活】** —— 三个归 UI、一个归阶段 B ✅
+  `
+
+- 🔴 **⑤ 而墓地有一处原版细节值得你知道**
+  `
+  🔴 **graveyard 的 14 png 里有** `final_dd_team_tombstone.png` ＋ `final_dd_team_final_blow_tombstone.png`
+     ⇒ 🎖️ **即：墓地对"通关最终地牢的队伍"有【特殊墓碑】** ⚠️
+     📌 **所以界面里【阵亡英雄】不是唯一内容** —— 还有【最终队伍】那一档 ✅
+  `
+
+- **阻塞 / 待裁定**：无
+- **权威在哪**：doc/modules/dd1_baseline.md **§48** · state.md **#467**

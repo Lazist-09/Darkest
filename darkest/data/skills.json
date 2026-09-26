@@ -1,5 +1,5 @@
 {
-  "_dmg_pct_note": "A2 顶替:技能 dmg% 的来源=【本地参考项目】`Heroes/Info/*.bytes` 的 `.dmg` 字段(逐技能 5 级恒定不变 ⇒ 一个技能一个值)。实测 44 条技能里【14 条已填 / 30 条未填】。落库口径两条:(一)映射为【明确】且有整数值 ⇒ 落;共 6 条。(二)【候选】/【无对应】但库里已有值且其 `_dmg_pct_source` 自己点名了参考技能 ⇒ 只核数值:相等则**保留**(共 8 条)、不等则**纠正**(共 0 条)。剩 30 条无可落之值(映射待策划逐行裁定)⇒ 逐行请求见 reports/ref_skill_dmg_source.md。本轮撤出无依据旧值 0 条、无法解析的声明 0 条。🔴 伤害路径尚未读 dmg_pct ⇒ 本批**零行为** ✓",
+  "_dmg_pct_note": "A2+A3 之后：技能 dmg% 的来源 = 【本地参考项目】`Heroes/Info/*.bytes` 的 `.dmg` 字段（逐技能 5 级恒定不变 ⇒ 一个技能一个值）。🆕 策划 `#475` 裁定：**参考项目答不出来的 30 条一律取 0**（理由：它们都是我们自加的 ⇒ 无原版值可抄；0 = 不做修正 = 最保守）⇒ 每条标 `value_source: none`（值的来源）+ `origin: ours`（归属）⇒ 归 `§39` 解冻清单 ✓ 🔴 与那 14 条的区别：那 14 条**有参考出处**（`_dmg_pct_source` 点名参考技能），这 30 条**没有**（`value_source: none` 是显式声明，不是「忘了填」）✓",
   "skills": [
     {
       "id": "warrior_cleave",
@@ -63,7 +63,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.6
+            "multiplier": 1.0
           }
         ]
       },
@@ -103,7 +103,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.8
+            "multiplier": 1.0
           }
         ]
       },
@@ -166,7 +166,10 @@
         "output"
       ],
       "range_axis": "ranged",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "warrior_shield_bash",
@@ -186,7 +189,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.6
+            "multiplier": 1.0
           }
         ]
       },
@@ -208,7 +211,10 @@
         "control"
       ],
       "range_axis": "melee",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "warrior_war_cry",
@@ -309,7 +315,10 @@
         "support"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "warrior_last_stand",
@@ -333,7 +342,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 2.0
+            "multiplier": 1.0
           }
         ]
       },
@@ -353,7 +362,10 @@
       "damage_axis": "physical",
       "requires": {
         "self_hp_below_percent": 50
-      }
+      },
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "tank_guard_wall",
@@ -426,7 +438,10 @@
         "control"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "tank_shield_bash",
@@ -448,7 +463,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.7
+            "multiplier": 1.0
           }
         ]
       },
@@ -495,7 +510,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.9
+            "multiplier": 1.0
           }
         ]
       },
@@ -541,7 +556,10 @@
         "support"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "tank_war_cry",
@@ -603,7 +621,10 @@
         "support"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "tank_catch_breath",
@@ -634,7 +655,10 @@
         "support"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "tank_selfless_charge",
@@ -658,7 +682,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 1.8
+            "multiplier": 1.0
           }
         ]
       },
@@ -675,7 +699,10 @@
         "output"
       ],
       "range_axis": "melee",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "medic_scalpel",
@@ -736,7 +763,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 1.2
+            "multiplier": 1.0
           }
         ]
       },
@@ -752,7 +779,10 @@
         "output"
       ],
       "range_axis": "melee",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "medic_anesthetic",
@@ -776,7 +806,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.7
+            "multiplier": 1.0
           }
         ]
       },
@@ -821,7 +851,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.9
+            "multiplier": 1.0
           }
         ]
       },
@@ -845,7 +875,10 @@
         "debuff"
       ],
       "range_axis": "ranged",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "medic_double_hit",
@@ -886,7 +919,10 @@
         "output"
       ],
       "range_axis": "melee",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "medic_field_strike",
@@ -930,7 +966,10 @@
         "displacement"
       ],
       "range_axis": "melee",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "medic_lethal_injection",
@@ -1001,7 +1040,10 @@
         "heal"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "medic_group_bandage",
@@ -1027,7 +1069,10 @@
         "heal"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "commissar_command_blade",
@@ -1104,7 +1149,10 @@
         "output"
       ],
       "range_axis": "melee",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "commissar_pistol_shot",
@@ -1126,7 +1174,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.95
+            "multiplier": 1.0
           }
         ]
       },
@@ -1141,7 +1189,10 @@
         "output"
       ],
       "range_axis": "ranged",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "commissar_supervise",
@@ -1165,7 +1216,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.9
+            "multiplier": 1.0
           }
         ]
       },
@@ -1197,7 +1248,10 @@
         "debuff"
       ],
       "range_axis": "melee",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "commissar_battle_inspiration",
@@ -1223,7 +1277,10 @@
         "support"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "commissar_mobilize",
@@ -1261,7 +1318,10 @@
         "support"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "commissar_execution_order",
@@ -1304,7 +1364,10 @@
         "output"
       ],
       "range_axis": "melee",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "commissar_burst_fire",
@@ -1371,7 +1434,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 1.5
+            "multiplier": 1.0
           }
         ]
       },
@@ -1393,7 +1456,10 @@
         "support"
       ],
       "range_axis": "melee",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "melee_heavy_slash",
@@ -1430,7 +1496,10 @@
         "output"
       ],
       "range_axis": "melee",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "melee_charge",
@@ -1466,7 +1535,10 @@
         "displacement"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "ranged_precise_shot",
@@ -1493,7 +1565,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.9
+            "multiplier": 1.0
           }
         ]
       },
@@ -1508,7 +1580,10 @@
         "output"
       ],
       "range_axis": "ranged",
-      "damage_axis": "physical"
+      "damage_axis": "physical",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "ranged_intimidating_shot",
@@ -1533,7 +1608,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.5
+            "multiplier": 1.0
           }
         ]
       },
@@ -1555,7 +1630,10 @@
         "debuff"
       ],
       "range_axis": "ranged",
-      "damage_axis": "mental"
+      "damage_axis": "mental",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "ranged_retreat",
@@ -1584,7 +1662,10 @@
         "displacement"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "caster_fear_whisper",
@@ -1611,7 +1692,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.8
+            "multiplier": 1.0
           }
         ]
       },
@@ -1635,7 +1716,10 @@
         "debuff"
       ],
       "range_axis": "ranged",
-      "damage_axis": "mental"
+      "damage_axis": "mental",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "caster_mental_shock",
@@ -1660,7 +1744,7 @@
         "segments": [
           {
             "type": "flat",
-            "multiplier": 0.7
+            "multiplier": 1.0
           }
         ]
       },
@@ -1678,7 +1762,10 @@
         "ignore_stealth"
       ],
       "range_axis": "ranged",
-      "damage_axis": "mental"
+      "damage_axis": "mental",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     },
     {
       "id": "move",
@@ -1704,7 +1791,11 @@
         "displacement"
       ],
       "range_axis": "none",
-      "damage_axis": "none"
+      "damage_axis": "none",
+      "dmg_pct": 0,
+      "value_source": "none",
+      "origin": "ours"
     }
-  ]
+  ],
+  "_sigma_note": "🆕 策划 `#475` 裁定：**`Σ段倍率` 归一为 1** —— 原版没有这个概念 ⇒ 若它 ≠ 1 就不是对齐。做法：**多段攻击每段 1/段数**（Σ=1）；**多段的收益靠【其他机制】**（如多次触发 effect）✓ 🔴 口径：**只对 `flat` 段成立** —— `missing_hp` 段没有 `multiplier` 键、走 base+coefficient，不参与 Σ；`damage = null` 的 16 条亦无 Σ ✓ 🎖️ 纪律 BS：**「这个字段/乘数，原版有吗？没有 ⇒ 它必须【中性化】」** ✓ 📌 这不是「允许永久偏离」，是**中性化**（把自加的乘数退回不改变结果）✓"
 }
