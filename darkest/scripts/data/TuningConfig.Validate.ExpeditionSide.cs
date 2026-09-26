@@ -61,12 +61,14 @@ public sealed partial record TuningConfig
             lastResistPp = tier.StunResistPp;
             // 🔴 合法 target 取值 = **唯一真相**（报错文案由它插值 ⇒ 加一个取值即自动同步）✓
             //    ⚠️ 与 `152_*.md`/`153_*.md` 的教训同族：**清单不许手写两遍** ✓
+            //    🔴 分隔符用**全角 ` ／ `**（与 `UnlocksConfig.NamespacePrefixes` 一致）——
+            //       这样"手写半角 ` / `"与"插值全角"**不同形** ⇒ 测试能区分漂移 ✓
             string[] legalTargets = { "enemy_hp", "enemy_resist" };
             if (tier.Target is not null && !legalTargets.Contains(tier.Target))
             {
                 throw new InvalidDataException(
                     $"{ResPath}: difficulty_tiers target 只能是 "
-                    + $"{string.Join(" / ", legalTargets)}（或 null=待裁定；P20 ⑭）。");
+                    + $"{string.Join(" ／ ", legalTargets)}（或 null=待裁定；P20 ⑭）。");
             }
 
             expectedFrom = tier.BattleTo + 1;

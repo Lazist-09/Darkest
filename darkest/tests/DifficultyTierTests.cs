@@ -101,14 +101,10 @@ public sealed class DifficultyTierTests
             "{ \"battle_from\": 1, \"battle_to\": 2, \"multiplier\": 1.0, \"target\": \"enemy_hp\"",
             "{ \"battle_from\": 1, \"battle_to\": 2, \"multiplier\": 1.0, \"target\": \"bogus\"")));
 
-        // 🔴 **诚实边界**：这条断言**无法区分**"插值"与"手写同形串"
-        //    （手写 `enemy_hp / enemy_resist` 与插值结果逐字相同）——
-        //    实测故意破坏后它**仍会通过** ⚠️
-        //    ⇒ 它的价值只剩"**报错里确实列出了合法取值**"（防"漏列"），
-        //      **防不住"手写漂移"**。真正的防线是 `ExpeditionNodesConfig` 那条
-        //      （那里的手写形式 `battle/event` 与插值形式 `battle / event` **不同形**，故能红）✓
-        StringAssert.Contains(ex.Message, "enemy_hp / enemy_resist",
-            "报错须列出两个合法取值（防漏列）✓");
+        // 🔴 断言**全角分隔**形式（插值产物）—— 手写若用半角 ` / ` 则**不同形** ⇒ 能红 ✓
+        //    （教训 `155_*.md`：断言与手写同形时会假过；故源码用 ` ／ `、断言也认 ` ／ `）✓
+        StringAssert.Contains(ex.Message, "enemy_hp ／ enemy_resist",
+            "报错须含全角分隔的 `enemy_hp ／ enemy_resist`（插值产物；防手写漂移）✓");
     }
 
     [TestMethod]
