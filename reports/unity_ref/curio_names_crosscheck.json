@@ -1,0 +1,56 @@
+{
+ "note": "A8 curio_name vs A12 通用奇物。只读不落库 ✓",
+ "a8_curio_name": {
+  "reliquary": [
+   "gather_holy_relic"
+  ],
+  "chirurgeons_satchel": [
+   "gather_medicines"
+  ],
+  "foodstuff_crate": [
+   "gather_grain"
+  ],
+  "shipment_crates": [
+   "gather_shipments"
+  ],
+  "iron_maiden": [
+   "activate_iron_maiden"
+  ],
+  "teleporter": [
+   "activate_teleporter"
+  ],
+  "corrupted_altar": [
+   "inventory_activate_corrupted_altar"
+  ],
+  "infected_corpse": [
+   "inventory_activate_infected_corpse"
+  ],
+  "animalistic_shrine": [
+   "inventory_activate_animalistic_shrine"
+  ],
+  "protective_ward": [
+   "inventory_activate_wards"
+  ],
+  "beacon": [
+   "inventory_activate_beacons"
+  ]
+ },
+ "a12_count": 60,
+ "intersection": [
+  "iron_maiden"
+ ],
+ "only_a8": [
+  "animalistic_shrine",
+  "beacon",
+  "chirurgeons_satchel",
+  "corrupted_altar",
+  "foodstuff_crate",
+  "infected_corpse",
+  "protective_ward",
+  "reliquary",
+  "shipment_crates",
+  "teleporter"
+ ],
+ "a8_and_mine": [],
+ "a12_and_mine": []
+}
