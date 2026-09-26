@@ -1,0 +1,15 @@
+{
+ "note": "判那 10 个 curio_name 是任务专用还是奇物。只读不落库 ✓",
+ "in_curios_dir": {
+  "animalistic_shrine": [],
+  "beacon": [],
+  "chirurgeons_satchel": [],
+  "corrupted_altar": [],
+  "foodstuff_crate": [],
+  "infected_corpse": [],
+  "protective_ward": [],
+  "reliquary": [],
+  "shipment_crates": [],
+  "teleporter": []
+ }
+}
