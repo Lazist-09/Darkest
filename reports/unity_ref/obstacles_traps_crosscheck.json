@@ -1,0 +1,219 @@
+{
+ "note": "参考 5 障碍/4 陷阱 × 我方 trap_defs(4)。只读不落库 ✓",
+ "ref_obstacles": [
+  {
+   "name": "thorny_thicket",
+   "fail_effects": [
+    "Stress 2"
+   ],
+   "health": -0.05,
+   "torchlight": -20.0,
+   "ancestor_talk": false
+  },
+  {
+   "name": "rubble",
+   "fail_effects": [
+    "Stress 2"
+   ],
+   "health": -0.05,
+   "torchlight": -20.0,
+   "ancestor_talk": false
+  },
+  {
+   "name": "shipwreck",
+   "fail_effects": [
+    "Stress 2"
+   ],
+   "health": -0.05,
+   "torchlight": -20.0,
+   "ancestor_talk": false
+  },
+  {
+   "name": "ancestor",
+   "fail_effects": [],
+   "health": 0.0,
+   "torchlight": 0.0,
+   "ancestor_talk": true
+  },
+  {
+   "name": "town_rubble",
+   "fail_effects": [
+    "Stress 2"
+   ],
+   "health": -0.05,
+   "torchlight": -20.0,
+   "ancestor_talk": false
+  }
+ ],
+ "ref_traps": [
+  {
+   "name": "poison_cloud",
+   "success_effects": [
+    "Heal Stress TrapD"
+   ],
+   "fail_effects": [
+    "Blight 1",
+    "Stress 2"
+   ],
+   "health": 0,
+   "difficulty_variations": [
+    {
+     "level": 3,
+     "success_effects": [
+      "Heal Stress TrapD"
+     ],
+     "fail_effects": [
+      "Blight 2",
+      "Stress 2"
+     ],
+     "health": 0
+    },
+    {
+     "level": 5,
+     "success_effects": [
+      "Heal Stress TrapD"
+     ],
+     "fail_effects": [
+      "Blight 3",
+      "Stress 2"
+     ],
+     "health": 0
+    }
+   ]
+  },
+  {
+   "name": "spikes",
+   "success_effects": [
+    "Heal Stress TrapD"
+   ],
+   "fail_effects": [
+    "Stress 2"
+   ],
+   "health": -0.25,
+   "difficulty_variations": [
+    {
+     "level": 3,
+     "success_effects": [
+      "Heal Stress TrapD"
+     ],
+     "fail_effects": [
+      "Stress 2"
+     ],
+     "health": -0.28
+    },
+    {
+     "level": 5,
+     "success_effects": [
+      "Heal Stress TrapD"
+     ],
+     "fail_effects": [
+      "Stress 2"
+     ],
+     "health": -0.3
+    }
+   ]
+  },
+  {
+   "name": "blade_wheel",
+   "success_effects": [
+    "Heal Stress TrapD"
+   ],
+   "fail_effects": [
+    "Bleed 1",
+    "Stress 2"
+   ],
+   "health": -0.1,
+   "difficulty_variations": [
+    {
+     "level": 3,
+     "success_effects": [
+      "Heal Stress TrapD"
+     ],
+     "fail_effects": [
+      "Bleed 2",
+      "Stress 2"
+     ],
+     "health": -0.1
+    },
+    {
+     "level": 5,
+     "success_effects": [
+      "Heal Stress TrapD"
+     ],
+     "fail_effects": [
+      "Bleed 3",
+      "Stress 2"
+     ],
+     "health": -0.1
+    }
+   ]
+  },
+  {
+   "name": "lurker",
+   "success_effects": [
+    "Heal Stress TrapD"
+   ],
+   "fail_effects": [
+    "Lurker Trap Debuff 1",
+    "Stress 2"
+   ],
+   "health": -0.1,
+   "difficulty_variations": [
+    {
+     "level": 3,
+     "success_effects": [
+      "Heal Stress TrapD"
+     ],
+     "fail_effects": [
+      "Lurker Trap Debuff 1",
+      "Stress 2"
+     ],
+     "health": -0.1
+    },
+    {
+     "level": 5,
+     "success_effects": [
+      "Heal Stress TrapD"
+     ],
+     "fail_effects": [
+      "Lurker Trap Debuff 1",
+      "Stress 2"
+     ],
+     "health": -0.1
+    }
+   ]
+  }
+ ],
+ "mine": [
+  {
+   "id": "ruins_pit",
+   "region": "ruins",
+   "hp_percent": 25.0,
+   "weight": 1,
+   "note": "🔴 placeholder:true（#307）· D-4 遗迹：DD wiki 原文 25%/28%/30%（按难度档）⇒ 本项目取**首档 25%**（无难度分档，故取最低档；难度分档属后续项）。额外效果（DD 无）⇒ 不登记"
+  },
+  {
+   "id": "weald_snare",
+   "region": "weald",
+   "hp_percent": 5.0,
+   "weight": 1,
+   "note": "🔴 placeholder:true（#307）· D-4 荒野：DD 原文 **0% HP**（伤害全在 Blight 上）⇒ ⚠️ 本项目**不落 Blight 额外效果**（只登记不结算），若照抄 0% 会撞上加载期校验「`hp_percent` 必须 > 0」（0 = 只有压力，与漏配键不可区分）⇒ 取 **5%** 作为占位（比遗迹的 25% 明显低，保留「荒野陷阱伤害低」的手感）。🔴 **这是有意的偏离，待 Blight 落地后改回 0 并放开校验**"
+  },
+  {
+   "id": "warrens_spike",
+   "region": "warrens",
+   "hp_percent": 10.0,
+   "weight": 1,
+   "note": "🔴 placeholder:true（#307）· D-4 贫民窟：DD 原文 **10% HP** +（100/110/120% Bleed 2/2/3）⇒ HP 部分**原样照抄**；Bleed 额外效果不落（只登记不结算）"
+  },
+  {
+   "id": "cove_grate",
+   "region": "cove",
+   "hp_percent": 10.0,
+   "weight": 1,
+   "note": "🔴 placeholder:true（#307）· D-4 海湾：DD 原文 **10% HP** +（Debuff -5/-6/-8 SPD, -20/-25/-30 DODGE, 12 rds）⇒ HP 部分**原样照抄**；Debuff 额外效果不落（只登记不结算）"
+  }
+ ],
+ "obs_intersect": [],
+ "trap_intersect": []
+}
