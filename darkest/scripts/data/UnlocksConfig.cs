@@ -114,7 +114,9 @@ public sealed record UnlocksConfig(
                 seen[target] = e.Id;
 
                 // 🔴 命名空间校验（**引用的对象必须存在** —— 与 P26 同一条纪律）：
-                //    building:<id> ／ curio:<id> ／ roster_cap:<N>（N ≤ 硬上限，见 C1）
+                //    building:<id> ／ curio:<id> ／ roster_cap_delta:<N>（**增量**，策划 #403）
+                //    ／ roster_cap:<N>（**绝对值**，旧语法 · 仍兼容，见 C1）
+                //    ⚠️ 两者语义不同：delta 加在起手 8 之上，绝对值直接给上限 ✓
                 if (target.StartsWith("building:", StringComparison.Ordinal))
                 {
                     string id = target["building:".Length..];
@@ -134,15 +136,15 @@ public sealed record UnlocksConfig(
                     }
                 }
                 else if (target.StartsWith("roster_cap_delta:", StringComparison.Ordinal))
-            {
-                // 🆕 策划 `#403`：**增量语义**（与马车同语法 ✓）—— 值 = 增量（1..硬上限）
-                if (!int.TryParse(target["roster_cap_delta:".Length..], out int delta) || delta <= 0 || delta > rosterHardCap)
                 {
-                    throw new InvalidDataException(
-                        $"{ResPath}: `roster_cap_delta:` 的值必须是 1..{rosterHardCap}（增量）—— 实际 \"{target}\"。");
+                    // 🆕 策划 `#403`：**增量语义**（与马车同语法 ✓）—— 值 = 增量（1..硬上限）
+                    if (!int.TryParse(target["roster_cap_delta:".Length..], out int delta) || delta <= 0 || delta > rosterHardCap)
+                    {
+                        throw new InvalidDataException(
+                            $"{ResPath}: `roster_cap_delta:` 的值必须是 1..{rosterHardCap}（增量）—— 实际 \"{target}\"。");
+                    }
                 }
-            }
-            else if (target.StartsWith("roster_cap:", StringComparison.Ordinal))
+                else if (target.StartsWith("roster_cap:", StringComparison.Ordinal))
                 {
                     if (!int.TryParse(target["roster_cap:".Length..], out int cap) || cap <= 0 || cap > rosterHardCap)
                     {
@@ -153,7 +155,7 @@ public sealed record UnlocksConfig(
                 else
                 {
                     throw new InvalidDataException(
-                        $"{ResPath}: \"{target}\" 的命名空间未知（合法：`building:` ／ `curio:` ／ `roster_cap:`）（P27 ④）。");
+                        $"{ResPath}: \"{target}\" 的命名空间未知（合法：`building:` ／ `curio:` ／ `roster_cap_delta:` ／ `roster_cap:`）（P27 ④）。");
                 }
             }
         }
