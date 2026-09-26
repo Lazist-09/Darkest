@@ -1,0 +1,7012 @@
+{
+ "source": "F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data\\Curios",
+ "note": "A12 下游：Curios.csv（**CSV 形态，第一个**）+ Obstacles.json + Traps.json。目的 = 校验 A12 `props` 段引用的 57 个名字。本件【只抽不落库】✓",
+ "curios": {
+  "header": [
+   "",
+   "",
+   "ID STRING",
+   "",
+   "RESULT TYPES",
+   "WEIGHT",
+   "% CHANCE",
+   "RESULT 1",
+   "R1 WEIGHT",
+   "R1 %",
+   "RESULT 2",
+   "R2 WEIGHT",
+   "R2 %",
+   "RESULT 3",
+   "R3 WEIGHT",
+   "R3 %",
+   "STRING",
+   "NOTES"
+  ],
+  "items": [
+   {
+    "index": "1",
+    "display": "Unlocked Strongbox",
+    "kind": "Good",
+    "id": "unlocked_strongbox",
+    "header_row": 4,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "75.00%",
+       "A",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "The strongbox contains valuable treasures."
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "25.00%",
+       "Blight 1",
+       "1",
+       "100.00%",
+       "The strongbox is a trap!"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The strongbox is empty.",
+      "notes": "",
+      "row": 5
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 9
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 11
+     }
+    ]
+   },
+   {
+    "index": "2",
+    "display": "Locked Strongbox",
+    "kind": "Mixed",
+    "id": "locked_strongbox",
+    "header_row": 19,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "50.00%",
+       "A",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "50.00%",
+       "Blight 1",
+       "1",
+       "50.00%",
+       "Bleed 1",
+       "1",
+       "50.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 20
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 24
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 26
+     }
+    ]
+   },
+   {
+    "index": "3",
+    "display": "Goal Strongbox",
+    "kind": "Good",
+    "id": "goal_strongbox",
+    "header_row": 34,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "B",
+       "3",
+       "<- # Draws",
+       "T",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "Found the sought after treasure!"
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 35
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 39
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 41
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 42
+     }
+    ]
+   },
+   {
+    "index": "4",
+    "display": "Heirloom Chest",
+    "kind": "Mixed",
+    "id": "heirloom_chest",
+    "header_row": 49,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "75.00%",
+       "H",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "The chest contains valuable treasures."
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "25.00%",
+       "Blight 1",
+       "1",
+       "50.00%",
+       "Bleed 1",
+       "1",
+       "50.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The chest has already been rummaged.",
+      "notes": "",
+      "row": 50
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 54
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 56
+     }
+    ]
+   },
+   {
+    "index": "5",
+    "display": "Eldritch Altar",
+    "kind": "Mixed",
+    "id": "eldritch_altar",
+    "header_row": 64,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "4",
+       "40.00%",
+       "Stress 3",
+       "1",
+       "100.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "5",
+      "chance": "50.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 65
+     },
+     {
+      "result_type": "Purge",
+      "weight": "1",
+      "chance": "10.00%",
+      "result_1": "negative",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 69
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 71
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 72
+     }
+    ]
+   },
+   {
+    "index": "6",
+    "display": "Altar of Light",
+    "kind": "Good",
+    "id": "altar_of_light",
+    "header_row": 79,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "100.00%",
+       "Curio Damage Buff",
+       "1",
+       "100.00%",
+       "The altar invigorates the hero."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 80
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 82
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 84
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 86
+     }
+    ]
+   },
+   {
+    "index": "7",
+    "display": "Stack of Books",
+    "kind": "Mixed",
+    "id": "stack_of_books",
+    "header_row": 94,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "9.09%",
+       "JOURNALONLY",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk",
+       "4",
+       "36.36%",
+       "positive",
+       "2",
+       "66.67%",
+       "negative",
+       "1",
+       "33.33%",
+       "The text has a lasting impact on the hero."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "4",
+       "36.36%",
+       "Stress 3",
+       "2",
+       "66.67%",
+       "Darkness 3",
+       "1",
+       "33.33%",
+       "The text is dark and unsettling."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "2",
+      "chance": "18.18%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The volumes are dull and uninteresting.",
+      "notes": "",
+      "row": 95
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 99
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 101
+     }
+    ]
+   },
+   {
+    "index": "8",
+    "display": "Iron Maiden",
+    "kind": "Mixed",
+    "id": "iron_maiden",
+    "header_row": 109,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "2",
+       "40.00%",
+       "A",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "A few treasures are hidden in the iron maiden."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "20.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "Nothing but a foul odour...",
+      "notes": "",
+      "row": 110
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "20.00%",
+      "result_1": "claustrophobia",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The iron maiden causes great harm to the hero.",
+      "notes": "",
+      "row": 112
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 114
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 116
+     },
+     {
+      "result_type": "Disease",
+      "weight": "1",
+      "chance": "20.00%",
+      "result_1": "tetanus",
+      "r1_weight": "2",
+      "r1_pct": "66.67%",
+      "result_2": "random",
+      "r2_weight": "1",
+      "r2_pct": "33.33%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 117
+     }
+    ]
+   },
+   {
+    "index": "9",
+    "display": "Pile of Bones",
+    "kind": "Mixed",
+    "id": "pile_of_bones",
+    "header_row": 124,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "25.00%",
+       "A",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "The bones house some supplies."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "Nothing is found amongst the remains.",
+      "notes": "",
+      "row": 125
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "bloodthirsty",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The sight of the bones is unsettling to the hero.",
+      "notes": "",
+      "row": 127
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 129
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 131
+     },
+     {
+      "result_type": "Disease",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "random",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 132
+     }
+    ]
+   },
+   {
+    "index": "10",
+    "display": "Discarded Pack",
+    "kind": "Good",
+    "id": "discarded_pack",
+    "header_row": 139,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "60.00%",
+       "S",
+       "1",
+       "<- # Draws",
+       "B",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "The pack contains valuable supplies."
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting",
+       "1",
+       "20.00%",
+       "2 - all",
+       "3",
+       "50.00%",
+       "3 - all",
+       "2",
+       "33.33%",
+       "0 - all",
+       "1",
+       "16.67%"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "20.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The pack has already been rummaged.",
+      "notes": "",
+      "row": 140
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 144
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 146
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 147
+     }
+    ]
+   },
+   {
+    "index": "11",
+    "display": "Sconce",
+    "kind": "Good",
+    "id": "sconce",
+    "header_row": 154,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "TORCHONLY",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "An unburned torch is found."
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 155
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 159
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 161
+     }
+    ]
+   },
+   {
+    "index": "12",
+    "display": "Crate",
+    "kind": "Good",
+    "id": "crate",
+    "header_row": 169,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "75.00%",
+       "H",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "The crate contains valuable treasures."
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The crate is completely empty.",
+      "notes": "",
+      "row": 170
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 174
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 176
+     }
+    ]
+   },
+   {
+    "index": "13",
+    "display": "Sack",
+    "kind": "Good",
+    "id": "sack",
+    "header_row": 184,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "75.00%",
+       "C",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "Some Gold was found in the sack."
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The sack is empty.",
+      "notes": "",
+      "row": 185
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 189
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 191
+     }
+    ]
+   },
+   {
+    "index": "14",
+    "display": "Suit of Armor",
+    "kind": "Good",
+    "id": "suit_of_armor",
+    "header_row": 199,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "3",
+       "75.00%",
+       "Suit of Armor Shield",
+       "1",
+       "100.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 200
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "ruins_adventurer",
+      "r1_weight": "1",
+      "r1_pct": "50.00%",
+      "result_2": "ruins_tactician",
+      "r2_weight": "1",
+      "r2_pct": "50.00%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 202
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 204
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 206
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 207
+     }
+    ]
+   },
+   {
+    "index": "15",
+    "display": "Dinner Cart",
+    "kind": "Mixed",
+    "id": "dinner_cart",
+    "header_row": 214,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "37.50%",
+       "P",
+       "1",
+       "<- # Draws",
+       "CT",
+       "1",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "2",
+       "25.00%",
+       "Blight 1",
+       "1",
+       "100.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "2",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 215
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 217
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 219
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 221
+     },
+     {
+      "result_type": "Disease",
+      "weight": "1",
+      "chance": "12.50%",
+      "result_1": "the_black_plague",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 222
+     }
+    ]
+   },
+   {
+    "index": "16",
+    "display": "Decorative Urn",
+    "kind": "Mixed",
+    "id": "decorative_urn",
+    "header_row": 229,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "4",
+       "44.44%",
+       "GT",
+       "1",
+       "<- # Draws",
+       "G",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "Treasures are found in the urn."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "2",
+       "22.22%",
+       "Blight 1",
+       "1",
+       "100.00%",
+       "The hero becomes infected by the ashes."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "2",
+      "chance": "22.22%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The urn has nothing but ashes inside.",
+      "notes": "",
+      "row": 230
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The ashes cause the hero to cough violently.",
+      "notes": "",
+      "row": 232
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 234
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 236
+     },
+     {
+      "result_type": "Disease",
+      "weight": "1",
+      "chance": "11.11%",
+      "result_1": "creeping_cough",
+      "r1_weight": "2",
+      "r1_pct": "66.67%",
+      "result_2": "random",
+      "r2_weight": "1",
+      "r2_pct": "33.33%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 237
+     }
+    ]
+   },
+   {
+    "index": "17",
+    "display": "Locked Display Cabinet",
+    "kind": "Bad",
+    "id": "locked_display_cabinet",
+    "header_row": 244,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "100.00%",
+       "Blight 1",
+       "1",
+       "50.00%",
+       "Bleed 1",
+       "1",
+       "50.00%",
+       "The cabinet is a trap!"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 245
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 247
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 249
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 251
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 252
+     }
+    ]
+   },
+   {
+    "index": "18",
+    "display": "Confession Booth",
+    "kind": "Mixed",
+    "id": "confession_booth",
+    "header_row": 259,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "25.00%",
+       "CT",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "The booth contains hidden treasure..."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "2",
+       "50.00%",
+       "Stress 2",
+       "1",
+       "100.00%",
+       "The hero's history of sin is too much to bear."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 260
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 262
+     },
+     {
+      "result_type": "Purge",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "negative",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The hero is absolved of a sin.",
+      "notes": "",
+      "row": 264
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 266
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 267
+     }
+    ]
+   },
+   {
+    "index": "19",
+    "display": "Holy Fountain",
+    "kind": "Good",
+    "id": "holy_fountain",
+    "header_row": 274,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "50.00%",
+       "B",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "Propitiations are found at the bottom of the fountain."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "50.00%",
+       "HolyFountainEffects",
+       "1",
+       "100.00%",
+       "The water reinvigorates the hero."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 275
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 277
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 279
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 281
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 282
+     }
+    ]
+   },
+   {
+    "index": "20",
+    "display": "Bookshelf",
+    "kind": "Mixed",
+    "id": "bookshelf",
+    "header_row": 289,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "11.11%",
+       "JOURNALONLY",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "2",
+       "22.22%",
+       "Stress 2",
+       "1",
+       "100.00%",
+       "The passages are unsettling."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting",
+       "2",
+       "22.22%",
+       "0 - curios",
+       "2",
+       "66.67%",
+       "0 - all",
+       "1",
+       "33.33%",
+       "A map is found tucked into the volumes."
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "2",
+      "chance": "22.22%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The volumes are dull and uninteresting.",
+      "notes": "",
+      "row": 290
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "2",
+      "chance": "22.22%",
+      "result_1": "positive",
+      "r1_weight": "2",
+      "r1_pct": "66.67%",
+      "result_2": "negative",
+      "r2_weight": "1",
+      "r2_pct": "33.33%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The knowledge within forever changes the hero.",
+      "notes": "",
+      "row": 292
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 294
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 296
+     }
+    ]
+   },
+   {
+    "index": "21",
+    "display": "Alchemy Table",
+    "kind": "Mixed",
+    "id": "alchemy_table",
+    "header_row": 304,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "25.00%",
+       "B",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "New metals are synthesized...somehow."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "2",
+       "50.00%",
+       "Blight 1",
+       "2",
+       "100.00%",
+       "An accident occurs during the experiment."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The experiments do not yield any findings.",
+      "notes": "",
+      "row": 305
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 307
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 309
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 311
+     }
+    ]
+   },
+   {
+    "index": "22",
+    "display": "Knife Rack",
+    "kind": "Mixed",
+    "id": "knife_rack",
+    "header_row": 319,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "2",
+       "40.00%",
+       "B",
+       "1",
+       "<- # Draws",
+       "P",
+       "1",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "2",
+       "40.00%",
+       "Bleed 1",
+       "1",
+       "100.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "20.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 320
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 322
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 324
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 326
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 327
+     }
+    ]
+   },
+   {
+    "index": "23",
+    "display": "Sarcophagus",
+    "kind": "Mixed",
+    "id": "sarcophagus",
+    "header_row": 334,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "60.00%",
+       "CH",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "The sarcophagus contains hidden treasures."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "20.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The sarcophagus is completely empty.",
+      "notes": "",
+      "row": 335
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "20.00%",
+      "result_1": "thanatophobia",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The hero contemplates mortality...",
+      "notes": "",
+      "row": 337
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 339
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 341
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 342
+     }
+    ]
+   },
+   {
+    "index": "24",
+    "display": "Mummified Remains",
+    "kind": "Mixed",
+    "id": "mummified_remains",
+    "header_row": 349,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "2",
+       "40.00%",
+       "CT",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "The remains are laced with treasures."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "2",
+       "40.00%",
+       "Blight 1",
+       "1",
+       "100.00%",
+       "The hero becomes diseased by the remains."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "20.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "There is nothing of value on the body.",
+      "notes": "",
+      "row": 350
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 352
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 354
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 356
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 357
+     }
+    ]
+   },
+   {
+    "index": "25",
+    "display": "Sacrificial Stone",
+    "kind": "Mixed",
+    "id": "sacrificial_stone",
+    "header_row": 364,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "2",
+       "50.00%",
+       "Stress 4",
+       "1",
+       "100.00%",
+       "The hero is deeply disturbed by the shrine."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 365
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "warren_explorer",
+      "r1_weight": "1",
+      "r1_pct": "50.00%",
+      "result_2": "warren_scrounger",
+      "r2_weight": "1",
+      "r2_pct": "50.00%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The shrine gives great insight into life in these warrens.",
+      "notes": "",
+      "row": 367
+     },
+     {
+      "result_type": "Purge",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "negative",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "A sinful behaviour is vanquished.",
+      "notes": "",
+      "row": 369
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 371
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 372
+     }
+    ]
+   },
+   {
+    "index": "26",
+    "display": "Skull Altar",
+    "kind": "Good",
+    "id": "skull_altar",
+    "header_row": 379,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "100.00%",
+       "Skull Altar Adrenaline",
+       "2",
+       "100.00%",
+       "The altar infuses the hero with great power."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "Any power the altar once had is now lost.",
+      "notes": "",
+      "row": 380
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 382
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 384
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 386
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 387
+     }
+    ]
+   },
+   {
+    "index": "27",
+    "display": "Occult Scrawlings",
+    "kind": "Mixed",
+    "id": "occult_scrawlings",
+    "header_row": 394,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "25.00%",
+       "Stress 3",
+       "1",
+       "100.00%",
+       "The scrawlings are incredibly distressing."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The scrawlings are dull and uninteresting.",
+      "notes": "",
+      "row": 395
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "2",
+      "chance": "50.00%",
+      "result_1": "positive",
+      "r1_weight": "2",
+      "r1_pct": "66.67%",
+      "result_2": "negative",
+      "r2_weight": "1",
+      "r2_pct": "33.33%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The scrawlings forever change the hero.",
+      "notes": "",
+      "row": 397
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 399
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 401
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 402
+     }
+    ]
+   },
+   {
+    "index": "28",
+    "display": "Moonshine Barrel",
+    "kind": "Mixed",
+    "id": "moonshine_barrel",
+    "header_row": 409,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "33.33%",
+       "P",
+       "1",
+       "<- # Draws",
+       "CS",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "The rum barrel contains stashed treasures."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "3",
+       "33.33%",
+       "Blight 1",
+       "1",
+       "100.00%",
+       "The rum within is spiked."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "2",
+      "chance": "22.22%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The barrel is completely empty.",
+      "notes": "",
+      "row": 410
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "11.11%",
+      "result_1": "alcoholism",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The hero becomes a slave of the sauce.",
+      "notes": "",
+      "row": 412
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 414
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 416
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 417
+     }
+    ]
+   },
+   {
+    "index": "29",
+    "display": "Locked Sarcophagus",
+    "kind": "Bad",
+    "id": "locked_sarcophagus",
+    "header_row": 424,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "100.00%",
+       "Blight 1",
+       "1",
+       "50.00%",
+       "Bleed 1",
+       "1",
+       "50.00%",
+       "The sarcophagus is a trap!"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 425
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 427
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 429
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 431
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 432
+     }
+    ]
+   },
+   {
+    "index": "30",
+    "display": "Makeshift Dining Table",
+    "kind": "Mixed",
+    "id": "makeshift_dining_table",
+    "header_row": 439,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "25.00%",
+       "P",
+       "1",
+       "<- # Draws",
+       "CS",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "The table contains leftovers from a previous dinner."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "25.00%",
+       "Blight 1",
+       "1",
+       "100.00%",
+       "The rotting food makes the hero ill."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "Everything has been eaten already.",
+      "notes": "",
+      "row": 440
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 442
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 444
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 446
+     },
+     {
+      "result_type": "Disease",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "tapeworm",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 447
+     }
+    ]
+   },
+   {
+    "index": "31",
+    "display": "Pile of Scrolls",
+    "kind": "Mixed",
+    "id": "pile_of_scrolls",
+    "header_row": 454,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "16.67%",
+       "Stress 2",
+       "1",
+       "100.00%",
+       "The scrolls have a startling effect on the hero."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting",
+       "2",
+       "33.33%",
+       "0 - hall_battles",
+       "2",
+       "40.00%",
+       "0 - room_battles",
+       "2",
+       "40.00%",
+       "2 - all",
+       "1",
+       "20.00%",
+       "The scrolls reveal much of the road ahead."
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "2",
+      "chance": "33.33%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The scrolls are dull and uninteresting.",
+      "notes": "",
+      "row": 455
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "16.67%",
+      "result_1": "positive",
+      "r1_weight": "2",
+      "r1_pct": "66.67%",
+      "result_2": "negative",
+      "r2_weight": "1",
+      "r2_pct": "33.33%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The scrolls forever change the hero.",
+      "notes": "",
+      "row": 457
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 459
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 461
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 462
+     }
+    ]
+   },
+   {
+    "index": "32",
+    "display": "Ancient Coffin",
+    "kind": "Good",
+    "id": "ancient_coffin",
+    "header_row": 469,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "50.00%",
+       "CH",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "The coffin contains hidden treasures."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "2",
+      "chance": "33.33%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The coffin is empty.",
+      "notes": "",
+      "row": 470
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "16.67%",
+      "result_1": "weald_explorer",
+      "r1_weight": "1",
+      "r1_pct": "50.00%",
+      "result_2": "weald_adventurer",
+      "r2_weight": "1",
+      "r2_pct": "50.00%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The coffin gives the hero insight into the nature of this world.",
+      "notes": "",
+      "row": 472
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 474
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 476
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 477
+     }
+    ]
+   },
+   {
+    "index": "33",
+    "display": "Old Tree",
+    "kind": "Mixed",
+    "id": "old_tree",
+    "header_row": 484,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "2",
+       "50.00%",
+       "A",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "There are treasures stashed in the bark."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "25.00%",
+       "Blight 1",
+       "1",
+       "100.00%",
+       "The tree is covered in poisoned sap."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "Nothing inside the tree.",
+      "notes": "",
+      "row": 485
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 487
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 489
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 491
+     }
+    ]
+   },
+   {
+    "index": "34",
+    "display": "Beast Carcass",
+    "kind": "Mixed",
+    "id": "beast_carcass",
+    "header_row": 499,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "42.86%",
+       "P",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "There is still some meat on these bones."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "14.29%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The beast has nothing left to offer.",
+      "notes": "",
+      "row": 500
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "14.29%",
+      "result_1": "zoophobia",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The hero is distraught by the sight of the carcass.",
+      "notes": "",
+      "row": 502
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 504
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 506
+     },
+     {
+      "result_type": "Disease",
+      "weight": "2",
+      "chance": "28.57%",
+      "result_1": "rabies",
+      "r1_weight": "1",
+      "r1_pct": "33.33%",
+      "result_2": "random",
+      "r2_weight": "2",
+      "r2_pct": "66.67%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 507
+     }
+    ]
+   },
+   {
+    "index": "35",
+    "display": "Pristine Fountain",
+    "kind": "Good",
+    "id": "pristine_fountain",
+    "header_row": 514,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "100.00%",
+       "PristineFountainHealStress",
+       "1",
+       "100.00%",
+       "The fountain reinvigorates the hero."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "Any power this fountain once had is now lost.",
+      "notes": "",
+      "row": 515
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 517
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 519
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 521
+     }
+    ]
+   },
+   {
+    "index": "36",
+    "display": "Traveller's Tent",
+    "kind": "Mixed",
+    "id": "travellers_tent",
+    "header_row": 529,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "3",
+       "37.50%",
+       "SC",
+       "2",
+       "<- # Draws",
+       "CH",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "Someone left valuables inside the tent."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "12.50%",
+       "Stress 3",
+       "1",
+       "100.00%",
+       "The fate of the tent's occupant is found inside..."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting",
+       "3",
+       "37.50%",
+       "3 - obstacles",
+       "2",
+       "40.00%",
+       "2 - traps",
+       "2",
+       "40.00%",
+       "2 - all",
+       "1",
+       "20.00%",
+       "A map of the area is found inside the tent."
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "12.50%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "Nothing is left inside the tent.",
+      "notes": "",
+      "row": 530
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 532
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 534
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 536
+     }
+    ]
+   },
+   {
+    "index": "37",
+    "display": "Cosmic Spiderweb",
+    "kind": "Mixed",
+    "id": "cosmic_spiderweb",
+    "header_row": 544,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "2",
+       "40.00%",
+       "B",
+       "1",
+       "<- # Draws",
+       "GT",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "Treasures are hidden behind the web."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "2",
+      "chance": "40.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "There is nothing of interest.",
+      "notes": "",
+      "row": 545
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "20.00%",
+      "result_1": "slow_reflexes",
+      "r1_weight": "1",
+      "r1_pct": "50.00%",
+      "result_2": "slowdraw",
+      "r2_weight": "1",
+      "r2_pct": "50.00%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The hero is covered in a sticky goo.",
+      "notes": "",
+      "row": 547
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 549
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 551
+     }
+    ]
+   },
+   {
+    "index": "38",
+    "display": "Lost Luggage",
+    "kind": "Mixed",
+    "id": "lost_luggage",
+    "header_row": 559,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "50.00%",
+       "A",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "50.00%",
+       "Blight 1",
+       "1",
+       "100.00%",
+       "The lock box is a trap!"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 560
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 562
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 564
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 566
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 567
+     }
+    ]
+   },
+   {
+    "index": "39",
+    "display": "Shallow Grave",
+    "kind": "Bad",
+    "id": "shallow_grave",
+    "header_row": 574,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "50.00%",
+       "Blight 1",
+       "1",
+       "100.00%",
+       "The grave is a trap!"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 575
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 577
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 579
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 581
+     },
+     {
+      "result_type": "Disease",
+      "weight": "1",
+      "chance": "50.00%",
+      "result_1": "random",
+      "r1_weight": "1",
+      "r1_pct": "100.00%",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 582
+     }
+    ]
+   },
+   {
+    "index": "40",
+    "display": "Troubling Effigy",
+    "kind": "Mixed",
+    "id": "troubling_effigy",
+    "header_row": 589,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "3",
+       "37.50%",
+       "Blight 1",
+       "1",
+       "25.00%",
+       "Stress 2",
+       "1",
+       "25.00%",
+       "Bleed 1",
+       "2",
+       "50.00%",
+       "The altar lashes out as it rejects the hero."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "2",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "Any power the altar once had is now lost.",
+      "notes": "",
+      "row": 590
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "3",
+      "chance": "37.50%",
+      "result_1": "positive",
+      "r1_weight": "1",
+      "r1_pct": "50.00%",
+      "result_2": "negative",
+      "r2_weight": "1",
+      "r2_pct": "50.00%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The altar bestows a virtue on the hero.",
+      "notes": "",
+      "row": 592
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 594
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 596
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 597
+     }
+    ]
+   },
+   {
+    "index": "41",
+    "display": "Barnacle Crusted Chest",
+    "kind": "Good",
+    "id": "barnacle_crusted_chest",
+    "header_row": 604,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "2",
+       "50.00%",
+       "A",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "25.00%",
+       "Bleed 1",
+       "1",
+       "100.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 605
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 607
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 609
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 611
+     }
+    ]
+   },
+   {
+    "index": "42",
+    "display": "Brackish Tidepool",
+    "kind": "Bad",
+    "id": "brackish_tidepool",
+    "header_row": 619,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "3",
+       "75.00%",
+       "brackish_tidepool",
+       "1",
+       "100.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 620
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 622
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 624
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 626
+     },
+     {
+      "result_type": "Disease",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "random",
+      "r1_weight": "1",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 627
+     }
+    ]
+   },
+   {
+    "index": "43",
+    "display": "Fish Idol",
+    "kind": "Mixed",
+    "id": "fish_idol",
+    "header_row": 634,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "100.00%",
+       "fish_idol_curse_1",
+       "1",
+       "50.00%",
+       "fish_idol_curse_2",
+       "1",
+       "50.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 635
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 637
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 639
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 641
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 642
+     }
+    ]
+   },
+   {
+    "index": "44",
+    "display": "Giant Oyster",
+    "kind": "Mixed",
+    "id": "giant_oyster",
+    "header_row": 649,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "2",
+       "40.00%",
+       "CT",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "2",
+       "40.00%",
+       "Bleed 2",
+       "1",
+       "100.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "20.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 650
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 652
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 654
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 656
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 657
+     }
+    ]
+   },
+   {
+    "index": "45",
+    "display": "Giant Fish Carcass",
+    "kind": "Mixed",
+    "id": "giant_fish_carcass",
+    "header_row": 664,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "16.67%",
+       "GT",
+       "1",
+       "<- # Draws",
+       "B",
+       "1",
+       "<- # Draws",
+       "S",
+       "1",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "16.67%",
+       "Bleed 1",
+       "2",
+       "66.67%",
+       "Blight 1",
+       "1",
+       "33.33%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "3",
+      "chance": "50.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 665
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 667
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 669
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 671
+     }
+    ]
+   },
+   {
+    "index": "46",
+    "display": "Ship's Figurehead",
+    "kind": "Good",
+    "id": "ships_figurehead",
+    "header_row": 679,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "100.00%",
+       "Figurehead Buff",
+       "1",
+       "33.33%",
+       "Figurehead Heal Stress",
+       "2",
+       "66.67%",
+       "The hero carefully reads the tablets."
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting",
+       "1",
+       "100.00%",
+       "A map of the area reveals what is ahead."
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "The tablets are too difficult to read.",
+      "notes": "",
+      "row": 680
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "The tablets have a profound effect on the hero.",
+      "notes": "",
+      "row": 682
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 684
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 686
+     }
+    ]
+   },
+   {
+    "index": "47",
+    "display": "Eerie Coral",
+    "kind": "Mixed",
+    "id": "eerie_coral",
+    "header_row": 694,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "3",
+       "75.00%",
+       "eerie_coral_healstress",
+       "2",
+       "66.67%",
+       "eerie_coral_stress",
+       "1",
+       "33.33%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "25.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 695
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 697
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 699
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 701
+     }
+    ]
+   },
+   {
+    "index": "48",
+    "display": "Traveller's Tent (tutorial)",
+    "kind": "Good",
+    "id": "travellers_tent_tutorial",
+    "header_row": 709,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "B",
+       "2",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws",
+       "Someone left valuables inside the tent."
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 710
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 712
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 714
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 716
+     }
+    ]
+   },
+   {
+    "index": "49",
+    "display": "Bandit's Trapped Chest (tutorial)",
+    "kind": "Bad",
+    "id": "bandits_trapped_chest",
+    "header_row": 724,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "100.00%",
+       "Blight 1",
+       "1",
+       "100.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 725
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 727
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 729
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 731
+     }
+    ]
+   },
+   {
+    "index": "50",
+    "display": "Shambler's Altar",
+    "kind": "Mixed",
+    "id": "shamblers_altar",
+    "header_row": 739,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "1",
+      "chance": "100.00%",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 740
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 744
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 746
+     }
+    ]
+   },
+   {
+    "index": "51",
+    "display": "Bas-Relief",
+    "kind": "Mixed",
+    "id": "bas_relief",
+    "header_row": 754,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 755
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "1",
+      "chance": "100.00%",
+      "result_1": "positive",
+      "r1_weight": "2",
+      "r1_pct": "66.67%",
+      "result_2": "negative",
+      "r2_weight": "1",
+      "r2_pct": "33.33%",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 757
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 759
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 761
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 762
+     }
+    ]
+   },
+   {
+    "index": "52",
+    "display": "Secret Stash",
+    "kind": "Good",
+    "id": "secret_stash",
+    "header_row": 769,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "B",
+       "3",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 770
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 774
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 776
+     }
+    ]
+   },
+   {
+    "index": "53",
+    "display": "Ancestor's Knapsack",
+    "kind": "Good",
+    "id": "ancestors_knapsack",
+    "header_row": 784,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "T_ANCESTOR",
+       "1",
+       "<- # Draws",
+       "B",
+       "5",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 785
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 787
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 789
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 791
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 792
+     }
+    ]
+   },
+   {
+    "index": "54",
+    "display": "Tutorial Shovel",
+    "kind": "Good",
+    "id": "tutorial_shovel",
+    "header_row": 799,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "SHOVELONLY",
+       "1",
+       "<- # Draws",
+       "A",
+       "2",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 800
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 802
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 804
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 806
+     }
+    ]
+   },
+   {
+    "index": "55",
+    "display": "Tutorial Key",
+    "kind": "Good",
+    "id": "tutorial_key",
+    "header_row": 814,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "KEYONLY",
+       "1",
+       "<- # Draws",
+       "A",
+       "1",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 815
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 817
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 819
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 821
+     }
+    ]
+   },
+   {
+    "index": "56",
+    "display": "Tutorial Holy",
+    "kind": "Good",
+    "id": "tutorial_holy",
+    "header_row": 829,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "HOLYONLY",
+       "1",
+       "<- # Draws",
+       "A",
+       "1",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 830
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 832
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 834
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 836
+     }
+    ]
+   },
+   {
+    "index": "57",
+    "display": "Tutorial Food",
+    "kind": "Good",
+    "id": "tutorial_food",
+    "header_row": 844,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "P",
+       "2",
+       "<- # Draws",
+       "A",
+       "2",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 845
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 847
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 849
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 851
+     }
+    ]
+   },
+   {
+    "index": "58",
+    "display": "Thanks Chest",
+    "kind": "Good",
+    "id": "thanks_chest",
+    "header_row": 859,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "THANKS",
+       "1",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 860
+     },
+     {
+      "result_type": "Quirk",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 862
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 864
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 866
+     }
+    ]
+   },
+   {
+    "index": "59",
+    "display": "Open Grave",
+    "kind": "Bad",
+    "id": "open_grave",
+    "header_row": 874,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "<- # Draws",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect",
+       "1",
+       "100.00%",
+       "Stress 5",
+       "1",
+       "100.00%"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 875
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 879
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 881
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 882
+     }
+    ]
+   },
+   {
+    "index": "60",
+    "display": "Ancestor's Knapsack",
+    "kind": "Good",
+    "id": "incursion_knapsack",
+    "header_row": 889,
+    "meta": {
+     "REGION FOUND": [
+      [
+       "Loot",
+       "1",
+       "100.00%",
+       "T_INCURSIONSACK",
+       "1",
+       "<- # Draws",
+       "CH",
+       "3",
+       "<- # Draws",
+       "<- # Draws"
+      ]
+     ],
+     "ALL": [
+      [
+       "Quirk"
+      ]
+     ],
+     "FULL CURIO?": [
+      [
+       "Effect"
+      ]
+     ],
+     "TAGS": [
+      [
+       "Scouting"
+      ]
+     ]
+    },
+    "results": [
+     {
+      "result_type": "Nothing",
+      "weight": "",
+      "chance": "",
+      "result_1": "N/A",
+      "r1_weight": "N/A",
+      "r1_pct": "N/A",
+      "result_2": "N/A",
+      "r2_weight": "N/A",
+      "r2_pct": "N/A",
+      "result_3": "N/A",
+      "r3_weight": "N/A",
+      "r3_pct": "N/A",
+      "string": "",
+      "notes": "",
+      "row": 890
+     },
+     {
+      "result_type": "Purge",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 894
+     },
+     {
+      "result_type": "Teleport",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 896
+     },
+     {
+      "result_type": "Disease",
+      "weight": "",
+      "chance": "",
+      "result_1": "",
+      "r1_weight": "",
+      "r1_pct": "",
+      "result_2": "",
+      "r2_weight": "",
+      "r2_pct": "",
+      "result_3": "",
+      "r3_weight": "",
+      "r3_pct": "",
+      "string": "",
+      "notes": "",
+      "row": 897
+     }
+    ]
+   }
+  ],
+  "file": "Curios/Curios.csv"
+ },
+ "obstacles": {
+  "items": [
+   {
+    "name": "thorny_thicket",
+    "fail_effects": [
+     "Stress 2"
+    ],
+    "health": -0.05,
+    "torchlight": -20.0,
+    "ancestor_talk": false
+   },
+   {
+    "name": "rubble",
+    "fail_effects": [
+     "Stress 2"
+    ],
+    "health": -0.05,
+    "torchlight": -20.0,
+    "ancestor_talk": false
+   },
+   {
+    "name": "shipwreck",
+    "fail_effects": [
+     "Stress 2"
+    ],
+    "health": -0.05,
+    "torchlight": -20.0,
+    "ancestor_talk": false
+   },
+   {
+    "name": "ancestor",
+    "fail_effects": [],
+    "health": 0.0,
+    "torchlight": 0.0,
+    "ancestor_talk": true
+   },
+   {
+    "name": "town_rubble",
+    "fail_effects": [
+     "Stress 2"
+    ],
+    "health": -0.05,
+    "torchlight": -20.0,
+    "ancestor_talk": false
+   }
+  ],
+  "file": "Curios/Obstacles.json"
+ },
+ "traps": {
+  "items": [
+   {
+    "name": "poison_cloud",
+    "success_effects": [
+     "Heal Stress TrapD"
+    ],
+    "fail_effects": [
+     "Blight 1",
+     "Stress 2"
+    ],
+    "health": 0,
+    "difficulty_variations": [
+     {
+      "level": 3,
+      "success_effects": [
+       "Heal Stress TrapD"
+      ],
+      "fail_effects": [
+       "Blight 2",
+       "Stress 2"
+      ],
+      "health": 0
+     },
+     {
+      "level": 5,
+      "success_effects": [
+       "Heal Stress TrapD"
+      ],
+      "fail_effects": [
+       "Blight 3",
+       "Stress 2"
+      ],
+      "health": 0
+     }
+    ]
+   },
+   {
+    "name": "spikes",
+    "success_effects": [
+     "Heal Stress TrapD"
+    ],
+    "fail_effects": [
+     "Stress 2"
+    ],
+    "health": -0.25,
+    "difficulty_variations": [
+     {
+      "level": 3,
+      "success_effects": [
+       "Heal Stress TrapD"
+      ],
+      "fail_effects": [
+       "Stress 2"
+      ],
+      "health": -0.28
+     },
+     {
+      "level": 5,
+      "success_effects": [
+       "Heal Stress TrapD"
+      ],
+      "fail_effects": [
+       "Stress 2"
+      ],
+      "health": -0.3
+     }
+    ]
+   },
+   {
+    "name": "blade_wheel",
+    "success_effects": [
+     "Heal Stress TrapD"
+    ],
+    "fail_effects": [
+     "Bleed 1",
+     "Stress 2"
+    ],
+    "health": -0.1,
+    "difficulty_variations": [
+     {
+      "level": 3,
+      "success_effects": [
+       "Heal Stress TrapD"
+      ],
+      "fail_effects": [
+       "Bleed 2",
+       "Stress 2"
+      ],
+      "health": -0.1
+     },
+     {
+      "level": 5,
+      "success_effects": [
+       "Heal Stress TrapD"
+      ],
+      "fail_effects": [
+       "Bleed 3",
+       "Stress 2"
+      ],
+      "health": -0.1
+     }
+    ]
+   },
+   {
+    "name": "lurker",
+    "success_effects": [
+     "Heal Stress TrapD"
+    ],
+    "fail_effects": [
+     "Lurker Trap Debuff 1",
+     "Stress 2"
+    ],
+    "health": -0.1,
+    "difficulty_variations": [
+     {
+      "level": 3,
+      "success_effects": [
+       "Heal Stress TrapD"
+      ],
+      "fail_effects": [
+       "Lurker Trap Debuff 1",
+       "Stress 2"
+      ],
+      "health": -0.1
+     },
+     {
+      "level": 5,
+      "success_effects": [
+       "Heal Stress TrapD"
+      ],
+      "fail_effects": [
+       "Lurker Trap Debuff 1",
+       "Stress 2"
+      ],
+      "health": -0.1
+     }
+    ]
+   }
+  ],
+  "file": "Curios/Traps.json"
+ },
+ "a12_props_used": [
+  "alchemy_table",
+  "altar_of_light",
+  "ancient_coffin",
+  "barnacle_crusted_chest",
+  "bas_relief",
+  "beast_carcass",
+  "blade_wheel",
+  "bookshelf",
+  "brackish_tidepool",
+  "confession_booth",
+  "cosmic_spiderweb",
+  "crate",
+  "decorative_urn",
+  "dinner_cart",
+  "discarded_pack",
+  "eerie_coral",
+  "eldritch_altar",
+  "fish_idol",
+  "giant_fish_carcass",
+  "giant_oyster",
+  "heirloom_chest",
+  "holy_fountain",
+  "iron_maiden",
+  "knife_rack",
+  "locked_display_cabinet",
+  "locked_sarcophagus",
+  "locked_strongbox",
+  "lost_luggage",
+  "lurker",
+  "makeshift_dining_table",
+  "moonshine_barrel",
+  "mummified_remains",
+  "occult_scrawlings",
+  "old_tree",
+  "pile_of_bones",
+  "pile_of_scrolls",
+  "poison_cloud",
+  "pristine_fountain",
+  "rubble",
+  "sack",
+  "sacrificial_stone",
+  "sarcophagus",
+  "sconce",
+  "secret_stash",
+  "shallow_grave",
+  "shamblers_altar",
+  "ships_figurehead",
+  "shipwreck",
+  "skull_altar",
+  "spikes",
+  "stack_of_books",
+  "suit_of_armor",
+  "thorny_thicket",
+  "town_rubble",
+  "travellers_tent",
+  "troubling_effigy",
+  "unlocked_strongbox"
+ ],
+ "a12_props_unknown": []
+}
