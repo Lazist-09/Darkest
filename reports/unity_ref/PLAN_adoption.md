@@ -4,10 +4,19 @@
 > 🔴 **这条指令【改判了来源优先级】**：我方 `dd1_baseline §32.1/§32.3` 原定
 >    「**一手（E 盘原版）> 二手（wiki）> 第三方（参考项目）**；冲突以一手为准并记录」✓
 >    ⇒ ✅ **现在：数值一律【采用参考项目】** ✓
->    📌 **后果要说清**：`reports/edrive_vs_reference_hero_tables.md` 里那 **97 条冲突**
->       （例如 `hellion.weapon[*].crit` 一手 5/6/7/8/9 vs 参考 2.5/3/3.5/4/4.5）
+>    📌 **后果要说清**：`reports/edrive_vs_reference_hero_tables.md` 里那 **130 条冲突**
+>       （R23 修工具后更正；旧记 "97" 是**静默漏比 4 英雄 / 180 字段**的错数）
 >       ⇒ **按新指令取【参考值】** ⇒ 该报告从"冲突清单"变成"**待改清单**" ✓
+>       ⚠️ **但那个 130 是"一手 vs 参考"的口径，不是"我们要改多少"** ——
+>       **我方 4 英雄该改的是 180 个值里的 39 个**（A3 实测 ✓，纪律 AU：先定义口径再数）✓
 >    ⚠️ **GPL 义务不变**：`doc/assets_credits.md §10` 的登记仍然有效（不逐行誊写代码；不分发 ⇒ 主要义务不触发）✓
+>
+> 📊 **进度总账（本页唯一真值 · 每完成一项就地更新）**
+> ```
+> ✅ A1 buff 原语池（提交 c74954e）  ✅ A2 技能 dmg%（提交 3f43136）  ✅ A3 英雄 5 阶（提交 dd3754e）
+> 🔄 A4 怪物（读数已出，见 §11）      ⬜ A5 AI   ⬜ A6 折磨/美德   ⬜ A7 饰品/怪癖（被"分数"舍入口径阻塞）
+> ⬜ A8 任务/战利品/旁白   ⬜ A9 建筑   ⬜ A10 补给/物品   ⬜ A11 传家宝   ⬜ A12 地牢/地图（仅参考）
+> ```
 
 ---
 
@@ -25,14 +34,14 @@
 
 | 位置 | 内容 | 量级 |
 |---|---|---|
-| `Assets\Resources\Data\Heroes\Info\*.bytes` | **DD1 `.info.darkest` 文本**：`combat_skill:` 两块（表现块 + **数值块 `.level 0..4`**）· `weapon:` ×5 阶 · `armour:` ×5 阶 | 15 英雄 · **525 数值记录** |
+| `Assets\Resources\Data\Heroes\Info\*.bytes` | **DD1 `.info.darkest` 文本**：`combat_skill:` 两块（表现块 + **数值块 `.level 0..4`**）· `weapon:` ×5 阶 · `armour:` ×5 阶 · **`resistances`** | 15 英雄 · **525 数值记录** |
 | `Assets\Resources\Data\Upgrades\Heroes\*.upgrades.json` | 英雄技能升级树（`trees`/`requirements`/`currency_cost`/`prerequisite_requirements`/`prerequisite_resolve_level`） | 16 文件 · 各 ~21KB |
 | `Assets\Resources\Data\JsonBuffs.json` | **buff 原语池** | **1801** 条 |
 | `Assets\Resources\Data\JsonAI.json` | 怪物 AI（欲望/权重） | **160** brain |
 | `Assets\Resources\Data\JsonQuirks.json` / `JsonTraits.json` | 怪癖（含疾病）／折磨+美德 | **163** / **12** |
 | `Assets\Resources\Data\JsonTrinkets.json` | 饰品（**数值全靠 buff id 数组**） | **488** |
 | `Assets\Resources\Data\JsonQuests.json` / `JsonLoot.json` / `JsonCamping.json` | 任务／战利品表／扎营 | 149.6KB / 31.7KB / 62.8KB |
-| `Assets\Resources\Data\Monsters\*.txt` | 怪物（DD1 文本） | **230** |
+| `Assets\Resources\Data\Monsters\*.txt` | 怪物（DD1 文本，**230 个文件 / 94 个 base 类型**） | **230** |
 | `Assets\Resources\Data\Buildings\*.building.json` + `Upgrades\Building\*.upgrades.json` | 建筑与升级 | 9 / 8 |
 | `Assets\Resources\Data\Mechanics\*.json` | Campaign／**HeirloomExchange**／**Provision**／Roster／TownEvents | 5 文件 |
 | `Assets\Resources\Data\Dungeons\*.bytes` · `Maps\*.bytes` · `Inventory\Items.bytes` | 地牢／地图／物品 | 7 / 7 / 1 |
@@ -67,6 +76,8 @@
    · ✅ **A2 不受影响**（已实测）：`Heroes/Info/*.bytes` 的 `.dmg` 是**整数百分比字符串**（`"-40%"` / `"0%"`），
      与我方 `dmg_pct` **同量纲** ⇒ **A2 可以直接做** ✓
      🎖️ 这条更正很重要：我先前把"分数"问题**误扩到 A2**，实测后当场收窄（纪律：**怀疑断言先于相信结论**）✓
+   · ✅ **A3 同样不受影响**：`.bytes` 的 `.dmg`/`.crit`/`.def`/`.hp` 全是**百分比百分数或整数**
+     （`crit 2.5%` 这类**带 `%` 的小数**）⇒ **不需要 ×100**，只需把 `crit` 的容器从 `int` 放宽到 `double` ✓
 ```
 
 ### 2.2 ✅ DD1 buff 的 schema **可直接照抄**（比我方粒度更省代码）
@@ -87,7 +98,9 @@
    ⇒ ✅ **我方"一个技能一个 `dmg_pct`"的形状是对的**（不需要按级存）✓
 ```
 
-## 3. 🎖️ D5 那 12 条候选 —— ✅ **已判决（A2 `#473`）**，但🔴 **下面这张旧表的结论被推翻了**> 🔴 **本轮更正（2026-09-26，A2）**：下面这张表是**抽数阶段**的对照，它的判据是
+## 3. 🎖️ D5 那 12 条候选 —— ✅ **已判决（A2 `3f43136`）**，但🔴 **下面这张旧表的结论被推翻了**
+
+> 🔴 **本轮更正（2026-09-26，A2）**：下面这张表是**抽数阶段**的对照，它的判据是
 > **「技能名像 / 语义近似」** ⇒ 🔴 **它给出的"9 条一致"里，绝大多数在按
 > `observe_list D5` 要求的【读 `.effect` 全串】重核后【不成立】**
 > ⇒ 所以**旧表只保留了"数值抽对了"这一半价值**，**配对结论以下面 3.1 的重核表为准** ⚠️
@@ -142,7 +155,7 @@
    但它们**指向的技能不是我方那条** ⇒ 只作为请求件里的"参考候选值"保留 ✓
 ```
 
-### 3.2 ✅ A2 实际落库读数（**这是本轮的最终数**）
+### 3.2 ✅ A2 实际落库读数（**这是本轮 A2 的最终数**）
 
 ```
 · 44 条技能：映射【明确 7 / 候选 34 / 无对应 3】（7 条明确里 `move` 参考无 `.dmg` ⇒ 无可落之值）✓
@@ -157,7 +170,7 @@
   ⇒ 已同时挂账策划与架构（`planner_request_skill_dmg_mapping.md §4①`）✓
 ```
 
-### 3.3 ✅ **A3 实际落库读数**（2026-09-26 · 提交 `#475`）
+### 3.3 ✅ **A3 实际落库读数**（2026-09-26 · 提交 `dd3754e`）
 
 ```
 · 参考源 = `…/Heroes/Info/<Hero>.bytes` 的 `weapon:` / `armour:` 行（**直接读参考项目自己的文件**）✓
@@ -182,9 +195,9 @@
 | # | 项 | 参考来源 | 我方目标 | 为什么这个顺序 |
 |---|---|---|---|---|
 | **A1** | ✅ **buff 原语池（已完成 `c74954e`）** | `JsonBuffs.json`（1801） | 新 `data/buff_primitives.json` + 新原语层 | **先修那条 100% 断裂的引用链** ⇒ 引用链 **0 → 482** 可解析 ✓ |
-| **A2** | ✅ **技能 `dmg%`（已完成 `#473`）** | `Heroes/Info/*.bytes` `.dmg`（485） | `skills.json` 的 `dmg_pct` | **P7 的前置**；D5 **已判决（3 条升明确 / 7 条降无对应）** ✓ 🔴 **但只落 14/44**：30 条参考答不上来 ⇒ **P7 仍卡在策划那 30 行裁定** ⚠️ |
-| **A3** | ✅ **英雄武器/护甲 5 阶（已完成 `#475`）** | `Heroes/Info/*.bytes` 的 `weapon:`/`armour:` | `units.json` | 按新指令**取参考值**。✅ **实测：我方 4 英雄 × 5 阶 × 9 字段 = 180 个值，与参考不同 `39` 个**（`crit_pct 18` · `armour.hp 9` · `dmg_max 5` · `def_pct 5` · `dmg_min 2`）⇒ 已全部顶替 ✓ 🔴 其中 **13** 个要落**非整数**（全在 `weapon.crit`）⇒ `WeaponTier.CritPct` **`int` → `double`**（该字段零读取点 ⇒ 零行为 ✓）✅ **并补 3 条守卫用例（含负向证明）** ✓ |
-| **A4** | 怪物 | `Monsters/*.txt`（230） | `units.json`（现 7） | 量级差最大（7 → 230） |
+| **A2** | ✅ **技能 `dmg%`（已完成 `3f43136`）** | `Heroes/Info/*.bytes` `.dmg`（485） | `skills.json` 的 `dmg_pct` | **P7 的前置**；D5 **已判决（3 条升明确 / 7 条降无对应）** ✓ 🔴 **但只落 14/44**：30 条参考答不上来 ⇒ **P7 仍卡在策划那 30 行裁定** ⚠️ |
+| **A3** | ✅ **英雄武器/护甲 5 阶（已完成 `dd3754e`）** | `Heroes/Info/*.bytes` 的 `weapon:`/`armour:` | `units.json` | 按新指令**取参考值**。✅ **实测：我方 4 英雄 × 5 阶 × 9 字段 = 180 个值，与参考不同 `39` 个**（`crit_pct 18` · `armour.hp 9` · `dmg_max 5` · `def_pct 5` · `dmg_min 2`）⇒ 已全部顶替 ✓ 🔴 其中 **13** 个要落**非整数**（全在 `weapon.crit`）⇒ `WeaponTier.CritPct` **`int` → `double`**（该字段零读取点 ⇒ 零行为 ✓）✅ **并补 3 条守卫用例（含负向证明）** ✓ |
+| **A4** | 🔄 **怪物（读数已出 · 见 §11）** | `Monsters/*.txt`（230） | `units.json`（现 7） | 量级差最大（7 → 230）。🔴 **实测卡点**：参考怪物的 `prot` 是**分数 0~1**（我方是 `[0,85]` 整数）、`def` 是**带 `%` 的小数**（154/230 非整数）、`move_resist` 上界 **1000**（我方 `[0,100]` 且字段名不同：叫 `displace_resist`）；且**我方 3 个敌方原型被 35~62 个文件引用**（`encounters`/`formation`/`enemy_ai`/`skills`/UI/测试）⇒ **不是"加数据"，是"换一套敌人"** ⚠️ |
 | **A5** | 怪物 AI | `JsonAI.json`（160） | `enemy_ai.json`（现 3） | 依赖 A4 的怪名 |
 | **A6** | 折磨/美德 + act-out 行为表 | `JsonTraits.json`（12） | `traits.json`（现 7 折磨） | 我方**缺 5 美德 + 14 项回合开始 / 15 项反应行为** |
 | **A7** | 饰品（488）/ 怪癖（163） | `JsonTrinkets`/`JsonQuirks` | `trinkets.json` / `quirks.json` | 依赖 A1（数值全靠 buff id） |
@@ -383,3 +396,68 @@ dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMo
 ```
 
 | `_gen_*.py` · `_scan_*.py` · `_q*_*.py` | 可复跑的抽取/统计脚本 ✓ |
+
+---
+
+## 11. 🆕 A4（怪物）**读数已出，落库未做** —— 2026-09-26
+
+### 11.1 参考项目怪物的**形状**（实测 · 230 个文件）
+
+```
+目录：`…/Data/Monsters/*.txt` ⇒ **230 个文件**（另有 230 个 `.meta`，**不入账**）✓
+每个文件分两段：`art:`（表现）与 **`info:`（数值）** ⇒ 本计划**只关心 `info:`** ✓
+`info:` 段里出现的字段（出现次数）：
+   `enemy_type` 278 · `loot` 232 · `display` 230 · **`stats` 230** · `personality` 230 ·
+   `initiative` 230 · `monster_brain` 230 · `battle_modifier` 229 · `name`/`type` 229 ·
+   `death_class` 118 · `tag` 67 · `life_link` 25 · `shape_shifter`/`shared_health` 12 ·
+   `life_time` 8 · `battle_backdrop` 7 · `captor_empty/full` 6 · `companion` 6 ·
+   `torchlight_modifier`/`controller` 3 · `skill_reaction` 2 · `death_damage`/`riposte_skill`/`spawn` 1
+`stats:` 行的**固定 9 个字段**（**230/230 全有，一个不缺**）：
+   `.hp .def .prot .spd .stun_resist .poison_resist .bleed_resist .debuff_resist .move_resist` ✓
+   ⇒ 🔴 **我方 8 种抗性里的 `death_blow`/`trap` 在这里【没有】**（怪物侧 5 种抗性 —— 与 `§7.4` 一致）✓
+skill 行字段（484 行）：`id`/`type`/`atk`/`dmg`/`crit`/`launch`/`target` 各 484 ·
+   `effect` 400 · `is_crit_valid` 161 · **`move` 76** · `extra_targets_count`/`chance` 34 ·
+   `is_knowledgeable` 19 · `self_target_valid` 18 · `heal` 14 · `can_miss` 2 · `is_user_selected_targets` 1
+   🔴 **`dmg` 是【两个数】（区间）**：`.dmg 5 14` ⇒ **与我方 `skills.json` 的"区间 × 倍率"模型不同** ⚠️
+```
+
+### 11.2 🔴🔴 三个**量纲/字段**卡点（这是 A4 真正难的地方）
+
+```
+🔴 ① `prot`：参考是**分数 0~1**（15 个不同取值，**63/230 非整数**）
+      而我方 `units.json` 的 `prot` 是 **[0,85] 的整数**（`UnitsConfig` 硬校验 `prot > 85 ⇒ throw`）
+      ⇒ **要搬就必须先定换算**（×100？还是把我们的整数字段改成小数？）⚠️
+      📌 **同族**：`JsonBuffs.amount` 的"分数 vs 整数百分比"（阻塞 A7 的那个）—— **同一个坑** ✓
+🔴 ② `def`：参考是**带 `%` 的数**（`.def 15.75%`，**154/230 非整数**）
+      而我方把 `def` 理解为 **`Dodge`（闪避）**（`§7.2` 已裁定：原版 `def` = 我们的 `Dodge`）
+      ⇒ 值可搬，**但 −20（负 def）也在数据里**（范围 **−20 ~ 999**）⇒ 我方 `dodge` 校验是 `[0,100]` ⚠️
+🔴 ③ `move_resist`：参考上界 **1000**（"免疫"哨兵？），我方字段名叫 **`displace_resist`** 且 `[0,100]`
+      ⇒ **名字不同 + 上限不同** ⇒ 要搬就得先裁：是**改名**、还是**加换算**、还是**把 1000 当哨兵处理** ✓
+      ⚠️ 另外 `stun/poison/bleed/debuff_resist` 的上界也是 **1000**（不是 100）⇒ **不是我方设想的 [0,100]** ✓
+🔴 ④ `hp`：范围 **5 ~ 999**（80 个不同取值，**全整数**）⇒ 值可直搬，**但它会穿透 `enemy_full_hp` 判据**
+      （`DataGateTests` 拿它当硬判据 ⇒ **换怪 = 该判据的基准要一起改**）⚠️
+```
+
+### 11.3 🔴 **量级**：9 倍不是 33 倍（我方 7 个原型里有 4 个是英雄）
+
+```
+我方 `units.json`：**7 个原型** = 4 英雄（player）+ **3 敌方**（`melee_soldier` / `ranged_archer` / `caster`）✓
+⇒ 🔴 **该对账的是 230 vs 3**（不是 230 vs 7 —— 那是把英雄也算成怪物了，纪律 AU/AH：**分母要写清**）✓
+参考侧 **94 个 base 类型**（`_A/_B/_C/_D` 变体：67+67+67+29 = **230**）✓
+   ⇒ 变体是**难度档**（A/B/C 各 67 · D 29）⇒ 采用时要决定"变体 = 独立原型"还是"同原型 + 档位" ⚠️
+```
+
+### 11.4 🔴 **我方 3 个敌方原型的引用面**（决定 A4 的代价）
+
+```
+`git grep` 命中文件数：`melee_soldier` **47** · `ranged_archer` **35** · `caster` **62** ✓
+命中面：`darkest/data/{units,skills,encounters,enemy_ai,formation}.json` ·
+   `scripts/data/{UnitsConfig,SkillsConfig,EnemyAiConfig}.cs` ·
+   `scripts/gameplay/sim/{director,enemy,pipeline}/*.cs` · `scripts/ui/DdTheme.cs` · **大量测试** ✓
+⇒ 🔴 **换怪不是"往 units.json 里加 230 条"，而是"换掉一套被 60 处引用的敌人"** ⚠️
+   ⇒ ✅ **应当分两步**：**(步1) 只加数据 + 一册 `Monsters/*.txt → units.json` 的抽取器（零行为，不动现有 3 个）**；
+      **(步2) 由策划裁"用哪些怪替换现有 3 个"** ⇒ **步1 现在就能做**（纪律 AY：结构 / 数值分开）✓
+   📌 **注**：参考的 `Monsters/*.txt` **没有**地图/层级的归属字段（只有 `enemy_type`）⇒
+     "哪个地牢出哪些怪"要另找来源（可能在 `Dungeons/*.bytes`，见 A12）⚠️
+```
+
