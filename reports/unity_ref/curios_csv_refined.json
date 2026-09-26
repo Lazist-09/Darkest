@@ -1,0 +1,3438 @@
+{
+ "source": "F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data\\Curios\\Curios.csv",
+ "note": "精修版：修正上一版【元信息未收续行】+【列位语义按段变】两个问题。TAGS 现在是纯标签。本件【只抽不落库】✓",
+ "count": 60,
+ "tags_vocabulary": [
+  "All",
+  "Body",
+  "Disease",
+  "Drink",
+  "Food",
+  "Fountain",
+  "Goal",
+  "Haunted",
+  "Knowledge",
+  "Reflective",
+  "Scouting",
+  "Scrounging",
+  "Teleport",
+  "Torture",
+  "Treasure",
+  "Unholy",
+  "Worship"
+ ],
+ "items": [
+  {
+   "index": "1",
+   "display": "Unlocked Strongbox",
+   "kind": "Good",
+   "header_row": 4,
+   "id": "unlocked_strongbox",
+   "results": [
+    {
+     "row": 5,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The strongbox is empty."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Treasure",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 13
+  },
+  {
+   "index": "2",
+   "display": "Locked Strongbox",
+   "kind": "Mixed",
+   "header_row": 19,
+   "id": "locked_strongbox",
+   "results": [
+    {
+     "row": 20,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Treasure",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 28
+  },
+  {
+   "index": "3",
+   "display": "Goal Strongbox",
+   "kind": "Good",
+   "header_row": 34,
+   "id": "goal_strongbox",
+   "results": [
+    {
+     "row": 35,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Treasure",
+      "Goal",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 43
+  },
+  {
+   "index": "4",
+   "display": "Heirloom Chest",
+   "kind": "Mixed",
+   "header_row": 49,
+   "id": "heirloom_chest",
+   "results": [
+    {
+     "row": 50,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The chest has already been rummaged."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Treasure",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 58
+  },
+  {
+   "index": "5",
+   "display": "Eldritch Altar",
+   "kind": "Mixed",
+   "header_row": 64,
+   "id": "eldritch_altar",
+   "results": [
+    {
+     "row": 65,
+     "result_type": "Nothing",
+     "weight": "5",
+     "chance": "50.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "4",
+      "Yes",
+      "Purge",
+      "1"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Haunted",
+      "Unholy",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 73
+  },
+  {
+   "index": "6",
+   "display": "Altar of Light",
+   "kind": "Good",
+   "header_row": 79,
+   "id": "altar_of_light",
+   "results": [
+    {
+     "row": 80,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Worship",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 88
+  },
+  {
+   "index": "7",
+   "display": "Stack of Books",
+   "kind": "Mixed",
+   "header_row": 94,
+   "id": "stack_of_books",
+   "results": [
+    {
+     "row": 95,
+     "result_type": "Nothing",
+     "weight": "2",
+     "chance": "18.18%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The volumes are dull and uninteresting."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk",
+      "4"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "4",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Knowledge",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 103
+  },
+  {
+   "index": "8",
+   "display": "Iron Maiden",
+   "kind": "Mixed",
+   "header_row": 109,
+   "id": "iron_maiden",
+   "results": [
+    {
+     "row": 110,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "20.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "Nothing but a foul odour..."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "2",
+      "Ruins",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Torture",
+      "Haunted",
+      "Teleport",
+      "All",
+      "Disease",
+      "1"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 118
+  },
+  {
+   "index": "9",
+   "display": "Pile of Bones",
+   "kind": "Mixed",
+   "header_row": 124,
+   "id": "pile_of_bones",
+   "results": [
+    {
+     "row": 125,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "Nothing is found amongst the remains."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Warrens",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Haunted",
+      "Unholy",
+      "Teleport",
+      "All",
+      "Body",
+      "Disease",
+      "1"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 133
+  },
+  {
+   "index": "10",
+   "display": "Discarded Pack",
+   "kind": "Good",
+   "header_row": 139,
+   "id": "discarded_pack",
+   "results": [
+    {
+     "row": 140,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "20.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The pack has already been rummaged."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "No",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "1",
+      "Scrounging",
+      "All",
+      "Teleport",
+      "Treasure",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 148
+  },
+  {
+   "index": "11",
+   "display": "Sconce",
+   "kind": "Good",
+   "header_row": 154,
+   "id": "sconce",
+   "results": [
+    {
+     "row": 155,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "No",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Scrounging",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 163
+  },
+  {
+   "index": "12",
+   "display": "Crate",
+   "kind": "Good",
+   "header_row": 169,
+   "id": "crate",
+   "results": [
+    {
+     "row": 170,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The crate is completely empty."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "No",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Scrounging",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 178
+  },
+  {
+   "index": "13",
+   "display": "Sack",
+   "kind": "Good",
+   "header_row": 184,
+   "id": "sack",
+   "results": [
+    {
+     "row": 185,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The sack is empty."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "No",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Scrounging",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 193
+  },
+  {
+   "index": "14",
+   "display": "Suit of Armor",
+   "kind": "Good",
+   "header_row": 199,
+   "id": "suit_of_armor",
+   "results": [
+    {
+     "row": 200,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Ruins",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "3",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Haunted",
+      "Reflective",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 208
+  },
+  {
+   "index": "15",
+   "display": "Dinner Cart",
+   "kind": "Mixed",
+   "header_row": 214,
+   "id": "dinner_cart",
+   "results": [
+    {
+     "row": 215,
+     "result_type": "Nothing",
+     "weight": "2",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3",
+      "Warrens",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "2",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Food",
+      "Drink",
+      "Teleport",
+      "All",
+      "Body",
+      "Disease",
+      "1"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 223
+  },
+  {
+   "index": "16",
+   "display": "Decorative Urn",
+   "kind": "Mixed",
+   "header_row": 229,
+   "id": "decorative_urn",
+   "results": [
+    {
+     "row": 230,
+     "result_type": "Nothing",
+     "weight": "2",
+     "chance": "22.22%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The urn has nothing but ashes inside."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "4",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "2",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Scrounging",
+      "Haunted",
+      "Teleport",
+      "All",
+      "Disease",
+      "1"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 238
+  },
+  {
+   "index": "17",
+   "display": "Locked Display Cabinet",
+   "kind": "Bad",
+   "header_row": 244,
+   "id": "locked_display_cabinet",
+   "results": [
+    {
+     "row": 245,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Scrounging",
+      "Treasure",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 253
+  },
+  {
+   "index": "18",
+   "display": "Confession Booth",
+   "kind": "Mixed",
+   "header_row": 259,
+   "id": "confession_booth",
+   "results": [
+    {
+     "row": 260,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "2",
+      "Yes",
+      "Purge",
+      "1"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Worship",
+      "Reflective",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 268
+  },
+  {
+   "index": "19",
+   "display": "Holy Fountain",
+   "kind": "Good",
+   "header_row": 274,
+   "id": "holy_fountain",
+   "results": [
+    {
+     "row": 275,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Fountain",
+      "Worship",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 283
+  },
+  {
+   "index": "20",
+   "display": "Bookshelf",
+   "kind": "Mixed",
+   "header_row": 289,
+   "id": "bookshelf",
+   "results": [
+    {
+     "row": 290,
+     "result_type": "Nothing",
+     "weight": "2",
+     "chance": "22.22%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The volumes are dull and uninteresting."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Ruins",
+      "Quirk",
+      "2"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "2",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "2",
+      "Knowledge",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 298
+  },
+  {
+   "index": "21",
+   "display": "Alchemy Table",
+   "kind": "Mixed",
+   "header_row": 304,
+   "id": "alchemy_table",
+   "results": [
+    {
+     "row": 305,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The experiments do not yield any findings."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "2",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Knowledge",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 313
+  },
+  {
+   "index": "22",
+   "display": "Knife Rack",
+   "kind": "Mixed",
+   "header_row": 319,
+   "id": "knife_rack",
+   "results": [
+    {
+     "row": 320,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "20.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "2",
+      "Warrens",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "2",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Scrounging",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 328
+  },
+  {
+   "index": "23",
+   "display": "Sarcophagus",
+   "kind": "Mixed",
+   "header_row": 334,
+   "id": "sarcophagus",
+   "results": [
+    {
+     "row": 335,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "20.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The sarcophagus is completely empty."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3",
+      "Ruins",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Haunted",
+      "Reflective",
+      "Teleport",
+      "All",
+      "Body",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 343
+  },
+  {
+   "index": "24",
+   "display": "Mummified Remains",
+   "kind": "Mixed",
+   "header_row": 349,
+   "id": "mummified_remains",
+   "results": [
+    {
+     "row": 350,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "20.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "There is nothing of value on the body."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "2",
+      "Weald",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "2",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Haunted",
+      "Unholy",
+      "Teleport",
+      "All",
+      "Body",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 358
+  },
+  {
+   "index": "25",
+   "display": "Sacrificial Stone",
+   "kind": "Mixed",
+   "header_row": 364,
+   "id": "sacrificial_stone",
+   "results": [
+    {
+     "row": 365,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Warrens",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "2",
+      "Yes",
+      "Purge",
+      "1"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Unholy",
+      "Worship",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 373
+  },
+  {
+   "index": "26",
+   "display": "Skull Altar",
+   "kind": "Good",
+   "header_row": 379,
+   "id": "skull_altar",
+   "results": [
+    {
+     "row": 380,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "Any power the altar once had is now lost."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Warrens",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Unholy",
+      "Worship",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 388
+  },
+  {
+   "index": "27",
+   "display": "Occult Scrawlings",
+   "kind": "Mixed",
+   "header_row": 394,
+   "id": "occult_scrawlings",
+   "results": [
+    {
+     "row": 395,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The scrawlings are dull and uninteresting."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Warrens",
+      "Quirk",
+      "2"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Unholy",
+      "Knowledge",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 403
+  },
+  {
+   "index": "28",
+   "display": "Moonshine Barrel",
+   "kind": "Mixed",
+   "header_row": 409,
+   "id": "moonshine_barrel",
+   "results": [
+    {
+     "row": 410,
+     "result_type": "Nothing",
+     "weight": "2",
+     "chance": "22.22%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The barrel is completely empty."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3",
+      "Warrens",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "3",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Drink",
+      "Scrounging",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 418
+  },
+  {
+   "index": "29",
+   "display": "Locked Sarcophagus",
+   "kind": "Bad",
+   "header_row": 424,
+   "id": "locked_sarcophagus",
+   "results": [
+    {
+     "row": 425,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Haunted",
+      "Reflective",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 433
+  },
+  {
+   "index": "30",
+   "display": "Makeshift Dining Table",
+   "kind": "Mixed",
+   "header_row": 439,
+   "id": "makeshift_dining_table",
+   "results": [
+    {
+     "row": 440,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "Everything has been eaten already."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Warrens",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Food",
+      "Drink",
+      "Teleport",
+      "All",
+      "Disease",
+      "1"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 448
+  },
+  {
+   "index": "31",
+   "display": "Pile of Scrolls",
+   "kind": "Mixed",
+   "header_row": 454,
+   "id": "pile_of_scrolls",
+   "results": [
+    {
+     "row": 455,
+     "result_type": "Nothing",
+     "weight": "2",
+     "chance": "33.33%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The scrolls are dull and uninteresting."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Warrens",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "2",
+      "Knowledge",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 463
+  },
+  {
+   "index": "32",
+   "display": "Ancient Coffin",
+   "kind": "Good",
+   "header_row": 469,
+   "id": "ancient_coffin",
+   "results": [
+    {
+     "row": 470,
+     "result_type": "Nothing",
+     "weight": "2",
+     "chance": "33.33%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The coffin is empty."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3",
+      "Weald",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Haunted",
+      "Body",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 478
+  },
+  {
+   "index": "33",
+   "display": "Old Tree",
+   "kind": "Mixed",
+   "header_row": 484,
+   "id": "old_tree",
+   "results": [
+    {
+     "row": 485,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "Nothing inside the tree."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "2",
+      "Weald",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Scrounging",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 493
+  },
+  {
+   "index": "34",
+   "display": "Beast Carcass",
+   "kind": "Mixed",
+   "header_row": 499,
+   "id": "beast_carcass",
+   "results": [
+    {
+     "row": 500,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "14.29%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The beast has nothing left to offer."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3",
+      "Weald",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Food",
+      "All",
+      "Teleport",
+      "Body",
+      "Disease",
+      "2"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 508
+  },
+  {
+   "index": "35",
+   "display": "Pristine Fountain",
+   "kind": "Good",
+   "header_row": 514,
+   "id": "pristine_fountain",
+   "results": [
+    {
+     "row": 515,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "Any power this fountain once had is now lost."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Weald",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Fountain",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 523
+  },
+  {
+   "index": "36",
+   "display": "Traveller's Tent",
+   "kind": "Mixed",
+   "header_row": 529,
+   "id": "travellers_tent",
+   "results": [
+    {
+     "row": 530,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "12.50%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "Nothing is left inside the tent."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "3",
+      "Weald",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "3",
+      "Scrounging",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 538
+  },
+  {
+   "index": "37",
+   "display": "Cosmic Spiderweb",
+   "kind": "Mixed",
+   "header_row": 544,
+   "id": "cosmic_spiderweb",
+   "results": [
+    {
+     "row": 545,
+     "result_type": "Nothing",
+     "weight": "2",
+     "chance": "40.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "There is nothing of interest."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "2",
+      "Weald",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 553
+  },
+  {
+   "index": "38",
+   "display": "Lost Luggage",
+   "kind": "Mixed",
+   "header_row": 559,
+   "id": "lost_luggage",
+   "results": [
+    {
+     "row": 560,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Weald",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Treasure",
+      "Scrounging",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 568
+  },
+  {
+   "index": "39",
+   "display": "Shallow Grave",
+   "kind": "Bad",
+   "header_row": 574,
+   "id": "shallow_grave",
+   "results": [
+    {
+     "row": 575,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Weald",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Scrounging",
+      "Haunted",
+      "Teleport",
+      "All",
+      "Body",
+      "Disease",
+      "1"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 583
+  },
+  {
+   "index": "40",
+   "display": "Troubling Effigy",
+   "kind": "Mixed",
+   "header_row": 589,
+   "id": "troubling_effigy",
+   "results": [
+    {
+     "row": 590,
+     "result_type": "Nothing",
+     "weight": "2",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "Any power the altar once had is now lost."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Weald",
+      "Quirk",
+      "3"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "3",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Unholy",
+      "Worship",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 598
+  },
+  {
+   "index": "41",
+   "display": "Barnacle Crusted Chest",
+   "kind": "Good",
+   "header_row": 604,
+   "id": "barnacle_crusted_chest",
+   "results": [
+    {
+     "row": 605,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "2",
+      "Cove",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Treasure",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 613
+  },
+  {
+   "index": "42",
+   "display": "Brackish Tidepool",
+   "kind": "Bad",
+   "header_row": 619,
+   "id": "brackish_tidepool",
+   "results": [
+    {
+     "row": 620,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Cove",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "3",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Fountain",
+      "Teleport",
+      "Drink",
+      "Disease",
+      "1"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 628
+  },
+  {
+   "index": "43",
+   "display": "Fish Idol",
+   "kind": "Mixed",
+   "header_row": 634,
+   "id": "fish_idol",
+   "results": [
+    {
+     "row": 635,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Cove",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Worship",
+      "Unholy",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 643
+  },
+  {
+   "index": "44",
+   "display": "Giant Oyster",
+   "kind": "Mixed",
+   "header_row": 649,
+   "id": "giant_oyster",
+   "results": [
+    {
+     "row": 650,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "20.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "2",
+      "Cove",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "2",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Scrounging",
+      "Treasure",
+      "Teleport",
+      "All",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 658
+  },
+  {
+   "index": "45",
+   "display": "Giant Fish Carcass",
+   "kind": "Mixed",
+   "header_row": 664,
+   "id": "giant_fish_carcass",
+   "results": [
+    {
+     "row": 665,
+     "result_type": "Nothing",
+     "weight": "3",
+     "chance": "50.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Cove",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Food",
+      "Teleport",
+      "Disease",
+      "1"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 673
+  },
+  {
+   "index": "46",
+   "display": "Ship's Figurehead",
+   "kind": "Good",
+   "header_row": 679,
+   "id": "ships_figurehead",
+   "results": [
+    {
+     "row": 680,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": "The tablets are too difficult to read."
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Cove",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Reflective",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 688
+  },
+  {
+   "index": "47",
+   "display": "Eerie Coral",
+   "kind": "Mixed",
+   "header_row": 694,
+   "id": "eerie_coral",
+   "results": [
+    {
+     "row": 695,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "25.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Cove",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "3",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Knowledge",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 703
+  },
+  {
+   "index": "48",
+   "display": "Traveller's Tent (tutorial)",
+   "kind": "Good",
+   "header_row": 709,
+   "id": "travellers_tent_tutorial",
+   "results": [
+    {
+     "row": 710,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Weald",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "Scrounging",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 718
+  },
+  {
+   "index": "49",
+   "display": "Bandit's Trapped Chest (tutorial)",
+   "kind": "Bad",
+   "header_row": 724,
+   "id": "bandits_trapped_chest",
+   "results": [
+    {
+     "row": 725,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Weald",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 733
+  },
+  {
+   "index": "50",
+   "display": "Shambler's Altar",
+   "kind": "Mixed",
+   "header_row": 739,
+   "id": "shamblers_altar",
+   "results": [
+    {
+     "row": 740,
+     "result_type": "Nothing",
+     "weight": "1",
+     "chance": "100.00%",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 748
+  },
+  {
+   "index": "51",
+   "display": "Bas-Relief",
+   "kind": "Mixed",
+   "header_row": 754,
+   "id": "bas_relief",
+   "results": [
+    {
+     "row": 755,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "Cove",
+      "Quirk",
+      "1"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Knowledge",
+      "Teleport",
+      "Worship",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 763
+  },
+  {
+   "index": "52",
+   "display": "Secret Stash",
+   "kind": "Good",
+   "header_row": 769,
+   "id": "secret_stash",
+   "results": [
+    {
+     "row": 770,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Treasure",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 778
+  },
+  {
+   "index": "53",
+   "display": "Ancestor's Knapsack",
+   "kind": "Good",
+   "header_row": 784,
+   "id": "ancestors_knapsack",
+   "results": [
+    {
+     "row": 785,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Darkest Dungeon",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "No",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Treasure",
+      "Teleport",
+      "Scrounging",
+      "Haunted",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 793
+  },
+  {
+   "index": "54",
+   "display": "Tutorial Shovel",
+   "kind": "Good",
+   "header_row": 799,
+   "id": "tutorial_shovel",
+   "results": [
+    {
+     "row": 800,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Treasure",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 808
+  },
+  {
+   "index": "55",
+   "display": "Tutorial Key",
+   "kind": "Good",
+   "header_row": 814,
+   "id": "tutorial_key",
+   "results": [
+    {
+     "row": 815,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "No",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Treasure",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 823
+  },
+  {
+   "index": "56",
+   "display": "Tutorial Holy",
+   "kind": "Good",
+   "header_row": 829,
+   "id": "tutorial_holy",
+   "results": [
+    {
+     "row": 830,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "No",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Treasure",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 838
+  },
+  {
+   "index": "57",
+   "display": "Tutorial Food",
+   "kind": "Good",
+   "header_row": 844,
+   "id": "tutorial_food",
+   "results": [
+    {
+     "row": 845,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Ruins",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "No",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Treasure",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 853
+  },
+  {
+   "index": "58",
+   "display": "Thanks Chest",
+   "kind": "Good",
+   "header_row": 859,
+   "id": "thanks_chest",
+   "results": [
+    {
+     "row": 860,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1",
+      "Darkest Dungeon",
+      "Quirk"
+     ],
+     "span": 2
+    },
+    "ALL": {
+     "rows_raw": []
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "No",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Treasure",
+      "Teleport",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 868
+  },
+  {
+   "index": "59",
+   "display": "Open Grave",
+   "kind": "Bad",
+   "header_row": 874,
+   "id": "open_grave",
+   "results": [
+    {
+     "row": 875,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "1",
+      "Yes",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Haunted",
+      "Teleport",
+      "Unholy",
+      "Reflective",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 883
+  },
+  {
+   "index": "60",
+   "display": "Ancestor's Knapsack",
+   "kind": "Good",
+   "header_row": 889,
+   "id": "incursion_knapsack",
+   "results": [
+    {
+     "row": 890,
+     "result_type": "Nothing",
+     "weight": "",
+     "chance": "",
+     "r1": "N/A",
+     "r2": "N/A",
+     "r3": "N/A",
+     "string": ""
+    }
+   ],
+   "meta": {
+    "REGION FOUND": {
+     "rows_raw": [],
+     "values": [
+      "Loot",
+      "1"
+     ],
+     "span": 1
+    },
+    "ALL": {
+     "rows_raw": [],
+     "values": [
+      "Quirk"
+     ],
+     "span": 1
+    },
+    "FULL CURIO?": {
+     "rows_raw": [],
+     "values": [
+      "Effect",
+      "No",
+      "Purge"
+     ],
+     "span": 2
+    },
+    "TAGS": {
+     "rows_raw": [],
+     "values": [
+      "Scouting",
+      "All",
+      "Treasure",
+      "Teleport",
+      "Scrounging",
+      "Haunted",
+      "Disease"
+     ],
+     "span": 3
+    }
+   },
+   "item_interactions_header": 898
+  }
+ ]
+}
