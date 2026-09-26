@@ -1,0 +1,21 @@
+﻿Name darkestdungeon
+gx 49
+gy 13
+start entry
+nrooms 15
+  room  0 entry          ( 1, 7) tex=plot_darkest_dungeon_1_enter type=1  know=3 prop=None enc=None doors=1  [33..117]
+  room  1 room2_mid      (14, 7) tex=random2                      type=5  know=0 prop=None enc=['cultist_warlord_D', 'cultist_warlord_D', 'cultist_orgiastic_D'] doors=3  [117..307]
+  room  2 room3_top      (18,11) tex=random4                      type=0  know=0 prop=None enc=None doors=2  [307..409]
+  room  3 room3_bot      (18, 3) tex=random1                      type=0  know=0 prop=None enc=None doors=2  [409..511]
+  room  4 room4_mid      (22, 7) tex=random1                      type=0  know=0 prop=None enc=None doors=3  [511..644]
+  room  5 room5_mid      (28, 7) tex=random2                      type=0  know=0 prop=None enc=None doors=3  [644..777]
+  room  6 room5_top      (28,13) tex=random2                      type=5  know=0 prop=None enc=['cultist_shrouded_D', 'cultist_warlord_D', 'cultist_harpy_D', 'cultist_harpy_D'] doors=2  [777..953]
+  room  7 room5_bot      (28, 1) tex=random2                      type=0  know=0 prop=None enc=None doors=2  [953..1055]
+  !! room 8 prop type=3 at 1094
+  room  8 room6_mid      (34, 7) tex=random2                      type=11 know=0 prop=('curio', 0, 'ancestors_knapsack') enc=['cultist_warlord_D', 'cultist_shrouded_D', 'cultist_orgiastic_D', 'cultist_harpy_D'] doors=3  [1055..1290]
+  room  9 room6_top      (34,13) tex=random2                      type=0  know=0 prop=None enc=None doors=3  [1290..1423]
+  room 10 room6_bot      (34, 1) tex=random2                      type=0  know=0 prop=None enc=None doors=3  [1423..1556]
+  room 11 room7_mid      (40, 7) tex=random2                      type=5  know=0 prop=None enc=['totem_attack_D', 'cultist_shrouded_D', 'cultist_harpy_D', 'cultist_orgiastic_D'] doors=4  [1556..1795]
+  room 12 room7_top      (40,13) tex=random2                      type=0  know=0 prop=None enc=None doors=2  [1795..1897]
+  room 13 room7_bot      (40, 1) tex=random2                      type=0  know=0 prop=None enc=None doors=2  [1897..1999]
+  room 14 room8_mid      (49, 7) tex=plot_darkest_dungeon_1_final type=4  know=0 prop=None enc=['shuffler_D', 'cultist_shrouded_D'] doors=1  [1999..2126]

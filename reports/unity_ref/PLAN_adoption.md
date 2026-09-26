@@ -133,7 +133,66 @@
   ⇒ ✅ 我方读取器**必须容错**（`AllowTrailingCommas`）或写入时修掉 ✓
 ```
 
-## 7. 本目录的产物
+## 7. 🆕 战斗逻辑结论（`03_combat_logic.md` · 2026-09-26 分队交付）
+
+### 7.1 🔴 伤害一行版（**这就是 P7 要落的公式**）
+
+```
+dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMod) * (1 - target.Protection) )
+      暴击 ⇒ round(dmg * 1.5)
+依据：BattleSolver.cs:383-413 · Character.cs:1107-1112 ✓
+⇒ ✅ 与 §0 的判断一致：`(1 + DamageMod)` 正是我方要换的那个因子 ✓
+```
+
+### 7.2 🎖️ 解开了 P5 的阻塞（`def` 合并）
+
+```
+实测（一手代码）：
+   · `dodge`（= `DefenseRating`）⇒ **只进命中**：`hitChance = Clamp(Skill.Acc + Perf.Acc - Dodge, 0, 0.95)`
+   · `prot`（= `ProtectionRating`）⇒ **只进伤害**（乘算后 `ceil`）
+   · 🔴 **原版【只有这两个字段】，没有第三个"护甲减伤"** ⇒ **`def` 就是闪避**
+⇒ ✅ **对 P5 的意义**：我方那个自加的 `PhysDef` **不是原版概念** ⇒
+   它与 `Dodge` 的关系**不是"合并"，而是"删除/改名"**（`Prot` 才是减伤，且封顶 `max(0.85, raw)`）✓
+   📌 与架构此前的判断一致（「原版只有一个 `def`（= 我们的 Dodge）」）✓
+```
+
+### 7.3 🔴 最可能与我方不一致的 5 点（**采用时要逐条对齐**）
+
+```
+① 把 `def` 当护甲减伤 / 让 `prot` 参与命中 ⇒ **系统性错位** ⚠️
+② 取整与封顶：`ceil(× (1-prot))` → 暴击 `×1.5` → `round`；`prot` 封顶 `max(0.85, raw)`；
+   命中上限 **0.95**；**暴击【无】封顶** ⇒ 我方若处处 clamp 就会错 ✓
+③ 回合顺序：每轮一次性 `OrderByDescending(Speed + rand[0,2] + rand[0,1))`；
+   **轮内不重排**；怪物按 `number_of_turns_per_round` 多次入池 ✓
+④ DoT 在**受影响者自己回合开始时**结算（Bleed→Poison 顺序），**绕开 prot 与命中**；
+   地牢推进对英雄**再结算一次**；DoT **实例叠加不覆盖** ✓
+⑤ 🔴 **未命中仍会施加效果**（除非显式 `on_miss false`）⚠️
+```
+
+### 7.4 其它阈值（采用时的对照表）
+
+```
+· 压力上限 **200** · `>=50` 有压力 · `>=100` 过压（首次触发 resolve check）· `==200` 心衰 ✓
+· 美德率 `Clamp(0.25 + ResolveCheckPercent, 0.01, 0.6)`；美德后压力置 `Next(20, 40)` ✓
+· 死门：HP 归零且未在死门 ⇒ 进死门（挂职业 deaths_door buff + BarkStress）；
+  已在死门 ⇒ 每次独立 `CheckSuccess(Clamp(DeathResist, 0, 0.87))`，失败即死 ✓
+· 心衰且未在死门 ⇒ `当前最大HP × 100%` 伤害 + 压力设 75% 后进死门 ✓
+· 抗性：**英雄 8 种**（Stun/Poison/Bleed/Disease/Move/Debuff/DeathBlow/Trap）· 怪物 5 种；
+  统一 `Clamp(chance - Resist + (英雄 ? XChance : 0), 0, 0.95)` **线性相减无递减**；
+  🔴 **疾病例外**：`1 - Resist` 且**无夹取** ✓
+```
+
+### 7.5 ⚠️ 参考项目的**缺陷**（并入 §6 的"不要照抄"）
+
+```
+🔴 `DmgReceivedPercent` 在参考项目里**完全没实现**（只是解析）✓
+🔴 `BuffEffect.ApplyQueued` 的**抗性误用 `Move`**（应为 `Debuff`）⇒ **它的 bug，别抄** ✓
+🟡 `OnHit` / `ApplyWithResult` / `CritDoesntApplyToRoll` **只解析不使用**（死字段）✓
+```
+
+---
+
+## 8. 本目录的产物
 
 | 文件 | 内容 |
 |---|---|
@@ -142,7 +201,7 @@
 | `02a_where_skill_numbers_live.md` | 技能数值在哪个文件（含 `combat_skill:` 28 个 key 全集）✓ |
 | `02b_hero_skills_from_ref.md` | 🔴 **15 英雄 × 7 技能 × 5 级 = 525 条数值**（4 个原型逐级明细）✓ |
 | `hero_skills_from_ref.json` | 上表的机器可读版（采用 A2/A3 的输入）✓ |
-| `03_combat_logic.md` | 战斗逻辑（伤害/命中/暴击/抗性/回合/死门/士气）—— **分队进行中** |
+| `03_combat_logic.md` | 🔴 战斗逻辑（伤害/命中/暴击/抗性/回合/死门/士气）—— **已交付**（516 行 · 结论见本文 §7）✓ |
 | `04_town_economy_quests.md` | 城镇/经济/任务/建筑/补给 —— **分队进行中** |
 | `05_buffs_ai_quirks_trinkets.md` | buff/AI/怪癖/特质/饰品 数据与逻辑 ✓ |
 | `_gen_*.py` · `_scan_*.py` · `_q*_*.py` | 可复跑的抽取/统计脚本 ✓ |

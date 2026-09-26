@@ -208,7 +208,16 @@ for rec in records:
         txt = raw.decode('utf-8', 'replace')
         rec['entries'] = len(re.findall(r'<entry\b', txt))
         rec['unique_ids'] = len(set(re.findall(r'<entry\s+id="([^"]+)"', txt)))
-        rec['langs'] = re.findall(r'<language\s+id="([^"]+)"', txt)
+        langs = re.findall(r'<language\s+id="([^"]+)"', txt)
+        rec['langs'] = langs
+        # per-language entry counts: split on <language id="
+        chunks = txt.split('<language id="')[1:]
+        per = []
+        for ch in chunks:
+            lid = ch.split('"', 1)[0]
+            if not langs or lid == langs[0]:      # only the first (english) block
+                per.append((lid, len(re.findall(r'<entry\b', ch))))
+        rec['lang0'] = per[0] if per else ('', 0)
         rec['sample_raw'] = '\n'.join(txt.split('\n')[1:11])
     elif ext == '.csv':
         txt = raw.decode('utf-8-sig', 'replace')
@@ -311,6 +320,34 @@ for e, c in byext.most_common():
 w('| **合计** | **%d** | **%d** | 另有 %d 个 `.meta`（Unity 导入元数据，非数据，已排除） |' % (len(records), sum(r['bytes'] for r in records), skipped_meta))
 w()
 w('任务书估计 51 json / 30 bytes / 239 txt：**实测 49 / 30 / 232**，且多出 1 个 `Curios/Curios.csv`。')
+w()
+w('### 0.1 按目录汇总')
+w()
+w('| 目录 | 文件数 | 合计字节 | 主要格式 | 我方对应（汇总） |')
+w('|---|---:|---:|---|---|')
+dirs = collections.defaultdict(list)
+for r in records:
+    d = os.path.dirname(r['rel']) or '(根)'
+    dirs[d].append(r)
+DIRMAP = {
+ '(根)': '`buff_defs` `camp_skills` `enemy_ai` `quirks` `traits` `trinkets`（+ 4 个我方无对应）',
+ 'Buildings': '`buildings.json`',
+ 'Curios': '`curios.json` `trap_defs.json`（`Obstacles` 无对应）',
+ 'Dungeons': '`encounters.json`',
+ 'Heroes\\Info': '`units.json` `skills.json` `camp_skills.json` `roster.json`',
+ 'Inventory': '`economy.json` `heirlooms.json`',
+ 'Localization': '**我方无对应**',
+ 'Maps': '`expedition_map.json` `expedition_nodes.json` `room_contents.json`',
+ 'Mechanics': '`tuning` `roster` `economy` `heirloom_exchange` `morale_events` `expedition_map`（Effects 无独立文件）',
+ 'Monsters': '`units.json` `enemy_ai.json` `skills.json`',
+ 'Upgrades\\Building': '`buildings.json` `heirlooms.json` `unlocks.json`',
+ 'Upgrades\\Heroes': '`hero_upgrades.json`',
+}
+for d in sorted(dirs):
+    rs = dirs[d]
+    fmts = collections.Counter(x['ext'] for x in rs)
+    w('| `%s` | %d | %d | %s | %s |' % (d.replace(os.sep, '/'), len(rs), sum(x['bytes'] for x in rs),
+        ' '.join('%s×%d' % (k, v) for k, v in fmts.most_common()), DIRMAP.get(d, '')))
 w()
 
 # ---------------- 1. master table of json
@@ -546,17 +583,26 @@ w()
 # ---------------- 3. xml
 w('## 3. `Localization/*.xml` —— 本地化字符串表（18 个）')
 w()
-w('结构一律为 `<root><language id="english"><entry id="..."><![CDATA[...]]></entry>…`。')
-w('条目数 = 文件内 `<entry` 出现次数；唯一 id 数 = 去重后的 `id` 属性数（两者若不等说明有重复 key）。')
+w('结构一律为 `<root><language id="english">…<language id="french">…`，'
+  '每个文件**含多语言块**（实测语言数与首个语言块的条目数见下表）。')
+w('条目数 = 文件内 `<entry` 出现次数（**跨全部语言块累加**）；'
+  '「english 块条目」= 只数第 1 个 `<language>` 块里的 `<entry>`，这才是真正的 key 数量。')
+w('两列相除即语言数。')
 w()
 xmls = [r for r in records if r['ext'] == '.xml']
-w('| 文件 | 字节 | `<entry>` 条目数 | 唯一 id 数 | 语言 | 我方对应 |')
-w('|---|---:|---:|---:|---|---|')
-tot_e = 0
+w('| 文件 | 字节 | `<entry>` 合计 | english 块条目 | 语言数 | 唯一 id 数 | 我方对应 |')
+w('|---|---:|---:|---:|---:|---:|---|')
+tot_e = 0; tot_e0 = 0
 for r in sorted(xmls, key=lambda x: -x['bytes']):
-    tot_e += r['entries']
-    w('| `%s` | %d | **%d** | %d | %s | %s |' % (esc(r['rel']), r['bytes'], r['entries'], r['unique_ids'], ','.join(r['langs']), our_for(r['rel'])))
-w('| **合计** | %d | **%d** | | | |' % (sum(r['bytes'] for r in xmls), tot_e))
+    tot_e += r['entries']; tot_e0 += r['lang0'][1]
+    w('| `%s` | %d | **%d** | **%d** | %d（%s） | %d | %s |' % (
+        esc(r['rel']), r['bytes'], r['entries'], r['lang0'][1], len(r['langs']),
+        ','.join(r['langs']), r['unique_ids'], our_for(r['rel'])))
+w('| **合计** | %d | **%d** | **%d** | | | |' % (sum(r['bytes'] for r in xmls), tot_e, tot_e0))
+w()
+w('注意：若「唯一 id 数」< 「english 块条目」，说明**同一语言块内 id 有重复**'
+  '（如 `Dialogue.xml`：english 块 6301 条但只有 2461 个唯一 id）。这类文件做 key→文案 的字典导入时必须先去重，'
+  '否则会静默丢条目。')
 w()
 w('样例（`Localization/Menu.xml`，原样）：')
 w()
@@ -642,12 +688,14 @@ MAP = [
  ('Maps/*.bytes', '`expedition_map.json` + `expedition_nodes.json` + `room_contents.json`'),
  ('Monsters/*.txt', '`units.json` + `enemy_ai.json` + `skills.json`（怪物技能）'),
  ('Localization/*.xml', '**我方无对应**（本地化/文本；我方文本内联在数据里）'),
- ('Upgrades/Building/*', '`buildings.json` / `heirlooms.json` / `unlocks.json`'),
 ]
 w('| 参考数据（相对 `Assets\\Resources\\Data`） | 我方对应 |')
 w('|---|---|')
 for a, b in MAP:
     w('| `%s` | %s |' % (a.replace('\\', '/'), b))
+w()
+w('**逐文件映射见上文各表的最后一列**：§1 的 49 行 JSON 表、§2.2~2.7 的 253 行、§3 的 18 行 XML 表，'
+  '每一行都带 `我方对应` —— 即 `Assets/Resources/Data` 下全部 **%d** 个数据文件逐个都有映射结论。' % len(records))
 w()
 
 # ---------------- 6. findings (all numbers computed, none hand-typed)
@@ -684,13 +732,15 @@ w('3. **%d 个 JSON 是非严格 JSON（尾随逗号）**：%s —— 直接 `js
   % (len(tol), '、'.join('`%s`' % p.replace(os.sep, '/') for p in tol)))
 w('4. **我方完全没有对应物的参考数据**：`Narration.json`（旁白 %d 条）、`PartyNames.json`（队伍命名 %d 条）、'
   '`JsonLoot.json`（%d 张 loot_table + %d 组黑暗奖励）、`JsonQuests.json`（任务目标 %d 条 / 剧情任务 %d 条 / 类型 %d 个）、'
-  '`Curios/Obstacles.json`（障碍物 %d 个）、`Localization/*.xml`（%d 个字符串表 / %d 字节 / %d 条 `<entry>`）。'
+  '`Curios/Obstacles.json`（障碍物 %d 个）、`Localization/*.xml`（%d 个字符串表 / %d 字节 / %d 条 `<entry>`，'
+  '其中 english 单语 %d 条）。'
   % (cc('Narration.json', '$.entries'), cc('PartyNames.json', '$.party_names'),
      cc('JsonLoot.json', '$.loot_tables'), cc('JsonLoot.json', '$.darkness_bonuses'),
      cc('JsonQuests.json', '$.goals'), cc('JsonQuests.json', '$.plot_quests'), cc('JsonQuests.json', '$.types'),
      cc('Curios' + os.sep + 'Obstacles.json', '$.props'),
      len([r for r in records if r['ext'] == '.xml']), xmlbytes,
-     sum(r['entries'] for r in records if r['ext'] == '.xml')))
+     sum(r['entries'] for r in records if r['ext'] == '.xml'),
+     sum(r['lang0'][1] for r in records if r['ext'] == '.xml')))
 w('5. **量级对比**：参考项目文本占绝对主体 —— xml %d B + txt %d B = %d B，占全部 %d B 的 %.0f%%；'
   '真正的「数值」JSON 只有 %d B（%.0f%%）。我方 `darkest/data/` 25 个文件合计仅 %d B。'
   % (xmlbytes, txtbytes, xmlbytes + txtbytes, sum(r['bytes'] for r in records),
@@ -780,7 +830,7 @@ CMDS = [
   "import io,json;R=r'%s/JsonQuirks.json';print(len(json.load(io.open(R,encoding='utf-8'))['quirks']))" % RD),
  ('JsonAI 条目数（不解析，正则计数）',
   "import io;R=r'%s/JsonAI.json';print(io.open(R,encoding='utf-8').read().count(chr(34)+'skill_cooldowns'+chr(34)))" % RD),
- ('Localization 全部 `<entry>` 条数',
+ ('Localization 全部 `<entry>` 条数（跨 8 语言）',
   "import io,re,glob;print(sum(len(re.findall(r'<entry\\b',io.open(p,encoding='utf-8',errors='replace').read())) "
   "for p in glob.glob(r'%s/Localization/*.xml')))" % RD),
  ('Curios.csv 奇物块数',
@@ -809,7 +859,10 @@ w('- 任务书说“51 个 json / 30 个 bytes / 239 个 txt / 18 个 xml”：�
 w('- `Curios/` 下没有 `Curios.json`：奇物数据实际在 **`Curios.csv`**（表格导出），'
   '`Obstacles.json` 与 `Traps.json` 是两个独立的 props 数组。')
 w('- `Monsters/` 下没有子目录，230 个 `.txt` 平铺；怪物后缀 `_A/_B/_C` 是**难度/等级变体**，`_D` 是 Boss/特殊变体。')
-w('- `Localization/` 全部只有 `english` 一种语言（`<language id="english">`），没有多语言表。')
+w('- `Localization/` 每个 XML **含 %d 种语言块**（`%s`），全部 18 个文件合计 %d 条 `<entry>`，'
+  '折算成 english 单语言只有 %d 条 —— 即 12.4 MB 里约 %d%% 是重复的译文。'
+  '`Localization/Dialogue.xml` 的 id 形如 `crusader+str_xxx`（英雄名 + 模板 key）。'
+  % (len(xmls[0]['langs']), ','.join(xmls[0]['langs']), tot_e, tot_e0, int(100 * (1 - tot_e0 / max(1, tot_e)))))
 w()
 
 with io.open(os.path.join(OUT, '01_data_inventory.md'), 'w', encoding='utf-8', newline='\n') as fh:
