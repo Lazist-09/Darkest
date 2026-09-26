@@ -202,7 +202,7 @@
 | **A6** | 🔄 **抽取＋缺口＋逐条判定已完成（`08_traits_from_ref.md`）· 落库待裁** | `JsonTraits.json`（12） | `traits.json`（现 **3 折磨 + 4 美德**） | **12 条已抽全**（7 折磨 + 5 美德 · **两张 act-out 表 14 + 15 项** · 168 + 180 个组合 · **35/35 buff 引用在 A1 池里全可解析**）🔴 **逐条判定：我方那 7 条【一条都不是】参考 12 条的对等物** —— 我方是「概率拒绝/随机化目标」的行为修正，参考是「属性惩罚 buff 包 + 两张行为表 + 奇物标签/掠夺行为」⚠️（**连同名的 `selfish` 语义都不同**）⇒ **A6 真缺 6 折磨 + 4 美德**，且那 7 条**不能算已覆盖** |
 | **A7** | 饰品（488）/ 怪癖（163） | `JsonTrinkets`/`JsonQuirks` | `trinkets.json` / `quirks.json` | 依赖 A1（数值全靠 buff id） |
 | **A8** | 任务 / 战利品表 / 旁白 / 队伍名 | `JsonQuests` / `JsonLoot` / `Narration` / `PartyNames` | 我方**整表缺失** | 其中 `JsonQuests` 是 **P17（M14 Quest 层）** 的载体 |
-| **A9** | 建筑与升级 | `Buildings/*.building.json` + `Upgrades/Building/*` | `buildings.json`(8) | 我方已有 8 栋，按参考校准 |
+| **A9** | ✅ **抽取＋三方判定已完成（`09_buildings_from_ref.md`）· 落库待裁** | `Buildings/*.building.json`（8）+ `Upgrades/Building/*.upgrades.json`（8）| `buildings.json`（8）| **结构完全对上**：**8 建筑 / 20 树 / 99 等级**（与我方**逐数相等**）🔴 **但我方缺三块**：`side_effects`（**6 个活动**的概率副作用表）· 3 个 gate 字段 · 各建筑特有的升级数组 ⚠️ ✅🎖️ **三方判定已做（关键）**：回 E 盘逐级重读 ⇒ **我方 == E 盘 99/99** · **参考 == E 盘 0/99** ⇒ **参考项目被改过**（与 A3 的 `crit` 同族，**第 2 个独立证据**）⇒ **不改工具、只需换源** ✓ |
 | **A10** | 补给 / 物品 | `Mechanics/Provision.json` + `Inventory/Items.bytes` | 我方缺失 | **P16（M12 补给 kernel）** 的载体 |
 | **A11** | 传家宝兑换 | `Mechanics/HeirloomExchange.json` | `heirloom_exchange.json`(12) | 与已完成的步骤② 对账 |
 | **A12** | 地牢 / 地图 | `Dungeons/*.bytes` · `Maps/*.bytes` | `expedition_map/nodes` | — |
@@ -398,6 +398,7 @@ dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMo
 | `_gen_*.py` · `_scan_*.py` · `_q*_*.py` | 可复跑的抽取/统计脚本 ✓ |
 | `07_monsters_from_ref.md` + `monsters_from_ref.json` | 🆕 **A4 步1：参考怪物全表**（230 条 · 2070 个 stats 值逐值复核 · 每条带 `file:line` · **只抽不落库**）✓ |
 | `08_traits_from_ref.md` + `traits_from_ref.json` | 🆕 **A6：折磨/美德 12 条 + 两张 act-out 表**（14 + 15 项 · 35/35 buff 可解析 · **逐条判定我方 7 条全非对等物**）✓ |
+| `09_buildings_from_ref.md` + `buildings_from_ref.json` | 🆕 **A9：8 建筑 + 20 树 / 99 等级**（三方判定 **我方==E盘 99/99 · 参考==E盘 0/99** · 缺 `side_effects`/gate/升级数组三块）✓ |
 
 ---
 

@@ -1,0 +1,4072 @@
+{
+ "source": "F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data",
+ "note": "A9 抽取：参考项目 Buildings/*.building.json（8）+ Upgrades/Building/*.upgrades.json（8）。🔴 4 个 building.json 有尾随逗号 ⇒ 已清洗。本件【只抽不落库】✓",
+ "building_count": 8,
+ "upgrade_file_count": 8,
+ "trailing_comma_files": [
+  "abbey.building.json",
+  "nomad_wagon.building.json",
+  "sanitarium.building.json",
+  "tavern.building.json"
+ ],
+ "buildings": [
+  {
+   "id": "abbey",
+   "gate": {
+    "on_start_town_visit_priority": 1,
+    "number_of_quests_finished": 2,
+    "highest_dungeon_level": 0
+   },
+   "activities": {
+    "meditation": {
+     "kind": "activity",
+     "keys": [
+      "affliction_cure_upgrades",
+      "caretaker_friendly",
+      "cost_upgrades",
+      "quirk_library_names",
+      "side_effects",
+      "slot_upgrades",
+      "stress_upgrades"
+     ],
+     "side_effects_chance": 0.4,
+     "side_effect_types": [
+      "activity_lock",
+      "go_missing",
+      "add_quirk",
+      "add_quirk",
+      "add_quirk",
+      "add_quirk",
+      "add_quirk"
+     ],
+     "side_effects": {
+      "chance": 0.4,
+      "results": [
+       {
+        "type": "activity_lock",
+        "chance": 1,
+        "data": []
+       },
+       {
+        "type": "go_missing",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 3,
+          "duration": 1
+         },
+         {
+          "chance": 1,
+          "duration": 2
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "enlightened"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "improved_balance"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "meditator"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "calm"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "unquiet_mind"
+         }
+        ]
+       }
+      ]
+     },
+     "quirk_library_names": [
+      "unquiet_mind",
+      "alcoholism",
+      "gambler",
+      "love_interest",
+      "god_fearing",
+      "flagellant"
+     ],
+     "caretaker_friendly": true,
+     "upgrade_arrays": {
+      "quirk_library_names": [
+       "unquiet_mind",
+       "alcoholism",
+       "gambler",
+       "love_interest",
+       "god_fearing",
+       "flagellant"
+      ],
+      "cost_upgrades": [
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1000
+        }
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 850
+        },
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 700
+        },
+        "upgrade_requirement_code": "e"
+       }
+      ],
+      "slot_upgrades": [
+       {
+        "number_of_slots": 1
+       },
+       {
+        "number_of_slots": 2,
+        "upgrade_requirement_code": "c"
+       },
+       {
+        "number_of_slots": 3,
+        "upgrade_requirement_code": "f"
+       }
+      ],
+      "stress_upgrades": [
+       {
+        "heal_low": 45,
+        "heal_high": 45
+       },
+       {
+        "heal_low": 56,
+        "heal_high": 56,
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "heal_low": 70,
+        "heal_high": 70,
+        "upgrade_requirement_code": "d"
+       }
+      ],
+      "affliction_cure_upgrades": [
+       {
+        "chance": 1.0
+       },
+       {
+        "chance": 0.1,
+        "upgrade_requirement_code": "g"
+       }
+      ]
+     }
+    },
+    "prayer": {
+     "kind": "activity",
+     "keys": [
+      "affliction_cure_upgrades",
+      "caretaker_friendly",
+      "cost_upgrades",
+      "quirk_library_names",
+      "side_effects",
+      "slot_upgrades",
+      "stress_upgrades"
+     ],
+     "side_effects_chance": 0.35,
+     "side_effect_types": [
+      "activity_lock",
+      "go_missing",
+      "add_quirk",
+      "add_quirk",
+      "change_currency"
+     ],
+     "side_effects": {
+      "chance": 0.35,
+      "results": [
+       {
+        "type": "activity_lock",
+        "chance": 1,
+        "data": []
+       },
+       {
+        "type": "go_missing",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 3,
+          "duration": 1
+         },
+         {
+          "chance": 1,
+          "duration": 2
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "god_fearing"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "witness"
+         }
+        ]
+       },
+       {
+        "type": "change_currency",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "type": "gold",
+          "amount": -1000
+         }
+        ]
+       }
+      ]
+     },
+     "quirk_library_names": [
+      "witness",
+      "faithless",
+      "alcoholism",
+      "gambler",
+      "love_interest",
+      "enlightened",
+      "flagellant"
+     ],
+     "caretaker_friendly": true,
+     "upgrade_arrays": {
+      "quirk_library_names": [
+       "witness",
+       "faithless",
+       "alcoholism",
+       "gambler",
+       "love_interest",
+       "enlightened",
+       "flagellant"
+      ],
+      "cost_upgrades": [
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1250
+        }
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1050
+        },
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 900
+        },
+        "upgrade_requirement_code": "e"
+       }
+      ],
+      "slot_upgrades": [
+       {
+        "number_of_slots": 1
+       },
+       {
+        "number_of_slots": 2,
+        "upgrade_requirement_code": "c"
+       },
+       {
+        "number_of_slots": 3,
+        "upgrade_requirement_code": "f"
+       }
+      ],
+      "stress_upgrades": [
+       {
+        "heal_low": 55,
+        "heal_high": 55
+       },
+       {
+        "heal_low": 69,
+        "heal_high": 69,
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "heal_low": 86,
+        "heal_high": 86,
+        "upgrade_requirement_code": "d"
+       }
+      ],
+      "affliction_cure_upgrades": [
+       {
+        "chance": 1.0
+       },
+       {
+        "chance": 0.1,
+        "upgrade_requirement_code": "g"
+       }
+      ]
+     }
+    },
+    "flagellation": {
+     "kind": "activity",
+     "keys": [
+      "affliction_cure_upgrades",
+      "caretaker_friendly",
+      "cost_upgrades",
+      "quirk_library_names",
+      "side_effects",
+      "slot_upgrades",
+      "stress_upgrades"
+     ],
+     "side_effects_chance": 0.3,
+     "side_effect_types": [
+      "activity_lock",
+      "go_missing",
+      "add_quirk",
+      "add_quirk",
+      "apply_buff",
+      "apply_buff"
+     ],
+     "side_effects": {
+      "chance": 0.3,
+      "results": [
+       {
+        "type": "activity_lock",
+        "chance": 1,
+        "data": []
+       },
+       {
+        "type": "go_missing",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 3,
+          "duration": 1
+         },
+         {
+          "chance": 1,
+          "duration": 2
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "flagellant"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "faithless"
+         }
+        ]
+       },
+       {
+        "type": "apply_buff",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "buff_library_ids": [
+           "townFlagellationDMGLowBuff",
+           "townFlagellationDMGHighBuff"
+          ]
+         }
+        ]
+       },
+       {
+        "type": "apply_buff",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "buff_library_ids": [
+           "townFlagellationDMGLowDebuff",
+           "townFlagellationDMGHighDebuff"
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "quirk_library_names": [
+      "faithless",
+      "alcoholism",
+      "gambler",
+      "love_interest",
+      "enlightened",
+      "god_fearing"
+     ],
+     "caretaker_friendly": true,
+     "upgrade_arrays": {
+      "quirk_library_names": [
+       "faithless",
+       "alcoholism",
+       "gambler",
+       "love_interest",
+       "enlightened",
+       "god_fearing"
+      ],
+      "cost_upgrades": [
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1500
+        }
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1300
+        },
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1100
+        },
+        "upgrade_requirement_code": "e"
+       }
+      ],
+      "slot_upgrades": [
+       {
+        "number_of_slots": 1
+       },
+       {
+        "number_of_slots": 2,
+        "upgrade_requirement_code": "c"
+       },
+       {
+        "number_of_slots": 3,
+        "upgrade_requirement_code": "f"
+       }
+      ],
+      "stress_upgrades": [
+       {
+        "heal_low": 65,
+        "heal_high": 65
+       },
+       {
+        "heal_low": 81,
+        "heal_high": 81,
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "heal_low": 100,
+        "heal_high": 100,
+        "upgrade_requirement_code": "d"
+       }
+      ],
+      "affliction_cure_upgrades": [
+       {
+        "chance": 1.0
+       },
+       {
+        "chance": 0.1,
+        "upgrade_requirement_code": "g"
+       }
+      ]
+     }
+    }
+   },
+   "file": "Buildings/abbey.building.json"
+  },
+  {
+   "id": "blacksmith",
+   "gate": {
+    "on_start_town_visit_priority": 1,
+    "number_of_quests_finished": 3,
+    "highest_dungeon_level": 0
+   },
+   "activities": {
+    "equipment_cost_discount_upgrades": {
+     "kind": "upgrade_array",
+     "values": [
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "blacksmith.cost",
+       "upgrade_requirement_code": "a"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "blacksmith.cost",
+       "upgrade_requirement_code": "b"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "blacksmith.cost",
+       "upgrade_requirement_code": "c"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "blacksmith.cost",
+       "upgrade_requirement_code": "d"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "blacksmith.cost",
+       "upgrade_requirement_code": "e"
+      }
+     ]
+    }
+   },
+   "file": "Buildings/blacksmith.building.json"
+  },
+  {
+   "id": "camping_trainer",
+   "gate": {
+    "on_start_town_visit_priority": 1,
+    "number_of_quests_finished": 0,
+    "highest_dungeon_level": 2
+   },
+   "activities": {
+    "camping_skill_cost_discount_upgrades": {
+     "kind": "upgrade_array",
+     "values": [
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "camping_trainer.cost",
+       "upgrade_requirement_code": "a"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "camping_trainer.cost",
+       "upgrade_requirement_code": "b"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "camping_trainer.cost",
+       "upgrade_requirement_code": "c"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "camping_trainer.cost",
+       "upgrade_requirement_code": "d"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "camping_trainer.cost",
+       "upgrade_requirement_code": "e"
+      }
+     ]
+    }
+   },
+   "file": "Buildings/camping_trainer.building.json"
+  },
+  {
+   "id": "guild",
+   "gate": {
+    "on_start_town_visit_priority": 1,
+    "number_of_quests_finished": 3,
+    "highest_dungeon_level": 0
+   },
+   "activities": {
+    "combat_skill_cost_discount_upgrades": {
+     "kind": "upgrade_array",
+     "values": [
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "guild.cost",
+       "upgrade_requirement_code": "a"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "guild.cost",
+       "upgrade_requirement_code": "b"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "guild.cost",
+       "upgrade_requirement_code": "c"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "guild.cost",
+       "upgrade_requirement_code": "d"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "guild.cost",
+       "upgrade_requirement_code": "e"
+      }
+     ]
+    }
+   },
+   "file": "Buildings/guild.building.json"
+  },
+  {
+   "id": "nomad_wagon",
+   "gate": {
+    "on_start_town_visit_priority": 1,
+    "number_of_quests_finished": 0,
+    "highest_dungeon_level": 2
+   },
+   "activities": {
+    "number_of_trinkets_upgrades": {
+     "kind": "upgrade_array",
+     "values": [
+      {
+       "number_of_slots": 2
+      },
+      {
+       "number_of_slots": 4,
+       "upgrade_tree_id": "nomad_wagon.numitems",
+       "upgrade_requirement_code": "a"
+      },
+      {
+       "number_of_slots": 6,
+       "upgrade_tree_id": "nomad_wagon.numitems",
+       "upgrade_requirement_code": "b"
+      },
+      {
+       "number_of_slots": 8,
+       "upgrade_tree_id": "nomad_wagon.numitems",
+       "upgrade_requirement_code": "c"
+      },
+      {
+       "number_of_slots": 12,
+       "upgrade_tree_id": "nomad_wagon.numitems",
+       "upgrade_requirement_code": "d"
+      }
+     ]
+    },
+    "trinket_cost_discount_upgrades": {
+     "kind": "upgrade_array",
+     "values": [
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "nomad_wagon.cost",
+       "upgrade_requirement_code": "a"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "nomad_wagon.cost",
+       "upgrade_requirement_code": "b"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "nomad_wagon.cost",
+       "upgrade_requirement_code": "c"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "nomad_wagon.cost",
+       "upgrade_requirement_code": "d"
+      },
+      {
+       "discount_percent": 0.1,
+       "upgrade_tree_id": "nomad_wagon.cost",
+       "upgrade_requirement_code": "e"
+      }
+     ]
+    }
+   },
+   "file": "Buildings/nomad_wagon.building.json"
+  },
+  {
+   "id": "sanitarium",
+   "gate": {
+    "on_start_town_visit_priority": 1,
+    "number_of_quests_finished": 4,
+    "highest_dungeon_level": 0
+   },
+   "activities": {
+    "treatment": {
+     "kind": "activity",
+     "keys": [
+      "negative_quirk_cost_upgrades",
+      "permanent_negative_quirk_cost_upgrades",
+      "positive_quirk_cost_upgrades",
+      "quirk_treatment_chance",
+      "slot_upgrades"
+     ],
+     "side_effects_chance": null,
+     "side_effect_types": [],
+     "side_effects": {},
+     "quirk_library_names": null,
+     "caretaker_friendly": null,
+     "upgrade_arrays": {
+      "positive_quirk_cost_upgrades": [
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 7500
+        }
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 6750
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 6000
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 5250
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "c"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 4500
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "d"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 3750
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "e"
+       }
+      ],
+      "negative_quirk_cost_upgrades": [
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1500
+        }
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1350
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1200
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1050
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "c"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 900
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "d"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 750
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "e"
+       }
+      ],
+      "permanent_negative_quirk_cost_upgrades": [
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 5000
+        }
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 4500
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 4000
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 3500
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "c"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 3000
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "d"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 2500
+        },
+        "upgrade_tree_id": "sanitarium.cost",
+        "upgrade_requirement_code": "e"
+       }
+      ],
+      "slot_upgrades": [
+       {
+        "number_of_slots": 1
+       },
+       {
+        "number_of_slots": 2,
+        "upgrade_tree_id": "sanitarium.slots",
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "number_of_slots": 3,
+        "upgrade_tree_id": "sanitarium.slots",
+        "upgrade_requirement_code": "d"
+       }
+      ]
+     }
+    },
+    "disease_treatment": {
+     "kind": "activity",
+     "keys": [
+      "disease_quirk_cost_upgrades",
+      "disease_quirk_cure_all_chance_upgrades",
+      "quirk_treatment_chance",
+      "slot_upgrades"
+     ],
+     "side_effects_chance": null,
+     "side_effect_types": [],
+     "side_effects": {},
+     "quirk_library_names": null,
+     "caretaker_friendly": null,
+     "upgrade_arrays": {
+      "disease_quirk_cost_upgrades": [
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 750
+        }
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 650
+        },
+        "upgrade_tree_id": "sanitarium.disease_quirk_cost",
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 550
+        },
+        "upgrade_tree_id": "sanitarium.disease_quirk_cost",
+        "upgrade_requirement_code": "c"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 450
+        },
+        "upgrade_tree_id": "sanitarium.disease_quirk_cost",
+        "upgrade_requirement_code": "e"
+       }
+      ],
+      "disease_quirk_cure_all_chance_upgrades": [
+       {
+        "chance": 0.33
+       },
+       {
+        "chance": 0.67,
+        "upgrade_tree_id": "sanitarium.disease_quirk_cost",
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "chance": 1.0,
+        "upgrade_tree_id": "sanitarium.disease_quirk_cost",
+        "upgrade_requirement_code": "d"
+       }
+      ],
+      "slot_upgrades": [
+       {
+        "number_of_slots": 1
+       },
+       {
+        "number_of_slots": 2,
+        "upgrade_tree_id": "sanitarium.slots",
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "number_of_slots": 3,
+        "upgrade_tree_id": "sanitarium.slots",
+        "upgrade_requirement_code": "c"
+       }
+      ]
+     }
+    }
+   },
+   "file": "Buildings/sanitarium.building.json"
+  },
+  {
+   "id": "stage_coach",
+   "gate": {
+    "on_start_town_visit_priority": 0,
+    "number_of_quests_finished": 0,
+    "highest_dungeon_level": 0
+   },
+   "activities": {
+    "number_of_recruits_upgrades": {
+     "kind": "upgrade_array",
+     "values": [
+      {
+       "number_of_slots": 2
+      },
+      {
+       "number_of_slots": 3,
+       "upgrade_tree_id": "stage_coach.numrecruits",
+       "upgrade_requirement_code": "a"
+      },
+      {
+       "number_of_slots": 4,
+       "upgrade_tree_id": "stage_coach.numrecruits",
+       "upgrade_requirement_code": "b"
+      },
+      {
+       "number_of_slots": 5,
+       "upgrade_tree_id": "stage_coach.numrecruits",
+       "upgrade_requirement_code": "c"
+      },
+      {
+       "number_of_slots": 6,
+       "upgrade_tree_id": "stage_coach.numrecruits",
+       "upgrade_requirement_code": "d"
+      },
+      {
+       "number_of_slots": 7,
+       "upgrade_tree_id": "stage_coach.numrecruits",
+       "upgrade_requirement_code": "e"
+      }
+     ]
+    },
+    "roster_size_upgrades": {
+     "kind": "upgrade_array",
+     "values": [
+      {
+       "number_of_slots": 9
+      },
+      {
+       "number_of_slots": 12,
+       "upgrade_tree_id": "stage_coach.rostersize",
+       "upgrade_requirement_code": "a"
+      },
+      {
+       "number_of_slots": 15,
+       "upgrade_tree_id": "stage_coach.rostersize",
+       "upgrade_requirement_code": "b"
+      },
+      {
+       "number_of_slots": 18,
+       "upgrade_tree_id": "stage_coach.rostersize",
+       "upgrade_requirement_code": "c"
+      },
+      {
+       "number_of_slots": 21,
+       "upgrade_tree_id": "stage_coach.rostersize",
+       "upgrade_requirement_code": "d"
+      },
+      {
+       "number_of_slots": 25,
+       "upgrade_tree_id": "stage_coach.rostersize",
+       "upgrade_requirement_code": "e"
+      }
+     ]
+    },
+    "upgraded_recruits_upgrades": {
+     "kind": "upgrade_array",
+     "values": [
+      {
+       "level": 1,
+       "chance": 0.1875,
+       "number_of_extra_positive_quirks": 1,
+       "number_of_extra_negative_quirks": 1,
+       "number_of_extra_combat_skills": 0,
+       "number_of_extra_camping_skills": 1,
+       "guaranteed_previous_raid_dead_hero_levels": [
+        3
+       ],
+       "upgrade_tree_id": "stage_coach.upgraded_recruits",
+       "upgrade_requirement_code": "a"
+      },
+      {
+       "level": 2,
+       "chance": 0.125,
+       "number_of_extra_positive_quirks": 2,
+       "number_of_extra_negative_quirks": 2,
+       "number_of_extra_combat_skills": 1,
+       "number_of_extra_camping_skills": 1,
+       "guaranteed_previous_raid_dead_hero_levels": [
+        4
+       ],
+       "upgrade_tree_id": "stage_coach.upgraded_recruits",
+       "upgrade_requirement_code": "b"
+      },
+      {
+       "level": 3,
+       "chance": 0.0625,
+       "number_of_extra_positive_quirks": 3,
+       "number_of_extra_negative_quirks": 3,
+       "number_of_extra_combat_skills": 2,
+       "number_of_extra_camping_skills": 2,
+       "guaranteed_previous_raid_dead_hero_levels": [
+        5,
+        6
+       ],
+       "upgrade_tree_id": "stage_coach.upgraded_recruits",
+       "upgrade_requirement_code": "c"
+      }
+     ]
+    }
+   },
+   "file": "Buildings/stage_coach.building.json"
+  },
+  {
+   "id": "tavern",
+   "gate": {
+    "on_start_town_visit_priority": 1,
+    "number_of_quests_finished": 2,
+    "highest_dungeon_level": 0
+   },
+   "activities": {
+    "bar": {
+     "kind": "activity",
+     "keys": [
+      "affliction_cure_upgrades",
+      "caretaker_friendly",
+      "cost_upgrades",
+      "quirk_library_names",
+      "side_effects",
+      "slot_upgrades",
+      "stress_upgrades"
+     ],
+     "side_effects_chance": 0.4,
+     "side_effect_types": [
+      "activity_lock",
+      "go_missing",
+      "add_quirk",
+      "add_quirk",
+      "apply_buff",
+      "change_currency",
+      "remove_trinket"
+     ],
+     "side_effects": {
+      "chance": 0.4,
+      "results": [
+       {
+        "type": "activity_lock",
+        "chance": 1,
+        "data": []
+       },
+       {
+        "type": "go_missing",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 3,
+          "duration": 1
+         },
+         {
+          "chance": 1,
+          "duration": 2
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "alcoholism"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "resolution"
+         }
+        ]
+       },
+       {
+        "type": "apply_buff",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "buff_library_ids": [
+           "townHungoverAccDebuff"
+          ]
+         },
+         {
+          "chance": 1,
+          "buff_library_ids": [
+           "townHungoverDEFDebuff"
+          ]
+         }
+        ]
+       },
+       {
+        "type": "change_currency",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "type": "gold",
+          "amount": -500
+         }
+        ]
+       },
+       {
+        "type": "remove_trinket",
+        "chance": 1,
+        "data": []
+       }
+      ]
+     },
+     "quirk_library_names": [
+      "resolution",
+      "gambler",
+      "love_interest",
+      "enlightened",
+      "god_fearing",
+      "flagellant"
+     ],
+     "caretaker_friendly": true,
+     "upgrade_arrays": {
+      "quirk_library_names": [
+       "resolution",
+       "gambler",
+       "love_interest",
+       "enlightened",
+       "god_fearing",
+       "flagellant"
+      ],
+      "cost_upgrades": [
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1000
+        }
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 850
+        },
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 700
+        },
+        "upgrade_requirement_code": "e"
+       }
+      ],
+      "slot_upgrades": [
+       {
+        "number_of_slots": 1
+       },
+       {
+        "number_of_slots": 2,
+        "upgrade_requirement_code": "c"
+       },
+       {
+        "number_of_slots": 3,
+        "upgrade_requirement_code": "f"
+       }
+      ],
+      "stress_upgrades": [
+       {
+        "heal_low": 45,
+        "heal_high": 45
+       },
+       {
+        "heal_low": 56,
+        "heal_high": 56,
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "heal_low": 70,
+        "heal_high": 70,
+        "upgrade_requirement_code": "d"
+       }
+      ],
+      "affliction_cure_upgrades": [
+       {
+        "chance": 1.0
+       },
+       {
+        "chance": 0.1,
+        "upgrade_requirement_code": "g"
+       }
+      ]
+     }
+    },
+    "gambling": {
+     "kind": "activity",
+     "keys": [
+      "affliction_cure_upgrades",
+      "caretaker_friendly",
+      "cost_upgrades",
+      "quirk_library_names",
+      "side_effects",
+      "slot_upgrades",
+      "stress_upgrades"
+     ],
+     "side_effects_chance": 0.35,
+     "side_effect_types": [
+      "activity_lock",
+      "go_missing",
+      "add_quirk",
+      "add_quirk",
+      "add_quirk",
+      "change_currency",
+      "add_trinket",
+      "remove_trinket"
+     ],
+     "side_effects": {
+      "chance": 0.35,
+      "results": [
+       {
+        "type": "activity_lock",
+        "chance": 1,
+        "data": []
+       },
+       {
+        "type": "go_missing",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 3,
+          "duration": 1
+         },
+         {
+          "chance": 1,
+          "duration": 2
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "gambler"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "known_cheat"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "bad_gambler"
+         }
+        ]
+       },
+       {
+        "type": "change_currency",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "type": "gold",
+          "amount": 500
+         },
+         {
+          "chance": 1,
+          "type": "gold",
+          "amount": -500
+         }
+        ]
+       },
+       {
+        "type": "add_trinket",
+        "chance": 1,
+        "data": []
+       },
+       {
+        "type": "remove_trinket",
+        "chance": 1,
+        "data": []
+       }
+      ]
+     },
+     "quirk_library_names": [
+      "known_cheat",
+      "alcoholism",
+      "love_interest",
+      "enlightened",
+      "god_fearing",
+      "flagellant"
+     ],
+     "caretaker_friendly": true,
+     "upgrade_arrays": {
+      "quirk_library_names": [
+       "known_cheat",
+       "alcoholism",
+       "love_interest",
+       "enlightened",
+       "god_fearing",
+       "flagellant"
+      ],
+      "cost_upgrades": [
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1250
+        }
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1050
+        },
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 900
+        },
+        "upgrade_requirement_code": "e"
+       }
+      ],
+      "slot_upgrades": [
+       {
+        "number_of_slots": 1
+       },
+       {
+        "number_of_slots": 2,
+        "upgrade_requirement_code": "c"
+       },
+       {
+        "number_of_slots": 3,
+        "upgrade_requirement_code": "f"
+       }
+      ],
+      "stress_upgrades": [
+       {
+        "heal_low": 55,
+        "heal_high": 55
+       },
+       {
+        "heal_low": 69,
+        "heal_high": 69,
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "heal_low": 86,
+        "heal_high": 86,
+        "upgrade_requirement_code": "d"
+       }
+      ],
+      "affliction_cure_upgrades": [
+       {
+        "chance": 1.0
+       },
+       {
+        "chance": 0.1,
+        "upgrade_requirement_code": "g"
+       }
+      ]
+     }
+    },
+    "brothel": {
+     "kind": "activity",
+     "keys": [
+      "affliction_cure_upgrades",
+      "caretaker_friendly",
+      "cost_upgrades",
+      "quirk_library_names",
+      "side_effects",
+      "slot_upgrades",
+      "stress_upgrades"
+     ],
+     "side_effects_chance": 0.3,
+     "side_effect_types": [
+      "activity_lock",
+      "go_missing",
+      "add_quirk",
+      "add_quirk",
+      "add_quirk",
+      "apply_buff",
+      "apply_buff"
+     ],
+     "side_effects": {
+      "chance": 0.3,
+      "results": [
+       {
+        "type": "activity_lock",
+        "chance": 1,
+        "data": []
+       },
+       {
+        "type": "go_missing",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 3,
+          "duration": 1
+         },
+         {
+          "chance": 1,
+          "duration": 2
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "love_interest"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "syphilis"
+         }
+        ]
+       },
+       {
+        "type": "add_quirk",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "quirk_library_name": "deviant_tastes"
+         }
+        ]
+       },
+       {
+        "type": "apply_buff",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "buff_library_ids": [
+           "townBrothelSPDBuff"
+          ]
+         }
+        ]
+       },
+       {
+        "type": "apply_buff",
+        "chance": 1,
+        "data": [
+         {
+          "chance": 1,
+          "buff_library_ids": [
+           "townBrothelSPDDebuff"
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "quirk_library_names": [
+      "deviant_tastes",
+      "alcoholism",
+      "gambler",
+      "enlightened",
+      "god_fearing",
+      "flagellant"
+     ],
+     "caretaker_friendly": true,
+     "upgrade_arrays": {
+      "quirk_library_names": [
+       "deviant_tastes",
+       "alcoholism",
+       "gambler",
+       "enlightened",
+       "god_fearing",
+       "flagellant"
+      ],
+      "cost_upgrades": [
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1500
+        }
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1300
+        },
+        "upgrade_requirement_code": "b"
+       },
+       {
+        "cost_currency": {
+         "type": "gold",
+         "amount": 1100
+        },
+        "upgrade_requirement_code": "e"
+       }
+      ],
+      "slot_upgrades": [
+       {
+        "number_of_slots": 1
+       },
+       {
+        "number_of_slots": 2,
+        "upgrade_requirement_code": "c"
+       },
+       {
+        "number_of_slots": 3,
+        "upgrade_requirement_code": "f"
+       }
+      ],
+      "stress_upgrades": [
+       {
+        "heal_low": 65,
+        "heal_high": 65
+       },
+       {
+        "heal_low": 81,
+        "heal_high": 81,
+        "upgrade_requirement_code": "a"
+       },
+       {
+        "heal_low": 100,
+        "heal_high": 100,
+        "upgrade_requirement_code": "d"
+       }
+      ],
+      "affliction_cure_upgrades": [
+       {
+        "chance": 1.0
+       },
+       {
+        "chance": 0.1,
+        "upgrade_requirement_code": "g"
+       }
+      ]
+     }
+    }
+   },
+   "file": "Buildings/tavern.building.json"
+  }
+ ],
+ "upgrade_trees": {
+  "abbey": {
+   "file": "Upgrades/Building/abbey.upgrades.json",
+   "tree_count": 3,
+   "level_count": 18,
+   "trees": [
+    {
+     "id": "abbey.meditation",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "abbey"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 4
+        },
+        {
+         "type": "crest",
+         "amount": 4
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.meditation",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 11
+        },
+        {
+         "type": "crest",
+         "amount": 11
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.meditation",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 15
+        },
+        {
+         "type": "crest",
+         "amount": 15
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.meditation",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 19
+        },
+        {
+         "type": "crest",
+         "amount": 19
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.meditation",
+         "requirement_code": "d"
+        }
+       ]
+      },
+      {
+       "code": "f",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 23
+        },
+        {
+         "type": "crest",
+         "amount": 23
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.meditation",
+         "requirement_code": "e"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "abbey.prayer",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "abbey"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 4
+        },
+        {
+         "type": "crest",
+         "amount": 4
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.prayer",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 11
+        },
+        {
+         "type": "crest",
+         "amount": 11
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.prayer",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 15
+        },
+        {
+         "type": "crest",
+         "amount": 15
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.prayer",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 19
+        },
+        {
+         "type": "crest",
+         "amount": 19
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.prayer",
+         "requirement_code": "d"
+        }
+       ]
+      },
+      {
+       "code": "f",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 23
+        },
+        {
+         "type": "crest",
+         "amount": 23
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.prayer",
+         "requirement_code": "e"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "abbey.flagellation",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "abbey"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 4
+        },
+        {
+         "type": "crest",
+         "amount": 4
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.flagellation",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 11
+        },
+        {
+         "type": "crest",
+         "amount": 11
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.flagellation",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 15
+        },
+        {
+         "type": "crest",
+         "amount": 15
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.flagellation",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 19
+        },
+        {
+         "type": "crest",
+         "amount": 19
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.flagellation",
+         "requirement_code": "d"
+        }
+       ]
+      },
+      {
+       "code": "f",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 23
+        },
+        {
+         "type": "crest",
+         "amount": 23
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "abbey.flagellation",
+         "requirement_code": "e"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "blacksmith": {
+   "file": "Upgrades/Building/blacksmith.upgrades.json",
+   "tree_count": 3,
+   "level_count": 13,
+   "trees": [
+    {
+     "id": "blacksmith.weapon",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "blacksmith"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 10
+        },
+        {
+         "type": "crest",
+         "amount": 6
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 26
+        },
+        {
+         "type": "crest",
+         "amount": 17
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "blacksmith.weapon",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 42
+        },
+        {
+         "type": "crest",
+         "amount": 28
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "blacksmith.weapon",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 58
+        },
+        {
+         "type": "crest",
+         "amount": 39
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "blacksmith.weapon",
+         "requirement_code": "c"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "blacksmith.armour",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "blacksmith"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 10
+        },
+        {
+         "type": "crest",
+         "amount": 6
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 26
+        },
+        {
+         "type": "crest",
+         "amount": 17
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "blacksmith.armour",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 42
+        },
+        {
+         "type": "crest",
+         "amount": 28
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "blacksmith.armour",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 58
+        },
+        {
+         "type": "crest",
+         "amount": 39
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "blacksmith.armour",
+         "requirement_code": "c"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "blacksmith.cost",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "blacksmith"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 5
+        },
+        {
+         "type": "crest",
+         "amount": 3
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 12
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "blacksmith.cost",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 18
+        },
+        {
+         "type": "crest",
+         "amount": 12
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "blacksmith.cost",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 24
+        },
+        {
+         "type": "crest",
+         "amount": 16
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "blacksmith.cost",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 31
+        },
+        {
+         "type": "crest",
+         "amount": 21
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "blacksmith.cost",
+         "requirement_code": "d"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "camping_trainer": {
+   "file": "Upgrades/Building/camping_trainer.upgrades.json",
+   "tree_count": 1,
+   "level_count": 5,
+   "trees": [
+    {
+     "id": "camping_trainer.cost",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "camping_trainer"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 27
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 62
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "camping_trainer.cost",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 96
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "camping_trainer.cost",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 130
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "camping_trainer.cost",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 165
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "camping_trainer.cost",
+         "requirement_code": "d"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "guild": {
+   "file": "Upgrades/Building/guild.upgrades.json",
+   "tree_count": 2,
+   "level_count": 9,
+   "trees": [
+    {
+     "id": "guild.skill_levels",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "guild"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 6
+        },
+        {
+         "type": "crest",
+         "amount": 11
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 15
+        },
+        {
+         "type": "crest",
+         "amount": 30
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "guild.skill_levels",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 24
+        },
+        {
+         "type": "crest",
+         "amount": 48
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "guild.skill_levels",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 33
+        },
+        {
+         "type": "crest",
+         "amount": 67
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "guild.skill_levels",
+         "requirement_code": "c"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "guild.cost",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "guild"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 2
+        },
+        {
+         "type": "crest",
+         "amount": 5
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 5
+        },
+        {
+         "type": "crest",
+         "amount": 11
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "guild.cost",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 17
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "guild.cost",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 11
+        },
+        {
+         "type": "crest",
+         "amount": 23
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "guild.cost",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 14
+        },
+        {
+         "type": "crest",
+         "amount": 29
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "guild.cost",
+         "requirement_code": "d"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "nomad_wagon": {
+   "file": "Upgrades/Building/nomad_wagon.upgrades.json",
+   "tree_count": 2,
+   "level_count": 9,
+   "trees": [
+    {
+     "id": "nomad_wagon.numitems",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "nomad_wagon"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 17
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 46
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "nomad_wagon.numitems",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 74
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "nomad_wagon.numitems",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 103
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "nomad_wagon.numitems",
+         "requirement_code": "c"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "nomad_wagon.cost",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "nomad_wagon"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 14
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 31
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "nomad_wagon.cost",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 48
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "nomad_wagon.cost",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 65
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "nomad_wagon.cost",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "crest",
+         "amount": 82
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "nomad_wagon.cost",
+         "requirement_code": "d"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "sanitarium": {
+   "file": "Upgrades/Building/sanitarium.upgrades.json",
+   "tree_count": 3,
+   "level_count": 14,
+   "trees": [
+    {
+     "id": "sanitarium.cost",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "sanitarium"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 3
+        },
+        {
+         "type": "crest",
+         "amount": 2
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 4
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.cost",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 12
+        },
+        {
+         "type": "crest",
+         "amount": 6
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.cost",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 16
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.cost",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 21
+        },
+        {
+         "type": "crest",
+         "amount": 10
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.cost",
+         "requirement_code": "d"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "sanitarium.disease_quirk_cost",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "sanitarium"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 3
+        },
+        {
+         "type": "crest",
+         "amount": 2
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 4
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.disease_quirk_cost",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 12
+        },
+        {
+         "type": "crest",
+         "amount": 6
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.disease_quirk_cost",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 16
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.disease_quirk_cost",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 21
+        },
+        {
+         "type": "crest",
+         "amount": 10
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.disease_quirk_cost",
+         "requirement_code": "d"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "sanitarium.slots",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "sanitarium"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 10
+        },
+        {
+         "type": "crest",
+         "amount": 5
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 20
+        },
+        {
+         "type": "crest",
+         "amount": 10
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.slots",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 30
+        },
+        {
+         "type": "crest",
+         "amount": 15
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.slots",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 60
+        },
+        {
+         "type": "crest",
+         "amount": 30
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "sanitarium.slots",
+         "requirement_code": "c"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "stage_coach": {
+   "file": "Upgrades/Building/stage_coach.upgrades.json",
+   "tree_count": 3,
+   "level_count": 13,
+   "trees": [
+    {
+     "id": "stage_coach.numrecruits",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "stage_coach"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 3
+        },
+        {
+         "type": "crest",
+         "amount": 3
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "stage_coach.numrecruits",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 12
+        },
+        {
+         "type": "crest",
+         "amount": 12
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "stage_coach.numrecruits",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 16
+        },
+        {
+         "type": "crest",
+         "amount": 16
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "stage_coach.numrecruits",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 21
+        },
+        {
+         "type": "crest",
+         "amount": 21
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "stage_coach.numrecruits",
+         "requirement_code": "d"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "stage_coach.rostersize",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "stage_coach"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 3
+        },
+        {
+         "type": "crest",
+         "amount": 3
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "stage_coach.rostersize",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 12
+        },
+        {
+         "type": "crest",
+         "amount": 12
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "stage_coach.rostersize",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 16
+        },
+        {
+         "type": "crest",
+         "amount": 16
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "stage_coach.rostersize",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "deed",
+         "amount": 21
+        },
+        {
+         "type": "crest",
+         "amount": 21
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "stage_coach.rostersize",
+         "requirement_code": "d"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "stage_coach.upgraded_recruits",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "stage_coach"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 12
+        },
+        {
+         "type": "portrait",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "guild.skill_levels",
+         "requirement_code": "b"
+        },
+        {
+         "tree_id": "blacksmith.weapon",
+         "requirement_code": "b"
+        },
+        {
+         "tree_id": "blacksmith.armour",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 18
+        },
+        {
+         "type": "portrait",
+         "amount": 12
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "stage_coach.upgraded_recruits",
+         "requirement_code": "a"
+        },
+        {
+         "tree_id": "guild.skill_levels",
+         "requirement_code": "c"
+        },
+        {
+         "tree_id": "blacksmith.weapon",
+         "requirement_code": "c"
+        },
+        {
+         "tree_id": "blacksmith.armour",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "bust",
+         "amount": 24
+        },
+        {
+         "type": "portrait",
+         "amount": 16
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "stage_coach.upgraded_recruits",
+         "requirement_code": "b"
+        },
+        {
+         "tree_id": "guild.skill_levels",
+         "requirement_code": "d"
+        },
+        {
+         "tree_id": "blacksmith.weapon",
+         "requirement_code": "d"
+        },
+        {
+         "tree_id": "blacksmith.armour",
+         "requirement_code": "d"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "tavern": {
+   "file": "Upgrades/Building/tavern.upgrades.json",
+   "tree_count": 3,
+   "level_count": 18,
+   "trees": [
+    {
+     "id": "tavern.bar",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "tavern"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 2
+        },
+        {
+         "type": "crest",
+         "amount": 4
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 4
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.bar",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 6
+        },
+        {
+         "type": "crest",
+         "amount": 11
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.bar",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 15
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.bar",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 10
+        },
+        {
+         "type": "crest",
+         "amount": 19
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.bar",
+         "requirement_code": "d"
+        }
+       ]
+      },
+      {
+       "code": "f",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 11
+        },
+        {
+         "type": "crest",
+         "amount": 23
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.bar",
+         "requirement_code": "e"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "tavern.gambling",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "tavern"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 2
+        },
+        {
+         "type": "crest",
+         "amount": 4
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 4
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.gambling",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 6
+        },
+        {
+         "type": "crest",
+         "amount": 11
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.gambling",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 15
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.gambling",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 10
+        },
+        {
+         "type": "crest",
+         "amount": 19
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.gambling",
+         "requirement_code": "d"
+        }
+       ]
+      },
+      {
+       "code": "f",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 11
+        },
+        {
+         "type": "crest",
+         "amount": 23
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.gambling",
+         "requirement_code": "e"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "tavern.brothel",
+     "is_instanced": false,
+     "tags": [
+      "building",
+      "tavern"
+     ],
+     "requirements": [
+      {
+       "code": "a",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 2
+        },
+        {
+         "type": "crest",
+         "amount": 4
+        }
+       ],
+       "prerequisite_requirements": []
+      },
+      {
+       "code": "b",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 4
+        },
+        {
+         "type": "crest",
+         "amount": 8
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.brothel",
+         "requirement_code": "a"
+        }
+       ]
+      },
+      {
+       "code": "c",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 6
+        },
+        {
+         "type": "crest",
+         "amount": 11
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.brothel",
+         "requirement_code": "b"
+        }
+       ]
+      },
+      {
+       "code": "d",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 8
+        },
+        {
+         "type": "crest",
+         "amount": 15
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.brothel",
+         "requirement_code": "c"
+        }
+       ]
+      },
+      {
+       "code": "e",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 10
+        },
+        {
+         "type": "crest",
+         "amount": 19
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.brothel",
+         "requirement_code": "d"
+        }
+       ]
+      },
+      {
+       "code": "f",
+       "currency_cost": [
+        {
+         "type": "gold",
+         "amount": 0
+        },
+        {
+         "type": "portrait",
+         "amount": 11
+        },
+        {
+         "type": "crest",
+         "amount": 23
+        }
+       ],
+       "prerequisite_requirements": [
+        {
+         "tree_id": "tavern.brothel",
+         "requirement_code": "e"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ }
+}
