@@ -1,0 +1,357 @@
+{
+ "note": "DLC 怪的变体计数（参考没有的那些）。只读不落库 ✓",
+ "dlc_monsters": {
+  "702540_shieldbreaker": {
+   "snake_big_adder": [
+    "snake_big_adder_A",
+    "snake_big_adder_B",
+    "snake_big_adder_C"
+   ],
+   "snake_cobra": [
+    "snake_cobra_A",
+    "snake_cobra_B",
+    "snake_cobra_C"
+   ],
+   "snake_rattler": [
+    "snake_rattler_A",
+    "snake_rattler_B",
+    "snake_rattler_C"
+   ]
+  },
+  "735730_color_of_madness": {
+   "cocoon": [
+    "cocoon_A",
+    "cocoon_B",
+    "cocoon_C"
+   ],
+   "com_bulrush": [
+    "com_bulrush_D"
+   ],
+   "com_cattail": [
+    "com_cattail_D"
+   ],
+   "com_crocodile": [
+    "com_crocodile_D"
+   ],
+   "corpse_crystal": [
+    "corpse_crystal_A",
+    "corpse_crystal_B",
+    "corpse_crystal_C",
+    "corpse_crystal_D"
+   ],
+   "farmer": [
+    "farmer_A",
+    "farmer_B",
+    "farmer_C"
+   ],
+   "foreman": [
+    "foreman_A",
+    "foreman_B",
+    "foreman_C"
+   ],
+   "galaxy": [
+    "galaxy_D"
+   ],
+   "gatekeeper": [
+    "gatekeeper_A",
+    "gatekeeper_B",
+    "gatekeeper_C"
+   ],
+   "miller": [
+    "miller_A",
+    "miller_B",
+    "miller_C"
+   ],
+   "plowhorse": [
+    "plowhorse_A",
+    "plowhorse_B",
+    "plowhorse_C"
+   ],
+   "revenant": [
+    "revenant_A",
+    "revenant_B",
+    "revenant_C"
+   ],
+   "scarecrow": [
+    "scarecrow_A",
+    "scarecrow_B",
+    "scarecrow_C"
+   ],
+   "seed_black": [
+    "seed_black_D"
+   ],
+   "seed_grey": [
+    "seed_grey_D"
+   ],
+   "seed_purple": [
+    "seed_purple_D"
+   ],
+   "seed_red": [
+    "seed_red_D"
+   ],
+   "seed_yellow": [
+    "seed_yellow_D"
+   ],
+   "seedling_black": [
+    "seedling_black_D"
+   ],
+   "seedling_grey": [
+    "seedling_grey_D"
+   ],
+   "seedling_purple": [
+    "seedling_purple_D"
+   ],
+   "seedling_red": [
+    "seedling_red_D"
+   ],
+   "seedling_yellow": [
+    "seedling_yellow_D"
+   ],
+   "spire": [
+    "spire_D"
+   ],
+   "sprout": [
+    "sprout_D"
+   ],
+   "thing": [
+    "thing_A",
+    "thing_B",
+    "thing_C"
+   ]
+  }
+ },
+ "missing_from_ref": [
+  {
+   "dlc": "702540_shieldbreaker",
+   "monster": "snake_big_adder",
+   "variants": [
+    "snake_big_adder_A",
+    "snake_big_adder_B",
+    "snake_big_adder_C"
+   ]
+  },
+  {
+   "dlc": "702540_shieldbreaker",
+   "monster": "snake_cobra",
+   "variants": [
+    "snake_cobra_A",
+    "snake_cobra_B",
+    "snake_cobra_C"
+   ]
+  },
+  {
+   "dlc": "702540_shieldbreaker",
+   "monster": "snake_rattler",
+   "variants": [
+    "snake_rattler_A",
+    "snake_rattler_B",
+    "snake_rattler_C"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "cocoon",
+   "variants": [
+    "cocoon_A",
+    "cocoon_B",
+    "cocoon_C"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "com_bulrush",
+   "variants": [
+    "com_bulrush_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "com_cattail",
+   "variants": [
+    "com_cattail_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "com_crocodile",
+   "variants": [
+    "com_crocodile_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "corpse_crystal",
+   "variants": [
+    "corpse_crystal_A",
+    "corpse_crystal_B",
+    "corpse_crystal_C",
+    "corpse_crystal_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "farmer",
+   "variants": [
+    "farmer_A",
+    "farmer_B",
+    "farmer_C"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "foreman",
+   "variants": [
+    "foreman_A",
+    "foreman_B",
+    "foreman_C"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "galaxy",
+   "variants": [
+    "galaxy_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "gatekeeper",
+   "variants": [
+    "gatekeeper_A",
+    "gatekeeper_B",
+    "gatekeeper_C"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "miller",
+   "variants": [
+    "miller_A",
+    "miller_B",
+    "miller_C"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "plowhorse",
+   "variants": [
+    "plowhorse_A",
+    "plowhorse_B",
+    "plowhorse_C"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "revenant",
+   "variants": [
+    "revenant_A",
+    "revenant_B",
+    "revenant_C"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "scarecrow",
+   "variants": [
+    "scarecrow_A",
+    "scarecrow_B",
+    "scarecrow_C"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "seed_black",
+   "variants": [
+    "seed_black_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "seed_grey",
+   "variants": [
+    "seed_grey_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "seed_purple",
+   "variants": [
+    "seed_purple_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "seed_red",
+   "variants": [
+    "seed_red_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "seed_yellow",
+   "variants": [
+    "seed_yellow_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "seedling_black",
+   "variants": [
+    "seedling_black_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "seedling_grey",
+   "variants": [
+    "seedling_grey_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "seedling_purple",
+   "variants": [
+    "seedling_purple_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "seedling_red",
+   "variants": [
+    "seedling_red_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "seedling_yellow",
+   "variants": [
+    "seedling_yellow_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "spire",
+   "variants": [
+    "spire_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "sprout",
+   "variants": [
+    "sprout_D"
+   ]
+  },
+  {
+   "dlc": "735730_color_of_madness",
+   "monster": "thing",
+   "variants": [
+    "thing_A",
+    "thing_B",
+    "thing_C"
+   ]
+  }
+ ],
+ "missing_monsters": 29,
+ "missing_variants": 56
+}
