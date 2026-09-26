@@ -84,9 +84,38 @@ def main() -> int:
         print(f"[audit]   {k:28s} {len(v):>6}")
     print()
 
+    # 🆕 **补上"结构里没有 `id` 键"的命名空间**（`27_*.md §5` 记的覆盖缺口）✓
+    #    🔴 判据：**它们的引用键叫什么，就去哪里收** ✓
+    EXTRA = {}
+    # ① 传家宝：`heirloom_exchange` 用 `exchange_*_type`；`heirlooms.kinds` 定义 ✓
+    hl = docs.get("heirlooms.json") or {}
+    if isinstance(hl, dict) and isinstance(hl.get("kinds"), list):
+        # 我方 `kinds` 是**复数**（`busts`），而兑换表用**单数**（`bust`）⚠️
+        EXTRA["currency"] = {k.rstrip("s") for k in hl["kinds"]} | set(hl["kinds"])
+    # ② 敌人 AI：`enemy_ai` 用 `archetype_id`；`units.json` 定义 ✓
+    ai = docs.get("enemy_ai.json") or {}
+    if isinstance(ai, dict):
+        s = {a.get("archetype_id") for a in (ai.get("archetypes") or [])
+             if isinstance(a, dict)}
+        EXTRA["archetype"] = {x for x in s if x}
+    # ③ AI 的 `skill_id` ⇒ 指向 `skills.json` ✓
+    if isinstance(ai, dict):
+        s = set()
+        for a in (ai.get("archetypes") or []):
+            for r in (a.get("rules") or []):
+                if isinstance(r, dict) and r.get("skill_id"):
+                    s.add(r["skill_id"])
+        EXTRA["ai_skill"] = s
+    print("[audit] 🆕 补上的命名空间（`27_*.md §5` 的覆盖缺口）：")
+    for k, v in EXTRA.items():
+        print(f"[audit]   **{k}**：{len(v)} 个 ⇒ {sorted(v)[:12]}")
+    print()
+
     # 全局并集（用于"无法判定"）✓
     allids = set()
     for s in NS.values():
+        allids |= s
+    for s in EXTRA.values():
         allids |= s
 
     # ---- 抽所有"像引用"的键 ----
@@ -104,7 +133,9 @@ def main() -> int:
 
     # 只收**明确的引用型键**（避免把普通 id 当引用）✓
     STRICT = ("buffs", "skills", "trinkets", "quirks", "traits", "goal_ids",
-              "tree_id", "item", "unit", "curio_name", "trinket_id")
+              "tree_id", "item", "unit", "curio_name", "trinket_id",
+              # 🆕 本件补的三类（对应上面的 EXTRA）✓
+              "exchange_from_type", "exchange_to_type", "archetype_id", "skill_id")
 
     def collect(node, path, fname, parent_key=None):
         if isinstance(node, dict):

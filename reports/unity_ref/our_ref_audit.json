@@ -2678,6 +2678,32 @@
    "commissar": 1,
    "medic": 2
   },
+  "archetype_id": {
+   "melee_soldier": 1,
+   "ranged_archer": 1,
+   "caster": 1
+  },
+  "skill_id": {
+   "melee_charge": 1,
+   "melee_heavy_slash": 1,
+   "ranged_retreat": 1,
+   "ranged_precise_shot": 1,
+   "ranged_intimidating_shot": 1,
+   "caster_mental_shock": 1,
+   "caster_fear_whisper": 1
+  },
+  "exchange_from_type": {
+   "bust": 3,
+   "portrait": 3,
+   "deed": 3,
+   "crest": 3
+  },
+  "exchange_to_type": {
+   "portrait": 3,
+   "deed": 3,
+   "crest": 3,
+   "bust": 3
+  },
   "buffs": {
    "MAXHP10": 1,
    "MAXHP-10": 6,
