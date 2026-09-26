@@ -92,6 +92,30 @@ public sealed record SkillTemplateConfig(
     /// </summary>
     [property: JsonPropertyName("dmg_pct")] int? DmgPct = null,
 
+    /// <summary>
+    /// 🆕 **A2/A3 · `dmg_pct` 的【出处】（纪律 AT/AZ：契约里的断言要标出处）** ✓
+    ///
+    /// 🔴 **为什么它必须是个【被声明的字段】而不是"随手加的 JSON 键"**：
+    ///    它是**出处标注**（provenance），**不是玩法字段** —— 但**不声明**的话，
+    ///    死数据门禁会把它报成"疑似死数据"（实测：**30 处**）⚠️
+    ///    ⇒ ✅ 声明 = **把"这个键是有意加的"写进契约**，而不是让门禁猜 ✓
+    ///    📌 同族：**红线 21 的反面** —— 数据键必须**有一个说得清的身份** ✓
+    ///
+    /// 取值：`ref:<Hero>/<skill>`（有参考出处，点名来源技能）· `none`（显式声明"我们自加、无来源"）✓
+    /// 🔴 **`none` 与"忘了填"是两件事** —— 前者是**声明**，后者是**缺陷** ⇒ 靠本字段可分辨 ✓
+    /// </summary>
+    [property: JsonPropertyName("_dmg_pct_source")] string? DmgPctSource = null,
+
+    /// <summary>
+    /// 🆕 **A 维：值的来源**（策划 `#475` 立的两维之一）✓
+    /// `ref` = 有参考出处 · `none` = 我们自加、无来源（⇒ 归 `§39` 解冻清单）✓
+    /// ⚠️ 与 <see cref="Origin"/> 是**两个维度**：本字段答"**值**哪来的"，`origin` 答"**这条技能**归谁" ✓
+    /// </summary>
+    [property: JsonPropertyName("value_source")] string? ValueSource = null,
+
+    /// <summary>🆕 **B 维：归属** —— `dd1` = 对应到原版同职业技能 · `ours` = 我们自加 ✓</summary>
+    [property: JsonPropertyName("origin")] string? Origin = null,
+
     [property: JsonPropertyName("heal_fixed")] int? HealFixed = null,
     [property: JsonPropertyName("self_damage_fixed")] int? SelfDamageFixed = null,
     [property: JsonPropertyName("pool_external")] bool PoolExternal = false,

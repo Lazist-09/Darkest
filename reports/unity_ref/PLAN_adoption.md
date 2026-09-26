@@ -197,7 +197,7 @@
 | **A1** | ✅ **buff 原语池（已完成 `c74954e`）** | `JsonBuffs.json`（1801） | 新 `data/buff_primitives.json` + 新原语层 | **先修那条 100% 断裂的引用链** ⇒ 引用链 **0 → 482** 可解析 ✓ |
 | **A2** | ✅ **技能 `dmg%`（已完成 `3f43136`）** | `Heroes/Info/*.bytes` `.dmg`（485） | `skills.json` 的 `dmg_pct` | **P7 的前置**；D5 **已判决（3 条升明确 / 7 条降无对应）** ✓ 🔴 **但只落 14/44**：30 条参考答不上来 ⇒ **P7 仍卡在策划那 30 行裁定** ⚠️ |
 | **A3** | ✅ **英雄武器/护甲 5 阶（已完成 `dd3754e`）** | `Heroes/Info/*.bytes` 的 `weapon:`/`armour:` | `units.json` | 按新指令**取参考值**。✅ **实测：我方 4 英雄 × 5 阶 × 9 字段 = 180 个值，与参考不同 `39` 个**（`crit_pct 18` · `armour.hp 9` · `dmg_max 5` · `def_pct 5` · `dmg_min 2`）⇒ 已全部顶替 ✓ 🔴 其中 **13** 个要落**非整数**（全在 `weapon.crit`）⇒ `WeaponTier.CritPct` **`int` → `double`**（该字段零读取点 ⇒ 零行为 ✓）✅ **并补 3 条守卫用例（含负向证明）** ✓ |
-| **A4** | 🔄 **怪物（读数已出 · 见 §11）** | `Monsters/*.txt`（230） | `units.json`（现 7） | 量级差最大（7 → 230）。🔴 **实测卡点**：参考怪物的 `prot` 是**分数 0~1**（我方是 `[0,85]` 整数）、`def` 是**带 `%` 的小数**（154/230 非整数）、`move_resist` 上界 **1000**（我方 `[0,100]` 且字段名不同：叫 `displace_resist`）；且**我方 3 个敌方原型被 35~62 个文件引用**（`encounters`/`formation`/`enemy_ai`/`skills`/UI/测试）⇒ **不是"加数据"，是"换一套敌人"** ⚠️ |
+| **A4** | 🔄 **步1 已完成：全表已抽（`07_monsters_from_ref.md`）· 步2 待裁** | `Monsters/*.txt`（230） | `units.json`（现 7 → 敌 **3**） | **230 条已抽全**（**2070 个 stats 值逐值复核 0 不匹配** · 每条带 `file:line`）🔴 **实测卡点**：`prot` 是**分数 0~1**（我方 `[0,85]` 整数）· `def` 是**带 `%` 的小数**（154/230 非整数，范围 **−20~999**）· `move_resist` 上界 **1000**（我方叫 `displace_resist`、`[0,100]`）· `.dmg` 是**区间两数**（与我方"倍率"模型不同）⚠️ 且我方 3 个敌方原型被 **47/35/62** 个文件引用 ⇒ **不是"加数据"，是"换一套敌人"** |
 | **A5** | 怪物 AI | `JsonAI.json`（160） | `enemy_ai.json`（现 3） | 依赖 A4 的怪名 |
 | **A6** | 折磨/美德 + act-out 行为表 | `JsonTraits.json`（12） | `traits.json`（现 7 折磨） | 我方**缺 5 美德 + 14 项回合开始 / 15 项反应行为** |
 | **A7** | 饰品（488）/ 怪癖（163） | `JsonTrinkets`/`JsonQuirks` | `trinkets.json` / `quirks.json` | 依赖 A1（数值全靠 buff id） |
@@ -396,6 +396,7 @@ dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMo
 ```
 
 | `_gen_*.py` · `_scan_*.py` · `_q*_*.py` | 可复跑的抽取/统计脚本 ✓ |
+| `07_monsters_from_ref.md` + `monsters_from_ref.json` | 🆕 **A4 步1：参考怪物全表**（230 条 · 2070 个 stats 值逐值复核 · 每条带 `file:line` · **只抽不落库**）✓ |
 
 ---
 

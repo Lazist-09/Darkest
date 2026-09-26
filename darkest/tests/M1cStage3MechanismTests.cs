@@ -86,23 +86,23 @@ public sealed class M1cStage3MechanismTests
             }
         }
 
-        // 两个维度从**原始 JSON** 读（不进配置类型：它们是**出处标注**，不是玩法字段 ✓）
-        using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(ReadData("skills.json"));
-        foreach (System.Text.Json.JsonElement s in doc.RootElement.GetProperty("skills").EnumerateArray())
+        // 🔴 **两个维度现在都是【被声明的契约字段】**（`SkillsConfig`）——
+        //    不声明的话死数据门禁会报"疑似死数据"（实测 30 处）⇒ 声明 = 把"这个键是有意加的"写进契约 ✓
+        foreach (SkillTemplateConfig s in shipped.Skills)
         {
-            string? vs = s.TryGetProperty("value_source", out System.Text.Json.JsonElement v) ? v.GetString() : null;
-            string? org = s.TryGetProperty("origin", out System.Text.Json.JsonElement o) ? o.GetString() : null;
-            if (vs == "none" && org == "ours")
+            if (s.ValueSource == "none" && s.Origin == "ours")
             {
                 fromOurs++;
-                Assert.AreEqual(0, s.GetProperty("dmg_pct").GetInt32(),
-                    $"{s.GetProperty("id").GetString()}：`value_source: none` 的**必须恰好是 0**（不做修正）✓");
+                Assert.AreEqual(0, s.DmgPct,
+                    $"{s.Id}：`value_source: none` 的**必须恰好是 0**（不做修正）✓");
+                Assert.IsNull(s.DmgPctSource,
+                    $"{s.Id}：`value_source: none` 的不该同时声称有参考出处（两维必须一致）✓");
             }
             else
             {
                 fromRef++;
-                Assert.IsTrue(s.TryGetProperty("_dmg_pct_source", out _),
-                    $"{s.GetProperty("id").GetString()}：有出处的那些**必须点名参考技能**（`_dmg_pct_source`）✓");
+                Assert.IsNotNull(s.DmgPctSource,
+                    $"{s.Id}：有出处的那些**必须点名参考技能**（`_dmg_pct_source`）✓");
             }
         }
 
