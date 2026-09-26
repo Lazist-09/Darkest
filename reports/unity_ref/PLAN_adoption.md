@@ -243,6 +243,56 @@ dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMo
 ⇒ ✅ 与 §0 的判断一致：`(1 + DamageMod)` 正是我方要换的那个因子 ✓
 ```
 
+#### 7.1a 🆕 取整改动包（`105`~`110_*.md` · 2026-09-26）—— **已量到可执行粒度**
+
+```
+📊 **参考规律（全库扫出来的，不是零散记录的）**：
+   · **HP 相关走 `CeilToInt`（向上）**：`Character.Heal` · `BattleSolver` 伤害与预览 ·
+     空闲怪 DoT ⇒ 战斗侧 `CeilToInt` **7 处，全部是伤害/治疗** ✓
+   · **非 HP 走 `RoundToInt`（四舍五入）**：压力/减压/火把/折扣 ⇒ 战斗侧 `RoundToInt` **28 处** ✓
+   · 全库 5 种取整：`(int)` 强转 **142**（截断，占 57%）· `Round` 73 · `Ceil` 19 ·
+     `Math.Round` 10 · `Floor` 3 ✓
+📊 **参考下限**：**伤害 0**（`BattleSolver:388`）· **压力 1**（`StressEffect`）·
+   **`TakeDamage`/`Heal` 无下限** ⇒ **不统一** ✓
+📊 **参考是两段取整**：`BattleSolver:387` 的 `Ceil` → **倍率** → `Character.TakeDamage:1109` 的 `Round`
+   ⇒ 🔴 **第二段只在【中间又乘了小数】时起作用**（暴击 `×1.5`）✓
+   （`Ceil` 后是整数，再 `Round` 无影响 —— 实测确认）
+```
+
+```
+🔴 **我方现状**：`BattleMath.ApplyDamageRounding` = **`Round(AwayFromZero)` + 下限 1** ⇒
+   **双重不一致**（方向 + 下限）✓
+   · `7.4` ⇒ 我方 **7** · 参考 **8** ⚠️  · `0.0` ⇒ 我方 **1** · 参考 **0** ⚠️
+
+🔴 **改动包 = 4 个文件 · 6 处编辑**（**不是"一行"**）：
+   ① `darkest/scripts/core/math/BattleMath.cs:182` ⇒ `Round(AwayFromZero)` → **`Ceil`**
+      ＋ clamp 用参数（不硬编码）
+   ② `darkest/data/tuning.json:134` ⇒ **`damage_floor` 1 → 0**
+   ③ 🔴 `darkest/scripts/data/TuningConfig.Validate.CombatSide.cs:59` ⇒
+      `if (t.DamageFloor < 1)` **必须放宽到 `< 0`**（**否则 0 会被校验拒绝**）
+   ④ 🔴 `darkest/tests/FormulaTests.cs` ⇒ **6 条断言会红**（`109_*.md` 更正）：
+      · **`L43`/`L51`/`L59`/`L67`**（`PhysicalHit`，旧 9/9/9/10 ⇒ 新 **10/10/10/11**）
+        ⇒ ⚠️ **它们【间接】走 `ApplyDamageRounding`**（`BattleMath.cs:107`/`:134`）
+      · **`L93`**（`1.49` ⇒ **2**）· **`L95`**（`-3.2` ⇒ **0**）
+      · ＋ **`L90` 测试名**（`RoundsAwayFromZero` 已不成立）也要改
+      · 另 7 条仍过（`L47`/`L55`/`L63`/`L74`/`L92`/`L94`/`L96`）
+   ⑤ `darkest/scripts/gameplay/sim/skill/HealAmount.cs:22` ⇒ `Round` → **`Ceil`**
+      （对应 `Character.Heal:1095`/`:1096`）✓
+   ⑥ ⚠️ **加不加"第二段 `Round`"**（暴击倍率后）⇒ 参考**有** ⇒ **建议加** ✓
+
+🎖️ **调用点已全列**（`107_*.md`）：定义 1 · 调用 14，而**生产代码只 3 处**
+   （`sim/pipeline/DamageStep.cs:105` · `sim/pipeline/WeaponBaseDamage.cs:59` ·
+    `sim/director/BattleProjector.cs:229`）✓
+
+🎖️ **测试基线【实跑】**（`110_*.md`）：`FormulaTests` **15/15 绿** ·
+   `M1cStage3DiffTableTests` **1/1 绿** · 全量 **843/846**（3 个既有红）
+   ⇒ 改动后预计 **6 红**，**可对照** ✓
+   📌 `M1cStage3DiffTableTests` **不会红** —— 它只有相对比较断言，
+      且 **20000 组随机区间实测两口径都保持单调** ✓
+
+⏸️ **本包等策划第 ⑧ 单裁定**（(甲)/(乙)）—— 裁定后可直接照做 ✓
+```
+
 ### 7.2 🎖️ 解开了 P5 的阻塞（`def` 合并）
 
 ```
