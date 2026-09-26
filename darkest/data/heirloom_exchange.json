@@ -1,7 +1,7 @@
 {
   "_note": "M8 祖产：兑换表 12 条 —— 由 tools/dsh/extract_dd1_heirloom_exchange.py 从 E 盘【一手】campaign/heirloom_exchange/heirloom_exchange.json 转写；每条约 origin=dd1 + placeholder=true ✓",
   "_source": "E:\\SteamLibrary\\steamapps\\common\\DarkestDungeon\\campaign\\heirloom_exchange",
-  "_design": "一手实测的设计：**所有兑换都损失 50%** ⇒ 相对价值 portrait : bust : deed : crest = **6 : 3 : 3 : 2** ✓（校验器把它当作硬判据 ✓）",
+  "_design": "一手实测的设计：相对价值 portrait : bust : deed : crest = **6 : 3 : 3 : 2** ✓。🔴 **但「所有兑换都损失 50%」这一条【不成立、已作废】**：按 6:3:3:2 反解这 12 条 ⇒ **只有 3 条（crest→）是 50%**，其余为 33% / 25% / 0%（`bust 3 → deed 2` 亏 33% · `bust 2 → crest 3` 亏 0%）⇒ 故它**降级为读数**（`HeirloomExchangeConfig.LossPercent`/`LossTable`），**不作硬判据**（纪律：判据不许比事实更强 ⇒ 否则会逼数据说谎）。校验器 `Validate()` 只放 4 条结构判据：类型 ∈ 四 · 数量 ≥ 1 · from ≠ to · (from,to) 对唯一 ✓ 见 `HeirloomExchangeConfig.cs:25-29` · `reports/unity_ref/149_*.md` ✓",
   "exchange_rates": [
     {
       "exchange_from_type": "bust",
