@@ -1,0 +1,18 @@
+{
+ "note": "建筑 side_effects.results[].type vs Effects.txt 的 type。只读不落库 ✓",
+ "building_types": {
+  "apply_buff": 5,
+  "add_quirk": 17,
+  "go_missing": 6,
+  "activity_lock": 6,
+  "change_currency": 3,
+  "gold": 4,
+  "remove_trinket": 2,
+  "add_trinket": 1
+ },
+ "effect_types": {
+  "negative": 369,
+  "positive": 370
+ },
+ "intersection": []
+}
