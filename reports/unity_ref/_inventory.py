@@ -168,7 +168,8 @@ for rec in records:
         rec['collections'] = walk_collections(j)
         ks, more = key_summary(j)
         rec['keysummary'] = '; '.join(ks[:9]) + ('; +%d more' % more if more else '')
-        rec['sample_raw'] = first_object_raw(txt, 0)
+        s = first_object_raw(txt, 0)
+        rec['sample_raw'] = s if len(s) <= 4000 else s[:4000] + '\n... (truncated; full file has %d bytes)' % rec['bytes']
         if tolerant:
             # location of the first removed trailing comma, for evidence
             rec['trailing_comma'] = True
@@ -198,6 +199,11 @@ for rec in records:
             rec['prefixes'] = pre
             collect_samples(txt, rec['rel'])
             rec['dotkeys'] = dotkeys(txt)
+            # split at the `info:` section header -> art block vs info block
+            parts = re.split(r'^info:\s*$', txt, flags=re.M)
+            if len(parts) == 2:
+                rec['pre'] = collections.Counter(PREFIX_RE.findall(parts[0]))
+                rec['post'] = collections.Counter(PREFIX_RE.findall(parts[1]))
             rec['nlines'] = txt.count('\n') + 1
             # sample: first 12 non-empty lines
             lines = [l for l in txt.split('\n') if l.strip()]
@@ -300,8 +306,18 @@ def our_for(rel):
 w('# 参考项目数据总账 —— `Darkest-Dungeon-Unity/Assets/Resources/Data/**`')
 w()
 w('> 生成脚本：`reports/unity_ref/_inventory.py`（只读参考项目；仅写 `reports/unity_ref/`）。')
-w('> 所有条目数由脚本实际解析/计数得出，原始机器可读结果见 `reports/unity_ref/_raw_stats.json`。')
+w('> 所有条目数由脚本实际解析/计数得出，原始机器可读结果见 `reports/unity_ref/_raw_stats.json`（330 条记录）。')
 w('> stdout 仅输出 ASCII 进度，中文全部经 `io.open(..., encoding="utf-8")` 写入本文件。')
+w()
+w('| 本目录下的脚本 | 用途 |')
+w('|---|---|')
+w('| `_inventory.py` | 本报告的唯一生成器；含容错 JSON 解析、前缀计数、二进制判定、§7 的交叉验证 |')
+w('| `_aicheck.py` | 校验 `Monsters/*.txt` 的 `name:` 与 `JsonAI.json` 的 `monster_brains.id` 的匹配率（§6.6） |')
+w('| `_langcheck.py` | 独立统计 18 个 XML 的逐语言 `<entry>` 条数（§3） |')
+w('| `_heropeek.py` | 打印 `Heroes/Info/Crusader.bytes` 全文，用于确认 `art:`/`info:` 两段结构（§2.2） |')
+w('| `_rawcheck.py` | 校验 `_raw_stats.json` 自身完整（330 条、无解析失败） |')
+w()
+w('复算入口（PowerShell）：`python reports/unity_ref/_inventory.py` —— 幂等，重跑得到完全相同的报告。')
 w()
 w('## 0. 实际文件统计（与任务书给的估计值不同，以下为 `os.walk` 实数）')
 w()
@@ -365,8 +381,8 @@ w()
 
 w('### 1.1 字段清单（key 名 + 出现频次）')
 w()
-w('以下对每个 JSON 的**每个「对象数组」集合**列出 key 与「在多少条条目里出现过」。')
-w('频次 < 条目数 ⇒ 该字段是可选字段。')
+w('以下对每个 JSON 的**每个「对象数组」集合**列出 key 与「在多少条条目里出现过」：`key×N` 表示 N 条里全都有；'
+  '`key×M/N(可选)` 表示只有 M 条有（可选字段）。字段行超宽时缩进续行，仍是同一集合。')
 w()
 for r in json_recs:
     if r.get('error'): continue
@@ -377,10 +393,11 @@ for r in json_recs:
         w()
         w('- 集合 `%s` — **%d** 条' % (c['path'], c['count']))
         kf = c['keyfreq']
-        cells = ['`%s`×%d' % (k, v) for k, v in kf]
-        # 分成多行以免超宽
+        cells = ['`%s`×%d' % (k, v) if v == c['count'] else '`%s`×%d/%d(可选)' % (k, v, c['count'])
+                 for k, v in kf]
+        # 每行 8 个字段，续行缩进（不换 bullet，以免看起来像新条目）
         for i in range(0, len(cells), 8):
-            w('  - ' + ('字段：' if i == 0 else '') + ' '.join(cells[i:i + 8]))
+            w(('  - 字段：' if i == 0 else '    ') + ' '.join(cells[i:i + 8]))
     w()
     w('样例（原样，≤15 行）：')
     w()
@@ -410,7 +427,7 @@ mean = {
  'commonfx': '通用特效（`.deathfx` 等）',
  'skill': '**战斗技能**定义行（`.id/.anim/.fx/.type/.atk/.dmg/.crit/.launch/.target`…）',
  'combat_skill': '**英雄技能栏**条目（`.id/.icon/.anim/.fx`）',
- 'camp_skill': '**营地技能**（英雄 `Info/*.bytes` 内）',
+ 'camp_skill': '**实测出现 0 次** —— 营地技能不在 `Heroes/Info/*.bytes` 里，只在 `JsonCamping.json`（见 §6.8）',
  'info': '属性段开始',
  'display': '显示参数（`.size`）',
  'enemy_type': '敌人种族（`.id "unholy"/"eldritch"/"human"`…）',
@@ -488,14 +505,29 @@ w('行首记录前缀只统计**顶格**（`^[A-Za-z_]+:`）；`.prop value` 形
 w()
 
 # per-file section for each class
-def class_table(recs, title):
+def class_table(recs, title, splitcol=None):
     w('### ' + title)
     w()
-    w('| 文件 | 字节 | 行数 | 记录前缀计数 | 我方对应 |')
-    w('|---|---:|---:|---|---|')
+    hdr = '| 文件 | 字节 | 行数 | 记录前缀计数 |'
+    sep = '|---|---:|---:|---|'
+    if splitcol:
+        hdr = '| 文件 | 字节 | 行数 | 记录前缀计数 | `%s:` 在 `art:` 段 / `info:` 段 |' % splitcol
+        sep = '|---|---:|---:|---|---|'
+    hdr += ' 我方对应 |'
+    sep += '---|'
+    w(hdr); w(sep)
     for r in recs:
-        w('| `%s` | %d | %d | %s | %s |' % (esc(r['rel']), r['bytes'], r.get('nlines', 0), esc(sig(r)), our_for(r['rel'])))
+        mid = ''
+        if splitcol:
+            mid = ' **%d / %d** |' % (r.get('pre', {}).get(splitcol, 0), r.get('post', {}).get(splitcol, 0))
+        w('| `%s` | %d | %d | %s |%s %s |' % (esc(r['rel']), r['bytes'], r.get('nlines', 0),
+                                              esc(sig(r)), mid, our_for(r['rel'])))
     w()
+    if splitcol:
+        w('说明：DD1 文本按 `info:` 这一行分两段 —— `art:` 段里的 `%s:` 行只声明**动画/特效**'
+          '（`.id/.icon/.anim/.fx`），`info:` 段里的 `%s:` 行才是**真实数值**（`.level/.type/.atk/.dmg/.crit/.launch/.target/.effect`）。'
+          '同一条技能在 `info:` 段会按 5 个等级各来一行，所以条目数 = 技能数 × 5。' % (splitcol, splitcol))
+        w()
 
 heroes = [r for r in records if r['rel'].startswith('Heroes' + os.sep)]
 dungeons = [r for r in records if r['rel'].startswith('Dungeons' + os.sep)]
@@ -504,9 +536,29 @@ maps = [r for r in records if r['rel'].startswith('Maps' + os.sep)]
 mons = [r for r in records if r['rel'].startswith('Monsters' + os.sep)]
 mech_txt = [r for r in records if r['ext'] == '.txt' and not r['rel'].startswith('Monsters')]
 
-class_table(heroes, '2.2 `Heroes/Info/*.bytes` —— 英雄数据（15 个，全部为文本）')
+def sample_block(keyword, title, n=12):
+    hit = [r for r in records if r['rel'].endswith(keyword)]
+    if not hit: return
+    w(title)
+    w()
+    w('```')
+    for ln in samples(hit[0], n): w(ln)
+    w('```')
+    w()
+
+class_table(heroes, '2.2 `Heroes/Info/*.bytes` —— 英雄数据（15 个，全部为文本）', splitcol='combat_skill')
+w('样例（`Heroes/Info/Crusader.bytes`，原样，前 14 行 —— 覆盖 `art:` 段与 `info:` 段起始）：')
+w()
+w('```')
+for ln in samples([r for r in heroes if r['rel'].endswith('Crusader.bytes')][0], 14): w(ln)
+w('```')
+w()
+
 class_table(dungeons, '2.3 `Dungeons/*.bytes` —— 地牢遭遇表（7 个，全部为文本）')
+sample_block('Dungeons' + os.sep + 'Shared.bytes', '样例（`Dungeons/Shared.bytes`，原样，前 12 行）：', 12)
+sample_block('Dungeons' + os.sep + 'Cove.bytes', '样例（`Dungeons/Cove.bytes`，原样，前 12 行）：', 12)
 class_table(inv, '2.4 `Inventory/Items.bytes` —— 物品/堆叠定义（1 个，文本）')
+sample_block('Inventory' + os.sep + 'Items.bytes', '样例（`Inventory/Items.bytes`，原样，前 8 行）：', 8)
 
 w('### 2.5 `Maps/*.bytes` —— 地图数据（7 个，**全部为 Unity 二进制序列化，非 DD1 文本**）')
 w()
@@ -537,10 +589,14 @@ w('前缀合计：' + ' '.join('`%s:`×%d' % (k, v) for k, v in magg.most_common
 w()
 w('全部 `%d` 个怪物文件逐条：' % len(mons))
 w()
-w('| 文件 | 字节 | 行数 | 记录前缀计数 | 我方对应 |')
-w('|---|---:|---:|---|---|')
+w('| 文件 | 字节 | 行数 | 记录前缀计数 | `skill:` 在 `art:` 段 / `info:` 段 | 我方对应 |')
+w('|---|---:|---:|---|---|---|')
 for r in mons:
-    w('| `%s` | %d | %d | %s | %s |' % (esc(r['rel']), r['bytes'], r.get('nlines', 0), esc(sig(r)), our_for(r['rel'])))
+    w('| `%s` | %d | %d | %s | **%d / %d** | %s |' % (esc(r['rel']), r['bytes'], r.get('nlines', 0), esc(sig(r)),
+        r.get('pre', {}).get('skill', 0), r.get('post', {}).get('skill', 0), our_for(r['rel'])))
+w()
+w('`skill:` 两段含义同 §2.2：`art:` 段是动画声明，`info:` 段是 5 个等级的数值行。'
+  '因此「一个怪物有几个技能」= `info:` 段的 `skill:` 数 ÷ 5。')
 w()
 w('样例（`Monsters/skeleton_common_A.txt`，原样，前 12 行）：')
 w()
@@ -746,6 +802,49 @@ w('5. **量级对比**：参考项目文本占绝对主体 —— xml %d B + txt
   % (xmlbytes, txtbytes, xmlbytes + txtbytes, sum(r['bytes'] for r in records),
      100.0 * (xmlbytes + txtbytes) / sum(r['bytes'] for r in records),
      jsonbytes, 100.0 * jsonbytes / sum(r['bytes'] for r in records), oubytes))
+# ---- 交叉核对：怪物文件 vs JsonAI brains / 英雄 Info vs Upgrades
+brain_ids = set()
+for r in records:
+    if r['rel'] == 'JsonAI.json':
+        j = json.loads(strip_trailing_commas(io.open(os.path.join(REF, r['rel']), 'rb').read().decode('utf-8')))
+        brain_ids = set(b['id'] for b in j['monster_brains'])
+monster_names = {}
+for r in mons:
+    d = io.open(os.path.join(REF, r['rel']), encoding='utf-8', errors='replace').read()
+    m = re.search(r'^name:\s*(\S+)', d, re.M)
+    if m: monster_names[m.group(1)] = r['rel']
+mine = set(monster_names)
+exact = sum(1 for n in mine if n in brain_ids)
+fallback = sum(1 for n in mine if n not in brain_ids and n.rsplit('_', 1)[0] in brain_ids)
+still = sorted(n for n in mine if n not in brain_ids and n.rsplit('_', 1)[0] not in brain_ids)
+brain_orphan = sorted(brain_ids - mine - set(n.rsplit('_', 1)[0] for n in mine))
+info_names = set()
+for r in heroes:
+    d = io.open(os.path.join(REF, r['rel']), encoding='utf-8', errors='replace').read()
+    m = re.search(r'^name:\s*(\S+)', d, re.M)
+    if m: info_names.add(m.group(1))
+upg_names = set(os.path.splitext(os.path.basename(r['rel']))[0].split('.')[0]
+                for r in records if r['rel'].replace(os.sep, '/').startswith('Upgrades/Heroes/'))
+w('6. **`JsonAI.json` 与 `Monsters/*.txt` 的 id 不是一一对应**：%d 个怪物文件里，'
+  '**%d 个**能按名字精确命中 `monster_brains`，**%d 个**要靠「去掉 `_A/_B/_C/_D` 后缀回退到基础职业名」才能命中，'
+  '仍有 **%d 个**完全没有 AI 记录（%s 等 —— 尸体/道具/障碍这类不需要 AI 的实体）。'
+  '反过来，`monster_brains` 里有 **%d 个 id** 在 `Monsters/` 里没有对应文件（%s 等，含 `default`）。'
+  '⇒ 移植时**不能**用「怪物名 ↔ AI id」直接 join。'
+  % (len(mons), exact, fallback, len(still), '、'.join(still[:5]), len(brain_orphan), '、'.join(brain_orphan[:5])))
+_trees = cc('Upgrades' + os.sep + 'Heroes' + os.sep + 'vestal.upgrades.json', '$.trees')
+_maxcs = max(r.get('prefixes', {}).get('combat_skill', 0) for r in heroes)
+w('7. **`Upgrades/Heroes/` = %d 个文件，但 `Heroes/Info/` = %d 个英雄**：`Heroes/Info/` 缺 `Musketeer.bytes`，'
+  '却有 `musketeer.upgrades.json` —— Musketeer 与 Arbalest 共用同一份 `Info`（火枪手是 Arbalest 的换皮变体）。'
+  '每个英雄 `Info` 文件的 `combat_skill:` 实测 **%d 条 = 7 个技能 × 5 级 + 7 条 `art:` 段动画声明**；'
+  '而 `Upgrades/Heroes/*.upgrades.json` 每个英雄 **%d 棵树**，%d 文件 × %d 树 = **%d 棵升级树**。'
+  % (len(upg_names), len(info_names), _maxcs, _trees, len(upg_names), _trees, len(upg_names) * _trees))
+w('8. **营地技能是「跨职业共享」而非每职业一份**：`JsonCamping.json` 只有 %d 条 `skills`，'
+  '每条带一个 `hero_classes` 白名单（第 1 条就有 %d 个职业），与我方 `camp_skills.json` 的 %d 条 '
+  '`owner_unit` 结构不同 —— 我方是「一技能一主人」，参考项目是「一技能多主人」。'
+  % (cc('JsonCamping.json', '$.skills'),
+     [c['count'] for c in [x for x in records if x['rel'] == 'JsonCamping.json'][0]['collections']
+      if c['path'] == '$.skills[0].hero_classes'][0],
+     len(json.load(io.open(r'F:\GithubPro\Darkest\darkest\data\camp_skills.json', encoding='utf-8'))['camp_skills'])))
 w()
 
 # ---------------- 7. independent cross-verification

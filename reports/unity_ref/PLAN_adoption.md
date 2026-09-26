@@ -40,7 +40,7 @@
 
 ## 2. 🔴 三条最值钱的发现（决定执行顺序）
 
-### 2.1 🔴🔴 我方 buff 引用链 **100% 断裂**（最高优先）
+### 2.1 🔴🔴 我方 buff 引用链 **100% 断裂**（最高优先）—— ✅ **A1 已落地（`c74954e`）**
 ```
 实测：扫描 `darkest/data/*.json` 全部 `"buffs":[...]` ⇒ 引用 **556 个不同 buff id**
       （quirks 182 + trinkets 374）· 而 `buff_defs.json` **只定义 22 个** · 且 **556/556 全部未定义**
@@ -48,6 +48,21 @@
 ⇒ 🔴 **即：`quirks.json`(170 条) 与 `trinkets.json`(196 条) 的效果【一条都不会生效】**
 ⇒ ✅ 参考项目有完整池（**1801 条**）且 `DarkestDatabase.cs:393-399/416-422/1829-1830` 三处共用同一池 ✓
 ⇒ 📌 **这是"数据就位 ≠ 功能就位"（纪律 BK）最典型的一例** ✓
+
+🆕 **A1 已落地（提交 `c74954e`）** —— 实测读数：
+   · 池子：`darkest/data/buff_primitives.json` **1801 条 / stat_type 25 / rule_type 23 / 组合 41 /
+     duration 63 / is_false_rule 60 / remove_if_not_active 1** ✓
+   · 解析率：**556 个去重引用 ⇒ 可解析 482 / 未解析 74**（50 已改名 + 24 未覆盖，逐条在
+     `reports/ref_buff_primitives_source.md`）✓
+   · 去向分布：`StatMod 579 · DamageMod 359 · UnitResistance 329 · MoraleMod 232 ·
+     ExpeditionLayer 109 · ProbMod 99 · HealMod 94` ⇒ **Frozen 0** ✓
+   · 🔴 **顺带修掉 3 个上游不存在的名字**（红线 21 实例）：`resolve_xp_percent` /
+     `remove_quirk_chance` / `dmg_received_percent` ⇒ 真名见 `BuffPrimitiveTranslation.DestinationNote`；
+     M2 冻结清单 **13 → 24**（= 实测 25 个 `stat_type` − 已激活 1）✓
+   · ⚠️ **消费侧仍未接线**（怪癖/饰品至今没被生产代码加载）⇒ **"能解析" ≠ "效果生效"**（纪律 BK）✓
+   · 🔴 **A1 暴露的一条硬前置**：参考项目的 `amount` 是【分数】（0.04 = 4%，**非整数 1676/1801**），
+     我方是【整数百分比】⇒ **采用数值必须 ×100**，且**舍入口径未定** ⇒ 🔴 **A2/A7 的数值搬运被它阻塞**
+     （口径没定就搬 = 我替两方定口径）⇒ 见 `reports/contract_change_request_buff_primitives.md §1.3` ✓
 ```
 
 ### 2.2 ✅ DD1 buff 的 schema **可直接照抄**（比我方粒度更省代码）
@@ -96,8 +111,8 @@
 
 | # | 项 | 参考来源 | 我方目标 | 为什么这个顺序 |
 |---|---|---|---|---|
-| **A1** | 🔴 **buff 原语池** | `JsonBuffs.json`（1801） | 新 `data/dd1_buffs.json` + 新原语层 | **先修那条 100% 断裂的引用链** ⇒ 一落地，怪癖与饰品**立刻开始生效** |
-| **A2** | 技能 `dmg%`（44 条） | `Heroes/Info/*.bytes` `.dmg`（485） | `skills.json` 的 `dmg_pct` | **P7 的前置**；且**同时判决 D5** ✓ |
+| **A1** | ✅ **buff 原语池（已完成 `c74954e`）** | `JsonBuffs.json`（1801） | 新 `data/buff_primitives.json` + 新原语层 | **先修那条 100% 断裂的引用链** ⇒ 引用链 **0 → 482** 可解析 ✓ |
+| **A2** | 技能 `dmg%`（44 条） | `Heroes/Info/*.bytes` `.dmg`（485） | `skills.json` 的 `dmg_pct` | **P7 的前置**；且**同时判决 D5** ✓ ⚠️ **被 §1.3 的舍入口径阻塞** |
 | **A3** | 英雄武器/护甲 5 阶 | 同上 `weapon:`/`armour:` | `hero_upgrades.json` / `units.json` | 按新指令**取参考值** ⇒ 消化那 97 条冲突 ✓ |
 | **A4** | 怪物 | `Monsters/*.txt`（230） | `units.json`（现 7） | 量级差最大（7 → 230） |
 | **A5** | 怪物 AI | `JsonAI.json`（160） | `enemy_ai.json`（现 3） | 依赖 A4 的怪名 |
@@ -225,11 +240,73 @@ dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMo
 | 文件 | 内容 |
 |---|---|
 | `00_our_data_inventory.md` | 我方 `darkest/data/*.json` 25 文件总账（条目数 + 字段频次）✓ |
-| `01_data_inventory.md` | 参考项目数据总账（**全部**数据文件：json/bytes/txt/xml）✓ |
+| `01_data_inventory.md` | 参考项目数据总账（**全部**数据文件：json/bytes/txt/xml/csv）✓ |
 | `02a_where_skill_numbers_live.md` | 技能数值在哪个文件（含 `combat_skill:` 28 个 key 全集）✓ |
 | `02b_hero_skills_from_ref.md` | 🔴 **15 英雄 × 7 技能 × 5 级 = 525 条数值**（4 个原型逐级明细）✓ |
 | `hero_skills_from_ref.json` | 上表的机器可读版（采用 A2/A3 的输入）✓ |
 | `03_combat_logic.md` | 🔴 战斗逻辑（伤害/命中/暴击/抗性/回合/死门/士气）—— **已交付**（516 行 · 结论见本文 §7）✓ |
-| `04_town_economy_quests.md` | 城镇/经济/任务/建筑/补给 —— **分队进行中** |
+| `04a_town_economy.md` | 🔴 **城镇经济**（8 建筑 / 20 升级树 / 99 前置 / 补给 / `Curios.csv` 18 列）—— **已交付**（86.8KB · 结论见本文 §10.1）✓ |
+| `04b_quests_loot_narration.md` | 🔴 **任务 / 战利品 / 旁白 / 队伍名 / 障碍陷阱** —— **已交付**（89.2KB · 结论见本文 §10.2）✓ |
 | `05_buffs_ai_quirks_trinkets.md` | buff/AI/怪癖/特质/饰品 数据与逻辑 ✓ |
+| `ref_buff_primitives_source.md` | 🆕 **A1 原语层的来源与实测**（由提取器每次重跑生成；含 74 条未解析的**逐条待改清单**）✓ |
+| `../contract_change_request_buff_primitives.md` | 🆕 A1 之后契约侧要改的 **5 处**（文件名/形状/量纲/判据源/覆盖差集）✓ |
+
+---
+
+## 10. 🆕 两份分队交付的关键结论（`04a` / `04b` · 2026-09-26）
+
+> 🔴 **过程留痕（诚实）**：城镇/任务这条线**第一次派发失败了**（分队跑到一半崩掉，留下一个 82KB 的
+> 半成品 `04_town_economy_quests.md`）⇒ 我**把它拆成两条更窄的任务重派**（`04a` 城镇经济 / `04b` 任务·战利品·旁白），
+> 并在任务书里加了硬约束「**先写骨架、每次探测后落盘、不许攒着最后写**」⇒ 两条都按时交付 ✓
+> 📌 那个半成品**已删除**（它的范围被 `04a` + `04b` 完整覆盖，且那两份每条断言都带 `file:line` 并各自纠正了自己的先验错）✓
+
+### 10.1 城镇经济（`04a_town_economy.md` · 86.8KB）
+
+```
+① 🔴 **升级只花传家宝**：99 条 `currency_cost` 里 `gold` 成员**一条不缺但恒为 0**；
+   成员出现次数 `gold 99 / crest 96 / bust 35 / portrait 30 / deed 23`；
+   **只有 `gold` 存在 amount=0** ⇒ 没有 gold-only、也没有"传家宝部分全零"的 requirement ✓
+   满级全清求和 = **crest 2161 / bust 534 / deed 482 / portrait 277 / gold 0** ✓
+   重复树曲线逐项相同（abbey 三树 · tavern 三树 · `rostersize ≡ numrecruits` · `disease_quirk_cost ≡ cost`）✓
+② 🔴 **`upgrade_discount` 被解析但【从未被消费】** ⇒ 那个怪癖**不改变任何城镇价格**！
+   字面量只在 `JsonBuffs.json:14794/14807`（weapon·armour · amount 0.2）+ 本地化 tooltip 16 处
+   （英文原文 "…Weapon Upgrade Cost" ⇒ **设计意图存在、逻辑被丢**）✓
+   ⇒ ✅ 我方 `BuffPrimitiveTranslation` 已把它归 **`ExpeditionLayer`（城镇层）** ⇒ 与实测一致 ✓
+③ 🔴 **建筑升级本身不打折**（`Estate.cs:389-419` 的 `CanPayPrice` 无 discount 参数）⇒
+   0.5 的建筑折扣只作用于英雄技能/装备/饰品 ✓
+④ ⚠️ **参考实现缺陷（不要照抄）**：`NomadWagon.UpdateBuilding` 用 `Discount +=` 而**未清零** ⇒
+   重复调用会**叠加折扣** ⇒ 我方应"重新求和"而不是照抄 ✓
+⑤ 🎖️ **尾随逗号清单是完整的**：4/8 建筑文件非法 —— `abbey` 10 处（19,28,36,44,52,60,68,69,160,258）·
+   `sanitarium` 2 处（41,65）· `tavern` 1 处（281）· `nomad_wagon` 1 处（22）；两种形态 `],`→`}` 与 `},`→`]` ✓
+⑥ 🔴 **3 个建筑级字段被解析从不被读**（`on_start_town_visit_priority` / `number_of_quests_finished` /
+   `highest_dungeon_level`，各声明 8 次，全仓 28 处命中**无一处是"读建筑字段"**）⇒
+   **建筑从不按任务数/地牢等级解锁** ⇒ 想要 DD1 行为必须**我们自己做** ✓
+```
+
+### 10.2 任务 / 战利品 / 旁白（`04b_quests_loot_narration.md` · 89.2KB）
+
+```
+① 🔴 **`JsonQuests.json` 里【没有】任务定义数组**：顶层恰好 7 键 —— `stress_damage`(20) · `goals`(**45**) ·
+   `town_progression_goal_ids`(**4**) · `types`(**6**) · `plot_quests`(**30**) · `generation`(5 子键) ·
+   `restriction`(1 子键) ⇒ **只有那 30 条 plot_quests 是真任务**（全 `is_plot_quest: true`）✓
+   尾随逗号 **恰好 1 处**（`Curios/Traps.json` 是 8 处）✓
+② 🔴 **战利品"54 张表"其实只有 33 个不同 id**（`H` 一个 id 就有 13 个变体）；
+   变体选择是 `List.Find`（**首个匹配，不是随机**）⇒ **正确性依赖数据顺序**；
+   ⚠️ **参考实现缺陷**：`table A` 引用了不存在的 `table J`（`JsonLoot.json:39`），
+   而 `RaidSolver.cs:151` 是**裸字典索引** ⇒ 有 `KeyNotFoundException` 风险 ✓
+   **24 个 id 定义了却没人引用** ✓
+③ 🔴 **旁白：36 事件 / 465 audio_events，其中【5 个字段被解析后从不读】**
+   （顶层 `filters` · `entries[].tone` · `entries[].priority`（**连属性都没有**）·
+   `queue_while_audio_playing` · `filter`）；另有 **3 个事件 id 完全没有调用点**
+   （`half_health_half_stress` / `hunger` / `enter_hallway`）✓
+④ 🔴 **任务加载会丢真数据**：`show_as_quest`（28 真/17 假）与 `ignore_fog_of_war` 在 DTO 里但**从不拷进 `QuestGoal`**；
+   `is_affliction`/`is_virtue` 与 goal 的 `amount` 从不读；奖励物品**写死最多 3 个**；
+   `types[].goal_lists[].goals` 被**拍平**（组合语义丢失）✓
+⑤ 📊 **计数更正**：障碍 = **5**（不是 4）· 陷阱 = **4**（只有 3/5 两档变体 ⇒ **难度 6 的陷阱与难度 5 数值相同**，
+   代码硬编码回落）· `PartyNames` = **186 条**，键只有 `{id, required_hero_class}`，
+   🔴 **文件里【没有名字字符串】** ⇒ 名字来自本地化分类 `"PartyNames"` ✓
+⑥ 🎖️ 分队**自己纠了两个先前的错**（`data.percentage` 确实存在 · 陷阱 `Variations` 确实被消费），
+   并**撤回**了"`99` 哨兵 = 禁止"的猜测（`RaidPartyPanel.cs:32-36` 证明它是**等级上限**）✓
+```
+
 | `_gen_*.py` · `_scan_*.py` · `_q*_*.py` | 可复跑的抽取/统计脚本 ✓ |

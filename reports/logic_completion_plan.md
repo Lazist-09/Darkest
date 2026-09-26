@@ -115,6 +115,34 @@ M5/M6/M7/M8/M9/M10/M11/M12/M13/M14/M15  并行
 - 待做：① `data/dd1_buffs.json`（原版 **2020 条**，11 字段，`origin:dd1`） ② `BuffPrimitiveTranslator` ③ 未映射清单 ④ P 校验。
 - 完成判据：条数读数 = 2020、字段数读数 = 11、未映射清单条数、P 校验用例。
 
+#### ✅ **P8 的一半已由 A1 落地**（`c74954e`）—— 但**判据源与条数都被用户指令改了**
+
+```
+🔴 **口径变化**（用户指令 2026-09-25"数值采用本地参考项目的来源"，顶替 `§32.1/§32.3` 的一手优先）：
+   · 判据源：**一手 E 盘 `base.buffs.json`（2020 条 / 27 个 `stat_type`）** → **本地参考项目
+     `JsonBuffs.json`（1801 条 / 25 个 `stat_type`）** ✓
+   · 文件名：`dd1_buffs.json`（**从未存在过**）→ **`buff_primitives.json`** ✓
+   · 字段数：11 → **10**（`id`/`stat_type`/`stat_sub_type`/`amount`/`remove_if_not_active`/
+     `rule_type`/`is_false_rule`/`rule_data.{float,string}`/`duration_type`?/`duration`?）✓
+   ⇒ 📌 **所以 P8 的完成判据那行（2020 / 11）已作废** ⇒ 见下面的新判据 ✓
+✅ **已做**（实测读数）：
+   · ① 数据 = `darkest/data/buff_primitives.json` · **1801 条 / 25 / 41 / 23 / 63 / 60 / 1** ✓
+   · ② 翻译器 = `BuffPrimitiveTranslation`（`ByStatType` 逐名实测 · 9 个去向 · `Activated`/`Pending` 单一真值）✓
+   · ③ 未映射清单 = **`Frozen` 0 条**（1801 条全部有去向：`StatMod 579 / DamageMod 359 /
+     UnitResistance 329 / MoraleMod 232 / ExpeditionLayer 109 / ProbMod 99 / HealMod 94`）✓
+   · ④ P 校验 = `BuffPrimitivesConfig.Validate`（结构 fail-fast）+ `BuffPrimitiveTranslation.ValidateAgainst`
+     （**加载即校验**：M2 清单里每个名字必须真是上游 `stat_type` ⇒ 修掉 3 个上游不存在的名字）✓
+   · 引用解析率：**556 个去重引用 ⇒ 482 可解析 / 74 未解析**（74 = 50 已改名 + 24 未覆盖）✓
+🔴 **未做 / 不能验**（不许当已完成）：
+   · 🔴 **消费侧未接线**：怪癖/饰品至今**没有**被生产代码加载（`TrinketsConfig.Parse`/`QuirksConfig.Parse`
+     只在用例里被调用）⇒ **"能解析" ≠ "效果生效"**（纪律 BK）✓
+   · 🔴 **74 条悬空未清零** ⇒ 归 **A7**（怪癖/饰品改用参考项目来源）✓
+   · ⚠️ `amount` 是**分数**（非整数 1676/1801）⇒ 采用数值必须 ×100，**舍入口径待架构裁**
+     ⇒ 见 `reports/contract_change_request_buff_primitives.md §1.3` ✓
+✅ **新完成判据**（替代旧那行）：`buff_primitives.json` 条数 = **1801** · 字段 = **10** ·
+   未映射 = **0** · M2 清单与上游闭集**双向相等** · 加载即校验在生产路径上真跑 ✓
+```
+
 ### P9 — M3 22 条 buff 三类处置 step ②
 
 - 现状：step ①（列出 22 条 + 三类）已有（`e251e0b`/`1c34b8d`）；**step ② 未做**。
@@ -176,7 +204,7 @@ M5/M6/M7/M8/M9/M10/M11/M12/M13/M14/M15  并行
 | P5 | M1a 剩余 | 待做（`def` 合并阻塞于裁定） |
 | P6 | M1b 剩余 | ✅ **已完成**（① 阶数 ≠ 5 报错（补强信息：带实际阶数 + 分"不足/过多"）② 🆕 **缺阶报错** `RequireNoNullTier` —— 不查会先 **NRE** 把数据问题伪装成代码崩了 ③ 整段缺席合法 ④ **17 个旧字段逐位相同**；口径声明：P6 的"阶数"= **数组里有几阶**，**不是** `O-101` 的"当前第几阶"（那件代码里还不存在）⇒ 全量 836/836 绿） |
 | P7 | M1c 换伤害模型 | 待做 ← **下一项**（🔴 **两个硬前置**：`O-101` 的"当前阶"还不存在 + 技能 `dmg%` 只有 11/44 条 ⇒ **先补前置，再换公式**） |
-| P8 | M2 buff 原语层 | 待做 |
+| P8 | M2 buff 原语层 | 🟡 **数据/翻译/校验已由 A1 落地 `c74954e`**（1801 条 · 25 个 `stat_type` · 去向 `Frozen 0` · 引用解析 **0 → 482**）；🔴 **剩**：消费侧接线（怪癖/饰品仍未被生产代码加载）+ 74 条悬空（归 A7）。⚠️ 判据源已从"一手 2020/11"改为"参考项目 1801/10"，文件名 = `buff_primitives.json`（详见 §3 P8） |
 | P9 | M3 step ② | 待做 |
 | P10 | M4 T1~T6 验收 | 待做 |
 | P11 | M5 P 校验复核 | 待做 |
@@ -189,3 +217,9 @@ M5/M6/M7/M8/M9/M10/M11/M12/M13/M14/M15  并行
 | P18 | M15 P2 同 seed 对照 | 待做 |
 
 > 执行顺序：**P1 → P2 → P3 → P4 → P6 → P7 → 第三步切换 → P5/P8/P9/P10…**，每项落地即回填本表的「状态」列与提交号。
+>
+> 🔴 **2026-09-26 起插入参考项目采用线（A1~A12）**（用户指令：数值采用 `F:\GithubPro\Darkest-Dungeon-Unity`）：
+> `A1 ✅ c74954e（buff 原语层）→ A2（技能 dmg% 44 条，同时关 D5；⚠️ 被"分数→百分比"舍入口径阻塞）
+> → A7（怪癖/饰品换源 ⇒ 清零 74 条悬空 ⇒ 才给 TrinketsConfig 传 knownBuffIds）→ …` ⇒ 详见
+> `reports/unity_ref/PLAN_adoption.md §4`（含每项的完成判据与依赖）✓
+> ⚠️ **A 线不替代 P 线**：A 线改**数据来源**，P 线是**逻辑侧实现**；A2 与 P7 互为前置（P7 要 A2 的 44 条 `dmg%`）✓

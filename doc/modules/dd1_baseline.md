@@ -3424,3 +3424,122 @@ graveyard.character.png · .character_background.png · .dd.character.png · .ic
    · **`P23③`（传家宝产出量）归策划** —— 一趟 46 ≥ 三栋首级 14 ⇒ 见 §55.3 / §39 第 9 项 ✓
    · **契约 4 处归架构** —— 见 `reports/contract_change_request_heirloom_step2.md` ✓
 ```
+
+---
+
+## §57 🆕 R22 执行记录：**A1 落 buff 原语层（参考项目 1801 条）—— 引用链从 0 条解析到 482 条**
+
+### 57.1 🔴 口径声明（**先定口径再数数** —— 纪律 AU）
+
+```
+🔴 **"数值采用参考项目"这条指令，我按下面这样落地**（先写死口径，避免事后解释）：
+   ① **来源** = `F:\GithubPro\Darkest-Dungeon-Unity`（**本地参考项目**）——
+      它自己读的是原版数据、字段名与取值都逐字保留 ⇒ **它就是"参考项目的来源"** ✓
+   ② **顶替范围** = **原语定义池**（本轮）⇒ `darkest/data/buff_primitives.json` ✓
+      ⚠️ **不是**"把怪癖/饰品的引用也一起换掉" —— 那会一次改两类（AY）⇒ 归 A7 ✓
+   ③ **判据源已换**：原语分类表的判据源从【一手 E 盘 48 组合 / 27 个 stat_type】换成
+      【参考项目 1801 条 / 25 个 stat_type / 41 组合】✓
+   ④ **一手退化为交叉校验**（不再是"谁对"，而是"参考项目比一手少了什么"）✓
+   ⑤ **"落库"与"生效"分开写**：本轮只做**定义池 + 解析 + 校验**；**消费侧未接线**将单独声明 ✓
+```
+
+### 57.2 🔴 **病灶（实测，不是估计）**
+
+```
+🔴 我方 `darkest/data/*.json` 引用了 **556 个去重的 buff id**（怪癖 182 + 饰品 374）✓
+🔴 参考项目的 buff 定义池**一条都没落库** ⇒ **556/556 一个都解析不到** ✓
+🔴 而我方 `buff_defs.json` 里那 22 条（`stun`/`mark`/`taunt`/`bleed`/`virtue_*`…）**与参考项目零重叠**
+   ⇒ 既不是"参考项目的定义"、也没有**任何**数据引用它们 ✓
+   ⇒ 🎖️ 结论：**怪癖/饰品的效果此前一条都不会生效**（引用全悬空）✓
+```
+
+### 57.3 ✅ 做了什么（**数据 1 + 代码 3 + 用例 3 + 工具 1**）
+
+```
+✅ ① **数据**：`darkest/data/buff_primitives.json`（584KB）——
+      参考项目 `JsonBuffs.json` **逐字段转写**：1801 条 / `stat_type` 25 / 组合 41 / `rule_type` 23 /
+      带 `duration_type`+`duration` 63 / `is_false_rule=true` 60 / `remove_if_not_active=true` 1 ✓
+✅ ② **解析+校验**：`scripts/data/BuffPrimitivesConfig.cs`（零 Godot · fail-fast 结构校验：
+      id 唯一 / `stat_type`·`rule_type` 必填 / **`duration_type` 与 `duration` 同生同死** / `duration > 0`）✓
+      🔴 **词表（25/23/5）不抄进 C#** —— 真值在数据侧，由提取器与用例**双向**钉住（一份真值 ✓）
+✅ ③ **接线（本表唯一的生产消费点，不是空转读）**：`DirectorBridge` 加载即
+      `BuffPrimitiveTranslation.ValidateAgainst(...)` ⇒ **M2 清单里每个名字必须真是上游的 `stat_type`** ✓
+✅ ④ 🔴 **修掉 3 个上游不存在的名字**（红线 21「写了但没接上」的**实例**）——
+      旧 M2 冻结清单里的 `resolve_xp_percent` / `remove_quirk_chance` / `dmg_received_percent`，
+      **真名**是 `resolve_xp_bonus_percent` / `remove_negative_quirk_chance` / `damage_received_percent`
+      ⇒ 旧名单里那 3 条**永远接不上**（"待接"却接不上 = 骗两种人 ⚠️）✓
+      清单本体改为**单一真值**（`BuffPrimitiveTranslation.Activated`/`.Pending`），`HealAmount` 只**转发** ✓
+      条数 **13 → 24**（= 实测 25 个 `stat_type` − 已激活的 1 条）✓
+✅ ⑤ **分类表判据源换成参考项目**：逐名实测（新增 `MoraleMod`/`HealMod`/`ExpeditionLayer` 三个去向）✓
+✅ ⑥ **用例**：`BuffPrimitivesTests`（5 条）+ `PrimitiveSourceCoverageTests`（1 条）✓
+      删除已被取代的 `BuffPrimitiveTranslationTests`（它把**一手**当判据源 ⇒ 属旧优先级）✓
+✅ ⑦ **工具**：`tools/dsh/extract_ref_buff_primitives.py`（每次运行**重测**全部数字，
+      与"指令定义"不符 ⇒ exit 1）✓
+```
+
+### 57.4 📊 实测读数（**用例自己打出来的** —— 纪律 BJ）
+
+```
+[A1·原语池] 1801 条 · stat_type 25 · rule_type 23 · 组合 41 · duration 63 · false_rule 60 · remove_if_not_active 1 ✓
+[A1·去向]   StatMod 579 · DamageMod 359 · UnitResistance 329 · MoraleMod 232 ·
+            ExpeditionLayer 109 · ProbMod 99 · HealMod 94   ⇒ 合计 1801 · **Frozen 0** ✓
+[A1·解析率] 我方引用去重 556 ⇒ 可解析 **482** / 未解析 **74** ✓
+[A1·M2清单] 已激活 1 · 待接 24 · 合计 = 上游闭集 25 ✓
+[A1·量纲]   amount 非整数 **1676/1801** ⇒ 参考项目用【分数】（0.04 = 4%），我方用【整数百分比】✓
+[A1·覆盖]   stat_type 一手 27 / 参考 25 ⇒ 一手独有 3 · 参考独有 1（`hp_heal_amount`）✓
+            rule_type 一手 27 / 参考 23 ⇒ 一手独有 4 · 参考独有 0 ✓
+```
+
+🔴 **两条必须记住的量纲/覆盖结论**（它们会影响后面每一步）：
+```
+🔴 ① **`amount` 是【分数】**：`0.04` 读作 **4%**；`combat_stat_multiply` 的 `0.2` 读作 **×1.2**（不是 ×0.2）✓
+      ⚠️ 我方是**整数百分比**（`HealAmount.Scale(heal, pct)` 做 `1 + pct/100`）
+      ⇒ 🎖️ **采用参考项目数值时必须 ×100**，且**舍入口径要先定**（否则 0.5% 这种值会静默丢 ✓）
+🔴 ② **采用参考项目会丢表达力**（**必须让策划知道**，不许静默丢）：
+      · 3 个 `stat_type` 参考项目没有：`activity_side_effect_chance` / `crit_received_chance` / `ignore_stealth`
+      · 4 个 `rule_type` 参考项目没有：`attacking_monster_type` / `is_actor_status` / `is_guarded` /
+        `monster_type_count_min`
+      ⇒ 依赖它们的 buff 在参考项目里**换了写法或干脆没有** ⇒ 已登记待裁 ✓
+```
+
+### 57.5 🔴 诚实边界（**能验 / 不能验**）
+
+```
+✅ **能验**（用例/门禁逐条钉住）：
+   · 池子规模与结构不变量（1801 / 25 / 23 / 41 / 63 / 60 / 1）✓
+   · 我方 556 个引用的解析率 = 482（**这是"定义存在"，不是"效果生效"**）✓
+   · M2 清单与上游闭集**双向相等**（少一条/多一条都红）✓
+   · 加载即校验**真的在生产路径上跑**（`DirectorBridge`）✓
+🔴 **不能验 / 尚未做**（**明说，不假装**）：
+   · 🔴 **消费侧仍未接线**：怪癖/饰品至今**没有**被生产代码加载
+     （`TrinketsConfig.Parse` / `QuirksConfig.Parse` **只在用例里**被调用）⇒
+     🎖️ **"能解析" ≠ "效果生效"**（BK：数据在位 ≠ 功能在位）✓
+   · 🔴 **未解析的 74 条仍是悬空**：50 条"参考项目已改名" + 24 条"参考项目未覆盖"
+     ⇒ 逐条列在 `reports/ref_buff_primitives_source.md` ⇒ **这就是 A7 的待改清单** ✓
+   · ⚠️ `remove_if_not_active`（1801 条里 1 条 true）**已导入但没有消费点** ⇒
+     用例把它 true 的**条数钉住**（改了会红）⇒ 不算"接线"，算"防静默"✓
+```
+
+### 57.6 📊 门禁与测试读数（**全部当场重跑**）
+
+```
+· 测试 **841/841 通过**（A1 前 836；+5 = 新增 6 − 删除 1）✓
+· 构建 **0 错误** ✓
+· `check_file_size` 443 文件 / **0 白名单** ✓（新 4 − 删 1）
+· `check_data_discipline --all` 三扫 **0 处**（numbers 136 文件 1269 处 / deadfuncs 0 / deadkeys 0）✓
+· `check_no_external_assets` **OK**（36 文件 · 0 白名单）✓
+· `check_godot_refs` **0 处** ✓
+· 冒烟 **13/13 绿**（`PROBE-EXIT bad=0 code=0`）✅
+```
+
+### 57.7 📌 提交号与下一步
+
+```
+📌 提交：`c74954e` A1：落 buff 原语层（参考项目 1801 条）—— 引用链从 0 条解析到 482 条 ✓
+📌 下一步（按采用计划 `reports/unity_ref/PLAN_adoption.md` 的顺序）：
+   · **A2** 44 条技能 `dmg%` 从参考项目重新取值（同时关掉 **D5**：9 条一致 / **3 条我方错**）✓
+   · **A7** 怪癖/饰品改用参考项目来源 ⇒ 把 74 条悬空清零 ⇒ 再给 `TrinketsConfig` 传 `knownBuffIds`
+     ⇒ 那时 **T2 的 buff 交叉校验才真正跑起来**（BuffsCrossChecked 由 false 变 true）✓
+🔴 并**已挂账**：契约需登记 `buff_primitives.json`（契约文本里写的是 `dd1_buffs.json`）
+   + `amount` 是分数这一条量纲 ⇒ 见 `reports/contract_change_request_heirloom_step2.md` ✓
+```

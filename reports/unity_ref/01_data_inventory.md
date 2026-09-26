@@ -1,8 +1,18 @@
 # 参考项目数据总账 —— `Darkest-Dungeon-Unity/Assets/Resources/Data/**`
 
 > 生成脚本：`reports/unity_ref/_inventory.py`（只读参考项目；仅写 `reports/unity_ref/`）。
-> 所有条目数由脚本实际解析/计数得出，原始机器可读结果见 `reports/unity_ref/_raw_stats.json`。
+> 所有条目数由脚本实际解析/计数得出，原始机器可读结果见 `reports/unity_ref/_raw_stats.json`（330 条记录）。
 > stdout 仅输出 ASCII 进度，中文全部经 `io.open(..., encoding="utf-8")` 写入本文件。
+
+| 本目录下的脚本 | 用途 |
+|---|---|
+| `_inventory.py` | 本报告的唯一生成器；含容错 JSON 解析、前缀计数、二进制判定、§7 的交叉验证 |
+| `_aicheck.py` | 校验 `Monsters/*.txt` 的 `name:` 与 `JsonAI.json` 的 `monster_brains.id` 的匹配率（§6.6） |
+| `_langcheck.py` | 独立统计 18 个 XML 的逐语言 `<entry>` 条数（§3） |
+| `_heropeek.py` | 打印 `Heroes/Info/Crusader.bytes` 全文，用于确认 `art:`/`info:` 两段结构（§2.2） |
+| `_rawcheck.py` | 校验 `_raw_stats.json` 自身完整（330 条、无解析失败） |
+
+复算入口（PowerShell）：`python reports/unity_ref/_inventory.py` —— 幂等，重跑得到完全相同的报告。
 
 ## 0. 实际文件统计（与任务书给的估计值不同，以下为 `os.walk` 实数）
 
@@ -90,8 +100,7 @@
 
 ### 1.1 字段清单（key 名 + 出现频次）
 
-以下对每个 JSON 的**每个「对象数组」集合**列出 key 与「在多少条条目里出现过」。
-频次 < 条目数 ⇒ 该字段是可选字段。
+以下对每个 JSON 的**每个「对象数组」集合**列出 key 与「在多少条条目里出现过」：`key×N` 表示 N 条里全都有；`key×M/N(可选)` 表示只有 M 条有（可选字段）。字段行超宽时缩进续行，仍是同一集合。
 
 #### `Buildings\abbey.building.json`  (6132 B，非严格 JSON：已剔除尾随逗号后解析)
 
@@ -107,16 +116,16 @@
 - 集合 `$.meditation.quirk_library_names` — **6** 条
 
 - 集合 `$.meditation.cost_upgrades` — **3** 条
-  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2
+  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.meditation.slot_upgrades` — **3** 条
-  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2
+  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.meditation.stress_upgrades` — **3** 条
-  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2
+  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.meditation.affliction_cure_upgrades` — **2** 条
-  - 字段：`chance`×2 `upgrade_requirement_code`×1
+  - 字段：`chance`×2 `upgrade_requirement_code`×1/2(可选)
 
 - 集合 `$.prayer.side_effects.results` — **5** 条
   - 字段：`type`×5 `chance`×5 `data`×5
@@ -130,16 +139,16 @@
 - 集合 `$.prayer.quirk_library_names` — **7** 条
 
 - 集合 `$.prayer.cost_upgrades` — **3** 条
-  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2
+  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.prayer.slot_upgrades` — **3** 条
-  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2
+  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.prayer.stress_upgrades` — **3** 条
-  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2
+  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.prayer.affliction_cure_upgrades` — **2** 条
-  - 字段：`chance`×2 `upgrade_requirement_code`×1
+  - 字段：`chance`×2 `upgrade_requirement_code`×1/2(可选)
 
 - 集合 `$.flagellation.side_effects.results` — **6** 条
   - 字段：`type`×6 `chance`×6 `data`×6
@@ -153,16 +162,16 @@
 - 集合 `$.flagellation.quirk_library_names` — **6** 条
 
 - 集合 `$.flagellation.cost_upgrades` — **3** 条
-  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2
+  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.flagellation.slot_upgrades` — **3** 条
-  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2
+  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.flagellation.stress_upgrades` — **3** 条
-  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2
+  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.flagellation.affliction_cure_upgrades` — **2** 条
-  - 字段：`chance`×2 `upgrade_requirement_code`×1
+  - 字段：`chance`×2 `upgrade_requirement_code`×1/2(可选)
 
 样例（原样，≤15 行）：
 
@@ -259,7 +268,7 @@
 #### `Buildings\nomad_wagon.building.json`  (1242 B，非严格 JSON：已剔除尾随逗号后解析)
 
 - 集合 `$.number_of_trinkets_upgrades` — **5** 条
-  - 字段：`number_of_slots`×5 `upgrade_tree_id`×4 `upgrade_requirement_code`×4
+  - 字段：`number_of_slots`×5 `upgrade_tree_id`×4/5(可选) `upgrade_requirement_code`×4/5(可选)
 
 - 集合 `$.trinket_cost_discount_upgrades` — **5** 条
   - 字段：`discount_percent`×5 `upgrade_tree_id`×5 `upgrade_requirement_code`×5
@@ -287,25 +296,25 @@
 #### `Buildings\sanitarium.building.json`  (3900 B，非严格 JSON：已剔除尾随逗号后解析)
 
 - 集合 `$.treatment.positive_quirk_cost_upgrades` — **6** 条
-  - 字段：`cost_currency`×6 `upgrade_tree_id`×5 `upgrade_requirement_code`×5
+  - 字段：`cost_currency`×6 `upgrade_tree_id`×5/6(可选) `upgrade_requirement_code`×5/6(可选)
 
 - 集合 `$.treatment.negative_quirk_cost_upgrades` — **6** 条
-  - 字段：`cost_currency`×6 `upgrade_tree_id`×5 `upgrade_requirement_code`×5
+  - 字段：`cost_currency`×6 `upgrade_tree_id`×5/6(可选) `upgrade_requirement_code`×5/6(可选)
 
 - 集合 `$.treatment.permanent_negative_quirk_cost_upgrades` — **6** 条
-  - 字段：`cost_currency`×6 `upgrade_tree_id`×5 `upgrade_requirement_code`×5
+  - 字段：`cost_currency`×6 `upgrade_tree_id`×5/6(可选) `upgrade_requirement_code`×5/6(可选)
 
 - 集合 `$.treatment.slot_upgrades` — **3** 条
-  - 字段：`number_of_slots`×3 `upgrade_tree_id`×2 `upgrade_requirement_code`×2
+  - 字段：`number_of_slots`×3 `upgrade_tree_id`×2/3(可选) `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.disease_treatment.disease_quirk_cost_upgrades` — **4** 条
-  - 字段：`cost_currency`×4 `upgrade_tree_id`×3 `upgrade_requirement_code`×3
+  - 字段：`cost_currency`×4 `upgrade_tree_id`×3/4(可选) `upgrade_requirement_code`×3/4(可选)
 
 - 集合 `$.disease_treatment.disease_quirk_cure_all_chance_upgrades` — **3** 条
-  - 字段：`chance`×3 `upgrade_tree_id`×2 `upgrade_requirement_code`×2
+  - 字段：`chance`×3 `upgrade_tree_id`×2/3(可选) `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.disease_treatment.slot_upgrades` — **3** 条
-  - 字段：`number_of_slots`×3 `upgrade_tree_id`×2 `upgrade_requirement_code`×2
+  - 字段：`number_of_slots`×3 `upgrade_tree_id`×2/3(可选) `upgrade_requirement_code`×2/3(可选)
 
 样例（原样，≤15 行）：
 
@@ -330,14 +339,14 @@
 #### `Buildings\stage_coach.building.json`  (2430 B)
 
 - 集合 `$.number_of_recruits_upgrades` — **6** 条
-  - 字段：`number_of_slots`×6 `upgrade_tree_id`×5 `upgrade_requirement_code`×5
+  - 字段：`number_of_slots`×6 `upgrade_tree_id`×5/6(可选) `upgrade_requirement_code`×5/6(可选)
 
 - 集合 `$.roster_size_upgrades` — **6** 条
-  - 字段：`number_of_slots`×6 `upgrade_tree_id`×5 `upgrade_requirement_code`×5
+  - 字段：`number_of_slots`×6 `upgrade_tree_id`×5/6(可选) `upgrade_requirement_code`×5/6(可选)
 
 - 集合 `$.upgraded_recruits_upgrades` — **3** 条
   - 字段：`level`×3 `chance`×3 `number_of_extra_positive_quirks`×3 `number_of_extra_negative_quirks`×3 `number_of_extra_combat_skills`×3 `number_of_extra_camping_skills`×3 `guaranteed_previous_raid_dead_hero_levels`×3 `upgrade_tree_id`×3
-  - `upgrade_requirement_code`×3
+    `upgrade_requirement_code`×3
 
 - 集合 `$.upgraded_recruits_upgrades[0].guaranteed_previous_raid_dead_hero_levels` — **1** 条
 
@@ -379,16 +388,16 @@
 - 集合 `$.bar.quirk_library_names` — **6** 条
 
 - 集合 `$.bar.cost_upgrades` — **3** 条
-  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2
+  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.bar.slot_upgrades` — **3** 条
-  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2
+  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.bar.stress_upgrades` — **3** 条
-  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2
+  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.bar.affliction_cure_upgrades` — **2** 条
-  - 字段：`chance`×2 `upgrade_requirement_code`×1
+  - 字段：`chance`×2 `upgrade_requirement_code`×1/2(可选)
 
 - 集合 `$.gambling.side_effects.results` — **8** 条
   - 字段：`type`×8 `chance`×8 `data`×8
@@ -402,16 +411,16 @@
 - 集合 `$.gambling.quirk_library_names` — **6** 条
 
 - 集合 `$.gambling.cost_upgrades` — **3** 条
-  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2
+  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.gambling.slot_upgrades` — **3** 条
-  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2
+  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.gambling.stress_upgrades` — **3** 条
-  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2
+  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.gambling.affliction_cure_upgrades` — **2** 条
-  - 字段：`chance`×2 `upgrade_requirement_code`×1
+  - 字段：`chance`×2 `upgrade_requirement_code`×1/2(可选)
 
 - 集合 `$.brothel.side_effects.results` — **7** 条
   - 字段：`type`×7 `chance`×7 `data`×7
@@ -425,16 +434,16 @@
 - 集合 `$.brothel.quirk_library_names` — **6** 条
 
 - 集合 `$.brothel.cost_upgrades` — **3** 条
-  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2
+  - 字段：`cost_currency`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.brothel.slot_upgrades` — **3** 条
-  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2
+  - 字段：`number_of_slots`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.brothel.stress_upgrades` — **3** 条
-  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2
+  - 字段：`heal_low`×3 `heal_high`×3 `upgrade_requirement_code`×2/3(可选)
 
 - 集合 `$.brothel.affliction_cure_upgrades` — **2** 条
-  - 字段：`chance`×2 `upgrade_requirement_code`×1
+  - 字段：`chance`×2 `upgrade_requirement_code`×1/2(可选)
 
 样例（原样，≤15 行）：
 
@@ -604,7 +613,7 @@
 
 - 集合 `$.buffs` — **1801** 条
   - 字段：`id`×1801 `stat_type`×1801 `stat_sub_type`×1801 `amount`×1801 `remove_if_not_active`×1801 `rule_type`×1801 `is_false_rule`×1801 `rule_data`×1801
-  - `duration_type`×63 `duration`×63
+    `duration_type`×63/1801(可选) `duration`×63/1801(可选)
 
 样例（原样，≤15 行）：
 
@@ -778,8 +787,8 @@
 
 - 集合 `$.plot_quests` — **30** 条
   - 字段：`id`×30 `dungeon_level`×30 `quest`×30 `additional_trinket_completion_rewards`×30 `is_progression`×30 `has_statue_contents`×30 `completion_dungeon_xp`×30 `can_retreat`×30
-  - `retreat_always_from_raid`×30 `retreat_party_kill_count`×30 `is_surprise_enabled`×30 `is_scouting_enabled`×30 `is_roster_stress_cleared_on_completion`×30 `roster_buff_on_failure_minimum_party_resolve_level`×30 `upgrade_tags_to_remove_on_ignore`×30 `upgrade_tags_to_remove_on_failure`×30
-  - `roster_buffs_to_apply_on_failure`×30 `suggested_trinkets`×30 `additional_provisions`×30 `plot_quest_dependency`×4
+    `retreat_always_from_raid`×30 `retreat_party_kill_count`×30 `is_surprise_enabled`×30 `is_scouting_enabled`×30 `is_roster_stress_cleared_on_completion`×30 `roster_buff_on_failure_minimum_party_resolve_level`×30 `upgrade_tags_to_remove_on_ignore`×30 `upgrade_tags_to_remove_on_failure`×30
+    `roster_buffs_to_apply_on_failure`×30 `suggested_trinkets`×30 `additional_provisions`×30 `plot_quest_dependency`×4/30(可选)
 
 - 集合 `$.plot_quests[0].quest.goal_ids` — **1** 条
 
@@ -889,7 +898,7 @@
 - 集合 `$.generation.rewards.resolve_xp_table[2]` — **4** 条
 
 - 集合 `$.generation.rewards.trinket_chance_table` — **6** 条
-  - 字段：`rarity`×6 `chances`×6 `comment`×1
+  - 字段：`rarity`×6 `chances`×6 `comment`×1/6(可选)
 
 - 集合 `$.generation.rewards.trinket_chance_table[0].chances` — **7** 条
 
@@ -941,7 +950,7 @@
 
 - 集合 `$.quirks` — **163** 条
   - 字段：`id`×163 `show_explicit_description`×163 `is_positive`×163 `is_disease`×163 `classification`×163 `incompatible_quirks`×163 `curio_tag`×163 `curio_tag_chance`×163
-  - `keep_loot`×163 `buffs`×163
+    `keep_loot`×163 `buffs`×163
 
 - 集合 `$.quirks[0].incompatible_quirks` — **1** 条
 
@@ -1204,7 +1213,7 @@
 
 - 集合 `$.events` — **45** 条
   - 字段：`id`×45 `base_chance`×45 `per_not_rolled_additional_chance`×45 `cooldown`×45 `requirements`×45 `town_ambience_paramater_ids`×45 `tone`×45 `sprite`×45
-  - `sprite_attachment`×45 `data`×45
+    `sprite_attachment`×45 `data`×45
 
 - 集合 `$.events[0].data` — **3** 条
   - 字段：`type`×3 `string_data`×3 `number_data`×3
@@ -1243,11 +1252,11 @@
 - 集合 `$.filters` — **1** 条
 
 - 集合 `$.entries` — **36** 条
-  - 字段：`id`×36 `tone`×36 `chance`×36 `audio_events`×36 `priority`×1
+  - 字段：`id`×36 `tone`×36 `chance`×36 `audio_events`×36 `priority`×1/36(可选)
 
 - 集合 `$.entries[0].audio_events` — **27** 条
   - 字段：`queue_only_on_empty`×27 `queue_while_audio_playing`×27 `audio_event`×27 `chance`×27 `priority`×27 `max_raid_occurrences`×27 `max_town_visit_occurrences`×27 `max_campaign_occurrences`×27
-  - `filter`×27 `check_all_tags`×27 `tags`×27
+    `filter`×27 `check_all_tags`×27 `tags`×27
 
 - 集合 `$.entries[0].audio_events[0].tags` — **1** 条
 
@@ -1257,7 +1266,7 @@
 
 - 集合 `$.entries[1].audio_events` — **26** 条
   - 字段：`queue_only_on_empty`×26 `queue_while_audio_playing`×26 `audio_event`×26 `chance`×26 `priority`×26 `max_raid_occurrences`×26 `max_town_visit_occurrences`×26 `max_campaign_occurrences`×26
-  - `filter`×26 `check_all_tags`×26 `tags`×26
+    `filter`×26 `check_all_tags`×26 `tags`×26
 
 - 集合 `$.entries[1].audio_events[0].tags` — **3** 条
 
@@ -1267,7 +1276,7 @@
 
 - 集合 `$.entries[2].audio_events` — **28** 条
   - 字段：`queue_only_on_empty`×28 `queue_while_audio_playing`×28 `audio_event`×28 `chance`×28 `priority`×28 `max_raid_occurrences`×28 `max_town_visit_occurrences`×28 `max_campaign_occurrences`×28
-  - `filter`×28 `check_all_tags`×28 `tags`×28
+    `filter`×28 `check_all_tags`×28 `tags`×28
 
 - 集合 `$.entries[2].audio_events[0].tags` — **2** 条
 
@@ -3469,23 +3478,42 @@
 
 ### 2.2 `Heroes/Info/*.bytes` —— 英雄数据（15 个，全部为文本）
 
-| 文件 | 字节 | 行数 | 记录前缀计数 | 我方对应 |
-|---|---:|---:|---|---|
-| `Heroes\Info\Abomination.bytes` | 10087 | 74 | combat_skill:42 armour:5 weapon:5 mode:2 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 incompatible_party_member:1 info:1 name:1 rendering:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\Antiquarian.bytes` | 8819 | 73 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 extra_battle_loot:1 extra_curio_loot:1 extra_stack_limit:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\Arbalest.bytes` | 8411 | 70 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\BountyHunter.bytes` | 8594 | 70 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 riposte_skill:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\Crusader.bytes` | 7585 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\GraveRobber.bytes` | 8318 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\Hellion.bytes` | 8167 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\Highwayman.bytes` | 8576 | 71 | combat_skill:42 armour:5 weapon:5 riposte_skill:2 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\HoundMaster.bytes` | 8546 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\Jester.bytes` | 8419 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\Leper.bytes` | 7884 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\ManAtArms.bytes` | 8419 | 71 | combat_skill:42 armour:5 weapon:5 riposte_skill:2 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\Occultist.bytes` | 8474 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\PlagueDoctor.bytes` | 8319 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
-| `Heroes\Info\Vestal.bytes` | 7600 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| 文件 | 字节 | 行数 | 记录前缀计数 | `combat_skill:` 在 `art:` 段 / `info:` 段 | 我方对应 |
+|---|---:|---:|---|---|---|
+| `Heroes\Info\Abomination.bytes` | 10087 | 74 | combat_skill:42 armour:5 weapon:5 mode:2 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 incompatible_party_member:1 info:1 name:1 rendering:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\Antiquarian.bytes` | 8819 | 73 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 extra_battle_loot:1 extra_curio_loot:1 extra_stack_limit:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\Arbalest.bytes` | 8411 | 70 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\BountyHunter.bytes` | 8594 | 70 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 riposte_skill:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\Crusader.bytes` | 7585 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\GraveRobber.bytes` | 8318 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\Hellion.bytes` | 8167 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\Highwayman.bytes` | 8576 | 71 | combat_skill:42 armour:5 weapon:5 riposte_skill:2 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\HoundMaster.bytes` | 8546 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\Jester.bytes` | 8419 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\Leper.bytes` | 7884 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\ManAtArms.bytes` | 8419 | 71 | combat_skill:42 armour:5 weapon:5 riposte_skill:2 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\Occultist.bytes` | 8474 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\PlagueDoctor.bytes` | 8319 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+| `Heroes\Info\Vestal.bytes` | 7600 | 69 | combat_skill:42 armour:5 weapon:5 tag:2 art:1 combat_move_skill:1 commonfx:1 controlled:1 deaths_door:1 generation:1 id_index:1 info:1 name:1 resistances:1 skill_selection:1 | **7 / 35** | `units.json` + `skills.json` + `camp_skills.json` + `roster.json` |
+
+说明：DD1 文本按 `info:` 这一行分两段 —— `art:` 段里的 `combat_skill:` 行只声明**动画/特效**（`.id/.icon/.anim/.fx`），`info:` 段里的 `combat_skill:` 行才是**真实数值**（`.level/.type/.atk/.dmg/.crit/.launch/.target/.effect`）。同一条技能在 `info:` 段会按 5 个等级各来一行，所以条目数 = 技能数 × 5。
+
+样例（`Heroes/Info/Crusader.bytes`，原样，前 14 行 —— 覆盖 `art:` 段与 `info:` 段起始）：
+
+```
+name: crusader
+art:
+commonfx: .deathfx death_medium
+combat_skill: .id "smite" .icon "one" .anim "attack_sword" .fx "smite" .targchestfx "blood_splatter"
+combat_skill: .id "zealous_accusation" .icon "two" .anim "attack_scroll" .fx "zealous_accusation" .targchestfx "blood_splatter"
+combat_skill: .id "stunning_blow" .icon "three" .anim "attack_stun" .fx "stunning_blow" .targheadfx "stunning_blow_target"
+combat_skill: .id "bulwark_of_faith" .icon "four" .anim "attack_scroll" .fx "bulwark_of_faith"
+combat_skill: .id "battle_heal" .icon "five" .anim "attack_heal" .fx "battle_heal" .targfx "battle_heal_target"
+combat_skill: .id "holy_lance" .icon "six" .anim "attack_charge" .fx "holy_lance" .targchestfx "blood_splatter"
+combat_skill: .id "inspiring_cry" .icon "seven" .anim "attack_banner" .fx "inspiring_cry"
+.end
+info:
+```
 
 ### 2.3 `Dungeons/*.bytes` —— 地牢遭遇表（7 个，全部为文本）
 
@@ -3499,11 +3527,58 @@
 | `Dungeons\Warrens.bytes` | 13361 | 210 | hall:94 room:52 stall:14 hall_curios:12 boss:6 id:4 room_curios:4 mash:3 named:3 room_treasures:3 hall_variants:1 is_released:1 obstacles:1 props:1 room_variants:1 secret_room_treasures:1 traps:1 | `encounters.json` |
 | `Dungeons\Weald.bytes` | 13089 | 217 | hall:94 room:54 stall:14 hall_curios:13 boss:6 named:5 id:4 room_curios:4 mash:3 room_treasures:3 hall_variants:1 is_released:1 obstacles:1 props:1 room_variants:1 secret_room_treasures:1 traps:1 | `encounters.json` |
 
+样例（`Dungeons/Shared.bytes`，原样，前 12 行）：
+
+```
+id: 100
+is_released: true
+hall_variants: 1
+room_variants: heartroom secretroom starfield
+mash:
+id: 1
+hall: .chance 1 .types shambler_A
+hall: .chance 3 .types collector_A
+.end
+mash:
+id: 3
+hall: .chance 8 .types shambler_B
+```
+
+样例（`Dungeons/Cove.bytes`，原样，前 12 行）：
+
+```
+id: 0
+is_released: true
+hall_variants: 7
+room_variants: city coral grotto handtree shipwreck temple whale
+mash:
+id: 1
+hall: .chance 2 .types fishman_harpoon_A fishman_harpoon_A fishman_harpoon_A 
+hall: .chance 2 .types fishman_harpoon_A fishman_harpoon_A fishman_harpoon_A fishman_harpoon_A
+hall: .chance 2 .types fishman_harpoon_A fishman_harpoon_A fishman_shaman_A 
+hall: .chance 1 .types fishman_harpoon_A snail_urchin_A fishman_harpoon_A 
+hall: .chance 1 .types fishman_harpoon_A snail_urchin_A fishman_harpoon_A fishman_shaman_A
+hall: .chance 1 .types snail_urchin_A snail_urchin_A jellyfish_A jellyfish_A
+```
+
 ### 2.4 `Inventory/Items.bytes` —— 物品/堆叠定义（1 个，文本）
 
 | 文件 | 字节 | 行数 | 记录前缀计数 | 我方对应 |
 |---|---:|---:|---|---|
 | `Inventory\Items.bytes` | 6854 | 63 | inventory_item:57 | `economy.json` + `heirlooms.json` |
+
+样例（`Inventory/Items.bytes`，原样，前 8 行）：
+
+```
+inventory_item:	.type "provision"		.id ""						    .base_stack_limit 12	.purchase_gold_value 75			.sell_gold_value 5
+inventory_item:	.type "gold"			.id ""						    .base_stack_limit 1500	.purchase_gold_value 0			.sell_gold_value 0
+inventory_item:	.type "heirloom"		.id "portrait"					.base_stack_limit 3		.purchase_gold_value 0			.sell_gold_value 0
+inventory_item:	.type "heirloom"		.id "bust"						.base_stack_limit 6		.purchase_gold_value 0			.sell_gold_value 0
+inventory_item:	.type "heirloom"		.id "crest"						.base_stack_limit 12	.purchase_gold_value 0			.sell_gold_value 0
+inventory_item:	.type "heirloom"		.id "deed"						.base_stack_limit 6		.purchase_gold_value 0			.sell_gold_value 0
+inventory_item:	.type "heirloom"		.id "urn"						.base_stack_limit 1		.purchase_gold_value 0			.sell_gold_value 0
+inventory_item:	.type "gem"				.id "ruby"						.base_stack_limit 4		.purchase_gold_value 0			.sell_gold_value 1000
+```
 
 ### 2.5 `Maps/*.bytes` —— 地图数据（7 个，**全部为 Unity 二进制序列化，非 DD1 文本**）
 
@@ -3540,238 +3615,240 @@ ancestor_small_D
 
 全部 `230` 个怪物文件逐条：
 
-| 文件 | 字节 | 行数 | 记录前缀计数 | 我方对应 |
-|---|---:|---:|---|---|
-| `Monsters\ancestor_big_D.txt` | 2331 | 31 | skill:8 enemy_type:2 art:1 audio_modifier:1 battle_backdrop:1 battle_modifier:1 battle_stage:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ancestor_flawed_D.txt` | 1286 | 24 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_damage:1 display:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ancestor_heart_D.txt` | 1983 | 30 | skill:8 art:1 audio_modifier:1 battle_backdrop:1 battle_modifier:1 battle_stage:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ancestor_nebula_D.txt` | 617 | 18 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ancestor_perfect_D.txt` | 1245 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ancestor_pod_D.txt` | 1518 | 27 | skill:4 art:1 audio_modifier:1 battle_backdrop:1 battle_modifier:1 battle_stage:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 skill_reaction:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ancestor_small_D.txt` | 2286 | 32 | skill:10 enemy_type:2 art:1 audio_modifier:1 battle_backdrop:1 battle_modifier:1 battle_stage:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\bloated_corpse_A.txt` | 1053 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\bloated_corpse_B.txt` | 1059 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\bloated_corpse_C.txt` | 1058 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_barrel_D.txt` | 937 | 21 | riposte_skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 monster_brain:1 name:1 personality:1 skill_reaction:1 spawn:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_blood_A.txt` | 1435 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_blood_B.txt` | 1419 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_blood_C.txt` | 1419 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_cannon_A.txt` | 1410 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_cannon_B.txt` | 1415 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_cannon_C.txt` | 1416 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_cutthroat_A.txt` | 1579 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_cutthroat_B.txt` | 1586 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_cutthroat_C.txt` | 1578 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_fuseman_A.txt` | 1049 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_fuseman_B.txt` | 1053 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_fuseman_C.txt` | 1049 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_fusilier_A.txt` | 1176 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_fusilier_B.txt` | 1160 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_fusilier_C.txt` | 1155 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_hunter_D.txt` | 1189 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_raider_D.txt` | 1605 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\brigand_sapper_D.txt` | 1760 | 27 | skill:10 art:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\carrion_eater_A.txt` | 835 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\carrion_eater_B.txt` | 866 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\carrion_eater_C.txt` | 866 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\carrion_eater_big_A.txt` | 1127 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\carrion_eater_big_B.txt` | 1133 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\carrion_eater_big_C.txt` | 1135 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cauldron_empty_A.txt` | 800 | 21 | art:1 battle_modifier:1 captor_empty:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cauldron_empty_B.txt` | 801 | 21 | art:1 battle_modifier:1 captor_empty:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cauldron_empty_C.txt` | 801 | 21 | art:1 battle_modifier:1 captor_empty:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cauldron_full_A.txt` | 851 | 21 | art:1 battle_modifier:1 captor_full:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cauldron_full_B.txt` | 852 | 21 | art:1 battle_modifier:1 captor_full:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cauldron_full_C.txt` | 854 | 21 | art:1 battle_modifier:1 captor_full:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cell_battle_D.txt` | 814 | 20 | enemy_type:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cell_white_D.txt` | 1246 | 24 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_A.txt` | 1479 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_B.txt` | 1485 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_C.txt` | 1486 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_battle_A.txt` | 762 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_battle_B.txt` | 766 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_battle_C.txt` | 763 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_protect_A.txt` | 847 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_protect_B.txt` | 849 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_protect_C.txt` | 846 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_shaman_A.txt` | 1057 | 21 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_shaman_B.txt` | 1059 | 21 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\collector_shaman_C.txt` | 1057 | 21 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\corpse_A.txt` | 1020 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\corpse_B.txt` | 1024 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\corpse_C.txt` | 1021 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\corpse_D.txt` | 1021 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\corpse_large_A.txt` | 1033 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\corpse_large_B.txt` | 1036 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\corpse_large_C.txt` | 1033 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\corpse_large_D.txt` | 1005 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\crone_A.txt` | 1520 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\crone_B.txt` | 1551 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\crone_C.txt` | 1552 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cultist_brawler_A.txt` | 1136 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cultist_brawler_B.txt` | 1141 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cultist_brawler_C.txt` | 1139 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cultist_harpy_D.txt` | 1410 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cultist_orgiastic_D.txt` | 1041 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cultist_shrouded_D.txt` | 1231 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cultist_warlord_D.txt` | 1166 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cultist_witch_A.txt` | 1261 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cultist_witch_B.txt` | 1361 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cultist_witch_C.txt` | 1357 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\cyst_D.txt` | 1684 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\drowned_anchor_A.txt` | 1243 | 24 | skill:2 art:1 battle_modifier:1 captor_empty:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\drowned_anchor_B.txt` | 1247 | 24 | skill:2 art:1 battle_modifier:1 captor_empty:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\drowned_anchor_C.txt` | 1247 | 24 | skill:2 art:1 battle_modifier:1 captor_empty:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\drowned_anchored_A.txt` | 968 | 22 | captor_full:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\drowned_anchored_B.txt` | 971 | 22 | captor_full:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\drowned_anchored_C.txt` | 972 | 22 | captor_full:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\drowned_captain_A.txt` | 1887 | 30 | skill:8 art:1 battle_modifier:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\drowned_captain_B.txt` | 1893 | 30 | skill:8 art:1 battle_modifier:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\drowned_captain_C.txt` | 1895 | 30 | skill:8 art:1 battle_modifier:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ectoplasm_A.txt` | 1276 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ectoplasm_B.txt` | 1321 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ectoplasm_C.txt` | 1324 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ectoplasm_large_A.txt` | 1247 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ectoplasm_large_B.txt` | 1289 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ectoplasm_large_C.txt` | 1292 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\errant_flesh_bat_D.txt` | 1291 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\errant_flesh_dog_D.txt` | 1409 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fishman_crabby_A.txt` | 1088 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fishman_crabby_B.txt` | 1118 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fishman_crabby_C.txt` | 1120 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fishman_harpoon_A.txt` | 1010 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fishman_harpoon_B.txt` | 1044 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fishman_harpoon_C.txt` | 1042 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fishman_shaman_A.txt` | 1596 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fishman_shaman_B.txt` | 1600 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fishman_shaman_C.txt` | 1598 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_guard_A.txt` | 1086 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_guard_B.txt` | 1090 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_guard_C.txt` | 1090 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_melee_A.txt` | 1122 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_melee_B.txt` | 1128 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_melee_C.txt` | 1129 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_ranged_A.txt` | 1198 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_ranged_B.txt` | 1206 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_ranged_C.txt` | 1207 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_weak_A.txt` | 1125 | 24 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_weak_B.txt` | 1132 | 24 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\formless_weak_C.txt` | 1132 | 24 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fungal_artillery_A.txt` | 1497 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fungal_artillery_B.txt` | 1509 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fungal_artillery_C.txt` | 1507 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fungal_bloat_A.txt` | 1266 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fungal_bloat_B.txt` | 1297 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\fungal_bloat_C.txt` | 1298 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\gargoyle_A.txt` | 953 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\gargoyle_B.txt` | 1019 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\gargoyle_C.txt` | 1017 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ghoul_A.txt` | 1289 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ghoul_B.txt` | 1318 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\ghoul_C.txt` | 1317 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\hag_A.txt` | 1640 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\hag_B.txt` | 1649 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\hag_C.txt` | 1647 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\jellyfish_A.txt` | 1121 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\jellyfish_B.txt` | 1126 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\jellyfish_C.txt` | 1123 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\madman_A.txt` | 1171 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\madman_B.txt` | 1177 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\madman_C.txt` | 1174 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\maggot_A.txt` | 848 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\maggot_B.txt` | 853 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\maggot_C.txt` | 854 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\necromancer_A.txt` | 1435 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\necromancer_B.txt` | 1444 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\necromancer_C.txt` | 1444 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\octotank_A.txt` | 1081 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\octotank_B.txt` | 1085 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\octotank_C.txt` | 1086 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\pew_large_A.txt` | 637 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\pew_large_B.txt` | 638 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\pew_large_C.txt` | 641 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\pew_medium_A.txt` | 639 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\pew_medium_B.txt` | 640 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\pew_medium_C.txt` | 642 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\pew_small_A.txt` | 637 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\pew_small_B.txt` | 640 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\pew_small_C.txt` | 640 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\prophet_A.txt` | 1747 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\prophet_B.txt` | 1759 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\prophet_C.txt` | 1757 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\rabid_dog_A.txt` | 859 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\rabid_dog_B.txt` | 863 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\rabid_dog_C.txt` | 864 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\shambler_A.txt` | 1611 | 28 | skill:6 loot:2 art:1 battle_backdrop:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 torchlight_modifier:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\shambler_B.txt` | 1617 | 28 | skill:6 loot:2 art:1 battle_backdrop:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 torchlight_modifier:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\shambler_C.txt` | 1616 | 28 | skill:6 loot:2 art:1 battle_backdrop:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 torchlight_modifier:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\shambler_tentacle_A.txt` | 839 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\shambler_tentacle_B.txt` | 842 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\shambler_tentacle_C.txt` | 839 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\shuffler_D.txt` | 1428 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\siren_A.txt` | 1592 | 28 | skill:8 art:1 battle_modifier:1 commonfx:1 controller:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\siren_B.txt` | 1596 | 28 | skill:8 art:1 battle_modifier:1 commonfx:1 controller:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\siren_C.txt` | 1594 | 28 | skill:8 art:1 battle_modifier:1 commonfx:1 controller:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_arbalist_A.txt` | 1081 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_arbalist_B.txt` | 1087 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_arbalist_C.txt` | 1086 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_captain_A.txt` | 1112 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_captain_B.txt` | 1154 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_captain_C.txt` | 1156 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_common_A.txt` | 1019 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_common_B.txt` | 1056 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_common_C.txt` | 1054 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_courtier_A.txt` | 1072 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_courtier_B.txt` | 1082 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_courtier_C.txt` | 1079 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_defender_A.txt` | 1264 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_defender_B.txt` | 1309 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_defender_C.txt` | 1308 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_militia_A.txt` | 1063 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_militia_B.txt` | 1070 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_militia_C.txt` | 1069 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_spear_A.txt` | 1096 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_spear_B.txt` | 1103 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\skeleton_spear_C.txt` | 1102 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\snail_urchin_A.txt` | 860 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\snail_urchin_B.txt` | 864 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\snail_urchin_C.txt` | 864 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\spider_spitter_A.txt` | 1179 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\spider_spitter_B.txt` | 1185 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\spider_spitter_C.txt` | 1184 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\spider_webber_A.txt` | 1138 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\spider_webber_B.txt` | 1145 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\spider_webber_C.txt` | 1143 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_drummer_A.txt` | 1112 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_drummer_B.txt` | 1143 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_drummer_C.txt` | 1143 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_piglet_A.txt` | 1551 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_piglet_B.txt` | 1562 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_piglet_C.txt` | 1607 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_prince_A.txt` | 1626 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_prince_B.txt` | 1639 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_prince_C.txt` | 1637 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_reaver_A.txt` | 1076 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_reaver_B.txt` | 1103 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_reaver_C.txt` | 1105 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_slasher_A.txt` | 877 | 21 | enemy_type:2 skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_slasher_B.txt` | 912 | 21 | enemy_type:2 skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_slasher_C.txt` | 910 | 21 | enemy_type:2 skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_wretch_A.txt` | 875 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_wretch_B.txt` | 902 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swine_wretch_C.txt` | 900 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swinetaur_A.txt` | 1612 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swinetaur_B.txt` | 1620 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\swinetaur_C.txt` | 1624 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\templar_melee_D.txt` | 1301 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\templar_melee_mb_D.txt` | 1544 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\templar_ranged_D.txt` | 1402 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\templar_ranged_mb_D.txt` | 1635 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\totem_attack_D.txt` | 1055 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\totem_guard_D.txt` | 1604 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\unclean_giant_A.txt` | 1360 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\unclean_giant_B.txt` | 1369 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
-| `Monsters\unclean_giant_C.txt` | 1370 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| 文件 | 字节 | 行数 | 记录前缀计数 | `skill:` 在 `art:` 段 / `info:` 段 | 我方对应 |
+|---|---:|---:|---|---|---|
+| `Monsters\ancestor_big_D.txt` | 2331 | 31 | skill:8 enemy_type:2 art:1 audio_modifier:1 battle_backdrop:1 battle_modifier:1 battle_stage:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ancestor_flawed_D.txt` | 1286 | 24 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_damage:1 display:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ancestor_heart_D.txt` | 1983 | 30 | skill:8 art:1 audio_modifier:1 battle_backdrop:1 battle_modifier:1 battle_stage:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ancestor_nebula_D.txt` | 617 | 18 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ancestor_perfect_D.txt` | 1245 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ancestor_pod_D.txt` | 1518 | 27 | skill:4 art:1 audio_modifier:1 battle_backdrop:1 battle_modifier:1 battle_stage:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 skill_reaction:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ancestor_small_D.txt` | 2286 | 32 | skill:10 enemy_type:2 art:1 audio_modifier:1 battle_backdrop:1 battle_modifier:1 battle_stage:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **5 / 5** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\bloated_corpse_A.txt` | 1053 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\bloated_corpse_B.txt` | 1059 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\bloated_corpse_C.txt` | 1058 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_barrel_D.txt` | 937 | 21 | riposte_skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 monster_brain:1 name:1 personality:1 skill_reaction:1 spawn:1 stats:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_blood_A.txt` | 1435 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_blood_B.txt` | 1419 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_blood_C.txt` | 1419 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_cannon_A.txt` | 1410 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_cannon_B.txt` | 1415 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_cannon_C.txt` | 1416 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_cutthroat_A.txt` | 1579 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_cutthroat_B.txt` | 1586 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_cutthroat_C.txt` | 1578 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_fuseman_A.txt` | 1049 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_fuseman_B.txt` | 1053 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_fuseman_C.txt` | 1049 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_fusilier_A.txt` | 1176 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_fusilier_B.txt` | 1160 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_fusilier_C.txt` | 1155 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_hunter_D.txt` | 1189 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_raider_D.txt` | 1605 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\brigand_sapper_D.txt` | 1760 | 27 | skill:10 art:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 type:1 | **5 / 5** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\carrion_eater_A.txt` | 835 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\carrion_eater_B.txt` | 866 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\carrion_eater_C.txt` | 866 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\carrion_eater_big_A.txt` | 1127 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\carrion_eater_big_B.txt` | 1133 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\carrion_eater_big_C.txt` | 1135 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cauldron_empty_A.txt` | 800 | 21 | art:1 battle_modifier:1 captor_empty:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | **1 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cauldron_empty_B.txt` | 801 | 21 | art:1 battle_modifier:1 captor_empty:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | **1 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cauldron_empty_C.txt` | 801 | 21 | art:1 battle_modifier:1 captor_empty:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | **1 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cauldron_full_A.txt` | 851 | 21 | art:1 battle_modifier:1 captor_full:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | **1 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cauldron_full_B.txt` | 852 | 21 | art:1 battle_modifier:1 captor_full:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | **1 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cauldron_full_C.txt` | 854 | 21 | art:1 battle_modifier:1 captor_full:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 skill:1 stats:1 tag:1 type:1 | **1 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cell_battle_D.txt` | 814 | 20 | enemy_type:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cell_white_D.txt` | 1246 | 24 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_A.txt` | 1479 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_B.txt` | 1485 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_C.txt` | 1486 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_battle_A.txt` | 762 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_battle_B.txt` | 766 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_battle_C.txt` | 763 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_protect_A.txt` | 847 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_protect_B.txt` | 849 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_protect_C.txt` | 846 | 19 | skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_shaman_A.txt` | 1057 | 21 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_shaman_B.txt` | 1059 | 21 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\collector_shaman_C.txt` | 1057 | 21 | skill:4 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\corpse_A.txt` | 1020 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\corpse_B.txt` | 1024 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\corpse_C.txt` | 1021 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\corpse_D.txt` | 1021 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\corpse_large_A.txt` | 1033 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\corpse_large_B.txt` | 1036 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\corpse_large_C.txt` | 1033 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\corpse_large_D.txt` | 1005 | 21 | art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 health_bar:1 info:1 initiative:1 life_time:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\crone_A.txt` | 1520 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\crone_B.txt` | 1551 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\crone_C.txt` | 1552 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cultist_brawler_A.txt` | 1136 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cultist_brawler_B.txt` | 1141 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cultist_brawler_C.txt` | 1139 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cultist_harpy_D.txt` | 1410 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cultist_orgiastic_D.txt` | 1041 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cultist_shrouded_D.txt` | 1231 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cultist_warlord_D.txt` | 1166 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cultist_witch_A.txt` | 1261 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cultist_witch_B.txt` | 1361 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cultist_witch_C.txt` | 1357 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\cyst_D.txt` | 1684 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\drowned_anchor_A.txt` | 1243 | 24 | skill:2 art:1 battle_modifier:1 captor_empty:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\drowned_anchor_B.txt` | 1247 | 24 | skill:2 art:1 battle_modifier:1 captor_empty:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\drowned_anchor_C.txt` | 1247 | 24 | skill:2 art:1 battle_modifier:1 captor_empty:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\drowned_anchored_A.txt` | 968 | 22 | captor_full:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\drowned_anchored_B.txt` | 971 | 22 | captor_full:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\drowned_anchored_C.txt` | 972 | 22 | captor_full:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\drowned_captain_A.txt` | 1887 | 30 | skill:8 art:1 battle_modifier:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\drowned_captain_B.txt` | 1893 | 30 | skill:8 art:1 battle_modifier:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\drowned_captain_C.txt` | 1895 | 30 | skill:8 art:1 battle_modifier:1 commonfx:1 companion:1 defending_area_pos_offset:1 display:1 display_modifier:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ectoplasm_A.txt` | 1276 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ectoplasm_B.txt` | 1321 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ectoplasm_C.txt` | 1324 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ectoplasm_large_A.txt` | 1247 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ectoplasm_large_B.txt` | 1289 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ectoplasm_large_C.txt` | 1292 | 25 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\errant_flesh_bat_D.txt` | 1291 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\errant_flesh_dog_D.txt` | 1409 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fishman_crabby_A.txt` | 1088 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fishman_crabby_B.txt` | 1118 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fishman_crabby_C.txt` | 1120 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fishman_harpoon_A.txt` | 1010 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fishman_harpoon_B.txt` | 1044 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fishman_harpoon_C.txt` | 1042 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fishman_shaman_A.txt` | 1596 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fishman_shaman_B.txt` | 1600 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fishman_shaman_C.txt` | 1598 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_guard_A.txt` | 1086 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_guard_B.txt` | 1090 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_guard_C.txt` | 1090 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_melee_A.txt` | 1122 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_melee_B.txt` | 1128 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_melee_C.txt` | 1129 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_ranged_A.txt` | 1198 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_ranged_B.txt` | 1206 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_ranged_C.txt` | 1207 | 23 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_weak_A.txt` | 1125 | 24 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_weak_B.txt` | 1132 | 24 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\formless_weak_C.txt` | 1132 | 24 | shape_shifter:2 skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 shared_health:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fungal_artillery_A.txt` | 1497 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fungal_artillery_B.txt` | 1509 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fungal_artillery_C.txt` | 1507 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fungal_bloat_A.txt` | 1266 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fungal_bloat_B.txt` | 1297 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\fungal_bloat_C.txt` | 1298 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\gargoyle_A.txt` | 953 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\gargoyle_B.txt` | 1019 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\gargoyle_C.txt` | 1017 | 22 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ghoul_A.txt` | 1289 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ghoul_B.txt` | 1318 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\ghoul_C.txt` | 1317 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\hag_A.txt` | 1640 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\hag_B.txt` | 1649 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\hag_C.txt` | 1647 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\jellyfish_A.txt` | 1121 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\jellyfish_B.txt` | 1126 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\jellyfish_C.txt` | 1123 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\madman_A.txt` | 1171 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\madman_B.txt` | 1177 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\madman_C.txt` | 1174 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\maggot_A.txt` | 848 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\maggot_B.txt` | 853 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\maggot_C.txt` | 854 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\necromancer_A.txt` | 1435 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\necromancer_B.txt` | 1444 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\necromancer_C.txt` | 1444 | 26 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\octotank_A.txt` | 1081 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\octotank_B.txt` | 1085 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\octotank_C.txt` | 1086 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\pew_large_A.txt` | 637 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\pew_large_B.txt` | 638 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\pew_large_C.txt` | 641 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\pew_medium_A.txt` | 639 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\pew_medium_B.txt` | 640 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\pew_medium_C.txt` | 642 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\pew_small_A.txt` | 637 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\pew_small_B.txt` | 640 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\pew_small_C.txt` | 640 | 19 | art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 life_link:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **0 / 0** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\prophet_A.txt` | 1747 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\prophet_B.txt` | 1759 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\prophet_C.txt` | 1757 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 rendering:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\rabid_dog_A.txt` | 859 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\rabid_dog_B.txt` | 863 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\rabid_dog_C.txt` | 864 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\shambler_A.txt` | 1611 | 28 | skill:6 loot:2 art:1 battle_backdrop:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 torchlight_modifier:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\shambler_B.txt` | 1617 | 28 | skill:6 loot:2 art:1 battle_backdrop:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 torchlight_modifier:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\shambler_C.txt` | 1616 | 28 | skill:6 loot:2 art:1 battle_backdrop:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 torchlight_modifier:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\shambler_tentacle_A.txt` | 839 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\shambler_tentacle_B.txt` | 842 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\shambler_tentacle_C.txt` | 839 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\shuffler_D.txt` | 1428 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\siren_A.txt` | 1592 | 28 | skill:8 art:1 battle_modifier:1 commonfx:1 controller:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\siren_B.txt` | 1596 | 28 | skill:8 art:1 battle_modifier:1 commonfx:1 controller:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\siren_C.txt` | 1594 | 28 | skill:8 art:1 battle_modifier:1 commonfx:1 controller:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_arbalist_A.txt` | 1081 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_arbalist_B.txt` | 1087 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_arbalist_C.txt` | 1086 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_captain_A.txt` | 1112 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_captain_B.txt` | 1154 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_captain_C.txt` | 1156 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_common_A.txt` | 1019 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_common_B.txt` | 1056 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_common_C.txt` | 1054 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_courtier_A.txt` | 1072 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_courtier_B.txt` | 1082 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_courtier_C.txt` | 1079 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_defender_A.txt` | 1264 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_defender_B.txt` | 1309 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_defender_C.txt` | 1308 | 24 | skill:6 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_militia_A.txt` | 1063 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_militia_B.txt` | 1070 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_militia_C.txt` | 1069 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_spear_A.txt` | 1096 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_spear_B.txt` | 1103 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\skeleton_spear_C.txt` | 1102 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\snail_urchin_A.txt` | 860 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\snail_urchin_B.txt` | 864 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\snail_urchin_C.txt` | 864 | 20 | skill:2 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\spider_spitter_A.txt` | 1179 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\spider_spitter_B.txt` | 1185 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\spider_spitter_C.txt` | 1184 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\spider_webber_A.txt` | 1138 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\spider_webber_B.txt` | 1145 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\spider_webber_C.txt` | 1143 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_drummer_A.txt` | 1112 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_drummer_B.txt` | 1143 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_drummer_C.txt` | 1143 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_piglet_A.txt` | 1551 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_piglet_B.txt` | 1562 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_piglet_C.txt` | 1607 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_prince_A.txt` | 1626 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_prince_B.txt` | 1639 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_prince_C.txt` | 1637 | 27 | skill:8 art:1 battle_modifier:1 commonfx:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 tag:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_reaver_A.txt` | 1076 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_reaver_B.txt` | 1103 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_reaver_C.txt` | 1105 | 23 | skill:4 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_slasher_A.txt` | 877 | 21 | enemy_type:2 skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_slasher_B.txt` | 912 | 21 | enemy_type:2 skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_slasher_C.txt` | 910 | 21 | enemy_type:2 skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_wretch_A.txt` | 875 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_wretch_B.txt` | 902 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swine_wretch_C.txt` | 900 | 21 | skill:2 art:1 battle_modifier:1 commonfx:1 death_class:1 defending_area_pos_offset:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **1 / 1** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swinetaur_A.txt` | 1612 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swinetaur_B.txt` | 1620 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\swinetaur_C.txt` | 1624 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\templar_melee_D.txt` | 1301 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\templar_melee_mb_D.txt` | 1544 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\templar_ranged_D.txt` | 1402 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\templar_ranged_mb_D.txt` | 1635 | 27 | skill:8 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\totem_attack_D.txt` | 1055 | 22 | skill:4 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **2 / 2** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\totem_guard_D.txt` | 1604 | 26 | skill:8 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 enemy_type:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **4 / 4** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\unclean_giant_A.txt` | 1360 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\unclean_giant_B.txt` | 1369 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+| `Monsters\unclean_giant_C.txt` | 1370 | 25 | skill:6 enemy_type:2 art:1 battle_modifier:1 commonfx:1 death_class:1 display:1 info:1 initiative:1 loot:1 monster_brain:1 name:1 personality:1 stats:1 type:1 | **3 / 3** | `units.json` + `enemy_ai.json` + `skills.json`（我方仅 7 个原型，无逐怪物表） |
+
+`skill:` 两段含义同 §2.2：`art:` 段是动画声明，`info:` 段是 5 个等级的数值行。因此「一个怪物有几个技能」= `info:` 段的 `skill:` 数 ÷ 5。
 
 样例（`Monsters/skeleton_common_A.txt`，原样，前 12 行）：
 
@@ -3988,6 +4065,9 @@ grave_*                  2688
 3. **7 个 JSON 是非严格 JSON（尾随逗号）**：`Buildings/abbey.building.json`、`Buildings/nomad_wagon.building.json`、`Buildings/sanitarium.building.json`、`Buildings/tavern.building.json`、`Curios/Traps.json`、`JsonAI.json`、`JsonQuests.json` —— 直接 `json.loads` 会抛 `Illegal trailing comma`，任何移植/导入工具都必须先清洗（本报告脚本的 `strip_trailing_commas()` 即为此；每个文件的严格解析失败位置见 `_raw_stats.json`）。
 4. **我方完全没有对应物的参考数据**：`Narration.json`（旁白 36 条）、`PartyNames.json`（队伍命名 186 条）、`JsonLoot.json`（54 张 loot_table + 2 组黑暗奖励）、`JsonQuests.json`（任务目标 45 条 / 剧情任务 30 条 / 类型 6 个）、`Curios/Obstacles.json`（障碍物 5 个）、`Localization/*.xml`（18 个字符串表 / 12373367 字节 / 100875 条 `<entry>`，其中 english 单语 12617 条）。
 5. **量级对比**：参考项目文本占绝对主体 —— xml 12373367 B + txt 472872 B = 12846239 B，占全部 15477657 B 的 83%；真正的「数值」JSON 只有 2347347 B（15%）。我方 `darkest/data/` 25 个文件合计仅 768457 B。
+6. **`JsonAI.json` 与 `Monsters/*.txt` 的 id 不是一一对应**：230 个怪物文件里，**107 个**能按名字精确命中 `monster_brains`，**50 个**要靠「去掉 `_A/_B/_C/_D` 后缀回退到基础职业名」才能命中，仍有 **73 个**完全没有 AI 记录（ancestor_nebula_D、bloated_corpse_B、bloated_corpse_C、brigand_barrel_D、brigand_cannon_A 等 —— 尸体/道具/障碍这类不需要 AI 的实体）。反过来，`monster_brains` 里有 **28 个 id** 在 `Monsters/` 里没有对应文件（brigand_cutthroat_D、brigand_fusilier_D、cannon_A、cannon_B、cannon_C 等，含 `default`）。⇒ 移植时**不能**用「怪物名 ↔ AI id」直接 join。
+7. **`Upgrades/Heroes/` = 16 个文件，但 `Heroes/Info/` = 15 个英雄**：`Heroes/Info/` 缺 `Musketeer.bytes`，却有 `musketeer.upgrades.json` —— Musketeer 与 Arbalest 共用同一份 `Info`（火枪手是 Arbalest 的换皮变体）。每个英雄 `Info` 文件的 `combat_skill:` 实测 **42 条 = 7 个技能 × 5 级 + 7 条 `art:` 段动画声明**；而 `Upgrades/Heroes/*.upgrades.json` 每个英雄 **9 棵树**，16 文件 × 9 树 = **144 棵升级树**。
+8. **营地技能是「跨职业共享」而非每职业一份**：`JsonCamping.json` 只有 64 条 `skills`，每条带一个 `hero_classes` 白名单（第 1 条就有 16 个职业），与我方 `camp_skills.json` 的 12 条 `owner_unit` 结构不同 —— 我方是「一技能一主人」，参考项目是「一技能多主人」。
 
 ## 7. 复算与交叉验证（每条数字都有两种独立算法）
 
