@@ -1,0 +1,8 @@
+{
+ "note": "建筑升级消耗三方对账。只读不落库 ✓",
+ "same_e_mine": 99,
+ "same_e_ref": 0,
+ "same_mine_ref": 0,
+ "diff_e_mine": 0,
+ "rows": []
+}
