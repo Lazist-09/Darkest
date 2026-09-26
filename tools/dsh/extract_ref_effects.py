@@ -42,7 +42,13 @@ OUT = os.path.join(REPO, "reports", "unity_ref", "effects_from_ref.json")
 POOL = os.path.join(REPO, "darkest", "data", "buff_primitives.json")
 
 # 🔴 `key value` 对；value 可以是 `"带空格串"` / `数字[%]` / `裸词` ✓
-KV = re.compile(r'\.([a-z_]+)\s+("(?:[^"]*)"|[^\s.]+)')
+# 🔴🔴 **必须允许【大写字母】**（第 60 条判据）：
+#    原版有 **4 个驼峰键**：`dotPoison` ×51 · `dotBleed` ×44 · `keyStatus` ×27 ·
+#    `monsterType` ×20 ⇒ **共 142 处** ✓
+#    我第一版写的是 `[a-z_]+`（**只小写**）⇒ 🔴 **这 4 个字段被静默丢掉** ⚠️
+#    ⇒ 📌 症状：**产物里 `dotPoison`/`dotBleed` 出现 0 次**（而它们是 DoT 的【核心数值】）✓
+#    🎖️ 教训：**"没匹配上"不会报错 —— 它会【安静地少几个字段】** ✓
+KV = re.compile(r'\.([A-Za-z_]+)\s+("(?:[^"]*)"|[^\s.]+)')
 
 
 def parse_value(raw: str):
