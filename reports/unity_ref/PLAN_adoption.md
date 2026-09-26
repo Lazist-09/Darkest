@@ -199,7 +199,7 @@
 | **A3** | ✅ **英雄武器/护甲 5 阶（已完成 `dd3754e`）** | `Heroes/Info/*.bytes` 的 `weapon:`/`armour:` | `units.json` | 按新指令**取参考值**。✅ **实测：我方 4 英雄 × 5 阶 × 9 字段 = 180 个值，与参考不同 `39` 个**（`crit_pct 18` · `armour.hp 9` · `dmg_max 5` · `def_pct 5` · `dmg_min 2`）⇒ 已全部顶替 ✓ 🔴 其中 **13** 个要落**非整数**（全在 `weapon.crit`）⇒ `WeaponTier.CritPct` **`int` → `double`**（该字段零读取点 ⇒ 零行为 ✓）✅ **并补 3 条守卫用例（含负向证明）** ✓ |
 | **A4** | 🔄 **步1 已完成：全表已抽（`07_monsters_from_ref.md`）· 步2 待裁** | `Monsters/*.txt`（230） | `units.json`（现 7 → 敌 **3**） | **230 条已抽全**（**2070 个 stats 值逐值复核 0 不匹配** · 每条带 `file:line`）🔴 **实测卡点**：`prot` 是**分数 0~1**（我方 `[0,85]` 整数）· `def` 是**带 `%` 的小数**（154/230 非整数，范围 **−20~999**）· `move_resist` 上界 **1000**（我方叫 `displace_resist`、`[0,100]`）· `.dmg` 是**区间两数**（与我方"倍率"模型不同）⚠️ 且我方 3 个敌方原型被 **47/35/62** 个文件引用 ⇒ **不是"加数据"，是"换一套敌人"** |
 | **A5** | 怪物 AI | `JsonAI.json`（160） | `enemy_ai.json`（现 3） | 依赖 A4 的怪名 |
-| **A6** | 折磨/美德 + act-out 行为表 | `JsonTraits.json`（12） | `traits.json`（现 7 折磨） | 我方**缺 5 美德 + 14 项回合开始 / 15 项反应行为** |
+| **A6** | 🔄 **抽取＋缺口＋逐条判定已完成（`08_traits_from_ref.md`）· 落库待裁** | `JsonTraits.json`（12） | `traits.json`（现 **3 折磨 + 4 美德**） | **12 条已抽全**（7 折磨 + 5 美德 · **两张 act-out 表 14 + 15 项** · 168 + 180 个组合 · **35/35 buff 引用在 A1 池里全可解析**）🔴 **逐条判定：我方那 7 条【一条都不是】参考 12 条的对等物** —— 我方是「概率拒绝/随机化目标」的行为修正，参考是「属性惩罚 buff 包 + 两张行为表 + 奇物标签/掠夺行为」⚠️（**连同名的 `selfish` 语义都不同**）⇒ **A6 真缺 6 折磨 + 4 美德**，且那 7 条**不能算已覆盖** |
 | **A7** | 饰品（488）/ 怪癖（163） | `JsonTrinkets`/`JsonQuirks` | `trinkets.json` / `quirks.json` | 依赖 A1（数值全靠 buff id） |
 | **A8** | 任务 / 战利品表 / 旁白 / 队伍名 | `JsonQuests` / `JsonLoot` / `Narration` / `PartyNames` | 我方**整表缺失** | 其中 `JsonQuests` 是 **P17（M14 Quest 层）** 的载体 |
 | **A9** | 建筑与升级 | `Buildings/*.building.json` + `Upgrades/Building/*` | `buildings.json`(8) | 我方已有 8 栋，按参考校准 |
@@ -397,6 +397,7 @@ dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMo
 
 | `_gen_*.py` · `_scan_*.py` · `_q*_*.py` | 可复跑的抽取/统计脚本 ✓ |
 | `07_monsters_from_ref.md` + `monsters_from_ref.json` | 🆕 **A4 步1：参考怪物全表**（230 条 · 2070 个 stats 值逐值复核 · 每条带 `file:line` · **只抽不落库**）✓ |
+| `08_traits_from_ref.md` + `traits_from_ref.json` | 🆕 **A6：折磨/美德 12 条 + 两张 act-out 表**（14 + 15 项 · 35/35 buff 可解析 · **逐条判定我方 7 条全非对等物**）✓ |
 
 ---
 
