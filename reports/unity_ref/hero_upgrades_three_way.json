@@ -4,5 +4,5106 @@
  "same_e_ref": 345,
  "same_mine_ref": 345,
  "diff_e_mine": 0,
- "rows": []
+ "rows": [
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.absolution",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.absolution",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.manacles",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.manacles",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.rage",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.rage",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.rake",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.rake",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.slam",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.slam",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.transform",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.transform",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.vomit",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.vomit",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "abomination",
+   "key": [
+    "abomination.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.cower",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.cower",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.festering_vapours",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.festering_vapours",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.flashpowder",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.flashpowder",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.fortifying_vapours",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.fortifying_vapours",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.invigorating_vapours",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.invigorating_vapours",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.kris_stab",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.kris_stab",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.protect_me",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.protect_me",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "antiquarian",
+   "key": [
+    "antiquarian.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.battlefield_bandage",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.battlefield_bandage",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.blindfire",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.blindfire",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.bola",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.bola",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.flare",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.flare",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.sniper_mark",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.sniper_mark",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.sniper_shot",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.sniper_shot",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.suppressing_fire",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.suppressing_fire",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "arbalest",
+   "key": [
+    "arbalest.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.collect_bounty",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.collect_bounty",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.come_hither",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.come_hither",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.finish_him",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.finish_him",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.flashbang",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.flashbang",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.hook_and_slice",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.hook_and_slice",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.target_tag",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.target_tag",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.uppercut",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.uppercut",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "bounty_hunter",
+   "key": [
+    "bounty_hunter.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.battle_heal",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.battle_heal",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.bulwark_of_faith",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.bulwark_of_faith",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.holy_lance",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.holy_lance",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.inspiring_cry",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.inspiring_cry",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.smite",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.smite",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.stunning_blow",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.stunning_blow",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.zealous_accusation",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "crusader",
+   "key": [
+    "crusader.zealous_accusation",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.flashing_daggers",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.flashing_daggers",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.lunge",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.lunge",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.pick",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.pick",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.poison_dart",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.poison_dart",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.shadow_fade",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.shadow_fade",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.thrown_dagger",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.thrown_dagger",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.toxin_trickery",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.toxin_trickery",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "grave_robber",
+   "key": [
+    "grave_robber.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.adrenaline_rush",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.adrenaline_rush",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.barbaric_yawp",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.barbaric_yawp",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.bleed_out",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.bleed_out",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.breakthru",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.breakthru",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.if_it_bleeds",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.if_it_bleeds",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.iron_swan",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.iron_swan",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.wicked_hack",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "hellion",
+   "key": [
+    "hellion.wicked_hack",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.duelist_advance",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.duelist_advance",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.grape_shot_blast",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.grape_shot_blast",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.opened_vein",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.opened_vein",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.pistol_shot",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.pistol_shot",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.point_blank_shot",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.point_blank_shot",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.take_aim",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.take_aim",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.wicked_slice",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "highwayman",
+   "key": [
+    "highwayman.wicked_slice",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.blackjack",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.blackjack",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.guard_dog",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.guard_dog",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.hounds_harry",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.hounds_harry",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.hounds_rush",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.hounds_rush",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.howl",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.howl",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.lick_wounds",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.lick_wounds",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.whistle",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "houndmaster",
+   "key": [
+    "houndmaster.whistle",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.battle_ballad",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.battle_ballad",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.dirk_stab",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.dirk_stab",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.harvest",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.harvest",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.heroic_end",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.heroic_end",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.inspiring_tune",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.inspiring_tune",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.slice_off",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.slice_off",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.solo",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.solo",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "jester",
+   "key": [
+    "jester.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.chop",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.chop",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.focus",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.focus",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.hew",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.hew",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.intimidate",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.intimidate",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.revenge",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.revenge",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.solemnity",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.solemnity",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.withstand",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "leper",
+   "key": [
+    "leper.withstand",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.bellow",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.bellow",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.bolster",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.bolster",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.command",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.command",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.crush",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.crush",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.defender",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.defender",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.rampart",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.rampart",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.retribution",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.retribution",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "man_at_arms",
+   "key": [
+    "man_at_arms.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.abyssal_artillery",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.abyssal_artillery",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.bloodlet",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.bloodlet",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.daemons_pull",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.daemons_pull",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.disruptive_curse",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.disruptive_curse",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.hands_from_abyss",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.hands_from_abyss",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.weakening_curse",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.weakening_curse",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.wyrd_reconstruction",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "occultist",
+   "key": [
+    "occultist.wyrd_reconstruction",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.battlefield_medicine",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.battlefield_medicine",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.blinding_gas",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.blinding_gas",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.disorienting_blast",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.disorienting_blast",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.emboldening_vapours",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.emboldening_vapours",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.incision",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.incision",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.noxious_blast",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.noxious_blast",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.plague_grenade",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.plague_grenade",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "plague_doctor",
+   "key": [
+    "plague_doctor.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.armour",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.armour",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.armour",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.dazzling_light",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.dazzling_light",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.divine_grace",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.divine_grace",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.gods_comfort",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.gods_comfort",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.gods_hand",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.gods_hand",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.gods_illumination",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.gods_illumination",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.judgement",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.judgement",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.mace_bash",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1250
+   },
+   "ref": {
+    "gold": 1500
+   },
+   "mine": {
+    "gold": 1250
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.mace_bash",
+    "4"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 2500
+   },
+   "ref": {
+    "gold": 3000
+   },
+   "mine": {
+    "gold": 2500
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.weapon",
+    "1"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 1750
+   },
+   "ref": {
+    "gold": 2000
+   },
+   "mine": {
+    "gold": 1750
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.weapon",
+    "2"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 3000
+   },
+   "ref": {
+    "gold": 4000
+   },
+   "mine": {
+    "gold": 3000
+   }
+  },
+  {
+   "hero": "vestal",
+   "key": [
+    "vestal.weapon",
+    "3"
+   ],
+   "kind": "一手≠参考",
+   "e": {
+    "gold": 6000
+   },
+   "ref": {
+    "gold": 8000
+   },
+   "mine": {
+    "gold": 6000
+   }
+  }
+ ]
 }

@@ -82,11 +82,17 @@ def main() -> int:
                 same_e_m += 1
             else:
                 diff_all += 1
-                rows.append({"hero": hero, "key": list(k), "e": a, "mine": b,
-                             "ref": rc.get(k)})
+                rows.append({"hero": hero, "key": list(k), "kind": "一手≠我方",
+                             "e": a, "mine": b, "ref": rc.get(k)})
         for k in sorted(set(ec) | set(rc)):
             if ec.get(k) == rc.get(k):
                 same_e_r += 1
+            else:
+                # 🆕 **补记「一手 ≠ 参考」的行**（上一版只记「一手 ≠ 我方」⇒ rows 空）⚠️
+                #    🎖️ 判据：**"我要的那个差异，工具【记的是哪一对】？"** ——
+                #       记错一对 ⇒ 文件写出来是空的，而**看起来像"没问题"** ✓
+                rows.append({"hero": hero, "key": list(k), "kind": "一手≠参考",
+                             "e": ec.get(k), "ref": rc.get(k), "mine": mc.get(k)})
         for k in sorted(set(rc) | set(mc)):
             if rc.get(k) == mc.get(k):
                 same_m_r += 1
