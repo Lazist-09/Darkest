@@ -1,0 +1,113 @@
+{
+ "note": "A5 的 160 brains 深析。只读不落库 ✓",
+ "top_keys": {
+  "id": 160,
+  "skill_cooldowns": 160,
+  "skill_selection_desires": 160,
+  "target_selection_desires": 160,
+  "bonus_initiative_desires": 160
+ },
+ "count": 160,
+ "id_prefixes": {
+  "default": 4,
+  "swine": 16,
+  "kill": 2,
+  "spider": 1,
+  "hag": 3,
+  "cauldron": 2,
+  "giant": 3,
+  "ectoplasm": 2,
+  "swinetaur": 4,
+  "drummer": 1,
+  "shambler": 1,
+  "prophet": 3,
+  "cannon": 3,
+  "fuseman": 1,
+  "bloated": 1,
+  "siren": 1,
+  "fishy": 3,
+  "drowned": 2,
+  "collector": 4,
+  "madman": 3,
+  "brigand": 12,
+  "cultist": 10,
+  "ghoul": 3,
+  "skeleton": 21,
+  "gargoyle": 3,
+  "maggot": 3,
+  "rabid": 3,
+  "fungal": 3,
+  "crone": 3,
+  "carrion": 6,
+  "fishman": 6,
+  "jellyfish": 3,
+  "octotank": 3,
+  "snail": 3,
+  "totem": 2,
+  "errant": 2,
+  "cell": 2,
+  "cyst": 1,
+  "templar": 4,
+  "shuffler": 1,
+  "ancestor": 6
+ },
+ "sample": {
+  "id": "default",
+  "skill_cooldowns": [],
+  "skill_selection_desires": [
+   {
+    "type": "preferred_skill",
+    "data": {
+     "base_chance": 1.0
+    }
+   },
+   {
+    "type": "random_skill",
+    "data": {
+     "base_chance": 1.0
+    }
+   },
+   {
+    "type": "heal_skill",
+    "data": {
+     "base_chance": 100.0,
+     "hp_ratio_treshold": 0.5
+    }
+   }
+  ],
+  "target_selection_desires": [
+   {
+    "type": "random_target",
+    "data": {
+     "base_chance": 2.0,
+     "specific_combat_skill_id": "",
+     "is_exclusive_desire": false,
+     "is_enemy_target_desire": true,
+     "is_friendly_target_desire": false
+    }
+   },
+   {
+    "type": "marked_target",
+    "data": {
+     "base_chance": 1.0,
+     "specific_combat_skill_id": "",
+     "is_exclusive_desire": false,
+     "is_enemy_target_desire": true,
+     "is_friendly_target_desire": false
+    }
+   },
+   {
+    "type": "health_target",
+    "data": {
+     "base_chance": 100.0,
+     "specific_combat_skill_id": "",
+     "is_exclusive_desire": false,
+     "is_enemy_target_desire": false,
+     "is_friendly_target_desire": true,
+     "is_greater_comparison": false
+    }
+   }
+  ],
+  "bonus_initiative_desires": []
+ }
+}
