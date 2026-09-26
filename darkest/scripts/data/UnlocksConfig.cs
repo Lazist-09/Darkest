@@ -39,6 +39,16 @@ public sealed record UnlocksConfig(
 {
     public const string ResPath = "res://data/unlocks.json";
 
+    /// <summary>
+    /// 🔴 合法的解锁 id 命名空间前缀（**唯一真相** —— 报错清单由它插值而来）✓
+    /// ⚠️ 加一支分支时，**必须同时加到这里**：`UnlocksConfigTests` 有一条
+    ///   `NamespacePrefixes_CoverEveryBranch` 断言"清单 ⇔ 实际分支"（防漂移复发）✓
+    /// </summary>
+    public static readonly IReadOnlyList<string> NamespacePrefixes = new[]
+    {
+        "building:", "curio:", "roster_cap_delta:", "roster_cap:",
+    };
+
     /// <summary>起手【名册可用上限】（`config.roster_base_cap`；**硬上限**是 `roster.cap = 12`，见 C1）。</summary>
     /// 🔴 数字外置（P29）：**不再有 `?? 8` 兜底** —— 缺键由 `DataPresence.RequireKeys` 在 Parse 里拦下 ✓
     public int RosterBaseCap => Config?.RosterBaseCap ?? 0;
@@ -117,6 +127,8 @@ public sealed record UnlocksConfig(
                 //    building:<id> ／ curio:<id> ／ roster_cap_delta:<N>（**增量**，策划 #403）
                 //    ／ roster_cap:<N>（**绝对值**，旧语法 · 仍兼容，见 C1）
                 //    ⚠️ 两者语义不同：delta 加在起手 8 之上，绝对值直接给上限 ✓
+                //    🔴 报错清单由 `NamespacePrefixes`【插值】而来 ⇒ **加一支即自动同步**，
+                //       不再手写（教训：那处漏改正是"手写清单"造成的）✓
                 if (target.StartsWith("building:", StringComparison.Ordinal))
                 {
                     string id = target["building:".Length..];
@@ -155,7 +167,7 @@ public sealed record UnlocksConfig(
                 else
                 {
                     throw new InvalidDataException(
-                        $"{ResPath}: \"{target}\" 的命名空间未知（合法：`building:` ／ `curio:` ／ `roster_cap_delta:` ／ `roster_cap:`）（P27 ④）。");
+                        $"{ResPath}: \"{target}\" 的命名空间未知（合法：{string.Join(" ／ ", NamespacePrefixes)}）（P27 ④）。");
                 }
             }
         }

@@ -109,4 +109,47 @@ public sealed class UnlocksConfigTests
             """{ "config": { "version": 1, "roster_base_cap": 8 }, "unlocks": [] }""");
         Assert.AreEqual(0, cfg.Unlocks.Count);
     }
+
+    /// <summary>
+    /// 🔴 **命名空间清单 ⇔ 实际分支**（防 `152_*.md` 那处漂移**复发**）：
+    ///   ① `NamespacePrefixes` 里每一支都**真的被 Parse 接受**（否则清单是空的）✓
+    ///   ③ 🔴 **反方向**：不在清单里的前缀必须被拒，且**报错文案要列出全部 4 支**
+    ///      （文案由 `NamespacePrefixes` 插值 ⇒ 加一支即自动同步）✓
+    /// </summary>
+    [TestMethod]
+    public void NamespacePrefixes_CoverEveryBranch()
+    {
+        string[] prefixes = UnlocksConfig.NamespacePrefixes.ToArray();
+        Assert.AreEqual(4, prefixes.Length,
+            "KNOWN: 4 支（building / curio / roster_cap_delta / roster_cap）✓");
+
+        // ① 每一支都被接受（用最小合法负载 —— 值本身由各支自行校验）
+        foreach (string p in prefixes)
+        {
+            string payload = p switch
+            {
+                "building:" => "building:tavern",
+                "curio:" => "curio:cur_sconce",
+                "roster_cap_delta:" => "roster_cap_delta:1",
+                _ => "roster_cap:9",
+            };
+            string json = "{ \"config\": { \"version\": 1, \"roster_base_cap\": 8 }, "
+                + "\"unlocks\": [ { \"id\": \"u\", \"required_runs_finished\": 1, "
+                + "\"required_battles_won\": 0, \"unlocks\": [\"" + payload + "\"] } ] }";
+            UnlocksConfig.Parse(json,
+                new[] { "tavern", "abbey", "stagecoach" }.ToHashSet(StringComparer.Ordinal),
+                new[] { "cur_sconce" }.ToHashSet(StringComparer.Ordinal), 12);
+        }
+
+        // ③ 反方向：清单外的前缀 ⇒ 报错，且报错里必须**列出全部 4 支**（插值而来）
+        string bad = "{ \"config\": { \"version\": 1, \"roster_base_cap\": 8 }, "
+            + "\"unlocks\": [ { \"id\": \"u\", \"required_runs_finished\": 1, "
+            + "\"required_battles_won\": 0, \"unlocks\": [\"bogus:x\"] } ] }";
+        var ex = Assert.ThrowsException<InvalidDataException>(() => UnlocksConfig.Parse(bad));
+        foreach (string p in prefixes)
+        {
+            StringAssert.Contains(ex.Message, p,
+                $"报错文案必须列出 `{p}`（清单由 NamespacePrefixes 插值）✓");
+        }
+    }
 }
