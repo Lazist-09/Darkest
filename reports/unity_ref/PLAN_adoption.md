@@ -206,7 +206,7 @@
 | **A9** | ✅ **抽取＋三方判定已完成（`09_buildings_from_ref.md`）· 落库待裁** | `Buildings/*.building.json`（8）+ `Upgrades/Building/*.upgrades.json`（8）| `buildings.json`（8）| **结构完全对上**：**8 建筑 / 20 树 / 99 等级**（与我方**逐数相等**）🔴 **但我方缺三块**：`side_effects`（**6 个活动**的概率副作用表）· 3 个 gate 字段 · 各建筑特有的升级数组 ⚠️ ✅🎖️ **三方判定已做（关键）**：回 E 盘逐级重读 ⇒ **我方 == E 盘 99/99** · **参考 == E 盘 0/99** ⇒ **参考项目被改过**（与 A3 的 `crit` 同族，**第 2 个独立证据**）⇒ **不改工具、只需换源** ✓ |
 | **A10** | ✅ **抽取已完成（`10_provisions_and_exchange_from_ref.md`）· 落库待裁** | `Mechanics/Provision.json` + `Inventory/Items.bytes` | 我方缺失 | 🎖️ **`Items.bytes` 实测是【DD1 文本】不是二进制**（前 64 字节判形态）⇒ **57 条** · 每行 5 字段（`type`/`id`/`base_stack_limit`/`purchase_gold_value`/`sell_gold_value`）· 类型 `journal_page 22 · gem 10 · supply 9 · quest_item 9 · heirloom 5 · provision 1 · gold 1` ✓ 另 **3 张清单**（起手按长度档 / **按职业** / 商店库存）⇒ **引用完整性 0 悬空** ✓ 🔴 我方 `provisions.json`/`items.json` **都不存在**（整层缺失）⚠️ |
 | **A11** | ✅✅ **已经 12/12 完全一致 —— 本项无需改动** | `Mechanics/HeirloomExchange.json` | `heirloom_exchange.json`(12) | 🎖️ **三方（E 盘一手 · 参考 · 我方）12 条逐条相同** ⇒ 🔴 **这是【第一块三方完全一致的数据】**（对比 A3 的 `crit`、A9 的 99 处成本 —— 那两块参考都被改过）⇒ **无论按哪个口径都不用动** ✓ 🆕 顺带复算了我方 `_design` 注记：**相对价值 `portrait 6 : bust 3 : deed 3 : crest 2` 为真**，但"**所有**兑换都损失 50%"**过强**（`bust↔deed` 往返损失 **55.6%**）⚠️ |
-| **A12** | ✅ **抽取已完成（`11_dungeons_from_ref.md` + `12_curios_from_ref.md`）· 仅参考** | `Dungeons/*.bytes` · `Maps/*.bytes` | `expedition_map/nodes` | 🎖️ **形态判定：`Dungeons/` 7 个全是【DD1 文本】可抽；`Maps/` 7 个全是【Unity 二进制】不可抽** ⇒ ✅ **与预案一致**（`.bytes` 后缀**不定形态**）✓ `Dungeons/` ⇒ **18 mash 段 / 744 条目**（5 种 kind：`hall 355 · room 231 · named 70 · stall 61 · boss 27`）+ **`props` 段 6 种**（`hall_curios 66 · room_curios 27 · room_treasures 18 · traps 6 · obstacles 6 · secret_room_treasures 5`）⇒ 🎖️ **`mash` 段 186 个怪物名全部命中 A4**（**未命中 0**）✓ 下游 `Curios.csv`（**60 条**）+ `Obstacles.json`(5) + `Traps.json`(4) 已抽 ⇒ **`props` 段 57/57 全部命中** ✓ |
+| **A12** | ✅ **抽取已完成（`11_dungeons_from_ref.md` + `12_curios_from_ref.md`）· 仅参考** | `Dungeons/*.bytes` · `Maps/*.bytes` | `expedition_map/nodes` | 🎖️ **形态判定：`Dungeons/` 7 个全是【DD1 文本】可抽；`Maps/` 7 个全是【Unity 二进制】不可抽** ⇒ ✅ **与预案一致**（`.bytes` 后缀**不定形态**）✓ `Dungeons/` ⇒ **18 mash 段 / 744 条目**（5 种 kind：`hall 355 · room 231 · named 70 · stall 61 · boss 27`）+ **`props` 段 6 种**（`hall_curios 66 · room_curios 27 · room_treasures 18 · traps 6 · obstacles 6 · secret_room_treasures 5`）⇒ 🎖️ **`mash` 段 186 个怪物名全部命中 A4**（**未命中 0**）✓ 下游 `Curios.csv`（**60 条**）+ `Obstacles.json`(5) + `Traps.json`(4) 已抽 ⇒ **`props` 段 57/57 全部命中** ✓ 🆕 **`88`/`89_*.md` 把 obstacles/traps 对到可实现的粒度**：🔴 **名字交集 0**（参考按**物件种类**切 · 我方按**地牢**切 ⇒ **不是漏抄，是切法不同**）· 参考障碍 5 字段含 **`fail_effects`（引用 Effect 名）· `torchlight`（绝对值 −20.0）· `ancestor_talk`**（🔴 **障碍【没有** `difficulty_variations`**】**）· 陷阱含 **`difficulty_variations` 3 档**（基准/3/5）⇒ 🎖️ **只改 2 个字段**（`fail_effects` 或 `health`），**`success_effects` 4/4 三档全同**，🔴 **`lurker` 三档完全相同**（列在变化表里但没变化）· 🎖️ **`spikes` 的 −0.25/−0.28/−0.30 与我方 `note` 的「25%/28%/30%」吻合** ⇒ ✅ **我方 4 条 `placeholder` 是【有意简化】（`note` 逐条写明原版多档值），不是抄错** · 🔴 **而两边各缺对方有的**（参考无 `region`/`disarm_*`；我方无 `fail_effects`/`torchlight`/`ancestor_talk`/难度分档）⇒ **采用时要一并补机制** ✓ |
 
 ## 5. 每一项的做完判据（**沿用本仓纪律**）
 
@@ -472,3 +472,26 @@ skill 行字段（484 行）：`id`/`type`/`atk`/`dmg`/`crit`/`launch`/`target` 
      "哪个地牢出哪些怪"要另找来源（可能在 `Dungeons/*.bytes`，见 A12）⚠️
 ```
 
+
+---
+
+## §X 通用裁定：**参考里凡有【单机 / 联机两份】的，一律取【单机】那份**
+
+> 🎖️ **依据**：`85`/`86_*.md` 实测（本任务第 34~35 轮）✓
+
+```
+📊 **实测的三处对照**：
+| 位置 | 单机 | 联机 | 判定 |
+|---|---|---|---|
+| **act-out 回合开始 11 个** | 完整 | **9/11 忠实 · `RandomCommand` 是 2 行空桩** | 🔴 取单机 |
+| **act-out 反应 15 个** | **21 处消费（13/15 有效）** | 🔴 **1 处（仅 `BlockMove`）** | 🔴 取单机 |
+| **`BonusTurn` 先手** | `MonsterTurn(…, true)` ⇒ **轻量回合（白赚一次行动）** | 🔴 **漏传 `true`** ⇒ 完整回合（会吃掉正常回合） | 🔴 取单机 |
+| `MonsterTurn` | 本体 | **薄包装**（`PreparationCheck` + 透传） | ✅ 两者相加 |
+
+⇒ 🎖️ **共同形状：联机侧是【为联网改写的部分副本】，在非网络相关处【残缺】** ✓
+   📌 而**残缺的具体形态有三种**：① 空桩（`RandomCommand`）
+      ② 整类未实现（反应 14/15）③ **漏传参数**（`fromBonusTurn`）✓
+🔴 **采用规则**：**凡"同一逻辑有单机/联机两份"⇒ 取单机那份；
+   联机特有部分（`PreparationCheck` / `WaitForOneTwo`）【另作一层】** ✓
+🎖️ **判据（第 44 条沿用）**：**"差异在【被调方】还是【调用方】？"** ✓
+```
