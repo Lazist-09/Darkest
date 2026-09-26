@@ -1,0 +1,1564 @@
+{
+ "note": "建筑升级消耗逐值对账（参考 vs 我方）。只读不落库 ✓",
+ "summary": {
+  "消耗不同": 99
+ },
+ "rows": [
+  {
+   "building": "abbey",
+   "tree": "abbey.meditation",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 4,
+    "crest": 4
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 4,
+    "crest": 5
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.meditation",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 8,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 8,
+    "crest": 10
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.meditation",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 11,
+    "crest": 11
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 11,
+    "crest": 14
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.meditation",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 15,
+    "crest": 15
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 15,
+    "crest": 19
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.meditation",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 19,
+    "crest": 19
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 19,
+    "crest": 24
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.meditation",
+   "code": "f",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 23,
+    "crest": 23
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 23,
+    "crest": 29
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.prayer",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 4,
+    "crest": 4
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 4,
+    "crest": 5
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.prayer",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 8,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 8,
+    "crest": 10
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.prayer",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 11,
+    "crest": 11
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 11,
+    "crest": 14
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.prayer",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 15,
+    "crest": 15
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 15,
+    "crest": 19
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.prayer",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 19,
+    "crest": 19
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 19,
+    "crest": 24
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.prayer",
+   "code": "f",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 23,
+    "crest": 23
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 23,
+    "crest": 29
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.flagellation",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 4,
+    "crest": 4
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 4,
+    "crest": 5
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.flagellation",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 8,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 8,
+    "crest": 10
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.flagellation",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 11,
+    "crest": 11
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 11,
+    "crest": 14
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.flagellation",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 15,
+    "crest": 15
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 15,
+    "crest": 19
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.flagellation",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 19,
+    "crest": 19
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 19,
+    "crest": 24
+   }
+  },
+  {
+   "building": "abbey",
+   "tree": "abbey.flagellation",
+   "code": "f",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 23,
+    "crest": 23
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 23,
+    "crest": 29
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.weapon",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 10,
+    "crest": 6
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 8,
+    "crest": 8
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.weapon",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 26,
+    "crest": 17
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 20,
+    "crest": 21
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.weapon",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 42,
+    "crest": 28
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 32,
+    "crest": 35
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.weapon",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 58,
+    "crest": 39
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 44,
+    "crest": 49
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.armour",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 10,
+    "crest": 6
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 8,
+    "crest": 8
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.armour",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 26,
+    "crest": 17
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 20,
+    "crest": 21
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.armour",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 42,
+    "crest": 28
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 32,
+    "crest": 35
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.armour",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 58,
+    "crest": 39
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 44,
+    "crest": 49
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.cost",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 5,
+    "crest": 3
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 4,
+    "crest": 4
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.cost",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 12,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 9,
+    "crest": 10
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.cost",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 18,
+    "crest": 12
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 14,
+    "crest": 15
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.cost",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 24,
+    "crest": 16
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 18,
+    "crest": 20
+   }
+  },
+  {
+   "building": "blacksmith",
+   "tree": "blacksmith.cost",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 31,
+    "crest": 21
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 24,
+    "crest": 26
+   }
+  },
+  {
+   "building": "camping_trainer",
+   "tree": "camping_trainer.cost",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 27
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 15
+   }
+  },
+  {
+   "building": "camping_trainer",
+   "tree": "camping_trainer.cost",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 62
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 35
+   }
+  },
+  {
+   "building": "camping_trainer",
+   "tree": "camping_trainer.cost",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 96
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 54
+   }
+  },
+  {
+   "building": "camping_trainer",
+   "tree": "camping_trainer.cost",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 130
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 72
+   }
+  },
+  {
+   "building": "camping_trainer",
+   "tree": "camping_trainer.cost",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 165
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 92
+   }
+  },
+  {
+   "building": "guild",
+   "tree": "guild.skill_levels",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 6,
+    "crest": 11
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 6,
+    "crest": 14
+   }
+  },
+  {
+   "building": "guild",
+   "tree": "guild.skill_levels",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 15,
+    "crest": 30
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 15,
+    "crest": 38
+   }
+  },
+  {
+   "building": "guild",
+   "tree": "guild.skill_levels",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 24,
+    "crest": 48
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 24,
+    "crest": 60
+   }
+  },
+  {
+   "building": "guild",
+   "tree": "guild.skill_levels",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 33,
+    "crest": 67
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 33,
+    "crest": 84
+   }
+  },
+  {
+   "building": "guild",
+   "tree": "guild.cost",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 2,
+    "crest": 5
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 2,
+    "crest": 6
+   }
+  },
+  {
+   "building": "guild",
+   "tree": "guild.cost",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 5,
+    "crest": 11
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 5,
+    "crest": 14
+   }
+  },
+  {
+   "building": "guild",
+   "tree": "guild.cost",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 8,
+    "crest": 17
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 8,
+    "crest": 21
+   }
+  },
+  {
+   "building": "guild",
+   "tree": "guild.cost",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 11,
+    "crest": 23
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 11,
+    "crest": 29
+   }
+  },
+  {
+   "building": "guild",
+   "tree": "guild.cost",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 14,
+    "crest": 29
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 14,
+    "crest": 36
+   }
+  },
+  {
+   "building": "nomad_wagon",
+   "tree": "nomad_wagon.numitems",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 17
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 10
+   }
+  },
+  {
+   "building": "nomad_wagon",
+   "tree": "nomad_wagon.numitems",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 46
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 26
+   }
+  },
+  {
+   "building": "nomad_wagon",
+   "tree": "nomad_wagon.numitems",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 74
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 42
+   }
+  },
+  {
+   "building": "nomad_wagon",
+   "tree": "nomad_wagon.numitems",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 103
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 58
+   }
+  },
+  {
+   "building": "nomad_wagon",
+   "tree": "nomad_wagon.cost",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 14
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 8
+   }
+  },
+  {
+   "building": "nomad_wagon",
+   "tree": "nomad_wagon.cost",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 31
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 18
+   }
+  },
+  {
+   "building": "nomad_wagon",
+   "tree": "nomad_wagon.cost",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 48
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 28
+   }
+  },
+  {
+   "building": "nomad_wagon",
+   "tree": "nomad_wagon.cost",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 65
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 38
+   }
+  },
+  {
+   "building": "nomad_wagon",
+   "tree": "nomad_wagon.cost",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "crest": 82
+   },
+   "ours": {
+    "gold": 0,
+    "crest": 46
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.cost",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 3,
+    "crest": 2
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 3,
+    "crest": 3
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.cost",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 8,
+    "crest": 4
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 8,
+    "crest": 5
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.cost",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 12,
+    "crest": 6
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 12,
+    "crest": 8
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.cost",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 16,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 16,
+    "crest": 10
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.cost",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 21,
+    "crest": 10
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 21,
+    "crest": 13
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.disease_quirk_cost",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 3,
+    "crest": 2
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 3,
+    "crest": 3
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.disease_quirk_cost",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 8,
+    "crest": 4
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 8,
+    "crest": 5
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.disease_quirk_cost",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 12,
+    "crest": 6
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 12,
+    "crest": 8
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.disease_quirk_cost",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 16,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 16,
+    "crest": 10
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.disease_quirk_cost",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 21,
+    "crest": 10
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 21,
+    "crest": 13
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.slots",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 10,
+    "crest": 5
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 10,
+    "crest": 6
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.slots",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 20,
+    "crest": 10
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 20,
+    "crest": 13
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.slots",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 30,
+    "crest": 15
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 30,
+    "crest": 19
+   }
+  },
+  {
+   "building": "sanitarium",
+   "tree": "sanitarium.slots",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 60,
+    "crest": 30
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 60,
+    "crest": 38
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.numrecruits",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 3,
+    "crest": 3
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 3,
+    "crest": 4
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.numrecruits",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 8,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 8,
+    "crest": 10
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.numrecruits",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 12,
+    "crest": 12
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 16,
+    "crest": 15
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.numrecruits",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 16,
+    "crest": 16
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 20,
+    "crest": 20
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.numrecruits",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 21,
+    "crest": 21
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 25,
+    "crest": 26
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.rostersize",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 3,
+    "crest": 3
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 3,
+    "crest": 4
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.rostersize",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 8,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 8,
+    "crest": 10
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.rostersize",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 12,
+    "crest": 12
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 16,
+    "crest": 15
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.rostersize",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 16,
+    "crest": 16
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 20,
+    "crest": 20
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.rostersize",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "deed": 21,
+    "crest": 21
+   },
+   "ours": {
+    "gold": 0,
+    "deed": 25,
+    "crest": 26
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.upgraded_recruits",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 12,
+    "portrait": 8
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 9,
+    "crest": 12
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.upgraded_recruits",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 18,
+    "portrait": 12
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 12,
+    "crest": 16
+   }
+  },
+  {
+   "building": "stage_coach",
+   "tree": "stage_coach.upgraded_recruits",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "bust": 24,
+    "portrait": 16
+   },
+   "ours": {
+    "gold": 0,
+    "bust": 15,
+    "crest": 20
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.bar",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 2,
+    "crest": 4
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 2,
+    "crest": 5
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.bar",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 4,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 4,
+    "crest": 10
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.bar",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 6,
+    "crest": 11
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 6,
+    "crest": 14
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.bar",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 8,
+    "crest": 15
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 8,
+    "crest": 19
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.bar",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 10,
+    "crest": 19
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 10,
+    "crest": 24
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.bar",
+   "code": "f",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 11,
+    "crest": 23
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 11,
+    "crest": 29
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.gambling",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 2,
+    "crest": 4
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 2,
+    "crest": 5
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.gambling",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 4,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 4,
+    "crest": 10
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.gambling",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 6,
+    "crest": 11
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 6,
+    "crest": 14
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.gambling",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 8,
+    "crest": 15
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 8,
+    "crest": 19
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.gambling",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 10,
+    "crest": 19
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 10,
+    "crest": 24
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.gambling",
+   "code": "f",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 11,
+    "crest": 23
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 11,
+    "crest": 29
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.brothel",
+   "code": "a",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 2,
+    "crest": 4
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 2,
+    "crest": 5
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.brothel",
+   "code": "b",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 4,
+    "crest": 8
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 4,
+    "crest": 10
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.brothel",
+   "code": "c",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 6,
+    "crest": 11
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 6,
+    "crest": 14
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.brothel",
+   "code": "d",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 8,
+    "crest": 15
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 8,
+    "crest": 19
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.brothel",
+   "code": "e",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 10,
+    "crest": 19
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 10,
+    "crest": 24
+   }
+  },
+  {
+   "building": "tavern",
+   "tree": "tavern.brothel",
+   "code": "f",
+   "kind": "消耗不同",
+   "ref": {
+    "gold": 0,
+    "portrait": 11,
+    "crest": 23
+   },
+   "ours": {
+    "gold": 0,
+    "portrait": 11,
+    "crest": 29
+   }
+  }
+ ]
+}
