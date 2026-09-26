@@ -219,7 +219,7 @@ M5/M6/M7/M8/M9/M10/M11/M12/M13/M14/M15  并行
 > 执行顺序：**P1 → P2 → P3 → P4 → P6 → P7 → 第三步切换 → P5/P8/P9/P10…**，每项落地即回填本表的「状态」列与提交号。
 >
 > 🔴 **2026-09-26 起插入参考项目采用线（A1~A12）**（用户指令：数值采用 `F:\GithubPro\Darkest-Dungeon-Unity`）：
-> `A1 ✅ c74954e（buff 原语层）→ A2（技能 dmg% 44 条，同时关 D5；⚠️ 被"分数→百分比"舍入口径阻塞）
-> → A7（怪癖/饰品换源 ⇒ 清零 74 条悬空 ⇒ 才给 TrinketsConfig 传 knownBuffIds）→ …` ⇒ 详见
+> `A1 ✅ c74954e（buff 原语层）→ A2（技能 dmg% 44 条，同时关 D5；✅ 同量纲 ⇒ 不被"分数→百分比"问题阻塞）
+> → A7（怪癖/饰品换源 ⇒ 清零 74 条悬空 ⇒ 才给 TrinketsConfig 传 knownBuffIds；⚠️ 被"buff amount 是分数"的舍入口径阻塞）→ …` ⇒ 详见
 > `reports/unity_ref/PLAN_adoption.md §4`（含每项的完成判据与依赖）✓
 > ⚠️ **A 线不替代 P 线**：A 线改**数据来源**，P 线是**逻辑侧实现**；A2 与 P7 互为前置（P7 要 A2 的 44 条 `dmg%`）✓

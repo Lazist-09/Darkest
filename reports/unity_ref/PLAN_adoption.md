@@ -60,9 +60,13 @@
      `remove_quirk_chance` / `dmg_received_percent` ⇒ 真名见 `BuffPrimitiveTranslation.DestinationNote`；
      M2 冻结清单 **13 → 24**（= 实测 25 个 `stat_type` − 已激活 1）✓
    · ⚠️ **消费侧仍未接线**（怪癖/饰品至今没被生产代码加载）⇒ **"能解析" ≠ "效果生效"**（纪律 BK）✓
-   · 🔴 **A1 暴露的一条硬前置**：参考项目的 `amount` 是【分数】（0.04 = 4%，**非整数 1676/1801**），
-     我方是【整数百分比】⇒ **采用数值必须 ×100**，且**舍入口径未定** ⇒ 🔴 **A2/A7 的数值搬运被它阻塞**
-     （口径没定就搬 = 我替两方定口径）⇒ 见 `reports/contract_change_request_buff_primitives.md §1.3` ✓
+   · 🔴 **A1 暴露的一条硬前置（只挡 buff 数值，不挡技能）**：参考项目 **`JsonBuffs.json` 的 `amount` 是【分数】**
+     （0.04 = 4%，**非整数 1676/1801**），我方是【整数百分比】⇒ **搬 buff 数值必须 ×100**，且**舍入口径未定**
+     ⇒ 🔴 **A7（饰品/怪癖 = 数值全靠 buff id）被它阻塞** ⇒ 见
+     `reports/contract_change_request_buff_primitives.md §1.3` ✓
+   · ✅ **A2 不受影响**（已实测）：`Heroes/Info/*.bytes` 的 `.dmg` 是**整数百分比字符串**（`"-40%"` / `"0%"`），
+     与我方 `dmg_pct` **同量纲** ⇒ **A2 可以直接做** ✓
+     🎖️ 这条更正很重要：我先前把"分数"问题**误扩到 A2**，实测后当场收窄（纪律：**怀疑断言先于相信结论**）✓
 ```
 
 ### 2.2 ✅ DD1 buff 的 schema **可直接照抄**（比我方粒度更省代码）
@@ -112,7 +116,7 @@
 | # | 项 | 参考来源 | 我方目标 | 为什么这个顺序 |
 |---|---|---|---|---|
 | **A1** | ✅ **buff 原语池（已完成 `c74954e`）** | `JsonBuffs.json`（1801） | 新 `data/buff_primitives.json` + 新原语层 | **先修那条 100% 断裂的引用链** ⇒ 引用链 **0 → 482** 可解析 ✓ |
-| **A2** | 技能 `dmg%`（44 条） | `Heroes/Info/*.bytes` `.dmg`（485） | `skills.json` 的 `dmg_pct` | **P7 的前置**；且**同时判决 D5** ✓ ⚠️ **被 §1.3 的舍入口径阻塞** |
+| **A2** | 技能 `dmg%`（44 条） | `Heroes/Info/*.bytes` `.dmg`（485） | `skills.json` 的 `dmg_pct` | **P7 的前置**；且**同时判决 D5** ✓ ✅ **同量纲（整数百分比）⇒ 不被量纲问题阻塞，可以现在做** |
 | **A3** | 英雄武器/护甲 5 阶 | 同上 `weapon:`/`armour:` | `hero_upgrades.json` / `units.json` | 按新指令**取参考值** ⇒ 消化那 97 条冲突 ✓ |
 | **A4** | 怪物 | `Monsters/*.txt`（230） | `units.json`（现 7） | 量级差最大（7 → 230） |
 | **A5** | 怪物 AI | `JsonAI.json`（160） | `enemy_ai.json`（现 3） | 依赖 A4 的怪名 |
