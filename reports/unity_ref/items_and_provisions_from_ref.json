@@ -1,0 +1,901 @@
+{
+ "source": "F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data",
+ "note": "A10 抽取：Inventory/Items.bytes（DD1 文本 · 62 行 · 每条带 line 出处）+ Mechanics/Provision.json（3 张清单）。本件【只抽不落库】✓",
+ "items_bytes_is_text": true,
+ "item_count": 57,
+ "items": [
+  {
+   "type": "provision",
+   "id": "",
+   "base_stack_limit": 12,
+   "purchase_gold_value": 75,
+   "sell_gold_value": 5,
+   "line": 1
+  },
+  {
+   "type": "gold",
+   "id": "",
+   "base_stack_limit": 1500,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 2
+  },
+  {
+   "type": "heirloom",
+   "id": "portrait",
+   "base_stack_limit": 3,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 3
+  },
+  {
+   "type": "heirloom",
+   "id": "bust",
+   "base_stack_limit": 6,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 4
+  },
+  {
+   "type": "heirloom",
+   "id": "crest",
+   "base_stack_limit": 12,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 5
+  },
+  {
+   "type": "heirloom",
+   "id": "deed",
+   "base_stack_limit": 6,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 6
+  },
+  {
+   "type": "heirloom",
+   "id": "urn",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 7
+  },
+  {
+   "type": "gem",
+   "id": "ruby",
+   "base_stack_limit": 4,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 1000,
+   "line": 8
+  },
+  {
+   "type": "gem",
+   "id": "emerald",
+   "base_stack_limit": 4,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 500,
+   "line": 9
+  },
+  {
+   "type": "gem",
+   "id": "sapphire",
+   "base_stack_limit": 4,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 1000,
+   "line": 10
+  },
+  {
+   "type": "gem",
+   "id": "citrine",
+   "base_stack_limit": 4,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 250,
+   "line": 11
+  },
+  {
+   "type": "gem",
+   "id": "onyx",
+   "base_stack_limit": 4,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 500,
+   "line": 12
+  },
+  {
+   "type": "gem",
+   "id": "pewrelic",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 1250,
+   "line": 13
+  },
+  {
+   "type": "gem",
+   "id": "jade",
+   "base_stack_limit": 4,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 250,
+   "line": 14
+  },
+  {
+   "type": "gem",
+   "id": "trapezohedron",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2500,
+   "line": 15
+  },
+  {
+   "type": "gem",
+   "id": "antiqrelicsmall",
+   "base_stack_limit": 20,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 275,
+   "line": 16
+  },
+  {
+   "type": "gem",
+   "id": "antiqrelic",
+   "base_stack_limit": 5,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 1000,
+   "line": 17
+  },
+  {
+   "type": "journal_page",
+   "id": "0",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 19
+  },
+  {
+   "type": "journal_page",
+   "id": "1",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 20
+  },
+  {
+   "type": "journal_page",
+   "id": "2",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 21
+  },
+  {
+   "type": "journal_page",
+   "id": "3",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 22
+  },
+  {
+   "type": "journal_page",
+   "id": "4",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 23
+  },
+  {
+   "type": "journal_page",
+   "id": "5",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 24
+  },
+  {
+   "type": "journal_page",
+   "id": "6",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 25
+  },
+  {
+   "type": "journal_page",
+   "id": "7",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 26
+  },
+  {
+   "type": "journal_page",
+   "id": "8",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 27
+  },
+  {
+   "type": "journal_page",
+   "id": "9",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 28
+  },
+  {
+   "type": "journal_page",
+   "id": "10",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 29
+  },
+  {
+   "type": "journal_page",
+   "id": "11",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 30
+  },
+  {
+   "type": "journal_page",
+   "id": "12",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 31
+  },
+  {
+   "type": "journal_page",
+   "id": "13",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 32
+  },
+  {
+   "type": "journal_page",
+   "id": "14",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 33
+  },
+  {
+   "type": "journal_page",
+   "id": "15",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 34
+  },
+  {
+   "type": "journal_page",
+   "id": "16",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 35
+  },
+  {
+   "type": "journal_page",
+   "id": "17",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 36
+  },
+  {
+   "type": "journal_page",
+   "id": "18",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 37
+  },
+  {
+   "type": "journal_page",
+   "id": "19",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 38
+  },
+  {
+   "type": "journal_page",
+   "id": "20",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 39
+  },
+  {
+   "type": "journal_page",
+   "id": "21",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 2000,
+   "line": 40
+  },
+  {
+   "type": "supply",
+   "id": "shovel",
+   "base_stack_limit": 4,
+   "purchase_gold_value": 250,
+   "sell_gold_value": 25,
+   "line": 42
+  },
+  {
+   "type": "supply",
+   "id": "firewood",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 43
+  },
+  {
+   "type": "supply",
+   "id": "bandage",
+   "base_stack_limit": 6,
+   "purchase_gold_value": 150,
+   "sell_gold_value": 15,
+   "line": 44
+  },
+  {
+   "type": "supply",
+   "id": "antivenom",
+   "base_stack_limit": 6,
+   "purchase_gold_value": 150,
+   "sell_gold_value": 15,
+   "line": 45
+  },
+  {
+   "type": "supply",
+   "id": "skeleton_key",
+   "base_stack_limit": 6,
+   "purchase_gold_value": 200,
+   "sell_gold_value": 20,
+   "line": 46
+  },
+  {
+   "type": "supply",
+   "id": "medicinal_herbs",
+   "base_stack_limit": 6,
+   "purchase_gold_value": 200,
+   "sell_gold_value": 20,
+   "line": 47
+  },
+  {
+   "type": "supply",
+   "id": "torch",
+   "base_stack_limit": 8,
+   "purchase_gold_value": 75,
+   "sell_gold_value": 5,
+   "line": 48
+  },
+  {
+   "type": "supply",
+   "id": "holy_water",
+   "base_stack_limit": 6,
+   "purchase_gold_value": 150,
+   "sell_gold_value": 15,
+   "line": 49
+  },
+  {
+   "type": "supply",
+   "id": "dog_treats",
+   "base_stack_limit": 2,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 50
+  },
+  {
+   "type": "quest_item",
+   "id": "holy_relic",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 51
+  },
+  {
+   "type": "quest_item",
+   "id": "grain_sack",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 52
+  },
+  {
+   "type": "quest_item",
+   "id": "medicines",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 53
+  },
+  {
+   "type": "quest_item",
+   "id": "holy_water",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 54
+  },
+  {
+   "type": "quest_item",
+   "id": "ancestors_crate",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 55
+  },
+  {
+   "type": "quest_item",
+   "id": "pickaxe",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 56
+  },
+  {
+   "type": "quest_item",
+   "id": "antivenom",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 57
+  },
+  {
+   "type": "quest_item",
+   "id": "eldritch_lantern",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 58
+  },
+  {
+   "type": "quest_item",
+   "id": "beacon_light",
+   "base_stack_limit": 1,
+   "purchase_gold_value": 0,
+   "sell_gold_value": 0,
+   "line": 59
+  }
+ ],
+ "provision": {
+  "raid_starting_length_inventory_item_lists": [
+   [],
+   [
+    {
+     "type": "supply",
+     "id": "firewood",
+     "amount": 0
+    },
+    {
+     "type": "provision",
+     "id": "",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "shovel",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "antivenom",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "bandage",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "medicinal_herbs",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "skeleton_key",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "holy_water",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "torch",
+     "amount": 0
+    }
+   ],
+   [
+    {
+     "type": "supply",
+     "id": "firewood",
+     "amount": 1
+    },
+    {
+     "type": "provision",
+     "id": "",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "shovel",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "antivenom",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "bandage",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "medicinal_herbs",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "skeleton_key",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "holy_water",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "torch",
+     "amount": 0
+    }
+   ],
+   [
+    {
+     "type": "supply",
+     "id": "firewood",
+     "amount": 2
+    },
+    {
+     "type": "provision",
+     "id": "",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "shovel",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "antivenom",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "bandage",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "medicinal_herbs",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "skeleton_key",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "holy_water",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "torch",
+     "amount": 0
+    }
+   ],
+   [
+    {
+     "type": "supply",
+     "id": "firewood",
+     "amount": 4
+    },
+    {
+     "type": "provision",
+     "id": "",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "shovel",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "antivenom",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "bandage",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "medicinal_herbs",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "skeleton_key",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "holy_water",
+     "amount": 0
+    },
+    {
+     "type": "supply",
+     "id": "torch",
+     "amount": 0
+    }
+   ]
+  ],
+  "raid_starting_hero_class_item_lists": [
+   {
+    "hero_class": "houndmaster",
+    "item_lists": [
+     {
+      "type": "supply",
+      "id": "dog_treats",
+      "amount": 2
+     }
+    ]
+   },
+   {
+    "hero_class": "plague_doctor",
+    "item_lists": [
+     {
+      "type": "supply",
+      "id": "antivenom",
+      "amount": 1
+     }
+    ]
+   },
+   {
+    "hero_class": "grave_robber",
+    "item_lists": [
+     {
+      "type": "supply",
+      "id": "shovel",
+      "amount": 1
+     }
+    ]
+   },
+   {
+    "hero_class": "arbalest",
+    "item_lists": [
+     {
+      "type": "supply",
+      "id": "bandage",
+      "amount": 1
+     }
+    ]
+   },
+   {
+    "hero_class": "crusader",
+    "item_lists": [
+     {
+      "type": "supply",
+      "id": "holy_water",
+      "amount": 1
+     }
+    ]
+   },
+   {
+    "hero_class": "leper",
+    "item_lists": [
+     {
+      "type": "supply",
+      "id": "medicinal_herbs",
+      "amount": 1
+     }
+    ]
+   },
+   {
+    "hero_class": "jester",
+    "item_lists": [
+     {
+      "type": "supply",
+      "id": "medicinal_herbs",
+      "amount": 1
+     }
+    ]
+   }
+  ],
+  "default_store_inventory_item_lists": [
+   [],
+   [
+    {
+     "type": "provision",
+     "id": "",
+     "amount": 18
+    },
+    {
+     "type": "supply",
+     "id": "shovel",
+     "amount": 4
+    },
+    {
+     "type": "supply",
+     "id": "antivenom",
+     "amount": 6
+    },
+    {
+     "type": "supply",
+     "id": "bandage",
+     "amount": 6
+    },
+    {
+     "type": "supply",
+     "id": "medicinal_herbs",
+     "amount": 6
+    },
+    {
+     "type": "supply",
+     "id": "skeleton_key",
+     "amount": 6
+    },
+    {
+     "type": "supply",
+     "id": "holy_water",
+     "amount": 6
+    },
+    {
+     "type": "supply",
+     "id": "torch",
+     "amount": 18
+    }
+   ],
+   [
+    {
+     "type": "provision",
+     "id": "",
+     "amount": 24
+    },
+    {
+     "type": "supply",
+     "id": "shovel",
+     "amount": 6
+    },
+    {
+     "type": "supply",
+     "id": "antivenom",
+     "amount": 9
+    },
+    {
+     "type": "supply",
+     "id": "bandage",
+     "amount": 9
+    },
+    {
+     "type": "supply",
+     "id": "medicinal_herbs",
+     "amount": 9
+    },
+    {
+     "type": "supply",
+     "id": "skeleton_key",
+     "amount": 9
+    },
+    {
+     "type": "supply",
+     "id": "holy_water",
+     "amount": 9
+    },
+    {
+     "type": "supply",
+     "id": "torch",
+     "amount": 24
+    }
+   ],
+   [
+    {
+     "type": "provision",
+     "id": "",
+     "amount": 36
+    },
+    {
+     "type": "supply",
+     "id": "shovel",
+     "amount": 8
+    },
+    {
+     "type": "supply",
+     "id": "antivenom",
+     "amount": 12
+    },
+    {
+     "type": "supply",
+     "id": "bandage",
+     "amount": 12
+    },
+    {
+     "type": "supply",
+     "id": "medicinal_herbs",
+     "amount": 12
+    },
+    {
+     "type": "supply",
+     "id": "skeleton_key",
+     "amount": 12
+    },
+    {
+     "type": "supply",
+     "id": "holy_water",
+     "amount": 12
+    },
+    {
+     "type": "supply",
+     "id": "torch",
+     "amount": 36
+    }
+   ],
+   [
+    {
+     "type": "provision",
+     "id": "",
+     "amount": 42
+    },
+    {
+     "type": "supply",
+     "id": "shovel",
+     "amount": 10
+    },
+    {
+     "type": "supply",
+     "id": "antivenom",
+     "amount": 15
+    },
+    {
+     "type": "supply",
+     "id": "bandage",
+     "amount": 15
+    },
+    {
+     "type": "supply",
+     "id": "medicinal_herbs",
+     "amount": 15
+    },
+    {
+     "type": "supply",
+     "id": "skeleton_key",
+     "amount": 15
+    },
+    {
+     "type": "supply",
+     "id": "holy_water",
+     "amount": 15
+    },
+    {
+     "type": "supply",
+     "id": "torch",
+     "amount": 42
+    }
+   ]
+  ]
+ },
+ "provision_unknown_ids": []
+}

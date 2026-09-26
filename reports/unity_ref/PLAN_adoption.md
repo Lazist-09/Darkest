@@ -203,8 +203,8 @@
 | **A7** | 饰品（488）/ 怪癖（163） | `JsonTrinkets`/`JsonQuirks` | `trinkets.json` / `quirks.json` | 依赖 A1（数值全靠 buff id） |
 | **A8** | 任务 / 战利品表 / 旁白 / 队伍名 | `JsonQuests` / `JsonLoot` / `Narration` / `PartyNames` | 我方**整表缺失** | 其中 `JsonQuests` 是 **P17（M14 Quest 层）** 的载体 |
 | **A9** | ✅ **抽取＋三方判定已完成（`09_buildings_from_ref.md`）· 落库待裁** | `Buildings/*.building.json`（8）+ `Upgrades/Building/*.upgrades.json`（8）| `buildings.json`（8）| **结构完全对上**：**8 建筑 / 20 树 / 99 等级**（与我方**逐数相等**）🔴 **但我方缺三块**：`side_effects`（**6 个活动**的概率副作用表）· 3 个 gate 字段 · 各建筑特有的升级数组 ⚠️ ✅🎖️ **三方判定已做（关键）**：回 E 盘逐级重读 ⇒ **我方 == E 盘 99/99** · **参考 == E 盘 0/99** ⇒ **参考项目被改过**（与 A3 的 `crit` 同族，**第 2 个独立证据**）⇒ **不改工具、只需换源** ✓ |
-| **A10** | 补给 / 物品 | `Mechanics/Provision.json` + `Inventory/Items.bytes` | 我方缺失 | **P16（M12 补给 kernel）** 的载体 |
-| **A11** | 传家宝兑换 | `Mechanics/HeirloomExchange.json` | `heirloom_exchange.json`(12) | 与已完成的步骤② 对账 |
+| **A10** | ✅ **抽取已完成（`10_provisions_and_exchange_from_ref.md`）· 落库待裁** | `Mechanics/Provision.json` + `Inventory/Items.bytes` | 我方缺失 | 🎖️ **`Items.bytes` 实测是【DD1 文本】不是二进制**（前 64 字节判形态）⇒ **57 条** · 每行 5 字段（`type`/`id`/`base_stack_limit`/`purchase_gold_value`/`sell_gold_value`）· 类型 `journal_page 22 · gem 10 · supply 9 · quest_item 9 · heirloom 5 · provision 1 · gold 1` ✓ 另 **3 张清单**（起手按长度档 / **按职业** / 商店库存）⇒ **引用完整性 0 悬空** ✓ 🔴 我方 `provisions.json`/`items.json` **都不存在**（整层缺失）⚠️ |
+| **A11** | ✅✅ **已经 12/12 完全一致 —— 本项无需改动** | `Mechanics/HeirloomExchange.json` | `heirloom_exchange.json`(12) | 🎖️ **三方（E 盘一手 · 参考 · 我方）12 条逐条相同** ⇒ 🔴 **这是【第一块三方完全一致的数据】**（对比 A3 的 `crit`、A9 的 99 处成本 —— 那两块参考都被改过）⇒ **无论按哪个口径都不用动** ✓ 🆕 顺带复算了我方 `_design` 注记：**相对价值 `portrait 6 : bust 3 : deed 3 : crest 2` 为真**，但"**所有**兑换都损失 50%"**过强**（`bust↔deed` 往返损失 **55.6%**）⚠️ |
 | **A12** | 地牢 / 地图 | `Dungeons/*.bytes` · `Maps/*.bytes` | `expedition_map/nodes` | — |
 
 ## 5. 每一项的做完判据（**沿用本仓纪律**）
@@ -399,6 +399,7 @@ dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMo
 | `07_monsters_from_ref.md` + `monsters_from_ref.json` | 🆕 **A4 步1：参考怪物全表**（230 条 · 2070 个 stats 值逐值复核 · 每条带 `file:line` · **只抽不落库**）✓ |
 | `08_traits_from_ref.md` + `traits_from_ref.json` | 🆕 **A6：折磨/美德 12 条 + 两张 act-out 表**（14 + 15 项 · 35/35 buff 可解析 · **逐条判定我方 7 条全非对等物**）✓ |
 | `09_buildings_from_ref.md` + `buildings_from_ref.json` | 🆕 **A9：8 建筑 + 20 树 / 99 等级**（三方判定 **我方==E盘 99/99 · 参考==E盘 0/99** · 缺 `side_effects`/gate/升级数组三块）✓ |
+| `10_provisions_and_exchange_from_ref.md` + `items_and_provisions_from_ref.json` | 🆕 **A10 + A11**：`Items.bytes` **57 条**（形态=DD1 文本）+ `Provision.json` **3 张清单**；**A11 三方 12/12 一致 ⇒ 无需改动** ✓ |
 
 ---
 
