@@ -43,6 +43,73 @@ public sealed class BuffPrimitivesTests
 
     private static BuffPrimitivesConfig Pool() => BuffPrimitivesConfig.Parse(ReadData("buff_primitives.json"));
 
+    /// <summary>
+    /// 🔴 **防火墙的负向证明**：池子**缺**清单里的名字时，`ValidateAgainst` **必须抛**。
+    /// WHY 非做不可：这条校验是本表的**唯一生产消费点** —— 如果它只会"总是通过"，
+    ///   那么它在生产路径上等于空转（"接了线但不会响" = 红线 21 的另一种形态）⚠️
+    /// </summary>
+    [TestMethod]
+    public void ValidateAgainst_Throws_WhenThePoolLacksAChecklistName()
+    {
+        // 一个"小而合法"的池：只有 1 条，且它的 stat_type 是清单里有的那个
+        var tiny = new BuffPrimitivesConfig
+        {
+            Primitives = new[]
+            {
+                new BuffPrimitiveConfig("X", "hp_heal_percent", "", 0.1, false, "always", false,
+                    new BuffPrimitiveRuleData(0, "")),
+            },
+        };
+
+        Assert.IsTrue(tiny.StatTypes.Contains("hp_heal_percent"), "前提：这一个名字在池子里 ✓");
+
+        var ex = Assert.ThrowsException<InvalidOperationException>(
+            () => BuffPrimitiveTranslation.ValidateAgainst(tiny),
+            "清单里 24 条待接的名字都不在这个池子里 ⇒ 必须抛（不许静默通过）✓");
+        StringAssert.Contains(ex.Message, "红线 21", "错误信息要点出纪律号（供人判读）✓");
+        StringAssert.Contains(ex.Message, "combat_stat_add", "错误信息要点名缺了哪个（可复算）✓");
+
+        Console.WriteLine($"[A1·防火墙] 池子只有 1 条 ⇒ 加载即抛 ✓（{ex.Message.Length} 字）");
+    }
+
+    /// <summary>
+    /// 🔴 **解析器的 fail-fast 负向证明**：结构坏了必须**当场抛**，不许靠"缺省当 0"糊过去 ✓
+    /// </summary>
+    [TestMethod]
+    public void Parse_RejectsBrokenStructure()
+    {
+        static string Row(string id, string durType = "", string dur = "")
+            => $"{{\"id\":\"{id}\",\"stat_type\":\"resistance\",\"stat_sub_type\":\"bleed\",\"amount\":0.1,"
+             + "\"remove_if_not_active\":false,\"rule_type\":\"always\",\"is_false_rule\":false,"
+             + "\"rule_data\":{\"float\":0,\"string\":\"\"}"
+             + (durType.Length > 0 ? $",\"duration_type\":\"{durType}\"" : "")
+             + (dur.Length > 0 ? $",\"duration\":{dur}" : "") + "}";
+
+        string dup = "{\"primitives\":[" + Row("a") + "," + Row("a") + "]}";
+        string empty = "{\"primitives\":[]}";
+        string onlyType = "{\"primitives\":[" + Row("a", "combat_end") + "]}";
+        string onlyDur = "{\"primitives\":[" + Row("a", "", "4") + "]}";
+        string zeroDur = "{\"primitives\":[" + Row("a", "combat_end", "0") + "]}";
+        string good = "{\"primitives\":[" + Row("a", "combat_end", "4") + "]}";
+
+        Assert.ThrowsException<InvalidDataException>(
+            () => BuffPrimitivesConfig.Parse(dup), "id 重复 ⇒ 抛（引用会歧义）✓");
+        Assert.ThrowsException<InvalidDataException>(
+            () => BuffPrimitivesConfig.Parse(empty), "空表 ⇒ 抛 ✓");
+        Assert.ThrowsException<InvalidDataException>(
+            () => BuffPrimitivesConfig.Parse(onlyType), "只给 duration_type 不给 duration ⇒ 抛（实测两者同生同死）✓");
+        Assert.ThrowsException<InvalidDataException>(
+            () => BuffPrimitivesConfig.Parse(onlyDur), "只给 duration 不给 duration_type ⇒ 抛 ✓");
+        Assert.ThrowsException<InvalidDataException>(
+            () => BuffPrimitivesConfig.Parse(zeroDur), "duration = 0 ⇒ 抛（必须 > 0）✓");
+
+        // 反向：合法的一行必须**能**通过（否则上面的断言可能只是"一律抛"）
+        BuffPrimitivesConfig ok = BuffPrimitivesConfig.Parse(good);
+        Assert.AreEqual(1, ok.Primitives.Count, "合法的一行必须能过 ✓");
+
+        Console.WriteLine("[A1·fail-fast] 5 种坏结构全部当场抛 · 合法的一行能过 ✓");
+    }
+
     /// <summary>池子的规模与结构不变量（改了就该红 —— 这就是 A1 的验收定义 ✓）</summary>
     [TestMethod]
     public void Pool_LandedWithTheMeasuredShape()
