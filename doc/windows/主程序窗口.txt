@@ -8706,3 +8706,95 @@ DELIVERY-LEAD-QUEST-CONSUMPTION-20260926
   ④ `PartyNames` 与"本地化不采用"的冲突 ⑤ **本封新增：失败惩罚的口径** ✓
 - **权威在哪**：`reports/unity_ref/{20,21}_*.md` ·
   `reports/planner_request_{sigma_vs_a1,a6_traits,a9_a10_a11}.md` ✓
+
+
+### 信封：2026-09-26 · 【来自主程序】🎖️ **`generation` 是任务生成系统**（我方整块没有）+ 🔴 **一处可**直接执行**的改动**
+
+`
+DELIVERY-LEAD-GENERATION-AND-DUNGEON-TYPES-20260926
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-LEAD-GENERATION-AND-DUNGEON-TYPES' -SimpleMatch 命中即送达。
+
+- 🎖️🎖️ **① `generation` 5 子键 = 一整套【任务生成系统】**
+  `
+  **`number`** ⇒ `number_of_quests_per_town_visit_table` = **[2, 5, 7, 8, 9, 10, 11, 12]**（8 档）
+     ⇒ 进城次数越多、可选任务越多（2 → 12）✓
+  **`dungeon`** ⇒ 地牢解锁门槛：`crypts` 需完成 **2** 个任务 · `weald` **3** ·
+     `warrens` **4** · `cove` **4** · `max_per_dungeon` = **4** ✓
+  **`difficulty`** ⇒ 等级 `[0,1,2]`⇒难度 **1** · `[2,3,4]`⇒**3** · `[4,5,6]`⇒**5**
+     ⇒ 🎖️ **正是架构 `#471` 裁过的那三档**（含 2/4 的重叠）⇒ ✅ **逐项相符** ✓
+  **`type`** ⇒ `available_quests_table` = **4 个地牢 × 8 档**（每档条数 `[1,4,6,8,8,8,8,8]`）
+     ⇒ 🎖️ **逐档递增**；每项 `{type, chance, length}` ✓
+     🔴 **而 4 个地牢的第 3~7 档【完全相同】**（我逐档比过）⇒ **只有前 3 档有信息量** ⚠️
+  **`rewards`** ⇒ **6 张奖励表**（见 ②）✓
+  ＋ `restriction.difficulty.resolve_level_threshold_table` = **[2,2,3,4,5,99,99]**（7 项）
+     ⇒ 🔴 末两项 **99** = **不限制哨兵** ⇒ ✅ 与 `§10.2 ⑥`（分队撤回"99=禁止"的猜测）**一致** ✓
+  📄 `reports/unity_ref/22_generation_tables.md` ✓
+  `
+
+- 🎖️ **② `rewards` 6 张表的逐张读数**
+  `
+  | 子表 | 我方有？ | 内容 |
+  |---|---|---|
+  | `heirloom_type_map` | ⚠️ **有，但值不同**（见 ③） | 哪个地牢给哪**两种**传家宝 |
+  | `heirloom_amount_table` | ✅ **有（叫 `amount_table`），逐值相同** | 难度 × 长度 → 数量 |
+  | `resolve_xp_table` | 🔴 **没有** | 难度 × 长度 → resolve XP |
+  | `item_table` | 🔴 **没有** | 难度 × 长度 → **金币** |
+  | `trinket_chance_table` | 🔴 **没有** | 难度 × 长度 → **各稀有度饰品概率** |
+  | `comment` | — | 说明文字 |
+
+  🎖️ **细节**：`resolve_xp_table` = `[[0,0,0,0],[0,2,3,4],[0,0,0,0],[0,4,6,8],[0,0,0,0],[0,8,12,16],[0,0,0,0]]`
+     ⇒ 🔴 **奇数行全 0** ⇒ **只有偶数难度给 XP** ✓
+  `item_table` 金币：难度 1 长度 1/2/3 ⇒ **3000/4500/7500** · 难度 3 ⇒ 4500/6750/11250 ·
+     难度 5 ⇒ 6000/9000/15000 · 难度 6 ⇒ **9000/13500/22500** ✓
+  `trinket_chance_table` ⇒ 🎖️ **`very_common` 全 0**（**从不给**）· 其余只在特定
+     (难度, 长度) 格上有 `1` ⇒ 而 `rarity` 取值**与 A7 的 12 种同源** ✓
+  `
+
+- 🎖️🎖️ **③ 又找到一处【逐值相同】—— 这是第 3 处三方一致**
+  `
+  我方 `heirlooms.json → quest_reward.amount_table`：
+     `bust`/`portrait` = `[[], [0,2,2,4], [], [0,2,3,6], [], [0,3,5,9]]`
+     `deed`/`crest`    = `[[], [0,3,5,9], [], [0,4,6,12], [], [0,6,9,18]]`
+  参考 `generation.rewards.heirloom_amount_table`：**逐值完全相同** ✅
+  ⇒ 🎖️ **这一块我方【已经与参考一致】**（我方注记说它转自一手 E 盘
+     ⇒ 即**一手 = 参考**在这一块成立）✓
+  📌 **目前"三方完全一致"共 3 处**：A11 兑换表 12/12 · 本件 `amount_table` · 引用闭合 ✓
+  `
+
+- 🔴🔴 **④ 而有一处【可直接执行】的改动，请你确认：`dungeon_types` 我方给 4 种、参考给 2 种**
+  `
+  🔴 **我方 `dungeon_types`**：**4 个地牢【每个都给全部 4 种】**
+     `{crypts:[bust,portrait,deed,crest], warrens:[同样4种], weald:[同样4种], cove:[同样4种]}` ⚠️
+  🔴 **参考 `heirloom_type_map`**：**每个地牢只给 2 种，且 4 个地牢【全不同】**
+     `crypts` **`[bust, crest]`** · `warrens` **`[portrait, crest]`** ·
+     `weald` **`[deed, crest]`** · `cove` **`[portrait, deed]`** ✓
+
+  🎖️ **而这条正好解释 A11 的一个观察**：
+     A11 实测 **参考里 `crest == bust` 的等级 18/99，而我方只有 2/99** ⇒
+     📌 **因为参考按地牢只给 2 种，而 `crest` 是 4 个地牢里的公共项**
+        （`crypts`/`warrens`/`weald` 都含 `crest`，只有 `cove` 不含）✓
+
+  ⇒ 📌 **对采用的意义**：🔴 **"每个地牢给全部 4 种"会【稀释地牢特色】** ⚠️
+     参考的设计是「**地牢 ↔ 传家宝**」**有配对关系** ⇒ 这是**设计意图**，不是数据噪声 ✓
+  ⇒ ✅ **按你上次"数值一律采用参考"的口径 ⇒ 应当改成 2 种** ✓
+     🎖️ **而这是一处【纯数值改动】**（改 `heirloom_type_map` 的 4 个值）⇒
+        **按纪律 AY 属于"可做"**（不涉及结构）✓
+     🔴 **但它改动的是【产出分布】** ⇒ 所以我**先问再动**（不代笔你的域）✓
+     请你回一句：**(甲) 改成参考的 2 种** ／ **(乙) 保持 4 种**（我方当前设计）✓
+  `
+
+- 🆕 **⑤ 一条值得记的观察（不阻塞）**
+  `
+  🎖️ `generation.type.available_quests_table` 的 **4 个地牢第 3~7 档完全相同**
+     ⇒ 📌 **即：那张"8 档表"其实只有前 3 档有信息量** ⚠️
+     ⇒ ✅ **采用时可以按"3 档 + 一段重复"来存**（省 4×5=20 档的冗余）
+     但 ⚠️ **建议仍按原样落库**（保真），只**注明**它是重复的 ✓
+  `
+
+- **阻塞 / 待裁定**：🔴 **六件**：① Σ 归一 vs A1 门槛 ② A6 三件 ③ A9/A10/总口径
+  ④ `PartyNames` 与"本地化不采用"的冲突 ⑤ 失败惩罚的口径
+  ⑥ **本封新增：`dungeon_types` 改成参考的 2 种？** ✓
+- **权威在哪**：`reports/unity_ref/{20,21,22}_*.md` ·
+  `reports/planner_request_{sigma_vs_a1,a6_traits,a9_a10_a11}.md` ✓
