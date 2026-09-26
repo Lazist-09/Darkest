@@ -51,7 +51,10 @@ def main() -> int:
     #       被 `.types` 之后的行尾误吃）⇒ ✅ **只收【形如 `名字_X` 的 token】** ✓
     #    🎖️ 判据：**"我按猜的格式解析 —— 得 0 或混进垃圾 ⇒ 先【看一行原文】再改"** ✓
     mash_names = Counter()
-    TYPES = re.compile(r"\.types\s+(.*)$")
+    # 🔴 **必须 `re.M`**（第 23 条判据）：无它 ⇒ `$` 只匹配【整串末尾】⇒ **只中一行** ⚠️
+    #    实测：全盘遭遇表怪 **26（缺 `re.M`）vs 139（有 `re.M`）** ✓
+    #    ⇒ 📌 **本工具原来的两个附带数字（26 / 交集 13）偏低** ⇒ ✅ 现修 ✓
+    TYPES = re.compile(r"\.types\s+(.*)$", re.M)
     MONSTER_TOKEN = re.compile(r"^[a-z][a-z0-9_]*_[A-Z]$")   # 🔴 只收 `xxx_A` 形
     for dirpath, _d, fs in os.walk(ED):
         for f in fs:
