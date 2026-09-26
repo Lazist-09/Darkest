@@ -47,6 +47,18 @@ ARM_RE = re.compile(
     r"\.prot\s+(?P<prot>-?\d+)\s+\.hp\s+(?P<hp>-?\d+)\s+\.spd\s+(?P<spd>-?\d+)")
 
 
+def norm_hero(name: str) -> str:
+    """hero id -> comparison key: lowercase, drop every non-alphanumeric.
+
+    WHY: the primary's hero DIRECTORIES are snake_case (`man_at_arms`) while the reference's hero KEYS are
+    camel-case (`ManAtArms`). An earlier version paired them with `k.lower() == hlower`, which therefore
+    SILENTLY SKIPPED 4 of 15 heroes (bounty_hunter / grave_robber / man_at_arms / plague_doctor = 180
+    fields never compared) and reported each skip as a "conflict" line. A report that drops rows quietly
+    is worse than no report -- so the pairing is normalised here and the skip count is printed loudly.
+    """
+    return re.sub(r"[^a-z0-9]", "", name.lower())
+
+
 def read_primary(edrive: str) -> dict:
     """-> {hero_lower: {'weapon': [...], 'armour': [...]}} from the PRIMARY."""
     out: dict = {}
@@ -81,32 +93,38 @@ def main() -> int:
         print("[reconcile] PRIMARY not readable at %s -- nothing compared" % edrive)
         return 1
     ref = json.load(io.open(refp, encoding="utf-8"))["heroes"]
+    ref_by_key = {norm_hero(k): k for k in ref}
 
     W_FIELDS = ["atk", "dmg_min", "dmg_max", "crit", "spd"]
     A_FIELDS = ["def", "prot", "hp", "spd"]
 
     lines: list[str] = []
     conflicts: list[str] = []
+    notes: list[str] = []
     compared = 0
     agree = 0
     heroes_matched = 0
+    fields_skipped = 0
 
     for hlower, pv in sorted(primary.items()):
-        rkey = next((k for k in ref if k.lower() == hlower), None)
+        rkey = ref_by_key.get(norm_hero(hlower))
         if rkey is None:
-            conflicts.append("hero `%s`: 参考项目**没有**这个英雄 ⇒ 无法对账" % hlower)
+            notes.append("hero `%s`: 参考项目**没有**这个英雄 ⇒ 无法对账（90 个字段未比较）" % hlower)
+            fields_skipped += 90
             continue
         heroes_matched += 1
         rv = ref[rkey]
         for kind, fields in (("weapon", W_FIELDS), ("armour", A_FIELDS)):
             ptiers, rtiers = pv.get(kind, []), rv.get(kind, [])
             if len(ptiers) != len(rtiers):
-                conflicts.append("`%s.%s`: **阶数不同** 一手 %d vs 参考 %d"
-                                 % (hlower, kind, len(ptiers), len(rtiers)))
+                notes.append("`%s.%s`: **阶数不同** 一手 %d vs 参考 %d"
+                             % (hlower, kind, len(ptiers), len(rtiers)))
             for i in range(min(len(ptiers), len(rtiers))):
                 for f in fields:
                     pval, rval = ptiers[i].get(f), rtiers[i].get(f)
                     if pval is None or rval is None:
+                        notes.append("`%s.%s[%d].%s`: 一方缺该字段 ⇒ 未比较" % (hlower, kind, i, f))
+                        fields_skipped += 1
                         continue
                     compared += 1
                     if abs(float(pval) - float(rval)) < 1e-9:
@@ -119,6 +137,8 @@ def main() -> int:
     lines.append("")
     lines.append("> 🔴 依据：我们自己的 `dd1_baseline` §32.3 —— **一手 > 二手 > 第三方**；")
     lines.append(">   **冲突时以一手为准，并记录冲突** ✓")
+    lines.append("> 🔴 **但主程序 `#473` 已改判据**（数值一律采用参考项目）⇒ 本表**不再决定取值**：")
+    lines.append(">   它现在只回答「我方与参考差在哪、差多少」；下表\"以一手为准\"**作废** ✓")
     lines.append("> 工具：`tools/dsh/reconcile_hero_tables_edrive_vs_ref.py`（可复跑；**不写游戏数据** ✓）")
     lines.append("")
     lines.append("## 读数")
@@ -127,14 +147,26 @@ def main() -> int:
     lines.append("|---|---|")
     lines.append("| 一手可读英雄 | **%d** |" % len(primary))
     lines.append("| 与参考项目配对上的英雄 | **%d** |" % heroes_matched)
+    lines.append("| 🔴 **没配上 ⇒ 未对账的英雄** | **%d** |" % (len(primary) - heroes_matched))
     lines.append("| 逐字段比较次数 | **%d** |" % compared)
     lines.append("| **一致** | **%d** |" % agree)
     lines.append("| **冲突** | **%d** |" % len(conflicts))
+    lines.append("| 🔴 **未比较的字段数** | **%d** |" % fields_skipped)
     if compared:
         lines.append("| 一致率 | **%.1f%%** |" % (100.0 * agree / compared))
     lines.append("")
+    lines.append("🔴 **配对规则更正（本轮）**：旧版用 `k.lower() == hlower` 配对 ⇒ 一手的目录是蛇形")
+    lines.append("  （`man_at_arms`）而参考的键是驼峰（`ManAtArms`）⇒ **4 个英雄静默漏比**（180 字段）⚠️")
+    lines.append("  现改为**归一化**（小写 + 去掉所有非字母数字）⇒ 上表\"没配上的英雄\"**必须为 0** ✓")
+    lines.append("")
+    if notes:
+        lines.append("## ⚠️ 未能逐字段对账的（不是冲突，是**没比**）")
+        lines.append("")
+        for n in notes:
+            lines.append("- " + n)
+        lines.append("")
     if conflicts:
-        lines.append("## 🔴 冲突逐条（按 §32.3：**以一手为准**）")
+        lines.append("## 🔴 冲突逐条（原文按 §32.3 写\"以一手为准\" —— 🔴 该判据已作废，见上）")
         lines.append("")
         for c in conflicts:
             lines.append("- " + c)
@@ -149,12 +181,14 @@ def main() -> int:
     lines.append("```")
     lines.append("· 若一致 ⇒ 已落库的表**不需要**因\"换一手\"而改动 ⇒ 顶替的出处等级可标为【一手=第三方同值】✓")
     lines.append("· 若有冲突 ⇒ **冲突字段逐条以一手为准**（本报告已列），并写进替换清单与 assets_credits ✓")
+    lines.append("· 🔴 但**本轮判据已改**（主程序 `#473`：数值一律采用参考项目）⇒ 上表\"以一手为准\"**作废**：")
+    lines.append("  冲突字段改为**以参考为准**；本表保留下来只为回答\"改了多少、改了哪些\"✓")
     lines.append("```")
 
     io.open(OUT, "w", encoding="utf-8").write("\n".join(lines))
     print("[reconcile] wrote %s" % os.path.relpath(OUT, REPO))
-    print("[reconcile] heroes=%d compared=%d agree=%d conflicts=%d"
-          % (len(primary), compared, agree, len(conflicts)))
+    print("[reconcile] heroes=%d matched=%d compared=%d agree=%d conflicts=%d SKIPPED_FIELDS=%d"
+          % (len(primary), heroes_matched, compared, agree, len(conflicts), fields_skipped))
     return 0
 
 

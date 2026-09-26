@@ -2,6 +2,8 @@
 
 > 🔴 依据：我们自己的 `dd1_baseline` §32.3 —— **一手 > 二手 > 第三方**；
 >   **冲突时以一手为准，并记录冲突** ✓
+> 🔴 **但主程序 `#473` 已改判据**（数值一律采用参考项目）⇒ 本表**不再决定取值**：
+>   它现在只回答「我方与参考差在哪、差多少」；下表"以一手为准"**作废** ✓
 > 工具：`tools/dsh/reconcile_hero_tables_edrive_vs_ref.py`（可复跑；**不写游戏数据** ✓）
 
 ## 读数
@@ -9,13 +11,19 @@
 | 项 | 值 |
 |---|---|
 | 一手可读英雄 | **15** |
-| 与参考项目配对上的英雄 | **11** |
-| 逐字段比较次数 | **495** |
-| **一致** | **402** |
-| **冲突** | **97** |
-| 一致率 | **81.2%** |
+| 与参考项目配对上的英雄 | **15** |
+| 🔴 **没配上 ⇒ 未对账的英雄** | **0** |
+| 逐字段比较次数 | **675** |
+| **一致** | **545** |
+| **冲突** | **130** |
+| 🔴 **未比较的字段数** | **0** |
+| 一致率 | **80.7%** |
 
-## 🔴 冲突逐条（按 §32.3：**以一手为准**）
+🔴 **配对规则更正（本轮）**：旧版用 `k.lower() == hlower` 配对 ⇒ 一手的目录是蛇形
+  （`man_at_arms`）而参考的键是驼峰（`ManAtArms`）⇒ **4 个英雄静默漏比**（180 字段）⚠️
+  现改为**归一化**（小写 + 去掉所有非字母数字）⇒ 上表"没配上的英雄"**必须为 0** ✓
+
+## 🔴 冲突逐条（原文按 §32.3 写"以一手为准" —— 🔴 该判据已作废，见上）
 
 - `abomination.weapon[0].crit`: 一手 **2.0** vs 参考 2.5
 - `abomination.weapon[2].crit`: 一手 **4.0** vs 参考 3.5
@@ -55,12 +63,24 @@
 - `arbalest.armour[2].hp`: 一手 **37** vs 参考 41
 - `arbalest.armour[3].hp`: 一手 **42** vs 参考 48
 - `arbalest.armour[4].hp`: 一手 **47** vs 参考 55
-- hero `bounty_hunter`: 参考项目**没有**这个英雄 ⇒ 无法对账
+- `bounty_hunter.weapon[0].crit`: 一手 **4.0** vs 参考 5.0
+- `bounty_hunter.weapon[1].crit`: 一手 **5.0** vs 参考 5.5
+- `bounty_hunter.weapon[3].crit`: 一手 **7.0** vs 参考 6.5
+- `bounty_hunter.weapon[4].crit`: 一手 **8.0** vs 参考 7.0
 - `crusader.weapon[0].crit`: 一手 **3.0** vs 参考 5.0
 - `crusader.weapon[1].crit`: 一手 **4.0** vs 参考 5.5
 - `crusader.weapon[2].crit`: 一手 **5.0** vs 参考 6.0
 - `crusader.weapon[3].crit`: 一手 **6.0** vs 参考 6.5
-- hero `grave_robber`: 参考项目**没有**这个英雄 ⇒ 无法对账
+- `grave_robber.weapon[0].dmg_max`: 一手 **8** vs 参考 9
+- `grave_robber.weapon[0].crit`: 一手 **6.0** vs 参考 5.0
+- `grave_robber.weapon[1].dmg_max`: 一手 **10** vs 参考 11
+- `grave_robber.weapon[1].crit`: 一手 **7.0** vs 参考 5.5
+- `grave_robber.weapon[2].dmg_max`: 一手 **11** vs 参考 13
+- `grave_robber.weapon[2].crit`: 一手 **8.0** vs 参考 6.0
+- `grave_robber.weapon[3].dmg_max`: 一手 **13** vs 参考 14
+- `grave_robber.weapon[3].crit`: 一手 **9.0** vs 参考 6.5
+- `grave_robber.weapon[4].dmg_max`: 一手 **14** vs 参考 16
+- `grave_robber.weapon[4].crit`: 一手 **10.0** vs 参考 7.0
 - `hellion.weapon[0].crit`: 一手 **5.0** vs 参考 2.5
 - `hellion.weapon[1].crit`: 一手 **6.0** vs 参考 3.0
 - `hellion.weapon[2].crit`: 一手 **7.0** vs 参考 3.5
@@ -99,12 +119,33 @@
 - `leper.weapon[1].crit`: 一手 **2.0** vs 参考 3.0
 - `leper.weapon[2].crit`: 一手 **3.0** vs 参考 3.5
 - `leper.weapon[4].crit`: 一手 **5.0** vs 参考 4.5
-- hero `man_at_arms`: 参考项目**没有**这个英雄 ⇒ 无法对账
+- `man_at_arms.weapon[0].dmg_max`: 一手 **9** vs 参考 10
+- `man_at_arms.weapon[0].crit`: 一手 **2.0** vs 参考 3.75
+- `man_at_arms.weapon[1].dmg_max`: 一手 **10** vs 参考 12
+- `man_at_arms.weapon[1].crit`: 一手 **3.0** vs 参考 4.25
+- `man_at_arms.weapon[2].dmg_max`: 一手 **12** vs 参考 13
+- `man_at_arms.weapon[2].crit`: 一手 **4.0** vs 参考 4.75
+- `man_at_arms.weapon[3].dmg_max`: 一手 **13** vs 参考 15
+- `man_at_arms.weapon[3].crit`: 一手 **5.0** vs 参考 5.25
+- `man_at_arms.weapon[4].dmg_max`: 一手 **14** vs 参考 16
+- `man_at_arms.weapon[4].crit`: 一手 **6.0** vs 参考 5.75
+- `man_at_arms.armour[1].hp`: 一手 **37** vs 参考 38
+- `man_at_arms.armour[2].hp`: 一手 **43** vs 参考 45
+- `man_at_arms.armour[3].hp`: 一手 **49** vs 参考 52
+- `man_at_arms.armour[4].hp`: 一手 **55** vs 参考 59
 - `occultist.weapon[0].crit`: 一手 **6.0** vs 参考 7.5
 - `occultist.weapon[1].crit`: 一手 **7.0** vs 参考 8.0
 - `occultist.weapon[2].crit`: 一手 **8.0** vs 参考 8.5
 - `occultist.weapon[4].crit`: 一手 **10.0** vs 参考 9.5
-- hero `plague_doctor`: 参考项目**没有**这个英雄 ⇒ 无法对账
+- `plague_doctor.weapon[0].crit`: 一手 **2.0** vs 参考 2.5
+- `plague_doctor.weapon[2].crit`: 一手 **4.0** vs 参考 3.5
+- `plague_doctor.weapon[3].crit`: 一手 **5.0** vs 参考 4.0
+- `plague_doctor.weapon[4].crit`: 一手 **6.0** vs 参考 4.5
+- `plague_doctor.armour[0].def`: 一手 **0.0** vs 参考 5
+- `plague_doctor.armour[1].def`: 一手 **5.0** vs 参考 10
+- `plague_doctor.armour[2].def`: 一手 **10.0** vs 参考 15
+- `plague_doctor.armour[3].def`: 一手 **15.0** vs 参考 20
+- `plague_doctor.armour[4].def`: 一手 **20.0** vs 参考 25
 - `vestal.weapon[0].dmg_max`: 一手 **8** vs 参考 9
 - `vestal.weapon[0].crit`: 一手 **1.0** vs 参考 2.5
 - `vestal.weapon[1].dmg_max`: 一手 **10** vs 参考 11
@@ -120,4 +161,6 @@
 ```
 · 若一致 ⇒ 已落库的表**不需要**因"换一手"而改动 ⇒ 顶替的出处等级可标为【一手=第三方同值】✓
 · 若有冲突 ⇒ **冲突字段逐条以一手为准**（本报告已列），并写进替换清单与 assets_credits ✓
+· 🔴 但**本轮判据已改**（主程序 `#473`：数值一律采用参考项目）⇒ 上表"以一手为准"**作废**：
+  冲突字段改为**以参考为准**；本表保留下来只为回答"改了多少、改了哪些"✓
 ```
