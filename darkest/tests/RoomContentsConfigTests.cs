@@ -102,4 +102,32 @@ public sealed class RoomContentsConfigTests
         Assert.ThrowsException<InvalidDataException>(() => RoomContentsConfig.Parse(emptyRooms, Curios()),
             "rooms 为空 ⇒ 报错（P26 ①）");
     }
+
+    /// <summary>
+    /// 🔴 **报错文案里的已知房间类型清单 = 校验用的那份**
+    /// （防 `157_*.md` 记的那处"可钉未钉"）：
+    ///   一个未知房间类型 ⇒ 报错必须**列出 `KnownRoomTypes` 的全部内容** ✓
+    ///   若将来有人只改常量、不改文案 ⇒ 本用例红 ✓
+    /// </summary>
+    [TestMethod]
+    public void P26_UnknownRoomType_MessageListsAllKnownTypes()
+    {
+        const string unknownType = """
+        { "config": { "version": 1 }, "rooms": { "hall": [ { "weight": 1, "encounter": null, "curio_pool": [] } ] } }
+        """;
+        var ex = Assert.ThrowsException<InvalidDataException>(
+            () => RoomContentsConfig.Parse(unknownType, Curios()));
+
+        // 🔴 **断言整串**（无空格半角 `a/b/c`），不能逐类型 `Contains` ——
+        //    后者会被子串骗过（`battle`/`event` 含于手写的 `battle/event` 中）⇒ 实测破坏后仍绿 ⚠️
+        //    ⚠️ 而 `KnownRoomTypes` 是 `HashSet` ⇒ **迭代顺序不保证** ⇒
+        //       故断言**计数 + 每型都在 + 用 `"/"` 连接**三者，而非固定串 ✓
+        string[] parts = ex.Message.Split("（已知：")[1].Split("）")[0]
+            .Split("/", StringSplitOptions.RemoveEmptyEntries);
+        Assert.AreEqual(RoomContentsConfig.KnownRoomTypes.Count, parts.Length,
+            $"报错须列出【全部 {RoomContentsConfig.KnownRoomTypes.Count} 个】类型"
+            + $"（实际 {parts.Length} 个：{string.Join("/", parts)}）✓");
+        CollectionAssert.AreEquivalent(RoomContentsConfig.KnownRoomTypes.ToArray(), parts,
+            "报错列出的类型集合必须与 KnownRoomTypes【等价】（少一个/多一个都红）✓");
+    }
 }
