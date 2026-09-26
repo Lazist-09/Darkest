@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Darkest.Data;
 
@@ -10,21 +11,32 @@ namespace Darkest.Data;
 ///   我们是 **effect 导向**（`modifiers[].kind` = `damage_mod` / `prob_mod` / `stat_mod` / `state_flag`）✓
 ///   两套 schema **不同源** ⇒ 只有一部分能一一对应 ⇒ 其余**必须显式冻结**（不许静默跳过 ✓）
 ///
+/// 🔴 **R22（A1）改了判据源**：此前本表按【一手 E 盘】的 48 组合 / 27 个 `stat_type` 判；
+///   用户指令（2026-09-25"数值采用本地参考项目"）之后，判据源换成
+///   `darkest/data/buff_primitives.json`（参考项目 1801 条 / **25 个 `stat_type` / 41 组合**）✓
+///   ⇒ 表里**每一个名字都是实测的**，不再有"照感觉写"的条目（见 `reports/ref_buff_primitives_source.md`）✓
+///
 /// 🔴 本件是**分类器**（纯映射，**不落任何数据、不改 `buff_defs.json`**）✓
-///   它的用途：把"翻译到哪一步了"变成**可数**：`Mapped` + `Frozen` = 全部原语 ✓
+///   它的用途：把"翻译到哪一步了"变成**可数**：`Activated` + `Pending` = 全部原语 ✓
 /// </summary>
 public static class BuffPrimitiveTranslation
 {
     /// <summary>一个原语被翻译后的归属（我们这侧的去向）。</summary>
     public enum Target
     {
-        /// <summary>⇒ 我们的 `damage_mod`（伤害类修正）✓</summary>
+        /// <summary>⇒ 我们的 `damage_mod`（**物理/精神伤害**乘区）✓</summary>
         DamageMod,
 
-        /// <summary>⇒ 我们的 `prob_mod`（概率/命中类）✓</summary>
+        /// <summary>⇒ 士气（压力）轴：伤害 / 恢复 / 决心检定与经验 ✓</summary>
+        MoraleMod,
+
+        /// <summary>⇒ 治疗轴：治疗量 / 受治疗量 ✓</summary>
+        HealMod,
+
+        /// <summary>⇒ 我们的 `prob_mod`（**战斗内**施加概率：眩晕/中毒/流血/位移/减益）✓</summary>
         ProbMod,
 
-        /// <summary>⇒ 我们的 `stat_mod`（属性增减/乘）✓</summary>
+        /// <summary>⇒ 我们的 `stat_mod`（属性增减/乘：攻/暴/防/盾/速/最大生命）✓</summary>
         StatMod,
 
         /// <summary>⇒ 我们的 `state_flag`（状态标志位，如眩晕/嘲讽）✓</summary>
@@ -33,81 +45,100 @@ public static class BuffPrimitiveTranslation
         /// <summary>⇒ 不是 buff modifier，而是**单位抗性属性**（`units.json` 的 `*_resist`）✓</summary>
         UnitResistance,
 
+        /// <summary>
+        /// ⇒ **远征/城镇层**读数（侦察 / 食物 / 伏击 / 移除怪癖 / 升级折扣）——
+        /// 它们**不是战斗 modifier** ⇒ 归 `RunSession` / 城镇侧，不归战斗结算 ✓
+        /// </summary>
+        ExpeditionLayer,
+
         /// <summary>🔴 **显式冻结**：当前**没有对应关系**（不硬凑、不发明）——必须能数出来 ✓</summary>
         Frozen,
     }
 
     /// <summary>
+    /// `stat_type` → 去向（**实测的 23 个"不带子类型分支"的名字**；另 2 个见 `Classify` 的特判）✓
+    /// ⚠️ 这是**映射表**（结构性），不是数值 ⇒ 不违反"平衡数字必须搬去 data" ✓
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, Target> ByStatType =
+        new Dictionary<string, Target>(StringComparer.Ordinal)
+        {
+            // ① 伤害 / 属性
+            ["damage_received_percent"] = Target.DamageMod,
+            ["resistance"] = Target.UnitResistance,
+            // ② 士气轴（压力）
+            ["stress_dmg_percent"] = Target.MoraleMod,
+            ["stress_dmg_received_percent"] = Target.MoraleMod,
+            ["stress_heal_percent"] = Target.MoraleMod,
+            ["stress_heal_received_percent"] = Target.MoraleMod,
+            ["resolve_check_percent"] = Target.MoraleMod,
+            ["resolve_xp_bonus_percent"] = Target.MoraleMod,
+            // ③ 治疗轴
+            ["hp_heal_percent"] = Target.HealMod,
+            ["hp_heal_received_percent"] = Target.HealMod,
+            ["hp_heal_amount"] = Target.HealMod,
+            // ④ 战斗内施加概率
+            ["stun_chance"] = Target.ProbMod,
+            ["poison_chance"] = Target.ProbMod,
+            ["bleed_chance"] = Target.ProbMod,
+            ["move_chance"] = Target.ProbMod,
+            ["debuff_chance"] = Target.ProbMod,
+            // ⑤ 远征 / 城镇层（**不是**战斗 modifier）
+            ["scouting_chance"] = Target.ExpeditionLayer,
+            ["food_consumption_percent"] = Target.ExpeditionLayer,
+            ["starving_damage_percent"] = Target.ExpeditionLayer,
+            ["party_surprise_chance"] = Target.ExpeditionLayer,
+            ["monsters_surprise_chance"] = Target.ExpeditionLayer,
+            ["remove_negative_quirk_chance"] = Target.ExpeditionLayer,
+            ["upgrade_discount"] = Target.ExpeditionLayer,
+        };
+
+    /// <summary>
     /// 分类（唯一入口）。判据全部来自实测的两侧结构，不是我凭感觉写的 ✓
+    /// 🔴 `combat_stat_add` / `combat_stat_multiply` 是**唯二带子类型分支**的：
+    ///   `combat_stat_add` 实测只用 5 个**属性**子类型（attack_rating / crit_chance / defense_rating /
+    ///     protection_rating / speed_rating）⇒ **恒为 `StatMod`**（它从不改伤害）✓
+    ///   `combat_stat_multiply` 的 `damage_low` / `damage_high`（各 177 条）⇒ `DamageMod`；
+    ///     其余（`max_hp` 36 / `defense_rating` 1）⇒ `StatMod` ✓
     /// </summary>
     public static Target Classify(string statType, string? statSubType)
     {
         string st = statType ?? "";
-        string sub = statSubType ?? "";
-
-        // ① 属性乘/加：伤害类 ⇒ damage_mod；其余 ⇒ stat_mod ✓
-        if (st is "combat_stat_multiply" or "combat_stat_add")
+        if (st is "combat_stat_add" or "combat_stat_multiply")
         {
-            return sub is "damage_low" or "damage_high" or "damage_received_percent"
+            return (statSubType ?? "") is "damage_low" or "damage_high"
                 ? Target.DamageMod
                 : Target.StatMod;
         }
 
-        // ② 抗性：原版是"抗性轴"⇒ 我们放在**单位属性**（`units.json` 的 `*_resist`）而不是 buff modifier ✓
-        if (st == "resistance")
-        {
-            return Target.UnitResistance;
-        }
-
-        // 🆕 ③′ **R4 一手对账新增**：这两条**不是战斗 modifier** ⇒ 必须先于通用 `_chance` 规则判掉 ✓
-        //    （否则会被 "③ 概率类" 误吸进 prob_mod ✗ —— 那正是"硬凑"，纪律不许 ✓）
-        if (st == "activity_side_effect_chance")
-        {
-            return Target.Frozen;   // 活动副作用（加/减货币·饰品）= 城镇/远征层 ✓
-        }
-
-        if (st == "ignore_stealth")
-        {
-            return Target.Frozen;   // 潜行/侦测 = 可见性轴，我们无此轴 ✓
-        }
-
-        // ③ 概率/命中类（原版的 chance 家族）⇒ prob_mod ✓
-        if (st.EndsWith("_chance", StringComparison.Ordinal))
-        {
-            return Target.ProbMod;
-        }
-
-        // ④ 状态标志类（我们这侧的 state_flag）✓
-        if (st is "stun" or "mark" or "taunt")
-        {
-            return Target.StateFlag;
-        }
-
-        // ⑤ 其余（治疗/压力/侦察/食物/决心/惊喜/移除怪癖…）⇒ 🔴 **显式冻结**（阶段 A 不硬凑 ✓）
-        return Target.Frozen;
+        return ByStatType.TryGetValue(st, out Target t) ? t : Target.Frozen;
     }
 
     /// <summary>
-    /// 🔴 **冻结清单的理由**（给"为什么这条还没翻"一个可读的答案；**不是**"懒得做" ✓）：
-    ///   它们要么依赖**我们还没有的系统**（治疗量/食欲/惊喜/移除怪癖），
-    ///   要么是**远征层读数**（侦察/食物），要么原版把它表达成 `rule`（DoT）⇒ 需要先定规则再翻 ✓
+    /// 🔴 **去向说明**（给"这条原语去哪一层 / 为什么还没接"一个可读答案；**不是**"懒得做" ✓）。
+    /// 报告与用例都读它 ⇒ 任何 `stat_type` 都必须有话说（不许静默）✓
     /// </summary>
-    public static string FrozenReason(string statType) => statType switch
+    public static string DestinationNote(string statType) => statType switch
     {
-        "hp_heal_percent" or "hp_heal_amount" or "hp_heal_received_percent" => "治疗系统（阶段 A 未落：治疗量修正）✓",
-        "stress_dmg_percent" or "stress_dmg_received_percent" or "stress_heal_percent" or "stress_heal_received_percent"
-            => "压力系统已有，但**修正轴**未接（属 M3）✓",
-        "resolve_check_percent" or "resolve_xp_percent" => "决心检定/经验（属 M3）✓",
+        "combat_stat_add" => "属性加值（攻/暴/防/盾/速）⇒ stat_mod；**实测无伤害子类型** ✓",
+        "combat_stat_multiply" => "`damage_low`/`damage_high` ⇒ damage_mod；`max_hp`/`defense_rating` ⇒ stat_mod ✓",
+        "damage_received_percent" => "受伤乘区 ⇒ damage_mod（`DamageStep` 的 `raw` 层）✓",
+        "resistance" => "**单位抗性属性**（实测 8 轴：poison/bleed/move/debuff/disease/stun/death_blow/trap）⇒ `units.json` ✓",
+        "stress_dmg_percent" or "stress_dmg_received_percent" => "士气伤害 ⇒ `MoraleLedger.Apply` 的修正轴 ✓",
+        "stress_heal_percent" or "stress_heal_received_percent" => "士气恢复 ⇒ 城镇/扎营恢复的修正轴 ✓",
+        "resolve_check_percent" => "决心检定 ⇒ 士气系统（压力 ≥100 的检定）✓",
+        "resolve_xp_bonus_percent" => "决心经验加成 ⇒ 结算管线 ✓",
+        "hp_heal_percent" => "治疗量 ⇒ **已激活**（`HealAmount.ScaleByCaster`）✓",
+        "hp_heal_received_percent" => "受治疗量 ⇒ 治疗结算的受方乘区 ✓",
+        "hp_heal_amount" => "治疗量（平加）⇒ 治疗结算 ✓",
+        "stun_chance" or "poison_chance" or "bleed_chance" or "move_chance" or "debuff_chance"
+            => "**战斗内施加概率** ⇒ prob_mod（按名分发；抗性公式 `Clamp(chance - resist, 0, 0.95)`）✓",
         "scouting_chance" => "**远征层**读数（侦察），不是战斗 modifier ✓",
-        "food_consumption_percent" or "starving_damage_percent" => "饥饿/食物（远征层）✓",
-        "party_surprise_chance" or "monsters_surprise_chance" or "monster_surpirse_chance" => "伏击/惊喜（远征层）✓",
-        "remove_quirk_chance" or "remove_negative_quirk_chance" => "怪癖移除（M5 之后）✓",
-        "debuff_chance" or "dmg_received_percent" => "概率/减伤轴（待与 prob_mod/damage_mod 的细分口径一起定）✓",
-        // 🆕 R4 一手对账新增（一手有、第三方没有 ⇒ 必须显式给出理由，不许落进"未定"兜底 ✓）
-        "activity_side_effect_chance" => "活动副作用（加/减货币·饰品）= **城镇/远征层**，不是战斗 modifier ✓",
-        "ignore_stealth" => "潜行/侦测 = **可见性轴**（我们无此轴）⇒ 显式冻结 ✓",
-        "crit_received_chance" => "受方暴击率 ⇒ 经 ③ 归 prob_mod（**有去向** ✓ 无需冻结理由）✓",
-        _ => "未定（需先定规则再翻）✓",
+        "food_consumption_percent" => "**远征层**读数（食物消耗）✓",
+        "starving_damage_percent" => "**远征层**读数（饥饿伤害）✓",
+        "party_surprise_chance" or "monsters_surprise_chance" => "**远征层**读数（伏击/惊喜）✓",
+        "remove_negative_quirk_chance" => "**城镇层**（疗养院移除负面怪癖）✓",
+        "upgrade_discount" => "**城镇层**（实测子类型只有 weapon / armour）✓",
+        _ => "未定（参考项目此刻没有这个 `stat_type`；若上游新增 ⇒ 必须在此给出去向）✓",
     };
 
     /// <summary>可数读数：把一批原语分类后统计（供报表/用例断言）✓</summary>
@@ -121,5 +152,54 @@ public static class BuffPrimitiveTranslation
         }
 
         return counts;
+    }
+
+    /// <summary>
+    /// 🔴 **M2 已激活清单**（**唯一一条**：`hp_heal_percent`，消费点 `HealAmount.ScaleByCaster`）✓
+    /// </summary>
+    public static IReadOnlyList<string> Activated { get; } = new[] { "hp_heal_percent" };
+
+    /// <summary>
+    /// 🔴 **M2 待接清单**（参考项目实测的 25 个 `stat_type` 去掉已激活的 1 条 ⇒ **24 条**；
+    /// 顺序 = 池内出现次数从多到少 ⇒ **先接影响面大的** ✓）。
+    /// ⚠️ 本清单**必须**与 `buff_primitives.json` 的 `stat_type` 闭集逐一相等 ——
+    ///   由 `BuffPrimitivesTests` 双向断言（少一条/多一条都红）✓
+    /// </summary>
+    public static IReadOnlyList<string> Pending { get; } = new[]
+    {
+        "combat_stat_add", "combat_stat_multiply", "resistance", "stress_dmg_received_percent",
+        "debuff_chance", "resolve_check_percent", "scouting_chance", "hp_heal_received_percent",
+        "stress_heal_received_percent", "resolve_xp_bonus_percent", "monsters_surprise_chance",
+        "food_consumption_percent", "stun_chance", "poison_chance", "move_chance", "bleed_chance",
+        "hp_heal_amount", "starving_damage_percent", "remove_negative_quirk_chance",
+        "party_surprise_chance", "damage_received_percent", "stress_heal_percent",
+        "upgrade_discount", "stress_dmg_percent",
+    };
+
+    /// <summary>清单里所有名字（已激活 + 待接）—— 供报表与用例打印 ✓</summary>
+    public static IReadOnlyList<string> Checklist { get; } = Activated.Concat(Pending).ToArray();
+
+    /// <summary>
+    /// 🔴 **加载即校验（红线的防火墙）**：清单里每个名字**都必须**是参考项目真有的 `stat_type`。
+    /// WHY 必要：实测踩过 —— 旧清单里有 `resolve_xp_percent` / `remove_quirk_chance` /
+    ///   `dmg_received_percent` **三个名字上游根本不存在**（真名是 `..._bonus_percent` /
+    ///   `remove_negative_...` / `damage_...`）⇒ 那 3 条**永远接不上**，而清单上却写着"待接" ⚠️
+    ///   （`#290` 红线 21："写了但没接上"）⇒ 从此**加载时就报**，不再靠人眼 ✓
+    /// **生产消费点**：`DirectorBridge`（战斗装配时调用）✓
+    /// </summary>
+    public static void ValidateAgainst(BuffPrimitivesConfig primitives)
+    {
+        if (primitives is null)
+        {
+            throw new ArgumentNullException(nameof(primitives));
+        }
+
+        var missing = Checklist.Where(n => !primitives.StatTypes.Contains(n)).OrderBy(n => n, StringComparer.Ordinal).ToArray();
+        if (missing.Length > 0)
+        {
+            throw new InvalidOperationException(
+                $"{BuffPrimitivesConfig.ResPath}: M2 清单里 {missing.Length} 个名字参考项目没有 —— "
+                + $"{string.Join(", ", missing)}（红线 21：写了但接不上 ⇒ 必须改名或从清单删）✓");
+        }
     }
 }

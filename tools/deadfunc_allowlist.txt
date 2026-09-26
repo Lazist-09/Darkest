@@ -18,7 +18,7 @@ scripts/gameplay/sim/survival/LightMeter.cs | ApplyEventChoice | `expedition_nod
 darkest/scripts/core/contracts/UnitStats.cs | WeaponAt | M1a 按阶取武器；消费方 = M1c 阶段 3（伤害读阶）⇒ 届时接线 ✓
 darkest/scripts/core/contracts/UnitStats.cs | ArmourAt | 同上（按阶取护甲）✓
 darkest/scripts/core/math/BattleMath.cs | WeaponRawDamage | M1c 阶段 1 纯函数；消费方 = 阶段 3 的新伤害路径 ✓
-darkest/scripts/data/BuffPrimitiveTranslation.cs | FrozenReason | 冻结原语的**理由查询口**（报表/测试读它 ⇒ 让"未映射可见" ✓）
+darkest/scripts/data/BuffPrimitiveTranslation.cs | DestinationNote | 原语的**去向说明查询口**（报表/测试读它 ⇒ 让"每条去哪一层、为什么还没接"可见 ✓）；R22（A1）由 `FrozenReason` 改名而来（分类表判据源已换成参考项目原语池，25 个 `stat_type` 全都有去向 ⇒ "冻结"一词不再准确）✓
 darkest/scripts/data/TrinketsConfig.cs | IsPurchasable | M4 判据（`award_category != universal`）；消费方 = 商店/饰品 UI ✓
 darkest/scripts/data/UiShellLedger.cs | Reset | **测试支持**（用例之间清账本 ✓）
 darkest/scripts/gameplay/sim/pipeline/WeaponBaseDamage.cs | Damage | M1c 阶段 3 机制；消费方 = 阶段 3 默认切换（**现在必须无人调用** ✓ 见阶段1守卫）

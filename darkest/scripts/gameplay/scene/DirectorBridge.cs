@@ -48,6 +48,11 @@ public static class DirectorBridge
         TuningConfig tuning = TuningConfig.Parse(Read("tuning.json"));
         BalanceTable balance = BalanceTable.FromTuning(tuning);
         UnitsConfig unitsCfg = UnitsConfig.Parse(Read("units.json"));
+
+        // 🔴 **R22（A1）**：buff 原语层**加载即校验**（这是本表**唯一的生产消费点**，不是空转的读 ✓）——
+        //   `buff_primitives.json`（参考项目 1801 条）落地后，M2 清单里每个名字都必须真是上游的 `stat_type`；
+        //   实测踩过 3 个上游不存在的名字（红线 21："写了但没接上"）⇒ 从此**加载时就报** ✓
+        BuffPrimitiveTranslation.ValidateAgainst(BuffPrimitivesConfig.Parse(Read("buff_primitives.json")));
         // F1（#190）：我方原型集合由 units.json 数据派生 → 新增角色零代码改动
         SkillsConfig skillsCfg = SkillsConfig.Parse(Read("skills.json"), unitsCfg.PlayerArchetypes);
 

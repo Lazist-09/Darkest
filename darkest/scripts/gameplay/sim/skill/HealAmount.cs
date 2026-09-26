@@ -29,17 +29,16 @@ public static class HealAmount
 
     /// <summary>
     /// 🆕 **BuffsCrossChecked 的自我声明**（延续 M4 的做法：**"未跑"就标"未跑"**✓）：
-    ///   本文件**只覆盖 `hp_heal_percent` 一条** ⇒ 其余 14 条冻结原语**仍未激活** ✓
+    ///   本文件**只覆盖 `hp_heal_percent` 一条** ⇒ 其余原语**仍未激活** ✓
+    ///
+    /// 🔴 **R22（A1）改成【单一真值】**：清单本体搬去 `BuffPrimitiveTranslation.Activated` /
+    ///   `.Pending`（那是 M2 的清单表），这里只做**转发** ⇒ 不再有两份会互相漂移的名单 ✓
+    ///   ⚠️ 同时**修掉了 3 个上游不存在的名字**（`resolve_xp_percent` / `remove_quirk_chance` /
+    ///   `dmg_received_percent` 的真名见 `DestinationNote`）—— 旧名单里它们"永远接不上" ✓
+    ///   条数由 13 变 **24**：旧名单是手写的 14 条，新名单是**参考项目实测的 25 个 `stat_type` − 已激活 1 条** ✓
     /// </summary>
-    public static IReadOnlyList<string> ActivatedPrimitives { get; } = new[] { "hp_heal_percent" };
+    public static IReadOnlyList<string> ActivatedPrimitives => BuffPrimitiveTranslation.Activated;
 
-    /// <summary>仍未激活的（冻结清单的其余部分 · 保持**可打印** ✓）</summary>
-    public static IReadOnlyList<string> StillFrozen { get; } = new[]
-    {
-        "hp_heal_received_percent", "stress_dmg_percent", "stress_dmg_received_percent",
-        "resolve_check_percent", "resolve_xp_percent", "scouting_chance",
-        "food_consumption_percent", "starving_damage_percent",
-        "party_surprise_chance", "monsters_surprise_chance", "remove_quirk_chance",
-        "debuff_chance", "dmg_received_percent",
-    };
+    /// <summary>仍未激活的（`BuffPrimitiveTranslation.Pending` 的转发 · 保持**可打印** ✓）</summary>
+    public static IReadOnlyList<string> StillFrozen => BuffPrimitiveTranslation.Pending;
 }

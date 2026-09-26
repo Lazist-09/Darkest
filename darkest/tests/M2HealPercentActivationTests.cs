@@ -44,13 +44,21 @@ public sealed class M2HealPercentActivationTests
     [TestMethod]
     public void FrozenList_StaysCountedAndPrintable()
     {
-        // 架构要求：**未映射清单保持可打印** ✓ ⇒ 已激活 + 仍冻结 = 冻结清单总数（可核对 ✓）
+        // 架构要求：**未映射清单保持可打印** ✓ ⇒ 已激活 + 仍冻结 = 清单总数（可核对 ✓）
+        // 🔴 **R22（A1）条数由 13 改 24**，理由（不是"凑数"）：旧名单是**手写的 14 条**，
+        //    实测其中有 **3 个名字上游根本不存在**（`resolve_xp_percent` / `remove_quirk_chance` /
+        //    `dmg_received_percent`）⇒ 那 3 条**永远接不上**；新名单从**参考项目实测的 25 个
+        //    `stat_type`** 推出来（见 `BuffPrimitiveTranslation.Pending`），且由
+        //    `BuffPrimitivesTests.M2Checklist_CoversExactlyThePoolVocabulary` 双向钉住 ✓
         int activated = HealAmount.ActivatedPrimitives.Count;
         int frozen = HealAmount.StillFrozen.Count;
 
         Assert.AreEqual(1, activated, "已激活 = 1 条（`hp_heal_percent`）✓");
-        Assert.AreEqual(13, frozen, "仍冻结 = 13 条 ✓");
+        Assert.AreEqual(24, frozen, "仍冻结 = 24 条（参考项目 25 个 stat_type − 已激活 1）✓");
         Assert.IsFalse(HealAmount.StillFrozen.Contains("hp_heal_percent"), "已激活的不应还在冻结清单里 ✓");
+        Assert.IsFalse(HealAmount.StillFrozen.Contains("resolve_xp_percent"), "上游没有这个名字（真名见 DestinationNote）✓");
+        Assert.IsFalse(HealAmount.StillFrozen.Contains("dmg_received_percent"), "上游没有这个名字 ✓");
+        Assert.IsFalse(HealAmount.StillFrozen.Contains("remove_quirk_chance"), "上游没有这个名字 ✓");
 
         Console.WriteLine($"[M2·激活] 清单：已激活 {activated} 条（{string.Join(",", HealAmount.ActivatedPrimitives)}）"
             + $" · 仍冻结 {frozen} 条（可打印 ✓）");
