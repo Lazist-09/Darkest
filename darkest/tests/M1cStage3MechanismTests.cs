@@ -71,7 +71,7 @@ public sealed class M1cStage3MechanismTests
     [TestMethod]
     public void SkillField_DefaultsToNull_SoTheOldModelStaysDefault()
     {
-        // 🔴 **默认零行为**的证据：已入库的 skills.json **只填了有依据的 11 条**（其余 33 条为 null）
+        // 🔴 **默认零行为**的证据：已入库的 skills.json **只填了有依据的那些**（其余为 null）
         //    而**伤害路径尚未读 `dmg_pct`** ⇒ 无论填没填都走旧模型 ✓
         SkillsConfig shipped = SkillsConfig.Parse(ReadData("skills.json"));
         int withPct = 0, total = 0;
@@ -84,14 +84,17 @@ public sealed class M1cStage3MechanismTests
             }
         }
 
-        // 🔴 **R16 更新（#472①）**：策划 36 行表已到 ⇒ 我落**有依据**的【明确 11 条】⇒ 现在 **11 填 / 33 未填** ✓
-        //    🔴 而 `89ad718` 曾把【候选 12 条】【我推的值】也落进 `darkest/data` ⇒ **违反纪律 BL** ✓
-        //    ✅ **#472① 已裁**：候选 12 条**撤出** `darkest/data` · 改登记 `observe_list.md` **D5** 待查
-        //       （留档规则①：本表项**不许填进** `darkest/data/`；未核实前不得回填 ✓）
-        //    ⚠️ 而**伤害路径仍未读 `dmg_pct`** ⇒ 所以这 11 条是**零行为占位** ✓（阶段 3 切换读它才会生效 ✓）
-        Assert.AreEqual(11, withPct, $"#472① 后应为 **11** 条已填（= 有依据的【明确 11】：{total - 11} 条未填 ✓；候选 12 条已撤出并登记 D5 ✓）");
-        Assert.AreEqual(total - 11, total - withPct, "其余仍未填 ⇒ 走旧模型 ✓");
-        Console.WriteLine($"[M1c·阶段3] `dmg_pct` 已就位（有依据的 {withPct}/{total}）但**伤害路径未读** ⇒ **零行为** ✓");
+        // 🔴 **A2 更新（2026-09-26）**：判据已改为【数值一律采用本地参考项目】⇒ 现在 **14 填 / 30 未填** ✓
+        //    14 = ①【明确】6 条（clean/war_cry 等，`ref:` 注记）
+        //       + ②【候选】但库里已有值、且**自己的注记点名了参考技能**、实测相等 ⇒ **保留** 6 条
+        //       + ③同上但实测**不等** ⇒ **纠正** 2 条（`warrior_lunge` -50→**-55** · `commissar_burst_fire` -50→**-60**）
+        //    🔴 旧的"非明确一律撤出"口径**已废**：它会把 ② 的 6 条**对的数**也撤掉
+        //       （`_dmg_pct_source` 里的 `dd1:<skill>` 就是【策划 §43 表】早已做过的映射声明 ⇒ 不是"我推的"）
+        //    ⚠️ 剩 30 条**无可落之值**：映射本身待**策划逐行裁定**（逐行请求见 `reports/ref_skill_dmg_source.md`）
+        //    ⚠️ 而**伤害路径仍未读 `dmg_pct`** ⇒ 所以这 14 条是**零行为占位** ✓（阶段 3 切换读它才会生效 ✓）
+        Assert.AreEqual(14, withPct, $"A2 后应为 **14** 条已填（{total - 14} 条未填 ✓；候选 30 条待策划逐行裁定 ✓）");
+        Assert.AreEqual(total - 14, total - withPct, "其余仍未填 ⇒ 走旧模型 ✓");
+        Console.WriteLine($"[M1c·阶段3] `dmg_pct` 已就位（{withPct}/{total}）但**伤害路径未读** ⇒ **零行为** ✓");
     }
 
     public TestContext TestContext { get; set; } = null!;

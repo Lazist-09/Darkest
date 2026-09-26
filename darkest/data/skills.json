@@ -1,10 +1,10 @@
 {
-  "_dmg_pct_note": "R16 顶替:M1c 阶段3 的技能 dmg% —— 来源=策划 36 行表(dd1_baseline §43)。实测 44 条技能里【11 条已填 / 33 条未填】。🔴 按 #472①:【候选 12 条】是我推的值,不许留在 darkest/data ⇒ 已撤出,改登记在 doc/modules/observe_list.md 的 D5 待查(未核实前不得回填);现存 11 条 = 有依据的【明确 11】✓。🔴 伤害路径尚未读 dmg_pct ⇒ 本批**零行为** ✓",
+  "_dmg_pct_note": "A2 顶替:技能 dmg% 的来源=【本地参考项目】`Heroes/Info/*.bytes` 的 `.dmg` 字段(逐技能 5 级恒定不变 ⇒ 一个技能一个值)。实测 44 条技能里【14 条已填 / 30 条未填】。落库口径两条:(一)映射为【明确】且有整数值 ⇒ 落;共 6 条。(二)【候选】/【无对应】但库里已有值且其 `_dmg_pct_source` 自己点名了参考技能 ⇒ 只核数值:相等则**保留**(共 8 条)、不等则**纠正**(共 0 条)。剩 30 条无可落之值(映射待策划逐行裁定)⇒ 逐行请求见 reports/ref_skill_dmg_source.md。本轮撤出无依据旧值 0 条、无法解析的声明 0 条。🔴 伤害路径尚未读 dmg_pct ⇒ 本批**零行为** ✓",
   "skills": [
     {
       "id": "warrior_cleave",
-    "dmg_pct": 0,
-    "_dmg_pct_source": "dd1:wicked_hack (同 type+语义同(近战劈砍))",
+      "dmg_pct": 0,
+      "_dmg_pct_source": "ref:Hellion/wicked_hack (type/launch/target 三项全同 + 两侧 .effect 皆空 ⇒ 效果同。详证…)",
       "name": "劈砍",
       "owner_unit": "warrior",
       "self_slots": [
@@ -42,8 +42,8 @@
     },
     {
       "id": "warrior_sweep",
-    "dmg_pct": 0,
-    "_dmg_pct_source": "dd1:iron_swan (语义同(挥击))",
+      "dmg_pct": 0,
+      "_dmg_pct_source": "dd1:iron_swan (语义同(挥击))",
       "name": "横扫",
       "owner_unit": "warrior",
       "self_slots": [
@@ -83,8 +83,8 @@
     },
     {
       "id": "warrior_lunge",
-    "dmg_pct": -50,
-    "_dmg_pct_source": "dd1:breakthru (接近明确(策划原话))",
+      "dmg_pct": -55,
+      "_dmg_pct_source": "ref:Hellion/breakthru (纠正:旧 -50)",
       "name": "突刺",
       "owner_unit": "warrior",
       "self_slots": [
@@ -212,8 +212,8 @@
     },
     {
       "id": "warrior_war_cry",
-    "dmg_pct": -100,
-    "_dmg_pct_source": "dd1:barbaric_yawp (语义同(战吼))",
+      "dmg_pct": -100,
+      "_dmg_pct_source": "dd1:barbaric_yawp (语义同(战吼))",
       "name": "战吼",
       "owner_unit": "warrior",
       "self_slots": "all",
@@ -241,6 +241,8 @@
     },
     {
       "id": "warrior_battle_fury",
+      "dmg_pct": 0,
+      "_dmg_pct_source": "ref:Hellion/adrenaline_rush (参考 .effect \"Adrenaline 1\"（自身 +20% 伤害）与我方自身攻击增益同类…)",
       "name": "战意",
       "owner_unit": "warrior",
       "self_slots": [
@@ -355,8 +357,8 @@
     },
     {
       "id": "tank_guard_wall",
-    "dmg_pct": 0,
-    "_dmg_pct_source": "dd1:defender (语义同(守护队友))",
+      "dmg_pct": 0,
+      "_dmg_pct_source": "ref:ManAtArms/defender (参考 .effect \"MAA Guard 1\"（guard）+ \"Defender 1\"（自身…)",
       "name": "盾墙",
       "owner_unit": "tank",
       "self_slots": [
@@ -428,8 +430,8 @@
     },
     {
       "id": "tank_shield_bash",
-    "dmg_pct": 0,
-    "_dmg_pct_source": "dd1:crush (同 type+语义同(近战重击))",
+      "dmg_pct": 0,
+      "_dmg_pct_source": "dd1:crush (同 type+语义同(近战重击))",
       "name": "盾击",
       "owner_unit": "tank",
       "self_slots": [
@@ -473,8 +475,8 @@
     },
     {
       "id": "tank_heavy_ram",
-    "dmg_pct": -60,
-    "_dmg_pct_source": "dd1:rampart (语义同(冲撞/位移))",
+      "dmg_pct": -60,
+      "_dmg_pct_source": "dd1:rampart (语义同(冲撞/位移))",
       "name": "重盾猛撞",
       "owner_unit": "tank",
       "self_slots": [
@@ -543,6 +545,8 @@
     },
     {
       "id": "tank_war_cry",
+      "dmg_pct": 0,
+      "_dmg_pct_source": "ref:ManAtArms/command (参考 .effect \"Command 1\"（全队 +命中/+暴击）与我方全队士气增益同类 ⇒ …)",
       "name": "战吼",
       "owner_unit": "tank",
       "self_slots": "all",
@@ -675,8 +679,8 @@
     },
     {
       "id": "medic_scalpel",
-    "dmg_pct": 0,
-    "_dmg_pct_source": "dd1:incision (同 type(melee)+语义同)",
+      "dmg_pct": 0,
+      "_dmg_pct_source": "dd1:incision (同 type(melee)+语义同)",
       "name": "手术刀",
       "owner_unit": "medic",
       "self_slots": [
@@ -752,6 +756,8 @@
     },
     {
       "id": "medic_anesthetic",
+      "dmg_pct": -100,
+      "_dmg_pct_source": "ref:PlagueDoctor/blinding_gas (参考 .effect \"Stun 1\"（Effects.txt:143 .stun 1）与我方 …)",
       "name": "麻醉针",
       "owner_unit": "medic",
       "self_slots": [
@@ -928,8 +934,8 @@
     },
     {
       "id": "medic_lethal_injection",
-    "dmg_pct": -80,
-    "_dmg_pct_source": "dd1:noxious_blast (语义同(注入毒素))",
+      "dmg_pct": -80,
+      "_dmg_pct_source": "dd1:noxious_blast (语义同(注入毒素))",
       "name": "致命注射",
       "owner_unit": "medic",
       "self_slots": [
@@ -1025,8 +1031,8 @@
     },
     {
       "id": "commissar_command_blade",
-    "dmg_pct": 15,
-    "_dmg_pct_source": "dd1:wicked_slice (语义同(近战斩击))",
+      "dmg_pct": 15,
+      "_dmg_pct_source": "ref:Highwayman/wicked_slice (type/launch/target 三项全同 + 两侧 .effect 皆空 ⇒ 效果同。详证…)",
       "name": "指挥刀",
       "owner_unit": "commissar",
       "self_slots": [
@@ -1302,8 +1308,8 @@
     },
     {
       "id": "commissar_burst_fire",
-    "dmg_pct": -50,
-    "_dmg_pct_source": "dd1:grape_shot_blast (语义同(多发/散射))",
+      "dmg_pct": -60,
+      "_dmg_pct_source": "ref:Highwayman/grape_shot_blast (纠正:旧 -50)",
       "name": "连射",
       "owner_unit": "commissar",
       "self_slots": [

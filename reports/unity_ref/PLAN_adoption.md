@@ -87,7 +87,13 @@
    ⇒ ✅ **我方"一个技能一个 `dmg_pct`"的形状是对的**（不需要按级存）✓
 ```
 
-## 3. 🎖️ 顺带**判决了 D5 那 12 条候选**（观察清单 D5 可结案）
+## 3. 🎖️ D5 那 12 条候选 —— ✅ **已判决（A2 `#473`）**，但🔴 **下面这张旧表的结论被推翻了**
+
+> 🔴 **本轮更正（2026-09-26，A2）**：下面这张表是**抽数阶段**的对照，它的判据是
+> **「技能名像 / 语义近似」** ⇒ 🔴 **它给出的"9 条一致"里，绝大多数在按
+> `observe_list D5` 要求的【读 `.effect` 全串】重核后【不成立】**
+> ⇒ 所以**旧表只保留了"数值抽对了"这一半价值**，**配对结论以下面 3.1 的重核表为准** ⚠️
+> （纪律 BL 在此**第二次**应验：**同一个 `.dmg` 值，配错技能就毫无意义** ✓）
 
 ```
 策划 §43 的 12 条【候选】（**当时因为我方"按名字像推"而不许落库**，纪律 BL）
@@ -107,8 +113,50 @@
 | `commissar_charge_order` | `duelist_advance` | −20 | **−20%** | ✅ **一致** |
 | `commissar_execution_order` | `opened_vein` | −15 | **−15%** | ✅ **一致** |
 | `commissar_supervise` | `take_aim` | −80 | **−80%** | ✅ **一致** |
-⇒ 📊 **9 条一致 · 3 条猜错**（`tank_taunt` · `warrior_last_stand` · `commissar_pistol_shot`）✓
-⇒ ✅ **结论：D5 可以结案**（12 条全部有了可指的来源）—— 但**落地要按下面 A2 的步骤**，并留前后读数 ✓
+⇒ 📊 旧表口径：**9 条一致 · 3 条猜错**（`tank_taunt` · `warrior_last_stand` · `commissar_pistol_shot`）✓
+🔴 **但这只说明"值抽对了"，不说明"配对了"** ⇒ 见 3.1 ✓
+```
+
+### 3.1 🔴 **A2 重核（按 `.effect` 全串，2026-09-26）—— 结论：只有 3 条能升【明确】**
+
+| 我方技能 | D5 假设 | D5 裁定 | 参考 `.effect` 全串 | 我方效果 | 本轮落库 |
+|---|---|---|---|---|---|
+| `medic_anesthetic` | `blinding_gas` | ✅ **升明确** | `"Stun 1"` | `{type:stun, probability:30}` | ✅ **落 −100** |
+| `tank_war_cry` | `command` | ✅ **升明确** | `"Command 1"`（全队 +命中/+暴击）| 全队士气 +5 | ✅ **落 0** |
+| `warrior_battle_fury` | `adrenaline_rush` | ✅ **升明确** | `"Adrenaline 1"` | `{stat_mod, attack:+4}` | ✅ **落 0** |
+| `medic_medicine_flask` | `plague_grenade` | 🔴 **降无对应** | `"PD Blight 1"` | `{stat_mod, resilience:−15}` | ❌ 不落 |
+| `tank_taunt` | `bellow` | 🔴 **降无对应** | `"Disrupt 1"` | `{type:taunt}` | ❌ 不落（**参考无 `taunt` 机制**）|
+| `tank_selfless_charge` | `retribution` | 🔴 **降无对应** | `"MAA Riposte 1" "Mark Self"` | `effects: [] + self_damage 8` | ❌ 不落 |
+| `warrior_last_stand` | `bleed_out` | 🔴 **降无对应** | `"Strong Bleed 1" "Hellion Exhaust"` | `effects: [] + self_damage 6` | ❌ 不落 |
+| `commissar_charge_order` | `duelist_advance` | 🔴 **降无对应** | `"Hwy Riposte 1"` | `effects: []` | ❌ 不落 |
+| `commissar_execution_order` | `opened_vein` | 🔴 **降无对应** | `"Bleed 1" "Bleed Debuff 1"` | `effects: [] + missing_hp` | ❌ 不落 |
+| `commissar_supervise` | `take_aim` | 🔴 **降无对应** | `"Highwayman Buff 1"` | `{stat_mod, resilience:−10}+{mark}` | ❌ 不落 |
+| `tank_iron_wall` | `bolster` | 🟡 保留候选（效果不确定）| `"Bolster 1"` | `{type:shield, charges:2}` | ❌ 不落（**DD1 无护盾机制**）|
+| `commissar_pistol_shot` | `pistol_shot` | 🟡 保留候选（**名字完全相同**）| `"Highwayman Pistol Dmg Marked"` | `effects: []` | ❌ 不落 |
+
+```
+📊 A2 重核结论：**升明确 3 · 降无对应 7 · 保留候选 2**
+🔴 关键翻案：`tank_taunt ← bellow` 旧表判"一致(−90)"，实测 `bellow` 的 `.effect "Disrupt 1"`
+   是【敌方闪避/速度减益】，与我方 taunt **明确不同**；且 `Effects.txt` **952 条 effect 里 `taunt` 0 命中**
+   ⇒ 🎖️ **`tank_taunt` 不是"值猜错了"，是"这个技能在参考项目里不存在"** ✓
+🔴 同理 `warrior_last_stand ← bleed_out`(+15) 与 `commissar_charge_order ← duelist_advance`(−20)
+   都被翻案 ⇒ **那 3 个"实测值"(bellow −90 / bleed_out +15 / pistol_shot −25) 仍然成立**，
+   但它们**指向的技能不是我方那条** ⇒ 只作为请求件里的"参考候选值"保留 ✓
+```
+
+### 3.2 ✅ A2 实际落库读数（**这是本轮的最终数**）
+
+```
+· 44 条技能：映射【明确 7 / 候选 34 / 无对应 3】（7 条明确里 `move` 参考无 `.dmg` ⇒ 无可落之值）✓
+· `dmg_pct`：**before 11 → after 14**（落 6 · 保留 6 · **纠正 2** · 撤出 0）✓
+· **纠正 2 条**：`warrior_lunge` −50 → **−55**（←`breakthru`，`Hellion.bytes:47`）·
+    `commissar_burst_fire` −50 → **−60**（←`grape_shot_blast`，`Highwayman.bytes:42`）✓
+· 🔴 **30 条落不了**：**参考项目答不上来**（105 条技能 vs 我方 44 条；且 `.dmg` 不是"默认 0"，
+    105 条里 0 只占 **39** 条、15 个英雄**没有一个**是整组同值 ⇒ 挑错一条差 **250 个百分点**）✓
+  ⇒ ✅ **已挂账策划**：`reports/planner_request_skill_dmg_mapping.md`
+    （**17 行真需定值** = 我方 Σ段倍率 > 0；**13 行值无所谓** = Σ段倍率 = 0 ⇒ 公式里乘任何数都是 0 伤害）✓
+🔴 **并量出一条模型级冲突**：我方 `区间 × Σ段倍率 × (1+dmg%)`（两根轴）vs 参考 `区间 × (1+dmg%)`
+  ⇒ 已同时挂账策划与架构（`planner_request_skill_dmg_mapping.md §4①`）✓
 ```
 
 ## 4. 采用映射与执行顺序（**按杠杆排序**）
@@ -116,8 +164,8 @@
 | # | 项 | 参考来源 | 我方目标 | 为什么这个顺序 |
 |---|---|---|---|---|
 | **A1** | ✅ **buff 原语池（已完成 `c74954e`）** | `JsonBuffs.json`（1801） | 新 `data/buff_primitives.json` + 新原语层 | **先修那条 100% 断裂的引用链** ⇒ 引用链 **0 → 482** 可解析 ✓ |
-| **A2** | 技能 `dmg%`（44 条） | `Heroes/Info/*.bytes` `.dmg`（485） | `skills.json` 的 `dmg_pct` | **P7 的前置**；且**同时判决 D5** ✓ ✅ **同量纲（整数百分比）⇒ 不被量纲问题阻塞，可以现在做** |
-| **A3** | 英雄武器/护甲 5 阶 | 同上 `weapon:`/`armour:` | `hero_upgrades.json` / `units.json` | 按新指令**取参考值** ⇒ 消化那 97 条冲突 ✓ |
+| **A2** | ✅ **技能 `dmg%`（已完成 `#473`）** | `Heroes/Info/*.bytes` `.dmg`（485） | `skills.json` 的 `dmg_pct` | **P7 的前置**；D5 **已判决（3 条升明确 / 7 条降无对应）** ✓ 🔴 **但只落 14/44**：30 条参考答不上来 ⇒ **P7 仍卡在策划那 30 行裁定** ⚠️ |
+| **A3** | 英雄武器/护甲 5 阶 | 同上 `weapon:`/`armour:` | `hero_upgrades.json` / `units.json` | 按新指令**取参考值** ⇒ 消化冲突。🔴 **冲突数已更正 97 → 130**（旧工具静默漏比 4 个英雄）；且我方与参考**差 39 个字段**，其中 **13** 个要落**非整数** ⇒ `WeaponTier.CritPct` 需从 `int` 改成能装小数 ✓ |
 | **A4** | 怪物 | `Monsters/*.txt`（230） | `units.json`（现 7） | 量级差最大（7 → 230） |
 | **A5** | 怪物 AI | `JsonAI.json`（160） | `enemy_ai.json`（现 3） | 依赖 A4 的怪名 |
 | **A6** | 折磨/美德 + act-out 行为表 | `JsonTraits.json`（12） | `traits.json`（现 7 折磨） | 我方**缺 5 美德 + 14 项回合开始 / 15 项反应行为** |
@@ -253,6 +301,9 @@ dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMo
 | `04b_quests_loot_narration.md` | 🔴 **任务 / 战利品 / 旁白 / 队伍名 / 障碍陷阱** —— **已交付**（89.2KB · 结论见本文 §10.2）✓ |
 | `05_buffs_ai_quirks_trinkets.md` | buff/AI/怪癖/特质/饰品 数据与逻辑 ✓ |
 | `ref_buff_primitives_source.md` | 🆕 **A1 原语层的来源与实测**（由提取器每次重跑生成；含 74 条未解析的**逐条待改清单**）✓ |
+| `06_skill_dmg_mapping.md` + `skill_dmg_mapping.json` | 🆕 **A2 的 44 行技能映射**（逐行带 `file:line` + `.effect` 全串证据 · 明确 7 / 候选 34 / 无对应 3）✓ |
+| `../ref_skill_dmg_source.md` | 🆕 **A2 的落库结果**（由 `tools/dsh/land_ref_skill_dmg.py` 每次重跑生成：逐行结果 + 纠正/保留/撤出三张清单 + **30 行待裁表**）✓ |
+| `../planner_request_skill_dmg_mapping.md` | 🆕 🔴 **给策划的 30 行请求**（17 行真需定值 + 13 行值无所谓 + 2 条顺带发现 + 我能验/不能验）✓ |
 | `../contract_change_request_buff_primitives.md` | 🆕 A1 之后契约侧要改的 **5 处**（文件名/形状/量纲/判据源/覆盖差集）✓ |
 
 ---

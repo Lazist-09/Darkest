@@ -11,26 +11,35 @@
 ```
 构建 **0 错 / 99 警告**（⚠️ 口径注：本轮改了 `scripts/**` + `tests/**` ⇒ **两个工程都全量重建**；
   此前记的 "44 警告" 是**只有内核工程增量重建**时的数 ⇒ 两个数不是同一口径，别横向比 ✓）
-全量单测 **841/841** ✓（836 + A1 的 5 条）· 文件规模门禁 **OK: all 443 scanned program files <= 600 lines (0 allowlisted)** ✓
+全量单测 **843/843** ✓（841 + A1 加固 2 条）· 文件规模门禁 **OK: all 444 scanned program files <= 600 lines (0 allowlisted)** ✓
 B6 外源门禁 **OK**（36 files / 2 roots · 0 白名单）✓ · **数据纪律 三扫 0 处 / exit 0**（`deadfuncs` **0 个** ✓）✓
 godot 引用 **0 命中** ✓ · 拆分完整性自检 **PASS**（`--selfcheck` intact=True）✓ · 外壳单例判据 **NOT-YET**（信息性 · UI 域 · 未变）
 全套冒烟 **13/13 绿**（真错误 0 · PROBE-EXIT bad=0 code=0）✓ · 我域在飞 **0** ✓
 ```
-> 🆕 **本会话最近四项**：`ce5cebd`（撤候选 12 条 `dmg%`）· `49b1908`（传家宝步骤 ② 接线）·
->    P4 删旧源 · **`c74954e`（A1 · buff 原语层：引用链 0 → 482 条可解析）** ✓
->    详录见 `doc/modules/dd1_baseline.md` **§53 / §54 / §55 / §56 / §57** ✓
+> 🆕 **本会话最近六项**：`ce5cebd`（撤候选 12 条 `dmg%`）· `49b1908`（传家宝步骤 ② 接线）·
+>    P4 删旧源 · `c74954e`（A1 · buff 原语层：引用链 0 → 482 条可解析）· `54afb57`（修对账工具静默漏比）·
+>    **A2（技能 `dmg%` 改用参考项目来源：11 → 14 条）** ✓
+>    详录见 `doc/modules/dd1_baseline.md` **§53 / §54 / §55 / §56 / §57 / §58** ✓
 > 🔴 **本会话打穿的一条契约判据**：**P23 ③**（一趟收入 < 三栋首级总需）⇒ 实测 **46 ≥ 14** ⇒
 >    已登记 `§39.2` 第 9 项 + `reports/contract_change_request_heirloom_step2.md`（**数值归策划**）⚠️
 > 🆕 **A1 之后新提的一张契约单**：`reports/contract_change_request_buff_primitives.md`（**5 处**：
 >    文件名 `dd1_buffs.json` → `buff_primitives.json` · 形状没登记 · 🔴 **量纲（分数 vs 整数百分比）没定** ·
 >    判据源（一手 → 参考项目）要重述 · 覆盖差集（丢 3 个 `stat_type` + 4 个 `rule_type`）要登记）⚠️
+> 🆕 **A2 之后新提的一张请求单**：`reports/planner_request_skill_dmg_mapping.md`（**30 条技能无参考值**：
+>    17 行真需定值 + 13 行值无所谓 + `Σ段倍率` vs `dmg%` 两根轴的模型裁定）⚠️
 
-## §0b 🆕 本轮（R19–R22）逐项读数
+## §0b 🆕 本轮（R19–R23）逐项读数
 | 项 | 读数（实测） | 提交 |
 |---|---|---|
+| **A2** 技能 `dmg%` 改用参考项目来源 | 映射 44 行 =【明确 7 / 候选 34 / 无对应 3】· `dmg_pct` **11 → 14**（落 6 · 保留 6 · **纠正 2** · 撤出 0）· 纠正 `warrior_lunge` −50→**−55**（`Hellion/breakthru`）· `commissar_burst_fire` −50→**−60**（`Highwayman/grape_shot_blast`）· 落库器**幂等**（连跑 3 遍读数 `11→14`/`14→14`/`14→14`，文件字节不变）· 全量 **843/843** | 本提交 |
+| ↳ 🔴 **A2 只关了 P7 前置的一半** | **30 条落不了**：参考 105 条技能 vs 我方 44 条；`.dmg` **不是"默认 0"**（0 只占 **39/105**，15 英雄**无一**整组同值，挑错差 **250 个百分点**）；`taunt`/多段/对敌施压**参考原理上没有** | 归**策划**裁 |
+| ↳ 🎖️ **D5 结案（12 条逐条裁定）** | **升明确 3**（`medic_anesthetic −100` · `tank_war_cry 0` · `warrior_battle_fury 0`）· **降无对应 7** · 保留候选 2 ⇒ 🔴 `tank_taunt` **不是值猜错，是参考项目无此机制**（`Effects.txt` 952 条 effect 里 `taunt` **0 命中**） | 本提交 |
+| ↳ 🔴 **A2 量出的模型级冲突（新条目 D8）** | 我方 `区间 × Σ段倍率 × (1+dmg%)`（**两根轴**）vs 参考 `区间 × (1+dmg%)`（**一根轴**）⇒ "数值全面采用参考"是否意味着 **Σ段倍率归 1** | 归**策划+架构**裁 |
+| **R22 加固** A1 的防火墙补负向证明 | 2 条新用例：`ValidateAgainst` 缺名**必抛**且信息点名"红线 21"（实测 583 字）· 5 种坏结构**逐条**抛 + 反向断言"合法一行能过" ⇒ 全量 **841 → 843** | **`eafbb97`** |
+| **R23 顺带修工具** 对账器静默漏比 | `reconcile_hero_tables` 用 `k.lower()==hlower` 配对 ⇒ 蛇形 vs 驼峰 ⇒ **4 英雄 / 180 字段静默漏比**且被计入"冲突" ⇒ 改归一化 + "没比"与"冲突"分两张清单 ⇒ **配对 11→15 · 比较 495→675 · 冲突 97→130**（一致率 81.2%→80.7%） | **`54afb57`** |
 | **A1** buff 原语层（参考项目 1801 条） | 池 `1801 条 / stat_type 25 / rule_type 23 / 组合 41 / duration 63 / is_false_rule 60 / remove_if_not_active 1` · **引用解析 0 → 482**（556 去重引用 ⇒ 482 可解析 / **74 未解析** = 50 已改名 + 24 未覆盖）· 去向 `StatMod 579 / DamageMod 359 / UnitResistance 329 / MoraleMod 232 / ExpeditionLayer 109 / ProbMod 99 / HealMod 94` ⇒ **Frozen 0** · 全量 **841/841** | **`c74954e`** |
 | ↳ 🔴 **顺带修掉红线 21 的实例** | 旧 M2 冻结清单里 **3 个上游不存在的名字**（`resolve_xp_percent` / `remove_quirk_chance` / `dmg_received_percent`）⇒ 那 3 条**永远接不上**；清单改单一真值，条数 **13 → 24**（= 实测 25 个 `stat_type` − 已激活 1） | 同上 |
-| ↳ 🔴 **A1 暴露的硬前置（阻塞 A2/A7）** | `amount` 是**分数**（**非整数 1676/1801** · 0.04 = 4% · `×multiply 0.2` = ×1.2），我方是**整数百分比** ⇒ 采用必须 **×100**，**舍入口径未定** ⇒ 见契约单 §1.3 | 归**架构/策划**裁 |
+| ↳ 🔴 **A1 暴露的硬前置（阻塞 A7）** | `amount` 是**分数**（**非整数 1676/1801** · 0.04 = 4% · `×multiply 0.2` = ×1.2），我方是**整数百分比** ⇒ 采用必须 **×100**，**舍入口径未定** ⇒ 见契约单 §1.3 ✅ **A2 不受影响**（`.dmg` 是整数百分比字符串）| 归**架构/策划**裁 |
 | ↳ ⚠️ **诚实边界（纪律 BK）** | **消费侧仍未接线**：怪癖/饰品至今没被生产代码加载（`TrinketsConfig.Parse`/`QuirksConfig.Parse` 只在用例里调用）⇒ **"能解析" ≠ "效果生效"** | — |
 | **R21** 参考项目学习（A 线开工） | 3 份学习报告 + 采用计划：`01_data_inventory`（330 文件）· `02b`（15 英雄 × 7 技能 × 5 级 = **525 条**）· `03_combat_logic`（**伤害公式**等）· `04a`（城镇经济 **86.8KB**）· `04b`（任务/战利品/旁白 **89.2KB**）· `05`（buff/AI/怪癖/饰品） | **`798770c`** · `8c6b17e` · `1236a68` |
 | **P1** 撤出 `dmg%` 候选 12 条 | `skills.json` bytes 33672→**32639** · 行 1728→**1704** · 带 `dmg_pct` **23→11** · `kept11_exact=True` · 候选 12 条字段**一个不剩** · 全量 **823/823** | **`ce5cebd`** |
@@ -101,7 +110,9 @@ godot 引用 **0 命中** ✓ · 拆分完整性自检 **PASS**（`--selfcheck` 
    减伤/命中基线逐位不变 · 每条判据的**实测输出**（B-2/B-3/C4/一键状态 ✓）
 🔴 **我不能自证 / 未做的**：
    ① **UI 域**：外壳 `CanvasLayer` 抬层 · hamlet 等屏面板化 · `main_scene` + 撤 autoload（**都要 UI 动手** ✓）
-   ② **等裁定的数值**：技能 `dmg%` 23 条 · `prot` 对齐原版（减伤→0）· 4v4 名单/待命位 · `def` 平衡项
+   ② **等裁定的数值**：技能 `dmg%` **30 条**（A2 后从"23 条候选"细化为"30 条无参考值"，见
+      `planner_request_skill_dmg_mapping.md`）· `prot` 对齐原版（减伤→0）· 4v4 名单/待命位 · `def` 平衡项 ·
+      🆕 **两根轴**（`Σ段倍率` 是否归 1）· 🆕 buff `amount` **分数→整数百分比**的舍入口径
    ③ **M3 第 2 步**（带行为）：建议与 ②③ 口径一并确认后一次做完 ✓
    ④ **注释审校**：`ExpeditionFlow` 那批的"为什么"**真的丢了** ⇒ 只能补"这段在做什么"✓
    ⑤ **`O-95` 4v4 数值**（技能 SP 剂量）⇒ 入解冻清单 ✓
@@ -131,12 +142,19 @@ godot 引用 **0 命中** ✓ · 拆分完整性自检 **PASS**（`--selfcheck` 
 · `tools/dsh/reference_placeholders.md` —— **替换清单**（①~⑥+⑤b 现状 / 出处等级 / 值来源 / 后续怎么改 /
   **轮 1~8 的提交索引 15 条** / 待策划 5 件 ✓）
 · 配套证据：`reports/reference_substitution_findings.md`（可行性：六项逐项实测）·
-  `reports/edrive_vs_reference_hero_tables.md`（一手 vs 第三方：**495 比较 / 97 冲突**）·
+  `reports/edrive_vs_reference_hero_tables.md`（一手 vs 第三方：**675 比较 / 130 冲突**（R23 修工具后更正，
+  旧记 "495/97" 是**静默漏比 4 英雄 / 180 字段**的错数））·
   `reports/data_provenance_audit.md`（10 个数据集的出处等级）·
   `reports/top_level_vs_tier0_consistency.md`（顶层 vs 第 0 阶）·
   `reports/buff_primitives_edrive_vs_ref.md`（原语对账 48 vs 41）·
   `reports/skill_dmg_mapping_proposal.md`（技能映射提案：可用 7 / 可疑 5 / 需点名 32）·
   `reports/tier_source_options.md`（当前阶 A/B/C）✓
+· 🆕 **A 线（逐数据集采用参考项目）单一入口**：`reports/unity_ref/PLAN_adoption.md`（A1~A12 计划 + 进度）·
+  `reports/unity_ref/06_skill_dmg_mapping.md` + `skill_dmg_mapping.json`（A2 映射表：44 行 **Frozen**）·
+  `reports/ref_skill_dmg_source.md`（落库器逐行读数）·
+  `reports/planner_request_skill_dmg_mapping.md`（**30 条待裁**）·
+  `reports/contract_change_request_buff_primitives.md`（A1 的 5 处契约差）✓
 · 工具：`reconcile_hero_tables_edrive_vs_ref.py` · `land_edrive_hero_tables.py` ·
+  🆕 `land_ref_skill_dmg.py`（A2 落库器 · **幂等** · `--check` 不写盘）·
   `reconcile…`（buff 原语用 `extract_dd1_buff_primitives.py --out-suffix`）· `make_skill_mapping_proposal.py` ✓
 ```
