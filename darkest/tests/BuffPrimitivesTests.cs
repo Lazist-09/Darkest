@@ -257,6 +257,49 @@ public sealed class BuffPrimitivesTests
     }
 
     /// <summary>
+    /// 🔴 **待接条件列**（架构 `M2-ROUTE-B-20260921` 裁定 ②）—— 防它被改坏：
+    ///   ① 每条 `Pending` 都必须有非空条件（不许静默）✓
+    ///   ② **「缺载体」= 7 / 「未接线」= 17**（与 `ByStatType` 的去向一致）✓
+    ///   ③ **"缺载体"必须恰好是 `ExpeditionLayer` 的那些**（不许两处口径漂移）✓
+    /// </summary>
+    [TestMethod]
+    public void PendingConditions_DistinguishMissingCarrierFromUnwired()
+    {
+        var conditions = BuffPrimitiveTranslation.PendingWithConditions;
+
+        Assert.AreEqual(BuffPrimitiveTranslation.Pending.Count, conditions.Count,
+            "条件数与 Pending 条数一致 ✓");
+
+        foreach ((string name, string condition) in conditions)
+        {
+            Assert.IsFalse(string.IsNullOrWhiteSpace(condition),
+                $"\"{name}\" 必须给出待接条件（不许静默）✓");
+        }
+
+        string[] lackCarrier = conditions.Where(c => c.Condition.Contains("缺载体"))
+            .Select(c => c.Name).OrderBy(x => x, StringComparer.Ordinal).ToArray();
+        string[] unwired = conditions.Where(c => c.Condition.Contains("未接线"))
+            .Select(c => c.Name).OrderBy(x => x, StringComparer.Ordinal).ToArray();
+
+        Assert.AreEqual(24, lackCarrier.Length + unwired.Length,
+            "每条要么缺载体要么未接线（没有第三种）✓");
+        Assert.AreEqual(7, lackCarrier.Length,
+            $"缺载体 = 7（全 ExpeditionLayer）：{string.Join(", ", lackCarrier)} ✓");
+        Assert.AreEqual(17, unwired.Length, "未接线 = 17（战斗级 + 1 条 units.json 抗性）✓");
+
+        // ③ 口径一致：缺载体集合 == ByStatType 里标 ExpeditionLayer 的那些
+        string[] expeditionLayer = BuffPrimitiveTranslation.Pending
+            .Where(n => BuffPrimitiveTranslation.Classify(n, null)
+                        == BuffPrimitiveTranslation.Target.ExpeditionLayer)
+            .OrderBy(x => x, StringComparer.Ordinal).ToArray();
+        CollectionAssert.AreEqual(expeditionLayer, lackCarrier,
+            "「缺载体」必须恰好等于 ExpeditionLayer 的那些（两处口径不许漂移）✓");
+
+        Console.WriteLine($"[A1·待接条件] 缺载体 {lackCarrier.Length} · 未接线 {unwired.Length} ✓");
+        Console.WriteLine($"[A1·待接条件] 缺载体逐条：{string.Join(", ", lackCarrier)} ✓");
+    }
+
+    /// <summary>
     /// 从我们的怪癖/饰品 JSON 里取出 `(属主id, buff id)` 对（用 `JsonDocument` 手走，避免为读数据再建一个模型 ✓）。
     /// 返回 `"属主\u0001buffId"` 形式的字符串（MSTest 的断言消息里可读 ✓）。
     /// </summary>
