@@ -180,6 +180,37 @@ public static class BuffPrimitiveTranslation
     public static IReadOnlyList<string> Checklist { get; } = Activated.Concat(Pending).ToArray();
 
     /// <summary>
+    /// 🔴 **待接条件**（架构 `M2-ROUTE-B-20260921` 裁定 ② 要求的那一列）——
+    /// 回答"**为什么它还没接**"，并区分**两种成本差一个量级的"缺"**：
+    ///   · 🔴 **缺载体** ⇒ **要先造一层结构**（趟级/城池级修正载体不存在）⇒ 成本高
+    ///   · ⚠️ **未接线** ⇒ **落点已有，只差连上** ⇒ 成本低
+    /// 🎖️ **构成本属性【不手工维护】**：它是从 `ByStatType` / `Classify` 的**去向**推出来的
+    ///   ⇒ ✅ 不会与前两张清单漂移（纪律：一处本体 + 其余转发 ✓）
+    /// ⚠️ **它【不是】"能不能接"的判决** —— 判决在策划/架构；本列只陈述**前置条件** ✓
+    /// </summary>
+    public static string PendingCondition(string name)
+    {
+        Target where = Classify(name, null);
+        return where switch
+        {
+            // 战斗级去向：落点都在战斗结算里 ⇒ 只差接线
+            Target.DamageMod or Target.MoraleMod or Target.HealMod
+                or Target.ProbMod or Target.StatMod or Target.StateFlag
+                => "⚠️ 未接线（落点在战斗结算，只差连上）",
+            Target.UnitResistance
+                => "⚠️ 未接线（落点是 units.json 的抗性属性，不走 buff 台账）",
+            // 🔴 趟级/城池级：我们的修正载体（BuffLedger）是【战斗级】⇒ 缺一层结构
+            Target.ExpeditionLayer
+                => "🔴 缺载体（落点在趟级/城池级，而 buff 修正载体是战斗级 ⇒ 需先造趟级修正载体）",
+            _ => "🔴 去向未定（Frozen）",
+        };
+    }
+
+    /// <summary>待接清单 + 各自的待接条件（供报表与用例打印 ✓）。</summary>
+    public static IReadOnlyList<(string Name, string Condition)> PendingWithConditions { get; } =
+        Pending.Select(n => (n, PendingCondition(n))).ToArray();
+
+    /// <summary>
     /// 🔴 **加载即校验（红线的防火墙）**：清单里每个名字**都必须**是参考项目真有的 `stat_type`。
     /// WHY 必要：实测踩过 —— 旧清单里有 `resolve_xp_percent` / `remove_quirk_chance` /
     ///   `dmg_received_percent` **三个名字上游根本不存在**（真名是 `..._bonus_percent` /
