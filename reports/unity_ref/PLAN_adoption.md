@@ -201,7 +201,7 @@
 | **A5** | 怪物 AI | `JsonAI.json`（160） | `enemy_ai.json`（现 3） | 依赖 A4 的怪名 |
 | **A6** | 🔄 **抽取＋缺口＋逐条判定已完成（`08_traits_from_ref.md`）· 落库待裁** | `JsonTraits.json`（12） | `traits.json`（现 **3 折磨 + 4 美德**） | **12 条已抽全**（7 折磨 + 5 美德 · **两张 act-out 表 14 + 15 项** · 168 + 180 个组合 · **35/35 buff 引用在 A1 池里全可解析**）🔴 **逐条判定：我方那 7 条【一条都不是】参考 12 条的对等物** —— 我方是「概率拒绝/随机化目标」的行为修正，参考是「属性惩罚 buff 包 + 两张行为表 + 奇物标签/掠夺行为」⚠️（**连同名的 `selfish` 语义都不同**）⇒ **A6 真缺 6 折磨 + 4 美德**，且那 7 条**不能算已覆盖** |
 | **A7** | 饰品（488）/ 怪癖（163） | `JsonTrinkets`/`JsonQuirks` | `trinkets.json` / `quirks.json` | 依赖 A1（数值全靠 buff id） |
-| **A8** | 任务 / 战利品表 / 旁白 / 队伍名 | `JsonQuests` / `JsonLoot` / `Narration` / `PartyNames` | 我方**整表缺失** | 其中 `JsonQuests` 是 **P17（M14 Quest 层）** 的载体 |
+| **A8** | ✅ **抽取已完成（`15_quests_loot_narration_from_ref.md`）· 落库待裁** | `JsonQuests` / `JsonLoot` / `Narration` / `PartyNames` | 我方**整表缺失** | 四份全抽：`JsonQuests`（**顶层 7 键无任务数组** · `goals 45` · `types 6` · **`plot_quests 30`** · 那 30 条 19 字段含 **7 个"失败/忽略"分支**）· `JsonLoot`（**54 张表 / 33 id** · `H` 13 变体 · entry `type` = `item 126 / trinket 51 / nothing 48 / table 25 / journal_page 3`）· `Narration`（**36 事件**）· `PartyNames`（**186 条**，🔴 **只有 `{id, required_hero_class}`，文件里没有名字串**）⇒ 🎖️ **引用完整性按命名空间分开查**：**表 8/9**（唯一悬空 `J`，🔴 **`chances`=0 ⇒ 不可达**）· **物品 22/22 全命中** ✓ |
 | **A9** | ✅ **抽取＋三方判定已完成（`09_buildings_from_ref.md`）· 落库待裁** | `Buildings/*.building.json`（8）+ `Upgrades/Building/*.upgrades.json`（8）| `buildings.json`（8）| **结构完全对上**：**8 建筑 / 20 树 / 99 等级**（与我方**逐数相等**）🔴 **但我方缺三块**：`side_effects`（**6 个活动**的概率副作用表）· 3 个 gate 字段 · 各建筑特有的升级数组 ⚠️ ✅🎖️ **三方判定已做（关键）**：回 E 盘逐级重读 ⇒ **我方 == E 盘 99/99** · **参考 == E 盘 0/99** ⇒ **参考项目被改过**（与 A3 的 `crit` 同族，**第 2 个独立证据**）⇒ **不改工具、只需换源** ✓ |
 | **A10** | ✅ **抽取已完成（`10_provisions_and_exchange_from_ref.md`）· 落库待裁** | `Mechanics/Provision.json` + `Inventory/Items.bytes` | 我方缺失 | 🎖️ **`Items.bytes` 实测是【DD1 文本】不是二进制**（前 64 字节判形态）⇒ **57 条** · 每行 5 字段（`type`/`id`/`base_stack_limit`/`purchase_gold_value`/`sell_gold_value`）· 类型 `journal_page 22 · gem 10 · supply 9 · quest_item 9 · heirloom 5 · provision 1 · gold 1` ✓ 另 **3 张清单**（起手按长度档 / **按职业** / 商店库存）⇒ **引用完整性 0 悬空** ✓ 🔴 我方 `provisions.json`/`items.json` **都不存在**（整层缺失）⚠️ |
 | **A11** | ✅✅ **已经 12/12 完全一致 —— 本项无需改动** | `Mechanics/HeirloomExchange.json` | `heirloom_exchange.json`(12) | 🎖️ **三方（E 盘一手 · 参考 · 我方）12 条逐条相同** ⇒ 🔴 **这是【第一块三方完全一致的数据】**（对比 A3 的 `crit`、A9 的 99 处成本 —— 那两块参考都被改过）⇒ **无论按哪个口径都不用动** ✓ 🆕 顺带复算了我方 `_design` 注记：**相对价值 `portrait 6 : bust 3 : deed 3 : crest 2` 为真**，但"**所有**兑换都损失 50%"**过强**（`bust↔deed` 往返损失 **55.6%**）⚠️ |
@@ -402,6 +402,8 @@ dmg = ceil( Lerp(weapon.DamageLow, weapon.DamageHigh, rnd) * (1 + skill.DamageMo
 | `10_provisions_and_exchange_from_ref.md` + `items_and_provisions_from_ref.json` | 🆕 **A10 + A11**：`Items.bytes` **57 条**（形态=DD1 文本）+ `Provision.json` **3 张清单**；**A11 三方 12/12 一致 ⇒ 无需改动** ✓ |
 | `11_dungeons_from_ref.md` + `dungeons_from_ref.json` | 🆕 **A12：`Dungeons/*.bytes`**（18 mash 段 / 744 条目 · 13 种 kind · **186 个怪物名全命中 A4** · `Maps/` 全二进制不可抽）✓ |
 | `12_curios_from_ref.md` + `curios_from_ref.json` | 🆕 **A12 下游：奇物 60（CSV 块状）+ 障碍 5 + 陷阱 4** ⇒ **A12 `props` 段 57/57 全命中** ✓ |
+| `14_curio_tag_pairing.md` + `curios_csv_refined.json` | 🆕 **奇物配对升级**：按 **tag 交集**（可计算）⇒ 🎖️ **我方 `curio_type` 与参考 TAGS 词表交集 5 个**（同源）；**4/6 通过 tag 检验** ✓ |
+| `15_quests_loot_narration_from_ref.md` + `quests_loot_narration_from_ref.json` | 🆕 **A8：任务/战利品/旁白/队伍名 四份**（`plot_quests 30` · `loot 54/33` · `Narration 36` · `PartyNames 186`）⇒ **引用完整性按命名空间分开查** ✓ |
 
 ---
 
