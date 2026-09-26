@@ -94,7 +94,8 @@ public sealed record ExpeditionNodesConfig(
             if (!StageOneTypes.Contains(n.Type))
             {
                 throw new InvalidDataException(
-                    $"{ResPath}: 节点 \"{n.Id}\" type=\"{n.Type}\" 非法（阶段一仅 battle/event，P20 ⑤）。");
+                    $"{ResPath}: 节点 \"{n.Id}\" type=\"{n.Type}\" 非法（阶段一仅 "
+                    + $"{string.Join(" / ", StageOneTypes)}，P20 ⑤）。");
             }
 
             if (n.Type == "event" && (n.Options is null || n.Options.Count != 2))

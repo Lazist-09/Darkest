@@ -64,6 +64,25 @@ public sealed class ExpeditionPathTests
             "事件节点非二选一 → 加载即报错（P20 ⑤：二选一强制）");
     }
 
+    /// <summary>
+    /// 🔴 **报错文案里的阶段一类型清单 = 校验用的那份**（防 `154_*.md` 那处漂移**复发**）：
+    ///   一个既非 `elite` 又非法的 type ⇒ 报错必须**列出 `StageOneTypes` 的全部内容** ✓
+    ///   若将来有人只改常量、不改文案 ⇒ 本用例红 ✓
+    /// </summary>
+    [TestMethod]
+    public void P20_UnknownNodeType_MessageListsAllStageOneTypes()
+    {
+        const string bad = "{ \"nodes\": [ { \"id\": \"n_bogus\", \"type\": \"bogus\", \"name\": \"未知\", " +
+                           "\"options\": [] } ] }";
+        var ex = Assert.ThrowsException<InvalidDataException>(() => ExpeditionNodesConfig.Parse(bad));
+
+        // 🔴 断言【分隔符拼接后的整串】，不能只断言单个词 ——
+        //    否则手写的 "battle/event" 也会"包含 battle 与 event"而假过（实测踩过）✓
+        string expected = string.Join(" / ", ExpeditionNodesConfig.StageOneTypes);
+        StringAssert.Contains(ex.Message, expected,
+            $"报错须含 `{expected}`（由 StageOneTypes 插值 ⇒ 加一型即自动同步）✓");
+    }
+
     [TestMethod]
     public void PathGeneration_EachStepHasTwoOptions_WritesRngDraw_AndIsDeterministic()
     {

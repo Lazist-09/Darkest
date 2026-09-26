@@ -88,6 +88,29 @@ public sealed class DifficultyTierTests
             "乘数下降 → 启动报错（P20 ⑭）");
     }
 
+    /// <summary>
+    /// 🔴 **报错文案里的 target 清单 = 校验用的那份**（防 `154_*.md` 那处漂移**复发**）：
+    ///   一个非法的 `target` ⇒ 报错必须**列出全部合法取值**（文案由 `legalTargets` 插值）✓
+    ///   若将来有人只改校验、不改文案 ⇒ 本用例红 ✓
+    /// </summary>
+    [TestMethod]
+    public void DifficultyTier_IllegalTarget_MessageListsAllLegalTargets()
+    {
+        // 把第 1 档的 target 从合法值换成一个非法值（其余键不变 ⇒ 不触发缝隙/单调类报错）
+        var ex = Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(Bad(
+            "{ \"battle_from\": 1, \"battle_to\": 2, \"multiplier\": 1.0, \"target\": \"enemy_hp\"",
+            "{ \"battle_from\": 1, \"battle_to\": 2, \"multiplier\": 1.0, \"target\": \"bogus\"")));
+
+        // 🔴 **诚实边界**：这条断言**无法区分**"插值"与"手写同形串"
+        //    （手写 `enemy_hp / enemy_resist` 与插值结果逐字相同）——
+        //    实测故意破坏后它**仍会通过** ⚠️
+        //    ⇒ 它的价值只剩"**报错里确实列出了合法取值**"（防"漏列"），
+        //      **防不住"手写漂移"**。真正的防线是 `ExpeditionNodesConfig` 那条
+        //      （那里的手写形式 `battle/event` 与插值形式 `battle / event` **不同形**，故能红）✓
+        StringAssert.Contains(ex.Message, "enemy_hp / enemy_resist",
+            "报错须列出两个合法取值（防漏列）✓");
+    }
+
     [TestMethod]
     public void UI_8_CurrentTier_And_NextTierPreview()
     {

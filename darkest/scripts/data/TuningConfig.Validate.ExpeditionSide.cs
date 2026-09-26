@@ -59,10 +59,14 @@ public sealed partial record TuningConfig
             }
 
             lastResistPp = tier.StunResistPp;
-            if (tier.Target is not null && tier.Target is not ("enemy_hp" or "enemy_resist"))
+            // 🔴 合法 target 取值 = **唯一真相**（报错文案由它插值 ⇒ 加一个取值即自动同步）✓
+            //    ⚠️ 与 `152_*.md`/`153_*.md` 的教训同族：**清单不许手写两遍** ✓
+            string[] legalTargets = { "enemy_hp", "enemy_resist" };
+            if (tier.Target is not null && !legalTargets.Contains(tier.Target))
             {
                 throw new InvalidDataException(
-                    $"{ResPath}: difficulty_tiers target 只能是 enemy_hp / enemy_resist（或 null=待裁定；P20 ⑭）。");
+                    $"{ResPath}: difficulty_tiers target 只能是 "
+                    + $"{string.Join(" / ", legalTargets)}（或 null=待裁定；P20 ⑭）。");
             }
 
             expectedFrom = tier.BattleTo + 1;
