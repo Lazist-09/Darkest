@@ -228,6 +228,7 @@
 · `Narration.priority` ⇒ 仅 1 条在用 ✓
 · 🔴 技能欲望 `base_chance × 100` 而目标欲望 `× 1` ⇒ **两侧缩放不一致**（各自独立归一故行为无错）
   ⇒ ✅ 我方实现时**应统一**，不要照抄这个不一致 ✓
+· 🔴 **我方【自加的伤害机制】：`missing_hp` 段**（`113`~`115_*.md`）—— 段类型用 `{"type":"missing_hp","base":1.0,"coefficient":0.6/0.7}` ⇒ **参考里【没有】（11+7 种模式 0 命中）** ⚠️ 涉 2 条技能：`medic_lethal_injection`（`0.6`）· `commissar_execution_order`（`0.7`，另带 **`requires.target_hp_below_percent: 50`**）· 🎖️ **穷尽核过：段类型【只有 2 种】**（`flat` 28 条 ✅ 与参考 `Lerp(min,max)` 同构 · `missing_hp` 2 条 🔴 自加）⇒ ✅ **粒度问题只影响这 2 条，不是系统性的** · 🔴 **未入 `dd1_baseline §39.2` 解冻清单**（`missing_hp`/`coefficient`/`target_hp_below` 全文各 0 次）· ⇒ **请策划裁 3 项**：① 段类型保留还是中性化 ② `coefficient` 取值 ③ `target_hp_below_percent` ✓ · 🔴 **另一发现**：`dd1_baseline §43` 的技能映射**只到【技能级】**（核 `type`/语义/`dmg%`，**未核伤害公式形状**）⇒ **「技能对上了」≠「伤害算法对上了」** ⇒ 建议 `§43` 加一列「公式形状是否同」⚠️
 · 🔴 `JsonAI.json` 第 **7438 行有尾随逗号** ⇒ 不是严格合法 JSON
   ⇒ ✅ 我方读取器**必须容错**（`AllowTrailingCommas`）或写入时修掉 ✓
 ```
