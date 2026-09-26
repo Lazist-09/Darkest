@@ -8876,3 +8876,103 @@ DELIVERY-LEAD-ECON-CORRECTION-20260926
   ⑥ `dungeon_types` 改成参考的 2 种？ ✓
 - **权威在哪**：`reports/unity_ref/24_economy_correction.md`（**本件为准**，
   `23_*.md §5` 的相应结论**已作废**）· `reports/unity_ref/our_prices.json` ✓
+
+
+### 信封：2026-09-26 · 【来自主程序】✅ **亮度 5 档完全一致**（第 5 处）+ 🔴 **一条真正的设计分歧**
+
+`
+DELIVERY-LEAD-LIGHT-TIERS-20260926
+`
+
+> 🔴 **送达判据**：Select-String -Path doc\windows\主程序窗口.txt -Pattern 'DELIVERY-LEAD-LIGHT-TIERS' -SimpleMatch 命中即送达。
+
+- 🎖️🎖️ **① 好消息：亮度 5 档我方与参考【逐档逐界完全一致】**
+  `
+  🎖️ **参考侧**（**读代码** `Raid\TorchMeter.cs:123-129`）：
+     `TorchRange(Radiant, …, **76, 100**)` · `(Dim, …, **51, 75**)` · `(Shadowy, …, **26, 50**)` ·
+     `(Dark, …, **1, 25**)` · `(Out, …, **0, 0**)` ✓
+  🎖️ **我方侧**（`tuning.json → light.tiers`）：
+     `radiant 76~100 · dim 51~75 · shadowy 26~50 · dark 1~25 · black 0~0` ✓
+  ⇒ ✅ **5 档的名称与两个边界【逐个相同】**（只 `Out` ↔ `black` 命名不同）✓
+  ⇒ 🎖️ **这是第 5 处"两侧完全一致"**
+     （前 4：A11 兑换表 12/12 · `heirloom_amount_table` · 引用闭合 · 饰品价 7/7）✓
+  ⇒ 📌 **这一块【无需任何改动】** ✓（**正面结论也报** —— 不是只有问题才值得记）
+  `
+
+- 🔴 **② 而我要认一处算法错（第 6 次同族）**
+  `
+  ❌ **我第一版**用 `darkness = 100 − light` 去换算 ⇒ 得出"交集只有 1 个"、
+     "只有头尾对得上" ⇒ 🔴 **结论完全错**（实际是**逐档相同**）⚠️
+  🔴 **根因**：我假设 `darkness` 与 `light` 是**互补量** ——
+     **读代码才知道**：`darkness` **不是"亮度"，而是"该档的 `Min`"** ✓
+     消费点原文（`Raid\Battle\BattleGround.cs:484`）：
+        `if (darkenessLoot[i].DarknessLevel == RaidSceneManager.TorchMeter.CurrentRange.**Min**)`
+     ⇒ ✅ **即 `darkness_bonuses[].darkness` 存的是"档的 Min"**
+        （`0/1/26/51/76` **正好就是 5 档的 5 个 Min**）✓
+  🎖️ **判据（新增，可复用）**：**"这个数是【量】还是【标识】？"** ——
+     · **量** ⇒ 可做算术（加减/换算）✓
+     · **标识** ⇒ **只能做相等比较**，做算术就错 ⚠️
+     📌 **`darkness` 是【标识】** ⇒ 我拿它当"量"去减 ⇒ 必错 ✓
+  ⇒ 🎖️ **这与我上一件的"通道"错【同族】** ⇒
+     **共同形状：我用错了这个字段的语义**（不是读错了值）✓
+  `
+
+- 🔴🔴 **③ 一条【真正的设计分歧】，请你裁：亮度方向【两侧相反】**
+  `
+  📊 **我方**：
+     `economy.light_tier_bonus` = `{radiant: 0, dim: 0, shadowy: 1, dark: 2, **black: 3**}`
+     消费点：`EconomyConfig.RewardFor(tierId) => **BattleReward + LightTierBonus[档]**` ✓
+     🔴 **且有硬约束**（`EconomyConfig.cs:142` 原文）：
+        `light_tier_bonus 必须随变暗**单调不减**（P22 ④：越冒险越该有回报）` ✓
+     ⇒ 🎖️ **即：我方是"越暗金币越多"** ⇒ **鼓励冒险** ✓
+
+  📊 **参考**（`JsonLoot.darkness_bonuses`）：
+     `battle`：`darkness 0 ⇒ chance 0.75 codes [B,B]` · `1 ⇒ 0.75 [B]` · `26 ⇒ 0.5` ·
+        `51 ⇒ 0.25` · `76 ⇒ **0**` ✓
+     `chest`：`darkness 0 ⇒ 0.95 [A]` … `76 ⇒ 0` ✓
+     ⇒ 🔴 **即：参考是"越【亮】掉落越好"** ⚠️
+
+  🎖️ **判据**：**"这两个方向，是【同一件事的两种写法】还是【两条相反的设计？"** ——
+     **挂点相同（都在战斗结算）、方向相反 ⇒ 是分歧，不是写法差异** ✓
+  ⇒ 🔴 **请你裁**：(甲) **取我方的"越暗越多"**（保留 `P22 ④`）
+     ／ (乙) **取参考的"越亮越多"** ／ (丙) 两者并存（**不同资源**：金币给暗、掉落给亮）✓
+     🎖️ **我倾向 (丙) 或 (甲)** —— 因为：
+        · 我方的方向**有 `P22 ④` 明文**（"越冒险越该有回报"）⇒ **不是随手写的** ✓
+        · 而参考的方向**可能是"火把=安全=有余裕搜刮"**的另一种设计 ✓
+        ⇒ 📌 **两者可以同时成立**（分别管金币与掉落）⇒ **(丙) 最省事** ✓
+        🔴 但**这是你的域** ⇒ 我只给读数与选项 ✓
+
+  🎖️ **顺带确认**：参考 `chest` 那半（**开箱的亮度加成**）**我方没有** ⚠️
+     ⇒ 要不要做，也是设计决定 ✓
+  `
+
+- ✅ **④ 顺带关掉两个"待核"**
+  `
+  ✅ **问①：我方 `black` 档有没有 `Out` 那样的特判？**
+     答：**没有显式分支**，而是用**兜底档** —— `LightMeter.cs`：
+        `foreach (t in tiers) { if (value >= t.Min && value <= t.Max) return …; }`
+        `// 数据没覆盖 ⇒ 落到黑（例如 value < 0）；**不静默选一个"看起来合理"的档** ✓`
+        `return LightTier.Black;`
+     ⇒ 🎖️ **效果相近**，且我方注释**明确拒绝"猜一个档"**（与纪律 BL 一致）✓
+     ⚠️ 但"数据没覆盖"与"真全黑"**枚举上不可分辨** ⇒ 记为**已知差异**（`value<0` 不该出现）✓
+  ✅ **问②：我方有没有 `darkness_bonuses` 的对应机制？**
+     答：**有一半** —— `RewardFor` 就是"战斗结算的亮度加成"（与参考 `battle` 组**同一挂点**）✓
+     而 `chest` 那半**没有** ✓
+  `
+
+- 🎖️ **⑤ 一条正面读数：亮度这块【三层齐全】**
+  `
+  ✅ **数据**：`tuning.light.tiers`（5 档边界）+ `economy.light_tier_bonus` + `tuning.light.loot` ✓
+  ✅ **代码**：`LightMeter.TierFor` / `BoundariesFrom`（**UI 刻度也从 `tiers` 推、不另抄一份**）+
+     `EconomyConfig.RewardFor` ✓
+  ✅ **用例**：`EconomyTests.cs:43` 等 ✓
+  ✅ **三条硬校验**：`不得为空` · **`必须含全部 5 档`** · **`必须单调不减`** ✓
+  ⇒ 🎖️ **这是"数据有、没人读"（如 `plot_quests` 那 9 个字段）的【反例】** ✓
+     ⇒ 📌 即：**同一仓里既有"三层齐全"的块，也有"有数据没人读"的块** ✓
+  `
+
+- **阻塞 / 待裁定**：🔴 **七件**：① Σ 归一 vs A1 门槛 ② A6 三件 ③ A9/A10/总口径
+  ④ `PartyNames` 与"本地化不采用"的冲突 ⑤ 失败惩罚的口径
+  ⑥ `dungeon_types` 改成参考的 2 种？ ⑦ **本封新增：亮度方向（甲/乙/丙）** ✓
+- **权威在哪**：`reports/unity_ref/{25,26}_*.md` ·
+  `reports/planner_request_{sigma_vs_a1,a6_traits,a9_a10_a11}.md` ✓
