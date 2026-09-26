@@ -52,6 +52,11 @@ def main() -> int:
     print(f"[fx] 载入 **{len(names)}** 条 effect ✓")
 
     # ---- ① 数据侧：谁引用了它们 ----
+    # 🔴 **口径（本件踩过坑，写死在这）**：
+    #    ✅ **必须用【加引号的完整串】** `"名字"` —— 它问的是**"被【独立引用】了吗"** ✓
+    #    ❌ **不能用【子串包含】** `if n in text` —— 会命中**嵌在更长名字里**的情况 ⚠️
+    #    实测差异：**子串 ⇒ 被引用 822 / 孤儿 130**；**加引号 ⇒ 被引用 754 / 孤儿 198** ✓
+    #    ⇒ 🔴 **68 个是【子串假命中】**（如 `Blight 2` 被 `Crabby Blight 2` 带出来）✓
     cited = defaultdict(set)
     def scan_text(text, label):
         for n in names:
@@ -91,9 +96,22 @@ def main() -> int:
     print()
     print(f"[fx] 🎖️ **数据侧被引用**（去重）：**{len(cited)}** / {len(names)}")
     print(f"[fx] 🎖️ **代码侧有字面量**（去重）：**{len(literal)}** / {len(names)}")
-    never = [n for n in names if n not in cited and n not in literal]
-    print(f"[fx] 🔴 **两边都没有**（既无数据引用、也无代码字面量）：**{len(never)}**")
-    print(f"[fx]   样例：{never[:15]}")
+
+    # 🔴 **两个口径必须分开报**（我上一版把它俩混了 ⇒ 数差 8）⚠️
+    #    ① **纯数据口径**：`n not in cited` ⇒ 这是「**从未被数据点名**」✓
+    #    ② **合并口径**：`n not in cited and n not in literal` ⇒ 这是「**数据与代码都没提**」✓
+    #    📌 两者【不是同一个问题】：② 把"只在代码里出现"的算作"被提到" ⇒ **数会少** ✓
+    #    🎖️ 判据：**"我这张表回答的是【哪个问题】？改一个条件，数会变吗？"** ✓
+    never_data = [n for n in names if n not in cited]
+    never_both = [n for n in never_data if n not in literal]
+    only_code = [n for n in names if n not in cited and n in literal]
+    print(f"[fx] 🔴 **从未被【数据】点名**：**{len(never_data)}** ✓ ← 本件主口径")
+    print(f"[fx] 🔴 **数据与代码【都没提】**：**{len(never_both)}** "
+          f"（= 上者 − 只在代码里的 {len(only_code)}）✓")
+    print(f"[fx] 🎖️ **只在代码里**（数据没引用）：**{len(only_code)}** "
+          f"⇒ ⚠️ 采用时【必须一并改代码】✓")
+    print(f"[fx]   样例：{never_data[:15]}")
+    never = never_data
     print()
 
     # ---- ③ 那"两边都没有"的，按前缀归类（看它们是什么）----
