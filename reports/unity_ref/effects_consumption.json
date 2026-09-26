@@ -1,0 +1,2503 @@
+{
+ "note": "952 条 effect 的消费点对账（数据引用 + 代码字面量）。只读不落库 ✓",
+ "total": 952,
+ "cited_in_data": {
+  "Mark Self": [
+   "Heroes/Info",
+   "JsonTraits.json"
+  ],
+  "BarkStress": [
+   "JsonTraits.json"
+  ],
+  "BarkStressHeal": [
+   "JsonTraits.json"
+  ],
+  "HealStressVirtued": [
+   "JsonTraits.json"
+  ],
+  "HealStressVirtuedParty": [
+   "JsonTraits.json"
+  ],
+  "FocusedAllyBuff": [
+   "JsonTraits.json"
+  ],
+  "PowerfulPartyBuff": [
+   "JsonTraits.json"
+  ],
+  "holy_water": [
+   "JsonLoot.json",
+   "JsonQuests.json"
+  ],
+  "kill_self": [
+   "JsonAI.json",
+   "Monsters"
+  ],
+  "Push 2A": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Push 2B": [
+   "Heroes/Info"
+  ],
+  "Push 2C": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Push 2D": [
+   "Heroes/Info"
+  ],
+  "Push 2E": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Stun 1": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Stun 2": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Stun 3": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Stun 4": [
+   "Heroes/Info"
+  ],
+  "Stun 5": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Abom Vomit 1": [
+   "Heroes/Info"
+  ],
+  "Abom Vomit 2": [
+   "Heroes/Info"
+  ],
+  "Abom Vomit 3": [
+   "Heroes/Info"
+  ],
+  "Abom Vomit 4": [
+   "Heroes/Info"
+  ],
+  "Abom Vomit 5": [
+   "Heroes/Info"
+  ],
+  "Vomit Debuff 1": [
+   "Heroes/Info"
+  ],
+  "Vomit Debuff 2": [
+   "Heroes/Info"
+  ],
+  "Vomit Debuff 3": [
+   "Heroes/Info"
+  ],
+  "Vomit Debuff 4": [
+   "Heroes/Info"
+  ],
+  "Vomit Debuff 5": [
+   "Heroes/Info"
+  ],
+  "Absolution HealStress 1": [
+   "Heroes/Info"
+  ],
+  "Absolution HealStress 2": [
+   "Heroes/Info"
+  ],
+  "Absolution HealStress 3": [
+   "Heroes/Info"
+  ],
+  "Absolution HealStress 4": [
+   "Heroes/Info"
+  ],
+  "Absolution HealStress 5": [
+   "Heroes/Info"
+  ],
+  "Absolution Heal 1": [
+   "Heroes/Info"
+  ],
+  "Absolution Heal 2": [
+   "Heroes/Info"
+  ],
+  "Absolution Heal 3": [
+   "Heroes/Info"
+  ],
+  "Absolution Heal 4": [
+   "Heroes/Info"
+  ],
+  "Absolution Heal 5": [
+   "Heroes/Info"
+  ],
+  "rakebuff_1": [
+   "Heroes/Info"
+  ],
+  "rakebuff_2": [
+   "Heroes/Info"
+  ],
+  "rakebuff_3": [
+   "Heroes/Info"
+  ],
+  "rakebuff_4": [
+   "Heroes/Info"
+  ],
+  "rakebuff_5": [
+   "Heroes/Info"
+  ],
+  "Slam Debuff 1": [
+   "Heroes/Info"
+  ],
+  "Slam Debuff 2": [
+   "Heroes/Info"
+  ],
+  "Slam Debuff 3": [
+   "Heroes/Info"
+  ],
+  "Slam Debuff 4": [
+   "Heroes/Info"
+  ],
+  "Slam Debuff 5": [
+   "Heroes/Info"
+  ],
+  "Antiq Blight 1": [
+   "Heroes/Info"
+  ],
+  "Antiq Blight 2": [
+   "Heroes/Info"
+  ],
+  "Antiq Blight 3": [
+   "Heroes/Info"
+  ],
+  "Antiq Blight 4": [
+   "Heroes/Info"
+  ],
+  "Antiq Blight 5": [
+   "Heroes/Info"
+  ],
+  "Antiq Blight Debuff 1": [
+   "Heroes/Info"
+  ],
+  "Antiq Blight Debuff 2": [
+   "Heroes/Info"
+  ],
+  "Antiq Blight Debuff 3": [
+   "Heroes/Info"
+  ],
+  "Antiq Blight Debuff 4": [
+   "Heroes/Info"
+  ],
+  "Antiq Blight Debuff 5": [
+   "Heroes/Info"
+  ],
+  "Antiq Cower 1": [
+   "Heroes/Info"
+  ],
+  "Antiq Cower 2": [
+   "Heroes/Info"
+  ],
+  "Antiq Cower 3": [
+   "Heroes/Info"
+  ],
+  "Antiq Cower 4": [
+   "Heroes/Info"
+  ],
+  "Antiq Cower 5": [
+   "Heroes/Info"
+  ],
+  "Antiq Self Speed 1": [
+   "Heroes/Info"
+  ],
+  "Antiq Self Speed 2": [
+   "Heroes/Info"
+  ],
+  "Antiq Self Speed 3": [
+   "Heroes/Info"
+  ],
+  "Antiq Self Speed 4": [
+   "Heroes/Info"
+  ],
+  "Antiq Self Speed 5": [
+   "Heroes/Info"
+  ],
+  "Antiq Distract 1": [
+   "Heroes/Info"
+  ],
+  "Antiq Distract 2": [
+   "Heroes/Info"
+  ],
+  "Antiq Distract 3": [
+   "Heroes/Info"
+  ],
+  "Antiq Distract 4": [
+   "Heroes/Info"
+  ],
+  "Antiq Distract 5": [
+   "Heroes/Info"
+  ],
+  "Antiq Dodge 1": [
+   "Heroes/Info"
+  ],
+  "Antiq Dodge 2": [
+   "Heroes/Info"
+  ],
+  "Antiq Dodge 3": [
+   "Heroes/Info"
+  ],
+  "Antiq Dodge 4": [
+   "Heroes/Info"
+  ],
+  "Antiq Dodge 5": [
+   "Heroes/Info"
+  ],
+  "Antiq ProtectMe ClearGuardsPerformer": [
+   "Heroes/Info"
+  ],
+  "Antiq ProtectMe ClearGuardsTarget": [
+   "Heroes/Info"
+  ],
+  "Antiq ProtectMe Guard": [
+   "Heroes/Info"
+  ],
+  "Antiq DefBuff 1": [
+   "Heroes/Info"
+  ],
+  "Antiq DefBuff 2": [
+   "Heroes/Info"
+  ],
+  "Antiq DefBuff 3": [
+   "Heroes/Info"
+  ],
+  "Antiq DefBuff 4": [
+   "Heroes/Info"
+  ],
+  "Antiq DefBuff 5": [
+   "Heroes/Info"
+  ],
+  "Sniper Damage 1": [
+   "Heroes/Info"
+  ],
+  "Sniper Damage 2": [
+   "Heroes/Info"
+  ],
+  "Sniper Damage 3": [
+   "Heroes/Info"
+  ],
+  "Sniper Damage 4": [
+   "Heroes/Info"
+  ],
+  "Sniper Damage 5": [
+   "Heroes/Info"
+  ],
+  "Suppression 1": [
+   "Heroes/Info"
+  ],
+  "Suppression 2": [
+   "Heroes/Info"
+  ],
+  "Suppression 3": [
+   "Heroes/Info"
+  ],
+  "Suppression 4": [
+   "Heroes/Info"
+  ],
+  "Suppression 5": [
+   "Heroes/Info"
+  ],
+  "Arb Mark Target": [
+   "Heroes/Info"
+  ],
+  "Arb Mark Debuff 1": [
+   "Heroes/Info"
+  ],
+  "Arb Mark Debuff 2": [
+   "Heroes/Info"
+  ],
+  "Arb Mark Debuff 3": [
+   "Heroes/Info"
+  ],
+  "Arb Mark Debuff 4": [
+   "Heroes/Info"
+  ],
+  "Arb Mark Debuff 5": [
+   "Heroes/Info"
+  ],
+  "Bolo Push 1A": [
+   "Heroes/Info"
+  ],
+  "Bolo Push 1B": [
+   "Heroes/Info"
+  ],
+  "Bolo Push 1C": [
+   "Heroes/Info"
+  ],
+  "Bolo Push 1D": [
+   "Heroes/Info"
+  ],
+  "Arb Self Speed 1": [
+   "Heroes/Info"
+  ],
+  "Arb Self Speed 2": [
+   "Heroes/Info"
+  ],
+  "Arb Self Speed 3": [
+   "Heroes/Info"
+  ],
+  "Arb Self Speed 4": [
+   "Heroes/Info"
+  ],
+  "Arb Self Speed 5": [
+   "Heroes/Info"
+  ],
+  "Arb Stacking Heal 1": [
+   "Heroes/Info"
+  ],
+  "Arb Stacking Heal 2": [
+   "Heroes/Info"
+  ],
+  "Arb Stacking Heal 3": [
+   "Heroes/Info"
+  ],
+  "Arb Stacking Heal 4": [
+   "Heroes/Info"
+  ],
+  "Arb Stacking Heal 5": [
+   "Heroes/Info"
+  ],
+  "FlareClear 1": [
+   "Heroes/Info"
+  ],
+  "FlareLight 1": [
+   "Heroes/Info"
+  ],
+  "FlareLight 2": [
+   "Heroes/Info"
+  ],
+  "FlareLight 3": [
+   "Heroes/Info"
+  ],
+  "FlareLight 4": [
+   "Heroes/Info"
+  ],
+  "FlareLight 5": [
+   "Heroes/Info"
+  ],
+  "FlareBuff 1": [
+   "Heroes/Info"
+  ],
+  "FlareBuff 2": [
+   "Heroes/Info"
+  ],
+  "FlareBuff 3": [
+   "Heroes/Info"
+  ],
+  "FlareBuff 4": [
+   "Heroes/Info"
+  ],
+  "FlareBuff 5": [
+   "Heroes/Info"
+  ],
+  "Pull 2A": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Pull 2B": [
+   "Heroes/Info"
+  ],
+  "Pull 2C": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Pull 2D": [
+   "Heroes/Info"
+  ],
+  "Pull 2E": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Strong Bleed 1": [
+   "Heroes/Info"
+  ],
+  "Strong Bleed 2": [
+   "Heroes/Info"
+  ],
+  "Strong Bleed 3": [
+   "Heroes/Info"
+  ],
+  "Strong Bleed 4": [
+   "Heroes/Info"
+  ],
+  "Strong Bleed 5": [
+   "Heroes/Info"
+  ],
+  "Strong Stun 1": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Strong Stun 2": [
+   "Heroes/Info"
+  ],
+  "Strong Stun 3": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Strong Stun 4": [
+   "Heroes/Info"
+  ],
+  "Strong Stun 5": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Man Killer 1": [
+   "Heroes/Info"
+  ],
+  "Man Killer 2": [
+   "Heroes/Info"
+  ],
+  "Man Killer 3": [
+   "Heroes/Info"
+  ],
+  "Man Killer 4": [
+   "Heroes/Info"
+  ],
+  "Man Killer 5": [
+   "Heroes/Info"
+  ],
+  "Stun Killer 1": [
+   "Heroes/Info"
+  ],
+  "Stun Killer 2": [
+   "Heroes/Info"
+  ],
+  "Stun Killer 3": [
+   "Heroes/Info"
+  ],
+  "Stun Killer 4": [
+   "Heroes/Info"
+  ],
+  "Stun Killer 5": [
+   "Heroes/Info"
+  ],
+  "Disorient 1": [
+   "Heroes/Info"
+  ],
+  "Disorient 2": [
+   "Heroes/Info"
+  ],
+  "Disorient 3": [
+   "Heroes/Info"
+  ],
+  "Disorient 4": [
+   "Heroes/Info"
+  ],
+  "Disorient 5": [
+   "Heroes/Info"
+  ],
+  "BH Dmg Marked": [
+   "Heroes/Info"
+  ],
+  "BH Mark Target": [
+   "Heroes/Info"
+  ],
+  "BH Mark Debuff 1": [
+   "Heroes/Info"
+  ],
+  "BH Mark Debuff 2": [
+   "Heroes/Info"
+  ],
+  "BH Mark Debuff 3": [
+   "Heroes/Info"
+  ],
+  "BH Mark Debuff 4": [
+   "Heroes/Info"
+  ],
+  "BH Mark Debuff 5": [
+   "Heroes/Info"
+  ],
+  "Unholy Killer 1": [
+   "Heroes/Info"
+  ],
+  "Unholy Killer 2": [
+   "Heroes/Info"
+  ],
+  "Unholy Killer 3": [
+   "Heroes/Info"
+  ],
+  "Unholy Killer 4": [
+   "Heroes/Info"
+  ],
+  "Unholy Killer 5": [
+   "Heroes/Info"
+  ],
+  "Light 1": [
+   "Heroes/Info"
+  ],
+  "Crusader Bulwark 1": [
+   "Heroes/Info"
+  ],
+  "Crusader Bulwark 2": [
+   "Heroes/Info"
+  ],
+  "Crusader Bulwark 3": [
+   "Heroes/Info"
+  ],
+  "Crusader Bulwark 4": [
+   "Heroes/Info"
+  ],
+  "Crusader Bulwark 5": [
+   "Heroes/Info"
+  ],
+  "Crusader HealStress 1": [
+   "Heroes/Info"
+  ],
+  "Crusader HealStress 2": [
+   "Heroes/Info"
+  ],
+  "Crusader HealStress 3": [
+   "Heroes/Info"
+  ],
+  "Crusader HealStress 4": [
+   "Heroes/Info"
+  ],
+  "Crusader HealStress 5": [
+   "Heroes/Info"
+  ],
+  "Crusader Light 1": [
+   "Heroes/Info"
+  ],
+  "Crusader Light 2": [
+   "Heroes/Info"
+  ],
+  "Crusader Light 3": [
+   "Heroes/Info"
+  ],
+  "Crusader Light 4": [
+   "Heroes/Info"
+  ],
+  "Crusader Light 5": [
+   "Heroes/Info"
+  ],
+  "Dodge 1": [
+   "Heroes/Info"
+  ],
+  "Dodge 2": [
+   "Heroes/Info"
+  ],
+  "Dodge 3": [
+   "Heroes/Info"
+  ],
+  "Dodge 4": [
+   "Heroes/Info"
+  ],
+  "Dodge 5": [
+   "Heroes/Info"
+  ],
+  "GR Acc Buff 1": [
+   "Heroes/Info"
+  ],
+  "GR Acc Buff 2": [
+   "Heroes/Info"
+  ],
+  "GR Acc Buff 3": [
+   "Heroes/Info"
+  ],
+  "GR Acc Buff 4": [
+   "Heroes/Info"
+  ],
+  "GR Acc Buff 5": [
+   "Heroes/Info"
+  ],
+  "GR Bleed Debuff 1": [
+   "Heroes/Info"
+  ],
+  "GR Bleed Debuff 2": [
+   "Heroes/Info"
+  ],
+  "GR Bleed Debuff 3": [
+   "Heroes/Info"
+  ],
+  "GR Bleed Debuff 4": [
+   "Heroes/Info"
+  ],
+  "GR Bleed Debuff 5": [
+   "Heroes/Info"
+  ],
+  "GR Dagger Dmg Marked": [
+   "Heroes/Info"
+  ],
+  "GR Blight 1": [
+   "Heroes/Info"
+  ],
+  "GR Blight 2": [
+   "Heroes/Info"
+  ],
+  "GR Blight 3": [
+   "Heroes/Info"
+  ],
+  "GR Blight 4": [
+   "Heroes/Info"
+  ],
+  "GR Blight 5": [
+   "Heroes/Info"
+  ],
+  "GR Blight Debuff 1": [
+   "Heroes/Info"
+  ],
+  "GR Blight Debuff 2": [
+   "Heroes/Info"
+  ],
+  "GR Blight Debuff 3": [
+   "Heroes/Info"
+  ],
+  "GR Blight Debuff 4": [
+   "Heroes/Info"
+  ],
+  "GR Blight Debuff 5": [
+   "Heroes/Info"
+  ],
+  "Shadow Blood 1": [
+   "Heroes/Info"
+  ],
+  "Shadow Blood 2": [
+   "Heroes/Info"
+  ],
+  "Shadow Blood 3": [
+   "Heroes/Info"
+  ],
+  "Shadow Blood 4": [
+   "Heroes/Info"
+  ],
+  "Shadow Blood 5": [
+   "Heroes/Info"
+  ],
+  "GR Self Speed 1": [
+   "Heroes/Info"
+  ],
+  "GR Self Speed 2": [
+   "Heroes/Info"
+  ],
+  "GR Self Speed 3": [
+   "Heroes/Info"
+  ],
+  "GR Self Speed 4": [
+   "Heroes/Info"
+  ],
+  "GR Self Speed 5": [
+   "Heroes/Info"
+  ],
+  "Bleed 1": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Bleed 2": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Bleed 3": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Bleed 4": [
+   "Heroes/Info"
+  ],
+  "Bleed 5": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Hellion Exhaust": [
+   "Heroes/Info"
+  ],
+  "Adrenaline 1": [
+   "Heroes/Info"
+  ],
+  "Adrenaline 2": [
+   "Heroes/Info"
+  ],
+  "Adrenaline 3": [
+   "Heroes/Info"
+  ],
+  "Adrenaline 4": [
+   "Heroes/Info"
+  ],
+  "Adrenaline 5": [
+   "Heroes/Info"
+  ],
+  "HellionHealSelf 1": [
+   "Heroes/Info"
+  ],
+  "HellionHealSelf 2": [
+   "Heroes/Info"
+  ],
+  "HellionHealSelf 3": [
+   "Heroes/Info"
+  ],
+  "HellionHealSelf 4": [
+   "Heroes/Info"
+  ],
+  "HellionHealSelf 5": [
+   "Heroes/Info"
+  ],
+  "Push 1A": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Push 1B": [
+   "Heroes/Info"
+  ],
+  "Push 1C": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Push 1D": [
+   "Heroes/Info"
+  ],
+  "Push 1E": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Bleed Debuff 1": [
+   "Heroes/Info"
+  ],
+  "Bleed Debuff 2": [
+   "Heroes/Info"
+  ],
+  "Bleed Debuff 3": [
+   "Heroes/Info"
+  ],
+  "Bleed Debuff 4": [
+   "Heroes/Info"
+  ],
+  "Bleed Debuff 5": [
+   "Heroes/Info"
+  ],
+  "Highwayman Pistol Dmg Marked": [
+   "Heroes/Info"
+  ],
+  "Highwayman Buff 1": [
+   "Heroes/Info"
+  ],
+  "Highwayman Buff 2": [
+   "Heroes/Info"
+  ],
+  "Highwayman Buff 3": [
+   "Heroes/Info"
+  ],
+  "Highwayman Buff 4": [
+   "Heroes/Info"
+  ],
+  "Highwayman Buff 5": [
+   "Heroes/Info"
+  ],
+  "Hwy Riposte 1": [
+   "Heroes/Info"
+  ],
+  "Hwy Riposte 2": [
+   "Heroes/Info"
+  ],
+  "Hwy Riposte 3": [
+   "Heroes/Info"
+  ],
+  "Hwy Riposte 4": [
+   "Heroes/Info"
+  ],
+  "Hwy Riposte 5": [
+   "Heroes/Info"
+  ],
+  "Beast Killer 1": [
+   "Heroes/Info"
+  ],
+  "Beast Killer 2": [
+   "Heroes/Info"
+  ],
+  "Beast Killer 3": [
+   "Heroes/Info"
+  ],
+  "Beast Killer 4": [
+   "Heroes/Info"
+  ],
+  "Beast Killer 5": [
+   "Heroes/Info"
+  ],
+  "HM Dmg Marked 1": [
+   "Heroes/Info"
+  ],
+  "HM Dmg Marked 2": [
+   "Heroes/Info"
+  ],
+  "HM Dmg Marked 3": [
+   "Heroes/Info"
+  ],
+  "HM Dmg Marked 4": [
+   "Heroes/Info"
+  ],
+  "HM Dmg Marked 5": [
+   "Heroes/Info"
+  ],
+  "HM Mark Target": [
+   "Heroes/Info"
+  ],
+  "Hound Debuff 1": [
+   "Heroes/Info"
+  ],
+  "Hound Debuff 2": [
+   "Heroes/Info"
+  ],
+  "Hound Debuff 3": [
+   "Heroes/Info"
+  ],
+  "Hound Debuff 4": [
+   "Heroes/Info"
+  ],
+  "Hound Debuff 5": [
+   "Heroes/Info"
+  ],
+  "Hound Howl 1": [
+   "Heroes/Info"
+  ],
+  "Hound Howl 2": [
+   "Heroes/Info"
+  ],
+  "Hound Howl 3": [
+   "Heroes/Info"
+  ],
+  "Hound Howl 4": [
+   "Heroes/Info"
+  ],
+  "Hound Howl 5": [
+   "Heroes/Info"
+  ],
+  "HM Guard 1": [
+   "Heroes/Info"
+  ],
+  "Hound Protect 1": [
+   "Heroes/Info"
+  ],
+  "Hound Protect 2": [
+   "Heroes/Info"
+  ],
+  "Hound Protect 3": [
+   "Heroes/Info"
+  ],
+  "Hound Protect 4": [
+   "Heroes/Info"
+  ],
+  "Hound Protect 5": [
+   "Heroes/Info"
+  ],
+  "Lick Wounds 1": [
+   "Heroes/Info"
+  ],
+  "Lick Wounds 2": [
+   "Heroes/Info"
+  ],
+  "Lick Wounds 3": [
+   "Heroes/Info"
+  ],
+  "Lick Wounds 4": [
+   "Heroes/Info"
+  ],
+  "Lick Wounds 5": [
+   "Heroes/Info"
+  ],
+  "Hound Bleed 1": [
+   "Heroes/Info"
+  ],
+  "Hound Bleed 2": [
+   "Heroes/Info"
+  ],
+  "Hound Bleed 3": [
+   "Heroes/Info"
+  ],
+  "Hound Bleed 4": [
+   "Heroes/Info"
+  ],
+  "Hound Bleed 5": [
+   "Heroes/Info"
+  ],
+  "Mortal Weakness": [
+   "Heroes/Info"
+  ],
+  "InspiringTune 1": [
+   "Heroes/Info"
+  ],
+  "InspiringTune 2": [
+   "Heroes/Info"
+  ],
+  "InspiringTune 3": [
+   "Heroes/Info"
+  ],
+  "InspiringTune 4": [
+   "Heroes/Info"
+  ],
+  "InspiringTune 5": [
+   "Heroes/Info"
+  ],
+  "Jester Tune Buff 1": [
+   "Heroes/Info"
+  ],
+  "Jester Tune Buff 2": [
+   "Heroes/Info"
+  ],
+  "Jester Tune Buff 3": [
+   "Heroes/Info"
+  ],
+  "Jester Tune Buff 4": [
+   "Heroes/Info"
+  ],
+  "Jester Tune Buff 5": [
+   "Heroes/Info"
+  ],
+  "Embolden Team 1": [
+   "Heroes/Info"
+  ],
+  "Embolden Team 2": [
+   "Heroes/Info"
+  ],
+  "Embolden Team 3": [
+   "Heroes/Info"
+  ],
+  "Embolden Team 4": [
+   "Heroes/Info"
+  ],
+  "Embolden Team 5": [
+   "Heroes/Info"
+  ],
+  "Distract Enemies 1": [
+   "Heroes/Info"
+  ],
+  "Distract Enemies 2": [
+   "Heroes/Info"
+  ],
+  "Distract Enemies 3": [
+   "Heroes/Info"
+  ],
+  "Distract Enemies 4": [
+   "Heroes/Info"
+  ],
+  "Distract Enemies 5": [
+   "Heroes/Info"
+  ],
+  "Jester Self Speed 1": [
+   "Heroes/Info"
+  ],
+  "Jester Self Speed 2": [
+   "Heroes/Info"
+  ],
+  "Jester Self Speed 3": [
+   "Heroes/Info"
+  ],
+  "Jester Self Speed 4": [
+   "Heroes/Info"
+  ],
+  "Jester Self Speed 5": [
+   "Heroes/Info"
+  ],
+  "Push 3A": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Push 3B": [
+   "Heroes/Info"
+  ],
+  "Push 3C": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Push 3D": [
+   "Heroes/Info"
+  ],
+  "Push 3E": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Leper Strength 1": [
+   "Heroes/Info"
+  ],
+  "Leper Strength 2": [
+   "Heroes/Info"
+  ],
+  "Leper Strength 3": [
+   "Heroes/Info"
+  ],
+  "Leper Strength 4": [
+   "Heroes/Info"
+  ],
+  "Leper Strength 5": [
+   "Heroes/Info"
+  ],
+  "Leper Vulnerability": [
+   "Heroes/Info"
+  ],
+  "LeperHealSelf 1": [
+   "Heroes/Info"
+  ],
+  "LeperHealSelf 2": [
+   "Heroes/Info"
+  ],
+  "LeperHealSelf 3": [
+   "Heroes/Info"
+  ],
+  "LeperHealSelf 4": [
+   "Heroes/Info"
+  ],
+  "LeperHealSelf 5": [
+   "Heroes/Info"
+  ],
+  "Leper Resist Buff 1": [
+   "Heroes/Info"
+  ],
+  "LeperHealSelfStress 1": [
+   "Heroes/Info"
+  ],
+  "LeperHealSelfStress 2": [
+   "Heroes/Info"
+  ],
+  "LeperHealSelfStress 3": [
+   "Heroes/Info"
+  ],
+  "LeperHealSelfStress 4": [
+   "Heroes/Info"
+  ],
+  "LeperHealSelfStress 5": [
+   "Heroes/Info"
+  ],
+  "Leper Protect 1": [
+   "Heroes/Info"
+  ],
+  "Leper Protect 2": [
+   "Heroes/Info"
+  ],
+  "Leper Protect 3": [
+   "Heroes/Info"
+  ],
+  "Leper Protect 4": [
+   "Heroes/Info"
+  ],
+  "Leper Protect 5": [
+   "Heroes/Info"
+  ],
+  "Leper Intimidate 1": [
+   "Heroes/Info"
+  ],
+  "Leper Intimidate 2": [
+   "Heroes/Info"
+  ],
+  "Leper Intimidate 3": [
+   "Heroes/Info"
+  ],
+  "Leper Intimidate 4": [
+   "Heroes/Info"
+  ],
+  "Leper Intimidate 5": [
+   "Heroes/Info"
+  ],
+  "clear_corpses": [
+   "Heroes/Info"
+  ],
+  "Disrupt 1": [
+   "Heroes/Info"
+  ],
+  "Disrupt 2": [
+   "Heroes/Info"
+  ],
+  "Disrupt 3": [
+   "Heroes/Info"
+  ],
+  "Disrupt 4": [
+   "Heroes/Info"
+  ],
+  "Disrupt 5": [
+   "Heroes/Info"
+  ],
+  "MAA Guard 1": [
+   "Heroes/Info"
+  ],
+  "Defender 1": [
+   "Heroes/Info"
+  ],
+  "Defender 2": [
+   "Heroes/Info"
+  ],
+  "Defender 3": [
+   "Heroes/Info"
+  ],
+  "Defender 4": [
+   "Heroes/Info"
+  ],
+  "Defender 5": [
+   "Heroes/Info"
+  ],
+  "MAA Riposte 1": [
+   "Heroes/Info"
+  ],
+  "MAA Riposte 2": [
+   "Heroes/Info"
+  ],
+  "MAA Riposte 3": [
+   "Heroes/Info"
+  ],
+  "MAA Riposte 4": [
+   "Heroes/Info"
+  ],
+  "MAA Riposte 5": [
+   "Heroes/Info"
+  ],
+  "Command 1": [
+   "Heroes/Info"
+  ],
+  "Command 2": [
+   "Heroes/Info"
+  ],
+  "Command 3": [
+   "Heroes/Info"
+  ],
+  "Command 4": [
+   "Heroes/Info"
+  ],
+  "Command 5": [
+   "Heroes/Info"
+  ],
+  "Bolster 1": [
+   "Heroes/Info"
+  ],
+  "Bolster 2": [
+   "Heroes/Info"
+  ],
+  "Bolster 3": [
+   "Heroes/Info"
+  ],
+  "Bolster 4": [
+   "Heroes/Info"
+  ],
+  "Bolster 5": [
+   "Heroes/Info"
+  ],
+  "Eldritch Killer 1": [
+   "Heroes/Info"
+  ],
+  "Eldritch Killer 2": [
+   "Heroes/Info"
+  ],
+  "Eldritch Killer 3": [
+   "Heroes/Info"
+  ],
+  "Eldritch Killer 4": [
+   "Heroes/Info"
+  ],
+  "Eldritch Killer 5": [
+   "Heroes/Info"
+  ],
+  "Darkness 1": [
+   "Heroes/Info"
+  ],
+  "Mark Target": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Occ Weakening Curse 1": [
+   "Heroes/Info"
+  ],
+  "Occ Weakening Curse 2": [
+   "Heroes/Info"
+  ],
+  "Occ Weakening Curse 3": [
+   "Heroes/Info"
+  ],
+  "Occ Weakening Curse 4": [
+   "Heroes/Info"
+  ],
+  "Occ Weakening Curse 5": [
+   "Heroes/Info"
+  ],
+  "Wyrd Bleed 1": [
+   "Heroes/Info"
+  ],
+  "Wyrd Bleed 2": [
+   "Heroes/Info"
+  ],
+  "Wyrd Bleed 3": [
+   "Heroes/Info"
+  ],
+  "Wyrd Bleed 4": [
+   "Heroes/Info"
+  ],
+  "Wyrd Bleed 5": [
+   "Heroes/Info"
+  ],
+  "Occ Vulnerability Curse 1": [
+   "Heroes/Info"
+  ],
+  "Occ Vulnerability Curse 2": [
+   "Heroes/Info"
+  ],
+  "Occ Vulnerability Curse 3": [
+   "Heroes/Info"
+  ],
+  "Occ Vulnerability Curse 4": [
+   "Heroes/Info"
+  ],
+  "Occ Vulnerability Curse 5": [
+   "Heroes/Info"
+  ],
+  "Minor Bleed 1": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Minor Bleed 2": [
+   "Heroes/Info"
+  ],
+  "Minor Bleed 3": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Minor Bleed 4": [
+   "Heroes/Info"
+  ],
+  "Minor Bleed 5": [
+   "Heroes/Info",
+   "Monsters"
+  ],
+  "Cure": [
+   "Heroes/Info"
+  ],
+  "Cureself": [
+   "Heroes/Info"
+  ],
+  "PD Vapours Buff 1": [
+   "Heroes/Info"
+  ],
+  "PD Vapours Buff 2": [
+   "Heroes/Info"
+  ],
+  "PD Vapours Buff 3": [
+   "Heroes/Info"
+  ],
+  "PD Vapours Buff 4": [
+   "Heroes/Info"
+  ],
+  "PD Vapours Buff 5": [
+   "Heroes/Info"
+  ],
+  "PD Disorienting Stun 1": [
+   "Heroes/Info"
+  ],
+  "PD Disorienting Stun 2": [
+   "Heroes/Info"
+  ],
+  "PD Disorienting Stun 3": [
+   "Heroes/Info"
+  ],
+  "PD Disorienting Stun 4": [
+   "Heroes/Info"
+  ],
+  "PD Disorienting Stun 5": [
+   "Heroes/Info"
+  ],
+  "PD Blight 1": [
+   "Heroes/Info"
+  ],
+  "PD Blight 2": [
+   "Heroes/Info"
+  ],
+  "PD Blight 3": [
+   "Heroes/Info"
+  ],
+  "PD Blight 4": [
+   "Heroes/Info"
+  ],
+  "PD Blight 5": [
+   "Heroes/Info"
+  ],
+  "PD Single Blight 1": [
+   "Heroes/Info"
+  ],
+  "PD Single Blight 2": [
+   "Heroes/Info"
+  ],
+  "PD Single Blight 3": [
+   "Heroes/Info"
+  ],
+  "PD Single Blight 4": [
+   "Heroes/Info"
+  ],
+  "PD Single Blight 5": [
+   "Heroes/Info"
+  ],
+  "HealSelf 1": [
+   "Heroes/Info"
+  ],
+  "HealSelf 2": [
+   "Heroes/Info"
+  ],
+  "HealSelf 3": [
+   "Heroes/Info"
+  ],
+  "Dodge Curse 1": [
+   "Heroes/Info"
+  ],
+  "Dodge Curse 2": [
+   "Heroes/Info"
+  ],
+  "Dodge Curse 3": [
+   "Heroes/Info"
+  ],
+  "Dodge Curse 4": [
+   "Heroes/Info"
+  ],
+  "Dodge Curse 5": [
+   "Heroes/Info"
+  ],
+  "Dazzling Light 1": [
+   "Heroes/Info"
+  ],
+  "Vestal Weakening Curse 1": [
+   "Heroes/Info"
+  ],
+  "Vestal Weakening Curse 2": [
+   "Heroes/Info"
+  ],
+  "Vestal Weakening Curse 3": [
+   "Heroes/Info"
+  ],
+  "Vestal Weakening Curse 4": [
+   "Heroes/Info"
+  ],
+  "Vestal Weakening Curse 5": [
+   "Heroes/Info"
+  ],
+  "Vestal Light 1": [
+   "Heroes/Info"
+  ],
+  "Vestal Light 2": [
+   "Heroes/Info"
+  ],
+  "Vestal Light 3": [
+   "Heroes/Info"
+  ],
+  "Vestal Light 4": [
+   "Heroes/Info"
+  ],
+  "Vestal Light 5": [
+   "Heroes/Info"
+  ],
+  "Shuffle Self": [
+   "Monsters"
+  ],
+  "Ancestor Shuffle": [
+   "Monsters"
+  ],
+  "Ancestor Disrupt": [
+   "Monsters"
+  ],
+  "Ancestor Big Rider Stress": [
+   "Monsters"
+  ],
+  "Ancestor Big Contemplate Stress": [
+   "Monsters"
+  ],
+  "Ancestor Fuse Two": [
+   "Monsters"
+  ],
+  "Ancestor Fuse All": [
+   "Monsters"
+  ],
+  "Ancestor Mark": [
+   "Monsters"
+  ],
+  "Flawed Stun": [
+   "Monsters"
+  ],
+  "Ancestor Flawed Stress": [
+   "Monsters"
+  ],
+  "kill_target": [
+   "Monsters"
+  ],
+  "Heart Stress": [
+   "Monsters"
+  ],
+  "Heart Stress Rider": [
+   "Monsters"
+  ],
+  "Heart Stun": [
+   "Monsters"
+  ],
+  "Heart Bleed": [
+   "Monsters"
+  ],
+  "Heart Blight": [
+   "Monsters"
+  ],
+  "Ancestor Damage Marked": [
+   "Monsters"
+  ],
+  "Ancestor Perfect Bleed": [
+   "Monsters"
+  ],
+  "Ancestor Perfect Stress": [
+   "Monsters"
+  ],
+  "Ancestor Small Stress": [
+   "Monsters"
+  ],
+  "kill_self_queued": [
+   "Monsters"
+  ],
+  "Egg Heal Hero": [
+   "Monsters"
+  ],
+  "Egg Blight Hero": [
+   "Monsters"
+  ],
+  "Pod AOE Blight": [
+   "Monsters"
+  ],
+  "Ancestor Summon Perfect": [
+   "Monsters"
+  ],
+  "Ancestor Summon Mixed": [
+   "Monsters"
+  ],
+  "Ancestor Summon Flawed": [
+   "Monsters"
+  ],
+  "Ancestor Summon Nebula": [
+   "Monsters"
+  ],
+  "Stress 1": [
+   "Monsters"
+  ],
+  "Thrall Revenge Stress 1": [
+   "Monsters"
+  ],
+  "Thrall Revenge Stress 3": [
+   "Monsters"
+  ],
+  "Thrall Revenge Stress 5": [
+   "Monsters"
+  ],
+  "Clear Enemy Rank Target": [
+   "Monsters"
+  ],
+  "Blood Point Blank Shot Debuff": [
+   "Monsters"
+  ],
+  "Blood Punishment Stress": [
+   "Monsters"
+  ],
+  "Blood Rain Stress": [
+   "Monsters"
+  ],
+  "Stress 2": [
+   "Monsters"
+  ],
+  "Cannon Misfire": [
+   "Monsters"
+  ],
+  "Summon Fuseman 1": [
+   "Monsters"
+  ],
+  "Summon Brigand 1": [
+   "Monsters"
+  ],
+  "Summon Fuseman 3": [
+   "Monsters"
+  ],
+  "Summon Brigand 3": [
+   "Monsters"
+  ],
+  "Summon Fuseman 5": [
+   "Monsters"
+  ],
+  "Summon Brigand 5": [
+   "Monsters"
+  ],
+  "Cutthroat Slice Debuff 1": [
+   "Monsters"
+  ],
+  "Cutthroat Poke Buff": [
+   "Monsters"
+  ],
+  "Cutthroat Slice Debuff 3": [
+   "Monsters"
+  ],
+  "Cutthroat Slice Debuff 5": [
+   "Monsters"
+  ],
+  "Fusilier Blanket Debuff 1": [
+   "Monsters"
+  ],
+  "Fusilier Blanket Debuff 3": [
+   "Monsters"
+  ],
+  "Fusilier Blanket Debuff 5": [
+   "Monsters"
+  ],
+  "Fusilier Blanket Debuff 6": [
+   "Monsters"
+  ],
+  "Blanket Fire Stress": [
+   "Monsters"
+  ],
+  "Cutthroat Slice Debuff 6": [
+   "Monsters"
+  ],
+  "Sapper Summon Barrel": [
+   "Monsters"
+  ],
+  "Sapper Summon Brigand Guaranteed": [
+   "Monsters"
+  ],
+  "Sapper Summon Brigand High Chance": [
+   "Monsters"
+  ],
+  "Sapper Summon Brigand Low Chance": [
+   "Monsters"
+  ],
+  "Sapper Guard": [
+   "Monsters"
+  ],
+  "Sapper Stress": [
+   "Monsters"
+  ],
+  "Rank Target Enemy 1": [
+   "Monsters"
+  ],
+  "Clear Enemy Rank Target With Result": [
+   "Monsters"
+  ],
+  "Weak Blight 1": [
+   "Monsters"
+  ],
+  "Damage Marked Target": [
+   "Monsters"
+  ],
+  "Weak Blight 3": [
+   "Monsters"
+  ],
+  "Carrion Munch Disease 3": [
+   "Monsters"
+  ],
+  "Weak Blight 5": [
+   "Monsters"
+  ],
+  "Carrion Munch Disease 5": [
+   "Monsters"
+  ],
+  "Weakening Curse 1": [
+   "Monsters"
+  ],
+  "Carrion Weaken Damage Debuff 1": [
+   "Monsters"
+  ],
+  "Carrion Devour Debuff 1": [
+   "Monsters"
+  ],
+  "Weakening Curse 3": [
+   "Monsters"
+  ],
+  "Carrion Weaken Damage Debuff 3": [
+   "Monsters"
+  ],
+  "Carrion Devour Debuff 3": [
+   "Monsters"
+  ],
+  "Weakening Curse 5": [
+   "Monsters"
+  ],
+  "Carrion Weaken Damage Debuff 5": [
+   "Monsters"
+  ],
+  "Carrion Devour Debuff 5": [
+   "Monsters"
+  ],
+  "Battle Cell Stun": [
+   "Monsters"
+  ],
+  "Cell Bolster": [
+   "Monsters"
+  ],
+  "Cell Shuffle": [
+   "Monsters"
+  ],
+  "Cell Weaken": [
+   "Monsters"
+  ],
+  "Collector Show Stress": [
+   "Monsters"
+  ],
+  "Summon Heads A1": [
+   "Monsters"
+  ],
+  "Summon Heads A2": [
+   "Monsters"
+  ],
+  "Summon Heads A3": [
+   "Monsters"
+  ],
+  "Collector HealSelf 1": [
+   "Monsters"
+  ],
+  "Lifesteal Mark": [
+   "Monsters"
+  ],
+  "Summon Heads B1": [
+   "Monsters"
+  ],
+  "Summon Heads B2": [
+   "Monsters"
+  ],
+  "Summon Heads B3": [
+   "Monsters"
+  ],
+  "Collector HealSelf 3": [
+   "Monsters"
+  ],
+  "Summon Heads C1": [
+   "Monsters"
+  ],
+  "Summon Heads C2": [
+   "Monsters"
+  ],
+  "Summon Heads C3": [
+   "Monsters"
+  ],
+  "Collector HealSelf 5": [
+   "Monsters"
+  ],
+  "Guard 1": [
+   "Monsters"
+  ],
+  "HeadDefend 1": [
+   "Monsters"
+  ],
+  "Head Buff 1": [
+   "Monsters"
+  ],
+  "Blight 1": [
+   "Monsters"
+  ],
+  "Darkness 2": [
+   "Monsters"
+  ],
+  "Crone Curse 1": [
+   "Monsters"
+  ],
+  "Blight 3": [
+   "Monsters"
+  ],
+  "Crone Curse 3": [
+   "Monsters"
+  ],
+  "Crone Fetid Disease 3": [
+   "Monsters"
+  ],
+  "Blight 5": [
+   "Monsters"
+  ],
+  "Crone Curse 5": [
+   "Monsters"
+  ],
+  "Crone Fetid Disease 5": [
+   "Monsters"
+  ],
+  "SmallDmg Marked Target": [
+   "Monsters"
+  ],
+  "Brawler Rend Debuff 1": [
+   "Monsters"
+  ],
+  "Brawler Rend Debuff 3": [
+   "Monsters"
+  ],
+  "Brawler Rend Debuff 5": [
+   "Monsters"
+  ],
+  "Push 2F": [
+   "Monsters"
+  ],
+  "Pull 2F": [
+   "Monsters"
+  ],
+  "Witch Incantation Stress 5": [
+   "Monsters"
+  ],
+  "Witch Eldritch Stress 5": [
+   "Monsters"
+  ],
+  "Turbo Mark": [
+   "Monsters"
+  ],
+  "Orgiastic Guard": [
+   "Monsters"
+  ],
+  "Damage Marked Target Lesser": [
+   "Monsters"
+  ],
+  "Shrouded Pierce Bleed": [
+   "Monsters"
+  ],
+  "Shrouded Stress": [
+   "Monsters"
+  ],
+  "Shrouded AOE Stress": [
+   "Monsters"
+  ],
+  "Shrouded Bleed Debuff": [
+   "Monsters"
+  ],
+  "Turbo Cultist Bleed": [
+   "Monsters"
+  ],
+  "Turbo Cultist Rend Debuff": [
+   "Monsters"
+  ],
+  "Witch Incantation Mark": [
+   "Monsters"
+  ],
+  "Witch Incantation Stress 3": [
+   "Monsters"
+  ],
+  "Witch Eldritch Stress 3": [
+   "Monsters"
+  ],
+  "Beholder Stress": [
+   "Monsters"
+  ],
+  "Beholder Blight": [
+   "Monsters"
+  ],
+  "Beholder Selfbuff": [
+   "Monsters"
+  ],
+  "Beholder Weaken": [
+   "Monsters"
+  ],
+  "Summon Whitecell": [
+   "Monsters"
+  ],
+  "CaptureBosun": [
+   "Monsters"
+  ],
+  "immobilize": [
+   "Monsters"
+  ],
+  "unimmobilize": [
+   "Monsters"
+  ],
+  "Pull 3A": [
+   "Monsters"
+  ],
+  "Captain Curse 1": [
+   "Monsters"
+  ],
+  "Summon Anchor 1": [
+   "Monsters"
+  ],
+  "Pull 3C": [
+   "Monsters"
+  ],
+  "Summon Anchor 2": [
+   "Monsters"
+  ],
+  "Pull 3E": [
+   "Monsters"
+  ],
+  "Summon Anchor 3": [
+   "Monsters"
+  ],
+  "Summon Ecto 1": [
+   "Monsters"
+  ],
+  "Summon Big Ecto 1": [
+   "Monsters"
+  ],
+  "Summon Ecto 2": [
+   "Monsters"
+  ],
+  "Summon Big Ecto 2": [
+   "Monsters"
+  ],
+  "Small Ecto Slime Debuff 3": [
+   "Monsters"
+  ],
+  "Summon Ecto 3": [
+   "Monsters"
+  ],
+  "Summon Big Ecto 3": [
+   "Monsters"
+  ],
+  "Small Ecto Slime Debuff 5": [
+   "Monsters"
+  ],
+  "Big Ecto Slime Debuff 3": [
+   "Monsters"
+  ],
+  "Big Ecto Slime Debuff 5": [
+   "Monsters"
+  ],
+  "Errant Blight": [
+   "Monsters"
+  ],
+  "Errant Mark": [
+   "Monsters"
+  ],
+  "Errant Stress": [
+   "Monsters"
+  ],
+  "Errant Dmg Marked": [
+   "Monsters"
+  ],
+  "Errant Stun": [
+   "Monsters"
+  ],
+  "Crabby Bleed 1": [
+   "Monsters"
+  ],
+  "Crabby Bleed 2": [
+   "Monsters"
+  ],
+  "Crabby Pinch Debuff 3": [
+   "Monsters"
+  ],
+  "Crabby Bleed 3": [
+   "Monsters"
+  ],
+  "Crabby Pinch Debuff 5": [
+   "Monsters"
+  ],
+  "Grouper Pull 1B": [
+   "Monsters"
+  ],
+  "Grouper Pull 1C": [
+   "Monsters"
+  ],
+  "Call of the Deep 1": [
+   "Monsters"
+  ],
+  "Call of the Deep 3": [
+   "Monsters"
+  ],
+  "Call of the Deep 5": [
+   "Monsters"
+  ],
+  "Fungal Disease": [
+   "Monsters"
+  ],
+  "Fungal Mark Debuff 1": [
+   "Monsters"
+  ],
+  "Fungal Mark Debuff 3": [
+   "Monsters"
+  ],
+  "Fungal Mark Debuff 5": [
+   "Monsters"
+  ],
+  "Gargoyle Lash Push 1B": [
+   "Monsters"
+  ],
+  "Gargoyle Flurry Shuffle 3": [
+   "Monsters"
+  ],
+  "Gargoyle Lash Push 1C": [
+   "Monsters"
+  ],
+  "Gargoyle Flurry Shuffle 5": [
+   "Monsters"
+  ],
+  "Ghoul Stress 1": [
+   "Monsters"
+  ],
+  "Worry": [
+   "Monsters"
+  ],
+  "Ghoul Rend Debuff 1": [
+   "Monsters"
+  ],
+  "Ghoul Rend Debuff 3": [
+   "Monsters"
+  ],
+  "Ghoul Skull Stun 3": [
+   "Monsters"
+  ],
+  "Ghoul Rend Debuff 5": [
+   "Monsters"
+  ],
+  "Ghoul Skull Stun 5": [
+   "Monsters"
+  ],
+  "CaptureHag": [
+   "Monsters"
+  ],
+  "Hag Season": [
+   "Monsters"
+  ],
+  "HagHeal 1": [
+   "Monsters"
+  ],
+  "HagHeal 3": [
+   "Monsters"
+  ],
+  "HagHeal 5": [
+   "Monsters"
+  ],
+  "Jellyfish Disease": [
+   "Monsters"
+  ],
+  "Jellyfish Shock Debuff 1": [
+   "Monsters"
+  ],
+  "Jellyfish Gouge Debuff 1": [
+   "Monsters"
+  ],
+  "Jellyfish Shock Debuff 3": [
+   "Monsters"
+  ],
+  "Jellyfish Gouge Debuff 3": [
+   "Monsters"
+  ],
+  "Jellyfish Shock Debuff 5": [
+   "Monsters"
+  ],
+  "Jellyfish Gouge Debuff 5": [
+   "Monsters"
+  ],
+  "Madman Snipe Stress 1": [
+   "Monsters"
+  ],
+  "Madman AOE Stress 1": [
+   "Monsters"
+  ],
+  "MadMan Stress Debuff 1": [
+   "Monsters"
+  ],
+  "Madman Snipe Stress 2": [
+   "Monsters"
+  ],
+  "Madman AOE Stress 2": [
+   "Monsters"
+  ],
+  "MadMan Stress Debuff 3": [
+   "Monsters"
+  ],
+  "MadMan Stress Debuff 5": [
+   "Monsters"
+  ],
+  "MaggotStress": [
+   "Monsters"
+  ],
+  "MaggotStun 1": [
+   "Monsters"
+  ],
+  "Maggot Disease": [
+   "Monsters"
+  ],
+  "MaggotStun 2": [
+   "Monsters"
+  ],
+  "MaggotStun 3": [
+   "Monsters"
+  ],
+  "NecroSummon 1": [
+   "Monsters"
+  ],
+  "NecroSummon 2": [
+   "Monsters"
+  ],
+  "NecroSummon 3": [
+   "Monsters"
+  ],
+  "OctoDefend 1": [
+   "Monsters"
+  ],
+  "Octo Guard 1": [
+   "Monsters"
+  ],
+  "Prophet Stress 1": [
+   "Monsters"
+  ],
+  "Prophet Vomit 1": [
+   "Monsters"
+  ],
+  "Prophet Vomit 2": [
+   "Monsters"
+  ],
+  "Prophet Vomit 3": [
+   "Monsters"
+  ],
+  "Rabies": [
+   "Monsters"
+  ],
+  "Shuffle Party 1": [
+   "Monsters"
+  ],
+  "SummonTentacle A": [
+   "Monsters"
+  ],
+  "ShamblerBlight 1": [
+   "Monsters"
+  ],
+  "ShamblerBleed 1": [
+   "Monsters"
+  ],
+  "Shuffle Party 2": [
+   "Monsters"
+  ],
+  "SummonTentacle B": [
+   "Monsters"
+  ],
+  "ShamblerBlight 2": [
+   "Monsters"
+  ],
+  "ShamblerBleed 2": [
+   "Monsters"
+  ],
+  "Shuffle Party 3": [
+   "Monsters"
+  ],
+  "SummonTentacle C": [
+   "Monsters"
+  ],
+  "ShamblerBlight 3": [
+   "Monsters"
+  ],
+  "ShamblerBleed 3": [
+   "Monsters"
+  ],
+  "TentacleBuffSelf": [
+   "Monsters"
+  ],
+  "Darkness 3": [
+   "Monsters"
+  ],
+  "Shuffler Bleed": [
+   "Monsters"
+  ],
+  "Shuffler Shuffle Party": [
+   "Monsters"
+  ],
+  "Summon Shrouded": [
+   "Monsters"
+  ],
+  "siren_control 1": [
+   "Monsters"
+  ],
+  "Summon Aquatic 1": [
+   "Monsters"
+  ],
+  "siren_control 2": [
+   "Monsters"
+  ],
+  "Summon Aquatic 2": [
+   "Monsters"
+  ],
+  "siren_control 3": [
+   "Monsters"
+  ],
+  "Summon Aquatic 3": [
+   "Monsters"
+  ],
+  "Arbalist Dmg Marked Target": [
+   "Monsters"
+  ],
+  "MultiStun 1": [
+   "Monsters"
+  ],
+  "MultiStun 3": [
+   "Monsters"
+  ],
+  "Captain Crushing Debuff 3": [
+   "Monsters"
+  ],
+  "MultiStun 5": [
+   "Monsters"
+  ],
+  "Captain Crushing Debuff 5": [
+   "Monsters"
+  ],
+  "Rabble Bump Debuff 3": [
+   "Monsters"
+  ],
+  "Rabble Bump Debuff 5": [
+   "Monsters"
+  ],
+  "Courtier Goblet Debuff 3": [
+   "Monsters"
+  ],
+  "Courtier Goblet Debuff 5": [
+   "Monsters"
+  ],
+  "Defender Axeblade Debuff 3": [
+   "Monsters"
+  ],
+  "Defender Axeblade Debuff 5": [
+   "Monsters"
+  ],
+  "Spearman Thrust Push 1A": [
+   "Monsters"
+  ],
+  "Spearman Thrust Push 1B": [
+   "Monsters"
+  ],
+  "Spearman Thrust Push 1C": [
+   "Monsters"
+  ],
+  "Snail Disease": [
+   "Monsters"
+  ],
+  "Snail Debuff 1": [
+   "Monsters"
+  ],
+  "Snail Debuff 3": [
+   "Monsters"
+  ],
+  "Snail Debuff 5": [
+   "Monsters"
+  ],
+  "Spitter Spit Debuff 1": [
+   "Monsters"
+  ],
+  "Spitter Spit Debuff 3": [
+   "Monsters"
+  ],
+  "Spitter Spit Debuff 5": [
+   "Monsters"
+  ],
+  "Webber Web Debuff 1": [
+   "Monsters"
+  ],
+  "Webber Web Debuff 3": [
+   "Monsters"
+  ],
+  "Webber Web Debuff 5": [
+   "Monsters"
+  ],
+  "Vulnerability Curse 1": [
+   "Monsters"
+  ],
+  "Drum Stress 1": [
+   "Monsters"
+  ],
+  "Vulnerability Curse 3": [
+   "Monsters"
+  ],
+  "Drum Debilitation Mark": [
+   "Monsters"
+  ],
+  "Vulnerability Curse 5": [
+   "Monsters"
+  ],
+  "Squeal Stun 1": [
+   "Monsters"
+  ],
+  "Piggie Mark": [
+   "Monsters"
+  ],
+  "Squeal Stun 3": [
+   "Monsters"
+  ],
+  "Squeal Stun 5": [
+   "Monsters"
+  ],
+  "Clear Marked Target": [
+   "Monsters"
+  ],
+  "Reaver Ball Push 1A": [
+   "Monsters"
+  ],
+  "Reaver Ball Push 1B": [
+   "Monsters"
+  ],
+  "Reaver Cut Debuff 3": [
+   "Monsters"
+  ],
+  "Reaver Ball Push 1C": [
+   "Monsters"
+  ],
+  "Reaver Cut Debuff 5": [
+   "Monsters"
+  ],
+  "Slasher Hook Debuff 3": [
+   "Monsters"
+  ],
+  "Slasher Hook Debuff 5": [
+   "Monsters"
+  ],
+  "Vomit Disease": [
+   "Monsters"
+  ],
+  "Wretch Vomit Debuff 3": [
+   "Monsters"
+  ],
+  "Wretch Vomit Debuff 5": [
+   "Monsters"
+  ],
+  "Push 3A Swinetaur": [
+   "Monsters"
+  ],
+  "Swinetaur Backhand Stun 1": [
+   "Monsters"
+  ],
+  "Push 3C Swinetaur": [
+   "Monsters"
+  ],
+  "Swinetaur Backhand Stun 3": [
+   "Monsters"
+  ],
+  "Push 3E Swinetaur": [
+   "Monsters"
+  ],
+  "Swinetaur Backhand Stun 5": [
+   "Monsters"
+  ],
+  "Stun 6": [
+   "Monsters"
+  ],
+  "Templar Sting Blight": [
+   "Monsters"
+  ],
+  "Darkest Eye": [
+   "Monsters"
+  ],
+  "Templar Snipe Blight": [
+   "Monsters"
+  ],
+  "Templar AOE Blight": [
+   "Monsters"
+  ],
+  "Templar Weaken": [
+   "Monsters"
+  ],
+  "Totem Bleed": [
+   "Monsters"
+  ],
+  "Totem Stun": [
+   "Monsters"
+  ],
+  "Totem Guard": [
+   "Monsters"
+  ],
+  "Totem Defend": [
+   "Monsters"
+  ],
+  "Totem Bolster": [
+   "Monsters"
+  ],
+  "Totem Stress": [
+   "Monsters"
+  ],
+  "Giant Spore Debuff 1": [
+   "Monsters"
+  ],
+  "Giant Spore Debuff 3": [
+   "Monsters"
+  ],
+  "Giant Spore Debuff 5": [
+   "Monsters"
+  ]
+ },
+ "literal_in_code": [
+  "AfflictedAllyStress",
+  "BarkStress",
+  "Heal Stress 1",
+  "Heal Stress Chance 1",
+  "HealSelfStress 1",
+  "Stress 2",
+  "Stress 3",
+  "crit_heal_stress_heal",
+  "dog_treats",
+  "holy_water",
+  "stall_stress"
+ ],
+ "never_named": [
+  "kill_performer_group_other",
+  "Push 1F",
+  "Push 3F",
+  "Pull 1A",
+  "Pull 1B",
+  "Pull 1C",
+  "Pull 1D",
+  "Pull 1E",
+  "Pull 1F",
+  "Pull 3B",
+  "Pull 3D",
+  "Pull 3F",
+  "Stress 4",
+  "Stress 5",
+  "Weak Blight 2",
+  "Weak Blight 4",
+  "Blight 2",
+  "Blight 4",
+  "Blight Dog",
+  "Blight Debuff 1",
+  "Blight Debuff 2",
+  "Blight Debuff 3",
+  "Blight Debuff 4",
+  "Blight Debuff 5",
+  "Minor Bleed 6",
+  "Weak Stun 1",
+  "Weak Stun 2",
+  "Weak Stun 3",
+  "Weak Stun 4",
+  "Weak Stun 5",
+  "MultiStun 2",
+  "MultiStun 4",
+  "Disease",
+  "Self Speed",
+  "Self Speed 1",
+  "Self Speed 2",
+  "Self Speed 3",
+  "Self Speed 4",
+  "Self Speed 5",
+  "ACC Debuff 1",
+  "Bulwark 1",
+  "Bulwark 2",
+  "Bulwark 3",
+  "Bulwark 4",
+  "Bulwark 5",
+  "WebKiller",
+  "PoisonKiller",
+  "BleedKiller",
+  "Light 2",
+  "Stacking Heal 1",
+  "Stacking Heal 2",
+  "Stacking Heal 3",
+  "Stacking Heal 4",
+  "Stacking Heal 5",
+  "HealSelf 4",
+  "HealSelf 5",
+  "Heal Stress 2",
+  "Heal Stress 3",
+  "Heal Stress Chance 2",
+  "Heal Stress Chance 3",
+  "Mark performer",
+  "Shuffle Target",
+  "Shuffle Party 4",
+  "Shuffle Party 5",
+  "Deadly Buff 1",
+  "Deadly Buff 2",
+  "Deadly Buff 3",
+  "Deadly Buff 4",
+  "Deadly Buff 5",
+  "Damage Buff 1",
+  "Damage Buff 2",
+  "Damage Buff 3",
+  "Damage Buff 4",
+  "Damage Buff 5",
+  "Stacking Damage",
+  "Weakening Curse 2",
+  "Weakening Curse 4",
+  "Vulnerability Curse 2",
+  "Vulnerability Curse 4",
+  "switch_mode_beast_self",
+  "beast_stress_party",
+  "beast_buff_1",
+  "beast_buff_2",
+  "beast_buff_3",
+  "beast_buff_4",
+  "beast_buff_5",
+  "xform_damage_1",
+  "xform_damage_2",
+  "xform_damage_3",
+  "xform_damage_4",
+  "xform_damage_5",
+  "switch_mode_human_self",
+  "human_stress_heal_party_1",
+  "human_stress_heal_party_2",
+  "human_stress_heal_party_3",
+  "human_stress_heal_party_4",
+  "human_stress_heal_party_5",
+  "beast_debuff_1",
+  "beast_debuff_2",
+  "beast_debuff_3",
+  "beast_debuff_4",
+  "beast_debuff_5",
+  "Transform_HealSelf_1",
+  "Transform_HealSelf_2",
+  "Transform_HealSelf_3",
+  "Transform_HealSelf_4",
+  "Transform_HealSelf_5",
+  "beast_stress_1",
+  "beast_stress_2",
+  "beast_stress_3",
+  "beast_stress_4",
+  "beast_stress_5",
+  "Bolo Push 1E",
+  "Whistle Target 1",
+  "Whistle Target 2",
+  "Whistle Target 3",
+  "Whistle Target 4",
+  "Whistle Target 5",
+  "Leper Aim 1",
+  "Leper Aim 2",
+  "Leper Aim 3",
+  "Leper Aim 4",
+  "Leper Aim 5",
+  "Vestal HealSelf 1",
+  "Vestal HealSelf 2",
+  "Vestal HealSelf 3",
+  "Vestal HealSelf 4",
+  "Vestal HealSelf 5",
+  "Collector HealSelf 2",
+  "Collector HealSelf 4",
+  "Crone Curse 2",
+  "Crone Curse 4",
+  "Brawler Rend Debuff 6",
+  "drowned_anchored_knockback",
+  "Madman Stress 1",
+  "MaggotStun 4",
+  "MaggotStun 5",
+  "Maggot Nibble Debuff 1",
+  "Maggot Nibble Debuff 3",
+  "Maggot Nibble Debuff 5",
+  "SummonTentacle D",
+  "ShamblerBlight 4",
+  "ShamblerBleed 4",
+  "siren_uncontrol",
+  "Snail Debuff 2",
+  "Snail Debuff 4",
+  "Drum Stress 3",
+  "Drum Stress 5",
+  "Squeal Stun 2",
+  "Squeal Stun 4",
+  "Push 3B Swinetaur",
+  "Push 3D Swinetaur",
+  "Curio Damage Buff",
+  "Curio Damage BuffStrong",
+  "Suit of Armor Shield",
+  "ConfessionBoothHealStress",
+  "ConfessionBoothHealStress2",
+  "HolyFountainEffects",
+  "HolyFountainEffectsSuper",
+  "ChemicalLight",
+  "Skull Altar Adrenaline",
+  "UnnamedCurse",
+  "PristineFountainHealStress",
+  "PristineFountainHealStress2",
+  "brackish_tidepool",
+  "fish_idol_curse_1",
+  "fish_idol_curse_2",
+  "fish_idol_buff",
+  "Fish Idol Damage Buff Small",
+  "Fish Idol Damage Buff Large",
+  "Oyster Dodge Buff",
+  "Figurehead Buff",
+  "Figurehead Heal Stress",
+  "eerie_coral_stress",
+  "eerie_coral_healstress",
+  "Eldritch Altar Heal Stress",
+  "Altar Heal",
+  "GodsFavorBlood",
+  "stall_summon_A",
+  "stall_summon_B",
+  "stall_summon_C",
+  "Shrouded AOE Bleed",
+  "Shuffler Harden",
+  "Errant Bleed",
+  "Errant Shuffle",
+  "Ancestor Flawed Bleed",
+  "Clear Stunned Target",
+  "Heal Stress TrapD",
+  "Lurker Trap Debuff 1",
+  "brigand_barrel_spawn_riposte"
+ ]
+}
