@@ -52,8 +52,14 @@ def main() -> int:
             if isinstance(node, dict):
                 for k, v in node.items():
                     p = f"{path}.{k}" if path else k
-                    # 🔴 只在 `results` 数组里的 `type` 才算（`currency_cost` 的 type 是货币）✓
-                    if k == "type" and isinstance(v, str) and ".results[" in path:
+                    # 🔴 **口径（踩过坑，写死在这）**：只收【`results[]` 自身的 `type`】✓
+                    #    ❌ **不能只要求"路径里有 `.results[`"** —— 因为
+                    #       `change_currency` 的 `data[]` **也在 `results` 内部** ⚠️
+                    #       它的 `type` 是【货币名】（`gold`）而不是【动作类型】✓
+                    #    实测差异：放宽 ⇒ **8 种（含 `gold` ×4）**；严格 ⇒ **7 种** ✓
+                    #    🎖️ 判据：**"这个 `type` 是【动作】还是【数据项】？看它【直接挂在谁下面】"** ✓
+                    if (k == "type" and isinstance(v, str)
+                            and re.search(r"\.results\[\d+\]\.type$", p)):
                         types[v] += 1
                         loc.setdefault(v, set()).add(f.replace(".building.json", ""))
                     stack.append((p, v))
