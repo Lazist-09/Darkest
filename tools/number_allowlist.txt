@@ -67,3 +67,6 @@ darkest/scripts/gameplay/sim/run/ExpeditionFlow.TileWalk.cs | valueOrDefault > 0
 darkest/scripts/gameplay/sim/board/TierDefence.cs | 0.85 | 原版 prot 的**比例上限 0.85**（沿用 M1a 已定规则 ✓ 与 UnitStats.ProtFraction 同源）
 # ── R16：祖产代理量的"长度上限"（一手：任务长度值域 1~4 ✓ 结构性，不是平衡数字）
 darkest/scripts/data/HeirloomQuestRewardConfig.cs | steps >= 4 ? 4 : steps | 一手任务长度的**值域上限 4**（策划 §43/§49：length ∈ 1~4 ✓ 结构性 ✓）
+
+darkest/scripts/gameplay/sim/run/HeroGear.cs | "c" => 3, | **结构性常量**：建筑等级 code（a/b/c/d）→ 等级（1/2/3/4）是**字母序映射**，不是平衡数字（一手 `buildings.json` 的等级 code 就是字母）✓
+darkest/scripts/gameplay/sim/run/HeroGear.cs | "d" => 4, | 同上：字母序映射的第 4 项（结构性常量，非平衡数字）✓
