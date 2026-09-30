@@ -2033,6 +2033,73 @@ highwayman · houndmaster · jester · leper · man_at_arms · occultist · plag
 ⚠️ **计数注**：`39.2` 表头写「当前 **8** 项」而表体是 **9** 行；本轮**再追加 2 项** ⇒
    ✅ **本次【只登记不动】** —— 表头/表体的计数校正**留到解冻重定标那批一次性做** ✅
 
+### 39.6 🆕 预登记（**2026-09-30 · A6 裁定附带**）—— 🔴 **未落地**（预登记区 · **不参与 `39.2` 计数**）
+
+```
+🔴 **本区性质**：**预登记 = 已定「要做」但【还没做】** —— 出处 = `#489`（A6 裁定）的一手复核 ✓
+   ⚠️ **本区【不参与】`39.2` 的表头/表体计数**（与 `39.5` 的两条读数同处「只登记不动」·纪律 BH）✓
+❄️ **本区各项【现在一律不动】** —— 它们全是【平衡数值】（纪律 AY）⇒ 🔴 **触发条件 = 解冻窗口** ✓
+```
+
+**① 🔴 7 个折磨的 act-out `chance` 权重 —— 整套按【一手】重定标**
+
+```
+现况：我方 `traits.json` 的 act-out 权重 **与一手【全不同】**（也与参考不同）⇒ 作妖频率整体偏离。
+一手（`shared/trait/trait_library.json` · **start 侧 = 整数权重** · 记「Σ / 其中 `nothing`」）：
+   abusive 36/12 · depressed 20/13 · fearful 38/26 · irrational 76/38 ·
+   masochistic 12/8 · paranoid 51/22 · selfish 36/24      （5 美德两侧一律 4/3）
+参考侧（`08 §7`）：abusive 6/4 · depressed 13/8 · fearful 9/6 · irrational 16/10 ·
+   masochistic 10/6 · paranoid 9/6 · selfish 12/8     🔴 ⇒ 参考件**不可用**（一手优先 · `source_priority.md §1b`）✓
+📌 归一写法：**按条 `chance / Σchance`** —— ⚠️ **start 是整数权重 · react 是小数**（不是一条通则）·
+   归一结果**只用于按条比较相对作妖频率** ⇒ 跨条比较**先声明口径**（纪律 BH/AU）✓
+📌 落地时留一张【改前 → 改后】逐条对照读数，归入本清单的到期批次 ✓
+```
+
+**② 🔴 5 个美德的抗性档：参考写 +20 ⇒ 一手实测 +25**
+
+```
+`virtueCourageous / Focused / Powerful / Stalwart / Vigorous` 的 6 个 `*RESIST` 一律 **+25**
+   （我方现行跟的是参考的 +20）✓
+📌 反向证据：**7 个折磨的 `buff_ids` 两手【逐条完全相同】** ⇒ 错只在美德侧（不是整张表不可靠）✓
+```
+
+**③ 🔴 5 个美德的专属 buff（10 项里 6 项不符）**
+
+| buff | 一手 | 我方现况 | 判 |
+|---|---|---|---|
+| `virtueCourageousBuff1` | `stress_dmg_received_percent` **−0.33** | −0.2 | 🔴 不符 |
+| `virtueCourageousBuff2` | `speed_rating` **+2** | **缺失** | 🔴 缺 |
+| `virtueFocusedBuff2` | `crit_chance` **+0.08** | 0.1 | 🔴 不符 |
+| 🔴 `virtueStalwartBuff1` | `protection_rating` **+0.15** | `stress_dmg_received_percent −0.5` | 🔴 **疑似错配**（形似 Courageous 家族）|
+| `virtueStalwartBuff2` | `death_blow` **+0.08** | **缺失** | 🔴 缺 |
+| `virtueVigorousBuff1` | `speed_rating` **+4** | 5 | 🔴 不符 |
+| ✅ `virtueFocusedBuff1` · `virtuePowerfulBuff1/2` · `virtueVigorousBuff2` | — | 同 | ✅ 相符（4 项）|
+
+```
+⚠️ **前置（责任域 = A1 · 不是数值）**：那 2 个「缺失」的 buff **在一手里【存在】**
+   （`virtueCourageousBuff2` / `virtueStalwartBuff2`）⇒ 🔴 缺的原因是 **A1 抽取漏了** ⇒ **先补池子，再改值** ✓
+   📌 同批还有 6 个 `*RESIST25`（`BLEED/BLIGHT/DEBUFF/DISEASE/MOVE/STUN`）—— 也在一手里，我方池缺 ✓
+```
+
+**④ 🔴 `virtue_inspired` 的【缺失值】**（`O-27`）
+
+```
+⇒ 解冻时按一手填 · **不许静默取 0** —— 落地前标 `placeholder` ✓
+```
+
+**⑤ 🔴 我方 3 个行为并入时，那个「33%」要不要保留**
+
+```
+`refuse_skill`（fear）/ `randomize_attack_target`（uncontrolled）/ `refuse_heal`（selfish）
+   ⇒ 🔴 **一手没有这 3 条**（它们是我们自加）⇒ **没有可对的一手值** ⇒ ⚠️ 这是一个【设计取舍】：
+      · 保留 33%   ⇒ = **我方自加** ⇒ 必须标明（`origin: ours` + `value_source` 口径）✓
+      · 不保留     ⇒ 按参考的 act-out 家族归零（只留「拒绝执行」的语义，不给概率）✓
+   📌 **本项只等**这一个决定 —— 结构动作（映射并入 + 形状收敛）已按 `#489` 现在做 ✓
+```
+
+📌 **出处**：`doc/state.md #489`（A6 裁定）· `reports/planner_20260930_to_arch_a6_ruling.md`（信 · `§5` = 逐条一手证据）✓
+⚠️ **计数注（本条）**：本区是**预登记** ⇒ **不改** `39.2` 的表头/表体，也不并入上面那条计数注 ✓
+
 ---
 
 ## §40 🔴🔴 架构校正："改名"**不做** —— 而它推翻了我 §39 的一条建议（`#457` · 2026-09-18）
