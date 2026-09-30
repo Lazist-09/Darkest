@@ -25,6 +25,22 @@
 - 对象体积：`41d287e..archive/pre-push-20260930` = 27,199,850 B；其中孪生段 `41d287e..b319916` = 6,703,838 B；新范围 = 20,507,221 B
 - 远端链长（推送前）：`git rev-list --count c53ff45` = 854；重放 849 条 + 本表提交自身 1 条 ⇒ 推送后 `git rev-list --count origin/master` = 1704
 
+## §1b 推送落地复查（2026-09-30 18:45 实测）
+
+推送通道：本机 DNS 把 `github.com` 解析到 20.205.243.x（该段不可达），故推送走一次性脚本——本地起 CONNECT 隧道，把 `github.com:443` 的 TCP 连接转发到已验证可达的 `140.82.112.3:443`；git 侧仍持有真实域名，TLS SNI / 证书校验 / GCM 凭据查找照常生效。脚本与日志留存在本地 scratch（`C:\Users\Mechrev\.codex\visualizations\2026\09\30\01a0f124-ef73-7330-bfc4-19e2a3f71a1b\probe_holding\`），未入库。
+
+| # | 复核项 | 命令 | 读数 | 判定 |
+|---|---|---|---|---|
+| 1 | 远端引用 | `git ls-remote origin master` | `ea3f51632748f1d0fb6185d7731e8d09bc8d18cb` | PASS |
+| 2 | 本地 = 远端 | `git rev-parse master` | 同一 SHA，逐字相同 | PASS |
+| 3 | 本次增量 | `git push` 回显 | `4f45ed4..ea3f516  master -> master`（fast-forward，rc=0） | PASS |
+| 4 | 远端链长 | `git rev-list --count origin/master` | 1707（§1 预估 1704，其后新增 P1 / P0 / 投递 3 条） | PASS |
+| 5 | 快进关系 | `git merge-base --is-ancestor 4f45ed43c5c2391b0a9671cb287faa91fa432258 origin/master` | rc=0 | PASS |
+| 6 | 本次新增对象 | `git rev-list --disk-usage --objects 4f45ed43..origin/master` | 94,976 B（3 个提交，全文本） | PASS |
+| 7 | 远端全历史对象 | `git rev-list --disk-usage --objects origin/master` | 50,577,718 B（约 48.2 MiB） | PASS |
+| 8 | 无 104 MB 大文件 | `git log --oneline origin/master -- reports/p4final_topology-auto_20260915_2311.txt` | 0 条命中 | PASS |
+| 9 | 工作区 | `git status --porcelain` | 空 | PASS |
+
 ## §2 104 MB 大文件：只留本地，不入远端
 
 - 路径：`reports/p4final_topology-auto_20260915_2311.txt`
