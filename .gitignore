@@ -27,6 +27,7 @@ Example/**
 
 
 tools/__pycache__/
+tools/dsh/__pycache__/
 
 # 🔴 借用占位素材（Steam Workshop mod，无授权）—— 绝不进仓库
 # 依据：doc/modules/hero_assets.md（英雄资产接口）· assets_credits.md A1 · 红线 27
