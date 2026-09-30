@@ -34,13 +34,16 @@ public static class DirectorBridge
     /// M8.0 ①(c)（`#286`）：可传入**名册选出的出征 6 人** —— 阵型模板只提供槽位布局与敌方编成；
     /// 传入时按名册套阵型，并把 **等级成长投影**（(b)）作用到我方单位。
     /// 🔴 `BattleDirector` 仍**单场纯**（不读名册、不持 Hamlet；名册由组合根读、以快照传入）。
+    /// 🔴 H-1（2026-09-27）· **2026-09-30 架构裁定①（取「（甲）直读」）**：护甲阶**也走这条快照通道** ——
+    ///   `armourTierBySlot` 由组合根从 **`HeroGearState`** 取（`ExpeditionContext.Gear`）⇒ 桥层不读名册、不读容器 ✓
     /// </summary>
     public static DirectorHandle BuildFromRes(Node host,
         System.Collections.Generic.IReadOnlyList<HeroConfig>? sortie = null,
         RosterLevelGrowth? growth = null,
         System.Collections.Generic.IReadOnlyList<int>? openingMoraleBySlot = null,
         System.Collections.Generic.IReadOnlyList<DiseasePenalty>? diseasePenaltyBySlot = null,
-        System.Collections.Generic.IReadOnlyList<Darkest.Gameplay.Sim.Run.TraitEffects>? traitEffectsBySlot = null)
+        System.Collections.Generic.IReadOnlyList<Darkest.Gameplay.Sim.Run.TraitEffects>? traitEffectsBySlot = null,
+        System.Collections.Generic.IReadOnlyList<int>? armourTierBySlot = null)
     {
         _ = host;
         string Read(string name) => FileAccess.GetFileAsString($"res://data/{name}");
@@ -80,16 +83,39 @@ public static class DirectorBridge
             new CombatLog());
 
         // 🔴 (b)：等级成长投影（**运行时投影、不改基准数据**，P4 同源）——按槽位顺序与名册顺序一一对应
-        if (sortie is not null && growth is not null)
+        // 🔴 2026-09-30 架构裁定① ②：外层门**只判 `sortie`** —— 理由：**Gear 投影不该被 growth 绑架**
+        //    （无成长档时也要有阶）⇒ 等级成长与护甲阶**各判各的** ✓
+        if (sortie is not null)
         {
             UnitRuntime[] board = director.Player.UnitsInSlotOrder().ToArray();
+
+            // 🔴 红线 21（架构裁定① ⑤）：**「未接线」≠「第 0 阶」** —— 空表是合法的第 0 阶，
+            //    而"没传数组"是根本没接上 ⇒ 两者必须**打印得不一样**（不静默回 0 阶）✓
+            if (armourTierBySlot is null)
+            {
+                GD.Print("[H-1] 装备阶投影：**未接线**（未传 `armourTierBySlot`）⇒ 护甲阶**不作用**（≠ 第 0 阶；不静默）⚠");
+            }
+            else if (armourTierBySlot.Count < sortie.Count)
+            {
+                throw new System.InvalidOperationException(
+                    $"[H-1] `armourTierBySlot` 只给了 {armourTierBySlot.Count} 条，出征 {sortie.Count} 人 ⇒ **接线错误**（不静默按第 0 阶补）⚠");
+            }
+
             for (int i = 0; i < sortie.Count && i < board.Length; i++)
             {
-                Darkest.Gameplay.Sim.Run.HeroProjection.ApplyLevel(sortie[i], board[i], growth);
+                // 🔴 (b)：等级成长（**未传 growth ⇒ 不作用**，与既往行为一致 ✓）
+                if (growth is not null)
+                {
+                    Darkest.Gameplay.Sim.Run.HeroProjection.ApplyLevel(sortie[i], board[i], growth);
+                }
 
-                // 🔴 H-1（2026-09-27）：**装备阶 → 减伤读数**（护甲阶 ⇒ prot/dodge 按 `armour[]` 逐阶取）✓
+                // 🔴 H-1（2026-09-27 · 2026-09-30 架构裁定① 换源）：**装备阶 → 减伤读数**
+                //    （护甲阶 ⇒ prot/dodge 按 `armour[]` 逐阶取）· 阶来源 = **`HeroGearState`**（组合根取成数组传参）✓
                 //    未接线前 `GearProtOverride/DodgeOverride` 恒 null ⇒ 旧口径；接上后玩家单位按阶 ⇒ **行为变更**（策划已裁）✓
-                Darkest.Gameplay.Sim.Run.HeroProjection.ApplyGearTier(sortie[i], board[i]);
+                if (armourTierBySlot is not null)
+                {
+                    Darkest.Gameplay.Sim.Run.HeroProjection.ApplyGearTier(board[i], armourTierBySlot[i]);
+                }
 
                 // 🔴 M8.0 ③（#289 (B)）：特质 → 单位修正（伤害类与士气类各归其道）
                 // 🔴 M8.2 / V15：**优先用"当前特质效果"**（来自可变名册）⇒ 清除/固化后立即生效（红线 21）

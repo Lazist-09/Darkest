@@ -229,7 +229,8 @@ public sealed record UnitsConfig(
 
         // 🆕 **M1b · 阶数校验**（P6 ①）：**阶数必须恰好 5**（= 原版 `weapon_0..4` / `armour_0..4` ⇒ 阶序 **1~5**）✓
         //    🔴 口径声明（纪律 AU：**先定义再数**）：这里数的**不是**"当前第几阶"，而是**数组里有几阶**；
-        //       "当前第几阶"那件事属 `O-101`（由 `Roster`/`Hero` 持有 `weaponTier`/`armourTier`）⇒ **本阶段没有它** ✓
+        //       "当前第几阶"那件事属 `O-101` ⇒ 🔴 **措辞更正（架构 2026-09-30）**：持有者 = **`HeroGearState`**
+        //       （`HeroGear.cs` 的 `TierOf`/`ArmourTierOf`；`RosterConfig` 里那两个同名字段是旧槽位 · 无生产读点 ✓）
         if (count != 5)
         {
             throw new InvalidDataException(

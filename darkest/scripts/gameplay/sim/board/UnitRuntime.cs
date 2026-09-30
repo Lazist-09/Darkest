@@ -77,7 +77,8 @@ public sealed class UnitRuntime
 
     /// <summary>
     /// 🔴 **护甲阶覆盖的 `prot`**（未接线 = `null` ⇒ 读数仍是顶层的 `Base.Prot` ⇒ **零行为** ✓）。
-    /// 由 <see cref="ApplyGearTier"/> 写入（组合根在装配时按 `HeroConfig.ArmourTier` 调一次）✓
+    /// 由 <see cref="ApplyGearTier"/> 写入（组合根在装配时按 **`HeroGearState`** 的护甲阶调一次 ——
+    /// `DirectorBridge` 把阶数组传参进投影 ⇒ 2026-09-30 架构裁定① 已**换源**，旧读点 `HeroConfig.ArmourTier` 不存在 ✓）
     /// </summary>
     public int? GearProtOverride { get; private set; }
 

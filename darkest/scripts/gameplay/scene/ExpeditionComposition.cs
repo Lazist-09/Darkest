@@ -111,8 +111,23 @@ public static class ExpeditionComposition
         bag.ConfigureRecommended(out _); // 整备默认 = 推荐配置（2/9/support_crate）
         bag.LockForRun();
 
+        // 🔴🆕 **H-1 装备阶的【唯一容器】**（`P4 ①` · 2026-09-30 · **本处故意在会话构造之前**）：
+        //    **先建出来**，再交给**投影 / 存档 / 升级机制**三处**共用同一实例** ✓
+        //    ⚠️ 此前是在下面那个分支里就地 `BindGear(new HeroGearState())` ⇒ 存档**拿不到它**
+        //       ⇒ 一存一读「**金币花了、阶没了**」（静默丢进度家族：玩家归因不到，日志里也没有一行）
+        //    🔴 容器**与 `hero_upgrades.json` 在不在无关**：空表 == 全部英雄第 0 阶 ⇒
+        //       文件缺失时**升级机制照样是关的**（下面那个分支会打印"关闭"），只是状态有了落点 ✓
+        //    🔴 2026-09-30 架构裁定①（取「（甲）直读」）⇒ **护甲阶的投影来源就是这份容器**：
+        //       组合根取阶（`ArmourTierOf`）→ 传参进桥 ⇒ 阶的**真值只此一处**（`HeroConfig.ArmourTier` 那条读点已换源删除 ✓）
+        var gear = new HeroGearState();
+        ExpeditionContext.BindGear(gear);
+
+        // 🔴 按**出征槽位顺序**取阶（与 `sortie` 一一对应）——
+        //    ⚠️ 空表 ⇒ 全第 0 阶 ⇒ **投影读数与旧口径逐字节相同**（旧来源 `HeroConfig.ArmourTier` 全仓无数据写入 ⇒ 恒 0 ✓）
+        int[] armourTierBySlot = sortie.Select(h => gear.ArmourTierOf(h.Id)).ToArray();
+
         var session = new ExpeditionSession(
-            _ => DirectorBridge.BuildFromRes(host, sortie, roster.LevelGrowth, openingMorale, diseasePenalties, traitEffects).Core,
+            _ => DirectorBridge.BuildFromRes(host, sortie, roster.LevelGrowth, openingMorale, diseasePenalties, traitEffects, armourTierBySlot).Core,
             tuning.Expedition.NBattles,
             firewood: bag.CountOf(ItemKind.Firewood),
             food: bag.CountOf(ItemKind.Food),
@@ -200,13 +215,8 @@ public static class ExpeditionComposition
 
         ExpeditionContext.BindConfigs(campSkills, roomContents, curiosCfg); // 🔴 片 4：面板配置进上下文 ⇒ 表现层读一处 ✓
 
-        // 🔴🆕 **H-1 装备阶的【唯一容器】**（`P4 ①` · 2026-09-30）：**先建出来**，再交给存档与升级机制**共用**
-        //    ⚠️ 此前是在下面那个分支里就地 `BindGear(new HeroGearState())` ⇒ 存档**拿不到它**
-        //       ⇒ 一存一读「**金币花了、阶没了**」（静默丢进度家族：玩家归因不到，日志里也没有一行）
-        //    🔴 容器**与 `hero_upgrades.json` 在不在无关**：空表 == 全部英雄第 0 阶 ⇒
-        //       文件缺失时**升级机制照样是关的**（下面那个分支会打印"关闭"），只是状态有了落点 ✓
-        var gear = new HeroGearState();
-        ExpeditionContext.BindGear(gear);
+        // 🔴🆕 **H-1 装备阶的【唯一容器】**：**已在会话构造之前建好并 `BindGear`**（见本函数上方 ✓）——
+        //    那里是**投影**的取阶处，往下依次是**存档**与**升级机制** ⇒ 三处共用同一实例 ✓
 
         // 🔴🔴 **`Phase 1`（2026-09-27）：存档系统接线** —— 到这一行时五个跨趟持有者
         //    （名册 / 进度 / 传家宝 / 经济 / **装备阶**）**已全部备齐** ⇒ 组装 `SaveController` 挂进上下文，
@@ -243,12 +253,14 @@ public static class ExpeditionComposition
                      $"铁匠铺「武器」Lv{heirlooms.LevelOf(HeroGear.BuildingTreeId(GearAxis.Weapon))} ／ " +
                      $"「护甲」Lv{heirlooms.LevelOf(HeroGear.BuildingTreeId(GearAxis.Armour))} ／ " +
                      $"阶域 0~{HeroGear.MaxTier}（**按护甲阶取 prot/dodge** ✓）· " +
-                     "阶容器与存档**共用同一实例** ✓");
+                     $"阶容器与存档**共用同一实例** ✓ · 护甲阶**投影已接线**（{armourTierBySlot.Length} 人已取阶；" +
+                     "来源 = ExpeditionContext.Gear ⇒ 空表 = 全第 0 阶，**≠ 未接线** ✓）");
         }
         else
         {
             GD.Print($"[片5·H-1] 未找到 `{HeroUpgradesConfig.ResPath}` ⇒ 装备阶**升级机制关闭**（opt-in；不静默）· " +
-                     "阶容器已挂（空表 = 全第 0 阶）⇒ 存档仍带 `gear` ✓");
+                     "阶容器已挂（空表 = 全第 0 阶）⇒ 存档仍带 `gear` ✓ · **护甲阶投影仍已接线**" +
+                     $"（{armourTierBySlot.Length} 人已取阶；来源 = ExpeditionContext.Gear；空表 = 全第 0 阶 ≠ 未接线 ✓）");
         }
 
         // 🔴🆕 `D-4`（2026-09-20）：**陷阱内容表** —— 与 `curiosCfg` 同族（内容表），**同处组装、同处绑定** ✓

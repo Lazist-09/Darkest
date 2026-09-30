@@ -33,15 +33,21 @@ public sealed record HeroConfig(
 
     /// <summary>
     /// 🆕 **O-101 的「当前阶」· 武器**（策划 `DELIVERY-DESIGNER-FOUR-MEANINGS-TO-LEAD` ③ 的裁定原话）：
-    ///   **「『当前阶』= 装备/升级等级 ⇒ 由 Roster/Hero 持有（`weaponTier`/`armourTier`）」** ✓
+    ///   **「『当前阶』= 装备/升级等级」** ✓ —— 🔴 **措辞更正（架构 2026-09-30 · 只改名字，不改语义、不改数值）**：
+    ///   原判「由 `Roster`/`Hero` 持有（`weaponTier`/`armourTier`）」⇒ 实为 **`HeroGearState`** 持有
+    ///   （按英雄 id · 与 `Economy`/`HeirloomStock` 同层；`HeroConfig` 是 record、`Roster.Heroes` 是
+    ///    `IReadOnlyList` ⇒ **阶涨不了** ⇒ 持有者只能是**独立的状态容器** ✓）
     ///   ⇒ 取值域 **0~4**（对应 `units.json` 的 5 阶武器表 ✓）
-    /// 🔴 **默认 0** ⇒ 未声明 = 第 0 阶 ⇒ **与今天行为一致** ✓
-    ///   （因为"伤害/减伤读阶"的两侧机制虽已备 —— `WeaponBaseDamage` / `TierDefence` —— 但**尚未接线** ✓ 零行为 ✓）
-    /// ⚠️ **激活条件**：M1c 阶段 3（伤害读阶）与减伤读阶接线时，从本字段取阶 ✓
+    /// 🔴 **本字段现状 = 旧槽位 · 全仓 `rg` 只命中本处两行 ⇒ 数据里无人写 ⇒ 恒 0**（= 零行为的一个来源 ✓）：
+    ///   · **减伤半已接线且已换源**（2026-09-27 / 2026-09-30 架构裁定①：读 `HeroGearState`）⇒
+    ///     **不是**「从本字段取阶」了；那条旧读点（`HeroProjection.ApplyGearTier(HeroConfig, …)`）**已换源删除** ✓
+    ///   · 🔴 **字段本身刻意保留**：(丙) 删字段**未授权** ⇒ 单独一件、单独裁 ✓
+    /// ⚠️ **仍在等**：M1c 阶段 3（**伤害**读阶）—— 它的取阶来源同样应是 `HeroGearState`（武器半）✓
     /// </summary>
     [property: JsonPropertyName("weapon_tier")] int WeaponTier = 0,
 
-    /// <summary>🆕 **O-101 的「当前阶」· 护甲**（同上 ✓ 取值域 0~4 ⇒ 对应 `armour[]` 5 阶 ✓ 默认 0 = 零行为 ✓）</summary>
+    /// <summary>🆕 **O-101 的「当前阶」· 护甲**（同上 ✓ 取值域 0~4 ⇒ 对应 `armour[]` 5 阶 ✓）——
+    /// 🔴 同上措辞更正：持有者 = **`HeroGearState`**（`ArmourTierOf`）；本字段 = 旧槽位（无生产读点 · 刻意保留 ✓）。</summary>
     [property: JsonPropertyName("armour_tier")] int ArmourTier = 0);
 
 /// <summary>等级成长（7.6：**只给属性小幅度**，HP+2 / 攻击+1；**不升技能**）。</summary>

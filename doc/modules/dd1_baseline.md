@@ -2292,8 +2292,11 @@ highwayman · houndmaster · jester · leper · man_at_arms · occultist · plag
 ```
 🆕 **架构裁定**：**"按阶取属性"落地 ≠ "阶数生效"** ——
    **取阶需要【当前是第几阶】这个状态，而契约里没有** ✅（`O-101`）
-   ⇒ ✅ **裁定：「当前阶」= 英雄的装备/升级等级**（**原版 `weapon_0..4` 语义**）⇒ **由 `Roster`/`Hero` 持有**
-     （`weaponTier` / `armourTier`）✅
+   ⇒ ✅ **裁定：「当前阶」= 英雄的装备/升级等级**（**原版 `weapon_0..4` 语义**）
+     🔴 **措辞更正（架构 2026-09-30 · 只改名字，不改语义、不改数值）**：持有者 = **`HeroGearState`**
+     （按英雄 id · 与 `Economy`/`HeirloomStock` 同层）—— 原判「由 `Roster`/`Hero` 持有」作废：
+     `HeroConfig` 是 record、`Roster.Heroes` 是 `IReadOnlyList` ⇒ **阶涨不了** ✓
+     （`RosterConfig` 的 `weaponTier`/`armourTier` 两字段 = 旧槽位 · 无生产读点 · 刻意保留 ✓）✅
    🎖️ **而它正是【纪律 AB（唯一真相在哪张表）】的应用** ✅
 ```
 ---
@@ -3481,8 +3484,9 @@ graveyard.character.png · .character_background.png · .dd.character.png · .ic
 ```
 🔴 **P6 说的「阶数 ∈ 1~5」到底数的是什么？** 两种读法：
    · **(甲) 数组里有几阶** —— 原版 `weapon_0..4` / `armour_0..4` ⇒ **整 5 阶** ✓
-   · **(乙) 这个单位现在第几阶** —— 🔴 **那件事叫 `O-101`**（由 `Roster`/`Hero` 持有
-     `weaponTier`/`armourTier`）⇒ ✅ **实测：本阶段代码里【不存在】这个概念**
+   · **(乙) 这个单位现在第几阶** —— 🔴 **那件事叫 `O-101`**（🔴 **措辞更正 2026-09-30**：持有者 =
+     **`HeroGearState`**，不是 `Roster`/`Hero`；`RosterConfig` 那两个同名字段 = 旧槽位 · 无生产读点）
+     ⇒ ✅ **实测：本阶段代码里【不存在】这个概念**
      （`UnitRuntime` 只有 `AttackMod`，**没有 `tier`**；`WeaponAt(int)` 收的是 **0~4 的索引**）✓
 ⇒ ✅ **裁定：P6 的对象 = (甲)** —— 若按 (乙) 去做，就会去测一个**还没有的东西**，
    并且会**顺手发明**一个 `tier` 字段（= 越界改契约 ⚠️ 纪律：不许把"还没有的"当成"待做的"）
@@ -3547,7 +3551,8 @@ graveyard.character.png · .character_background.png · .dd.character.png · .ic
 ```
 🔴 **P7 为什么必须独占一轮**（清单 §0 已定）：它一改 ⇒ **157 个用例 + 全部平衡读数都要重测** ✓
 🔴 **它的两个硬前置**（`WeaponBaseDamage.cs` 自己写了 · 我实测确认）：
-   ① **"当前阶"不存在** ⇒ 属 `O-101`（`Roster`/`Hero` 持 `weaponTier`/`armourTier`）⇒ **要先做 O-101** ⚠️
+   ① **"当前阶"不存在** ⇒ 属 `O-101`（🔴 **措辞更正 2026-09-30**：该状态由 **`HeroGearState`** 持有，
+      不是 `Roster`/`Hero`）⇒ **要先做 O-101** ⚠️
    ② **技能 `dmg%` 只有 11 条**（`#472①` 撤出候选 12 之后）⇒ 33 条未填 ⚠️
    ⇒ 📌 **即：P7 之前还有两件小而关键的前置**，不能直接换公式（否则 33 条技能会**默认 0%** = 静默改变平衡）✓
 🔴 **并已挂账两件**（不阻塞我，但需要一个裁定才能收口）：

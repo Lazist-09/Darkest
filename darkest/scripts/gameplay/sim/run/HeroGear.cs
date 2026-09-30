@@ -19,7 +19,9 @@ public enum GearAxis
 ///
 /// WHY 本件存在（**三份文档共同指向的同一个洞**）：
 ///   · `reports/tier_source_options.md`：「阶数要影响伤害」的**唯一剩余前置** = 「**当前阶从哪来**」；
-///   · `HeroConfig.WeaponTier/ArmourTier` 的注释明写：**激活条件 = 减伤读阶接线时从本字段取阶**；
+///   · 🔴 **措辞更正（架构 2026-09-30 · 只改名字，不改语义）**：所谓「当前阶」的持有者 = **本类的 `HeroGearState`** ——
+///     `HeroConfig.WeaponTier/ArmourTier` 那两个字段**不是**持有者（record + `IReadOnlyList` ⇒ 阶涨不了）；
+///     减伤半已按此**接线并换源**（2026-09-27 接线 / 2026-09-30 架构裁定①：`HeroProjection` 旧读点删除 ✓）；
 ///   · `WeaponBaseDamage` / `TierDefence` 两个纯机制**都无生产调用方**（被守卫钉住）⇒ 缺的就是"阶"。
 ///   ⇒ 本件回答那个问题，裁定 = 文档推荐的 **(A) 升级树等级驱动**（不是我发明的 ✓）。
 ///

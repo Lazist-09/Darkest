@@ -41,20 +41,24 @@ public static class HeroProjection
     /// <summary>
     /// 🆕 **H-1（2026-09-27）：装备阶 → 单位减伤读数**（"当前阶"问题的**减伤半** ✓）。
     ///
-    /// 🔴 **为什么挂这里**（与 `ApplyLevel` 同法）："英雄个体 → 单位运行时"的投影**本来就在这层**，
-    ///   阶的取值为 `HeroConfig.ArmourTier`（`O-101` 裁定：由 Roster/Hero 持有 ✓）⇒ 无需新载体 ✓
+    /// 🔴 **为什么挂这里**（与 `ApplyLevel` 同法）："英雄个体 → 单位运行时"的投影**本来就在这层** ✓
+    /// 🔴 **阶从哪来（2026-09-30 架构裁定① · 取「（甲）直读」）**：阶的持有者 = **`HeroGearState`**
+    ///   （按英雄 id · 与 `Economy`/`HeirloomStock` 同层；`Roster`/`Hero` 是 record + `IReadOnlyList` ⇒ **阶涨不了**）
+    ///   ⇒ **组合根**从 `ExpeditionContext.Gear` 取阶（`ArmourTierOf`）、**传参**进来（本层不读容器、不读名册 ✓）
+    /// 🔴 **旧读点 `HeroConfig.ArmourTier` 已换源 ⇒ 本类里【不存在】**（不留"两条都能读"的中间态 ✓）
     /// 🔴 **无 5 阶（敌人）⇒ 退回顶层** ⇒ **敌人零影响**（`TierDefence` 的既有语义 ✓）
     /// ⚠️ **玩家单位是行为变更**：顶层 `prot` 8/12/4/5 → 护甲第 0 阶 **0**（差异已实测登记，
     ///    `reports/top_level_vs_tier0_consistency.md` §1；策划裁定"直接接线"✓）
     /// </summary>
-    public static void ApplyGearTier(HeroConfig hero, UnitRuntime unit)
+    /// <param name="armourTier">该英雄的**护甲阶**（0~4；由组合根从 `HeroGearState.ArmourTierOf` 取值 ✓）</param>
+    public static void ApplyGearTier(UnitRuntime unit, int armourTier)
     {
-        if (hero is null || unit is null)
+        if (unit is null)
         {
             return;
         }
 
-        unit.ApplyGearTier(hero.ArmourTier);
+        unit.ApplyGearTier(armourTier);
     }
 
     /// <summary>

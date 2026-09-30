@@ -96,7 +96,7 @@
 |---|---|---|---|
 | ① | **技能 dmg%**：36 行表（明确 **11** / 候选 12 / 无对应 13） | ✅ **明确 11 条已落库**（+接近明确的 `warrior_lunge` ⇒ 共 11 条 ✓）· 每条带 `_dmg_pct_source`（原版技能名 + 依据 ✓） | 🔴 **零行为**（伤害路径未读 `dmg_pct` ✓）· 全量 **818/818** ✓ · 守卫断言改成"11 填/33 未填" ✓ · **`3e2e640`** |
 | ② | **prot/减伤 ⇒ 取 (a) 维持现状** | ✅ **什么都不用做**（判据不动 ⇒ M6 band 保持 ✓） | 实测对照仍在 `reports/prot_zero_impact_measurement.md`（prot=0 ⇒ 死门 0.33→**1.30** ✓） |
-| ③④ | **当前阶 ⇒ 采纳 O-101**（= 装备/升级等级 · 由 Roster/Hero 持有 `weaponTier`/`armourTier`） | ✅ 机制已备（伤害侧 `WeaponBaseDamage` + 减伤侧 `TierDefence` ✓ 都零行为、被"无人消费"守卫钉住 ✓） | 🔴 **接线未做**：需要 `Roster.cs`/`Hero` 加两个 tier 字段（**`Roster.cs` 是别人在飞的 M ✗** ⇒ 我不动 ✓）⇒ **等它落地或授权我改** ✓ |
+| ③④ | **当前阶 ⇒ 采纳 O-101**（= 装备/升级等级 · 由 **`HeroGearState`** 持有（🔴 2026-09-30 措辞更正：原判「`Roster`/`Hero` 持有」作废）） | ✅ 机制已备（伤害侧 `WeaponBaseDamage` + 减伤侧 `TierDefence` ✓ 都零行为、被"无人消费"守卫钉住 ✓） | 🔴 **接线未做**：需要 `Roster.cs`/`Hero` 加两个 tier 字段（**`Roster.cs` 是别人在飞的 M ✗** ⇒ 我不动 ✓）⇒ **等它落地或授权我改** ✓（📌 后续：减伤半 2026-09-27 接线 · 2026-09-30 架构裁定① 换源到 `HeroGearState` ✓ 见 `O-101`）|
 | ⑤ | **4v4 ⇒ 是【验收夹具】** = **warrior + tank + medic + commissar**（不是规则 ✓） | ✅ 夹具已钉住（`M9FourVFourFixtureTests` 2 条 ✓）+ 记录纪律 BG 的三种 4 人 ✓ | 全量 **820/820** ✓（+2 ✓） |
 | ⑥ | **SP 剂量 ⇒ 占位 + 口径**（`Skill.SupportPointCost ?? 0` ⇒ 未声明不扣） | ✅ 载体**已存在**（`SkillsConfig` 里已有 `SupportPointCost` ✓ 实测）⇒ **无需改** ✓ | 只待结算路径接线（后续卡 ✓） |
 
@@ -150,7 +150,9 @@
 ① 技能 dmg%：✅ **明确 11 条已落库**（零行为占位 ✓）；🔴 候选 12 + 无对应 13 **按策划的表未落**（不是我漏 ✓）
 ② prot 对齐：✅ **策划取 (a) 维持现状 ⇒ 已闭合**（判据不动 ✓ 并排实测见 reports/prot_zero_impact_measurement.md）
 ③④ 阶数/def：✅ **值已从一手落库**（零行为 ✓）+ **机制两侧齐备**（`WeaponBaseDamage` / `TierDefence` ✓ 均被守卫钉住）
-   🔴 **接线未做** ⇒ 前置：`Roster.cs`/`Hero` 加 `weaponTier`/`armourTier`（该文件**别人在飞** ✗ 我不动 ✓）
+   🔴 **接线未做** ⇒ 前置：阶由 **`HeroGearState`**（按英雄 id 的状态容器）持有
+     （🔴 **2026-09-30 措辞更正**：不是 `Roster.cs`/`Hero` 加两个字段）
+     📌 后续：减伤半 2026-09-27 接线 · 2026-09-30 架构裁定① 换源到 `HeroGearState`（旧读点删除）✓
 ⑤ 4v4：✅ **架构裁定 = 验收夹具**（不是规则 ✓）⇒ 已钉住 `warrior+tank+medic+commissar` ✓
 ⑥ SP：✅ **载体已存在**（`SkillsConfig.SupportPointCost` ✓ 未声明不扣 ✓）⇒ 只等结算接线 ✓
 ＋ 祖产（策划新派）：① 兑换表 ✅ 已落 · ② 步骤① ✅ 数据就位 · 步骤② **机制+查表+读数表** ✅ · 步骤③ 删 tier_drop ⏳（按 (A) 排后）
