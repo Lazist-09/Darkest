@@ -2297,6 +2297,11 @@ highwayman · houndmaster · jester · leper · man_at_arms · occultist · plag
      （按英雄 id · 与 `Economy`/`HeirloomStock` 同层）—— 原判「由 `Roster`/`Hero` 持有」作废：
      `HeroConfig` 是 record、`Roster.Heroes` 是 `IReadOnlyList` ⇒ **阶涨不了** ✓
      （`RosterConfig` 的 `weaponTier`/`armourTier` 两字段 = 旧槽位 · 无生产读点 · 刻意保留 ✓）✅
+      ✅ **缝桥已落地（2026-09-30 · 主程序 · 提交 `ba00168`）**：战斗读点 = **（甲）直读** ⇒
+      `HeroProjection.ApplyGearTier(UnitRuntime, int armourTier)` **换签名**（旧 `hero.ArmourTier` 读点**已删** ⇒ `rg` **0 命中**）·
+      `DirectorBridge` 外层门**只判 `sortie`**（`growth` 与阶**各判各的** ⇒ 阶投影不被成长档绑架）·
+      第 7 参 = `armourTierBySlot`（组合根 `ArmourTierOf` 取 · 与存档**共用同一实例**）✓
+      🔴 **仍缺的两半**：**武器半**未缝（= `M1c` 阶段 3）· **入口**未接（`HeroGearState.TryUpgrade` 生产调用 **0 处** = `P4 ②`）✓
    🎖️ **而它正是【纪律 AB（唯一真相在哪张表）】的应用** ✅
 ```
 ---
@@ -3488,6 +3493,9 @@ graveyard.character.png · .character_background.png · .dd.character.png · .ic
      **`HeroGearState`**，不是 `Roster`/`Hero`；`RosterConfig` 那两个同名字段 = 旧槽位 · 无生产读点）
      ⇒ ✅ **实测：本阶段代码里【不存在】这个概念**
      （`UnitRuntime` 只有 `AttackMod`，**没有 `tier`**；`WeaponAt(int)` 收的是 **0~4 的索引**）✓
+      ✅ **缝桥已落地（2026-09-30 · 提交 `ba00168` · 架构裁定① 取「（甲）直读」）**：减伤半**已按阶读**
+      （`HeroGearState.ArmourTierOf` ⇒ 组合根取阶、传参进投影）⇒ ⚠️ **上文"实测不存在"是【当次读数】（2026-09-26）**：
+      现在**状态侧存在 ＋ 减伤半已接**；🔴 **武器半仍缺**（= `M1c` 阶段 3）＋ **入口 0 调用** ⇒ **今天读数仍恒第 0 阶** ✓
 ⇒ ✅ **裁定：P6 的对象 = (甲)** —— 若按 (乙) 去做，就会去测一个**还没有的东西**，
    并且会**顺手发明**一个 `tier` 字段（= 越界改契约 ⚠️ 纪律：不许把"还没有的"当成"待做的"）
    📌 依据：`WeaponBaseDamage.cs` 的注释**自己就写了**「缺的是"这个单位现在第几阶"」，
@@ -3553,6 +3561,9 @@ graveyard.character.png · .character_background.png · .dd.character.png · .ic
 🔴 **它的两个硬前置**（`WeaponBaseDamage.cs` 自己写了 · 我实测确认）：
    ① **"当前阶"不存在** ⇒ 属 `O-101`（🔴 **措辞更正 2026-09-30**：该状态由 **`HeroGearState`** 持有，
       不是 `Roster`/`Hero`）⇒ **要先做 O-101** ⚠️
+       ✅ **进度更新（2026-09-30）**：`O-101` 的**状态侧已落地**（`HeroGearState` · 入档 · 迁移 v1⇒v2 · 提交 `6465e88`）
+       ＋ **减伤半已缝桥**（战斗读点换签名直读 · 提交 `ba00168`）⇒ 🔴 **本前置只剩【武器半】**
+       （= `M1c` 阶段 3 的事）＋ **入口未接**（`TryUpgrade` 生产 0 调用 = `P4 ②`）✓
    ② **技能 `dmg%` 只有 11 条**（`#472①` 撤出候选 12 之后）⇒ 33 条未填 ⚠️
    ⇒ 📌 **即：P7 之前还有两件小而关键的前置**，不能直接换公式（否则 33 条技能会**默认 0%** = 静默改变平衡）✓
 🔴 **并已挂账两件**（不阻塞我，但需要一个裁定才能收口）：

@@ -157,3 +157,11 @@
   ✅ **本行仍【未结案】**：① **读点换源待主程序落地**（本裁定只给施工单 · 零行为可证：空表 ⇒ 全第 0 阶 ⇒ 读数逐字节不变）② **入口未接**（`HeroGearState.TryUpgrade` 生产调用 0 处）= **`P4 ②` / `M6u` 前置**（`doc/architecture/tasks/p4_gear_ui_m6u.md`）✓
   🔴 **并记一条可见性事实**：`unlocks.json` **无 `building:blacksmith*` 条目**、`HamletRoot.Build.cs:227` 的 `unlocked` 只兜 `stagecoach` ⇒ **铁匠铺今天连入口都没有**（**不是"买了没用"，是"看不见"**）⇒ 归属策划（**起手可见 vs 加解锁**）✓
   📄 `reports/arch_20260930_p4_gear_rulings.md` · `doc/architecture/tasks/p4_gear_ui_m6u.md` ✓
+
+- ✅ **`O-101` 追加（`P4 ①` 缝桥 · 2026-09-30 · 主程序）**：**架构裁定①「（甲）直读」已落地**（提交 `ba00168`）——
+  `HeroProjection.ApplyGearTier` **换签名** `(UnitRuntime, int armourTier)`（旧 `hero.ArmourTier` 读点**已删** ⇒ `rg` **0 命中**）·
+  `DirectorBridge` 外层门**只判 `sortie`**（`growth` 与阶**各判各的**）· 第 7 参 `armourTierBySlot`（组合根从 `HeroGearState` 取）·
+  `gear` 容器**上移到会话构造之前**（投影/存档/升级机制**共用同一实例**）⇒ ✅ **① 已收** ✓
+  🔴 **仍【未结案】**：② **入口未接**（`HeroGearState.TryUpgrade` 生产调用 **0 处** ⇒ `P4 ②` / `M6u`）· ③ **武器半未缝**（= `M1c` 阶段 3）·
+  ⚠️ 三态：未传 ⇒ 打印「**未接线**（≠ 第 0 阶）」· 条数不足 ⇒ **抛** ⇒ **不静默回 0 阶**（红线 21）✓
+  📄 `reports/planner_20260930_to_arch_p4_gear_stitch.md` · 提交 `ba00168` ✓
