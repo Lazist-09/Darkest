@@ -175,3 +175,54 @@ DELIVERY-ARCH-READING3-DONE-20260927
 - **阻塞 / 待裁定**：**无**（读数①②③ **全部交付完毕** ⇒ 你裁项②「7 条去留」的前置**已清空**）
 - **权威在哪**：`reports/unity_ref/PLAN_adoption.md`（**A6a 行 = 69 字段现行版**）·
   `reports/unity_ref/46_effects_two_criteria.md`（**消费口径现行版**）· `reports/unity_ref/44_effects_extracted.md`（旧版 · 留着当更正记录）
+---
+### 📤 投递：2026-09-30 · 【来自主程序】**技能 `dmg%` 一手口径复核** —— 44 条全有值 · 🔴 **只请裁 2 条**
+
+> 🔴 **送达判据**：`Select-String -Path doc\windows\策划窗口.txt -Pattern 'DELIVERY-LEAD-SKILL-DMG-ONEHAND-20260930' -SimpleMatch` 命中即送达。
+> 📄 **归档副本（入 git 的留存面）**：`reports/planner_request_skill_dmg_onehand_20260930.md` ✓
+> 🧰 **复跑**（只读，不写数据）：`python tools/dsh/reconcile_skill_dmg_edrive_vs_ref.py --check` ✓
+
+```
+DELIVERY-LEAD-SKILL-DMG-ONEHAND-20260930
+```
+
+#### 🔴 只请裁这 2 个数字（**两条都是零行为** —— 伤害路径还没读 `dmg_pct`，游戏里一点没变 ✓）
+
+```
+| 我方技能             | 现落库 | 🔴 一手（E 盘原版）| 一手证据（file:line）|
+|----------------------|-------:|-------------------:|----------------------|
+| warrior_lunge        |   −55  |          −50       | heroes/hellion/hellion.info.darkest:34（breakthru）|
+| commissar_burst_fire |   −60  |          −50       | heroes/highwayman/highwayman.info.darkest:28（grape_shot_blast）|
+```
+
+⇒ 这两条**上一轮是照参考改的**（`#473`「**数值一律采用参考项目**」），而 `#473` **已被你 2026-09-26 的裁定取代**
+   （`source_priority.md §1b`：**一手 E 盘优先 · 读不到才用参考**）⇒ 📌 **不是"两个源各有说法"，是【改错了口径】** ✓
+⇒ ✅ **我的建议：两条都回一手 `−50`**（撤销那次纠正 · 仍入 `§39` 留痕）
+⇒ ⚠️ 若你要**保持 `−55 / −60`** ⇒ 那要记为「**刻意偏离一手**」并入 `§39`（**不是**默认）✓
+⇒ **你只需回两行**：`lunge = −50 还是 −55` · `burst_fire = −50 还是 −60` ✓
+
+#### ✅ 不用你花时间的（**已结清 · 实测**）
+
+```
+✅ 44/44 技能【全部有 dmg_pct】= 14 条有出处（8 ref + 6 dd1）+ 30 条自加（value_source: none · origin: ours）
+✅ 14 条有出处的逐条对一手：12 相符（含 5 条非零）· 🔴 2 不符（= 上面那两条）
+🔴 一手 ↔ 参考 105↔105 逐条对账：82 相同 · 23 冲突 ⇒ 【只有 2 条】打到我们落库值上，其余 21 条只登记
+   ＋ 等级错位【已排除】（一手侧 22/23 在 L0..L4 全同值；唯一逐档变化的 intimidate 已标）
+✅ 30 条自加的取 0 = 架构 dd1_baseline §61.2 已确认（理由：Σ段倍率 在承担技能倍率）⇒ 不用裁
+   ＋ 架构同日裁定：Σ 归一路线【不能那样做】（§61）⇒ 那 30 条维持 0 ✓
+```
+
+#### ⚠️ 顺带登记（**只登记，不改** · 数值冻结期 · 纪律 AU）
+
+```
+① darkest/data/skills.json:2  _dmg_pct_note 仍写「来源 = 【本地参考项目】Heroes/Info/*.bytes」⇒ 旧口径（#473 已取代）
+② 同文件 :1800  _sigma_note 写「#475 裁定：Σ段倍率 归一为 1」⇒ 🔴 该裁定已被架构 §61 否决，
+   而数据里留的偏偏是被否的那一条 ⇒ 解冻窗口改【文本】（零行为）
+③ 一手在 §5 那 23 条里差得最远的三条：flare（−100 vs 0）· heroic_end（+50 vs +150）· focus（−40 vs −90）
+   ⇒ 它们不是我们的技能、不影响落库；但它们证明「从参考抄来的数都值得回一手核一次」
+```
+
+- **阻塞 / 待裁定**：**只有那 2 个数**（其余全部结清）✓
+- **权威在哪**：`doc/architecture/source_priority.md`（源优先级唯一真值）· `reports/edrive_vs_ref_skill_dmg.md`（对账留存面）·
+  `reports/planner_request_skill_dmg_mapping.md`（上一封请单 · 已被 `#475` 裁完）✓
+
