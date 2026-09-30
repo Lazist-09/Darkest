@@ -7,7 +7,6 @@ using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Board;
-using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
 
@@ -131,7 +130,7 @@ public partial class BattleUI : Control
     private bool _resultShown;    // 结算淡入只播一次（不可见 → 可见那一次）
     private bool _motionAuditPrinted;
 
-    // 🔴 主程序清单"等界面接线的内核 API"第 1 条：**使用支援包**（`Inventory.TryUseSupportPack` ⇒ `BattleDirector.TryUseSupportPackForSp`）
+    // 🔴 主程序清单"等界面接线的内核 API"第 1 条：**使用支援包**（`Inventory.TryUseSupportPack` ⇒ `_host.TryUseSupportPackForSp()`）
     //    此前**玩家碰不到**（红线 18/21：内核备好了但没有入口）⇒ 本按钮就是那个入口 ✓
     private Button _supportButton = null!;
 
@@ -205,20 +204,19 @@ public partial class BattleUI : Control
             return;
         }
 
-        UnitRuntime? u = isPlayer ? _host.Director.Player.UnitRuntimeAt(slot)
-            : _host.Director.Enemy.UnitRuntimeAt(slot);
-        if (u is null)
+        var d = _view.Detail(isPlayer, slot);
+        if (d.UnitId == "-")
         {
             _mfContent!.Text = $"【详情】{(isPlayer ? "我方" : "敌方")}槽位 {slot}：空位。";
             return;
         }
 
         _mfContent!.Text =
-            $"【详情·{NameOf(u.Id.Value)}】{(isPlayer ? "我方" : "敌方")}槽位 {slot}\n" +
-            $"　HP {u.CurrentHp}/{u.MaxHp}　士气 {u.Morale}　速度 {u.EffectiveSpeed(1.0)}\n" +
-            $"　状态：{(u.Weak ? "死门 " : string.Empty)}{(u.CurrentHp <= 0 ? "已阵亡 " : string.Empty)}\n" +
+            $"【详情·{NameOf(d.Archetype.Length > 0 ? d.Archetype : d.UnitId)}】{(isPlayer ? "我方" : "敌方")}槽位 {slot}\n" +
+            $"　HP {d.Hp}/{d.MaxHp}　士气 {d.Morale}　速度 {d.Speed}\n" +
+            $"　状态：{(d.Weak ? "死门 " : string.Empty)}{(d.Hp <= 0 ? "已阵亡 " : string.Empty)}\n" +
             "　（点其它单位可切换；本页只读 —— 不改战斗状态）";
-        GD.Print($"[片③] 单位锁进 E 区详情页：{(isPlayer ? "我方" : "敌方")}槽位 {slot}（{NameOf(u.Id.Value)}）");
+        GD.Print($"[片③] 单位锁进 E 区详情页：{(isPlayer ? "我方" : "敌方")}槽位 {slot}（{NameOf(d.Archetype.Length > 0 ? d.Archetype : d.UnitId)}）");
     }
 
     /// <summary>🔴 供冒烟：**真实点击某单位的卡**（走 `BattleRoot.OnCardClicked` 同一入口）。</summary>

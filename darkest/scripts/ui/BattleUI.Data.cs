@@ -7,7 +7,6 @@ using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Board;
-using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
 

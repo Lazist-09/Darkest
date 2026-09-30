@@ -285,15 +285,15 @@ public partial class HamletRoot : Control
             GD.Print("[城池菜单] 库存：**本趟无背包**（`ExpeditionContext.Flow` 为空）⇒ 不显示该项（红线 21：不假装可用）✓");
         }
 
-        // 🔴 用户要求：**主屏的减压/招募/服务/状态文字 ⇒ 一律进【建筑详情】**（只搬一次）✓
-        if (_buildingPopupBody is not null)
+        // 🔴 2026-09-27 修假绿：减压 / 招募已改由**建筑弹窗自己挂**（见 `BuildingPopup.MountServiceRow`）⇒ 这里不再挂 ✓
+        //    `sanitarium` 是**服务**而非**可升级建筑**（内核裁定：`HeirloomStock.LevelOf` 对它抛"未知建筑"）
+        //    ⇒ 它没有建筑弹窗可挂 ⇒ 疗养三键与状态行挂到**城池菜单**（玩家唯一够得着的地方）✓
+        //    ⚠️ 旧代码挂在 `_buildingPopupBody` 上，而菜单打开时该字段**必为 null** ⇒ 三行永远游离在树外（点不到）
+        foreach (Control? extra in new Control?[] { _saniRow, _saniStatus })
         {
-            foreach (Control? extra in new Control?[] { _reliefRow, _recruitRow, _saniRow, _buildingInfo, _upgradeStatus, _saniStatus })
+            if (extra is not null && extra.GetParent() is null)
             {
-                if (extra is not null && extra.GetParent() is null)
-                {
-                    _buildingPopupBody.AddChild(extra);
-                }
+                _hamletMenuBody?.AddChild(extra);
             }
         }
 

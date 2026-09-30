@@ -94,6 +94,16 @@ public partial class HamletRoot : Control
         int idx = Array.IndexOf(_buildingIds, building);
         string label = idx >= 0 ? _buildingLabels[idx] : building;
 
+        // 🔴 2026-09-27 修假绿：清空气前先把**复用的服务行**摘下来（只 RemoveChild、不 QueueFree）✓
+        //    否则下面这条清空循环会把它们 `QueueFree` ⇒ 下次刷新再挂上就是**已销毁的野节点**（崩/静默）
+        foreach (Control? row in new Control?[] { _reliefRow, _recruitRow, _saniRow })
+        {
+            if (row is not null && row.GetParent() is not null)
+            {
+                row.GetParent().RemoveChild(row);
+            }
+        }
+
         // 先**摘除**旧内容（`RemoveChild` 立即生效 ⇒ 不会与新建内容同帧并存、判据也不会误报重叠）✓
         foreach (Node child in _buildingPopupBody.GetChildren().ToArray())
         {
@@ -120,6 +130,10 @@ public partial class HamletRoot : Control
         _buildingPopupBody.AddChild(PopupLine($"当前等级：Lv{level}"));
         _buildingPopupBody.AddChild(PopupLine($"下一级所需：{nextText}"));
 
+        // 🔴 2026-09-27 修假绿：**服务行改由建筑弹窗自己挂**（旧逻辑挂在「城池菜单」里，
+        //    而菜单打开时 `_buildingPopupBody` 必为 null ⇒ 三行永远游离在树外，玩家点不到）✓
+        MountServiceRow(building);
+
         // 🔴 升级 = 弹窗里的**显式动作**（不再是"点建筑就升级"）
         // 🔴 升级 = 弹窗里的**显式动作**（不再是"点建筑就升级"）；
         //    可用性**复用内核的同一入口** `HeirloomStock.CanUpgrade`（红线 21 (b)：由内核回答，UI 不在本地重算）✓
@@ -145,6 +159,17 @@ public partial class HamletRoot : Control
         if (tree.GetParent() is null) { _buildingPopupBody.AddChild(tree); }
         GD.Print($"[UI 建筑弹窗] OK DD 升级树就位：{building} 当前 Lv{curLv} · 节点 {shownLv + 1} 个（DD upgrade_trees，数据同源）");
 
+        // 🔴 2026-09-27 修假绿：升级按钮**每次刷新都新建一个并 AddChild**，从不清理 ⇒ 升一次级就多一颗重复按钮
+        //    ⚠️ 回落布局下 `_buildingPopupUpgrade` 就是正文容器本身（内部还挂着升级树）⇒ **必须排除**，不能误清
+        if (_buildingPopupUpgrade is not null && _buildingPopupUpgrade != _buildingPopupBody)
+        {
+            foreach (Node old in _buildingPopupUpgrade.GetChildren().ToArray())
+            {
+                _buildingPopupUpgrade.RemoveChild(old);
+                old.QueueFree();
+            }
+        }
+
         var upgrade = new Button
         {
             Name = "PopupUpgrade",
@@ -165,6 +190,36 @@ public partial class HamletRoot : Control
 
         // 🔴 P3 文案精简：去掉"怎么关窗"的提示行（关闭按钮与 Esc 已自明）✓
         GD.Print($"[HamletRoot] 建筑弹窗内容：{label} Lv{level}　下一级 {nextText}　可升级={affordable}");
+    }
+
+    /// <summary>
+    /// 🔴 2026-09-27 修假绿：把**本栋建筑对应的服务行**挂进弹窗正文区（每栋只挂自己相关的那一行）✓
+    /// ⚠️ 行是**复用节点**（`Build` 里只建一次）⇒ 只 `AddChild / Reparent`，**绝不重复 new**（否则 `Pressed` 会重复接线）
+    /// ⚠️ `sanitarium` **不在此挂载** —— 内核裁定它是**服务**不是**可升级建筑**
+    ///    （`RunStartSnapshot.cs:43`：`HeirloomStock.LevelOf("sanitarium")` 会**抛"未知建筑"**打断整条进地牢流程）
+    ///    ⇒ 疗养三键改挂「城池菜单」，见 `HamletRoot.PopupMenu.cs` ✓
+    /// </summary>
+    private void MountServiceRow(string building)
+    {
+        if (_buildingPopupBody is null) { return; }
+
+        Control? row = building switch
+        {
+            "tavern" => _reliefRow,
+            "abbey" => _reliefRow,
+            "stagecoach" => _recruitRow,
+            _ => null,
+        };
+        if (row is null) { return; }
+
+        // 减压：两栋同价同效、风险不同 ⇒ 只显示**本栋**那颗按钮（隐藏另一颗，避免"点开 A 建筑却触发 B 服务"的歧义）
+        Button? tavernBtn = row.GetNodeOrNull<Button>("ReliefTavern");
+        Button? abbeyBtn = row.GetNodeOrNull<Button>("ReliefAbbey");
+        if (tavernBtn is not null) { tavernBtn.Visible = building == "tavern"; }
+        if (abbeyBtn is not null) { abbeyBtn.Visible = building == "abbey"; }
+
+        if (row.GetParent() is null) { _buildingPopupBody.AddChild(row); }
+        else if (row.GetParent() != _buildingPopupBody) { row.Reparent(_buildingPopupBody); }
     }
 
     /// <summary>

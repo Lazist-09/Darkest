@@ -7,7 +7,6 @@ using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Board;
-using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
 
@@ -132,23 +131,24 @@ public partial class BattleUI : Control
     /// </summary>
     private void RefreshEnemyIntent()
     {
-        if (_host?.Director is null || _intentText is null)
+        if (_host is null || _intentText is null)
         {
             return;
         }
 
         var parts = new List<string>();
-        foreach (Darkest.Core.Contracts.UnitId id in _host.Director.LastRoundOrder)
+        foreach (string id in _view.Support().ActionOrderThisRound)
         {
-            if (_host.Director.Enemy.UnitAtPosition(id) is null)
+            var unitId = new UnitId(id);
+            if (_view.IsPlayerUnit(unitId))
             {
                 continue; // 只问敌方（内核也会对非敌方回 `not_an_enemy`）
             }
 
-            Darkest.Gameplay.Sim.Director.IntentProjection p = _host.PreviewIntent(id);
+            var p = _view.IntentPreview(unitId, enabled: true);
             string what = p.SkillId is null ? "—" : SkillName(p.SkillId);
             string slots = p.TargetSlots.Length == 0 ? "无目标" : "槽位 " + string.Join(",", p.TargetSlots);
-            parts.Add($"{id.Value}：{what} → {slots}（{p.Status}）");
+            parts.Add($"{id}：{what} → {slots}（{p.Status}）");
         }
 
         _intentText.Text = parts.Count == 0

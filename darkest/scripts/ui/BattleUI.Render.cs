@@ -22,9 +22,9 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 public partial class BattleUI : Control
 {
     /// <summary>① 顶部回合条：头像格（首字 + 阵营色，当前行动者金框），替代纯文字。</summary>
-    private void RefreshOrderStrip(IReadOnlyList<string> order, BattleDirector d)
+    private void RefreshOrderStrip(IReadOnlyList<string> order)
     {
-        int activePos = d.Player.UnitAtPosition(_host!.ActiveActor) ?? d.Enemy.UnitAtPosition(_host.ActiveActor) ?? 0;
+        int activePos = _view.ActiveActorSlot();
         string key = string.Join(",", order) + "|" + activePos + "|" + _host.IsAwaitingPlayer;
         if (key == _orderFor)
         {
@@ -42,7 +42,7 @@ public partial class BattleUI : Control
         foreach (string id in order)
         {
             var unitId = new UnitId(id);
-            bool isPlayer = d.Player.UnitAtPosition(unitId) is not null;
+            bool isPlayer = _view.IsPlayerUnit(unitId);
             string archetype = _host.ArchetypeOf(unitId);
             // 🔴 `§14.2`：面板必须是 **`PanelContainer`**（`Panel` **不是容器** ⇒ 内部 Label 一旦变宽就**溢出并压住邻居**）
             //    实测（`--ui-longtext` 长文本压力，`§12.4`）：`Panel` + 宽 Label ⇒ **10 对重叠**；
@@ -107,26 +107,26 @@ public partial class BattleUI : Control
         c.morale.Modulate = c.isPlayer ? Darkest.UI.DdTheme.Morale : Darkest.UI.DdTheme.MoraleEnemy;
         string tagText = empty ? string.Empty : (u.Weak ? "虚弱" : (c.isPlayer ? "我方" : "敌方"));
         // D4（#206）：死门后遗症必须显著标注（橙字）
-        if (!empty && _host?.Director is { } dir && dir.Buffs.Has(new UnitId(u.UnitId), "deaths_door_recovery"))
+        if (!empty && _view.Buffs(new UnitId(u.UnitId)).Contains("deaths_door_recovery"))
         {
             c.card.TooltipText += "　⚠ 死门后遗症（伤+10% 命中−5 速−1）";   // (B)：关键告警保留在 Tooltip（不隐藏信息）✓
             // (B)：tag 文字已清空 ⇒ 不再设字色（告警进 Tooltip）
         }
     }
 
-    private void RefreshSkillBar(BattleDirector d, BattleProjector p)
+    private void RefreshSkillBar()
     {
         bool waiting = _host!.IsAwaitingPlayer;
         UnitId actor = _host.ActiveActor;
 
-        bool combatActor = waiting && (d.Player.UnitAtPosition(actor) ?? -1) is >= 1 and <= 4;
-        _reinforceButton.Disabled = !waiting || d.SwappedThisRound || d.SupportPoints < d.SupportCostReinforce;
-        _reinforceButton.TooltipText = d.SupportPoints < d.SupportCostReinforce
-            ? $"支援点不足（当前 {d.SupportPoints} / 需要 {d.SupportCostReinforce}）"
-            : $"增援：调动支援位上场（消耗 {d.SupportCostReinforce} 点）";
+        bool combatActor = waiting && _view.ActiveActorSlot() is >= 1 and <= 4;
+        _reinforceButton.Disabled = !waiting || _view.SwappedThisRound || _host.SupportPoints < _view.SupportCostReinforce;
+        _reinforceButton.TooltipText = _host.SupportPoints < _view.SupportCostReinforce
+            ? $"支援点不足（当前 {_host.SupportPoints} / 需要 {_view.SupportCostReinforce}）"
+            : $"增援：调动支援位上场（消耗 {_view.SupportCostReinforce} 点）";
         _passButton.Disabled = !waiting;
         _passButton.TooltipText = $"待命：放弃本次行动（不消耗支援点）";
-        _moveButton.Disabled = !combatActor || d.SwappedThisRound || MoveCandidates(actor, d).Length == 0;
+        _moveButton.Disabled = !combatActor || _view.SwappedThisRound || MoveCandidates(actor).Length == 0;
 
         if (!waiting)
         {
@@ -156,7 +156,7 @@ public partial class BattleUI : Control
         for (int i = 0; i < poolIds.Length; i++)
         {
             string skillId = poolIds[i];
-            SkillProjection sp = p.Skill(skillId, actor, d.Player, d.Enemy, pool);
+            SkillProjection sp = _view.Skill(skillId, actor, pool);
             string full = SkillName(skillId);
             // 🔴 UI 编辑器化 B（用户 2026-09-17）：技能方块改为**实例化模板场景** `scenes/ui/skill_box.tscn`
             //    ⇒ 尺寸/字号/样式**在编辑器里改**（这就是"能在编辑器里直接干预"）；
@@ -172,7 +172,7 @@ public partial class BattleUI : Control
             // 数据仍由代码填（**模板只管外观**）✓
             b.Text = full.Length <= 2 ? full : full.Substring(0, 2);
             b.Disabled = sp.Reason != AvailabilityReason.Ok;
-            b.TooltipText = sp.Reason == AvailabilityReason.Ok ? SkillTooltip(skillId, actor, d) : $"{full}（{sp.Tooltip}）";
+            b.TooltipText = sp.Reason == AvailabilityReason.Ok ? SkillTooltip(skillId, actor) : $"{full}（{sp.Tooltip}）";
             string captured = skillId;
             b.Pressed += () => _useSkill?.Invoke(actor, captured);
             _skillBar.AddChild(b); // 🔴 §14：技能键进【C 区的技能栏容器】（不再手摆坐标）

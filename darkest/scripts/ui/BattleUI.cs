@@ -7,7 +7,6 @@ using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Board;
-using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
 
@@ -40,6 +39,7 @@ public partial class BattleUI : Control, IUiPanel
     private const float SkillBarY = 428f;
 
     private BattleRoot? _host;
+    private IBattleView? _view;
     private Action<UnitId, string>? _useSkill;
     private Action? _reinforce;
     private Action? _move;
@@ -148,17 +148,11 @@ public partial class BattleUI : Control, IUiPanel
     /// </summary>
     private void RefreshBackSlots()
     {
-        if (_host?.Projector is null)
-        {
-            return;
-        }
-
-        UnitProjection[] players = _host.Projector.Units(player: true).ToArray();
-        FillBackSlots(_slotLeft, players, new[] { 5, 6 });   // 🔴 5/6 号位同框（用户要求）✓
+        FillBackSlots(_slotLeft, new[] { 5, 6 });   // 🔴 5/6 号位同框（用户要求）✓
     }
 
     /// <summary>填一个长条框：标题 + 立绘留框(色块占位) + 名字；空位 ⇒ 如实"（空）"✓</summary>
-    private void FillBackSlots(PanelContainer? box, UnitProjection[] players, int[] slots)
+    private void FillBackSlots(PanelContainer? box, int[] slots)
     {
         if (box is null || !GodotObject.IsInstanceValid(box))
         {
@@ -174,6 +168,8 @@ public partial class BattleUI : Control, IUiPanel
         var col = new VBoxContainer { Name = "BackSlotsCol" };
         col.AddThemeConstantOverride("separation", 6);
         box.AddChild(col);
+
+        var players = _view.Units(true).ToArray();
 
         foreach (int slot in slots)
         {
@@ -191,7 +187,7 @@ public partial class BattleUI : Control, IUiPanel
             title.AddThemeFontSizeOverride("font_size", Darkest.UI.DdTheme.FontSmall);
             row.AddChild(title);
 
-            UnitProjection? u = players.FirstOrDefault(x => x.Slot == slot);
+            var u = players.FirstOrDefault(x => x.Slot == slot);
             if (u is null || u.UnitId == "-")
             {
                 row.AddChild(new Label { Name = $"BackSlot{slot}Empty", Text = "（空）" });
@@ -241,14 +237,13 @@ public partial class BattleUI : Control, IUiPanel
     public string DescribeMiniMap() => _mfMap?.Describe() ?? "mini-map: 未建";
 
 
-    /// <summary>一侧的站位摘要（只读）。</summary>
-    private string DescribeSide(FormationBoard board)
+    /// <summary>一侧的站位摘要（只读；阶段 2 去直读：走 _view.Units，不再触内核板）。</summary>
+    private string DescribeSide(bool player)
     {
         var parts = new List<string>();
-        for (int slot = 1; slot <= board.SlotCount; slot++)
+        foreach (var u in _view.Units(player))
         {
-            UnitRuntime? u = board.UnitRuntimeAt(slot);
-            parts.Add(u is null ? $"{slot}·空" : $"{slot}·{NameOf(u.Id.Value)}");
+            parts.Add(u.UnitId == "-" ? $"{u.Slot}·空" : $"{u.Slot}·{NameOf(u.Archetype.Length > 0 ? u.Archetype : u.UnitId)}");
         }
 
         return string.Join("　", parts);
@@ -265,7 +260,7 @@ public partial class BattleUI : Control, IUiPanel
         Darkest.Gameplay.Sim.Run.ExpeditionFlow? flow = Darkest.Gameplay.Scene.ExpeditionContext.Flow;
         if (flow is null || !flow.IsTopologyMode)
         {
-            _progressLabel.Text = $"[进度] 本场（线性 ／ 单场：无段数口径）　回合 {_host?.Director.Round ?? 0}";
+            _progressLabel.Text = $"[进度] 本场（线性 ／ 单场：无段数口径）　回合 {_view?.Support().Round ?? 0}";
             return;
         }
 
@@ -403,15 +398,15 @@ public partial class BattleUI : Control, IUiPanel
     /// </summary>
     private (Color Bar, string? Tag) RecentHitFeedback(UnitId? id)
     {
-        if (id is not { } unit || _host?.Director is null)
+        if (id is not { } unit || _view is null)
         {
             return (default, null);
         }
 
-        int round = _host.Director.Round;
+        int round = _view.Support().Round;
         bool mental = false;
         bool shock = false;
-        foreach (BattleEvent e in _host.Director.Log.Events)
+        foreach (BattleEvent e in _view.LogEvents())
         {
             if (e.Round != round)
             {
@@ -440,18 +435,18 @@ public partial class BattleUI : Control, IUiPanel
     /// <summary>G3（O-56）：单位详情文本（含敌方全暴露：物防/速度/四抗/死门/buff/技能表）。</summary>
     private string DetailTooltip(bool player, int slot)
     {
-        if (_host?.Projector is null || _host.Director is null)
+        if (_view is null)
         {
             return string.Empty;
         }
 
-        UnitDetail d = _host.Projector.Detail(player, slot);
+        var d = _view.Detail(player, slot);
         if (d.UnitId == "-")
         {
             return $"[{slot}] 空位";
         }
 
-        string buffs = string.Join("、", _host.Director.Buffs.Buffs(new UnitId(d.UnitId)).Select(BuffNameOf));
+        string buffs = string.Join("、", _view.Buffs(new UnitId(d.UnitId)).Select(BuffNameOf));
         var sb = new System.Text.StringBuilder();
         sb.AppendLine($"[{d.Slot}] {NameOf(d.Archetype)}（{(player ? "我方" : "敌方")}）");
         sb.AppendLine($"HP {d.Hp}/{d.MaxHp}　士气 {d.Morale}{(d.Weak ? "　虚弱" : string.Empty)}");
@@ -462,8 +457,8 @@ public partial class BattleUI : Control, IUiPanel
         return sb.ToString();
     }
 
-    /// <summary>G3（O-56）：技能详情 + 对候选池每个目标的命中率/预估伤害（预估不掷骰、零副作用）。</summary>
-    private string SkillTooltip(string skillId, UnitId actor, BattleDirector d)
+    /// <summary>G3（O-56）：技能详情 + 对候选池每个目标的命中率/预估伤害（预估不掷骰、零副作用；阶段 2 去直读：走 _view）。</summary>
+    private string SkillTooltip(string skillId, UnitId actor)
     {
         SkillTemplateConfig s = SkillsCfg.Get(skillId);
         var sb = new System.Text.StringBuilder();
@@ -479,10 +474,9 @@ public partial class BattleUI : Control, IUiPanel
         }
 
         bool targetsEnemy = s.Target.Side == "enemy";
-        int[] candidates = SkillTargetResolver.Resolve(s, actor, d.Player, d.Enemy, d.Buffs).ToArray();
-        foreach (int slot in candidates)
+        foreach (int slot in _view!.SkillTargetCandidates(skillId, actor))
         {
-            TargetEstimate est = _host!.Projector!.Estimate(skillId, actor, slot, targetIsPlayer: !targetsEnemy);
+            var est = _view.Estimate(skillId, actor, slot, targetIsPlayer: !targetsEnemy);
             sb.AppendLine($"　→ {slot} 位：命中 {est.HitRatePercent}%　预估 {est.EstimatedDamage} 伤害{(est.Segments > 1 ? $"（{est.Segments} 段）" : string.Empty)}");
         }
 
@@ -499,14 +493,16 @@ public partial class BattleUI : Control, IUiPanel
         _skillButtons.Clear();
     }
 
-    private int[] MoveCandidates(UnitId actor, BattleDirector d)
+    private int[] MoveCandidates(UnitId actor)
     {
-        if (d.Player.UnitAtPosition(actor) is not (>= 1 and <= 4))
+        // 🔴 阶段 2 去直读：用 _view.Units 推导该 actor 是否处于我方前排（1~4 号位），不再触内核板
+        int slot = _view is null ? -1 : (_view.Units(true).FirstOrDefault(u => u.UnitId == actor.Value)?.Slot ?? -1);
+        if (slot is not (>= 1 and <= 4))
         {
             return Array.Empty<int>();
         }
 
-        return SkillTargetResolver.Resolve(SkillsCfg.Get("move"), actor, d.Player, d.Enemy).ToArray(); // F1：通用 move
+        return _view!.SkillTargetCandidates("move", actor).ToArray(); // F1：通用 move
     }
 
 }

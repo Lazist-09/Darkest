@@ -25,7 +25,7 @@ public partial class BattleUI : Control
 {
     public void Refresh(string status = "")
     {
-        if (_host is null || _host.Director is null || _host.Projector is null)
+        if (_host is null || _view is null)
         {
             return;
         }
@@ -46,7 +46,7 @@ public partial class BattleUI : Control
         {
             if (_host.IsAwaitingPlayer)
             {
-                UnitProjection? actor = _host.Projector.Units(player: true)
+                var actor = _view.Units(true)
                     .FirstOrDefault(x => x.UnitId == _host.ActiveActor.Value);
                 string actorName = actor is null ? _host.ActiveActor.Value
                     : NameOf(actor.Archetype.Length > 0 ? actor.Archetype : actor.UnitId);
@@ -196,9 +196,7 @@ public partial class BattleUI : Control
             }
         }
 
-        BattleDirector d = _host.Director;
-        BattleProjector p = _host.Projector;
-        DecisionSupportProjection support = p.Support();
+        var support = _view.Support();
 
         _statusLabel.Text = _host.GameOver
             ? $"战斗结束（第 {support.Round} 回合）：{status}"
@@ -219,9 +217,9 @@ public partial class BattleUI : Control
             ? "本场没有背包（单场战斗没有远征流程）⇒ 用不了支援包"
             : hasPack ? "用 1 个支援包换支援点（数量由内核决定）" : "背包里没有支援包";
 
-        int activeSlot = _host.IsAwaitingPlayer ? (d.Player.UnitAtPosition(_host.ActiveActor) ?? -1) : -1;
-        UnitProjection[] player = p.Units(player: true).ToArray();
-        UnitProjection[] enemy = p.Units(player: false).ToArray();
+        int activeSlot = _view.ActiveActorSlot();
+        UnitProjection[] player = _view.Units(true).ToArray();
+        UnitProjection[] enemy = _view.Units(false).ToArray();
 
         for (int i = 0; i < 4; i++)
         {
@@ -240,7 +238,7 @@ public partial class BattleUI : Control
             UnitProjection eu = enemy[i];
             if (eu.UnitId != "-" && _host is not null)
             {
-                Darkest.Gameplay.Sim.Director.IntentProjection ip = _host.PreviewIntent(new Darkest.Core.Contracts.UnitId(eu.UnitId));
+                var ip = _view.IntentPreview(new UnitId(eu.UnitId), enabled: true);
                 string intent = ip.SkillId is null
                     ? $"意图：{ip.Status}"
                     : $"意图：{SkillName(ip.SkillId)} → 槽位 {(ip.TargetSlots.Length == 0 ? "无" : string.Join(",", ip.TargetSlots))}";
@@ -265,8 +263,8 @@ public partial class BattleUI : Control
         _cards[8].card.Visible = false;
         _cards[9].card.Visible = false;
 
-        RefreshOrderStrip(support.ActionOrderThisRound, d);
-        PlayMotionFromNewEvents(d, p);
+        RefreshOrderStrip(support.ActionOrderThisRound);
+        PlayMotionFromNewEvents();
 
         // ④ 结算：**面板出现 ⇒ 淡入 0.20s**（只在"不可见 → 可见"那一次播；可见性本身不被动效门控 ⇒ 不延迟可操作时刻）✓
         if (_resultPanel.Visible && !_resultShown)
@@ -299,7 +297,7 @@ public partial class BattleUI : Control
             bool hl = false;
             if (phase == 1)
             {
-                hl = c.isPlayer && c.slot is 5 or 6 && d.Player.UnitRuntimeAt(c.slot) is not null;
+                hl = c.isPlayer && c.slot is 5 or 6 && _view.Units(true).Any(u => u.Slot == c.slot && u.UnitId != "-");
             }
             else if (phase == 2)
             {
@@ -318,8 +316,10 @@ public partial class BattleUI : Control
             c.card.TooltipText = DetailTooltip(c.isPlayer, c.slot);
 
             // D7（#209）三态可读性：普通物理（默认掉血条）/ 精神（紫）/ 被暴击（橙·震慑）
-            UnitRuntime? runtime = c.isPlayer ? d.Player.UnitRuntimeAt(c.slot) : d.Enemy.UnitRuntimeAt(c.slot);
-            (Color barColor, string? tagOverride) = RecentHitFeedback(runtime?.Id);
+            UnitId? runtimeId = c.isPlayer
+                ? (_view.Units(true).FirstOrDefault(u => u.Slot == c.slot && u.UnitId != "-") is { } pu ? new UnitId(pu.UnitId) : null)
+                : (_view.Units(false).FirstOrDefault(u => u.Slot == c.slot && u.UnitId != "-") is { } eu ? new UnitId(eu.UnitId) : null);
+            (Color barColor, string? tagOverride) = RecentHitFeedback(runtimeId);
             if (barColor != default)
             {
                 c.morale.Modulate = barColor;
@@ -332,7 +332,7 @@ public partial class BattleUI : Control
             }
         }
 
-        RefreshSkillBar(d, p);
+        RefreshSkillBar();
 
         // 🔴 走模态栈（此前直接赋 Visible ⇒ 遮罩不同步、Esc 关不掉）
         if (_host.GameOver && !_resultPanel.Visible) { _overlay?.OpenModal(_resultPanel); }
@@ -346,13 +346,13 @@ public partial class BattleUI : Control
         }
 
         // G2：日志面板可见时，仅在事件数变化时重绘（取尾部 20 行，避免每帧重建）
-        if (_devLogPanel.Visible && _host.Director is { } dir)
+        if (_devLogPanel.Visible)
         {
-            int count = dir.Log.Count;
+            int count = _view.LogEvents().Count;
             if (count != _devLogRendered)
             {
                 _devLogRendered = count;
-                IReadOnlyList<string> lines = CombatLogText.Render(dir.Log.Events, includeRng: false, NameOf, SkillName, BuffNameOf);
+                IReadOnlyList<string> lines = CombatLogText.Render(_view.LogEvents(), includeRng: false, NameOf, SkillName, BuffNameOf);
                 _devLogLabel.Text = lines.Count <= 20
                     ? string.Join("\n", lines)
                     : string.Join("\n", lines.Skip(lines.Count - 20));

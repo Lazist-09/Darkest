@@ -7,7 +7,6 @@ using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Board;
-using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
 
@@ -219,7 +218,7 @@ public partial class BattleUI : Control
         _orderBox.AddThemeConstantOverride("separation", 4);
         _topRow.AddChild(_orderBox);
 
-        // 🔴 主程序清单第 3 条：**敌方意图预览**（`BattleRoot.PreviewIntent` ← `BattleProjector.IntentPreview`）
+        // 🔴 主程序清单第 3 条：**敌方意图预览**（`BattleRoot.PreviewIntent` ← `_view.IntentPreview`）
         //    内部用**固定种子的预览专用 RNG**（与战斗抽数完全隔离）⇒ 预览**绝不消耗抽数**（确定性不变）✓
         _intentText = new Label
         {

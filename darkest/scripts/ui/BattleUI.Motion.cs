@@ -26,14 +26,14 @@ public partial class BattleUI : Control
     /// 伤害 ⇒ 受击（抖动闪白）+ 上浮伤害数字；治疗 ⇒ 上浮绿色数字；进死门 ⇒ 士气崩溃（暗角 + 单位框红）✓
     /// ⚠️ 动效**不改任何玩法状态**（只写 `Modulate`/`Position`）⇒ 不吞输入、不延迟可操作时刻（`#321`⑤）✓
     /// </summary>
-    private void PlayMotionFromNewEvents(BattleDirector d, BattleProjector p)
+    private void PlayMotionFromNewEvents()
     {
         if (_motionLayer is null)
         {
             return;
         }
 
-        IReadOnlyList<BattleEvent> events = d.Log.Events;
+        IReadOnlyList<BattleEvent> events = _view.LogEvents();
         if (events.Count < _seenEvents)
         {
             _seenEvents = 0; // 重开/换局 ⇒ 归零（事件流被重建）
@@ -44,9 +44,9 @@ public partial class BattleUI : Control
             switch (events[i])
             {
                 case DamageEvent { Target: { } dt, Amount: > 0 } dmg:
-                    bool targetIsPlayer = IsPlayerUnit(dt, p);
+                    bool targetIsPlayer = IsPlayerUnit(dt);
                     PlayHitMotion(dt, $"-{dmg.Amount}",
-                        dmg.Axis == "mental" ? Darkest.UI.DdTheme.Mental : Darkest.UI.DdTheme.Danger, p);
+                        dmg.Axis == "mental" ? Darkest.UI.DdTheme.Mental : Darkest.UI.DdTheme.Danger);
                     // 🔴 `§12.2` ① 命中（**区分我/敌**）+ ② 受击：
                     //    打敌人 ⇒ 我方命中音（高音方波）；**敌方打出** ⇒ 敌方命中音（低音方波）**＋** 我方受击音（噪声）
                     //    ⚠️ 这让 `HitEnemy` 有真实触发点（红线 21：**枚举项没有触发点 = 死声明**）；
@@ -63,16 +63,16 @@ public partial class BattleUI : Control
 
                     break;
                 case HealEvent { Target: { } ht, Amount: > 0 } heal:
-                    PlayHitMotion(ht, $"+{heal.Amount}", Darkest.UI.DdTheme.Hp, p);
+                    PlayHitMotion(ht, $"+{heal.Amount}", Darkest.UI.DdTheme.Hp);
                     break;
                 case DeathDoorEvent { Unit: { } dd }:
-                    PlayMoraleCrashMotion(dd, p);
+                    PlayMoraleCrashMotion(dd);
                     Darkest.UI.UiSfx.Play(Darkest.UI.UiSfx.Kind.DeathDoor); // ② 死门
                     break;
                 case DeathEvent { Unit: { } dead }:
                     Darkest.UI.UiSfx.Play(Darkest.UI.UiSfx.Kind.Death);     // ② 阵亡
                     UiMotion.ScreenFlash(_vignette, Darkest.UI.UiMotion.DeathFlash, Darkest.UI.UiMotion.MoraleSeconds); // 🔴 §12.3 闪白（整屏）
-                    PlayMoraleCrashMotion(dead, p);
+                    PlayMoraleCrashMotion(dead);
                     break;
             }
         }
@@ -80,9 +80,9 @@ public partial class BattleUI : Control
         _seenEvents = events.Count;
     }
 
-    private void PlayHitMotion(UnitId unitId, string text, Color color, BattleProjector p)
+    private void PlayHitMotion(UnitId unitId, string text, Color color)
     {
-        if (FindCard(unitId, p) is not { } found)
+        if (FindCard(unitId) is not { } found)
         {
             return;
         }
@@ -91,17 +91,17 @@ public partial class BattleUI : Control
         UiMotion.FloatText(_motionLayer, found.TextPos, text, color);
     }
 
-    private void PlayMoraleCrashMotion(UnitId unitId, BattleProjector p)
+    private void PlayMoraleCrashMotion(UnitId unitId)
     {
-        UiMotion.MoraleCrash(_vignette, FindCard(unitId, p)?.Card);
+        UiMotion.MoraleCrash(_vignette, FindCard(unitId)?.Card);
     }
 
     /// <summary>把 `UnitId` 映射回它的卡片（下标编排见 `BuildBattlefield`：我方 4 → 敌方 4 → 支援 2）。</summary>
-    private (Control Card, Vector2 TextPos)? FindCard(UnitId unitId, BattleProjector p)
+    private (Control Card, Vector2 TextPos)? FindCard(UnitId unitId)
     {
         for (int side = 0; side < 2; side++)
         {
-            foreach (UnitProjection u in p.Units(player: side == 0))
+            foreach (UnitProjection u in _view.Units(side == 0))
             {
                 if (u.UnitId != unitId.Value)
                 {
@@ -123,21 +123,21 @@ public partial class BattleUI : Control
         return null;
     }
 
-    /// <summary>某单位是否属于我方（音效/动效按阵营分岔用）。</summary>
-    private static bool IsPlayerUnit(UnitId unitId, BattleProjector p)
-        => p.Units(player: true).Any(u => u.UnitId == unitId.Value);
+    /// <summary>某单位是否属于我方（音效/动效按阵营分岔用；阶段 2 去直读：走 _view）。</summary>
+    private bool IsPlayerUnit(UnitId unitId)
+        => _view.IsPlayerUnit(unitId);
 
     /// <summary>
     /// 🔴 **使用支援包**（主程序清单"等界面接线"第 1 条）：**扣 1 个支援包 ⇒ +SP**。
-    /// 口径：**扣格与加 SP 都由内核决定**（`Inventory.TryUseSupportPack` / `BattleDirector.TryUseSupportPackForSp`
+    /// 口径：**扣格与加 SP 都由内核决定**（`Inventory.TryUseSupportPack` / `_host.TryUseSupportPackForSp()`
     /// 的参数由其默认值给 ⇒ **UI 不写死 2**）；UI 只做"入口 + 如实报告" ✓
     /// ⚠️ 无背包（单场战斗没有远征流程）⇒ **置灰 + tooltip 说明原因**（红线 21：不留不可解释的禁用）✓
     /// </summary>
     public bool PressSupportPack()
     {
-        if (_host?.Director is null)
+        if (_host is null)
         {
-            GD.Print("[UI 支援包] 无战斗导演 ⇒ 拒绝（如实报）");
+            GD.Print("[UI 支援包] 无战斗宿主 ⇒ 拒绝（如实报）");
             return false;
         }
 
@@ -154,9 +154,9 @@ public partial class BattleUI : Control
             return false;
         }
 
-        int before = _host.Director.SupportPoints;
-        bool ok = _host.Director.TryUseSupportPackForSp(); // 🔴 数量由内核默认值给（不在 UI 写死）
-        GD.Print($"[UI 支援包] 已用 {used?.Kind.ToString() ?? "支援包"} ⇒ SP {before} → {_host.Director.SupportPoints}" +
+        int before = _host.SupportPoints;
+        bool ok = _host.TryUseSupportPackForSp(); // 🔴 数量由内核默认值给（不在 UI 写死）
+        GD.Print($"[UI 支援包] 已用 {used?.Kind.ToString() ?? "支援包"} ⇒ SP {before} → {_host.SupportPoints}" +
                  $"（内核受理={ok}）　背包剩余 {bag.Slots.Count}/{bag.SlotCap}");
         Refresh(); // 顶栏 SP 与背包读数都由投影刷新（UI 不自己算）
         return true;

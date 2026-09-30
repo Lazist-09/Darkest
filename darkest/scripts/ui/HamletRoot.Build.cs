@@ -212,7 +212,10 @@ public partial class HamletRoot : Control
         VBoxContainer buildingRow = skel?.BuildingNav ?? new VBoxContainer { Name = "BuildingNav" };   // DD 1:1 3-3：骨架优先（编辑器可改），缺失才代码建
         buildingRow.CustomMinimumSize = new Vector2(128, 1000);   // 🔴 DD 原文 building_navigation.base_size **128×1000** ⇒ 按 1280/1920=0.667 等比 ⇒ **128×667**（还原比例、非像素）✓
         buildingRow.AddThemeConstantOverride("separation", 12);   // DD 竖距 68 = 按钮高 56 + 12 ✓
-        // 修 Can't add child BuildingNav already has a parent：骨架已带该节点 ⇒ 先判断父再挂（Godot 要求 Reparent）         if (buildingRow.GetParent() is null) { leftCol.AddChild(buildingRow); }         else if (buildingRow.GetParent() != leftCol) { buildingRow.Reparent(leftCol); }
+        // 修 Can't add child BuildingNav already has a parent：骨架已带该节点 ⇒ 先判断父再挂（Godot 要求 Reparent）
+        // 🔴 2026-09-27 修假绿：本行整体曾被写成**注释** ⇒ BuildingNav **从未挂上树** ⇒ 玩家连一个建筑入口都看不到
+        if (buildingRow.GetParent() is null) { leftCol.AddChild(buildingRow); }
+        else if (buildingRow.GetParent() != leftCol) { buildingRow.Reparent(leftCol); }
         for (int i = 0; i < upgradable.Length; i++)
         {
             string bId = upgradable[i];
@@ -248,17 +251,17 @@ public partial class HamletRoot : Control
             };
             ub.Pressed += () => OpenBuildingPopup(bId);
             ub.MouseEntered += () => ShowBuildingInfo(bId); // 悬停仍给一行摘要（低成本、不占版面）
-            // P1.1：DD index 槽优先（编辑器里可见的位）；缺失则回落直接加到 nav（不崩不静默）             int ddIdx = bId switch { "stage_coach" => 0, "tavern" => 4, "abbey" => 5, _ => -1 };             PanelContainer? ubSlot = ddIdx >= 0 ? buildingRow.GetNodeOrNull<PanelContainer>($"DDNav{ddIdx}_{bId}") : null;             (ubSlot is not null ? (Node)ubSlot : buildingRow).AddChild(ub);
+            // P1.1：DD index 槽优先（编辑器里可见的位）；缺失则回落直接加到 nav（不崩不静默）
+            // 🔴 2026-09-27 修假绿：本行整体曾被写成**注释** ⇒ 建筑入口按钮**从未挂上树**（与上面 BuildingNav 同一类事故）
+            int ddIdx = bId switch { "stage_coach" => 0, "tavern" => 4, "abbey" => 5, _ => -1 };
+            PanelContainer? ubSlot = ddIdx >= 0 ? buildingRow.GetNodeOrNull<PanelContainer>($"DDNav{ddIdx}_{bId}") : null;
+            (ubSlot is not null ? (Node)ubSlot : buildingRow).AddChild(ub);
             _upgradeButtons[bId] = ub; // ⚠️ 明细按钮在弹窗里（`RefreshBuildingPopup` 重建）；这里三栋都登记到**同一个入口**（`PressUpgrade` 两步路径仍成立）✓
+            // 🔴 DD 1:1 #1c：**三栋 nav 都保留**（旧"`i==0` 保留 ＋ 其余 `QueueFree`"已被本次 DD 还原覆盖）✓
+            //    2026-09-27 修假绿：旧代码把 abbey / stagecoach 的入口按钮**直接销毁** ⇒ 玩家只能进酒馆
             if (i == 0)
             {
-                _buildingEntry = ub; // 只保留第一个作为入口；其余栋不再各建按钮（DD 式"只有一个按钮"）✓
-            }
-            else
-            {
-                // 🔴 DD 1:1 #1c：**三栋 nav 都保留**（旧"只留一个按钮"已被本次 DD 还原覆盖）✓
-                ub.QueueFree();
-                continue;
+                _buildingEntry = ub; // 第一个作为**默认入口**；其余栋同样保留在 nav 上（玩家可逐栋点开）
             }
         }
 

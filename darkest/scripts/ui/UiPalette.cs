@@ -68,6 +68,16 @@ public partial class UiPalette : Resource
     [Export] public Color MapFrame { get; set; }
     [Export] public Color TeamDot { get; set; }
 
+    // ---- 🔴 **哥特扩展（暗黑地牢风格专用色）**：2026-09-30 增 ----
+    //    仅补现有体系没有的 6 个色；其余哥特色（bgPanel/boneWhite/goldBright/bloodBright）
+    //    直接复用 PanelBg / TextPrimary / Gold / Danger，避免冗余（D5 不写死、也不重复）。
+    [Export] public Color BgVoid { get; set; }         // 最深层背景（比 BgDeep 更暗更暖）
+    [Export] public Color Parchment { get; set; }      // 陈年羊皮纸（面板内文字底 / 装饰）
+    [Export] public Color GoldTarnished { get; set; }  // 锈蚀金（暗金、禁用 / 装饰态）
+    [Export] public Color BloodRed { get; set; }       // 深血红（敌人低血 / 危险暗调）
+    [Export] public Color SickGreen { get; set; }      // 病绿（枯萎 / blight 状态）
+    [Export] public Color FrameBronze { get; set; }    // 青铜框线（暖棕金描边）
+
     /// <summary>资源落点（**放/改文件即生效**，不必改代码）。</summary>
     public const string ResPath = "res://resources/theme/ui_palette.tres";
 
@@ -90,6 +100,10 @@ public partial class UiPalette : Resource
         ("MapVisited", MapVisited.ToHtml()), ("MapScouted", MapScouted.ToHtml()),
         ("MapUnknown", MapUnknown.ToHtml()), ("MapFrame", MapFrame.ToHtml()),
         ("TeamDot", TeamDot.ToHtml()),
+        // 🔴 哥特扩展色（2026-09-30）：必须进显式清单，否则审计比对不到、`.tres` 视为缺字段
+        ("BgVoid", BgVoid.ToHtml()), ("Parchment", Parchment.ToHtml()),
+        ("GoldTarnished", GoldTarnished.ToHtml()), ("BloodRed", BloodRed.ToHtml()),
+        ("SickGreen", SickGreen.ToHtml()), ("FrameBronze", FrameBronze.ToHtml()),
     };
 
     /// <summary>
@@ -184,5 +198,13 @@ public partial class UiPalette : Resource
         MapUnknown = new Color(0.18f, 0.18f, 0.24f),
         MapFrame = new Color(0.45f, 0.42f, 0.38f),
         TeamDot = new Color(1.00f, 0.70f, 0.20f),
+
+        // 🔴 哥特扩展色（2026-09-30）：与 `ui_palette.tres` 同值 ⇒ 两视图不分叉（D6）
+        BgVoid = new Color(0.05f, 0.04f, 0.04f, 1.0f),
+        Parchment = new Color(0.78f, 0.72f, 0.60f, 1.0f),
+        GoldTarnished = new Color(0.72f, 0.57f, 0.29f, 1.0f),
+        BloodRed = new Color(0.48f, 0.12f, 0.12f, 1.0f),
+        SickGreen = new Color(0.42f, 0.48f, 0.23f, 1.0f),
+        FrameBronze = new Color(0.54f, 0.43f, 0.23f, 1.0f),
     };
 }

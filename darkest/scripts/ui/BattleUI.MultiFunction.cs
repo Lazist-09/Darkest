@@ -7,7 +7,6 @@ using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Scene;
 using Darkest.Gameplay.Sim.Board;
-using Darkest.Gameplay.Sim.Director;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
 
@@ -297,7 +296,7 @@ public partial class BattleUI : Control
 
         if (_mfPage == 1)
         {
-            IReadOnlyList<Darkest.Core.Events.BattleEvent> ev = _host.Director.Log.Events;
+            IReadOnlyList<Darkest.Core.Events.BattleEvent> ev = _view.LogEvents();
             int take = System.Math.Min(7, ev.Count);
             var lines = new List<string> { $"【日志】尾部 {take} 条（共 {ev.Count} 条；F1 仍可开全屏日志）" };
             for (int i = ev.Count - take; i < ev.Count; i++)
@@ -311,9 +310,9 @@ public partial class BattleUI : Control
 
         if (_mfPage == 2)
         {
-            // 🔴 **序列**：本回合行动顺序（`Director.LastRoundOrder`；与"顶部回合条"同源）
-            var lines = new List<string> { $"【序列】回合 {_host.Director.Round}　行动顺序：" };
-            IReadOnlyList<UnitId> order = _host.Director.LastRoundOrder;
+            // 🔴 **序列**：本回合行动顺序（`_view.Support().ActionOrderThisRound`；与"顶部回合条"同源）
+            var lines = new List<string> { $"【序列】回合 {_view.Support().Round}　行动顺序：" };
+            IReadOnlyList<string> order = _view.Support().ActionOrderThisRound;
             if (order.Count == 0)
             {
                 lines.Add("　（本回合还没有人行动）");
@@ -322,10 +321,10 @@ public partial class BattleUI : Control
             {
                 for (int i = 0; i < order.Count; i++)
                 {
-                    UnitId id = order[i];
-                    bool mine = _host.Director.Player.UnitAtPosition(id) is not null;
-                    int pos = _host.Director.Player.UnitAtPosition(id) ?? _host.Director.Enemy.UnitAtPosition(id) ?? 0;
-                    lines.Add($"　{i + 1}. {NameOf(id.Value)}（{(mine ? "我" : "敌")}·{pos}）");
+                    string id = order[i];
+                    bool mine = _view.IsPlayerUnit(new UnitId(id));
+                    int pos = _view.Units(mine).FirstOrDefault(u => u.UnitId == id)?.Slot ?? 0;
+                    lines.Add($"　{i + 1}. {NameOf(id)}（{(mine ? "我" : "敌")}·{pos}）");
                 }
             }
 
@@ -335,10 +334,10 @@ public partial class BattleUI : Control
 
         if (_mfPage == 3)
         {
-            // 🔴 **编成**：双方站位占用（读 `FormationBoard`）
+            // 🔴 **编成**：双方站位占用（读 `_view.Units` 投影，不直读内核阵型板）
             var lines = new List<string> { "【编成】站位占用（我方 4→1 ／ 支援 5·6 ／ 敌方 1→4）" };
-            lines.Add("　我方：" + DescribeSide(_host.Director.Player));
-            lines.Add("　敌方：" + DescribeSide(_host.Director.Enemy));
+            lines.Add("　我方：" + DescribeSide(true));
+            lines.Add("　敌方：" + DescribeSide(false));
             lines.Add("　（只读：编成改动在远征侧，不在战斗里）");
             _mfContent.Text = string.Join("\n", lines);
             return;
