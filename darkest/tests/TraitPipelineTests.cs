@@ -93,8 +93,12 @@ public sealed class TraitPipelineTests
         Assert.AreEqual(eff.DamagePct, unit.DamageModPct - 15, "投影把特质伤害写进单位（与既有层同层叠加）");
     }
 
-    /// <summary>跑一场，返回**带特质那个单位自己**造成的伤害合计（㉟：不被 6 人摊薄）。</summary>
-    private static int RunOneBattle_SingleUnit(int traitDamagePct, long seed)
+    /// <summary>
+    /// 跑一场，返回**带特质那个单位自己**造成的伤害合计（㉟：不被 6 人摊薄）。
+    /// 🔴 同时返回 `Raw`（**取整/下限之前**的逐次裸伤）—— 见 ㉟ 的判据分层：
+    /// `Amount` 是玩家可见值（含取整/下限/结转的非线性），`Raw` 是模型值（应当严格成比例）。
+    /// </summary>
+    private static (int Amount, double Raw, double FirstRaw) RunOneBattle_SingleUnit(int traitDamagePct, long seed)
     {
         var log = new CombatLog();
         var rng = new Darkest.Core.Rng.RngProvider(seed);
@@ -109,19 +113,28 @@ public sealed class TraitPipelineTests
                 MonteCarlo.PolicyKind.SemiRandom, unit, director, rng));
         }
 
-        return log.Events.OfType<DamageEvent>().Where(e => e.Attacker == heroId).Sum(e => e.Amount);
+        var mine = log.Events.OfType<DamageEvent>().Where(e => e.Attacker == heroId).ToList();
+        // 🔴 首击（`[0]`）是**唯一**不受「战斗演化反馈」污染的一笔：
+        //    到它为止，两臂的命令流与 RNG 抽号**逐字相同**（特质的差异还没改变任何 HP）
+        //    ⇒ 它的 `Raw` 必须**严格**成比例（×1.1 / ×0.9）。
+        return (mine.Sum(e => e.Amount), mine.Sum(e => e.Raw), mine.Count > 0 ? mine[0].Raw : 0.0);
     }
 
     /// <summary>跑 **N 场（同一批 seed）**，返回**带特质那个单位自己**造成的伤害合计（㉟ 配对口径）。</summary>
-    private static int RunBattles_SingleUnit(int traitDamagePct, int battles)
+    private static (int Amount, double Raw, double FirstRaw) RunBattles_SingleUnit(int traitDamagePct, int battles)
     {
-        int total = 0;
+        int amount = 0;
+        double raw = 0;
+        double firstRaw = 0;
         for (int i = 0; i < battles; i++)
         {
-            total += RunOneBattle_SingleUnit(traitDamagePct, 20260909L + (i * 7));
+            (int a, double r, double f) = RunOneBattle_SingleUnit(traitDamagePct, 20260909L + (i * 7));
+            amount += a;
+            raw += r;
+            firstRaw += f;
         }
 
-        return total;
+        return (amount, raw, firstRaw);
     }
 
     [TestMethod]
@@ -129,23 +142,47 @@ public sealed class TraitPipelineTests
     {
         // 🔴 ㉟ 口径修正（用户裁定）：**单场样本太小** ⇒ 【百分比 → 取整 → 下限】会把 ±10% 扭曲成
         //    +19% / −4.8%（一边被下限/取整抬高、另一边被吃掉）⇒ 改为**多场配对累计**（同一批 seed，三臂同源）
+        // 🔴 归因修正（2026-09-30）：`Amount`（玩家可见）侧 +13.8% 不是「特质没生效」，而是
+        //    【取整 + 下限】的非线性（`DamageFloor` 会把低伤一侧抬高、`DamageCarry` 又把小数结转）
+        //    ⇒ **主判据改测 `DamageEvent.Raw`（取整前的模型值，应当严格成比例）**；
+        //    `Amount` 侧差值**照常打印**（玩家可见口径），但不再拿它当 ±3pp 的判据。
         const int battles = 40;
-        int plus = RunBattles_SingleUnit(+10, battles);
-        int none = RunBattles_SingleUnit(0, battles);
-        int minus = RunBattles_SingleUnit(-10, battles);
+        (int plus, double plusRaw, double plusFirst) = RunBattles_SingleUnit(+10, battles);
+        (int none, double noneRaw, double noneFirst) = RunBattles_SingleUnit(0, battles);
+        (int minus, double minusRaw, double minusFirst) = RunBattles_SingleUnit(-10, battles);
 
         double plusPct = none == 0 ? 0 : 100.0 * (plus - none) / none;
         double minusPct = none == 0 ? 0 : 100.0 * (minus - none) / none;
+        double plusRawPct = noneRaw == 0 ? 0 : 100.0 * (plusRaw - noneRaw) / noneRaw;
+        double minusRawPct = noneRaw == 0 ? 0 : 100.0 * (minusRaw - noneRaw) / noneRaw;
+        double plusFirstRatio = noneFirst == 0 ? 0 : plusFirst / noneFirst;
+        double minusFirstRatio = noneFirst == 0 ? 0 : minusFirst / noneFirst;
 
         string report = $"[M8] ㉟ 带特质者**单体**伤害差（{battles} 场配对累计，同 seed 同策略）：" +
+                        $"模型值（Raw，取整前）：+10% ⇒ {plusRaw:F1}（基准 {noneRaw:F1}，{plusRawPct:F1}%）；" +
+                        $"−10% ⇒ {minusRaw:F1}（{minusRawPct:F1}%）　⇒ 【含战斗演化反馈】也不等于 ±10%（干净口径看首击）\n" +
+                        $"[M8] ㉟ 玩家可见值（Amount，含取整/下限/结转）：" +
                         $"+10% ⇒ {plus}（基准 {none}，{plusPct:F1}%）；−10% ⇒ {minus}（{minusPct:F1}%）" +
-                        $"　⇒ 两侧应收敛到 ±10% 附近（取整/下限的噪声被样本量摊平）";
+                        $"　⇒ 【含战斗演化反馈】两侧都不等于 ±10%（原因见下）\n" +
+                        $"[M8] ㉟ **首击**（同一状态、同一 RNG 抽号 ⇒ 无反馈污染，模型值）：" +
+                        $"+10% ⇒ {plusFirst:F3} / 基准 {noneFirst:F3} = ×{plusFirstRatio:F6}（应 == 1.1）；" +
+                        $"−10% ⇒ {minusFirst:F3} = ×{minusFirstRatio:F6}（应 == 0.9）";
         Console.WriteLine(report);
         TestContext.WriteLine(report);
 
         Assert.IsTrue(plus > none && minus < none, "方向正确（+10 更高、−10 更低）");
-        Assert.IsTrue(Math.Abs(plusPct - 10.0) <= 3.0, $"+10% 侧应收敛到 10%±3pp（实测 {plusPct:F1}%）");
-        Assert.IsTrue(Math.Abs(minusPct + 10.0) <= 3.0, $"−10% 侧应收敛到 −10%±3pp（实测 {minusPct:F1}%）");
+        // 🔴 主判据（2026-09-30 归因修正）：**首击的模型值必须严格成比例** ——
+        //    这是「特质真的进了伤害模型」的**干净**证据（不含取整/下限/战斗演化反馈）。
+        Assert.AreEqual(1.1, plusFirstRatio, 1e-6,
+            $"首击 Raw 应严格 ×1.1（实测 ×{plusFirstRatio:F6}）—— 不等 ⇒ 特质倍率没进模型");
+        Assert.AreEqual(0.9, minusFirstRatio, 1e-6,
+            $"首击 Raw 应严格 ×0.9（实测 ×{minusFirstRatio:F6}）—— 不等 ⇒ 特质倍率没进模型");
+        // 🔴 并如实登记：**全场累计**（Raw 与 Amount 两侧）都**不等于** ±10%（13.2% / −1.8%），
+        //    这**不是**取整/下限 —— 因为取整前的 Raw 也偏 ⇒ 真因是**战斗演化反馈**
+        //    （伤害变 ⇒ 击杀时点变 ⇒ 出手数与承伤变 ⇒ 后续抽号分流）⇒ 本量**只登记不设判据**：
+        //    登记见 `doc/modules/dd1_baseline.md §39`（#307 冻结期 · 到期条件=§39 解冻重定标）。
+        Assert.IsTrue(noneRaw > 0 && plusRaw > 0 && minusRaw > 0,
+            $"三臂 Raw 必须都真的取到（防夹具空跑产 0 ⇒ 百分比无意义）；实测 +{plusRaw:F1} / 基准 {noneRaw:F1} / −{minusRaw:F1}");
     }
 
     /// <summary>

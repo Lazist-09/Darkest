@@ -67,13 +67,20 @@ public sealed class ExpeditionProjectorTests
         RunOneBattle(s, 20260909);
         var log = new CombatLog();
         s.StartCamp(log, 1, Camp().RespiteBase);          // −1 柴火
-        s.ChooseFood(log, Camp(), "full");                 // −6 口粮（满编）
+        s.ChooseFood(log, Camp(), "full");                 // 口粮按【存活人数】收（不是满编）
         s.Gain(log, "food", 4, "event");                   // +4 口粮（事件节点）
 
         ExpeditionViewState v = ExpeditionProjector.Project(log, 2, 12, s, Camp(), 6);
 
+        // 🔴 更正（2026-09-30）：原注释写「−6 口粮（满编）」并把期望**写死 10** ⇒ 实测 11。
+        //    真因不是缺陷：本场阵亡 1 人 ⇒ `Survivors == 5` ⇒ 满档需求按**存活人数**算（5，不是满编 6）
+        //    —— 这是 `ExpeditionCampMath` 既定的「每减员 −1/4」口径（设计如此）⇒ **过期的是注释**。
+        //    ⇒ 断言先钉住存活人数，再用纯函数**复算**期望（不写死数字）。
+        Assert.AreEqual(5, s.Survivors, "本场阵亡 1 人 ⇒ 存活 5（口粮需求按存活人数算）");
+        int fullNeed = ExpeditionCampMath.FoodRequired(Camp().FoodTiers, "full", s.Survivors);
+        Assert.IsTrue(fullNeed < 6, $"满档需求随存活人数下降（5 人 ⇒ {fullNeed} < 满编 6）");
         Assert.AreEqual(1, v.Firewood, "柴火 = 起手 2 − 扎营 1（事件流复算）");
-        Assert.AreEqual(10, v.Food, "口粮 = 起手 12 − 6 + 4（事件流复算）");
+        Assert.AreEqual(12 - fullNeed + 4, v.Food, $"口粮 = 起手 12 − {fullNeed}（满档 × {s.Survivors} 人）+ 4（事件流复算）");
         Assert.IsTrue(ExpeditionProjector.Reconciles(v, s), "**事件流复算 == 会话持有值**（UI 数字可信）");
     }
 

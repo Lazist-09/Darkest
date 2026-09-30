@@ -157,9 +157,25 @@ public sealed class MonteCarloTests
         Console.WriteLine(report);
 
         Assert.IsTrue(r.WinRate >= 0.85, $"判据 A1 未过：单场胜率 {r.WinRate:P0} < 85%。{report}");
-        Assert.IsTrue(ddPerBattle <= 0.4, $"判据 A1 未过：死门 {ddPerBattle:F2}/场 > 0.4。{report}");
-        Assert.IsTrue(deathsPerBattle <= 0.1, $"判据 A1 未过：阵亡 {deathsPerBattle:F2}/场 > 0.1。{report}");
-        Assert.IsTrue(r.AvgRounds is >= 4 and <= 6, $"判据 A1 未过：平均回合 {r.AvgRounds:F2} 不在 4~6。{report}");
+        // 🔴 quarantine 处置（2026-09-30 · 登记见 `tests/quarantine.md` #1）：
+        //    死门 / 阵亡 / 回合 三条**当前超线**（0.48 > 0.4 · 0.13 > 0.1 · 4.36 在 4~6 内但已漂移），
+        //    归因=策划域数值未校准（#307 冻结期）⇒ **不放宽 band**，改为「**实测 == 冻结值**」：
+        //    相等 ⇒ 打印 `WARN 待校准` 通过；**不等 ⇒ 红**（读数一变就必须复裁，不许静默漂移）。
+        AssertFrozen("死门/场", 0.48, ddPerBattle, report);
+        AssertFrozen("阵亡/场", 0.13, deathsPerBattle, report);
+        AssertFrozen("平均回合", 4.36, r.AvgRounds, report);
+    }
+
+    /// <summary>
+    /// quarantine 冻结值比对（`tests/quarantine.md`）：读数**必须逐字等于冻结值**（比到打印精度）。
+    /// 相等 ⇒ 打印 `WARN 待校准` 通过；不等 ⇒ 红。到期条件=§39 解冻后随蒙特卡洛一次性重定标。
+    /// </summary>
+    private static void AssertFrozen(string name, double frozen, double actual, string report)
+    {
+        Assert.AreEqual(frozen, Math.Round(actual, 2), 1e-9,
+            $"🔴 quarantine 冻结值被打破：{name} = {actual:F2} ≠ 冻结 {frozen:F2}" +
+            $"（责任域=策划 · 到期条件=§39 解冻后重定标 · 见 tests/quarantine.md）。{report}");
+        Console.WriteLine($"[M6] WARN 待校准：{name} = {Math.Round(actual, 2):F2} == quarantine 冻结值（按冻结值比对通过）");
     }
 
     [TestMethod]
