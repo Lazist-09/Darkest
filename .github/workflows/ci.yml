@@ -1,7 +1,23 @@
-# CI for the Darkest vertical slice — M0 engineering bootstrap (T-M0-04).
+# CI for the Darkest vertical slice — M0 engineering bootstrap (T-M0-04) + M11 ④ static gates.
 # Pipeline: checkout → .NET SDK (Godot 4.6 .NET 配套 net8.0) → dotnet build →
-# dotnet test (Darkest.Tests) → `using Godot` whitelist static check (+negative).
-# Any failing step blocks the run.
+# dotnet test (Darkest.Tests) → static gates.
+# ANY failing step blocks the run. There is no `continue-on-error` anywhere: a gate that
+# cannot run is NOT a gate passed.
+#
+# WHY the static gates are split across two runners (decision 2026-09-30, M11 ④「CI 接门禁」):
+#   * `build-and-test` (ubuntu-latest) — the .NET build/test plus the Python gates.
+#     The Python checkers are stdlib-only and cross-platform by contract (utf-8 IO,
+#     pathlib paths, explicit sys.stdout.reconfigure), and each one is followed by its
+#     own negative self-test step ("guard against a dead checker").
+#     The gates are invoked as `python3` because that is the name the ubuntu runner
+#     image guarantees; `python tools/...` in the local docs is the Windows-dev shorthand.
+#   * `static-gates-powershell` (windows-latest) — the two PowerShell gates only.
+#     WHY windows: tools/dsh/check_placeholders.ps1 shells out to `powershell`
+#     (Windows PowerShell 5.1), and its inner checker check_offset_placement.ps1
+#     defaults to the Windows-style relative path doc\ui_spec.json; both hold on
+#     windows-latest and fail on ubuntu. A platform-bound gate is fixed by running it
+#     on the runner that matches its assumptions — never by `continue-on-error`,
+#     which would turn a red gate green by not running it.
 name: ci
 
 on:
@@ -29,10 +45,41 @@ jobs:
         run: dotnet test Darkest.sln --nologo --no-build
 
       - name: Static check — `using Godot` whitelist (baseline, must be 0)
-        run: python tools/check_godot_refs.py --root darkest
+        run: python3 tools/check_godot_refs.py --root darkest
 
       - name: Static check — program files <= 600 lines (user red line 2026-09-18)
-        run: python tools/check_file_size.py
+        run: python3 tools/check_file_size.py
 
       - name: Static check — negative self-test (guard against a dead checker)
-        run: python tools/check_godot_refs.py --root darkest --selfcheck
+        run: python3 tools/check_godot_refs.py --root darkest --selfcheck
+
+      - name: Static check — per-file line budget (soft 400 / hard 600; plan 3.1)
+        run: python3 tools/check_file_budget.py
+
+      - name: Static check — line budget negative self-test (a 601-line probe must be caught)
+        run: python3 tools/check_file_budget.py --selfcheck
+
+      - name: Static check — data discipline (--all; literal numbers / dead funcs / dead keys)
+        run: python3 tools/check_data_discipline.py --all
+
+      - name: Static check — data discipline negative self-test (probes must be caught)
+        run: python3 tools/check_data_discipline.py --selfcheck
+
+      - name: Static check — B6 (no E-drive extracts may reach a shipping package)
+        run: python3 tools/check_no_external_assets.py
+
+      - name: Static check — B6 negative self-test (injected E-drive reference must be flagged)
+        run: python3 tools/check_no_external_assets.py --selfcheck
+
+  static-gates-powershell:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Static check — UI namespace is `Darkest.UI` (red line 20 item 6)
+        shell: pwsh
+        run: pwsh -NoProfile -File tools/dsh/check_ui_namespace.ps1
+
+      - name: Static check — placeholder geometry (A/B/C must be 0/0/0; red line 18 family)
+        shell: pwsh
+        run: pwsh -NoProfile -File tools/dsh/check_placeholders.ps1
