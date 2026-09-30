@@ -41,7 +41,14 @@ reports/*.log
 
 # 🆕 reports 卫生（#405）：latest/ 与 archive/ 是【派生副本/归档】⇒ 不入库（只入库摘要与文档 ✓）
 reports/latest/
-reports/archive/
+# 🔴🔴 2026-09-26 修正（架构 O-103 · 策划 #480 指出）：原写 `reports/archive/` 整目录忽略 ⇒
+#   架构 9 个窗口备份全被忽略 ⇒ 只在本机 ⇒ 换机/clone/误删即全没（"固化"其实是"降一级的易失"）。
+#   ⚠️ Git 规则：**父目录被整体排除时，无法用 `!` 重新包含其中的文件** ——
+#      所以这里【不能写 `reports/archive/`】，只能写成"排除内容 + 放行窗口文本"。
+#   判据："这个留存面，`git ls-files` 能列出它吗？" —— 列不出 ⇒ 它不叫留存面。
+#   例外范围：`TXT_*`（窗口文本，体积可控，单档 ~600KB）；其余派生副本继续忽略（红线 O-90 不变）。
+reports/archive/**
+!reports/archive/TXT_*.txt
 
 # test/smoke run products (architect 2026-09-18: they kept polluting git status,
 # and "clean worktree" is the precondition for the pre-commit check)
@@ -59,3 +66,10 @@ doc/_backups/
 *.bak.*
 .workbuddy/
 *.bak-*
+
+# --- 推送收口 2026-09-30 追加（O-90 家族：reports/ 只入摘要与文档；一并挡住根级日志与本地存档）---
+/*.log
+reports/unity_ref/_probe/
+reports/unity_ref/_*.py
+reports/unity_ref/_raw_stats.json
+darkest/data/save.json
