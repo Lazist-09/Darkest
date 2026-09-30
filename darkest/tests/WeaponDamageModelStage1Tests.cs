@@ -104,7 +104,14 @@ public sealed class WeaponDamageModelStage1Tests
 
         // 🆕 **更精确的那条**（阶段 3 机制）：**没有任何生产文件调用 `WeaponBaseDamage`** ⇒
         //    即"机制就位但**未接线**" ✓ —— 这比"零消费点"更准：允许机制存在，但**不许有人用它算伤害** ✓
+        // 🆕 **H-1（2026-09-27）解冻**：本守卫原本钉"**无人消费**"（防阶段 3 偷偷改旧读数 ✓ 使命已完成）。
+        //    减伤半**已接线** ⇒ `TierDefence` 现在【必须】被 `UnitRuntime.cs` 消费 ⇒ 断言改**正向** ✓
+        //    🔴 **伤害半仍未接**（硬前置 ② 未满足：23 个技能的 `dmg%` 数据还没有，策划只给了 2 个试点值）
+        //      ⇒ `WeaponBaseDamage` **必须仍是 0 个生产消费点**（哪天它被人用了，说明 dmg% 已备 ⇒ 同步改本守卫）
+        //    ⚠️ 减伤接线是**行为变更**（顶层 prot → 护甲第 0 阶 0），由策划裁定「直接接线」✓
         var modelConsumers = new List<string>();
+        var tierConsumers = new List<string>();
+        var weaponConsumers = new List<string>();
         foreach (string f in Directory.EnumerateFiles(Path.Combine(root.FullName, "darkest", "scripts"), "*.cs", SearchOption.AllDirectories))
         {
             if (Path.GetFileName(f) is "WeaponBaseDamage.cs" or "TierDefence.cs")
@@ -124,7 +131,19 @@ public sealed class WeaponDamageModelStage1Tests
                     continue;   // 注释不算 ✓
                 }
 
-                if (line.Contains("WeaponBaseDamage", StringComparison.Ordinal) || line.Contains("TierDefence", StringComparison.Ordinal))
+                bool weapon = line.Contains("WeaponBaseDamage", StringComparison.Ordinal);
+                bool tier = line.Contains("TierDefence", StringComparison.Ordinal);
+                if (weapon)
+                {
+                    weaponConsumers.Add(Path.GetFileName(f));
+                }
+
+                if (tier)
+                {
+                    tierConsumers.Add(Path.GetFileName(f));
+                }
+
+                if (weapon || tier)
                 {
                     callsIt = true;
                     break;
@@ -137,8 +156,13 @@ public sealed class WeaponDamageModelStage1Tests
             }
         }
 
-        Assert.AreEqual(0, modelConsumers.Count,
-            $"阶段 3 的机制（WeaponBaseDamage / TierDefence）**必须无人消费**（机制在、接线等解冻）⇒ 实际调用者：{string.Join(", ", modelConsumers)}");
+        // 🔴 **正向断言（H-1 已接线）**：减伤侧**必须**被接线点消费（否则"装备阶影响减伤"= 写了没接上，红线 21）
+        CollectionAssert.Contains(tierConsumers, "UnitRuntime.cs",
+            "🔴 `TierDefence` **必须**被 `UnitRuntime.ApplyGearTier` 消费（H-1 减伤半已接线 ⇒ 本守卫从「无人消费」改为「必须消费」）✓");
+
+        // 🔴 **反向断言（伤害半仍未接）**：缺 `dmg%` 数据 ⇒ 必须仍是 0 个生产调用点
+        Assert.AreEqual(0, weaponConsumers.Count,
+            $"🔴 `WeaponBaseDamage` **仍无人消费**（硬前置 ② 未满足：23 个技能的 dmg% 还没给）⇒ 实际调用者：{string.Join(", ", weaponConsumers)}");
 
         Assert.AreEqual(0, offenders.Count,
             $"阶段 1 必须对**生产代码**零消费点 ⇒ 除 `BattleMath.cs`，`darkest/scripts/**` 不应有人调用新模型；实际：{string.Join(", ", offenders)}");
