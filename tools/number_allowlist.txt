@@ -17,11 +17,9 @@ scripts/core/rng/RngProvider.cs | TwoPow64 | 2^64（double 精确表示上限；
 # ---- 数据表的"结构校验"常量（校验收敛用，非平衡量）----
 scripts/data/SkillsConfig.cs | n != 9 | 每侧技能组数的结构断言（P 系列校验）
 scripts/data/SkillsConfig.cs | enemy is not [2, 3, 2] | 各槽技能条数的结构断言（P 系列校验）
-scripts/data/TuningConfig.cs | t.Inventory.SlotCap != 12 | 背包槽位结构断言（P22 系列校验）
 
 # ---- 百分比/单位换算（数学恒等式，不是可调值）----
 scripts/core/math/BattleMath.cs | / 100.0 | 百分数 → 小数
-scripts/core/math/BattleMath.cs | * 100.0 | 小数 → 百分数
 scripts/core/math/BattleMath.cs | * 2.0 - 1.0 | 0..1 → -1..1 归一
 # ⚠️ 曾经的 `(double)(physDef + 30)` 条目已删除：那个 30 已搬到 `tuning.json` 的 `physical_mitigation.divisor` ✓
 #    （白名单条目也要"不许死条目"：代码改了就要同步删，否则它会掩盖以后新写进同一行的硬编码 ⚠️）
@@ -35,17 +33,11 @@ scripts/data/SkillsConfig.cs | t.Slots.Any(pos => pos is < 1 or > 6) | 槽位序
 scripts/data/SkillsConfig.cs | PlayerOwner(s.OwnerUnit) ? 6 : 4 | 同上（6 / 4）
 scripts/data/SkillsConfig.cs | player[3]++ | 结构校验里的下标（第 4 槽计数）
 scripts/data/SkillsConfig.cs | s.SelfSlots.Slots is { Count: 4 } | 自身槽位集合的形状断言
-scripts/data/TuningConfig.cs | t.Light.Tiers.Count != 5 | 光照档数契约（5 档）
-scripts/data/TuningConfig.cs | Math.Max(3, (int)Math.Ceiling(o.EnemyFullHp | M 值下限（公式契约，非平衡量；可复议）
-scripts/gameplay/sim/director/BattleDirector.cs | Math.Max(3, o.MValue ?? o.WaveIntervalRounds | M 值下限（公式契约，非平衡量；可复议）
 scripts/gameplay/sim/director/BattleDirector.cs | if (aPos is < 1 or > 4) | 槽位边界（1..4）
 scripts/gameplay/sim/director/BattleDirector.cs | _player.GetSlot(x) == SlotState.Empty && aPos == x | 槽位边界（同上）
 scripts/gameplay/sim/board/FormationBoard.cs | int guard = SlotCount * SlotCount + 8 | 环检测守卫上限（结构性防死循环）
 scripts/gameplay/sim/run/ExpeditionMap.cs | d >= 3 | 分叉点**度量定义**（度数 ≥3 的房间计数；改它=改口径，不是调平衡）
 # ---- 其余结构性的（含一处跨层"两处真值"风险，已在提交/窗口里点名）----
-scripts/gameplay/sim/run/LightMeter.cs | > 75 => LightTier.Radiant | 光档边界（契约 `#272`：25/50/75）⚠️ UI 侧 LightBarPanel 也写着 25/50/75 ⇒ 两处真值，已报策划/UI
-scripts/gameplay/sim/run/LightMeter.cs | > 50 => LightTier.Dim | 同上
-scripts/gameplay/sim/run/LightMeter.cs | > 25 => LightTier.Shadowy | 同上
 scripts/gameplay/sim/run/RunSession.cs | Curve.Count >= 3 | 曲线最少样本数（结构性下限：少于 3 点画不出趋势）
 scripts/gameplay/sim/turn/TurnSequencer.cs | , 3, MidpointRounding | 数值保留 3 位小数（精度常量，非平衡量）
 scripts/gameplay/sim/run/SimplePlayerAuto.cs | .ThenBy(u => director.Enemy.UnitAtPosition | 自动玩家的**确定性顺序**（tie-break 项，不参与平衡）
@@ -68,5 +60,5 @@ darkest/scripts/gameplay/sim/board/TierDefence.cs | 0.85 | 原版 prot 的**比�
 # ── R16：祖产代理量的"长度上限"（一手：任务长度值域 1~4 ✓ 结构性，不是平衡数字）
 darkest/scripts/data/HeirloomQuestRewardConfig.cs | steps >= 4 ? 4 : steps | 一手任务长度的**值域上限 4**（策划 §43/§49：length ∈ 1~4 ✓ 结构性 ✓）
 
-darkest/scripts/gameplay/sim/run/HeroGear.cs | "c" => 3, | **结构性常量**：建筑等级 code（a/b/c/d）→ 等级（1/2/3/4）是**字母序映射**，不是平衡数字（一手 `buildings.json` 的等级 code 就是字母）✓
-darkest/scripts/gameplay/sim/run/HeroGear.cs | "d" => 4, | 同上：字母序映射的第 4 项（结构性常量，非平衡数字）✓
+darkest/scripts/gameplay/sim/run/HeroGear.cs | "" => 3, | **结构性常量**：建筑等级 code（a/b/c/d）→ 等级（1/2/3/4）是**字母序映射**，不是平衡数字（一手 `buildings.json` 的等级 code 就是字母）✓ ⚠️ 片段必须写**去字符串后的形态**（`"c"` 被 `strip_code` 换成 `""`）—— 写 `"c" => 3,` 会成**永不命中的死条目**（2026-09-30 实测抓到）
+darkest/scripts/gameplay/sim/run/HeroGear.cs | "" => 4, | 同上：字母序映射的第 4 项（结构性常量，非平衡数字）✓
