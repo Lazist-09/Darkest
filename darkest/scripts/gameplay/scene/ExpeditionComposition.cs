@@ -200,8 +200,16 @@ public static class ExpeditionComposition
 
         ExpeditionContext.BindConfigs(campSkills, roomContents, curiosCfg); // 🔴 片 4：面板配置进上下文 ⇒ 表现层读一处 ✓
 
-        // 🔴🔴 **`Phase 1`（2026-09-27）：存档系统接线** —— 到这一行时四个跨趟持有者
-        //    （名册 / 进度 / 传家宝 / 经济）**已全部备齐** ⇒ 组装 `SaveController` 挂进上下文，
+        // 🔴🆕 **H-1 装备阶的【唯一容器】**（`P4 ①` · 2026-09-30）：**先建出来**，再交给存档与升级机制**共用**
+        //    ⚠️ 此前是在下面那个分支里就地 `BindGear(new HeroGearState())` ⇒ 存档**拿不到它**
+        //       ⇒ 一存一读「**金币花了、阶没了**」（静默丢进度家族：玩家归因不到，日志里也没有一行）
+        //    🔴 容器**与 `hero_upgrades.json` 在不在无关**：空表 == 全部英雄第 0 阶 ⇒
+        //       文件缺失时**升级机制照样是关的**（下面那个分支会打印"关闭"），只是状态有了落点 ✓
+        var gear = new HeroGearState();
+        ExpeditionContext.BindGear(gear);
+
+        // 🔴🔴 **`Phase 1`（2026-09-27）：存档系统接线** —— 到这一行时五个跨趟持有者
+        //    （名册 / 进度 / 传家宝 / 经济 / **装备阶**）**已全部备齐** ⇒ 组装 `SaveController` 挂进上下文，
         //    供 UI 与流程在"一趟结束 / 建筑升级 / 回城"等时机触发存读档 ✓
         //    🔴 **opt-in 纪律**：`save.json` 缺失 ⇒ 机制**显式关闭并打印**（绝不半生效）✓
         if (FileAccess.FileExists(SaveConfig.ResPath))
@@ -209,7 +217,7 @@ public static class ExpeditionComposition
             SaveConfig saveCfg = SaveConfig.Parse(FileAccess.GetFileAsString(SaveConfig.ResPath));
             var saves = new SaveController(saveCfg, new SaveFileGateway(saveCfg),
                 ExpeditionContext.EnsureRoster(rosterCfg), ExpeditionContext.Progress,
-                heirlooms, economy);
+                heirlooms, economy, gear);
             ExpeditionContext.BindSaves(saves);
             GD.Print($"[片4·存档] 存档系统已接线：{saveCfg.SlotCount} 个槽位 · 目录 user://saves · " +
                      $"格式 v{Darkest.Gameplay.Sim.Save.SaveMigrator.CurrentVersion} ✓");
@@ -230,16 +238,17 @@ public static class ExpeditionComposition
             {
                 HeroGear.BuildingTreeId(GearAxis.Weapon), HeroGear.BuildingTreeId(GearAxis.Armour),
             });
-            ExpeditionContext.BindGear(new HeroGearState());
             ExpeditionContext.BindUpgrades(upCfg);
             GD.Print($"[片5·H-1] 装备阶已接线：{upCfg.TreeCount} 棵树 / {upCfg.LevelCount} 级 ／ " +
                      $"铁匠铺「武器」Lv{heirlooms.LevelOf(HeroGear.BuildingTreeId(GearAxis.Weapon))} ／ " +
                      $"「护甲」Lv{heirlooms.LevelOf(HeroGear.BuildingTreeId(GearAxis.Armour))} ／ " +
-                     $"阶域 0~{HeroGear.MaxTier}（**按护甲阶取 prot/dodge** ✓）");
+                     $"阶域 0~{HeroGear.MaxTier}（**按护甲阶取 prot/dodge** ✓）· " +
+                     "阶容器与存档**共用同一实例** ✓");
         }
         else
         {
-            GD.Print($"[片5·H-1] 未找到 `{HeroUpgradesConfig.ResPath}` ⇒ 装备阶机制**关闭**（opt-in；不静默）✓");
+            GD.Print($"[片5·H-1] 未找到 `{HeroUpgradesConfig.ResPath}` ⇒ 装备阶**升级机制关闭**（opt-in；不静默）· " +
+                     "阶容器已挂（空表 = 全第 0 阶）⇒ 存档仍带 `gear` ✓");
         }
 
         // 🔴🆕 `D-4`（2026-09-20）：**陷阱内容表** —— 与 `curiosCfg` 同族（内容表），**同处组装、同处绑定** ✓

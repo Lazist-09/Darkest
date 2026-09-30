@@ -28,6 +28,23 @@ public sealed record HeirloomSnapshot(
 /// <summary>**经济**（`Economy` 的可变部分）：金币与累计发放额。</summary>
 public sealed record EconomySnapshot(int Gold, int AwardedTotal);
 
+/// <summary>
+/// **H-1 装备阶**的一条：某英雄的**武器阶 / 护甲阶**（= `HeroGearState` 里一个键的值 ✓）。
+/// <para>🔴 **为什么是具名元素而不是 `(int, int)` 元组**：`System.Text.Json` 会把元组值写成
+/// `{"Item1":…,"Item2":…}`（字段名不自解释）—— 而存档是要**能被人打开看**的（`WriteIndented`）✓</para>
+/// </summary>
+public sealed record GearTierSnapshot(string HeroId, int Weapon, int Armour);
+
+/// <summary>
+/// **英雄装备阶**（`HeroGearState` 的可变部分 · `P4 ①` 2026-09-30）。
+/// <para>🔴 **为什么阶必须入档**：阶是**玩家花金币买来的**跨趟状态（`H-1` · 铁匠铺）——
+/// 不入档 ⇒ 一存一读「**金币花了、阶没了**」（静默丢进度家族，且玩家归因不到）✓</para>
+/// <para>🔴 **为什么是列表而不是字典**：字典的键序在 JSON 里不保证（每次存盘文本都可能不同）；
+/// 列表**按 `heroId` 排序**输出 ⇒ 存档可 diff、测试可逐字比对 ✓</para>
+/// <para>⚠️ **空表 = 全部英雄第 0 阶**（不是"数据缺失"）—— 起手与未升级过的名册就是它 ✓</para>
+/// </summary>
+public sealed record GearSnapshot(IReadOnlyList<GearTierSnapshot> Tiers);
+
 /// <summary>**墓园**的一条阵亡留档（与 `Roster.Graveyard` 的元素同构）。</summary>
 public sealed record GraveyardSnapshot(string HeroId, string Name, int Level, string Cause);
 
@@ -54,13 +71,17 @@ public sealed record RosterSnapshot(
 /// 🔴 **顶层存档快照**（一个存档槽位的全部内容）。
 /// <para>`Version` 由 `SaveMigrator` 消费 —— 🔴 **版本不符绝不删档**（那是公认反模式）：
 /// 迁移失败时**保留原档并回报**，交由玩家决定 ✓</para>
+/// <para>🔴 **加字段 = 加版本**（`H-1` 装备阶 · 2026-09-30 起）：新字段一律**不给默认值**
+/// （不给 `= null` 那种）⇒ 所有构造点被编译器点名，**不可能静默漏传**；
+/// 老档的兼容由 `SaveMigrator` 的显式迁移路径承担，**不靠本类的默认值**（红线 21）✓</para>
 /// </summary>
 public sealed record SaveSnapshot(
     int Version,
     RosterSnapshot Roster,
     ProgressSnapshot Progress,
     HeirloomSnapshot Heirlooms,
-    EconomySnapshot Economy);
+    EconomySnapshot Economy,
+    GearSnapshot Gear);
 
 /// <remarks>
 /// 🔴 **不提供 `Empty` 哨兵**（2026-09-27 删除）：第一版曾写过一个 `SaveSnapshot.Empty(version)`，

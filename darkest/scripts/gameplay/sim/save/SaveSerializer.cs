@@ -101,5 +101,23 @@ public static class SaveSerializer
         {
             throw new InvalidDataException("存档缺 `economy` —— 即损坏 ✓");
         }
+
+        // 🔴 `gear`（装备阶）**自 v2 起是必备件**：缺 ⇒ 损坏（红线 21：绝不静默当成"全 0 阶"）。
+        //    ⚠️ **必须按版本分档判**：v1 档里**结构上就没有**这个字段（不是被截断）
+        //    ⇒ 一刀切会把**老档误判成损坏档**；补空表的职责归 `SaveMigrator` 的 v1⇒v2 迁移 ✓
+        if (snapshot.Version >= SaveMigrator.GearFieldSinceVersion)
+        {
+            if (snapshot.Gear is null)
+            {
+                throw new InvalidDataException(
+                    $"存档（v{snapshot.Version}）缺 `gear` —— 自 v{SaveMigrator.GearFieldSinceVersion} " +
+                    "起它是必备件，缺失即损坏 ✓");
+            }
+
+            if (snapshot.Gear.Tiers is null)
+            {
+                throw new InvalidDataException("存档的 `gear.tiers` 缺失 —— 即损坏（不静默读成空表）✓");
+            }
+        }
     }
 }

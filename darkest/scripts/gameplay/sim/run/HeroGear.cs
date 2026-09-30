@@ -179,7 +179,7 @@ public static class HeroGear
 ///
 /// 🔴 **变更必写事件**（`CombatLog`）：升级成功写 `gear_upgraded`，**被拒也写** `gear_upgrade_refused`（理由入账）⇒ 不静默 ✓
 /// </summary>
-public sealed class HeroGearState
+public sealed partial class HeroGearState
 {
     private readonly Dictionary<string, (int Weapon, int Armour)> _tiers = new(StringComparer.Ordinal);
 

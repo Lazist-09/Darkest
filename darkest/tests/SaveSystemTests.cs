@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Nodes;
 using Darkest.Core.Events;
 using Darkest.Data;
 using Darkest.Gameplay.Sim.Run;
@@ -17,8 +18,9 @@ namespace Darkest.Tests;
 /// 数据悄悄丢了、档被悄悄删了、损坏档被悄悄读成空档。
 /// **不测**显然正确的代码（getter、JSON 库自身、纯转发）✓</para>
 ///
-/// <para>共 6 条：① 往返不丢数据 ② 特质实例往返 ③ 版本不符**不删档**
-/// ④ 空档哨兵安全 ⑤ 新档（空名册）不炸 ⑥ 恢复等价性（端到端最小）✓</para>
+/// <para>共 8 条：① 往返不丢数据 ② 特质实例往返 ③ 版本不符**不删档**
+/// ④ 空档哨兵安全 ⑤ 新档（空名册）不炸 ⑥ 恢复等价性（端到端最小）
+/// ⑦ 老档（v1）无 `gear` 字段 ⇒ 迁移补空表（不是损坏档） ⑧ 装备阶坏了必须**看得见** ✓</para>
 /// </summary>
 [TestClass]
 public sealed class SaveSystemTests
@@ -73,14 +75,22 @@ public sealed class SaveSystemTests
         stock.AwardForRun(log, 10, 1.0);
 
         Economy economy = NewEconomy();
-        economy.AwardContent(log, 500, "test");
+        economy.AwardContent(log, 5000, "test");
+
+        // 🔴 `P4 ①`（2026-09-30）：装备阶也造**真内容** —— 走**真升级路径**（花 750 金买
+        //    `hellion.weapon` code 0 ⇒ 阶 = 1）。⚠️ 若这里被静默拒绝，往返断言会看到 0 阶
+        //    ⇒ "夹具其实没造出内容"这件事**会被测出来**，不会假装通过 ✓
+        var gear = new HeroGearState();
+        gear.TryUpgrade(log, HeroUpgradesConfig.Parse(ReadData("hero_upgrades.json")),
+            economy, roster.Heroes[0], GearAxis.Weapon, buildingLevel: 4);
 
         return new SaveSnapshot(
             SaveMigrator.CurrentVersion,
             roster.CaptureSnapshot(),
             progress.CaptureSnapshot(),
             stock.CaptureSnapshot(),
-            economy.CaptureSnapshot());
+            economy.CaptureSnapshot(),
+            gear.CaptureSnapshot());
     }
 
     // ---------------------------------------------------------------
@@ -107,6 +117,8 @@ public sealed class SaveSystemTests
         stock.RestoreFrom(after.Heirlooms);
         Economy economy = NewEconomy();
         economy.RestoreFrom(after.Economy);
+        var gear = new HeroGearState();
+        gear.RestoreFrom(after.Gear);
 
         string heroId = before.Roster.Heroes[0].Id;
         Assert.AreEqual(before.Roster.Morale[heroId], roster.MoraleOf(heroId),
@@ -116,6 +128,11 @@ public sealed class SaveSystemTests
         Assert.AreEqual(before.Progress.RunsFinished, progress.RunsFinished, "已完成出征数必须原样回来 ✓");
         Assert.AreEqual(before.Economy.Gold, economy.Gold, "金币必须原样回来 ✓");
         Assert.AreEqual(before.Heirlooms.Levels.Count, after.Heirlooms.Levels.Count, "建筑等级条目数必须一致 ✓");
+        Assert.AreEqual(before.Gear.Tiers.Count, after.Gear.Tiers.Count, "装备阶条目数必须一致 ✓");
+        Assert.AreEqual(1, gear.WeaponTierOf(heroId),
+            "🔴 花金币买来的**装备阶**必须回来 —— 不入档 = 一存一读「金币花了、阶没了」" +
+            "（静默丢进度，玩家归因不到）✓");
+        Assert.AreEqual(0, gear.ArmourTierOf(heroId), "武器升级**不得**连带护甲阶（两条树独立）✓");
     }
 
     // ---------------------------------------------------------------
@@ -135,7 +152,8 @@ public sealed class SaveSystemTests
         SaveSnapshot snap = new(SaveMigrator.CurrentVersion, roster.CaptureSnapshot(),
             new ProgressSnapshot(0, 0),
             new HeirloomSnapshot(new Dictionary<string, int>(), new Dictionary<string, int>()),
-            new EconomySnapshot(0, 0));
+            new EconomySnapshot(0, 0),
+            new GearSnapshot(Array.Empty<GearTierSnapshot>()));
 
         Roster restored = NewRoster();
         restored.RestoreFrom(SaveMigrator.Migrate(
@@ -186,7 +204,8 @@ public sealed class SaveSystemTests
                 new Dictionary<string, int>()),
             new ProgressSnapshot(0, 0),
             new HeirloomSnapshot(new Dictionary<string, int>(), new Dictionary<string, int>()),
-            new EconomySnapshot(0, 0));
+            new EconomySnapshot(0, 0),
+            new GearSnapshot(Array.Empty<GearTierSnapshot>()));
 
         SaveSnapshot back = SaveSerializer.Deserialize(SaveSerializer.Serialize(empty));
 
@@ -238,10 +257,65 @@ public sealed class SaveSystemTests
                 before.CaptureSnapshot(),
                 new ProgressSnapshot(1, 1),
                 new HeirloomSnapshot(new Dictionary<string, int>(), new Dictionary<string, int>()),
-                new EconomySnapshot(77, 77))))).Snapshot!.Roster);
+                new EconomySnapshot(77, 77),
+                new GearSnapshot(Array.Empty<GearTierSnapshot>()))))).Snapshot!.Roster);
 
         Assert.AreEqual(moraleBefore, after.MoraleOf(heroId), "读档后士气读数必须与存档前一致 ✓");
         Assert.AreEqual(diseasesBefore, after.DiseasesOf(heroId).Count, "读档后疾病数必须一致 ✓");
         Assert.AreEqual(heroesBefore, after.Heroes.Count, "读档后名册人数必须一致 ✓");
+    }
+
+    // ---------------------------------------------------------------
+    // ⑦ 老档（v1）**结构上就没有** `gear` ⇒ 迁移补空表，不得误判成损坏档
+    // ---------------------------------------------------------------
+
+    [TestMethod]
+    public void OldSaveWithoutGear_MigratesToEmptyTiers_NotACorruptSave()
+    {
+        // 🔴 两臂：① 字段在、值为 `null` ② 字段**根本不存在**（v1 那版的真实形状）✓
+        SaveSnapshot v1WithNull = BuildPopulatedSnapshot() with { Version = 1, Gear = null! };
+        string nullField = SaveSerializer.Serialize(v1WithNull);
+
+        JsonObject node = JsonNode.Parse(nullField)!.AsObject();
+        node.Remove("Gear");
+        string noField = node.ToJsonString();
+
+        foreach (string text in new[] { nullField, noField })
+        {
+            MigrationResult migrated = SaveMigrator.Migrate(SaveSerializer.Deserialize(text));
+
+            Assert.IsTrue(migrated.Ok,
+                $"🔴 v1 老档必须能迁移 —— 一刀切按 v2 校验会把老档**误判成损坏档**（实际：{migrated.Message}）");
+            Assert.AreEqual(SaveMigrator.CurrentVersion, migrated.Snapshot!.Version, "迁移后版本必须升到当前 ✓");
+            Assert.IsNotNull(migrated.Snapshot!.Gear, "迁移必须补上 `gear` 快照（不给 `null`）✓");
+            Assert.AreEqual(0, migrated.Snapshot!.Gear.Tiers.Count,
+                "补的必须是**空表** = 全部英雄第 0 阶（v1 那版既没有该字段、也没有升级入口 ⇒ 唯一忠实读法）✓");
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // ⑧ 装备阶坏了必须**看得见**（守「静默读成 0 阶 / 静默钳制」）
+    // ---------------------------------------------------------------
+
+    [TestMethod]
+    public void DamagedGear_BecomesVisible_NotSilentlyZeroTiers()
+    {
+        // ① 当前版本（v2）的档缺 `gear` ⇒ 判为损坏档（自 v2 起它是必备件）+ 空文本仍抛 ✓
+        SaveSnapshot noGear = BuildPopulatedSnapshot() with { Gear = null! };
+        Assert.ThrowsException<InvalidDataException>(
+            () => SaveSerializer.Deserialize(SaveSerializer.Serialize(noGear)),
+            "🔴 自 v2 起 `gear` 是必备件 ⇒ 缺了必须抛（静默当成「全 0 阶」= 玩家进度无声消失）✓");
+
+        // ② 阶越界（0~4 之外）⇒ 恢复时**必须抛**，不静默钳到第 4 阶 ✓
+        SaveSnapshot outOfRange = BuildPopulatedSnapshot() with
+        {
+            Gear = new GearSnapshot(new[] { new GearTierSnapshot("hero_warrior_1", 9, 0) }),
+        };
+        SaveSnapshot roundTripped = SaveSerializer.Deserialize(SaveSerializer.Serialize(outOfRange));
+
+        var gear = new HeroGearState();
+        Assert.ThrowsException<InvalidDataException>(
+            () => gear.RestoreFrom(roundTripped.Gear),
+            "🔴 阶越界 = 损坏档，必须**看得见**（钳住 = 玩家看到的读数与档里写的不是一回事）✓");
     }
 }

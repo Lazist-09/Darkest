@@ -17,10 +17,10 @@ public sealed record SaveLoadResult(bool Ok, string Message)
 }
 
 /// <summary>
-/// 🔴 **存档编排**（`Phase 1`）—— 把「四个跨趟状态持有者」与「文件」缝在一起。
+/// 🔴 **存档编排**（`Phase 1` · `P4 ①` 起是**五个**持有者）—— 把「跨趟状态持有者」与「文件」缝在一起。
 ///
-/// <para>**职责**：**存** = 四处 `CaptureSnapshot()` 拼成 `SaveSnapshot` → 序列化 → 落盘；
-/// **读** = 读文本 → 反序列化 → 迁移 → 四处 `RestoreFrom(...)`。
+/// <para>**职责**：**存** = 五处 `CaptureSnapshot()` 拼成 `SaveSnapshot` → 序列化 → 落盘；
+/// **读** = 读文本 → 反序列化 → 迁移 → 五处 `RestoreFrom(...)`。
 /// **什么时候存**由调用方（组合根）决定，本类只提供 `Save`/`Load` ✓</para>
 ///
 /// <para>🔴🔴 **硬纪律：读档失败绝不删档**（"版本不符即删档"是公认反模式）⇒
@@ -34,9 +34,11 @@ public sealed class SaveController
     private readonly RunProgress _progress;
     private readonly HeirloomStock _heirlooms;
     private readonly Economy _economy;
+    private readonly HeroGearState _gear;
 
     public SaveController(SaveConfig config, SaveFileGateway gateway,
-        Roster roster, RunProgress progress, HeirloomStock heirlooms, Economy economy)
+        Roster roster, RunProgress progress, HeirloomStock heirlooms, Economy economy,
+        HeroGearState gear)
     {
         _cfg = config ?? throw new ArgumentNullException(nameof(config));
         _gateway = gateway ?? throw new ArgumentNullException(nameof(gateway));
@@ -44,6 +46,7 @@ public sealed class SaveController
         _progress = progress ?? throw new ArgumentNullException(nameof(progress));
         _heirlooms = heirlooms ?? throw new ArgumentNullException(nameof(heirlooms));
         _economy = economy ?? throw new ArgumentNullException(nameof(economy));
+        _gear = gear ?? throw new ArgumentNullException(nameof(gear));
     }
 
     /// <summary>可用槽位数（来自 `save.json`；数字不硬编码 —— #307 ✓）。</summary>
@@ -53,7 +56,7 @@ public sealed class SaveController
     public bool HasSave(int slot) => _gateway.Exists(slot);
 
     /// <summary>
-    /// 🔴 **存盘**：四处状态 → 快照 → JSON → 落盘。
+    /// 🔴 **存盘**：五处状态 → 快照 → JSON → 落盘。
     /// </summary>
     public SaveLoadResult Save(int slot)
     {
@@ -64,12 +67,14 @@ public sealed class SaveController
                 _roster.CaptureSnapshot(),
                 _progress.CaptureSnapshot(),
                 _heirlooms.CaptureSnapshot(),
-                _economy.CaptureSnapshot());
+                _economy.CaptureSnapshot(),
+                _gear.CaptureSnapshot());
 
             _gateway.WriteText(slot, SaveSerializer.Serialize(snapshot));
             return SaveLoadResult.Success(
                 $"已存入槽位 {slot}：名册 {snapshot.Roster.Heroes.Count} 人 / " +
-                $"金币 {snapshot.Economy.Gold} / 已完成 {snapshot.Progress.RunsFinished} 趟 ✓");
+                $"金币 {snapshot.Economy.Gold} / 已完成 {snapshot.Progress.RunsFinished} 趟 / " +
+                $"装备阶 {snapshot.Gear.Tiers.Count} 条 ✓");
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException
                                       or InvalidDataException or ArgumentOutOfRangeException)
@@ -80,7 +85,7 @@ public sealed class SaveController
     }
 
     /// <summary>
-    /// 🔴 **读档**：文本 → 快照 → 迁移 → 恢复四处状态。
+    /// 🔴 **读档**：文本 → 快照 → 迁移 → 恢复五处状态。
     /// <para>🔴 **失败时不动磁盘**：损坏档 / 未来版本档 ⇒ 只回报原因，**文件保留**（交给玩家决定）✓</para>
     /// </summary>
     public SaveLoadResult Load(int slot)
@@ -111,13 +116,25 @@ public sealed class SaveController
 
         // 🔴 恢复**不写事件**：读档不是游戏事件，写进 `CombatLog` 会污染事件流 ✓
         SaveSnapshot loaded = migrated.Snapshot!;
-        _roster.RestoreFrom(loaded.Roster);
-        _progress.RestoreFrom(loaded.Progress);
-        _heirlooms.RestoreFrom(loaded.Heirlooms);
-        _economy.RestoreFrom(loaded.Economy);
+        try
+        {
+            _roster.RestoreFrom(loaded.Roster);
+            _progress.RestoreFrom(loaded.Progress);
+            _heirlooms.RestoreFrom(loaded.Heirlooms);
+            _economy.RestoreFrom(loaded.Economy);
+            _gear.RestoreFrom(loaded.Gear);
+        }
+        catch (InvalidDataException ex)
+        {
+            // 🔴 反序列化能过、但**语义越界**的档（例：装备阶 9 阶）⇒ 同样**只回报 + 保留原档**，
+            //    绝不静默钳制（钳住 = 玩家看到的读数与档里写的不是一回事）✓
+            return SaveLoadResult.Fail(
+                $"槽位 {slot} 的存档内容越界：{ex.Message} —— **原档已保留**，未做任何修改 ✓");
+        }
 
         return SaveLoadResult.Success(
             $"已读取槽位 {slot}：名册 {loaded.Roster.Heroes.Count} 人 / " +
-            $"金币 {loaded.Economy.Gold} / 已完成 {loaded.Progress.RunsFinished} 趟 ✓");
+            $"金币 {loaded.Economy.Gold} / 已完成 {loaded.Progress.RunsFinished} 趟 / " +
+            $"装备阶 {loaded.Gear.Tiers.Count} 条 ✓");
     }
 }
