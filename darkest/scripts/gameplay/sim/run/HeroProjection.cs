@@ -39,6 +39,25 @@ public static class HeroProjection
     }
 
     /// <summary>
+    /// 🆕 **H-1（2026-09-27）：装备阶 → 单位减伤读数**（"当前阶"问题的**减伤半** ✓）。
+    ///
+    /// 🔴 **为什么挂这里**（与 `ApplyLevel` 同法）："英雄个体 → 单位运行时"的投影**本来就在这层**，
+    ///   阶的取值为 `HeroConfig.ArmourTier`（`O-101` 裁定：由 Roster/Hero 持有 ✓）⇒ 无需新载体 ✓
+    /// 🔴 **无 5 阶（敌人）⇒ 退回顶层** ⇒ **敌人零影响**（`TierDefence` 的既有语义 ✓）
+    /// ⚠️ **玩家单位是行为变更**：顶层 `prot` 8/12/4/5 → 护甲第 0 阶 **0**（差异已实测登记，
+    ///    `reports/top_level_vs_tier0_consistency.md` §1；策划裁定"直接接线"✓）
+    /// </summary>
+    public static void ApplyGearTier(HeroConfig hero, UnitRuntime unit)
+    {
+        if (hero is null || unit is null)
+        {
+            return;
+        }
+
+        unit.ApplyGearTier(hero.ArmourTier);
+    }
+
+    /// <summary>
     /// M8.0 ③（`#289` 裁定 (B)）：**特质 → 单位修正** —— 伤害类与士气类**各归其道**：
     /// · 伤害% ⇒ `DamageModPct`（在 `DamageStep` 里与 `buffDamageMult` **同层相乘**）；
     /// · 受士气伤害% ⇒ `MoraleDamageTakenPct`（供士气通道读取）。

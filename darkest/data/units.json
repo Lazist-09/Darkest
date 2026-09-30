@@ -99,7 +99,7 @@
       "disease_resist": 30,
       "trap_resist": 20,
       "prot": 8,
-      "_align": "阶段 A 对齐来源（**A3 · 2026-09-26 改用参考项目**）：`F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data\\Heroes\\Info\\Hellion.bytes` 的 `weapon:` 第 16-20 行 + `armour:` 第 21-25 行（逐阶照抄 ✓）｜判据源已按用户指令改为【参考项目】⇒ `dd1_baseline §32.3` 的「一手为准」作废 ✓",
+      "_align": "阶段 A 对齐来源（A3 · 2026-09-26）：`F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data\\Heroes\\Info\\Hellion.bytes` 的 `weapon:` 第 16-20 行 + `armour:` 第 21-25 行。已逐字段核过：dmg_min/dmg_max/crit_pct/spd/armour.def_pct/armour.hp/armour.prot 全部与该源吻合（crit_pct 2.5/3/3.5/4/4.5 亦同源）。与本层的一手（E 盘 hellion.info.darkest）不同：一手 crit 为 5/6/7/8/9。来源优先级以 doc/architecture/source_priority.md 为准；是否回一手见 O-104。",
       "move_distance": 2
     },
     {
@@ -201,7 +201,7 @@
       "disease_resist": 30,
       "trap_resist": 10,
       "prot": 12,
-      "_align": "阶段 A 对齐来源（**A3 · 2026-09-26 改用参考项目**）：`F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data\\Heroes\\Info\\ManAtArms.bytes` 的 `weapon:` 第 17-21 行 + `armour:` 第 22-26 行（逐阶照抄 ✓）｜判据源已按用户指令改为【参考项目】⇒ `dd1_baseline §32.3` 的「一手为准」作废 ✓",
+      "_align": "阶段 A 对齐来源（A3 · 2026-09-26）：`F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data\\Heroes\\Info\\ManAtArms.bytes` 的 `weapon:` 第 17-21 行 + `armour:` 第 22-26 行。已逐字段核过：dmg_min/dmg_max/crit_pct/spd/armour.def_pct/armour.prot 全部与该源吻合（crit_pct 3.75/4.25/4.75/5.25/5.75 亦同源）。与本层的一手（E 盘 man_at_arms.info.darkest）不同：一手 crit 为 2/3/4/5/6。来源优先级以 doc/architecture/source_priority.md 为准；是否回一手见 O-104。",
       "move_distance": 1
     },
     {
@@ -303,7 +303,7 @@
       "disease_resist": 50,
       "trap_resist": 20,
       "prot": 4,
-      "_align": "阶段 A 对齐来源（**A3 · 2026-09-26 改用参考项目**）：`F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data\\Heroes\\Info\\PlagueDoctor.bytes` 的 `weapon:` 第 16-20 行 + `armour:` 第 21-25 行（逐阶照抄 ✓）｜判据源已按用户指令改为【参考项目】⇒ `dd1_baseline §32.3` 的「一手为准」作废 ✓",
+      "_align": "阶段 A 对齐来源（A3 · 2026-09-26）：`F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data\\Heroes\\Info\\PlagueDoctor.bytes` 的 `weapon:` 第 16-20 行 + `armour:` 第 21-25 行。已逐字段核过：dmg_min/dmg_max/crit_pct/spd/armour.prot 与该源吻合（crit_pct 2.5/3/3.5/4/4.5 亦同源）。与本层的一手（E 盘 plague_doctor.info.darkest）不同：一手 crit 为 2/3/4/5/6。来源优先级以 doc/architecture/source_priority.md 为准；是否回一手见 O-104。",
       "move_distance": 2
     },
     {
@@ -405,7 +405,7 @@
       "disease_resist": 30,
       "trap_resist": 40,
       "prot": 5,
-      "_align": "阶段 A 对齐来源（**A3 · 2026-09-26 改用参考项目**）：`F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data\\Heroes\\Info\\Highwayman.bytes` 的 `weapon:` 第 17-21 行 + `armour:` 第 22-26 行（逐阶照抄 ✓）｜判据源已按用户指令改为【参考项目】⇒ `dd1_baseline §32.3` 的「一手为准」作废 ✓",
+      "_align": "阶段 A 对齐来源（A3 · 2026-09-26）：`F:\\GithubPro\\Darkest-Dungeon-Unity\\Assets\\Resources\\Data\\Heroes\\Info\\Highwayman.bytes` 的 `weapon:` 第 17-21 行 + `armour:` 第 22-26 行。已逐字段核过：dmg_min/dmg_max/crit_pct/spd/armour.def_pct/armour.hp/armour.prot 全部与该源吻合（crit_pct 5/5.5/6/6.5/7 亦同源）。与本层的一手（E 盘 highwayman.info.darkest）不同：一手 crit 为 5/6/7/8/9。来源优先级以 doc/architecture/source_priority.md 为准；是否回一手见 O-104。",
       "move_distance": 2
     },
     {

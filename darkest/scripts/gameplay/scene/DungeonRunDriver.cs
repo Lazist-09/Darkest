@@ -63,6 +63,17 @@ public static class DungeonRunDriver
         GD.Print($"[片4-driver] ✅ 结算回城：走 {flow.StepsDone} 段 ／ 胜 {flow.Wins} ／ " +
                  $"光照 {flow.Meter.Value} ⇒ 切城池（`--hamlet-next` 与冒烟 `town` 共用此实现）✓");
         flow.ReturnToTown(result); // 🔴 `#352`：completed = 走完 ／ abandoned = 放弃远征 ✓
+
+        // 🔴🔴 **`Phase 1`（2026-09-27）：回城 = 一个自然的存档点** ⇒ 自动存到槽位 0。
+        //    放在 `ExpeditionContext.End()` **之前**：End 只清本趟的 `Flow`/`Log`
+        //    （四个跨趟持有者本来就不会被清），但"**先存、再清**"更好推理、也更抗将来改动 ✓
+        //    🔴 没有这一句，存档系统就只是"**装好了但没人按**"（写了不调 = 静默退化）✓
+        if (ExpeditionContext.Saves is { } saves)
+        {
+            SaveLoadResult saved = saves.Save(0);
+            GD.Print($"[存档] 回城自动存档（槽位 0）：{saved.Message}");
+        }
+
         ExpeditionContext.End();
         // 🆕 **B-3 接线**：本条路径**也是回落**（直接切场景、没有面板化）⇒ 如实记一笔并打印账本 ✓
         //    ⇒ 这样"**还差哪几屏没面板化**"就有**真实数据**了（架构 B-3 的原话：回落必须留痕 ✓）

@@ -49,8 +49,20 @@ public sealed record HeirloomConfig(
     /// <summary>光照档顺序（与 light.loot / economy.light_tier_bonus 同序）——**经济侧仍在用**（`EconomyConfig.TierOrder`）✓</summary>
     public static readonly IReadOnlyList<string> TierOrder = new[] { "radiant", "dim", "shadowy", "dark", "black" };
 
-    /// <summary>M8.1 首批允许升级的建筑（其余建筑的子系统尚未落地 ⇒ 出现即报错）。</summary>
-    public static readonly IReadOnlyList<string> AllowedBuildings = new[] { "tavern", "abbey", "stagecoach" };
+    /// <summary>
+    /// M8.1 首批允许升级的建筑（其余建筑的子系统尚未落地 ⇒ 出现即报错）。
+    ///
+    /// 🆕 **H-1（2026-09-27）追加 `blacksmith.weapon` / `blacksmith.armour`** —— 依据三条（**不是放宽纪律，是补齐前置** ✓）：
+    ///   ① **一手硬前置**：`hero_upgrades.json` 里每个装备等级的 `prerequisites` 都是**双条件** ——
+    ///      本树前一级 **+** `blacksmith.weapon`/`blacksmith.armour` 的等级 code（a/b/c/d）；
+    ///   ② **建筑本体已存在**：`buildings.json` 有 `blacksmith` 建筑及其两条树（成本 deed/crest，**照抄自一手** ✓）；
+    ///   ③ **缺的是升级路径**：`heirlooms.json` 原先没有它 ⇒ `LevelOf` 恒 0 ⇒ **前置永不满足 ⇒ 装备永远升不了级** ⇒ H-1 是死的 ⚠️
+    ///   ⇒ 补一条 `upgrade_path` 即闭环 ✓
+    /// 🔴 **用树 id 而不是建筑名**：`building` 字段是 `HeirloomStock.LevelOf` 的键，
+    ///    必须与 `hero_upgrades.json` 的 `prerequisites.tree_id` **逐字对得上**（否则前置永远查不到 ✓）。
+    /// </summary>
+    public static readonly IReadOnlyList<string> AllowedBuildings =
+        new[] { "tavern", "abbey", "stagecoach", "blacksmith.weapon", "blacksmith.armour" };
 
     public static HeirloomConfig Parse(string json)
     {

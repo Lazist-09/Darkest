@@ -71,6 +71,32 @@ public sealed class UnitRuntime
     public int ResilienceMod { get; set; }
     public int SpeedMod { get; set; }
 
+    // ------------------------------------------------------------------
+    // 🆕 H-1（2026-09-27）：**装备阶 → 护甲读数**（"当前阶"问题的减伤半 ✓）
+    // ------------------------------------------------------------------
+
+    /// <summary>
+    /// 🔴 **护甲阶覆盖的 `prot`**（未接线 = `null` ⇒ 读数仍是顶层的 `Base.Prot` ⇒ **零行为** ✓）。
+    /// 由 <see cref="ApplyGearTier"/> 写入（组合根在装配时按 `HeroConfig.ArmourTier` 调一次）✓
+    /// </summary>
+    public int? GearProtOverride { get; private set; }
+
+    /// <summary>🔴 **护甲阶覆盖的 `dodge`**（同 <see cref="GearProtOverride"/>；`null` ⇒ 顶层 `Base.Dodge`）。</summary>
+    public int? GearDodgeOverride { get; private set; }
+
+    /// <summary>
+    /// **按护甲阶投影减伤读数**（运行时投影、不改基准数据 —— 与 `ApplyLevelGrowth` 同法 ✓）。
+    ///
+    /// 🔴 **无 5 阶的单位（敌人）⇒ `TierDefence` 退回顶层** ⇒ **敌人读数逐字不变** ✓
+    /// 🔴 **玩家单位 ⇒ 真按阶取**（⚠️ 这是**行为变更**：顶层 `prot` 8/12/4/5 vs 护甲第 0 阶 **全 0**，
+    ///    差异已实测登记在 `reports/top_level_vs_tier0_consistency.md` §1，由策划裁定"直接接线"✓）
+    /// </summary>
+    public void ApplyGearTier(int armourTier)
+    {
+        GearProtOverride = TierDefence.ProtAt(Base, armourTier);
+        GearDodgeOverride = TierDefence.DefAt(Base, armourTier);
+    }
+
     /// <summary>眩晕标记：跳过 1 次行动随即结束（GDD §2.5 / tuning stun）。</summary>
     public bool Stunned { get; set; }
 
@@ -206,7 +232,15 @@ public sealed class UnitRuntime
     // ------------------------------------------------------------------
 
     public int EffectiveAttack => Math.Max(1, Base.Attack + AttackMod);
-    public int EffectiveProt => Math.Max(0, Base.Prot + ProtMod);
+
+    /// <summary>生效减伤（🆕 H-1：**装备阶覆盖优先**；未接线 = `null` ⇒ 与旧口径逐字一致 ✓）。</summary>
+    public int EffectiveProt => Math.Max(0, (GearProtOverride ?? Base.Prot) + ProtMod);
+
+    /// <summary>
+    /// 🆕 **生效闪避**（H-1）：`HitStep` / `BattleProjector` **必须走这里**（而不是 `Base.Dodge`），
+    /// 否则"护甲阶影响闪避"就是**写了但没接上**（红线 21）✓
+    /// </summary>
+    public int EffectiveDodge => GearDodgeOverride ?? Base.Dodge;
     public int EffectiveResilience => Math.Max(0, Base.Resilience + ResilienceMod);
 
     /// <summary>生效速度 = (基础+速度修正) × 虚弱因子（weak.speed_mult；加法先于乘法）。</summary>

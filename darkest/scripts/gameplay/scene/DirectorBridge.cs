@@ -87,6 +87,10 @@ public static class DirectorBridge
             {
                 Darkest.Gameplay.Sim.Run.HeroProjection.ApplyLevel(sortie[i], board[i], growth);
 
+                // 🔴 H-1（2026-09-27）：**装备阶 → 减伤读数**（护甲阶 ⇒ prot/dodge 按 `armour[]` 逐阶取）✓
+                //    未接线前 `GearProtOverride/DodgeOverride` 恒 null ⇒ 旧口径；接上后玩家单位按阶 ⇒ **行为变更**（策划已裁）✓
+                Darkest.Gameplay.Sim.Run.HeroProjection.ApplyGearTier(sortie[i], board[i]);
+
                 // 🔴 M8.0 ③（#289 (B)）：特质 → 单位修正（伤害类与士气类各归其道）
                 // 🔴 M8.2 / V15：**优先用"当前特质效果"**（来自可变名册）⇒ 清除/固化后立即生效（红线 21）
                 if (traitEffectsBySlot is not null && i < traitEffectsBySlot.Count)

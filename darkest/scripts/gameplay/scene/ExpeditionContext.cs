@@ -116,6 +116,37 @@ public static class ExpeditionContext
         Curios = curios;
     }
 
+    /// <summary>
+    /// 🔴 **`Phase 1`**：存档控制器 —— 与 `Gold` / `Roster` / `Heirlooms` 同为**跨趟**生命周期
+    /// （不随 `End()` 清空）。由组合根在**备齐四个持有者之后** `BindSaves` ⇒ UI/流程侧据此存读档 ✓
+    /// </summary>
+    public static SaveController? Saves { get; private set; }
+
+    /// <summary>绑定存档控制器（组合根调用；重复绑定 = 覆盖）✓</summary>
+    public static void BindSaves(SaveController saves)
+        => Saves = saves ?? throw new System.ArgumentNullException(nameof(saves));
+
+    /// <summary>
+    /// 🔴 **H-1（2026-09-27）**：**英雄装备阶** —— 与 `Gold` / `Roster` / `Heirlooms` 同为**跨趟**状态
+    /// （升了阶不会因为回城就掉回 0 ⇒ 不随 `End()` 清空）✓
+    /// 由组合根在备齐 `Roster` / `Economy` / `HeirloomStock` / `HeroUpgradesConfig` 之后 `BindGear` ✓
+    /// </summary>
+    public static HeroGearState? Gear { get; private set; }
+
+    /// <summary>绑定装备阶持有者（组合根调用；重复绑定 = 覆盖）✓</summary>
+    public static void BindGear(HeroGearState gear)
+        => Gear = gear ?? throw new System.ArgumentNullException(nameof(gear));
+
+    /// <summary>
+    /// 🔴 **H-1**：英雄升级树配置（**数值来源** = 一手 `hero_upgrades.json` ✓）。
+    /// `HeroGearState.TryUpgrade` 需要它查成本与前置 ⇒ 与 `Gear` 同处绑定（缺一即不可用）✓
+    /// </summary>
+    public static Darkest.Data.HeroUpgradesConfig? Upgrades { get; private set; }
+
+    /// <summary>绑定英雄升级树配置（组合根调用）✓</summary>
+    public static void BindUpgrades(Darkest.Data.HeroUpgradesConfig upgrades)
+        => Upgrades = upgrades ?? throw new System.ArgumentNullException(nameof(upgrades));
+
     /// <summary>本趟远征共用的日志（事件流是唯一事实来源）。</summary>
     public static CombatLog? Log { get; private set; }
 

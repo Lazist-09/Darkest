@@ -17,7 +17,8 @@ namespace Darkest.Gameplay.Sim.Run;
 ///
 /// 归属：**跨会话持有者**（组合根注入；`BattleDirector` 不持有它）。变更**必写事件**。
 /// </summary>
-public sealed class HeirloomStock
+/// <remarks>🆕 **存档（`Phase 1`）**：改 `partial` —— 快照存取见 `HeirloomStock.Save.cs`（避免撑大本文件）。</remarks>
+public sealed partial class HeirloomStock
 {
     private readonly HeirloomConfig _cfg;
     private readonly Dictionary<string, int> _counts;

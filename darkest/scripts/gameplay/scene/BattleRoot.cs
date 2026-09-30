@@ -19,7 +19,7 @@ namespace Darkest.Gameplay.Scene;
 /// → NextActor 逐个出列：我方 → 等待玩家输入（技能/换位/撤退）；敌方 → 自动 EnemyAct；
 /// 队列空 → 下回合。全部事件写内核 CombatLog；UI 只读投影 + 命令门面。
 /// </summary>
-public partial class BattleRoot : Node2D
+public partial class BattleRoot : Node2D, IBattleView
 {
     public BattleDirector Director { get; private set; } = null!;
     public BattleProjector Projector { get; private set; } = null!;

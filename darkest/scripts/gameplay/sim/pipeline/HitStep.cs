@@ -18,7 +18,10 @@ public static class HitStep
         IRngProvider rng, CombatLog log, BalanceTable balance,
         Darkest.Core.Contracts.IBuffLedger? buffs = null)
     {
-        int shown = BattleMath.HitRate(target.Base.Dodge, hitMod, balance.HitClampMin, balance.HitClampMax);
+        // 🆕 H-1（2026-09-27）：**闪避必须走 `EffectiveDodge`**（护甲阶覆盖优先）——
+        //   直接读 `Base.Dodge` ⇒ "装备阶影响闪避"会变成**写了但没接上**（红线 21）✓
+        //   🔴 纪律 V（展示值 == 消费值）：`BattleProjector` 用的是同一个口 ⇒ 面板与结算不会分叉 ✓
+        int shown = BattleMath.HitRate(target.EffectiveDodge, hitMod, balance.HitClampMin, balance.HitClampMax);
         // D1（#203）：连续未命中补偿 = max(0, 连续未命中−1) × N，**隐藏**（不改面板显示值）
         // 🔴 数字外置（P29）：N 来自 `tuning.consecutive_miss.hit_bonus_per_miss`（原硬编码 4）✓
         int hidden = Math.Max(0, attacker.ConsecutiveMisses - 1) * balance.ConsecutiveMissHitBonusPerMiss;

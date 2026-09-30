@@ -200,6 +200,48 @@ public static class ExpeditionComposition
 
         ExpeditionContext.BindConfigs(campSkills, roomContents, curiosCfg); // 🔴 片 4：面板配置进上下文 ⇒ 表现层读一处 ✓
 
+        // 🔴🔴 **`Phase 1`（2026-09-27）：存档系统接线** —— 到这一行时四个跨趟持有者
+        //    （名册 / 进度 / 传家宝 / 经济）**已全部备齐** ⇒ 组装 `SaveController` 挂进上下文，
+        //    供 UI 与流程在"一趟结束 / 建筑升级 / 回城"等时机触发存读档 ✓
+        //    🔴 **opt-in 纪律**：`save.json` 缺失 ⇒ 机制**显式关闭并打印**（绝不半生效）✓
+        if (FileAccess.FileExists(SaveConfig.ResPath))
+        {
+            SaveConfig saveCfg = SaveConfig.Parse(FileAccess.GetFileAsString(SaveConfig.ResPath));
+            var saves = new SaveController(saveCfg, new SaveFileGateway(saveCfg),
+                ExpeditionContext.EnsureRoster(rosterCfg), ExpeditionContext.Progress,
+                heirlooms, economy);
+            ExpeditionContext.BindSaves(saves);
+            GD.Print($"[片4·存档] 存档系统已接线：{saveCfg.SlotCount} 个槽位 · 目录 user://saves · " +
+                     $"格式 v{Darkest.Gameplay.Sim.Save.SaveMigrator.CurrentVersion} ✓");
+        }
+        else
+        {
+            GD.Print("[片4·存档] 未找到 `save.json` ⇒ 存档机制**关闭**（opt-in；不静默）✓");
+        }
+
+        // 🔴🆕 **H-1（2026-09-27）：英雄装备阶接线** —— `hero_upgrades.json` 是它的**数值来源**（一手 15 职业树 ✓）
+        //    🔴 **opt-in 纪律**：文件缺失 ⇒ 机制**显式关闭并打印**（绝不半生效）✓
+        if (FileAccess.FileExists(HeroUpgradesConfig.ResPath))
+        {
+            HeroUpgradesConfig upCfg = HeroUpgradesConfig.Parse(
+                FileAccess.GetFileAsString(HeroUpgradesConfig.ResPath));
+            // 外部树目录（供 `Validate` 判定"前置悬空"）：铁匠铺两条 + 本件用到的职业树自身 ✓
+            upCfg.Validate(new[]
+            {
+                HeroGear.BuildingTreeId(GearAxis.Weapon), HeroGear.BuildingTreeId(GearAxis.Armour),
+            });
+            ExpeditionContext.BindGear(new HeroGearState());
+            ExpeditionContext.BindUpgrades(upCfg);
+            GD.Print($"[片5·H-1] 装备阶已接线：{upCfg.TreeCount} 棵树 / {upCfg.LevelCount} 级 ／ " +
+                     $"铁匠铺「武器」Lv{heirlooms.LevelOf(HeroGear.BuildingTreeId(GearAxis.Weapon))} ／ " +
+                     $"「护甲」Lv{heirlooms.LevelOf(HeroGear.BuildingTreeId(GearAxis.Armour))} ／ " +
+                     $"阶域 0~{HeroGear.MaxTier}（**按护甲阶取 prot/dodge** ✓）");
+        }
+        else
+        {
+            GD.Print($"[片5·H-1] 未找到 `{HeroUpgradesConfig.ResPath}` ⇒ 装备阶机制**关闭**（opt-in；不静默）✓");
+        }
+
         // 🔴🆕 `D-4`（2026-09-20）：**陷阱内容表** —— 与 `curiosCfg` 同族（内容表），**同处组装、同处绑定** ✓
         //    ⚠️ 文件**可以不存在**（陷阱是 opt-in 机制）⇒ 缺失 ⇒ `null` ⇒ `D-4` 显式关闭（不静默半生效）✓
         if (Godot.FileAccess.FileExists(TrapDefs.ResPath))

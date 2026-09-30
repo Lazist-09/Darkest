@@ -18,7 +18,12 @@ namespace Darkest.Gameplay.Sim.Run;
 /// · **减压**：`ApplyRelief(...)` 是**唯一**的"提高士气"出口（M8.0 ④）。
 /// 所有变更**必写 `HeroMoraleChangedEvent`**。
 /// </summary>
-public sealed class Roster
+/// <remarks>
+/// 🆕 **存档（`Phase 1`）**：本类声明为 `partial` —— 快照的存取需要**读写私有字段**，
+/// 而把快照逻辑堆进本文件会让本文件（已 469 行）顶到尺寸红线 ⇒
+/// 快照逻辑放在 **`Roster.Save.cs`**（同一 partial 类），既拿到私有访问权、又**不撑大本文件** ✓
+/// </remarks>
+public sealed partial class Roster
 {
     private readonly RosterConfig _cfg;
     private readonly Dictionary<string, int> _morale;

@@ -158,6 +158,29 @@
         { "level": 2, "cost": { "deeds": 5, "crests": 4 }, "effect": { "roster_cap_delta": 2 } },
         { "level": 3, "cost": { "deeds": 8, "crests": 6 }, "effect": { "rookie_level": 2 } }
       ]
+    },
+    {
+      "building": "blacksmith.weapon",
+      "axis": "unlock",
+      "note": "🆕 H-1（2026-09-27）：**铁匠铺**两轴（武器/护甲）—— 它是 `hero_upgrades.json` 里每个装备等级的**硬前置**（一手双条件：本树前一级 + `blacksmith.weapon`/`blacksmith.armour` 建筑等级 a/b/c/d）✓ 成本**照抄一手** `buildings.json` 的 `blacksmith.weapon`/`blacksmith.armour` 树（a/b/c/d ⇒ deed 8/20/32/44 · crest 8/21/35/49）✓ 🔴 **效果不由 `effect` 表达**：铁匠铺的效果**就是它的等级本身**（`HeirloomStock.LevelOf` ⇒ `HeroGear` 读它判前置）⇒ 四项 effect 全 0 是**正确**的，不是「升级无效果」✓ 🔴 `building` 用**树 id**（不是建筑名）⇒ 与 `hero_upgrades.json` 的 `prerequisites.tree_id` **逐字对得上** ✓",
+      "levels": [
+        { "level": 1, "cost": { "deeds": 8, "crests": 8 }, "effect": {} },
+        { "level": 2, "cost": { "deeds": 20, "crests": 21 }, "effect": {} },
+        { "level": 3, "cost": { "deeds": 32, "crests": 35 }, "effect": {} },
+        { "level": 4, "cost": { "deeds": 44, "crests": 49 }, "effect": {} }
+      ]
+    }
+,
+    {
+      "building": "blacksmith.armour",
+      "axis": "unlock",
+      "note": "🆕 H-1（2026-09-27）：**铁匠铺**两轴（武器/护甲）—— 它是 `hero_upgrades.json` 里每个装备等级的**硬前置**（一手双条件：本树前一级 + `blacksmith.weapon`/`blacksmith.armour` 建筑等级 a/b/c/d）✓ 成本**照抄一手** `buildings.json` 的 `blacksmith.weapon`/`blacksmith.armour` 树（a/b/c/d ⇒ deed 8/20/32/44 · crest 8/21/35/49）✓ 🔴 **效果不由 `effect` 表达**：铁匠铺的效果**就是它的等级本身**（`HeirloomStock.LevelOf` ⇒ `HeroGear` 读它判前置）⇒ 四项 effect 全 0 是**正确**的，不是「升级无效果」✓ 🔴 `building` 用**树 id**（不是建筑名）⇒ 与 `hero_upgrades.json` 的 `prerequisites.tree_id` **逐字对得上** ✓",
+      "levels": [
+        { "level": 1, "cost": { "deeds": 8, "crests": 8 }, "effect": {} },
+        { "level": 2, "cost": { "deeds": 20, "crests": 21 }, "effect": {} },
+        { "level": 3, "cost": { "deeds": 32, "crests": 35 }, "effect": {} },
+        { "level": 4, "cost": { "deeds": 44, "crests": 49 }, "effect": {} }
+      ]
     }
   ]
 }

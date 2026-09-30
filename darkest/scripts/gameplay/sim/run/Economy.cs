@@ -15,7 +15,8 @@ namespace Darkest.Gameplay.Sim.Run;
 /// · **光照档**：再按当前档加 `light_tier_bonus`（**越暗越多** ⇒ "冒险"有了**可跨趟积累**的回报）。
 /// 所有变更**必写 `GoldChangedEvent`**（数字必须来自事件流）。
 /// </summary>
-public sealed class Economy
+/// <remarks>🆕 **存档（`Phase 1`）**：改 `partial` —— 快照存取见 `Economy.Save.cs`（避免撑大本文件）。</remarks>
+public sealed partial class Economy
 {
     private readonly EconomyConfig _cfg;
 

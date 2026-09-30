@@ -200,7 +200,8 @@ public sealed class BattleProjector
             return new TargetEstimate(0, 0, 0);
         }
 
-        int hit = HitRateFor(victim.Base.Dodge, skill.HitMod);
+        // 🆕 H-1：与 `HitStep` **同一个口**（`EffectiveDodge`）⇒ 面板预测值 == 实际结算值（纪律 V ✓）
+        int hit = HitRateFor(victim.EffectiveDodge, skill.HitMod);
         if (skill.Damage is null)
         {
             return new TargetEstimate(hit, 0, 0); // 支援/控制类：无伤害段

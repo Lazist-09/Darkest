@@ -18,7 +18,8 @@ namespace Darkest.Gameplay.Sim.Run;
 /// ⚠️ 口径（如实标注，供策划复核）：`runs` 统计**已结束的出征**（结局 = **完成 / 放弃远征 / 全灭** —— 🔴 `#352` 后**撤退不算结局**）——
 ///    理由：若只数"完成"，撤退/团灭的玩家会**永远解锁不了任何东西**。若你要改成"只数完成"，改本类一处 ✓
 /// </summary>
-public sealed class RunProgress
+/// <remarks>🆕 **存档（`Phase 1`）**：改 `partial` —— 快照存取见 `RunProgress.Save.cs`（避免撑大本文件）。</remarks>
+public sealed partial class RunProgress
 {
     /// <summary>已完成的出征数（跨趟持有；由组合根在"一趟结束"时 `FinishRun`）。</summary>
     public int RunsFinished { get; private set; }
