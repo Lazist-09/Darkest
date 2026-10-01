@@ -21,8 +21,8 @@ namespace Darkest.Tests;
 /// <para>共 8 条（**不新增用例**：`v3` 的怪癖断言全部并进既有用例）✓
 /// ① 往返不丢数据 ② 特质实例往返 ③ 版本不符**不删档**
 /// ④ 空档哨兵安全 ⑤ 新档（空名册）不炸 ⑥ 恢复等价性（端到端最小）
-/// ⑦ 老档（v1）缺 `gear`／`roster.quirks` ⇒ 迁移**逐级**补空表（不是损坏档）
-/// ⑧ **必备件**（v2 起 `gear` ／ v3 起 `roster.quirks`）缺了必须**看得见** ✓</para>
+/// ⑦ 老档（v1）缺 `gear`／`roster.quirks`／`roster.trinkets` ⇒ 迁移**逐级**补空表（不是损坏档）
+/// ⑧ **必备件**（v2 起 `gear` ／ v3 起 `roster.quirks` ／ v4 起 `roster.trinkets`）缺了必须**看得见** ✓</para>
 /// </summary>
 [TestClass]
 public sealed class SaveSystemTests
@@ -68,6 +68,9 @@ public sealed class SaveSystemTests
         roster.Infect(log, heroId, "test_disease");
         // 🆕 M5u（v3）：怪癖也造**真内容**（`tough` 是库里真 id，且与 `fragile` 互斥 ⇒ M5 用例已断言）✓
         roster.AddQuirk(log, heroId, "tough", "test");
+        // 🆕 M4u（v4）：饰品也造**真内容** —— 走真 `EquipTrinket` 路径（`crow_wingfeather` 是库里真 id、
+        //    无职业限定 ⇒ 在真实名册上一定能装上）。⚠️ 若这里被静默拒绝，往返断言会看到 0 件 ⇒ 会被测出来 ✓
+        roster.EquipTrinket(log, TrinketsConfig.Parse(ReadData("trinkets.json")), heroId, "crow_wingfeather", "test");
         roster.ScheduleOpeningPenalty(heroId, 7);
         roster.CurrentCap = 10;
 
@@ -132,6 +135,9 @@ public sealed class SaveSystemTests
         Assert.AreEqual(1, roster.QuirksOf(heroId).Count,
             "🔴 怪癖（v3 新增）必须原样回来 —— 不入档 = 一存一读「招到的怪癖没了」（静默丢状态）✓");
         Assert.IsTrue(roster.QuirksOf(heroId).Contains("tough"), "怪癖 id 必须原样回来 ✓");
+        Assert.AreEqual(1, roster.TrinketsOf(heroId).Count,
+            "🔴 饰品（v4 新增）必须原样回来 —— 不入档 = 一存一读「装上的饰品没了」（静默丢状态）✓");
+        Assert.AreEqual("crow_wingfeather", roster.TrinketsOf(heroId)[0], "饰品 id 必须原样回来（且保序）✓");
         Assert.AreEqual(before.Progress.RunsFinished, progress.RunsFinished, "已完成出征数必须原样回来 ✓");
         Assert.AreEqual(before.Economy.Gold, economy.Gold, "金币必须原样回来 ✓");
         Assert.AreEqual(before.Heirlooms.Levels.Count, after.Heirlooms.Levels.Count, "建筑等级条目数必须一致 ✓");
@@ -205,6 +211,7 @@ public sealed class SaveSystemTests
                 new Dictionary<string, int>(),
                 new Dictionary<string, IReadOnlyList<string>>(),
                 new Dictionary<string, IReadOnlyList<string>>(),
+                new Dictionary<string, IReadOnlyList<string>>(),   // Trinkets（v4 新增）✓
                 new Dictionary<string, IReadOnlyList<HeroTraitConfig>>(),
                 Array.Empty<string>(),
                 Array.Empty<GraveyardSnapshot>(),
@@ -281,19 +288,21 @@ public sealed class SaveSystemTests
     public void OldSaveWithoutGearAndQuirks_MigratesToEmptyTables_NotACorruptSave()
     {
         // 🔴 两臂：① 字段在、值为 `null` ② 字段**根本不存在**（v1 那版的真实形状）✓
-        //    v1 档里两个字段都还没有（`gear` 自 v2 起、`roster.quirks` 自 v3 起）⇒ 两臂都按 v1 造 ✓
+        //    v1 档里三个字段都还没有（`gear` 自 v2 起、`roster.quirks` 自 v3 起、
+        //    `roster.trinkets` 自 v4 起）⇒ 两臂都按 v1 造 ✓
         SaveSnapshot populated = BuildPopulatedSnapshot();
         SaveSnapshot v1WithNull = populated with
         {
             Version = 1,
             Gear = null!,
-            Roster = populated.Roster with { Quirks = null! },
+            Roster = populated.Roster with { Quirks = null!, Trinkets = null! },
         };
         string nullField = SaveSerializer.Serialize(v1WithNull);
 
         JsonObject node = JsonNode.Parse(nullField)!.AsObject();
         node.Remove("Gear");
         ((JsonObject)node["Roster"]!).Remove("Quirks");
+        ((JsonObject)node["Roster"]!).Remove("Trinkets");
         string noField = node.ToJsonString();
 
         foreach (string text in new[] { nullField, noField })
@@ -310,6 +319,9 @@ public sealed class SaveSystemTests
             Assert.IsNotNull(migrated.Snapshot!.Roster.Quirks, "迁移必须补上 `roster.quirks`（不给 `null`）✓");
             Assert.AreEqual(0, migrated.Snapshot!.Roster.Quirks.Count,
                 "补的必须是**空表** = 没有英雄持怪癖（v2 那版没有任何怪癖入口 ⇒ 唯一忠实读法）✓");
+            Assert.IsNotNull(migrated.Snapshot!.Roster.Trinkets, "迁移必须补上 `roster.trinkets`（不给 `null`）✓");
+            Assert.AreEqual(0, migrated.Snapshot!.Roster.Trinkets.Count,
+                "补的必须是**空表** = 没有英雄持饰品（v3 那版没有任何饰品入口 ⇒ 唯一忠实读法）✓");
         }
     }
 
@@ -334,6 +346,12 @@ public sealed class SaveSystemTests
             // ⚠️ 必须**过一遍 Deserialize**：结构校验 `Validate` 在读取侧（红线 21 是「不静默读成空表」）✓
             () => SaveSerializer.Deserialize(SaveSerializer.Serialize(noQuirks)),
             "🔴 自 v3 起 `roster.quirks` 是必备件 ⇒ 缺了必须抛（静默当成「没有怪癖」= 招到的怪癖无声消失）✓");
+
+        // ①c 缺 `roster.trinkets` ⇒ 同样判为损坏档（自 v4 起它是必备件）✓
+        SaveSnapshot noTrinkets = populated with { Roster = populated.Roster with { Trinkets = null! } };
+        Assert.ThrowsException<InvalidDataException>(
+            () => SaveSerializer.Deserialize(SaveSerializer.Serialize(noTrinkets)),
+            "🔴 自 v4 起 `roster.trinkets` 是必备件 ⇒ 缺了必须抛（静默当成「没有饰品」= 装上的饰品无声消失）✓");
 
         // ② 阶越界（0~4 之外）⇒ 恢复时**必须抛**，不静默钳到第 4 阶 ✓
         SaveSnapshot outOfRange = populated with

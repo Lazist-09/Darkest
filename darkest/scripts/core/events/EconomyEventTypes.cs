@@ -37,6 +37,13 @@ public sealed record HeroCuredEvent(string HeroId, string DiseaseId, int GoldCos
 /// 怪癖是**跨趟状态**（存于名册、入档）⇒ 变更必留痕（数字/事实必须来自事件流）✓</summary>
 public sealed record HeroQuirkGainedEvent(string HeroId, string QuirkId, string Reason) : BattleEvent;
 
+/// <summary>🆕 **M4u（2026-10-01）· 装上一件饰品**（契约 `doc/modules/trinkets.md` T3/T4）——
+/// 饰品是**跨趟状态**（存于名册、入档）⇒ 变更必留痕；`Slot` 从 **1** 起（= 第几个饰品位）✓</summary>
+public sealed record HeroTrinketEquippedEvent(string HeroId, string TrinketId, int Slot, string Reason) : BattleEvent;
+
+/// <summary>🆕 **M4u · 卸下一件饰品**（`Slot` = **卸下前**所在槽，从 1 起）✓</summary>
+public sealed record HeroTrinketUnequippedEvent(string HeroId, string TrinketId, int Slot, string Reason) : BattleEvent;
+
 /// <summary>M8.2 / V15：**负面特质被清除**（Sanitarium：消耗金钱 + 传家宝）。</summary>
 public sealed record TraitRemovedEvent(string HeroId, string TraitId, int GoldCost, string HeirloomCost) : BattleEvent;
 

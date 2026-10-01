@@ -114,39 +114,56 @@ public partial class HamletRoot : Control
         // DD 1:1 3-2：**英雄面板骨架优先**（`hero_detail_skeleton.tscn`，编辑器里可改）
         //   成功 ⇒ 取骨架的 HeroStatusBars；失败 ⇒ 回落下面的代码建（不崩不静默）✓
         Darkest.UI.HeroDetailSkeleton? hSkel = Darkest.UI.HeroDetailSkeleton.TryInstantiate();
-        bool usedSkel = hSkel is not null;
+        // 🔴 2026-10-02 修正（M4u 顺手）：**逐块**判骨架，而不是全局一个 `usedSkel` ——
+        //    实测 `.tscn` 里只有 `HeroStatusBars`／`HeroStatsGrid` 两块，缺 `HeroEquipmentRow`／`HeroTrinketGrid`；
+        //    旧的全局判法会让**缺的那两块连「代码建」也跳过** ⇒ 整块静默消失（Reparent 得 null 也不报）✓
+        bool skelBarsUsed = false;
+        bool skelStatsUsed = false;
+        bool skelEquipUsed = false;
+        bool skelTrinketUsed = false;
         if (hSkel is not null)
         {
-            // DD 1:1 3-2：四块**全部取骨架**（编辑器里可改）；Reparent 后再 MoveChild（Godot 4 规则）
+            // DD 1:1 3-2：**骨架有哪块就用哪块**（编辑器里可改）；Reparent 后再 MoveChild（Godot 4 规则）✓
             if (hSkel.HeroStatusBars is Control skelBars)
             {
                 skelBars.Reparent(dLeftCol);
                 dLeftCol.MoveChild(skelBars, 0);
+                skelBarsUsed = true;
             }
 
             if (hSkel.HeroStatsGrid is Control skelStats)
             {
                 skelStats.Reparent(dLeftCol);
+                skelStatsUsed = true;
             }
 
             if (hSkel.HeroEquipmentRow is Control skelEq)
             {
                 skelEq.Reparent(dRightCol);
                 dRightCol.MoveChild(skelEq, 0);
+                skelEquipUsed = true;
             }
 
             if (hSkel.HeroTrinketGrid is Control skelTr)
             {
                 skelTr.Reparent(dRightCol);
                 dRightCol.MoveChild(skelTr, 1);
+                if (skelTr is GridContainer skelTrinketGrid)
+                {
+                    _detailTrinketGrid = skelTrinketGrid;   // 🔴 骨架给了格 ⇒ 刷新走同一份 ✓
+                }
+
+                skelTrinketUsed = true;
             }
 
             hSkel.QueueFree();   // 四块已取走 ⇒ 释放空根，不留多余节点
+            GD.Print($"[UI 英雄面板] 骨架 hero_detail_skeleton.tscn 提供：状态条={skelBarsUsed} 属性列={skelStatsUsed} " +
+                     $"装备行={skelEquipUsed} 饰品格={skelTrinketUsed}（缺的块走代码建 · 不静默）✓");
         }
         // 🔴 DD 1:1 ②【英雄状态条】照 `shared\hero\hero.layout.darkest` 的 `hero_campaign_status_layout`（次序/间距）
         //    DD：resolve_level_bar_offset 6,4 · stress_bar_offset -14,100 · stress_bar_spacing 10,0（×0.667 ⇒ 间距≈7）
         //    上=决心等级条 ⇒ **用户裁定：映射现有【士气条】（真数据）** · 下=压力条（同源） · HP 条=**接口占位**（TooltipText 标注）✓
-        if (!usedSkel)
+        if (!skelBarsUsed)   // 🔴 逐块判：骨架没给状态条 ⇒ 代码建（不静默消失）✓
         {
         var statusBars = new VBoxContainer { Name = "HeroStatusBars" };
         statusBars.AddThemeConstantOverride("separation", 7);
@@ -165,7 +182,7 @@ public partial class HamletRoot : Control
         // 🔴 DD 1:1 ②-2【六属性列】照 `shared\hero\hero.layout.darkest` 的 `hero_base_stats_layout`：
         //    .name_offset 0 0 · .value_offset **115 0** · .spacing **200 22** ⇒ 两列（名/值）+ 行距 ⇒ 用 GridContainer 表达 ✓
         //    数据源：`_unitsCfg.Units` 按原型取（与右栏文本同源，不新造数字）✓ 只依赖字段 + heroId 参数（作用域安全）
-        if (!usedSkel)
+        if (!skelStatsUsed)   // 🔴 逐块判（同上）✓
         {
         string archeForStats = _rosterCfgForDetail?.Heroes.FirstOrDefault(h => h.Id == heroId)?.Archetype ?? string.Empty;
         UnitConfig? statsUnit = _unitsCfg?.Units.FirstOrDefault(u => u.Id == archeForStats);
@@ -212,7 +229,7 @@ public partial class HamletRoot : Control
         // 🔴 DD 1:1 ②-3【右栏装备位】照 `shared\hero\hero.layout.darkest` 的 `hero_equipment_layout`：
         //    .weapon_pos **4 0**（左）· .armour_pos **95 0**（右）· icon_offset 29 52 · level_offset 90 12
         //    ⚠️ 装备/护甲属**装备系统**（用户裁定：留接口）⇒ 只做**空框占位 + TooltipText**，MouseFilter=Ignore（不留"点了没用"的控件·红线21）✓
-        if (!usedSkel)
+        if (!skelEquipUsed)   // 🔴 逐块判（同上）✓
         {
         var equipRow = new HBoxContainer { Name = "HeroEquipmentRow" };
         equipRow.AddThemeConstantOverride("separation", 91);   // DD 95-4=91 的间距感 ×0.667 ≈ 61 → 取容器可读间距 15（两格自适应）✓
@@ -228,23 +245,11 @@ public partial class HamletRoot : Control
         }
 
         // 🔴 DD 1:1 ②-4【饰品 2 列格】照 `shared\hero\hero.layout.darkest` 的 `hero_trinket_grid_layout`：
-        //    .number_of_columns **2** · .start_pos 32 52 · .offset **92 160** ⇒ 格距 ×0.667 ≈ 61×107 ⇒ 用 GridContainer 表达 ✓
-        //    ⚠️ 饰品同属**装备系统**（用户裁定：留接口）⇒ 两个**空框占位 + TooltipText**，MouseFilter=Ignore（不留"点了没用"的控件·红线21）✓
-        if (!usedSkel)
-        {
-        var trinketGrid = new GridContainer { Name = "HeroTrinketGrid", Columns = 2 };
-        trinketGrid.AddThemeConstantOverride("h_separation", 92);    // DD offset 92 ×0.667 ≈ 61 ✓
-        trinketGrid.AddThemeConstantOverride("v_separation", 160);   // DD offset 160 ×0.667 ≈ 107 ✓
-        for (int t = 0; t < 2; t++)   // DD：2 列 = 2 个饰品位（一行）✓
-        {
-            var slot = new PanelContainer { Name = $"HeroTrinketSlot{t + 1}", CustomMinimumSize = new Vector2(44, 44), MouseFilter = Control.MouseFilterEnum.Ignore, TooltipText = $"饰品位 {t + 1}（装备系统接口 · 暂不可用）" };
-            slot.AddChild(new ColorRect { Name = $"TrinketPlaceholder{t + 1}", Color = Darkest.UI.DdTheme.PlaceholderFill });
-            trinketGrid.AddChild(slot);
-        }
-        dRightCol.AddChild(trinketGrid);
-        dRightCol.MoveChild(trinketGrid, 1);   // DD：饰品格紧随装备位（装备 0 → 饰品 1）✓
-        GD.Print("[UI 英雄面板] ✅ DD 饰品 2 列格就位（2 位 · 间距 92/160 = DD 原值 · 占位接口）✓");
-        }
+        //    .number_of_columns **2** · .start_pos 32 52 · .offset **92 160** ⇒ 格距 ×0.667 ≈ 61×107 ✓
+        //    🆕 2026-10-02 M4u：**从占位框升级为真读数**（此前是"装备系统接口 · 暂不可用"的空框）——
+        //    2 个孔 + 读数行建在 `HamletRoot.HeroDetail.Trinkets.cs`（懒建 + 每次开详情现读，红线 26）✓
+        //    🔴 槽位是**孔**（PanelContainer，MouseFilter=Pass），不是按钮 —— 红线 21：不留"点了没用"的控件 ✓
+        EnsureTrinketSlots(dRightCol);
         dRightCol.AddChild(_detailSkills);
 
         // 🔴 P4：**右上角"推荐位置"留框**（用户原话"这个留一个框后面做都可以"）✓
@@ -382,8 +387,11 @@ public partial class HamletRoot : Control
         }
 
         right.AppendLine();
-        right.AppendLine("【装备 2 格】🔴 空 —— 未实现（M8.3）");
+        // 🔴 2026-10-02 M4u：饰品行换成**真读数**（此前是「装备 2 格 · 未实现」的占位话术）——
+        //    与格上 2 个孔**同源**（`Roster.TrinketsOf`，红线 26：不是第二份真值）✓
+        right.AppendLine(DescribeTrinketSlots(roster, heroId));
         _detailRight!.Text = right.ToString();
+        RefreshTrinketSlots(heroId);   // 🔴 每次开详情都现读（不缓存 → 格上读数与名册同一份）✓
 
         // 🔴 ⑤ 扎营技能：**只列该原型的** + **只列已接线的**（`ConsumedEffectNames`，红线 21）
         var campLines = new List<string> { "【扎营技能】（只列该原型 + 只列已接线）" };

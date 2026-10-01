@@ -47,6 +47,9 @@ public partial class HamletRoot : Control
         // 🆕 2026-10-01 M5u：怪癖库（`quirks.json`）—— 高级新兵掷签（`StagecoachRecruits.RollQuirk`）
         //    与详情/名册的**分类 + 互斥**显示都真读它（UI 不写死任何 id 与判定）✓
         _quirksCfg = QuirksConfig.Parse(FileAccess.GetFileAsString(QuirksConfig.ResPath));
+        // 🆕 2026-10-02 M4u：饰品库（`trinkets.json`）—— 详情 2 格的槽位读数 / 职业要求 / 悬停全文都真读它
+        //    （UI 不写死任何 id 与判定；装不上的理由生产点在 `Roster.CanEquipTrinket`）✓
+        _trinketsCfg = TrinketsConfig.Parse(FileAccess.GetFileAsString(TrinketsConfig.ResPath));
 
         // 🔴 `ui_spec §14.3`（`#319` 布局基建）：**顶层 = 容器树**，不再手写坐标 ——
         //    Root → MarginContainer → VBox（顶栏 ／ 主体 ／ 底栏）；**每个分区一个 `PanelContainer`**
@@ -420,64 +423,15 @@ public partial class HamletRoot : Control
         // 🔴 2026-10-01 M6u：`--hamlet-embark` 的提前 `return` 已移到本方法**末尾** ——
         //    组合冒烟「先买阶 ⇒ 再出征 ⇒ 回城自动存档」需要装备阶冒烟**先跑完**（放在这里会整段被跳过）✓
         string[] hamletArgs = OS.GetCmdlineArgs();
+        // 🆕 2026-10-02 分片：本族 = **冒烟旗标族**（悬停／弹窗／二级屏／播种）— 已移到
+        //    `HamletRoot.Build.SmokeFlags.cs`（用户红线：程序文件 ≤600 行；只搬家、零行为改动）✓
+        //    🔴 顺序纪律：本调用**必须**留在 `--hamlet-hero-detail` / `--hamlet-row` 分支之前 —
+        //       播种族（怪癖／饰品）要让详情「打开那一刻现读」到真状态；`--hamlet-popup-close` 的读数
+        //       也按搬家前逐条同序（旗标族内部顺序一字未改）✓
+        HandleHamletSmokeFlags(hamletArgs);
 
-        string? hover = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-hover=", StringComparison.Ordinal));
-        if (hover is not null)
-        {
-            ShowBuildingInfo(hover["--hamlet-hover=".Length..]);
-        }
-
-        // 🔴 二级窗口冒烟（用户 2026-09-14 要求"弹窗要能开也能关"）：
-        //    ① `--hamlet-building=<id>` ⇒ 打开建筑弹窗（真实走 `PressUpgrade` 那条入口下方同一条路径）
-        //    ② `--hamlet-popup-close`  ⇒ 关掉最上层弹窗（等价于 `✕ 关闭` / `Esc`）
-        string? bArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-building=", StringComparison.Ordinal));
-        if (bArg is not null)
-        {
-            OpenBuildingPopup(bArg["--hamlet-building=".Length..]);
-        }
-
-        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-controls"))   // 阶段2：按键提示屏（可复验）
-        {
-            OpenControls();
-        }
-        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-loot"))   // DD 1:1 战利品弹层（可复验）
-        {
-            OpenLootOverlay();
-        }
-        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-heirloom"))   // DD 1:1 P5：传家宝兑换（可复验）
-        {
-            OpenHeirloomExchange();
-        }
-        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-quest-select"))   // DD 1:1 ②：任务选择屏（可复验）
-        {
-            OpenQuestSelect();
-        }
-        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-provision"))   // DD 1:1 ②：供应屏入口（可复验）
-        {
-            OpenProvision();
-        }
-
-        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-menu"))
-        {
-            OpenHamletMenu(); // 🔴 P2 冒烟：打开城池二级菜单 ✓
-        }
-
-        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-popup-close"))
-        {
-            GD.Print($"[HamletRoot] --hamlet-popup-close：关闭前 BuildingPopupOpen={BuildingPopupOpen}");
-            CloseTopPopup();
-            GD.Print($"[HamletRoot] --hamlet-popup-close：关闭后 BuildingPopupOpen={BuildingPopupOpen}（应 False）");
-        }
-
+        // ⚠️ 本查找 = 搬家前同一行：只是位置移到旗标族调用**之后**（命令行参数不因调用而变 ⇒ 同值同序）✓
         string? detailArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-hero-detail=", StringComparison.Ordinal));
-        // 🆕 2026-10-01 M5u：怪癖冒烟播种 —— `--hamlet-quirk-seed=<英雄>:<怪癖>[,…]`，走**公开 API** `Roster.AddQuirk`
-        //    （必写 `HeroQuirkGainedEvent`）⇒ 详情页/名册行读到的是**真状态**（红线 26：不直接改私有字典）✓
-        //    ⚠️ 位置**必须在 `--hamlet-hero-detail` 之前** —— 详情内容是「打开那一刻现读」的 ✓
-        if (FindSmokeArg(hamletArgs, "--hamlet-quirk-seed=") is { } quirkSeed)
-        {
-            SeedQuirksForSmoke(quirkSeed);
-        }
-
         if (detailArg is not null && int.TryParse(detailArg["--hamlet-hero-detail=".Length..], out int dIdx))
         {
             PressPortraitRightClick(dIdx); // 🔴 右键头像 ⇒ 角色详情（用户 2026-09-15 要求）✓

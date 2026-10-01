@@ -37,6 +37,13 @@ public sealed partial class Roster
             quirks[heroId] = set.ToList();
         }
 
+        // 🆕 M4u（v4）：饰品**保序**搬运（List ⇒ 槽位稳定 ⇒ 存档可 diff；字典键序在 JSON 里不保证）✓
+        var trinkets = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        foreach ((string heroId, List<string> list) in _trinkets)
+        {
+            trinkets[heroId] = list.ToList();
+        }
+
         var traits = new Dictionary<string, IReadOnlyList<HeroTraitConfig>>(StringComparer.Ordinal);
         foreach ((string heroId, List<HeroTraitConfig> list) in _traits)
         {
@@ -52,6 +59,7 @@ public sealed partial class Roster
             new Dictionary<string, int>(_xp, StringComparer.Ordinal),
             diseases,
             quirks,
+            trinkets,
             traits,
             _lockedTraits.ToList(),
             graveyard,
@@ -99,6 +107,13 @@ public sealed partial class Roster
         foreach ((string heroId, IReadOnlyList<string> ids) in snapshot.Quirks)
         {
             _quirks[heroId] = new HashSet<string>(ids, StringComparer.Ordinal);
+        }
+
+        // 🆕 M4u（v4）：饰品按【列表】恢复（保序 = 槽位 1/2 与存档时一致）✓
+        _trinkets.Clear();
+        foreach ((string heroId, IReadOnlyList<string> ids) in snapshot.Trinkets)
+        {
+            _trinkets[heroId] = new List<string>(ids);
         }
 
         _traits.Clear();

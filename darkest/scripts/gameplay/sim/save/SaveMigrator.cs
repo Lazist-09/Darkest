@@ -22,13 +22,14 @@ public sealed record MigrationResult(bool Ok, SaveSnapshot? Snapshot, string Mes
 /// "版本不符即删档"是**公认反模式**（玩家辛苦打的长线进度被一行代码抹掉）⇒
 /// 本类的失败路径**把原档原样带回**，由调用方**保留文件 + 回报玩家**，交由玩家决定 ✓</para>
 ///
-/// <para>**当前版本 = 3**（2026-10-01）：v1 = 第一版；**v2 = `H-1` 装备阶入档**（2026-09-30）；
-/// **v3 = `roster.quirks` 怪癖入档**（M5u）✓ —— 迁移链**逐级**走（v1 ⇒ v2 ⇒ v3）✓</para>
+/// <para>**当前版本 = 4**（2026-10-02）：v1 = 第一版；**v2 = `H-1` 装备阶入档**（2026-09-30）；
+/// **v3 = `roster.quirks` 怪癖入档**（M5u · 2026-10-01）；**v4 = `roster.trinkets` 饰品入档**（M4u）✓
+/// —— 迁移链**逐级**走（v1 ⇒ v2 ⇒ v3 ⇒ v4）✓</para>
 /// </summary>
 public static class SaveMigrator
 {
     /// <summary>🔴 当前存档格式版本。**新增字段/改结构时 +1，并在 `Migrate` 追加一级迁移** ✓</summary>
-    public const int CurrentVersion = 3;
+    public const int CurrentVersion = 4;
 
     /// <summary>
     /// 🔴 **`gear`（装备阶）自这一版起是【必备件】** —— v1 档里**结构上就没有**这个字段
@@ -43,6 +44,13 @@ public static class SaveMigrator
     /// `SaveSerializer.Validate` 按本常量判「缺 = 损坏」（两处引用**同一个常量**）✓
     /// </summary>
     public const int QuirkFieldSinceVersion = 3;
+
+    /// <summary>
+    /// 🔴 **`roster.trinkets`（饰品）自这一版起是【必备件】** —— v3 及更早的档里**结构上就没有**它
+    /// （M4u 之前饰品没有任何入档入口）⇒ 由 v3⇒v4 迁移**补空表**；
+    /// `SaveSerializer.Validate` 按本常量判「缺 = 损坏」（两处引用**同一个常量**）✓
+    /// </summary>
+    public const int TrinketFieldSinceVersion = 4;
 
     /// <summary>
     /// 🔴 **迁移**：把 `raw` 升到 `CurrentVersion`。
@@ -70,7 +78,7 @@ public static class SaveMigrator
                 "—— **原档已保留**，请用对应版本打开 ✓");
         }
 
-        // 🔴 **逐级迁移**（v1 ⇒ v2 ⇒ v3）：每一级只补"那一版之后新增的必备件"，
+        // 🔴 **逐级迁移**（v1 ⇒ v2 ⇒ v3 ⇒ v4）：每一级只补"那一版之后新增的必备件"，
         //    且**如实回报补了什么**（逐级写进消息，不合并成一句含糊的"已升级"）；
         //    迁移**不碰磁盘**（落盘与否由调用方决定）✓
         SaveSnapshot cur = raw;
@@ -102,6 +110,21 @@ public static class SaveMigrator
                 },
             };
             notes.Append("v2 ⇒ v3：新增 `roster.quirks`（M5u 怪癖）⇒ 补**空表**（= 没有英雄持怪癖）✓　");
+        }
+
+        // v3 ⇒ v4（`M4u` 饰品入档 · 2026-10-02）：v3 档里**没有任何饰品入口**
+        // （装备阶与怪癖是当时仅有的两块跨趟新增状态）⇒ 补**空表**同样是那一版语义的唯一忠实读法 ✓
+        if (cur.Version == 3)
+        {
+            cur = cur with
+            {
+                Version = TrinketFieldSinceVersion,   // 🔴 同上：字面量 4 不进内核（数据纪律门禁会红）✓
+                Roster = cur.Roster with
+                {
+                    Trinkets = cur.Roster.Trinkets ?? new Dictionary<string, IReadOnlyList<string>>(),
+                },
+            };
+            notes.Append("v3 ⇒ v4：新增 `roster.trinkets`（M4u 饰品 · 每英雄 2 槽）⇒ 补**空表**（= 没有英雄持饰品）✓　");
         }
 
         if (cur.Version == CurrentVersion)

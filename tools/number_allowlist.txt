@@ -62,3 +62,4 @@ darkest/scripts/data/HeirloomQuestRewardConfig.cs | steps >= 4 ? 4 : steps | 一
 
 darkest/scripts/gameplay/sim/run/HeroGear.cs | "" => 3, | **结构性常量**：建筑等级 code（a/b/c/d）→ 等级（1/2/3/4）是**字母序映射**，不是平衡数字（一手 `buildings.json` 的等级 code 就是字母）✓ ⚠️ 片段必须写**去字符串后的形态**（`"c"` 被 `strip_code` 换成 `""`）—— 写 `"c" => 3,` 会成**永不命中的死条目**（2026-09-30 实测抓到）
 darkest/scripts/gameplay/sim/run/HeroGear.cs | "" => 4, | 同上：字母序映射的第 4 项（结构性常量，非平衡数字）✓
+darkest/scripts/gameplay/sim/save/SaveMigrator.cs | cur.Version == | **结构性**：迁移链的**逐级版本判断**（v1⇒v2⇒v3⇒v4 每级一条 · 见 `CurrentVersion`/`XFieldSinceVersion` 常量族）—— 版本号不是平衡量，且片段命中本文件全部 4 条同级判断（同旨）✓

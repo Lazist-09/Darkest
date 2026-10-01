@@ -129,5 +129,15 @@ public static class SaveSerializer
                 $"存档（v{snapshot.Version}）缺 `roster.quirks` —— 自 v{SaveMigrator.QuirkFieldSinceVersion} " +
                 "起它是必备件，缺失即损坏（不静默读成「没有怪癖」）✓");
         }
+
+        // 🔴 `roster.trinkets`（饰品）**自 v4 起是必备件**：缺 ⇒ 损坏（红线 21：绝不静默当成「没有饰品」）。
+        //    ⚠️ 同样**按版本分档判**：v3 及更早的档里结构上就没有这个字段 ⇒ 补空表的职责归
+        //    `SaveMigrator` 的 v3⇒v4 迁移（一刀切会把老档误判成损坏档）✓
+        if (snapshot.Version >= SaveMigrator.TrinketFieldSinceVersion && snapshot.Roster.Trinkets is null)
+        {
+            throw new InvalidDataException(
+                $"存档（v{snapshot.Version}）缺 `roster.trinkets` —— 自 v{SaveMigrator.TrinketFieldSinceVersion} " +
+                "起它是必备件，缺失即损坏（不静默读成「没有饰品」）✓");
+        }
     }
 }
