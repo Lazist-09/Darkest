@@ -130,7 +130,7 @@ public partial class HamletRoot : Control
         _gearSlot = GearHeroSlot.TryCreate();
         if (_gearSlot is not null)
         {
-            _gearSlot.HeroDropped += SelectGearHero;   // 🔴 引擎落孔回调 ⇒ 选人（与点击**同一条**入口）✓
+            _gearSlot.Dropped += SelectGearHero;   // 🔴 引擎落孔回调 ⇒ 选人（与点击**同一条**入口）✓
             head.AddChild(_gearSlot);
         }
         else
@@ -457,15 +457,15 @@ public partial class HamletRoot : Control
         OpenBuildingPopup(HeroGear.BuildingTreeId(a));
         if (FindSmokeArg(args, "--hamlet-gear-drop=") is { } dropHero)
         {
-            GD.Print($"[HamletRoot] 装备阶冒烟：投递英雄方块 {dropHero} 进孔（**孔的 HeroDropped = 引擎 _DropData 的同一入口**；" +
-                     "拖动阈值本身无法 headless 复验 ⇒ 报告如实标注）");
+            GD.Print($"[HamletRoot] 装备阶冒烟：投递英雄方块 {dropHero} 进孔（走**孔的落孔入口** TryDropPayload：" +
+                     "先 _CanDropData 族校验再 _DropData；拖动阈值本身无法 headless 复验 ⇒ 报告如实标注）");
             if (_gearSlot is null)
             {
                 GD.Print("[HamletRoot] 装备阶冒烟：孔模板不可用 ⇒ 投递失败（如实上报，不静默）");
             }
             else
             {
-                _gearSlot.HeroDropped?.Invoke(dropHero);
+                _gearSlot.TryDropPayload(DragPayload.Encode(DragPayload.HeroTag, dropHero));
             }
         }
         else if (FindSmokeArg(args, "--hamlet-gear-hero=") is { } heroId)

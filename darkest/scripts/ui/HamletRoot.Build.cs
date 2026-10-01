@@ -455,6 +455,12 @@ public partial class HamletRoot : Control
             }
         }
 
+        // 🆕 2026-10-02 M4u：饰品 **UI 冒烟族**（落孔 ／ 点方块卸下）—— 🔴 **必须排在 `--hamlet-hero-detail` 之后**：
+        //    详情里的 2 个孔/方块是「打开那一刻」建的（与旗标族里的**播种族**正好相反：那族必须排在前）✓
+        //    两条旗标都走真实控件（红线 26）：落孔 = `GearHeroSlot.TryDropPayload`（引擎拖动同一入口），
+        //    卸下 = 方块真发 `Pressed` ⇒ 验收看的是玩家那条路，不是绕过 UI 直调内核 ✓
+        HandleTrinketUiSmokeFlags(hamletArgs);
+
         string? rowArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-row=", StringComparison.Ordinal));
         if (rowArg is not null && int.TryParse(rowArg["--hamlet-row=".Length..], out int rowIdx))
         {

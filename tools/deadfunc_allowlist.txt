@@ -36,4 +36,3 @@ darkest/scripts/data/HeirloomQuestRewardConfig.cs | DifficultyForResolveLevel | 
 # ── R16：祖产的"缺失输入代理量"（用户指示"你直接做" ✓ 标注 placeholder + 观察清单 O11 ✓）
 darkest/scripts/data/HeirloomQuestRewardConfig.cs | ProxyQuestLengthFromSteps | 代理量①:段数 ⇒ 长度 1~4（**我推的** ⚠️ placeholder/O11）；消费方 = 结算接线（等"任务层"或授权用代理 ✓）
 darkest/scripts/data/HeirloomQuestRewardConfig.cs | ProxyDifficultyFromAverageLevel | 代理量②:队伍平均等级 ⇒ 难度档（**我推的** ⚠️ placeholder/O11）；消费方 = 同上 ✓
-darkest/scripts/gameplay/sim/run/Roster.Trinkets.cs | UnequipTrinket | 契约先就位：卸下走**必写事件**（`HeroTrinketUnequippedEvent`，与 EquipTrinket 对称）；消费方 = M4u **拖放接线**（把方块头像从饰品格孔里拖出 ⇒ 卸下）—— 本件只做显示/置灰/悬停，拖放属 M4u 后续 ✓
