@@ -210,3 +210,13 @@
   ⚠️ **只登记不动数据**（`#307` 冻结 ＋ 数值/口径归策划）：建议把该 note 改成「怪癖 = `M5` 的 **170 条一手数据**（已落地：状态 / 入档 / 显示 / 招募掷签）；本节三项服务管的是**疾病与特质**，怪癖的清除 / 固化入口待服务接线时再裁」✓
   📌 **口径提醒（免得下一个人混为一谈）**：`sanitarium.json` 的 `services.remove_negative_trait` 与怪癖**不是同一物** —— 特质走 `Roster._traits`（`Traits` 快照），怪癖走 `Roster._quirks`（`Quirks` 快照）⇒ 将来疗养院若要治怪癖 ⇒ **另立服务项**，别复用特质那三项（否则又是"一条规则两处实现"）✓
   📄 `reports/m5u_quirk_ui_20261001.md §五 ②` · `doc/state.md #503` ✓
+
+- 🆕 **`O-111` 登记（2026-10-02 · 主程序 · `M4u` 饰品落地时发现的**职业名口径冲突**）**：**我方名册职业名 ≠ 饰品库 `hero_class_requirements` 的职业名** —— 我方 `roster.json` 实际 = `warrior` / `tank` / `medic` / `commissar`（8 人 · `hero_warrior_1` 等），而 `darkest/data/trinkets.json`（一手 **196 条** · DD1 转写）的 `hero_class_requirements` 用的是 **DD1 的 15 个职业名**（`vestal` / `houndmaster` / `grave_robber` …）⇒ **交集 = 空** ✓
+  🔴 **后果（实测）**：**117 条通用件**（`hero_class_requirements` 为空）在真实名册上**可装**；**79 条专属件**在真实名册上**整体不可装** —— 详情里表现为候选件**整行灰字 ＋ 原样理由**（`🔴 不可装备：「sacred_scroll」—— 「老铁」（warrior）职业不符：「sacred_scroll」限定 vestal`）⇒ UI 是对的，**数据口径是断的** ✓
+  ⚠️ **只登记、不自造映射**：加一张「DD1 职业名 ⇒ 我方职业名」的对照表 = 造**第三套 truth**（`roster.json` ／ `trinkets.json` ／ 对照表）⇒ 明确不做；待策划裁：① 补职业名对照表 ② 专属件按我方 4 职业重制 `hero_class_requirements` ③ 专属件暂不入池（先只放通用件）✓
+  📄 `reports/m4u_trinket_ui_20261002.md §五 ①` · `doc/state.md #504` ✓
+
+- 🆕 **`O-112` 登记（2026-10-02 · 主程序 · `M4u` 剩余边界三件：骨架节点 ／ 拖放入口 ／ `limit`）**：① **骨架缺两块**：`darkest/scenes/ui/hero_detail_skeleton.tscn` **没有** `HeroEquipmentRow` / `HeroTrinketGrid` 节点 ⇒ 本件已把「沉默」修掉（**逐块布尔** `skelBarsUsed`/`skelStatsUsed`/`skelEquipUsed`/`skelTrinketUsed` ＋ 骨架报表打点 ⇒ 缺哪块、走没走代码建 **屏上可读**），但 **`.tscn` 节点仍未补**（在编辑器里补 = 美术/编辑器动作）✓
+  ② **装/卸 UI 入口未接线**：范式的正解 = 用户裁定的「**方块空洞 ＋ 把方块头像拖进孔**」（`M6u` 铁匠铺同族）⇒ 饰品格是**孔、不是按钮**（红线 21：不留「点了没用」的控件）；`Roster.EquipTrinket` / `UnequipTrinket` 已就位并**各写事件**，`UnequipTrinket` 现入 `tools/deadfunc_allowlist.txt`（理由 = 契约先就位 · 消费方 = 拖放接线）✓
+  ③ **`limit`（同件持有上限）无库存概念**：入手路径未接线 ⇒ 凭空判 `limit` 只会造一条**玩家永远触发不到的规则** ⇒ 不预造 API，待策划（需先定「饰品库存 / 副本」概念）✓
+  📄 `reports/m4u_trinket_ui_20261002.md §五 ②④⑤` · `doc/state.md #504` ✓
