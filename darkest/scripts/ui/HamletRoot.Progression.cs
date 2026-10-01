@@ -52,6 +52,7 @@ public partial class HamletRoot : Control
                  $"　{heroId} 士气 {o.NewMorale}　副作用 {(o.PenaltyTriggered ? $"触发（下趟 −{o.NextRunPenalty}）" : "未触发")}" +
                  $"　剩余金钱 {economy.Gold}");
         Refresh();
+        AutoSave("减压");
     }
 
     /// <summary>**招募**（M8.0 ⑤）：免费；新兵 Lv1 / 士气 50；满员即拒绝（不悄悄顶替）。</summary>
@@ -76,6 +77,7 @@ public partial class HamletRoot : Control
             : $"[HamletRoot] 招募：{rookie.Name}（{rookie.Archetype} Lv{rookie.Level} 士气{rookie.Morale}）**免费**" +
               $"　名册 {roster.Heroes.Count}/{_cfg.Coach.MaxRoster}");
         Refresh();
+        AutoSave("招募");
     }
 
     /// <summary>**选中某位英雄**（② 选人权：减压必须由玩家指定对象，不是"自动挑最低的"）。</summary>
@@ -104,6 +106,7 @@ public partial class HamletRoot : Control
             : $"[HamletRoot] 招募·{archetype}：{rookie.Name}（Lv{rookie.Level} 士气{rookie.Morale}）**免费**" +
               $"　名册 {roster.Heroes.Count}/{roster.Cap}");
         Refresh();
+        AutoSave("招募·原型");
     }
 
     /// <summary>**升级建筑**（M8.1）：按曲线扣传家宝；不足即拒绝（不部分扣）；升级后**生效值真的改变**。</summary>
@@ -122,5 +125,6 @@ public partial class HamletRoot : Control
               $"　生效：减压价 {h.EffectiveReliefCost(_cfg.StressReliefCost)}　名册上限 {h.EffectiveRosterCap(baseCap: ExpeditionContext.Roster?.Heroes.Count ?? 0, hardCap: 12)}"
             : $"[HamletRoot] 升级·{building}：**传家宝不足或已满级** ⇒ 拒绝（不部分扣）");
         Refresh();
+        AutoSave("建筑升级");
     }
 }

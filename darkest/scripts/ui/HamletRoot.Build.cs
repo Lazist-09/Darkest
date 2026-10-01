@@ -31,6 +31,10 @@ public partial class HamletRoot : Control
         HeirloomConfig heirloomCfg = HeirloomConfig.Parse(FileAccess.GetFileAsString(HeirloomConfig.ResPath));
         _ = ExpeditionContext.EnsureHeirlooms(heirloomCfg);
 
+        // 🔴🆕 `O-106`（2026-10-01）：**存档接线 + 启动读档** —— 位置：五个持有者备齐之后、
+        //    任何冒烟播种之前（播种族读数必须与档无关）；写回口径 = 城池侧 true ✓
+        EnsureSaves();
+
         // 🆕 2026-10-01 M6u 冒烟播种：`--hamlet-runs-seed=N` 的调用点**必须在这里**（nav 建树之前）——
         //    锁着的建筑只建 🔒 Label、不建按钮（建完再播种就晚了）；走**公开 API** `RunProgress.FinishRun`，不改内核 ✓
         HandleSmokeUnlockSeed(OS.GetCmdlineArgs());

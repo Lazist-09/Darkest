@@ -311,6 +311,7 @@ public partial class HamletRoot : Control
         GD.Print($"[HamletRoot] 装备阶升级：{hero.Name} {GearAxisWord(axis)}轴 {before} ⇒ {after}" +
                  $"　金币 {goldBefore} ⇒ {economy.Gold}　事件原文：{LastGearEventText()}");
         Refresh();
+        AutoSave("装备阶升级");
         if (BuildingPopupOpen)
         {
             RefreshBuildingPopup();   // 弹窗里的等级链 / 按钮跟着刷新（弹窗不关）✓
