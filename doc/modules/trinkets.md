@@ -137,6 +137,16 @@
 ⚠️ **明确不做（本期）**：
    · 🔴 **`award_category` 的掉落/任务接线**（**属条 3/条 5**）✅
    · 🔴 **`nomad_wagon` 商店接线**（**等 buff 原语层 + Trinket 表就位**）✅
+### §5.1 🔴 实测读数（2026-10-02 · `M4u` 装卸接线后 · **只登记不改判据**）
+
+| 判据 | 读数（原文） | 出处 |
+|---|---|---|
+| **T3** | `槽1=crow_wingfeather｜槽2=crow_tailfeather｜候选「crow_talon」=不可装备｜【饰品】2/2 格已装｜🔴 不可装备：「crow_talon」—— 「老铁」的饰品格已满（2 格）—— 先卸下一件再装「crow_talon」` | 冒烟 `--hamlet-trinket-seed=…` |
+| **T4** | ✅ **同件不重复**：第二次投同一件 ⇒ 孔**收下载荷**、内核**原样拒** ⇒ 详情整行呈现（`🔴 不可装备：「crow_wingfeather」—— 「老铁」已经装着「crow_wingfeather」—— 同件不重复装`）· ⚠️ **职业不符**：`🔴 不可装备：「sacred_scroll」—— 「老铁」（warrior）职业不符：「sacred_scroll」限定 vestal` ⇒ **判据成立**，但**真实名册上 79 条专属件整体不可装**（断在数据口径 ⇒ `O-111`） | 冒烟 ＋ `reports/m4u_trinket_ui_20261002.md §四 ③` |
+| **T6** | ⚠️ **验不了（如实登记）**：buff 原语层（`M2`）未接线（`#307` 冻结）⇒「装 2 件后属性 / 行为真的变了」**没有消费点** ⇒ 不假装生效；解冻条件 = `§39` 解冻 ＋ 原语层接线 | `reports/m4u_trinket_drag_20261002.md §七 ②` |
+| **装卸（三条玩家路径）** | ① 落孔 ⇒ `HeroTrinketEquippedEvent { Slot = 2, Reason = drop }` ② 点方块 ⇒ `HeroTrinketUnequippedEvent { Slot = 1, Reason = click }` ③ 拖出孔外松手 ⇒ `HeroTrinketUnequippedEvent { Slot = 1, Reason = drag-out }` | `reports/m4u_trinket_drag_20261002.md §三` |
+
+🔴 **两条真手势都验「点得到吗」**（红线 26 功能级验收）：点击**不是**直调回调 —— 按方块 `GetGlobalRect().GetCenter()` 合成 `Viewport.PushInput`（按下 ＋ 抬起）⇒ 命中测试由**引擎**做 ✓
    · 🔴 **`kickstarter` 294 条**（**众筹专属 · 整体排除**）✅
 ```
 

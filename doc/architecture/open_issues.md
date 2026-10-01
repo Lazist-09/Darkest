@@ -217,7 +217,8 @@
   📄 `reports/m4u_trinket_ui_20261002.md §五 ①` · `doc/state.md #504` ✓
 
 - 🆕 **`O-112` 登记（2026-10-02 · 主程序 · `M4u` 剩余边界三件：骨架节点 ／ 拖放入口 ／ `limit`）**：① **骨架缺两块**：`darkest/scenes/ui/hero_detail_skeleton.tscn` **没有** `HeroEquipmentRow` / `HeroTrinketGrid` 节点 ⇒ 本件已把「沉默」修掉（**逐块布尔** `skelBarsUsed`/`skelStatsUsed`/`skelEquipUsed`/`skelTrinketUsed` ＋ 骨架报表打点 ⇒ 缺哪块、走没走代码建 **屏上可读**），但 **`.tscn` 节点仍未补**（在编辑器里补 = 美术/编辑器动作）✓
-  ② **装/卸 UI 入口未接线**：范式的正解 = 用户裁定的「**方块空洞 ＋ 把方块头像拖进孔**」（`M6u` 铁匠铺同族）⇒ 饰品格是**孔、不是按钮**（红线 21：不留「点了没用」的控件）；`Roster.EquipTrinket` / `UnequipTrinket` 已就位并**各写事件**，`UnequipTrinket` 现入 `tools/deadfunc_allowlist.txt`（理由 = 契约先就位 · 消费方 = 拖放接线）✓
+  ② **装/卸 UI 入口已接线（2026-10-02 收口）**：范式 = 用户裁定的「**方块空洞 ＋ 把方块头像拖进孔**」（`M6u` 铁匠铺同族）⇒ 饰品格是**孔、不是按钮**（红线 21：不留「点了没用」的控件）；**三条玩家路径全部实测**：① **落孔**（引擎内建 drag-and-drop：`_GetDragData` ⇒ `_CanDropData` ⇒ `_DropData` ⇒ `GearHeroSlot.TryDropPayload`）② **点方块**（合成**真实鼠标点击** `Viewport.PushInput` ⇒ 走引擎命中测试，**不是直调回调**）③ **拖出孔外松手**（没人收载荷 ⇒ `NotificationDragEnd` ⇒ `DraggedOut` ⇒ 卸下）⇒ 事件原文 `Reason = drop ／ click ／ drag-out` **各归各的真手势**（红线 26）；`Roster.EquipTrinket` ／ `UnequipTrinket` 各有消费点 ⇒ `UnequipTrinket` **已从 `tools/deadfunc_allowlist.txt` 摘除**（`deadfuncs = 0` 复绿）✓
+  ⚠️ **仍缺**：① 两块 `.tscn` 节点未补（编辑器动作）· ③ `limit` 无库存概念 ⇒ **两条原样不动** ✓
   ③ **`limit`（同件持有上限）无库存概念**：入手路径未接线 ⇒ 凭空判 `limit` 只会造一条**玩家永远触发不到的规则** ⇒ 不预造 API，待策划（需先定「饰品库存 / 副本」概念）✓
   📄 `reports/m4u_trinket_ui_20261002.md §五 ②④⑤` · `doc/state.md #504` ✓
 
