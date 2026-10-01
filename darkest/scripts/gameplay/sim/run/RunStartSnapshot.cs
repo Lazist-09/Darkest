@@ -44,7 +44,13 @@ public sealed record RunStartSnapshot(
     ///    `HeirloomStock.LevelOf` 按 `P23` ④ **抛"未知建筑"** ⇒ 🔴 **一个读数把整条"进地牢"流程打断了** ⚠️
     ///    ⇒ 教训：**读数绝不许能打断主流程**；且 id 只许用**真实登记过的**（见下方 `Capture` 的兜底）✓
     /// </summary>
-    public static readonly IReadOnlyList<string> DefaultBuildings = new[] { "tavern", "abbey", "stagecoach" };
+    /// 🔴🆕 **M15-P0（2026-10-02）**：清单**改指** `HeirloomConfig.AllowedBuildings`（= `heirlooms.json` 的五条升级路径：
+    ///    tavern / abbey / stagecoach / **blacksmith.weapon / blacksmith.armour**）——
+    ///    此前写死三栋 ⇒ **铁匠铺两条树不在对比里**（玩家在铁匠铺花的传家宝，在"养成对比"里看不见 ⚠️）✓
+    ///    ⚠️ 未登记的建筑仍走 `Capture` 的 **−1 兜底**（读数**绝不许**打断主流程）✓
+    ///    🔴 **单一来源**（P3 纪律）：清单只此一处 ⇒ 以后加建筑只改 `HeirloomConfig` ✓
+    /// </summary>
+    public static readonly IReadOnlyList<string> DefaultBuildings = Darkest.Data.HeirloomConfig.AllowedBuildings;
 
     /// <summary>
     /// 抓一份"出发前"快照 ✓（`heirlooms` / `economy` 允许为 null ⇒ 未接线时不假装有值，如实记 0 并在 `Describe` 标注）✓
@@ -136,7 +142,31 @@ public sealed record RunStartSnapshot(
             sortieIds?.ToList() ?? new List<string>(), levels, hpPercentLastRunEnd);   // 🆕 M15-P0 (b)：**真的传进 record**（我第一版只加参数没传 ⇒ 用例当场抓到 ✓）
     }
 
-    /// <summary>一行读数（存档/日志用）✓</summary>
+    /// <summary>
+    /// 🆕 **M15-P0（2026-10-02）**：由"**上一趟收尾时**的队伍"算**平均 HP%**（0~100）——
+    /// 这是 `HpPercentLastRunEnd` 的**唯一算法**（`ExpeditionContext.End()` 摘会话时调它 ⇒ 生产与测试同源）✓
+    /// · 口径 = `ΣHp / ΣMaxHp`（**按血量加权**；不是"各人百分比的算术平均" ⇒ 满血大血包与残血小血包不等权 ✓）
+    /// · 空队 ／ `ΣMaxHp <= 0` ⇒ **null**（= 不假装；红线 21 家族）✓
+    /// · 取整 = `AwayFromZero`（读数口径确定，不靠 `ToEven` 的巧合）✓
+    /// </summary>
+    public static int? AverageHpPercentOf(IReadOnlyList<(string Id, int Hp, int MaxHp, int Morale)> roster)
+    {
+        if (roster is null || roster.Count == 0)
+        {
+            return null;
+        }
+
+        int hp = 0;
+        int max = 0;
+        foreach ((string _, int h, int m, int _) in roster)
+        {
+            hp += Math.Max(0, h);
+            max += Math.Max(0, m);
+        }
+
+        return max <= 0 ? null : (int)Math.Round(100.0 * hp / max, MidpointRounding.AwayFromZero);
+    }
+
     /// <summary>等级分布的可读形式（`[Lv1×3 Lv2×5]`）✓</summary>
     private static string Hist(IReadOnlyDictionary<int, int> h)
         => "[" + string.Join(" ", h.OrderBy(k => k.Key).Select(k => $"Lv{k.Key}×{k.Value}")) + "]";

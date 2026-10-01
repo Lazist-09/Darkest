@@ -17,6 +17,14 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 /// </summary>
 public partial class HamletRoot : Control
 {
+    /// <summary>
+    /// 🆕 **M15-P0（2026-10-02）**：城池侧的**成长对比行**（只读 Label，**懒建**）——
+    /// 内容 = `ExpeditionContext.LastRunStartLines`（最近一次"出发前快照"的**同源读数行**）✓
+    /// 🔴 空 ⇒ **不建节点、不显示**（还没出发过就没有读数 ⇒ 不假装；红线 21 家族）✓
+    /// 🔴 字段声明随实现走（与 M7u `_recruitRow` 同纪律：避免同一字段两处声明）✓
+    /// </summary>
+    private Label? _lastRunLines;
+
     /// <summary>刷新（只读跨趟状态，不自己算账）。</summary>
     public void Refresh()
     {
@@ -190,6 +198,9 @@ info.Text = $"装备 攻{lv}　{dots}　防{dodge}{quirkMark}{(canRelief ? "　�
                 ? "减压：请先在右侧名册点一位【可减压】的人，再点酒馆/修道院（同价同效、风险不同）"
                 : $"减压对象：{_selectedHero}（士气 {roster.MoraleOf(_selectedHero)}）⇒ 请点酒馆或修道院";
 
+        // 🆕 **M15-P0（2026-10-02）**：把"最近一次出发前快照"的读数行显示到城池（**只读**；不重算快照）✓
+        RefreshLastRunLines();
+
         // 🔴 片①：**名册计数 / 资源条 / 建筑信息默认行**（都真读跨趟持有者，不写死）
         // 🆕 2026-10-01 M7u：计数改走**同一份读法** `EffectiveCapNow`（可用上限 = 马车曲线，硬上限 = roster.json）✓
         //    🔴 不在这里再写一遍 min/三元的第二份口径（P3 纪律：真值只有一处）✓
@@ -259,5 +270,71 @@ info.Text = $"装备 攻{lv}　{dots}　防{dodge}{quirkMark}{(canRelief ? "　�
 
         RefreshGearRow();      // 🆕 M6u：装备阶行幂等刷新（行未建 ／ 弹窗非铁匠铺 ⇒ 空操作/隐藏）✓
         RefreshRecruitRow();   // 🆕 M7u：今日新兵行幂等刷新（行未建 ／ 弹窗非驿站 ⇒ 空操作/隐藏）✓
+    }
+
+    /// <summary>
+    /// 🆕 **M15-P0（2026-10-02）**：城池侧的**成长对比行** —— 显示最近一次"出发前快照"的读数行 ✓
+    ///
+    /// 真值 = `ExpeditionContext.LastRunStartLines`（在 `CaptureRunStartAndDiff` 末尾缓存的**同一份**列表
+    /// ⇒ 与进地牢时 `GD.Print` 的是同一条 ⇒ **显示 == 真值**，红线 26）✓
+    /// 纪律：
+    ///   · **懒建**：有读数才建节点（首趟之前不显示空行 ⇒ 不假装）✓
+    ///   · **幂等**：`Refresh()` 每次调都只改文本/可见性，不叠第二个节点 ✓
+    ///   · **读数不许打断主流程**：整段 try/catch（与 `RunStartSnapshot.Capture` 同族）✓
+    /// </summary>
+    private void RefreshLastRunLines()
+    {
+        try
+        {
+            IReadOnlyList<string> lines = ExpeditionContext.LastRunStartLines;
+            if (lines.Count == 0)
+            {
+                if (_lastRunLines is not null)
+                {
+                    _lastRunLines.Visible = false;   // 🔴 容器布局会跳过不可见子项 ⇒ 不占位、不撑高 ✓
+                }
+
+                return;
+            }
+
+            bool created = false;
+            if (_lastRunLines is null)
+            {
+                _lastRunLines = new Label
+                {
+                    Name = "LastRunStartLines",
+                    // 🔴 相机 1280 口径（`HamletRoot.Build` 的单行 Label 纪律数组同族）：单行裁切 + 省略号，
+                    //    否则文本自然宽会把整屏撑宽（实测过 1397 > 1280）✓
+                    AutowrapMode = TextServer.AutowrapMode.Off,
+                    ClipText = true,
+                    TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+                    CustomMinimumSize = new Vector2(0, 22),
+                };
+                created = true;
+
+                if (_hint.GetParent() is { } parent)
+                {
+                    parent.AddChild(_lastRunLines);
+                    parent.MoveChild(_lastRunLines, _hint.GetIndex() + 1);   // 🔴 位置 = `_hint` 正下方（左列第二行）✓
+                }
+                else
+                {
+                    AddChild(_lastRunLines);   // 兜底：绝不崩（读数不许打断主流程）✓
+                }
+            }
+
+            _lastRunLines.Visible = true;
+            _lastRunLines.Text = "[养成] 上次出发对比　" + string.Join("　｜　", lines);
+            // 🔴 悬停可读全文（单行裁切只影响可见面；完整读数不丢 —— 红线 25 不静默失真）✓
+            _lastRunLines.TooltipText = "最近一次出发前的养成对比（与远征日志同一份读数）：\n" + string.Join("\n", lines);
+            if (created)
+            {
+                GD.Print($"[HamletRoot] ✅ 成长对比行已显示（{lines.Count} 行；真值 = ExpeditionContext.LastRunStartLines，与远征日志同源）✓");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            GD.Print($"[HamletRoot] 成长对比行读数不可用（不影响城池）：{ex.GetType().Name}");
+        }
     }
 }

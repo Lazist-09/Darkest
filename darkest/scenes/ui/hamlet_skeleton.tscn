@@ -321,7 +321,8 @@ tooltip_text = "地产费用热区（DD shared/estate estate_cost_hot_spot_layou
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
-vertical_alignment = 1
+vertical_alignment = 0   ; 🔴 2026-10-02 M15-P0：改**顶对齐**（原居中）—— 见下行
+size_flags_vertical = 0  ; 🔴 同上：**不再纵向填充**（SIZE_SHRINK_BEGIN）⇒ 标签矩形 = 最小高、落在盒顶（实测原为「最小高 + 纵向居中」⇒ y 991..1009，与 `Overlay/EstateSummary` 的标签 1007..1025 **压 2px**，判据实测 1 对）。DD 只给 estate_cost_hot_spot 的 **size 100×50**、**未给 pos** ⇒ 位置本就是推定，让内层占位的**文字**让开即可（色块仍是 100×50，不换不删）✓
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "地产费用"

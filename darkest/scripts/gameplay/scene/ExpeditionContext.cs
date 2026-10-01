@@ -53,6 +53,14 @@ public static class ExpeditionContext
     public static Darkest.Gameplay.Sim.Run.RunStartSnapshot? LastRunStart { get; private set; }
 
     /// <summary>
+    /// 🆕 **M15-P0（2026-10-02）**：最近一次"出发前对比"的**完整读数行** —— 与进地牢时 `GD.Print` 的
+    /// **同一条**（在 `CaptureRunStartAndDiff` 末尾缓存）⇒ 城池（`HamletRoot`）据此**只读展示**成长对比 ✓
+    /// 🔴 **不重算第二份快照**（P3 纪律：真值只有一处 ⇒ 显示 == 真值，红线 26）✓
+    /// 空 = 还没有任何一趟出发过（城池侧据此**隐藏**该行，不假装有读数）✓
+    /// </summary>
+    public static IReadOnlyList<string> LastRunStartLines { get; private set; } = System.Array.Empty<string>();
+
+    /// <summary>
     /// 🔴🆕 `D-4`（2026-09-20）：**本趟的目的地地区 id**（`ruins`/`weald`/`warrens`/`cove`）——
     /// 决定抽哪张陷阱表（`trap_defs.json` 按地区分条）。
     ///
@@ -70,15 +78,23 @@ public static class ExpeditionContext
     /// <summary>🆕 P0：当前是第几趟（从 1 起；每次进地牢 +1）✓</summary>
     public static int RunIndex { get; private set; }
 
-    /// <summary>🆕 P0：记一次"出发"（返回"本次 vs 上次"的对比行；首次 ⇒ 只报基线）✓</summary>
+    /// <summary>
+    /// 🆕 P0：记一次"出发"（返回"本次 vs 上次"的对比行；首次 ⇒ 只报基线）✓
+    /// 🔴🆕 **M15-P0**：`sortieIds`（本趟出征名单 ／ null = 未给 ⇒ 轮换读数如实不报）与
+    /// `hpPercentLastRunEnd`（上一趟收尾 HP% ／ null = 无上一趟 ⇒ 不假装）**都由调用方传**
+    /// （宿主在 `BattleRoot.FlowBridge` 有这两个值的**唯一来源**：会话名册 + `LastRunEndHpPercent`）✓
+    /// </summary>
     public static IReadOnlyList<string> CaptureRunStartAndDiff(
         Darkest.Gameplay.Sim.Run.Roster roster,
         Darkest.Gameplay.Sim.Run.HeirloomStock? heirlooms,
-        Darkest.Gameplay.Sim.Run.Economy? economy)
+        Darkest.Gameplay.Sim.Run.Economy? economy,
+        IReadOnlyList<string>? sortieIds = null,
+        int? hpPercentLastRunEnd = null)
     {
         Darkest.Gameplay.Sim.Run.RunStartSnapshot? prev = LastRunStart;
         RunIndex++;
-        LastRunStart = Darkest.Gameplay.Sim.Run.RunStartSnapshot.Capture(RunIndex, roster, heirlooms, economy);
+        LastRunStart = Darkest.Gameplay.Sim.Run.RunStartSnapshot.Capture(
+            RunIndex, roster, heirlooms, economy, sortieIds: sortieIds, hpPercentLastRunEnd: hpPercentLastRunEnd);
         // 🆕 **名册构成读数（㉝）也一起返回** ⇒ 宿主的"再出发"一行就同时有：
         //    **本次 vs 上次对比** ＋ **名册构成**（在册/等级分布/特质/疾病）⇒ 养成读数成体系 ✓
         var lines = new List<string>(LastRunStart.DiffLines(prev));
@@ -105,6 +121,9 @@ public static class ExpeditionContext
         {
             lines.Add($"[下一解锁] （读数不可用，不影响流程：{ex.GetType().Name}）✓");
         }
+
+        // 🆕 M15-P0：把**这一份**读数留给城池只读展示（同源 ⇒ 不重算；城池不会看到与日志不同的数 ✓）
+        LastRunStartLines = lines;
         return lines;
     }
 
@@ -338,10 +357,25 @@ public static class ExpeditionContext
         return p;
     }
 
+    /// <summary>
+    /// 🆕 **M15-P0 (b)（2026-10-02）**：上一趟**收尾时**的队伍 HP%（0~100；`null` = 没有上一趟 ⇒ 不假装）。
+    /// 🔴 在 `End()` **摘会话的同一刻**由唯一算法 `RunStartSnapshot.AverageHpPercentOf` 算好并缓存 ——
+    ///    因为 `PreviousSession` 会被 `ExpeditionComposition` 的 `ConsumePreviousSession()` **认领即清**，
+    ///    而出发快照（`CaptureRunStartAndDiff`）在那之后才发生 ⇒ 只有这里缓存才读得到 ✓
+    /// ⚠️ 与 `PreviousSession` 相反：**不随** `ConsumePreviousSession` 清空（那个清的是"会话"，这个是"读数"）✓
+    /// </summary>
+    public static int? LastRunEndHpPercent { get; private set; }
+
     /// <summary>本趟结束：清空（下一趟重新 Begin）；**同时把本趟会话留给下一趟**（`#245` 跨趟携带）✓</summary>
     public static void End()
     {
         PreviousSession = Flow?.Session; // 🔴 先摘会话，再清 Flow（顺序不可换）✓
+        // 🆕 **M15-P0 (b)**：**摘会话的同一刻**把"上一趟收尾的队伍 HP%"算好（唯一算法 =
+        //    `RunStartSnapshot.AverageHpPercentOf`）⇒ 本趟出发快照直接读它，不需要任何额外时序配合 ✓
+        //    ⚠️ 它**不随** `ConsumePreviousSession` 清空：那个清的是"会话（供跨趟携带）"，这个是"读数（供对比）" ✓
+        LastRunEndHpPercent = PreviousSession is { } ended
+            ? Darkest.Gameplay.Sim.Run.RunStartSnapshot.AverageHpPercentOf(ended.Roster())
+            : null;
         Flow = null;
         Log = null;
     }

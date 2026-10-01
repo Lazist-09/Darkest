@@ -69,8 +69,14 @@ public sealed partial class BattleRoot
         //    **本次 vs 上次** ⇒ 让"这趟比上趟强在哪"变成**可读**（不碰任何数值，纯只读）✓
         if (ExpeditionContext.Roster is { } snapRoster)
         {
+            // 🔴🆕 **M15-P0（2026-10-02）**：把两个"只有这里有"的值传给快照 ——
+            //    · `sortieIds` = 本趟出征名单（**英雄 id**；来自组合根产物，非 `Retained` 的战斗单位 id）✓
+            //    · `hpPercentLastRunEnd` = 上一趟收尾的队伍 HP%（`ExpeditionContext.End()` 已缓存；
+            //      此时 `PreviousSession` 已被组合根 `ConsumePreviousSession()` 认领清空 ⇒ 只能从这里读）✓
             foreach (string line in ExpeditionContext.CaptureRunStartAndDiff(
-                snapRoster, ExpeditionContext.Heirlooms, ExpeditionContext.Gold))
+                snapRoster, ExpeditionContext.Heirlooms, ExpeditionContext.Gold,
+                sortieIds: built.SortieIds,
+                hpPercentLastRunEnd: ExpeditionContext.LastRunEndHpPercent))
             {
                 GD.Print(line);
             }

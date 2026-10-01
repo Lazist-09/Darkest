@@ -95,7 +95,8 @@ public static class LayoutAudit
         {
             // 🔴 跨视口口径（见 `SameViewport`）：子窗口（引擎 tooltip 的 `PopupPanel` ／ `PopupMenu`）内
             //    控件的坐标系是【子窗口内容原点】⇒ 与主视口**不可比**，不参与相机判据 ✓
-            if (n is Control oc && SameViewport(root, oc) && oc.IsVisibleInTree() && oc.Size.X > 0 && oc.Size.Y > 0)
+            // 🔴 滚动口径（与 tooBig 同源）：ScrollContainer 内部的子项「超出即可滚动」是设计如此 ⇒ 不算越界 ✓
+            if (n is Control oc && SameViewport(root, oc) && oc.IsVisibleInTree() && oc.Size.X > 0 && oc.Size.Y > 0 && !InsideScroll(oc))
             {
                 Vector2 op = oc.GlobalPosition;
                 if (op.X < -0.5f || op.Y < -0.5f || op.X + oc.Size.X > cam.X + 0.5f || op.Y + oc.Size.Y > cam.Y + 0.5f)
@@ -164,8 +165,10 @@ public static class LayoutAudit
                          $"　跳过瞬态元素 {allSkips.Transient} 个（`{MotionLayerName}` 口径例外，按设计会短暂叠放）" +
                          (overlay is null ? string.Empty : $"（覆盖层内 {scopeSkips.Transient} 个）") +
                          $"　跳过子窗口 {allSkips.Windows} 个（{SkipNote(allSkips)}；`Window` 系自成视口 ⇒ 矩形不可比，见 SameViewport）" +
-                         $"　相机 {cam.X:0}×{cam.Y:0}（**项目真实视口**）越界控件 {outsideList.Count} 个（实际矩形口径，含 headless 填满视口的噪声）" +
-                         $"　帧={Engine.GetProcessFrames()}　🔴 **内容需求超出相机 {tooBig.Count} 个**" + (tooBig.Count == 0 ? "（全部装得下 ✅）" : "：" + string.Join(" ／ ", tooBig)) +
+                        $"　相机 {cam.X:0}×{cam.Y:0}（**项目真实视口**）越界控件 {outsideList.Count} 个（实际矩形口径；滚动容器内部按设计可超出 ⇒ 不计，见 InsideScroll）" +
+                        // 🔴 口径自证（红线 17／21）：被 clip_contents 裁到空的 Label **没画在屏幕上** ⇒ 不进重叠判据，但**必须留痕** ✓
+                        $"　跳过裁剪外元素 {allSkips.Clipped} 个（clip_contents 口径：被祖先容器裁到空的像素没画在屏幕上 ⇒ 不参与重叠判据，见 ClippedRect；上方 Label 计数已扣除）" +
+                        $"　帧={Engine.GetProcessFrames()}　🔴 **内容需求超出相机 {tooBig.Count} 个**" + (tooBig.Count == 0 ? "（全部装得下 ✅）" : "：" + string.Join(" ／ ", tooBig)) +
                          (outsideList.Count == 0 ? "（全部落在可视区内 ✅）" : "：" + string.Join(" ／ ", outsideList));
 
         string report = $"布局判据（{root.Name}）{scopeNote}：可见 Label {labels.Count} 个 ／ Panel+PC {panels.Count} 个　" +
@@ -299,6 +302,9 @@ public static class LayoutAudit
         /// <summary>跳过的瞬态元素个数（含其子树）✓</summary>
         public int Transient;
 
+        /// <summary>🔴 **被裁剪掉的 Label 个数**（clip_contents 口径：裁到空的像素没画在屏幕上 ⇒ 不参与重叠判据）✓</summary>
+        public int Clipped;
+
         /// <summary>跳过的子窗口个数（含其子树）✓</summary>
         public int Windows;
 
@@ -335,8 +341,20 @@ public static class LayoutAudit
 
             if (child is Label label && label.IsVisibleInTree() && !string.IsNullOrWhiteSpace(label.Text))
             {
-                // Label 的可视矩形：全局坐标（跨父容器一致口径）✓
-                labels.Add((Path(root, label), new Rect2(label.GlobalPosition, label.Size)));
+                // 🔴 **绘制口径**（2026-10-02 实证）：Godot 的 clip_contents ⇒ 子树被裁到该容器矩形内。
+                //    实测教训：左列 nav 装进 ScrollContainer（内容 912 > 宿主 ≈792）⇒ 滚出可视区的那几条
+                //    Locked_blacksmith_* 文案（y≈962／1006）**根本没画在屏幕上**，却被判成「与下方 ReliefHint
+                //    ／ LastRunStartLines 重叠」—— 那是**裁剪口径错误**，不是布局重叠（Hamlet 实测 9 对里 8 对属此类）⚠️
+                //    ⇒ 判据必须用【**裁剪后**的矩形】：裁到空 ⇒ 玩家看不到 ⇒ 不参与判据（**计数并上报**，红线 21）✓
+                Rect2 rect = ClippedRect(label);
+                if (rect.Size.X <= 0.5f || rect.Size.Y <= 0.5f)
+                {
+                    log.Clipped += 1;
+                }
+                else
+                {
+                    labels.Add((Path(root, label), rect));
+                }
             }
 
             // 🔴 `Panel` **与** `PanelContainer` 两类都要查（后者继承自 Container，不是 Panel）✓
@@ -362,5 +380,23 @@ public static class LayoutAudit
         }
 
         return string.Join("/", names.TakeLast(3)); // 只留末尾三段，够定位
+    }
+
+    /// <summary>
+    /// 🔴 **绘制口径**：把控件矩形裁到**祖先里所有** clip_contents = true 的容器之内 —— 这就是 Godot 真实的绘制规则。
+    /// 用引擎自己的属性（而不是「猜哪一类是滚动容器」）⇒ 一处规则覆盖 ScrollContainer ／ 面板 ／ 画布，无自造判据 ✓
+    /// </summary>
+    private static Rect2 ClippedRect(Control ctl)
+    {
+        Rect2 rect = new Rect2(ctl.GlobalPosition, ctl.Size);
+        for (Node? p = ctl.GetParent(); p is not null; p = p.GetParent())
+        {
+            if (p is Control pc && pc.ClipContents)
+            {
+                rect = rect.Intersection(new Rect2(pc.GlobalPosition, pc.Size));
+            }
+        }
+
+        return rect;
     }
 }

@@ -32,7 +32,12 @@ public static class ExpeditionComposition
         RosterConfig RosterCfg,
         RoomContentsConfig RoomContents,
         CuriosConfig Curios,
-        IReadOnlyDictionary<string, int> HeroSlots);
+        IReadOnlyDictionary<string, int> HeroSlots,
+        // 🆕 **M15-P0（2026-10-02）**：本趟出征名单（**英雄 id** 口径，与 `HeroConfig.Id` 同源）——
+        //    供 `BattleRoot.FlowBridge` 的出发快照做"轮换读数"（换了几人）✓
+        //    🔴 **不能**用 `ExpeditionSession.Roster()` 顶替：那本台账的键是**战斗单位 id**（两套 id 体系）⚠️
+        //    ⚠️ 复用一趟（返程）时**如实给空**（= 未给 ⇒ 轮换读数不报，不假装）✓
+        IReadOnlyList<string> SortieIds);
 
     /// <summary>
     /// 组装一趟远征（**幂等**：若 `ExpeditionContext` 已有活动流程 ⇒ 直接复用，不重开一趟）✓
@@ -52,7 +57,8 @@ public static class ExpeditionComposition
                 RoomContentsConfig.Parse(FileAccess.GetFileAsString(RoomContentsConfig.ResPath),
                     CuriosConfig.Parse(FileAccess.GetFileAsString(CuriosConfig.ResPath))),
                 CuriosConfig.Parse(FileAccess.GetFileAsString(CuriosConfig.ResPath)),
-                new Dictionary<string, int>(StringComparer.Ordinal));
+                new Dictionary<string, int>(StringComparer.Ordinal),
+                Array.Empty<string>()); // 🆕 M15-P0：复用一趟 ⇒ 不重报名单（新快照的轮换读数如实留空）✓
         }
 
         DirectorBridge.DirectorHandle handle = DirectorBridge.BuildFromRes(host);
@@ -143,6 +149,12 @@ public static class ExpeditionComposition
         // 🔴 按**出征槽位顺序**取阶（与 `sortie` 一一对应）——
         //    ⚠️ 空表 ⇒ 全第 0 阶 ⇒ **投影读数与旧口径逐字节相同**（旧来源 `HeroConfig.ArmourTier` 全仓无数据写入 ⇒ 恒 0 ✓）
         int[] armourTierBySlot = sortie.Select(h => gear.ArmourTierOf(h.Id)).ToArray();
+
+        // 🔴🆕 M15-P0（2026-10-02）：**逐人取阶**读数 —— 下面 `[片5·H-1]` 那条只报「人数」⚠
+        //    （容器被重置成空表时，它照样报「N 人已取阶」⇒ 分不出「容器活着」与「被清零」）
+        //    ⇒ 本行给出**逐人真值**：冒烟「城池买阶 ⇒ 出征」当场可取证（红线 17 读数纪律 ／ 26 显示 == 真值）✓
+        GD.Print($"[H-1] 出征取阶（来源 = ExpeditionContext.Gear）：" +
+                 string.Join("　", sortie.Select((h, i) => $"{h.Id} 甲{armourTierBySlot[i]}")) + " ✓");
 
         var session = new ExpeditionSession(
             _ => DirectorBridge.BuildFromRes(host, sortie, roster.LevelGrowth, openingMorale, diseasePenalties, traitEffects, armourTierBySlot).Core,
@@ -298,7 +310,9 @@ public static class ExpeditionComposition
             GD.Print("[片4·D-7] 未配置 `tuning.dungeon_layer.exploration` ⇒ 探索层 act-out **关闭**（opt-in；不静默）✓");
         }
 
-        return new Built(flow, campSkills, rosterCfg, roomContents, curiosCfg, heroSlots);
+        // 🆕 M15-P0：出征名单（英雄 id）随产物带出 ⇒ 出发快照的"换人"读数有**同一份**来源 ✓
+        return new Built(flow, campSkills, rosterCfg, roomContents, curiosCfg, heroSlots,
+            sortie.Select(h => h.Id).ToArray());
     }
 
     /// <summary>🔴 `D-4`：本趟的陷阱内容表（`null` = 未配置 ⇒ 机制关闭）✓</summary>
