@@ -232,6 +232,8 @@
   ⚠️ **`BuildingNav` 最小高 912 > 可分配 874 ⇒ 「内容需求超出相机 2」**：修法 = 🆕 `HamletRoot.NavScroll.cs`（`ScrollContainer` 宿主 · 61 行）＋ `check_dd_layout.ps1` 期望改 `Vector2(128, 0)` ✓
   ⚠️ **`LayoutAudit` 口径代价**：🆕 `SameViewport` 让 `Window` 系（tooltip 弹窗）子树**不参与**相机判据 ⇒ **子窗口内部的布局本判据不覆盖**（内容随光标、由引擎托管）· 跳过数**重复计数**已更正 ✓
   ⚠️ **`ui_sweep.ps1` L42 畸形已修**（两条目挤一行）· **`InfoCol` 重叠 ＋ `ScoutingStat` 不折行已修**（`ClipText` ×2 修左列撑宽）· `HamletRoot.Build.cs` **553 行**（超 400 目标 · 600 硬线内）✓
+  🔴 **`M15-P0` 追加（2026-10-02 · 判据口径 2 处 ＋ 左列垫片）**：① **重叠判据改【裁剪后绘制矩形】**（`clip_contents` 语义：被祖先容器裁到空的像素**没画在屏幕上** ⇒ 不算重叠；留痕「跳过裁剪外元素 N 个」）② **越界判据补滚动口径**（`ScrollContainer` 内部不计，与 `tooBig` 同源）⇒ 实测 **重叠 9 → 0**（9 = **3 真 ＋ 6 假**；假 = 滚出 `ScrollContainer` 的锁定行）· **越界 2 → 0**（⚠️ 口径修正，非布局变化）③ Hamlet 左列垫片 = **读数常量**（上 **72** ← DD `button_navigation_pos` 70,230 ／ 下 **30** ← DD `estate_summary_pos` 0,975）④ `LayoutAudit.cs` **402 行**（进 401~600 预警面 · 600 硬线内）⑤ `--hamlet` ＋ `--hamlet-embark` 组合**无限循环**（本件未修 · 只登记）✓
+  📄 `reports/m15_p0_hamlet_readability_20261002.md` · `doc/state.md #506` · `doc/modules/ui_spec.md §14.5.1` ✓
   📌 **孤儿文件不入库**：`darkest/tests/M9FourVFourFixtureTests.cs.uid` 仍在工作区（未跟踪）⇒ **不提交、不删** ✓
   📌 **非本件内容（顺手修）**：`doc/state.md #504` 行内**两处裸竖线**把该行切成 6 格（表格渲染断）⇒ 已转义 ＋ 1 处分隔符补空格（**只改转义与空格，不改任何字词**）✓
   📄 `reports/m12_provision_20261002.md` · `doc/state.md #505` ✓
