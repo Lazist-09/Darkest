@@ -193,6 +193,18 @@ public partial class HamletRoot : Control
         }
             dLeftCol.AddChild(_detailLeft);
 
+        // 🆕 2026-10-01 M5u：**怪癖区**（正/负/疾病分类 + 互斥提示）—— 独立 Label ⇒ 悬停出完整信息（Godot 内建 `TooltipText`）✓
+        //    🔴 `MouseFilter` 必须显式给：Godot 的 `Label` 默认不吃鼠标（不给 ⇒ tooltip 不弹）；用 **Pass**（不是 Stop）
+        //    ⇒ 悬停可读全文，且滚轮事件继续上抛到外层 `ScrollContainer`（规则①：正文必须可滚）✓
+        _detailQuirks = new Label
+        {
+            Name = "DetailQuirks",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            MouseFilter = Control.MouseFilterEnum.Pass,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+        };
+        dLeftCol.AddChild(_detailQuirks);
+
             // 🔴 P4（用户参考图④）：**技能 = 图标 + 悬停 tooltip 讲解**（不再是大段文字行）——
         //    图标 = 立绘留框同款（不透明面板样式 1px 边框 + 色块占位）；讲解走 `TooltipText` ✓
         _detailSkills = new HBoxContainer { Name = "DetailSkillIcons" };
@@ -302,6 +314,14 @@ public partial class HamletRoot : Control
         left.AppendLine($"【疾病】{(diseases.Count == 0 ? "无" : string.Join("、", diseases))}");
         _detailLeft!.Text = left.ToString();
 
+        // 🆕 2026-10-01 M5u：**怪癖行**（`dd1_workstreams.md §3` 验收：正/负/疾病分类 · 互斥提示 · 显示与数据一致 · 悬停出完整信息）
+        //    🔴 显示与数据一致：逐条**从 `roster.QuirksOf` 现读**（红线 26）—— 不写死任何 id ✓
+        IReadOnlyCollection<string> quirks = roster.QuirksOf(heroId);
+        _detailQuirks!.Text = DescribeQuirks(_quirksCfg, quirks);
+        _detailQuirks.TooltipText = DescribeQuirksDetail(_quirksCfg, quirks);
+        GD.Print($"[HamletRoot] 怪癖读数：{_detailQuirks.Text.Replace('\n', '｜')}" +
+                 $"（悬停全文 {_detailQuirks.TooltipText.Length} 字 · 库={(_quirksCfg is null ? "未加载" : $"{_quirksCfg.Quirks.Count} 条")}）✓");
+
         // ③ 属性 6 项常显 + 5 项抗性折叠一行（**读按原型的单位数据**，不是写死）
         UnitConfig? unit = _unitsCfg?.Units.FirstOrDefault(u => u.Id == hero.Archetype);
         var right = new System.Text.StringBuilder();
@@ -385,7 +405,94 @@ public partial class HamletRoot : Control
 
         _detailPanel.Visible = true;
         GD.Print($"[HamletRoot] 角色详情打开：{hero.Name}（{heroId}）原型 {hero.Archetype} Lv{hero.Level} 士气 {morale}" +
-                 $"　特质 {currentTraits.Count} 条　疾病 {diseases.Count} 项");
+                 $"　特质 {currentTraits.Count} 条　疾病 {diseases.Count} 项　怪癖 {quirks.Count} 条");
+    }
+
+    /// <summary>
+    /// 🆕 **M5u · 怪癖分类标签**（详情页与驿站招募**共用** ⇒ 分类口径只有一处）——
+    /// 判据**全部按数据字段**（不写死 id）：`is_disease` ⇒ 疾病；否则 `is_positive` ⇒ 正面/负面；
+    /// 再拼 `classification`（一手实测只有 `mental`/`physical`/空串 ⇒ 空串如实写「未分类」）✓
+    /// </summary>
+    private static string QuirkKindLabel(QuirkConfig q)
+    {
+        string kind = q.IsDisease ? "疾病" : (q.IsPositive ? "正面" : "负面");
+        string cls = q.Classification switch
+        {
+            "mental" => "精神",
+            "physical" => "肉体",
+            "" => "未分类",
+            _ => q.Classification,
+        };
+        return $"{kind}·{cls}";
+    }
+
+    /// <summary>🆕 M5u：怪癖行正文（分类 + 互斥提示；库未加载 ⇒ 如实标注，不假装分类）✓</summary>
+    private static string DescribeQuirks(QuirksConfig? cfg, IReadOnlyCollection<string> quirks)
+    {
+        if (quirks.Count == 0)
+        {
+            return "【怪癖】无";
+        }
+
+        var sb = new System.Text.StringBuilder($"【怪癖】{quirks.Count} 条");
+        foreach (string id in quirks)
+        {
+            if (cfg is null)
+            {
+                sb.Append($"\n　· {id}（🔴 怪癖库未加载 ⇒ 只有 id，分类/互斥不可读）");
+                continue;
+            }
+
+            QuirkConfig q = cfg.Get(id);
+            string clash = q.IncompatibleQuirks.Count == 0
+                ? string.Empty
+                : $"　互斥 {q.IncompatibleQuirks.Count} 条：{string.Join("、", q.IncompatibleQuirks)}";
+            sb.Append($"\n　· {id}（{QuirkKindLabel(q)}）{clash}");
+        }
+
+        // 🔴 数据自证（显示与数据一致）：现持的几条**彼此**不应互斥（掷签前已过滤候选池）
+        //    ⇒ 真出现就是数据或接线被改坏 —— 当场写在玩家看得见的地方（不静默）✓
+        if (cfg is not null)
+        {
+            foreach (string a in quirks)
+            {
+                foreach (string b in quirks)
+                {
+                    if (string.CompareOrdinal(a, b) < 0 && cfg.AreIncompatible(a, b))
+                    {
+                        sb.Append($"\n　⚠ 数据异常：{a} 与 {b} 互斥却同时持有（应已被候选池过滤）");
+                    }
+                }
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    /// <summary>🆕 M5u：悬停全文（Godot 内建 `TooltipText`）—— 逐条 id ／ 分类 ／ buff 原语 ／ 互斥名单 ／ 掷签权重 ✓</summary>
+    private static string DescribeQuirksDetail(QuirksConfig? cfg, IReadOnlyCollection<string> quirks)
+    {
+        if (quirks.Count == 0)
+        {
+            return "怪癖：无（本屏与名册同源：Roster.QuirksOf）";
+        }
+
+        if (cfg is null)
+        {
+            return $"怪癖 {quirks.Count} 条：{string.Join("、", quirks)}（🔴 怪癖库未加载 ⇒ 完整信息不可读）";
+        }
+
+        var sb = new System.Text.StringBuilder($"怪癖全信息（{quirks.Count} 条 · 同源 Roster.QuirksOf）");
+        foreach (string id in quirks)
+        {
+            QuirkConfig q = cfg.Get(id);
+            sb.Append($"\n· {id}｜{QuirkKindLabel(q)}｜掷签权重 {q.RandomChance}");
+            sb.Append($"\n　　buff 原语 {q.Buffs.Count} 条：{(q.Buffs.Count == 0 ? "无" : string.Join("、", q.Buffs))}");
+            sb.Append($"\n　　互斥 {(q.IncompatibleQuirks.Count == 0 ? "无" : string.Join("、", q.IncompatibleQuirks))}");
+            sb.Append($"\n　　curio 标签 {(string.IsNullOrEmpty(q.CurioTag) ? "无" : q.CurioTag)}｜可被新怪癖替换={q.CanBeReplacedByNewQuirk}");
+        }
+        sb.Append("\n（buff 原语层未接线：数值只登记不动 · #307 冻结）");
+        return sb.ToString();
     }
 
     /// <summary>🔴 关闭详情 ⇒ **回到城池**（红线 18：不是孤岛）。</summary>

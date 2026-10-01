@@ -27,7 +27,8 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 /// ⚠️ 假设（报告如实标注）：
 ///   · 内核 `StagecoachRecruits.Roll` 只回答「高级与否」⇒ **职业由本层从数据池里抽**（DD 式：名单逐位给一个职业）；
 ///     抽取顺序固定 ⇒ 同 seed 同名单 ✓
-///   · 「高级新兵带 Quirk」依赖 M5（未落地）⇒ 本包只做**起始等级 +1 ＋ 列表标注** ✓
+///   · 「高级新兵带 Quirk」**已落地（M5u · 2026-10-01）**：掷签 = 内核纯函数 `StagecoachRecruits.RollQuirk`
+///     （疾病不进池 · 与现持互斥的不进池）＋ `Roster.AddQuirk`（必写 `HeroQuirkGainedEvent`）✓
 /// </summary>
 public partial class HamletRoot : Control
 {
@@ -46,7 +47,7 @@ public partial class HamletRoot : Control
     /// 🔴 今日新兵**专用**随机源：种子固定 ⇒ **同一条命令行 ⇒ 同一份名单**（可复现 ✓）；
     /// 与减压/疗养共用的 `_rng` **隔离** ⇒ 刷新名单**不扰动**别人的掷骰序列 ✓
     /// </summary>
-    private readonly Darkest.Core.Rng.RngProvider _recruitRng = new(20261001);
+    private Darkest.Core.Rng.RngProvider _recruitRng = new(20261001);   // ⚠️ 非 readonly：冒烟可用 `--hamlet-recruit-seed=N` 重播（同 seed 同名单 ⇒ 可复现）✓
 
     /// <summary>列表行是否已建且挂进树（供冒烟断言）。</summary>
     public bool RecruitRowMounted => _recruitRow is not null && _recruitRow.IsInsideTree();
@@ -224,7 +225,7 @@ public partial class HamletRoot : Control
     // 业务入口（唯一一条：点条目 ／ 调试直招 都走它）✓
     // ------------------------------------------------------------------
 
-    /// <summary>🔴 **点条目 ⇒ 招募**：职业 / 等级都取自**当前名单**；越界 ⇒ 如实拒绝（不静默换人）✓</summary>
+    /// <summary>🔴 **点条目 ⇒ 招募**：职业 / 等级 / 是否高级都取自**当前名单**；越界 ⇒ 如实拒绝（不静默换人）✓</summary>
     public void RecruitOfferAt(int index)
     {
         if (index < 0 || index >= _recruitOffers.Count)
@@ -234,15 +235,17 @@ public partial class HamletRoot : Control
         }
 
         string archetype = index < _recruitOfferArchetypes.Length ? _recruitOfferArchetypes[index] : "?";
-        RecruitOne(archetype, RecruitLevelFor(_recruitOffers[index]), $"·条目{index}");
+        StagecoachRecruits.Offering offering = _recruitOffers[index];
+        RecruitOne(archetype, RecruitLevelFor(offering), $"·条目{index}", offering.Upgraded);
     }
 
     /// <summary>
     /// 🔴 **招募一个人**（唯一业务入口；UI 只转发）：转发内核 `Roster.Recruit`
     /// （进名册 ／ 写 `HeroRecruitedEvent` 全在内核）✓
     /// 🔴 满员的理由由内核 `Roster.CanRecruit` 回答（红线 21 (b)）—— 本方法不自造理由 ✓
+    /// 🆕 M5u：`upgraded = true`（高级新兵）⇒ 招到后按内核纯函数**掷一条怪癖**（见 `GrantRecruitQuirk`）✓
     /// </summary>
-    public void RecruitOne(string archetype, int? rookieLevel, string tag)
+    public void RecruitOne(string archetype, int? rookieLevel, string tag, bool upgraded = false)
     {
         Roster? roster = ExpeditionContext.Roster;
         if (roster is null)
@@ -253,6 +256,11 @@ public partial class HamletRoot : Control
 
         int before = roster.Heroes.Count;
         HeroConfig? rookie = roster.Recruit(_log, _cfg.Coach, archetype, $"新兵{before + 1}", rookieLevel);
+        if (rookie is not null && upgraded)
+        {
+            GrantRecruitQuirk(roster, rookie.Id);
+        }
+
         GD.Print(rookie is null
             ? $"[HamletRoot] 招募{tag}：**名册已满**（{before}/{EffectiveCapNow(roster)}）—— 拒绝（不悄悄顶替）✓"
             : $"[HamletRoot] 招募{tag}：{rookie.Name}（{rookie.Archetype} Lv{rookie.Level} 士气{rookie.Morale}）**免费**" +
@@ -335,6 +343,81 @@ public partial class HamletRoot : Control
         return "（无）";
     }
 
+    /// <summary>
+    /// 🆕 **M5u · M7③：高级新兵带 Quirk** —— 掷签走内核纯函数 `StagecoachRecruits.RollQuirk`
+    /// （疾病不进池 · 与现持互斥的不进池 ⇒ 候选池口径**只有一处**），落状态走 `Roster.AddQuirk`（必写事件）✓
+    /// ⚠️ 库未加载 ／ 池为空 ⇒ **如实打印「本次不发」**（不编一条怪癖 —— 红线 21：不留不可解释状态）✓
+    /// </summary>
+    private void GrantRecruitQuirk(Roster roster, string heroId)
+    {
+        if (_quirksCfg is null)
+        {
+            GD.Print($"[HamletRoot] 高级新兵 {heroId}：怪癖库未加载 ⇒ **本次不发怪癖**（如实上报，不编）✓");
+            return;
+        }
+
+        string? quirkId = StagecoachRecruits.RollQuirk(_quirksCfg, roster.QuirksOf(heroId), _recruitRng);
+        if (quirkId is null)
+        {
+            GD.Print($"[HamletRoot] 高级新兵 {heroId}：候选池为空（库 {_quirksCfg.Quirks.Count} 条全部被过滤）" +
+                     "⇒ **本次不发怪癖** ✓");
+            return;
+        }
+
+        bool added = roster.AddQuirk(_log, heroId, quirkId, "stagecoach_upgraded");
+        GD.Print($"[HamletRoot] 高级新兵 {heroId} ⇒ 掷得怪癖 `{quirkId}`（{QuirkKindLabel(_quirksCfg.Get(quirkId))}" +
+                 $" · 新增={added}）　事件原文 {LastQuirkEventText()} ✓");
+    }
+
+    /// <summary>回读最近一条怪癖事件原文（`HeroQuirkGainedEvent`；没有 ⇒ "（无）"）✓</summary>
+    private string LastQuirkEventText()
+    {
+        for (int i = _log.Events.Count - 1; i >= 0; i--)
+        {
+            if (_log.Events[i] is Darkest.Core.Events.HeroQuirkGainedEvent e)
+            {
+                return $"hero_quirk_gained: {e.HeroId} {e.QuirkId}（{e.Reason}）";
+            }
+        }
+
+        return "（无）";
+    }
+
+    /// <summary>
+    /// 🆕 **M5u · 怪癖冒烟播种**（`--hamlet-quirk-seed=&lt;英雄&gt;:&lt;怪癖&gt;`，逗号可多条）——
+    /// 走**公开 API** `Roster.AddQuirk`（必写 `HeroQuirkGainedEvent`），**不直接改私有字典**（红线 26）✓
+    /// ⚠️ 库里没有的 id ⇒ `QuirksConfig.Get` **fail-fast**（如实炸，不静默跳过）；
+    /// 英雄不存在 ⇒ `AddQuirk` 内 `MoraleOf` 当场抛 ✓（数值本身**一个都不改** —— `#307` 冻结）✓
+    /// </summary>
+    private void SeedQuirksForSmoke(string spec)
+    {
+        Roster? roster = ExpeditionContext.Roster;
+        if (roster is null || _quirksCfg is null)
+        {
+            GD.Print($"[HamletRoot] 怪癖播种：名册={roster is not null} 库={_quirksCfg is not null} ⇒ 跳过（如实上报，不假装种上）");
+            return;
+        }
+
+        foreach (string item in spec.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            int sep = item.IndexOf(':');
+            if (sep <= 0 || sep == item.Length - 1)
+            {
+                GD.Print($"[HamletRoot] 怪癖播种：`{item}` 不是「英雄:怪癖」⇒ 拒绝（不猜）✓");
+                continue;
+            }
+
+            string heroId = item[..sep];
+            string quirkId = item[(sep + 1)..];
+            QuirkConfig q = _quirksCfg.Get(quirkId);   // 不存在 ⇒ fail-fast ✓
+            bool ok = roster.AddQuirk(_log, heroId, quirkId, "smoke-seed");
+            GD.Print($"[HamletRoot] 怪癖播种：{heroId} ⇒ {quirkId}（{QuirkKindLabel(q)} · 新增={ok}" +
+                     $" · 现持 {roster.QuirksOf(heroId).Count} 条）✓");
+        }
+
+        Refresh();   // 🔴 名册行重建 ⇒ 播种立刻可见（不等到下一次刷新）✓
+    }
+
     // ------------------------------------------------------------------
     // 冒烟族（全部走真实入口；⚠️ 必须挂在 `HandleGearSmokeFlags` **之前**）✓
     // ------------------------------------------------------------------
@@ -348,6 +431,15 @@ public partial class HamletRoot : Control
     /// </summary>
     private void HandleRecruitSmokeFlags(string[] args)
     {
+        // 🆕 2026-10-01 M5u：`--hamlet-recruit-seed=N` ⇒ 重播招募掷骰（**必须先于** `OpenBuildingPopup` —— 名单在开窗时掷）
+        //    🔴 为什么需要：**高级新兵带怪癖**（M7③）只在 `Upgraded` 条目上发生，而固定种子 `20261001`
+        //    在马车 Lv0 实测掷不出高级条目 ⇒ 不重播就**验不到那条分支**（只能「假定它对」）✓
+        if (FindSmokeArg(args, "--hamlet-recruit-seed=") is { } rSeedArg && int.TryParse(rSeedArg, out int rSeed))
+        {
+            _recruitRng = new Darkest.Core.Rng.RngProvider(rSeed);
+            GD.Print($"[HamletRoot] 招募冒烟：掷骰种子 ⇒ {rSeed}（同 seed 同名单 · 供复验高级分支）✓");
+        }
+
         bool wantList = Array.Exists(args, a => a == "--hamlet-recruit-list" || a == "--hamlet-recruit-refresh")
             || FindSmokeArg(args, "--hamlet-recruit-press=") is not null;
         if (!wantList)

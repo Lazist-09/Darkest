@@ -54,6 +54,8 @@ public partial class HamletRoot : Control, IUiPanel
     private UnitsConfig? _unitsCfg;
     private CampSkillsConfig? _campSkills;
     private SanitariumConfig? _saniCfg;
+    // 🆕 2026-10-01 M5u：怪癖库（`quirks.json` 170 条）—— 供【高级新兵掷签】与【详情显示分类/互斥】✓
+    private QuirksConfig? _quirksCfg;
     private readonly Dictionary<string, Button> _saniButtons = new(); // M8.2：三项服务按钮（用于置灰）
     private EconomyConfig _cfg = null!;
     // 🆕 2026-10-01 M7u：解锁表（`Build` 解析后存下）—— 供 `RecomputeRosterCap` 按
@@ -85,6 +87,7 @@ public partial class HamletRoot : Control, IUiPanel
     private Label? _detailLeft;
     private Label? _detailRight;
     private Label? _detailCampSkills;
+    private Label? _detailQuirks;                   // 🆕 2026-10-01 M5u：怪癖区（分类 + 互斥 + 悬停全文）✓
     private HBoxContainer? _detailSkills;          // 🔴 P4：技能图标行（图标 + tooltip 讲解）✓
     private PanelContainer? _detailRecommend;      // 🔴 P4：右上"推荐位置"留框 ✓
     private string? _detailHeroId;

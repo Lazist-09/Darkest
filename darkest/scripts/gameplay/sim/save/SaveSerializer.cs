@@ -119,5 +119,15 @@ public static class SaveSerializer
                 throw new InvalidDataException("存档的 `gear.tiers` 缺失 —— 即损坏（不静默读成空表）✓");
             }
         }
+
+        // 🔴 `roster.quirks`（怪癖）**自 v3 起是必备件**：缺 ⇒ 损坏（红线 21：绝不静默当成「没有怪癖」）。
+        //    ⚠️ 同样**按版本分档判**：v2 及更早的档里结构上就没有这个字段 ⇒ 补空表的职责归
+        //    `SaveMigrator` 的 v2⇒v3 迁移（一刀切会把老档误判成损坏档）✓
+        if (snapshot.Version >= SaveMigrator.QuirkFieldSinceVersion && snapshot.Roster.Quirks is null)
+        {
+            throw new InvalidDataException(
+                $"存档（v{snapshot.Version}）缺 `roster.quirks` —— 自 v{SaveMigrator.QuirkFieldSinceVersion} " +
+                "起它是必备件，缺失即损坏（不静默读成「没有怪癖」）✓");
+        }
     }
 }

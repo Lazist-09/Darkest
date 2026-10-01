@@ -60,6 +60,7 @@ public sealed record RosterSnapshot(
     Dictionary<string, int> Morale,
     Dictionary<string, int> Xp,
     Dictionary<string, IReadOnlyList<string>> Diseases,
+    Dictionary<string, IReadOnlyList<string>> Quirks,
     Dictionary<string, IReadOnlyList<HeroTraitConfig>> Traits,
     IReadOnlyList<string> LockedTraits,
     IReadOnlyList<GraveyardSnapshot> Graveyard,
@@ -74,6 +75,8 @@ public sealed record RosterSnapshot(
 /// <para>🔴 **加字段 = 加版本**（`H-1` 装备阶 · 2026-09-30 起）：新字段一律**不给默认值**
 /// （不给 `= null` 那种）⇒ 所有构造点被编译器点名，**不可能静默漏传**；
 /// 老档的兼容由 `SaveMigrator` 的显式迁移路径承担，**不靠本类的默认值**（红线 21）✓</para>
+/// <para>📌 版本史：v1 = 第一版；**v2** = `gear` 装备阶入档（2026-09-30）；
+/// **v3** = `roster.quirks` 怪癖入档（M5u · 2026-10-01）✓</para>
 /// </summary>
 public sealed record SaveSnapshot(
     int Version,

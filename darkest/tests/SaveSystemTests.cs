@@ -18,9 +18,11 @@ namespace Darkest.Tests;
 /// 数据悄悄丢了、档被悄悄删了、损坏档被悄悄读成空档。
 /// **不测**显然正确的代码（getter、JSON 库自身、纯转发）✓</para>
 ///
-/// <para>共 8 条：① 往返不丢数据 ② 特质实例往返 ③ 版本不符**不删档**
+/// <para>共 8 条（**不新增用例**：`v3` 的怪癖断言全部并进既有用例）✓
+/// ① 往返不丢数据 ② 特质实例往返 ③ 版本不符**不删档**
 /// ④ 空档哨兵安全 ⑤ 新档（空名册）不炸 ⑥ 恢复等价性（端到端最小）
-/// ⑦ 老档（v1）无 `gear` 字段 ⇒ 迁移补空表（不是损坏档） ⑧ 装备阶坏了必须**看得见** ✓</para>
+/// ⑦ 老档（v1）缺 `gear`／`roster.quirks` ⇒ 迁移**逐级**补空表（不是损坏档）
+/// ⑧ **必备件**（v2 起 `gear` ／ v3 起 `roster.quirks`）缺了必须**看得见** ✓</para>
 /// </summary>
 [TestClass]
 public sealed class SaveSystemTests
@@ -64,6 +66,8 @@ public sealed class SaveSystemTests
         roster.SetMorale(log, heroId, 23, "test");
         roster.AwardExperienceForBattle(log, win: true);
         roster.Infect(log, heroId, "test_disease");
+        // 🆕 M5u（v3）：怪癖也造**真内容**（`tough` 是库里真 id，且与 `fragile` 互斥 ⇒ M5 用例已断言）✓
+        roster.AddQuirk(log, heroId, "tough", "test");
         roster.ScheduleOpeningPenalty(heroId, 7);
         roster.CurrentCap = 10;
 
@@ -125,6 +129,9 @@ public sealed class SaveSystemTests
             "士气必须原样回来（跨趟状态是名册的核心 —— 丢了等于 `#245` 失效）✓");
         Assert.AreEqual(before.Roster.Xp[heroId], roster.ExperienceOf(heroId), "经验必须原样回来 ✓");
         Assert.AreEqual(before.Roster.CurrentCap, roster.CurrentCap, "当前可用上限必须原样回来 ✓");
+        Assert.AreEqual(1, roster.QuirksOf(heroId).Count,
+            "🔴 怪癖（v3 新增）必须原样回来 —— 不入档 = 一存一读「招到的怪癖没了」（静默丢状态）✓");
+        Assert.IsTrue(roster.QuirksOf(heroId).Contains("tough"), "怪癖 id 必须原样回来 ✓");
         Assert.AreEqual(before.Progress.RunsFinished, progress.RunsFinished, "已完成出征数必须原样回来 ✓");
         Assert.AreEqual(before.Economy.Gold, economy.Gold, "金币必须原样回来 ✓");
         Assert.AreEqual(before.Heirlooms.Levels.Count, after.Heirlooms.Levels.Count, "建筑等级条目数必须一致 ✓");
@@ -197,6 +204,7 @@ public sealed class SaveSystemTests
                 new Dictionary<string, int>(),
                 new Dictionary<string, int>(),
                 new Dictionary<string, IReadOnlyList<string>>(),
+                new Dictionary<string, IReadOnlyList<string>>(),
                 new Dictionary<string, IReadOnlyList<HeroTraitConfig>>(),
                 Array.Empty<string>(),
                 Array.Empty<GraveyardSnapshot>(),
@@ -266,18 +274,26 @@ public sealed class SaveSystemTests
     }
 
     // ---------------------------------------------------------------
-    // ⑦ 老档（v1）**结构上就没有** `gear` ⇒ 迁移补空表，不得误判成损坏档
+    // ⑦ 老档（v1）**结构上就没有** `gear`／`roster.quirks` ⇒ 迁移逐级补空表，不得误判成损坏档
     // ---------------------------------------------------------------
 
     [TestMethod]
-    public void OldSaveWithoutGear_MigratesToEmptyTiers_NotACorruptSave()
+    public void OldSaveWithoutGearAndQuirks_MigratesToEmptyTables_NotACorruptSave()
     {
         // 🔴 两臂：① 字段在、值为 `null` ② 字段**根本不存在**（v1 那版的真实形状）✓
-        SaveSnapshot v1WithNull = BuildPopulatedSnapshot() with { Version = 1, Gear = null! };
+        //    v1 档里两个字段都还没有（`gear` 自 v2 起、`roster.quirks` 自 v3 起）⇒ 两臂都按 v1 造 ✓
+        SaveSnapshot populated = BuildPopulatedSnapshot();
+        SaveSnapshot v1WithNull = populated with
+        {
+            Version = 1,
+            Gear = null!,
+            Roster = populated.Roster with { Quirks = null! },
+        };
         string nullField = SaveSerializer.Serialize(v1WithNull);
 
         JsonObject node = JsonNode.Parse(nullField)!.AsObject();
         node.Remove("Gear");
+        ((JsonObject)node["Roster"]!).Remove("Quirks");
         string noField = node.ToJsonString();
 
         foreach (string text in new[] { nullField, noField })
@@ -285,29 +301,42 @@ public sealed class SaveSystemTests
             MigrationResult migrated = SaveMigrator.Migrate(SaveSerializer.Deserialize(text));
 
             Assert.IsTrue(migrated.Ok,
-                $"🔴 v1 老档必须能迁移 —— 一刀切按 v2 校验会把老档**误判成损坏档**（实际：{migrated.Message}）");
-            Assert.AreEqual(SaveMigrator.CurrentVersion, migrated.Snapshot!.Version, "迁移后版本必须升到当前 ✓");
+                $"🔴 v1 老档必须能迁移 —— 一刀切按当前版校验会把老档**误判成损坏档**（实际：{migrated.Message}）");
+            Assert.AreEqual(SaveMigrator.CurrentVersion, migrated.Snapshot!.Version,
+                "迁移后版本必须升到当前（v1 ⇒ v2 ⇒ v3 **逐级**）✓");
             Assert.IsNotNull(migrated.Snapshot!.Gear, "迁移必须补上 `gear` 快照（不给 `null`）✓");
             Assert.AreEqual(0, migrated.Snapshot!.Gear.Tiers.Count,
                 "补的必须是**空表** = 全部英雄第 0 阶（v1 那版既没有该字段、也没有升级入口 ⇒ 唯一忠实读法）✓");
+            Assert.IsNotNull(migrated.Snapshot!.Roster.Quirks, "迁移必须补上 `roster.quirks`（不给 `null`）✓");
+            Assert.AreEqual(0, migrated.Snapshot!.Roster.Quirks.Count,
+                "补的必须是**空表** = 没有英雄持怪癖（v2 那版没有任何怪癖入口 ⇒ 唯一忠实读法）✓");
         }
     }
 
     // ---------------------------------------------------------------
-    // ⑧ 装备阶坏了必须**看得见**（守「静默读成 0 阶 / 静默钳制」）
+    // ⑧ 必备件坏了必须**看得见**（守「静默读成默认值 / 静默钳制」）
     // ---------------------------------------------------------------
 
     [TestMethod]
-    public void DamagedGear_BecomesVisible_NotSilentlyZeroTiers()
+    public void DamagedRequiredFields_BecomeVisible_NotSilentlyDefaulted()
     {
-        // ① 当前版本（v2）的档缺 `gear` ⇒ 判为损坏档（自 v2 起它是必备件）+ 空文本仍抛 ✓
-        SaveSnapshot noGear = BuildPopulatedSnapshot() with { Gear = null! };
+        SaveSnapshot populated = BuildPopulatedSnapshot();
+
+        // ① 当前版本的档缺 `gear` ⇒ 判为损坏档（自 v2 起它是必备件）✓
+        SaveSnapshot noGear = populated with { Gear = null! };
         Assert.ThrowsException<InvalidDataException>(
             () => SaveSerializer.Deserialize(SaveSerializer.Serialize(noGear)),
             "🔴 自 v2 起 `gear` 是必备件 ⇒ 缺了必须抛（静默当成「全 0 阶」= 玩家进度无声消失）✓");
 
+        // ①b 缺 `roster.quirks` ⇒ 同样判为损坏档（自 v3 起它是必备件）✓
+        SaveSnapshot noQuirks = populated with { Roster = populated.Roster with { Quirks = null! } };
+        Assert.ThrowsException<InvalidDataException>(
+            // ⚠️ 必须**过一遍 Deserialize**：结构校验 `Validate` 在读取侧（红线 21 是「不静默读成空表」）✓
+            () => SaveSerializer.Deserialize(SaveSerializer.Serialize(noQuirks)),
+            "🔴 自 v3 起 `roster.quirks` 是必备件 ⇒ 缺了必须抛（静默当成「没有怪癖」= 招到的怪癖无声消失）✓");
+
         // ② 阶越界（0~4 之外）⇒ 恢复时**必须抛**，不静默钳到第 4 阶 ✓
-        SaveSnapshot outOfRange = BuildPopulatedSnapshot() with
+        SaveSnapshot outOfRange = populated with
         {
             Gear = new GearSnapshot(new[] { new GearTierSnapshot("hero_warrior_1", 9, 0) }),
         };

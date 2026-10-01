@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Darkest.Gameplay.Sim.Save;
 
@@ -21,13 +22,13 @@ public sealed record MigrationResult(bool Ok, SaveSnapshot? Snapshot, string Mes
 /// "版本不符即删档"是**公认反模式**（玩家辛苦打的长线进度被一行代码抹掉）⇒
 /// 本类的失败路径**把原档原样带回**，由调用方**保留文件 + 回报玩家**，交由玩家决定 ✓</para>
 ///
-/// <para>**当前版本 = 2**（2026-09-30）：v1 是存档系统的第一版；**v1 ⇒ v2 = `H-1` 装备阶入档**
-/// ⇒ 迁移链**第一次非空**（在此之前没有"旧版本"要迁）✓</para>
+/// <para>**当前版本 = 3**（2026-10-01）：v1 = 第一版；**v2 = `H-1` 装备阶入档**（2026-09-30）；
+/// **v3 = `roster.quirks` 怪癖入档**（M5u）✓ —— 迁移链**逐级**走（v1 ⇒ v2 ⇒ v3）✓</para>
 /// </summary>
 public static class SaveMigrator
 {
     /// <summary>🔴 当前存档格式版本。**新增字段/改结构时 +1，并在 `Migrate` 追加一级迁移** ✓</summary>
-    public const int CurrentVersion = 2;
+    public const int CurrentVersion = 3;
 
     /// <summary>
     /// 🔴 **`gear`（装备阶）自这一版起是【必备件】** —— v1 档里**结构上就没有**这个字段
@@ -35,6 +36,13 @@ public static class SaveMigrator
     /// `SaveSerializer.Validate` 按本常量判「缺 = 损坏」（两处引用**同一个常量**，不各写一个字面量）✓
     /// </summary>
     public const int GearFieldSinceVersion = 2;
+
+    /// <summary>
+    /// 🔴 **`roster.quirks`（怪癖）自这一版起是【必备件】** —— v2 及更早的档里**结构上就没有**它
+    /// （M5u 之前怪癖根本没入档、也没有任何怪癖入口）⇒ 由 v2⇒v3 迁移**补空表**；
+    /// `SaveSerializer.Validate` 按本常量判「缺 = 损坏」（两处引用**同一个常量**）✓
+    /// </summary>
+    public const int QuirkFieldSinceVersion = 3;
 
     /// <summary>
     /// 🔴 **迁移**：把 `raw` 升到 `CurrentVersion`。
@@ -62,20 +70,43 @@ public static class SaveMigrator
                 "—— **原档已保留**，请用对应版本打开 ✓");
         }
 
-        // 🔴 **v1 ⇒ v2（`H-1` 装备阶入档 · 2026-09-30）**：v1 档**结构上不可能**含装备阶
-        //    （那一版既没有 `gear` 字段、也没有升级入口）⇒ "补空表"**不是静默兜底**，
-        //    而是**那一版语义的唯一忠实读法**：空表 == 全部英雄第 0 阶 ✓
-        //    🔴 迁移**如实回报**（消息里写明补了什么），且**不碰磁盘**（落盘与否由调用方决定）✓
-        if (raw.Version == 1)
+        // 🔴 **逐级迁移**（v1 ⇒ v2 ⇒ v3）：每一级只补"那一版之后新增的必备件"，
+        //    且**如实回报补了什么**（逐级写进消息，不合并成一句含糊的"已升级"）；
+        //    迁移**不碰磁盘**（落盘与否由调用方决定）✓
+        SaveSnapshot cur = raw;
+        var notes = new System.Text.StringBuilder();
+
+        // v1 ⇒ v2（`H-1` 装备阶入档 · 2026-09-30）：v1 档**结构上不可能**含装备阶
+        // （那一版既没有 `gear` 字段、也没有升级入口）⇒ "补空表"**不是静默兜底**，
+        // 而是**那一版语义的唯一忠实读法**：空表 == 全部英雄第 0 阶 ✓
+        if (cur.Version == 1)
         {
-            return MigrationResult.Success(
-                raw with
+            cur = cur with
+            {
+                Version = GearFieldSinceVersion,   // 🔴 引用常量（不写死字面量 —— 与 `Validate` 同源 · 数字纪律）✓
+                Gear = cur.Gear ?? new GearSnapshot(System.Array.Empty<GearTierSnapshot>()),
+            };
+            notes.Append("v1 ⇒ v2：新增 `gear`（H-1 装备阶）⇒ 补**空表**（= 全部英雄第 0 阶）✓　");
+        }
+
+        // v2 ⇒ v3（`M5u` 怪癖入档 · 2026-10-01）：v2 档里**没有任何怪癖入口**
+        // （招募不发怪癖、curio 未接线）⇒ 补**空表**同样是那一版语义的唯一忠实读法 ✓
+        if (cur.Version == 2)
+        {
+            cur = cur with
+            {
+                Version = QuirkFieldSinceVersion,   // 🔴 同上：字面量 3 不进内核（数据纪律门禁会红）✓
+                Roster = cur.Roster with
                 {
-                    Version = CurrentVersion,
-                    Gear = raw.Gear ?? new GearSnapshot(System.Array.Empty<GearTierSnapshot>()),
+                    Quirks = cur.Roster.Quirks ?? new Dictionary<string, IReadOnlyList<string>>(),
                 },
-                $"存档版本 1 ⇒ {CurrentVersion}：本版新增 `gear`（H-1 装备阶）⇒ v1 档没有装备阶，" +
-                "补**空表**（= 全部英雄第 0 阶；那一版也没有升级入口 ⇒ 这是唯一忠实读法）✓");
+            };
+            notes.Append("v2 ⇒ v3：新增 `roster.quirks`（M5u 怪癖）⇒ 补**空表**（= 没有英雄持怪癖）✓　");
+        }
+
+        if (cur.Version == CurrentVersion)
+        {
+            return MigrationResult.Success(cur, $"存档版本 {raw.Version} ⇒ {CurrentVersion}：" + notes);
         }
 
         // 🔴 **更早的版本**（v0 及以下）：不存在 ⇒ 走到这里说明档是坏的/伪造的 ⇒ 保留并报错 ✓

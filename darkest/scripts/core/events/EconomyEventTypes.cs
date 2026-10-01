@@ -33,6 +33,10 @@ public sealed record HeroDiseasedEvent(string HeroId, string DiseaseId, string R
 /// <summary>M8.2：**治愈事件**（Sanitarium 治病：消耗金钱 + 传家宝）。</summary>
 public sealed record HeroCuredEvent(string HeroId, string DiseaseId, int GoldCost, string HeirloomCost) : BattleEvent;
 
+/// <summary>🆕 **M5u（2026-10-01）· 获得怪癖事件**（`quirks.json` 的 170 条 · M7③「高级新兵带 Quirk」）——
+/// 怪癖是**跨趟状态**（存于名册、入档）⇒ 变更必留痕（数字/事实必须来自事件流）✓</summary>
+public sealed record HeroQuirkGainedEvent(string HeroId, string QuirkId, string Reason) : BattleEvent;
+
 /// <summary>M8.2 / V15：**负面特质被清除**（Sanitarium：消耗金钱 + 传家宝）。</summary>
 public sealed record TraitRemovedEvent(string HeroId, string TraitId, int GoldCost, string HeirloomCost) : BattleEvent;
 

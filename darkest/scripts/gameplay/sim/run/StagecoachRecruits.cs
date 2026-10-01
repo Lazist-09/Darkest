@@ -83,4 +83,52 @@ public static class StagecoachRecruits
     /// <summary>高级新兵的**起始等级**（= 基础新兵等级 + 1 ✓；`#423` 只给了概率，等级沿用原版"高级=+1"✓）</summary>
     public static int StartingLevel(StagecoachConfig coach, Offering offering)
         => coach.RookieLevel + (offering.Upgraded ? 1 : 0);
+
+    /// <summary>
+    /// 🔴 **M7③（`dd1_workstreams.md §3` · M5u 2026-10-01）· 高级新兵带 Quirk** ——
+    /// 从 `quirks.json` 里**掷一条怪癖**（**纯函数 · 零 Godot · 可单测** ✓；同种子同结果 ✓）。
+    ///
+    /// 🔴 **候选池口径（如实标注：过滤规则是【我方推的】，属 `#307` 家族）**：
+    ///   ① `is_disease == true` 的 23 条**不进池**（疾病走 `Roster.Infect` ／ 疗养院，不走招募）✓
+    ///   ② `random_chance &lt;= 0` 的 6 条不进池（数据自己声明"不可随机获得"⇒ 尊重数据 ✓）
+    ///   ③ 与**现持**任一条互斥的候选**不进池**（判据 = `QuirksConfig.AreIncompatible`，单一落点 ✓）
+    ///   ⇒ 一手实测：170 条里 **141 条**可进池（读数见 `reports/m5u_quirk_ui_20261001.md`）✓
+    ///
+    /// ⚠️ 当前唯一生产调用点 = 高级新兵（新兵**现持恒为空集** ⇒ ③ 在招募路径上尚不触发）——
+    /// 但它是"**同一英雄永不出现互斥怪癖**"这条不变式的**唯一守卫** ⇒ 怪癖一旦有第二个来源
+    /// （curio ／ 趟末）即生效；已登记观察项（不假装它今天在跑）✓
+    /// </summary>
+    /// <returns>抽中的怪癖 id；池为空 ⇒ `null`（如实回答"抽不出"，不编一条）✓</returns>
+    public static string? RollQuirk(QuirksConfig quirks, IReadOnlyCollection<string> current, IRngProvider rng)
+    {
+        ArgumentNullException.ThrowIfNull(quirks);
+        ArgumentNullException.ThrowIfNull(current);
+        ArgumentNullException.ThrowIfNull(rng);
+
+        var pool = new List<string>();
+        foreach (QuirkConfig q in quirks.Quirks)
+        {
+            if (q.IsDisease || q.RandomChance <= 0)
+            {
+                continue; // ① + ② ⇒ 不进池
+            }
+
+            bool conflicts = false;
+            foreach (string held in current)
+            {
+                if (quirks.AreIncompatible(q.Id, held))
+                {
+                    conflicts = true;
+                    break;
+                }
+            }
+
+            if (!conflicts)
+            {
+                pool.Add(q.Id); // ③ ⇒ 不与现持互斥才进池
+            }
+        }
+
+        return pool.Count == 0 ? null : pool[rng.NextInt(0, pool.Count)];
+    }
 }

@@ -75,6 +75,7 @@ public sealed partial class Roster
             _heroes.RemoveAt(idx);
             _xp.Remove(gone.Id);
             _morale.Remove(gone.Id);
+            _quirks.Remove(gone.Id);   // 🆕 M5u：阵亡者的怪癖一并清掉（不留孤儿条目 ⇒ 存档不涨）✓
             _graveyard.Add((gone.Id, gone.Name, gone.Level, string.IsNullOrEmpty(death.Cause) ? cause : death.Cause));
             runLog.Append(new HeroDiedEvent(gone.Id, gone.Name, gone.Level, cause, _heroes.Count));
             removed++;

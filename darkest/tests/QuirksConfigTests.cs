@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Darkest.Core.Rng;
 using Darkest.Data;
+using Darkest.Gameplay.Sim.Run;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Darkest.Tests;
@@ -97,6 +99,38 @@ public sealed class QuirksConfigTests
         StringAssert.Contains(asym.Message, "不对称");
 
         Console.WriteLine($"[M5] 三条互斥校验都拦得住：{dangling.Message.Split('：').Last()} / {self.Message.Split('：').Last()} / {asym.Message.Split('：').Last()} ✓");
+    }
+
+    /// <summary>
+    /// 🔴 **M5u · 高级新兵带怪癖的掷签**（`StagecoachRecruits.RollQuirk` · M7③）——
+    /// **一条用例守三条不变式**（不拆成三条，控用例数 ✓）：
+    ///   ① 同种子 ⇒ 同结果（可复现；随机出口 = `RngProvider`）
+    ///   ② **疾病不进池**（疾病走 `Roster.Infect` ／ 疗养院，不走招募）
+    ///   ③ **与现持互斥的候选不进池**（判据 = `QuirksConfig.AreIncompatible`，单一落点）✓
+    /// </summary>
+    [TestMethod]
+    public void RollQuirk_IsDeterministic_AndNeverPicksADiseaseOrAnIncompatibleOne()
+    {
+        QuirksConfig cfg = QuirksConfig.Parse(ReadData("quirks.json"));
+        int pool = cfg.Quirks.Count(q => !q.IsDisease && q.RandomChance > 0);
+
+        // ① 同种子 ⇒ 同结果；且 170 条里 141 条可进池 ⇒ **空手而归就说明池被抽干了**（口径坏了）✓
+        string? first = StagecoachRecruits.RollQuirk(cfg, Array.Empty<string>(), new RngProvider(20261001));
+        string? again = StagecoachRecruits.RollQuirk(cfg, Array.Empty<string>(), new RngProvider(20261001));
+        Assert.AreEqual(first, again, "同种子必须同结果（否则掷签不可复现）✓");
+        Assert.IsNotNull(first, $"候选池 = {pool} 条（> 0）⇒ 不该抽不出 ✓");
+
+        // ② + ③ 现持 `tough`（与 `fragile` 双向互斥，已由上面那条用例断言）⇒ 反复掷，两条都不许出现 ✓
+        var rng = new RngProvider(7);
+        for (int i = 0; i < 100; i++)
+        {
+            string? id = StagecoachRecruits.RollQuirk(cfg, new[] { "tough" }, rng);
+            Assert.IsNotNull(id, "池非空 ⇒ 每次都必须掷出结果 ✓");
+            Assert.IsFalse(cfg.Get(id!).IsDisease, $"掷出了疾病 `{id}` —— 疾病不进招募池 ✓");
+            Assert.IsFalse(cfg.AreIncompatible(id!, "tough"), $"掷出了与现持互斥的 `{id}` ✓");
+        }
+
+        Console.WriteLine($"[M5u] 候选池 = {pool} / {cfg.Quirks.Count} 条 · 100 次掷签无疾病、无互斥 ✓");
     }
 
     public TestContext TestContext { get; set; } = null!;

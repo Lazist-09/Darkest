@@ -44,6 +44,9 @@ public partial class HamletRoot : Control
         _skillsCfg = SkillsConfig.Parse(FileAccess.GetFileAsString(SkillsConfig.ResPath));
         _unitsCfg = UnitsConfig.Parse(FileAccess.GetFileAsString(UnitsConfig.ResPath));
         _campSkills ??= CampSkillsConfig.Parse(FileAccess.GetFileAsString(CampSkillsConfig.ResPath));
+        // 🆕 2026-10-01 M5u：怪癖库（`quirks.json`）—— 高级新兵掷签（`StagecoachRecruits.RollQuirk`）
+        //    与详情/名册的**分类 + 互斥**显示都真读它（UI 不写死任何 id 与判定）✓
+        _quirksCfg = QuirksConfig.Parse(FileAccess.GetFileAsString(QuirksConfig.ResPath));
 
         // 🔴 `ui_spec §14.3`（`#319` 布局基建）：**顶层 = 容器树**，不再手写坐标 ——
         //    Root → MarginContainer → VBox（顶栏 ／ 主体 ／ 底栏）；**每个分区一个 `PanelContainer`**
@@ -467,6 +470,14 @@ public partial class HamletRoot : Control
         }
 
         string? detailArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-hero-detail=", StringComparison.Ordinal));
+        // 🆕 2026-10-01 M5u：怪癖冒烟播种 —— `--hamlet-quirk-seed=<英雄>:<怪癖>[,…]`，走**公开 API** `Roster.AddQuirk`
+        //    （必写 `HeroQuirkGainedEvent`）⇒ 详情页/名册行读到的是**真状态**（红线 26：不直接改私有字典）✓
+        //    ⚠️ 位置**必须在 `--hamlet-hero-detail` 之前** —— 详情内容是「打开那一刻现读」的 ✓
+        if (FindSmokeArg(hamletArgs, "--hamlet-quirk-seed=") is { } quirkSeed)
+        {
+            SeedQuirksForSmoke(quirkSeed);
+        }
+
         if (detailArg is not null && int.TryParse(detailArg["--hamlet-hero-detail=".Length..], out int dIdx))
         {
             PressPortraitRightClick(dIdx); // 🔴 右键头像 ⇒ 角色详情（用户 2026-09-15 要求）✓
@@ -492,6 +503,15 @@ public partial class HamletRoot : Control
         {
             GD.Print($"[HamletRoot] 名册竖列行数 = {RosterRowCount}（名册 {roster.Heroes.Count} 人）");
             PressRosterRow(rowIdx);
+
+            // 🆕 2026-10-01 M5u：**名册行读数**（行内文本 + 悬停）—— 供「名册显示怪癖」验收留证
+            //    🔴 读的就是行上的**真控件**（红线 26：不另算一份 ⇒ 不会出现「打印的与屏上的不是一份」）✓
+            if (rowIdx >= 0 && rowIdx < _heroButtons.Count)
+            {
+                Button rowBtn = _heroButtons[rowIdx];
+                GD.Print($"[片②·名册行#{rowIdx}] 行文本=「{(rowBtn.FindChild("RosterInfo", true, false) as Label)?.Text}」" +
+                         $"　悬停=「{rowBtn.TooltipText}」");
+            }
 
             // 🔴 片② 冒烟：**打印详情内容摘要**，供断言"显示的是被点的人 / 特质状态 / 只列已接线 / 装备未实现"
             if (DetailOpen)

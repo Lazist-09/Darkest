@@ -205,3 +205,8 @@
   ✅ **解法（一行 · 无需改代码）**：删 `darkest/.godot/editor/editor_layout.cfg`（或只删其中 `[EditorWindow]` 段）后重启编辑器 ⇒ 位置复位回主屏；若常驻双屏 ⇒ 直接把窗口拖回主屏，编辑器下次记住新坐标 ✓
   ⚠️ **不是引擎 bug、不是项目设置问题**（证据：当时进程枚举 = **0 个 Godot 进程** · `project_metadata.cfg` 的 `executable_path` 正常）· `.godot/` = 生成物不入库 ⇒ 本条目只作**答复留痕**，无代码动作 ✓
 
+- 🆕 **`O-110` 登记（2026-10-01 · 主程序 · `M5u` 怪癖落地时发现的数据口径**过期**）**：**`darkest/data/sanitarium.json:2` 的 note 已过期** —— 原文写「怪癖（Quirks）**不再新做**：M8.0 的 7.7 特质就是它，本节只让特质**可被清除或固化**」⇒ 与现状**直接冲突** ✓
+  🔴 **冲突证据（六件全已落地）**：① `darkest/data/quirks.json` = **170 条一手**（E 盘 `shared/quirk/quirk_library.json` 转写 · 3625 行 · 由 `tools/dsh/extract_dd1_quirks.py` 产出）② `darkest/scripts/data/QuirksConfig.cs`（153 行 · **引用完整性 ＋ 自反 ＋ 对称性** 三校验）③ 🆕 `Roster.Quirks.cs` ＋ 🆕 `HeroQuirkGainedEvent`（状态 ＋ 事件留痕）④ 存档 v3（`RosterSnapshot.Quirks` ＋ `SaveMigrator.QuirkFieldSinceVersion`）⑤ 详情页【怪癖】区 ＋ 名册行 `怪N` ＋ 悬停分类 ⑥ 高级新兵**真掷签**（`StagecoachRecruits.RollQuirk` · 冒烟已真掷到 `ruminator`）⇒ 「不再新做」这句**已不成立** ✓
+  ⚠️ **只登记不动数据**（`#307` 冻结 ＋ 数值/口径归策划）：建议把该 note 改成「怪癖 = `M5` 的 **170 条一手数据**（已落地：状态 / 入档 / 显示 / 招募掷签）；本节三项服务管的是**疾病与特质**，怪癖的清除 / 固化入口待服务接线时再裁」✓
+  📌 **口径提醒（免得下一个人混为一谈）**：`sanitarium.json` 的 `services.remove_negative_trait` 与怪癖**不是同一物** —— 特质走 `Roster._traits`（`Traits` 快照），怪癖走 `Roster._quirks`（`Quirks` 快照）⇒ 将来疗养院若要治怪癖 ⇒ **另立服务项**，别复用特质那三项（否则又是"一条规则两处实现"）✓
+  📄 `reports/m5u_quirk_ui_20261001.md §五 ②` · `doc/state.md #503` ✓

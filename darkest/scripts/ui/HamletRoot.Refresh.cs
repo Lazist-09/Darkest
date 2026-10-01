@@ -98,7 +98,14 @@ public partial class HamletRoot : Control
                 // 🔴 2026-09-21 DD 1:1 还原 #1（Town+Roster）：行高取 DD 的 **97** 作为下限（动态需求更大时仍取更大）✓
                 float needH = Math.Max(97f, (inner ?? rowBody).GetCombinedMinimumSize().Y);   // 🔴 DD 真机 roster.layout：**行高 97**（取下限 ⇒ 既贴 DD 又不复活旧重叠）✓
                 b.CustomMinimumSize = new Vector2(232, needH);
-                b.TooltipText = $"{h.Name}　Lv{lv}　士气 {morale}　防御 {dodge}{(canRelief ? "　·可减压" : string.Empty)}";
+                // 🆕 2026-10-01 M5u：**怪癖标记**（名册行 = 计数；悬停 = 逐条分类；详情页 = 全文）——
+                //    🔴 读数同源 `Roster.QuirksOf`（红线 26：显示的是**这个人身上真有**的）✓
+                IReadOnlyCollection<string> quirks = roster.QuirksOf(id);
+                string quirkMark = quirks.Count == 0 ? string.Empty : $"　怪{quirks.Count}";
+                string quirkTip = quirks.Count == 0
+                    ? "　怪癖 无"
+                    : "　怪癖 " + string.Join("、", quirks.Select(q => _quirksCfg is null ? q : $"{q}（{QuirkKindLabel(_quirksCfg.Get(q))}）"));
+                b.TooltipText = $"{h.Name}　Lv{lv}　士气 {morale}　防御 {dodge}{quirkTip}{(canRelief ? "　·可减压" : string.Empty)}";
                 ph.Color = WithPlaceholderAlpha(Darkest.UI.DdTheme.ArchetypeColor(h.Archetype, isPlayer: true));   // 🔴 规则②：α 取调色板
 
                 // 用户指令3（攻防=装备等级）：`HeroLevel` 框此前**代码从未填数据**（空框）⇒ 用**现有装备等级**给它语义，
@@ -142,7 +149,7 @@ public partial class HamletRoot : Control
                     rowBody.AddChild(info);
                 }
 
-info.Text = $"装备 攻{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压" : string.Empty)}";   // 用户指令3：攻/防两值**即装备等级**（用现有 LevelOfHero 与 unit.Def，不新设控件、不新造数据）
+info.Text = $"装备 攻{lv}　{dots}　防{dodge}{quirkMark}{(canRelief ? "　·可减压" : string.Empty)}";   // 用户指令3：攻/防两值**即装备等级**（用现有 LevelOfHero 与 unit.Def，不新设控件、不新造数据）；🆕 M5u：`怪N` = 怪癖计数 ✓
                 info.VerticalAlignment = VerticalAlignment.Center;
                 // 🔴 相机 1280 口径（规则①）：行内文本**可收缩 + 裁切**（否则长文本把整行撑宽 ⇒ 实测长文本下 4 处越界）✓
                 info.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;

@@ -31,6 +31,12 @@ public sealed partial class Roster
             diseases[heroId] = set.ToList();
         }
 
+        var quirks = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        foreach ((string heroId, HashSet<string> set) in _quirks)
+        {
+            quirks[heroId] = set.ToList();
+        }
+
         var traits = new Dictionary<string, IReadOnlyList<HeroTraitConfig>>(StringComparer.Ordinal);
         foreach ((string heroId, List<HeroTraitConfig> list) in _traits)
         {
@@ -45,6 +51,7 @@ public sealed partial class Roster
             new Dictionary<string, int>(_morale, StringComparer.Ordinal),
             new Dictionary<string, int>(_xp, StringComparer.Ordinal),
             diseases,
+            quirks,
             traits,
             _lockedTraits.ToList(),
             graveyard,
@@ -86,6 +93,12 @@ public sealed partial class Roster
         foreach ((string heroId, IReadOnlyList<string> ids) in snapshot.Diseases)
         {
             _diseases[heroId] = new HashSet<string>(ids, StringComparer.Ordinal);
+        }
+
+        _quirks.Clear();
+        foreach ((string heroId, IReadOnlyList<string> ids) in snapshot.Quirks)
+        {
+            _quirks[heroId] = new HashSet<string>(ids, StringComparer.Ordinal);
         }
 
         _traits.Clear();
