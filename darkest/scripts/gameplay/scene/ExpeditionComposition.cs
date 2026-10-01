@@ -223,23 +223,13 @@ public static class ExpeditionComposition
         //    那里是**投影**的取阶处，往下依次是**存档**与**升级机制** ⇒ 三处共用同一实例 ✓
 
         // 🔴🔴 **`Phase 1`（2026-09-27）：存档系统接线** —— 到这一行时五个跨趟持有者
-        //    （名册 / 进度 / 传家宝 / 经济 / **装备阶**）**已全部备齐** ⇒ 组装 `SaveController` 挂进上下文，
-        //    供 UI 与流程在"一趟结束 / 建筑升级 / 回城"等时机触发存读档 ✓
+        //    （名册 / 进度 / 传家宝 / 经济 / **装备阶**）**已全部备齐** ⇒ 组装 `SaveController` 挂进上下文 ✓
+        //    🆕 `O-106`（2026-10-01）：组装**搬到 `SaveWiring`**（**单一真值**）—— 城池直达与远征**共用同一段**，
+        //    避免"两处组装、各自漂移"（与 `ExpeditionRoot` 退休同族纪律）✓
+        //    🔴 远征侧**只读不写回**：写回时机归城池（它是跨趟状态的编辑场所，状态一改就落盘）✓
         //    🔴 **opt-in 纪律**：`save.json` 缺失 ⇒ 机制**显式关闭并打印**（绝不半生效）✓
-        if (FileAccess.FileExists(SaveConfig.ResPath))
-        {
-            SaveConfig saveCfg = SaveConfig.Parse(FileAccess.GetFileAsString(SaveConfig.ResPath));
-            var saves = new SaveController(saveCfg, new SaveFileGateway(saveCfg),
-                ExpeditionContext.EnsureRoster(rosterCfg), ExpeditionContext.Progress,
-                heirlooms, economy, gear);
-            ExpeditionContext.BindSaves(saves);
-            GD.Print($"[片4·存档] 存档系统已接线：{saveCfg.SlotCount} 个槽位 · 目录 user://saves · " +
-                     $"格式 v{Darkest.Gameplay.Sim.Save.SaveMigrator.CurrentVersion} ✓");
-        }
-        else
-        {
-            GD.Print("[片4·存档] 未找到 `save.json` ⇒ 存档机制**关闭**（opt-in；不静默）✓");
-        }
+        SaveController? saves = SaveWiring.EnsureBound();
+        SaveWiring.LoadOnStart(saves, writeBack: false);
 
         // 🔴🆕 **H-1（2026-09-27）：英雄装备阶接线** —— `hero_upgrades.json` 是它的**数值来源**（一手 15 职业树 ✓）
         //    🔴 **opt-in 纪律**：文件缺失 ⇒ 机制**显式关闭并打印**（绝不半生效）✓
