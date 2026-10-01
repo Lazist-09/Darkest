@@ -220,3 +220,18 @@
   ② **装/卸 UI 入口未接线**：范式的正解 = 用户裁定的「**方块空洞 ＋ 把方块头像拖进孔**」（`M6u` 铁匠铺同族）⇒ 饰品格是**孔、不是按钮**（红线 21：不留「点了没用」的控件）；`Roster.EquipTrinket` / `UnequipTrinket` 已就位并**各写事件**，`UnequipTrinket` 现入 `tools/deadfunc_allowlist.txt`（理由 = 契约先就位 · 消费方 = 拖放接线）✓
   ③ **`limit`（同件持有上限）无库存概念**：入手路径未接线 ⇒ 凭空判 `limit` 只会造一条**玩家永远触发不到的规则** ⇒ 不预造 API，待策划（需先定「饰品库存 / 副本」概念）✓
   📄 `reports/m4u_trinket_ui_20261002.md §五 ②④⑤` · `doc/state.md #504` ✓
+
+- 🆕 **`O-113` 登记（2026-10-02 · 主程序 · `M12` 供应落地时的边界与留证）**：① 🔴 **城内补给库存不入档 ⇒ 退出即丢**（**用户裁定**：本包只登记 · 退出即丢）—— `ExpeditionContext.Supplies` 只活在本进程，买卖后**刻意不调** `AutoSave` ⇒ 「买了补给、关游戏就没了」是**设计**、不是漏洞；且回城自动存档**不会**把空表当真相写盘（本件不接）✓
+  🔴 **代价（如实登记）**：买补给**扣的金是入档的**、买来的**库存不入档** ⇒ 存档 ／ 读档后「钱没了、货也没了」；若将来要修 ⇒ 补给入档 ＋ `SaveMigrator` 升版 ✓
+  ⚠️ **两个行为字段只转写、无消费点**：`act_out_consume_priority`（3 行有值）／ `replace_buffs`（3 行有值）—— 施工单原话要求「必须有消费点」⇒ **未达成**，接线属后续包 ✓
+  ⚠️ **三个内核接口仍缺**：任务信息位（`ProvisionScouting` ⇒ 盒内只放占位符 `—`，不编造任务内容）／ 背包卖回（`ProvisionSellFromBag`）／ 拖动换位（DD 里可拖方块换位）✓
+  ⚠️ **满格矛盾 11 ／ 12 ＋ 只 4 类 `ItemKind` 有消费者**：`provisions.json` 11 行，但能落包（`raid_item` 非空）只有 `food`（上限 12）／ `firewood`（上限 1）⇒ `InjectInto` **恰 1 件可落包**；其余 9 行一手就是消耗品 ／ 交互品（不进背包）⇒ 不造第 5 类 ✓
+  ⚠️ **`PartyGrid` 8 列 vs 我方可选 6 人**（`FormationSortie`）⇒ 6 孔 ＋ 2 空位（DD 布局位）· **商店背景位口径**：商店网格现住在 DD 商店背景位 `ProvStoreAnchor` 之内（位名与用途口径待策划核）✓
+  🔴 **`ui_sweep` 编码假绿（已修 · 留证）**：旧脚本用**系统默认编码**读日志 ⇒ 中文判据行整体解不出、**「零命中」被当成「零问题」**（`lines=511 spec14.5=ok demand=0 overlap=0` 假绿）；修法 = `[System.IO.File]::ReadAllLines($log, UTF8)` ＋ 🆕 `encSelfCheck`（**有判据行却零中文命中 ⇒ FAIL**）⇒ 修后**当场真红**（`spec14.5=FAIL demand=2 overlap=7`），修完三根因（`InfoCol` 真重叠 ／ 子窗口坐标系假重叠 ／ `BuildingNav` 912 高撑爆 demand 2）才**真绿** ✓
+  🔴 **`.tscn` 相对 `parent` 静默失效（引擎级 · 已修 12 处 ／ 仍悬空 18 处）**：`parent="<场景根名>"` 在 Godot 4.6 **不解析** ⇒ **静默丢节点**（不报错、只警告）⇒ `hamlet_skeleton.tscn` 悬空 **12 ⇒ 0**；**其余 18 处 ／ 10 文件**（`battle_bottombar.tscn` 9 ＋ `panel_banner_skeleton.tscn` 1 ＋ 8 个骨架的 `LayerTitle`：`controls` ／ `credits` ／ `fe_flow` ／ `hero_detail` ／ `loot_overlay` ／ `main_menu` ／ `quest_select` ／ `raid_results`）**本件不扩修** ⇒ 正解 = 根节点写 `parent="."`、其余写**全路径** ✓
+  ⚠️ **`BuildingNav` 最小高 912 > 可分配 874 ⇒ 「内容需求超出相机 2」**：修法 = 🆕 `HamletRoot.NavScroll.cs`（`ScrollContainer` 宿主 · 61 行）＋ `check_dd_layout.ps1` 期望改 `Vector2(128, 0)` ✓
+  ⚠️ **`LayoutAudit` 口径代价**：🆕 `SameViewport` 让 `Window` 系（tooltip 弹窗）子树**不参与**相机判据 ⇒ **子窗口内部的布局本判据不覆盖**（内容随光标、由引擎托管）· 跳过数**重复计数**已更正 ✓
+  ⚠️ **`ui_sweep.ps1` L42 畸形已修**（两条目挤一行）· **`InfoCol` 重叠 ＋ `ScoutingStat` 不折行已修**（`ClipText` ×2 修左列撑宽）· `HamletRoot.Build.cs` **553 行**（超 400 目标 · 600 硬线内）✓
+  📌 **孤儿文件不入库**：`darkest/tests/M9FourVFourFixtureTests.cs.uid` 仍在工作区（未跟踪）⇒ **不提交、不删** ✓
+  📌 **非本件内容（顺手修）**：`doc/state.md #504` 行内**两处裸竖线**把该行切成 6 格（表格渲染断）⇒ 已转义 ＋ 1 处分隔符补空格（**只改转义与空格，不改任何字词**）✓
+  📄 `reports/m12_provision_20261002.md` · `doc/state.md #505` ✓
