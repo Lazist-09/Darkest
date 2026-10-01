@@ -57,10 +57,18 @@ public sealed partial class BoardTests
         CollectionAssert.AreEqual(new[] { "enemy", "player" }, sides);
     }
 
+/// <summary>
+    /// `formation.json` 三条**加载期 fail-fast**（🔴 **2026-10-01 测试减量**：原 3 条各占一个用例 ⇒ 并成一条；
+    /// 三份非法 JSON **逐字保留**、`Assert.ThrowsException` 逐条保留 ⇒ 判据强度不变、用例数 −2 ✓）：
+    ///   ① 敌方 `support_slots` 越界（`slot_count` 4 却声明 `[5]`）
+    ///   ② `initial_roster` 的槽号越界（`slot` 7 不在 6 槽内）
+    ///   ③ `rules` 有一条不是 true（九条规则**全部**必须为真）
+    /// </summary>
     [TestMethod]
-    public void FormationConfig_InvalidEnemySupportSlots_Throws()
+    public void FormationConfig_InvalidInputs_EachRejected()
     {
-        string json = """
+        // ① 敌方 support_slots 越界
+        Assert.ThrowsException<InvalidDataException>(() => FormationConfig.Parse("""
             { "player": { "slot_count": 6, "combat_slots": 4, "support_slots": [5,6] },
               "enemy": { "slot_count": 4, "combat_slots": 4, "support_slots": [5] },
               "numeration": "center_outward",
@@ -71,14 +79,10 @@ public sealed partial class BoardTests
                          "close_up_ignores_obstacle": true, "close_up_enemy_symmetric": true,
                          "swap_player_initiated": true, "slot_three_state": true,
                          "deaths_and_close_up_separate_from_displacement": true } }
-            """;
-        Assert.ThrowsException<InvalidDataException>(() => FormationConfig.Parse(json));
-    }
+            """), "① 敌方 support_slots 越界 ⇒ 拒绝 ✓");
 
-    [TestMethod]
-    public void FormationConfig_InvalidRosterSlot_Throws()
-    {
-        string json = """
+        // ② initial_roster 槽号越界
+        Assert.ThrowsException<InvalidDataException>(() => FormationConfig.Parse("""
             { "player": { "slot_count": 6, "combat_slots": 4, "support_slots": [5,6] },
               "enemy": { "slot_count": 4, "combat_slots": 4, "support_slots": [] },
               "numeration": "center_outward",
@@ -89,14 +93,10 @@ public sealed partial class BoardTests
                          "close_up_ignores_obstacle": true, "close_up_enemy_symmetric": true,
                          "swap_player_initiated": true, "slot_three_state": true,
                          "deaths_and_close_up_separate_from_displacement": true } }
-            """;
-        Assert.ThrowsException<InvalidDataException>(() => FormationConfig.Parse(json));
-    }
+            """), "② initial_roster 槽号越界 ⇒ 拒绝 ✓");
 
-    [TestMethod]
-    public void FormationConfig_RulesNotAllTrue_Throws()
-    {
-        string json = """
+        // ③ rules 有一条不是 true
+        Assert.ThrowsException<InvalidDataException>(() => FormationConfig.Parse("""
             { "player": { "slot_count": 6, "combat_slots": 4, "support_slots": [5,6] },
               "enemy": { "slot_count": 4, "combat_slots": 4, "support_slots": [] },
               "numeration": "center_outward",
@@ -107,8 +107,7 @@ public sealed partial class BoardTests
                          "close_up_ignores_obstacle": true, "close_up_enemy_symmetric": true,
                          "swap_player_initiated": true, "slot_three_state": true,
                          "deaths_and_close_up_separate_from_displacement": true } }
-            """;
-        Assert.ThrowsException<InvalidDataException>(() => FormationConfig.Parse(json));
+            """), "③ rules 未全真 ⇒ 拒绝 ✓");
     }
 
     [TestMethod]

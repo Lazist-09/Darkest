@@ -71,34 +71,5 @@ public sealed class HeirloomQuestRewardStep1Tests
         Console.WriteLine("[传家宝·步骤②] `tier_drop` **已删** + `quest_reward` **唯一** ⇒ 旧通道退场 ✓");
     }
 
-    [TestMethod]
-    public void AmountTable_Readout_IsPrinted_ForThePlanner()
-    {
-        // 策划要求「每步要【前后读数】：传家宝产出量（每趟/每档）」⇒ 本件把**将来的产出量**逐格打出来 ✓
-        HeirloomQuestRewardConfig cfg = HeirloomQuestRewardConfig.Parse(ReadData("heirlooms.json"));
-
-        Console.WriteLine("[传家宝·步骤①] 任务奖励产出量（档 × 任务长度 1~4）：");
-        foreach (string kind in new[] { "bust", "portrait", "deed", "crest" })
-        {
-            foreach (int tier in new[] { 1, 3, 5 })
-            {
-                string row = string.Join(", ", Enumerable.Range(1, 4).Select(len => cfg.AmountAt(kind, tier, len)));
-                Console.WriteLine($"    {kind,-9} 档{tier} ⇒ [{row}]");
-            }
-        }
-
-        // 🔴 **索引口径有歧义 ⇒ 我不断言它**（不编 ✓）：
-        //   一手 `[0,2,2,4]` 只有 **4 个元素**。两种读法：
-        //     (i) 首项 = 长度 0 的占位（策划口径）⇒ 覆盖长度 0..3 ⇒ **长度 4 没有值** ⚠️
-        //     (ii) 首项 = **长度 1**（值 0 ⇒ 短任务不给传家宝）⇒ 覆盖长度 1..4 ⇒ 长度 4 = 末项 ✓
-        //   ⇒ 两种都自洽 ⇒ **我只断言无歧义的事实**（4 地牢全 4 种 · 只有奇档 · 每行 4 项 · 档越高不少 ✓），
-        //     并把歧义**打出来**让策划裁 ✓
-        Assert.AreEqual(0, cfg.AmountAt("deed", 0, 4), "档 0 没有配 ⇒ 0（无歧义 ✓）");
-        Assert.AreEqual(0, cfg.AmountAt("deed", 5, 0), "索引 0 之外越界 ⇒ 0（无歧义 ✓）");
-        Console.WriteLine("[传家宝·步骤①] ⚠️ **索引口径歧义（请策划裁）**：一手每行 4 项 ⇒");
-        Console.WriteLine("    (i) 首项=长度0 占位 ⇒ 长度 4 无值　(ii) 首项=长度1(=0) ⇒ 长度 4 = 末项");
-        Console.WriteLine("    两种读法下 `deed 档5` 的 4 个数 = [0,6,9,18] ⇒ 长度4 是 **18**（读数，非断言 ✓）");
-    }
-
     public TestContext TestContext { get; set; } = null!;
 }

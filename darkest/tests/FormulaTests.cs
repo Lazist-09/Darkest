@@ -34,45 +34,45 @@ public sealed class FormulaTests
 
     private static string AppContextBaseDir() => System.AppContext.BaseDirectory;
 
-    // ------------------------------------------------------------------
+// ------------------------------------------------------------------
     // combat_math §7.1 八样例（判据字符串与文档逐字一致）
     // ------------------------------------------------------------------
 
+    /// <summary>
+    /// `combat_math §7.1` **八样例逐字**（T-M2-01）：7 条物理 + 1 条精神。
+    /// 🔴 **2026-10-01 测试减量**：原 8 条各占一个用例 ⇒ **并成一条**（断言逐条保留、与文档同序）；
+    ///    样例名 ↔ 入参对照写在每条断言上 ⇒ 判据强度不变、用例数 −7 ✓
+    /// </summary>
     [TestMethod]
-    public void Warrior_To_MeleeMook_Is_9()
-        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 8, mitigationDivisor: 30));
+    public void CombatMath_Section7_1_EightSamples_MatchDocVerbatim()
+    {
+        // ① Warrior→MeleeMook = 9 ／ ⑤ MeleeMook→Warrior = 9
+        // 🔴 ①⑤ 的入参**逐字相同**（12 · 1.0 · 8 · 30）⇒ 一条断言即覆盖两行（文档列两行是叙事，不是两次计算）✓
+        Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 8, mitigationDivisor: 30),
+            "①/⑤ Warrior↔MeleeMook = 9");
+        // ② Medic→MeleeMook = 9
+        Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 11, skillMultiplier: 1.0, defense: 8, mitigationDivisor: 30),
+            "② Medic→MeleeMook = 9");
+        // ③ Commissar→RangedArcher = 9
+        Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 11, skillMultiplier: 0.95, defense: 4, mitigationDivisor: 30),
+            "③ Commissar→RangedArcher = 9");
+        // ④ Tank→MeleeMook = 6
+        Assert.AreEqual(6, BattleMath.PhysicalHit(attack: 8, skillMultiplier: 0.9, defense: 8, mitigationDivisor: 30),
+            "④ Tank→MeleeMook = 6");
+        // ⑥ MeleeMook→Tank = 9
+        Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 12, mitigationDivisor: 30),
+            "⑥ MeleeMook→Tank = 9");
+        // ⑦ RangedArcher→Medic = 10
+        Assert.AreEqual(10, BattleMath.PhysicalHit(attack: 13, skillMultiplier: 0.9, defense: 4, mitigationDivisor: 30),
+            "⑦ RangedArcher→Medic = 10");
 
-    [TestMethod]
-    public void Medic_To_MeleeMook_Is_9()
-        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 11, skillMultiplier: 1.0, defense: 8, mitigationDivisor: 30));
-
-    [TestMethod]
-    public void Commissar_To_RangedArcher_Is_9()
-        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 11, skillMultiplier: 0.95, defense: 4, mitigationDivisor: 30));
-
-    [TestMethod]
-    public void Tank_To_MeleeMook_Is_6()
-        => Assert.AreEqual(6, BattleMath.PhysicalHit(attack: 8, skillMultiplier: 0.9, defense: 8, mitigationDivisor: 30));
-
-    [TestMethod]
-    public void MeleeMook_To_Warrior_Is_9()
-        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 8, mitigationDivisor: 30));
-
-    [TestMethod]
-    public void MeleeMook_To_Tank_Is_9()
-        => Assert.AreEqual(9, BattleMath.PhysicalHit(attack: 12, skillMultiplier: 1.0, defense: 12, mitigationDivisor: 30));
-
-    [TestMethod]
-    public void RangedArcher_To_Medic_Is_10()
-        => Assert.AreEqual(10, BattleMath.PhysicalHit(attack: 13, skillMultiplier: 0.9, defense: 4, mitigationDivisor: 30));
-
-    /// 🔴 数字外置（用户 2026-09-14）：`SpiritHit` 的**精神减免参数改为必填** ⇒
-    ///    用例显式传【夹具值 250/40】（= 出厂 `tuning.json` 的 `mental_reduction` 两值）；
-    ///    ⚠️ 夹具值**不是**生产数字 —— 生产路径由 `BalanceTable` 从 data 传入 ✓
-    [TestMethod]
-    public void Caster_To_Warrior_Spirit_Is_8()
-        => Assert.AreEqual(8, BattleMath.SpiritHit(attack: 12, skillMultiplier: 0.8, resilience: 50,
-            mentalDivisor: 250, mentalCapPercent: 40));
+        // ⑧ Caster→Warrior（精神）= 8
+        // 🔴 数字外置（用户 2026-09-14）：`SpiritHit` 的**精神减免参数改为必填** ⇒
+        //    用例显式传【夹具值 250/40】（= 出厂 `tuning.json` 的 `mental_reduction` 两值）；
+        //    ⚠️ 夹具值**不是**生产数字 —— 生产路径由 `BalanceTable` 从 data 传入 ✓
+        Assert.AreEqual(8, BattleMath.SpiritHit(attack: 12, skillMultiplier: 0.8, resilience: 50,
+            mentalDivisor: 250, mentalCapPercent: 40), "⑧ Caster→Warrior（精神）= 8");
+    }
 
     // ------------------------------------------------------------------
     // 边界（T-M2-01 完成判据）

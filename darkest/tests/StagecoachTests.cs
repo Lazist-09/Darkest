@@ -34,16 +34,12 @@ public sealed class StagecoachTests
 
     private static EconomyConfig Cfg() => EconomyConfig.Parse(ReadData("economy.json"));
 
-    [TestMethod]
-    public void P22_6_RecruitIsFree_AndRookieIsLevelOne()
-    {
-        StagecoachConfig coach = Cfg().Coach;
-
-        Assert.AreEqual(0, coach.RecruitCost, "招募**免费**（照 DD wiki：entirely free of charge；P22 ⑥）");
-        Assert.AreEqual(1, coach.RookieLevel, "新兵 level = 1（**补的人不比老的强**；P22 ⑥）");
-        Assert.AreEqual(RosterConfig.RookieMorale, coach.RookieMorale, "新兵 morale = 50（与 P22 ⑦ 一致）");
-        Assert.AreEqual(28, coach.MaxRoster, "名册终值上限 28（= 曲线末值；🔴 M7②/#423 收敛硬编码）✓");
-    }
+// 🔴 `P22_6` 的**配置层读数**（`recruit_cost=0` · `rookie_level=1` · `rookie_morale=50` · `max_roster=28`）
+    //    已由三处覆盖 ⇒ **2026-10-01 测试减量删去该用例**（判据不丢、用例数 −1 ✓）：
+    //      ① `recruit_cost != 0` / `rookie_level != 1` ⇒ `EconomyConfig` **加载期 fail-fast**
+    //         （见本文件 `P22_6_BadStagecoachData_ThrowsOnLoad`）✓
+    //      ② 行为层：`Recruit_AddsRookie_LevelOne_MoraleFifty_Free_AndWritesEvent`（level / morale / 免费 + 事件 Cost=0）✓
+    //      ③ `max_roster = 28` = 曲线末值 ⇒ `StagecoachCurvesTests` 断言 ✓
 
     [TestMethod]
     public void P22_6_BadStagecoachData_ThrowsOnLoad()

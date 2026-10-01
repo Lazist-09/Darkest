@@ -257,7 +257,7 @@ public sealed class M1cPilotComparisonTests
 
     /// <summary>
     /// 🔴 **维度 ②③：回合数 + 胜率**（headless 直驱 100 场 × 3 臂 · **三臂同 seed** ⇒ 配对对照，消 seed 方差 ✓）
-    /// 🔴 **刻意不做平衡判红**（项目惯例：探针只报数 —— 见 OverrideProbeTests 的组说明 ✓）：
+    /// 🔴 **刻意不做平衡判红**（项目惯例：探针只报数 —— 见 `doc/state.md` O-82 探针惯例 ✓）：
     ///    B/C 两臂用的是**夹具值**而不是策划值 ⇒ 给它们设门槛 = 给「假前提」设闸 ✓
     /// </summary>
     [TestMethod]

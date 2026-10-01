@@ -178,18 +178,6 @@ public sealed class MonteCarloTests
         Console.WriteLine($"[M6] WARN 待校准：{name} = {Math.Round(actual, 2):F2} == quarantine 冻结值（按冻结值比对通过）");
     }
 
-    [TestMethod]
-    public void M6Report_HandoffDump()
-    {
-        // 将报告以紧凑文本预置到测试目录（供评审/手感报告引用）
-        SimulationReport r = HeadlessDriver.RunMany(300, PolicyKind.SemiRandom, seedBase: 20260909);
-        string msg = $"[M6] runs={r.Runs} win={r.WinRate:P0} avgRounds={r.AvgRounds:F2} " +
-                     $"min={r.MinRounds} max={r.MaxRounds} collapse={r.TotalCollapse} weak={r.TotalWeak} " +
-                     $"ddRolls={r.TotalDeathDoorRolls} retreatGames={r.GamesWithRetreat} virtue={r.TotalVirtue} " +
-                     $"affliction={r.TotalAffliction} displace={r.TotalDisplacements}";
-        Console.WriteLine(msg);
-    }
-
     [TestCleanup]
     public void FlushContext()
     {

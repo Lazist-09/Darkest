@@ -255,29 +255,31 @@ public sealed class ExplorationActOutTests
             "🔴 拒绝进食概率 ∈ (0,100]（同上）✓");
     }
 
+/// <summary>
+    /// `tuning.exploration` 三个数**加载期 fail-fast**（红线 21）（🔴 **2026-10-01 测试减量**：原 3 条并成一条；
+    /// 三份非法 JSON + 三条 `Assert.ThrowsException` 逐条保留 ⇒ 判据强度不变、用例数 −2 ✓）：
+    ///   ① `morale_affliction_threshold` 越界 [0,100]
+    ///   ② `curio_refuse_percent` > 100
+    ///   ③ `*_refuse_percent` == 0（"配了但永远不生效"的静默失效家族 ⇒ 要关就删整段）
+    /// </summary>
     [TestMethod]
-    public void ThresholdOutOfRange_ElseRejected()
+    public void ExplorationNumbers_OutOfRangeOrZero_EachRejected()
     {
-        string bad = TuningJson("""{ "exploration": { "morale_affliction_threshold": 150, "curio_refuse_percent": 33, "eat_refuse_percent": 25 } }""");
-        Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(bad),
-            "阈值越界 [0,100] ⇒ 加载期 fail-fast（红线 21）✓");
-    }
+        // ① 阈值越界
+        Assert.ThrowsException<InvalidDataException>(
+            () => TuningConfig.Parse(TuningJson("""{ "exploration": { "morale_affliction_threshold": 150, "curio_refuse_percent": 33, "eat_refuse_percent": 25 } }""")),
+            "① 阈值越界 [0,100] ⇒ 加载期 fail-fast（红线 21）✓");
 
-    [TestMethod]
-    public void CurioRefusePercentOutOfRange_ElseRejected()
-    {
-        string bad = TuningJson("""{ "exploration": { "morale_affliction_threshold": 50, "curio_refuse_percent": 101, "eat_refuse_percent": 25 } }""");
-        Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(bad),
-            "> 100 ⇒ 加载期 fail-fast ✓");
-    }
+        // ② curio_refuse_percent > 100
+        Assert.ThrowsException<InvalidDataException>(
+            () => TuningConfig.Parse(TuningJson("""{ "exploration": { "morale_affliction_threshold": 50, "curio_refuse_percent": 101, "eat_refuse_percent": 25 } }""")),
+            "② curio_refuse_percent > 100 ⇒ 加载期 fail-fast ✓");
 
-    [TestMethod]
-    public void RefusePercentZero_ElseRejected()
-    {
+        // ③ refuse_percent == 0
         // 🔴 0 是"配了但永远不生效"的静默失效家族 ⇒ 要关就删整段（与 D-6 的 reward_gold>0 同族纪律）✓
-        string bad = TuningJson("""{ "exploration": { "morale_affliction_threshold": 50, "curio_refuse_percent": 0, "eat_refuse_percent": 25 } }""");
-        Assert.ThrowsException<InvalidDataException>(() => TuningConfig.Parse(bad),
-            "0 ⇒ 加载期 fail-fast（要关闭请整段删掉 `exploration`）✓");
+        Assert.ThrowsException<InvalidDataException>(
+            () => TuningConfig.Parse(TuningJson("""{ "exploration": { "morale_affliction_threshold": 50, "curio_refuse_percent": 0, "eat_refuse_percent": 25 } }""")),
+            "③ 0 ⇒ 加载期 fail-fast（要关闭请整段删掉 `exploration`）✓");
     }
 
     [TestMethod]
