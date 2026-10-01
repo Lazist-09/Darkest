@@ -118,7 +118,8 @@ public partial class HamletRoot : Control
         {
             "tavern" => "减压 · 酒馆（快而不稳）",
             "abbey" => "减压 · 修道院（慢而稳）",
-            "stagecoach" => "招募新兵（免费 / Lv1 / 士气 50）",
+            // 🆕 2026-10-01 M7u：文案改走【今日新兵列表】口径 —— 数字**从数据现算**（不写死，红线 21）✓
+            "stagecoach" => RecruitFunctionLine(),
             // 🆕 2026-10-01 解冻窗口：铁匠铺两条升级树（H-1 前置 = 本树等级被 `HeroGear` 读作装备升级门槛）✓
             "blacksmith.weapon" => "装备升级 · 武器轴（H-1 前置树 blacksmith.weapon）",
             "blacksmith.armour" => "装备升级 · 护甲轴（H-1 前置树 blacksmith.armour）",
@@ -217,10 +218,17 @@ public partial class HamletRoot : Control
         {
             "tavern" => _reliefRow,
             "abbey" => _reliefRow,
-            "stagecoach" => _recruitRow,
             "blacksmith.weapon" or "blacksmith.armour" => _gearRow,
             _ => null,
         };
+
+        // 🆕 2026-10-01 M7u：驿站服务行 = **懒建**的【今日新兵】列表（与铁匠铺同款；不在 `Build` 里预建）✓
+        if (building == "stagecoach")
+        {
+            EnsureRecruitRow();
+            row = _recruitRow;
+        }
+
         if (row is null) { return; }
 
         // 减压：两栋同价同效、风险不同 ⇒ 只显示**本栋**那颗按钮（隐藏另一颗，避免"点开 A 建筑却触发 B 服务"的歧义）
@@ -232,7 +240,8 @@ public partial class HamletRoot : Control
         if (row.GetParent() is null) { _buildingPopupBody.AddChild(row); }
         else if (row.GetParent() != _buildingPopupBody) { row.Reparent(_buildingPopupBody); }
 
-        RefreshGearRow();   // 幂等：行未建 ⇒ 空操作；弹窗不是铁匠铺 ⇒ 行隐藏（不显示别的轴）✓
+        RefreshGearRow();      // 幂等：行未建 ⇒ 空操作；弹窗不是铁匠铺 ⇒ 行隐藏（不显示别的轴）✓
+        RefreshRecruitRow();   // 🆕 M7u：幂等：行未建 ⇒ 空操作；弹窗不是驿站 ⇒ 行隐藏（不显示别人的名单）✓
     }
 
     /// <summary>
@@ -287,7 +296,7 @@ public partial class HamletRoot : Control
         {
             "tavern" => "减压·酒馆（快而不稳）",
             "abbey" => "减压·修道院（慢而稳）",
-            "stagecoach" => "招募新兵（免费 / Lv1 / 士气 50）",
+            "stagecoach" => RecruitFunctionLine(),   // 🆕 M7u：同一份口径（与 RefreshBuildingPopup 同源）✓
             // 🆕 2026-10-01 解冻窗口：铁匠铺两条升级树（与 RefreshBuildingPopup 同一份口径）✓
             "blacksmith.weapon" => "装备升级 · 武器轴（H-1 前置树 blacksmith.weapon）",
             "blacksmith.armour" => "装备升级 · 护甲轴（H-1 前置树 blacksmith.armour）",

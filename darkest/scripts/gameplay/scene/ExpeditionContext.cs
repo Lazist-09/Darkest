@@ -211,6 +211,30 @@ public static class ExpeditionContext
 
     private static Darkest.Data.UnlocksConfig? _unlocks;
 
+    /// <summary>
+    /// 🆕 **M7②（策划 `#423`）**：名册**硬上限**的数据来源 = `roster.json` 的 `roster_cap`
+    /// （现 28；`UnlocksConfig` 只拿它校验 `roster_cap:<N>` 的值域）✓
+    /// 🔴 读不到 ⇒ 返回 **0 = 「没给硬上限」**（`UnlocksConfig` 只查正数）—— **不静默编一个 12** ✓
+    /// </summary>
+    private static int RosterHardCapFromData()
+    {
+        if (!Godot.FileAccess.FileExists(Darkest.Data.RosterConfig.ResPath))
+        {
+            return 0;
+        }
+
+        try
+        {
+            return Darkest.Data.RosterConfig.Parse(
+                Godot.FileAccess.GetFileAsString(Darkest.Data.RosterConfig.ResPath)).RosterCap;
+        }
+        catch (System.Exception ex)
+        {
+            Godot.GD.Print($"[ExpeditionContext] roster.json 读取失败 ⇒ 名册硬上限未知（不静默编 12）：{ex.Message}");
+            return 0;
+        }
+    }
+
     /// <summary>🆕 惰性读取解锁表（**只读**；失败就返回 null ⇒ 由调用方如实少打一行 ✓）</summary>
     private static Darkest.Data.UnlocksConfig? LooksUnlocks()
     {
@@ -241,7 +265,7 @@ public static class ExpeditionContext
         _unlocks = Darkest.Data.UnlocksConfig.Parse(
             Godot.FileAccess.GetFileAsString(Darkest.Data.UnlocksConfig.ResPath),
             new System.Collections.Generic.HashSet<string>(Darkest.Data.HeirloomConfig.AllowedBuildings, System.StringComparer.Ordinal),
-            curioIds, rosterHardCap: 12);
+            curioIds, rosterHardCap: RosterHardCapFromData());
         return _unlocks;
     }
 

@@ -134,24 +134,27 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
         // 🔴 合并包片 D + `next_round` ③：**解锁阈值表**（P27）—— 用**真实目录**校验引用（C2：内核也要拦）
         //    · 建筑目录 = `HeirloomConfig.AllowedBuildings`（tavern/abbey/stagecoach）
         //    · Curio 目录 = `curios.json`
-        //    · 名册**硬上限** = `roster.Cap`（= 12；C1：解锁只抬高【当前可用上限】，起手 8）
+        //    · 名册**硬上限** = `roster.Cap`（= `roster.json` 的 `roster_cap`；C1：可用上限由马车曲线决定）
         CuriosConfig curiosCfg = CuriosConfig.Parse(FileAccess.GetFileAsString(CuriosConfig.ResPath));
         UnlocksConfig unlocks = UnlocksConfig.Parse(FileAccess.GetFileAsString(UnlocksConfig.ResPath),
             HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
             curiosCfg.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal),
             roster.Cap);
 
-        // 🔴 C1 的消费点：**把"当前可用上限"写进名册**（招募的满员判定按它；硬上限仍 12）
+        // 🔴 C1 的消费点：**把「当前可用上限」写进名册**（招募的满员判定按它；硬上限 = `roster.Cap`）
         // 🔴 M7②（策划 #423）：**上限的单一来源 = 马车曲线**（9→12→16→20→24→28，索引 = 马车等级）✓
-            //    ⇒ 曲线由 ExpeditionContext 在 EnsureEconomy 时缓存；马车等级来自传家宝库存（缺失 ⇒ 0 = 起手 9）✓
-            roster.CurrentCap = ExpeditionContext.Progress.CurrentRosterCap(
-                unlocks,
-                roster.Cap,
-                stagecoachCapByLevel: ExpeditionContext.StagecoachCapCurve,
-                stagecoachLevel: ExpeditionContext.Heirlooms?.LevelOf("stagecoach") ?? 0);
+        //    ⇒ 曲线由 ExpeditionContext 在 EnsureEconomy 时缓存；马车等级来自传家宝库存（缺失 ⇒ 0 = 起手 9）✓
+        // 🔴 马车等级（= 传家宝库存里 stagecoach 的阶；缺失 ⇒ 0 = 曲线首项）—— 只取一次，下面读数与写值共用 ✓
+        int coachLevel = ExpeditionContext.Heirlooms?.LevelOf("stagecoach") ?? 0;
+        roster.CurrentCap = ExpeditionContext.Progress.CurrentRosterCap(
+            unlocks,
+            roster.Cap,
+            stagecoachCapByLevel: ExpeditionContext.StagecoachCapCurve,
+            stagecoachLevel: coachLevel);
         GD.Print($"[MainMenuRoot] 解锁阈值表：{unlocks.Unlocks.Count} 条　" +
                  $"起手可用上限 {unlocks.RosterBaseCap}（硬上限 {roster.Cap}）　" +
-                 $"{ExpeditionContext.Progress.Audit(unlocks, roster.Cap)}");
+                 // 🔴 读数与上面写进名册的值【同口径】（传同一份曲线与等级）⇒ 不会再出现"读数 8 / 真值 9" ✓
+                 $"{ExpeditionContext.Progress.Audit(unlocks, roster.Cap, ExpeditionContext.StagecoachCapCurve, coachLevel)}");
 
         // 🔴 骨架优先：状态面板也用骨架的（缺失则代码建）；节点名 `StatusPanel` 保持不变 ✓
         PanelContainer statusPanel = skeleton?.GetNodeOrNull<PanelContainer>("MenuMargin/MenuCol/StatusPanel")

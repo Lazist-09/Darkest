@@ -32,7 +32,8 @@ public partial class HamletRoot : Control
         _status.Text =
             $"【Hamlet 回城】金钱 {gold}　一次减压 {cost} ⇒ 现在能减 {affordable} 次\n" +
             moraleLine + "\n" +
-            "④ 减压已可用（Tavern 快而不稳 ／ Abbey 慢而稳，**同价同效**）；⑤ 招募随后落地。";
+            "④ 减压已可用（Tavern 快而不稳 ／ Abbey 慢而稳，**同价同效**）；" +
+            "⑤ 招募已落地（点建筑区【驿站 Stage Coach】⇒ 弹窗里【今日新兵】列表，点条目即招）✓";
 
         // ② 选人权：刷新"可减压者"按钮（名册里**士气低于基准 50** 的人）
         foreach (Button b in _heroButtons)
@@ -183,10 +184,11 @@ info.Text = $"装备 攻{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压"
                 : $"减压对象：{_selectedHero}（士气 {roster.MoraleOf(_selectedHero)}）⇒ 请点酒馆或修道院";
 
         // 🔴 片①：**名册计数 / 资源条 / 建筑信息默认行**（都真读跨趟持有者，不写死）
+        // 🆕 2026-10-01 M7u：计数改走**同一份读法** `EffectiveCapNow`（可用上限 = 马车曲线，硬上限 = roster.json）✓
+        //    🔴 不在这里再写一遍 min/三元的第二份口径（P3 纪律：真值只有一处）✓
         _rosterCount.Text = roster is null
             ? "名册 -/-"
-            : $"名册 {roster.Heroes.Count} / {((roster.CurrentCap > 0) ? roster.CurrentCap : roster.Cap)}" +
-              $"（上限 {roster.Cap}）";
+            : $"名册 {roster.Heroes.Count} / {EffectiveCapNow(roster)}";
         HeirloomStock? resHeirlooms = ExpeditionContext.Heirlooms;
         Economy? resGold = ExpeditionContext.Gold;
         _resourceBar.Text = resGold is null || resHeirlooms is null
@@ -248,6 +250,7 @@ info.Text = $"装备 攻{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压"
             }
         }
 
-        RefreshGearRow();   // 🆕 M6u：装备阶行幂等刷新（行未建 ／ 弹窗非铁匠铺 ⇒ 空操作/隐藏）✓
+        RefreshGearRow();      // 🆕 M6u：装备阶行幂等刷新（行未建 ／ 弹窗非铁匠铺 ⇒ 空操作/隐藏）✓
+        RefreshRecruitRow();   // 🆕 M7u：今日新兵行幂等刷新（行未建 ／ 弹窗非驿站 ⇒ 空操作/隐藏）✓
     }
 }

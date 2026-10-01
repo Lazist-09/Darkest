@@ -34,7 +34,8 @@ public partial class HamletRoot : Control, IUiPanel
 
     // 🔴 用户要求（2026-09-16）：以下三块**搬进【建筑详情】**（主屏不再一眼可见）✓
     private HBoxContainer? _reliefRow;
-    private HBoxContainer? _recruitRow;
+    // 🆕 2026-10-01 M7u：驿站招募行（`_recruitRow`）已**搬家** ⇒ `HamletRoot.Recruit.cs`
+    //    （竖列 + 懒建；字段声明随实现走，避免同一字段两处声明）✓
     private HBoxContainer? _saniRow;
 
 
@@ -55,6 +56,9 @@ public partial class HamletRoot : Control, IUiPanel
     private SanitariumConfig? _saniCfg;
     private readonly Dictionary<string, Button> _saniButtons = new(); // M8.2：三项服务按钮（用于置灰）
     private EconomyConfig _cfg = null!;
+    // 🆕 2026-10-01 M7u：解锁表（`Build` 解析后存下）—— 供 `RecomputeRosterCap` 按
+    //    「单一来源 = 马车曲线」重算名册可用上限（`RunProgress.CurrentRosterCap`）✓
+    private UnlocksConfig? _unlockCfg;
     private string? _selectedHero;                       // ② 选人权：玩家选中的被减压者
     private readonly List<Button> _heroButtons = new();  // 动态重建（士气 < 50 的人）
     private readonly Dictionary<string, Button> _upgradeButtons = new(); // M8.1：三栋升级按钮（用于置灰）

@@ -144,17 +144,23 @@ public sealed partial class Roster
         }
     }
 
-    /// <summary>名册上限（M8.0 ⑤：出征 6 + 替补 6 = 12）。</summary>
+    /// <summary>名册**硬上限**（= `roster.json` 的 `roster_cap`；实际可用值由马车曲线决定 ⇒ `CurrentCap`）。</summary>
     public int Cap => _cfg.RosterCap;
 
     /// <summary>
-    /// 🔴 **当前可用上限**（C1 / `O-86`）：**硬上限仍是 `Cap`（= 12，P22① 不变）**；
-    /// 本值 = 起手 8 + 解锁抬高的 `roster_cap:N`（由组合根按 `RunProgress` 设置）。
-    /// 🔴 **招募的"满员即拒绝"必须按【本值】判**（P22⑥ / C1），而不是按硬上限 ✓
+    /// 🔴 **当前可用上限**（C1 / `O-86` / **M7② `#423`**）：**硬上限 = `Cap`**；
+    /// 本值 = **马车曲线** `roster_cap_by_level[马车等级]`（由组合根按 `RunProgress.CurrentRosterCap` 写入）✓
+    /// 🔴 **招募的「满员即拒绝」必须按【本值】判**（P22⑥ / C1），而不是按硬上限 ✓
     /// </summary>
     public int CurrentCap { get; set; }
 
     private int EffectiveCap => CurrentCap > 0 ? Math.Min(CurrentCap, Cap) : Cap;
+
+    /// <summary>
+    /// 🔴 **能不能再招一个人**（红线 21 (b)：可用性由**内核**回答，UI 只渲染）——
+    /// 判据 = 当前人数 &lt; 当前可用上限（`EffectiveCap`）✓
+    /// </summary>
+    public bool CanRecruit => _heroes.Count < EffectiveCap;
 
     // ---------------------------------------------------------------
     // M8.2（`m8_roadmap §2`）：**疾病**（跨趟状态，与士气同层）—— 长线损耗，由 Sanitarium 清除
@@ -346,9 +352,9 @@ public sealed partial class Roster
             throw new ArgumentNullException(nameof(log));
         }
 
-        if (_heroes.Count >= EffectiveCap)
+        if (!CanRecruit)
         {
-            return null; // 名册已满（P22 ⑥ / cap = 12）—— 拒绝，不悄悄顶替
+            return null; // 名册已满（P22 ⑥ · 上限 = `CurrentCap`，由马车曲线决定）—— 拒绝，不悄悄顶替
         }
 
         List<HeroTraitConfig> pool = _heroes.SelectMany(h => h.Traits).ToList();

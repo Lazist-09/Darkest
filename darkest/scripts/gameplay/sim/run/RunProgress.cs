@@ -13,7 +13,8 @@ namespace Darkest.Gameplay.Sim.Run;
 /// ① 记【已完成出征数】（`runs`）—— **这是解锁阈值表的输入**（此前**不存在**任何跨趟计数器 ⚠️）；
 /// ② 由 `UnlocksConfig` 评估出**已解锁 id 集合**，并按命名空间分类：
 ///    `building:<id>`（城池建筑可见性）／`curio:<id>`（Curio 池种类）／`roster_cap:<N>`（名册可用上限）；
-/// ③ 给出**名册当前可用上限**（C1：**硬上限 12** 不变；解锁只抬高【当前可用上限】，起手 8）。
+/// ③ 给出**名册当前可用上限**（C1 · **M7②**：单一来源 = **马车曲线** `roster_cap_by_level`；
+///    未传曲线时退回旧口径 = 起手 8 + 解锁 + 马车增量，硬上限由调用方给）。
 ///
 /// ⚠️ 口径（如实标注，供策划复核）：`runs` 统计**已结束的出征**（结局 = **完成 / 放弃远征 / 全灭** —— 🔴 `#352` 后**撤退不算结局**）——
 ///    理由：若只数"完成"，撤退/团灭的玩家会**永远解锁不了任何东西**。若你要改成"只数完成"，改本类一处 ✓
@@ -75,20 +76,19 @@ public sealed partial class RunProgress
             .Select(s => s["building:".Length..]).ToHashSet(StringComparer.Ordinal);
 
     /// <summary>
-    /// 🔴 **名册当前可用上限**（策划 `#403` 裁定 **(b) 相加 + 封顶** · **统一增量语义**）：
-    ///   `min(硬上限, 起手 8 + 解锁增量 + 马车增量)` ✓
-    ///   理由（他给的）：两条来源是**两种投入**（**玩得久** / **花传家宝**）⇒
-    ///   **取最大会让其中一条在某个时点变成纯浪费** ⚠️ ⇒ 相加让两条路线**都值钱**（A9 ✓）。
-    /// ⚠️ 兼容：旧语法 `roster_cap:N`（**绝对值**）仍接受 ⇒ 按旧的"取最大"口径处理，
-    ///    以免**改写历史读数**（归档纪律 ✓）。
+    /// 🔴 **名册当前可用上限**（策划 `#403` 起手口径 · **M7② `#423` 收敛**）：
+    ///   ① **传了马车曲线**（当前唯一调用口径）⇒ `min(硬上限, 曲线[马车等级])` —— **上限的单一来源** ✓
+    ///   ② **不传曲线**（历史调用）⇒ 老逻辑一字不动：`min(硬上限, 起手 + 解锁 + 马车增量)` ✓
+    /// ⚠️ `roster_cap_delta:`（增量）**已撤**（M7②：解锁表不再提供上限增量，否则「两处真值」）；
+    ///    旧语法 `roster_cap:N`（**绝对值**）仍接受 ⇒ 取最大，以免**改写历史读数**（归档纪律 ✓）。
     /// </summary>
     /// <param name="stagecoachCapByLevel">
     /// 🆕 **M7 第 ② 步（策划 `#423`）**：**上限的单一来源 = 马车曲线**（`economy.json` 的
     ///   `stagecoach.roster_cap_by_level` = 9→12→16→20→24→28，索引 = 马车等级）✓
     ///   🔴 **传了曲线 ⇒ 以曲线为准**（不再相加解锁增量/马车效果 —— 那些是"两处真值"家族 ✓）
     ///   🔴 **不传 ⇒ 老逻辑一字不动**（历史读数不被改写 ✓）
-    ///   ⚠️ **激活条件（我按自查表的承诺写明）**：调用点 `MainMenuRoot.cs:145` 需把曲线与马车等级传进来
-    ///      （那是 **UI 域**的一行改动 ⇒ 我不擅自改 ⇒ 已在投递里给出可直接粘贴的那一行 ✓）
+    ///   ✅ **已接线（2026-10-01）**：调用点 = `MainMenuRoot.cs`（菜单路径）与
+    ///      `HamletRoot.Recruit.cs` 的 `RecomputeRosterCap`（城池路径：马车升级后重算）✓
     /// </param>
     /// <param name="stagecoachLevel">马车等级（`HeirloomStock.LevelOf("stagecoach")` ✓）；越界会被钳制 ✓</param>
     public int CurrentRosterCap(
@@ -108,19 +108,16 @@ public sealed partial class RunProgress
         int cap = cfg.RosterBaseCap;
         foreach (string s in UnlockedIds(cfg))
         {
-            if (s.StartsWith("roster_cap_delta:", StringComparison.Ordinal)
-                && int.TryParse(s["roster_cap_delta:".Length..], out int d))
-            {
-                cap += d; // 🆕 增量语义（与马车同语法 · `#403` ✓）
-            }
-            else if (s.StartsWith("roster_cap:", StringComparison.Ordinal)
-                     && int.TryParse(s["roster_cap:".Length..], out int n))
+            // 🔴 M7②：`roster_cap_delta:`（增量）**已撤** —— 上限单一来源 = 马车曲线 ✓
+            if (s.StartsWith("roster_cap:", StringComparison.Ordinal)
+                && int.TryParse(s["roster_cap:".Length..], out int n))
             {
                 cap = Math.Max(cap, n); // 旧语法：绝对值取最大（历史口径不变 ✓）
             }
         }
 
-        cap += Math.Max(0, heirloomDelta); // 🆕 **马车增量**（`EffectiveRosterCap` 的差值 ⇒ 真的被消费 ✓）
+        // 遗留：只服务「不传曲线」的历史调用（新调用一律走上面的马车曲线 ✓）
+        cap += Math.Max(0, heirloomDelta);
         return Math.Min(cap, hardCap);     // 封顶 ✓
     }
 
@@ -158,12 +155,18 @@ public sealed partial class RunProgress
         return (best.Entry, best.Runs, best.Battles);
     }
 
-    public string Audit(UnlocksConfig cfg, int hardCap)
+    /// <summary>
+    /// 一行读数（菜单用）✓
+    /// 🔴 **M7②**：上限的单一来源 = 马车曲线 ⇒ 本读数**必须与 `Roster.CurrentCap` 同口径**
+    ///    （传了曲线就按曲线报，**不另算一份** —— 否则读数与真值打架，O-96 家族）✓
+    /// </summary>
+    public string Audit(UnlocksConfig cfg, int hardCap,
+        IReadOnlyList<int>? stagecoachCapByLevel = null, int stagecoachLevel = 0)
     {
         IReadOnlySet<string> ids = UnlockedIds(cfg);
         return $"征途进度：已完成出征 {RunsFinished} 趟（已胜 {BattlesWon} 场）　" +
                $"已解锁 {ids.Count} 项［{string.Join(" ", ids.OrderBy(x => x, StringComparer.Ordinal))}］　" +
-               $"名册当前可用上限 {CurrentRosterCap(cfg, hardCap)}（硬上限 {hardCap}）　" +
+               $"名册当前可用上限 {CurrentRosterCap(cfg, hardCap, stagecoachCapByLevel: stagecoachCapByLevel, stagecoachLevel: stagecoachLevel)}（硬上限 {hardCap}）　" +
                $"Curio 可用 {4 + UnlockedCurios(cfg).Count} 种　" +
             // 🆕 **下一个解锁**（进度可见性 · A4 同族）：报「还差多少」，全解锁就如实说没有 ✓
             (NextUnlock(cfg) is { } next

@@ -187,22 +187,10 @@ public partial class HamletRoot : Control
         abbey.Pressed += () => DoRelief("abbey");
         reliefRow.AddChild(abbey);
 
-        // 招募（Stage Coach）：按原型选
-        var recruitRow = new HBoxContainer { Name = "RecruitRow" };
-        recruitRow.AddThemeConstantOverride("separation", 6);
-        _recruitRow = recruitRow;   // 🔴 同理：招募搬进建筑详情 ✓
-        foreach (string a in new[] { "warrior", "tank", "medic", "commissar" })
-        {
-            string archetype = a;
-            var b = new Button
-            {
-                Name = $"Recruit_{archetype}",
-                Text = $"招募·{archetype}（免费）",
-                CustomMinimumSize = new Vector2(150, 32),
-            };
-            b.Pressed += () => RecruitArchetype(archetype);
-            recruitRow.AddChild(b);
-        }
+        // 🆕 2026-10-01 M7u：招募行**不再在此预建** ⇒ 改**懒建**（只有真打开驿站弹窗才建，城池主屏零新增节点）✓
+        //    🔴 旧写法有两条硬伤：① 4 颗按钮把原型写死成第二份表（`warrior/tank/medic/commissar`，违反 P3 纪律）；
+        //       ② 名单数量 ／ 高级概率 ／ 起始等级全无来源（玩家看不到「今日新兵几人」）。
+        //    ✅ 新写法 = `HamletRoot.Recruit.cs`：原型池从 `units.json` 派生，数量/概率读马车曲线（`economy.json`）✓
 
         // 🔴 M8.1 建筑区（= 片① 的"中央建筑区"）+ `next_round`③ 消费点 (a)：**按解锁显示**
         // 🆕 2026-10-01 解冻窗口（用户裁定「铁匠铺加一条解锁」）：+ 铁匠铺的**两条升级树**（weapon / armour）——
@@ -218,7 +206,12 @@ public partial class HamletRoot : Control
             CuriosConfig.Parse(FileAccess.GetFileAsString(CuriosConfig.ResPath)).RealCurios
                 .Select(c => c.Id).ToHashSet(StringComparer.Ordinal),
             roster.Cap);
+        _unlockCfg = unlockCfg;   // 🆕 M7u：存下供 `RecomputeRosterCap` 用（上限单一来源 = 马车曲线）✓
         IReadOnlySet<string> unlockedBuildings = ExpeditionContext.Progress.UnlockedBuildings(unlockCfg);
+
+        // 🔴 M7u 上限接线点 ①（回城装配）：按**马车曲线**写 `Roster.CurrentCap`
+        //    （另一个接线点 = 马车升级后的 `UpgradeBuilding`）⇒「改马车第 3 级，只有一处跟着变」✓
+        RecomputeRosterCap("回城装配");
 
         // 🔴 2026-09-21 DD 1:1 还原 #1c：建筑区 = **窄左列竖排 nav**（DD: 宽 128、按钮竖距 68、贴左缘）✓
         VBoxContainer buildingRow = skel?.BuildingNav ?? new VBoxContainer { Name = "BuildingNav" };   // DD 1:1 3-3：骨架优先（编辑器可改），缺失才代码建
@@ -519,6 +512,10 @@ public partial class HamletRoot : Control
 
         // 🆕 2026-10-01 M6u：装备阶冒烟族（金币/传家宝播种 + 真实 `Pressed` 升阶；全部走玩家路径）✓
         HandleGearSmokeFlags(hamletArgs);
+
+        // 🆕 2026-10-01 M7u：招募冒烟族（**排在装备阶之后** ⇒ 组合冒烟「先升马车 ⇒ 再看今日新兵」读到的是**升后**的名单
+        //    与上限；本族自己会 `OpenBuildingPopup("stagecoach")` ⇒ 不依赖上一族把弹窗留在哪一栋）✓
+        HandleRecruitSmokeFlags(hamletArgs);
 
         // 🔴 M8.0 ⑥ 端到端：回城阶段 ⇒ **花钱（减压）** 然后 **再出发**（`--hamlet-embark`）
         //    ⚠️ 位置在装备阶冒烟**之后**：本分支会切场景并 `return`（M6u 组合冒烟依赖此顺序）✓

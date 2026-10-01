@@ -60,11 +60,19 @@ public sealed class UpgradeComparisonReadingsTests
         var lines = new List<string>();
         int changed = 0;
 
+        // 🔴 **M7②（策划 `#423`）：名册上限的【单一来源】= 马车曲线**（`economy.json` 的 `stagecoach.roster_cap_by_level`）——
+        //    这里**按马车等级**读它（不是按被升级建筑自己的等级）⇒ 只有"升马车"那一行会让上限动 ✓
+        int CapAtCoachLevel(int coachLevel)
+        {
+            IReadOnlyList<int> curve = eco.Coach.RosterCapByLevel;
+            return curve[Math.Clamp(coachLevel, 0, curve.Count - 1)];
+        }
+
         foreach (UpgradePath path in cfg.UpgradePaths)
         {
             int lv0Cost = stock.EffectiveReliefCost(reliefBase);
             int lv0Restore = stock.EffectiveMoraleRestore(path.Building, reliefRestoreBase);
-            int lv0Cap = stock.EffectiveRosterCap(8, 12);
+            int lv0Cap = CapAtCoachLevel(stock.LevelOf("stagecoach"));
             int lv0Rookie = stock.EffectiveRookieLevel(1);
 
             bool ok = stock.TryUpgrade(log, path.Building);
@@ -72,7 +80,7 @@ public sealed class UpgradeComparisonReadingsTests
 
             int lv1Cost = stock.EffectiveReliefCost(reliefBase);
             int lv1Restore = stock.EffectiveMoraleRestore(path.Building, reliefRestoreBase);
-            int lv1Cap = stock.EffectiveRosterCap(8, 12);
+            int lv1Cap = CapAtCoachLevel(stock.LevelOf("stagecoach"));
             int lv1Rookie = stock.EffectiveRookieLevel(1);
 
             if (lv1Cost != lv0Cost || lv1Restore != lv0Restore || lv1Cap != lv0Cap || lv1Rookie != lv0Rookie)
@@ -82,7 +90,7 @@ public sealed class UpgradeComparisonReadingsTests
 
             lines.Add($"[P2] {path.Building,-11}（axis={path.Axis}）Lv0→Lv1：" +
                       $"减压价 {lv0Cost}→{lv1Cost}　减压恢复 {lv0Restore}→{lv1Restore}　" +
-                      $"名册上限 {lv0Cap}→{lv1Cap}　新兵等级 {lv0Rookie}→{lv1Rookie}");
+                      $"名册上限（马车曲线）{lv0Cap}→{lv1Cap}　新兵等级 {lv0Rookie}→{lv1Rookie}");
         }
 
         // ✅ 结构性判据（唯一一条）：**升级必须真的改变数字**（`HeirloomStock` 的验收口径）✓

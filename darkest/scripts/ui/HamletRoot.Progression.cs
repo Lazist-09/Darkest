@@ -55,29 +55,26 @@ public partial class HamletRoot : Control
         AutoSave("减压");
     }
 
-    /// <summary>**招募**（M8.0 ⑤）：免费；新兵 Lv1 / 士气 50；满员即拒绝（不悄悄顶替）。</summary>
+    /// <summary>
+    /// **招募**（M8.0 ⑤）：免费；满员即拒绝（不悄悄顶替）。
+    /// 🆕 2026-10-01 M7u：整段改走**唯一业务入口** `RecruitOne` —— 不再自己复制一份
+    ///   「名字序号 ／ 上限读法 ／ 事件留痕」（招募规则只有一处 = P3 纪律）✓
+    /// </summary>
     public void Recruit()
     {
         Roster? roster = ExpeditionContext.Roster;
-        if (roster is null)
+        if (roster is null || roster.Heroes.Count == 0)
         {
+            GD.Print("[HamletRoot] 招募：名册未加载或为空 ⇒ **如实拒绝**（挑不出「人最少的原型」）✓");
             return;
         }
 
-        // 挑一个"人最少的原型"，名字用序号（最小实现；将来由玩家选）
+        // 挑一个「人最少的原型」（最小实现；玩家点名走 `RecruitArchetype` ／ 驿站【今日新兵】条目）
         string archetype = roster.Heroes
             .GroupBy(h => h.Archetype)
             .OrderBy(g => g.Count())
             .First().Key;
-                HeroConfig? rookie = roster.Recruit(_log, _cfg.Coach, archetype, $"新兵{roster.Heroes.Count + 1}",
-                    rookieLevel: Darkest.Gameplay.Scene.ExpeditionContext.Heirlooms?.EffectiveRookieLevel(_cfg.Coach.RookieLevel));   // 🔴 消费 HamletRoot:1605 的展示值（马车升级起点落到新兵；null ⇒ 内核缺省=旧行为）✓
-
-        GD.Print(rookie is null
-            ? $"[HamletRoot] 招募：**名册已满**（{roster.Heroes.Count}/{_cfg.Coach.MaxRoster}）—— 拒绝（不悄悄顶替）"
-            : $"[HamletRoot] 招募：{rookie.Name}（{rookie.Archetype} Lv{rookie.Level} 士气{rookie.Morale}）**免费**" +
-              $"　名册 {roster.Heroes.Count}/{_cfg.Coach.MaxRoster}");
-        Refresh();
-        AutoSave("招募");
+        RecruitOne(archetype, ExpeditionContext.Heirlooms?.EffectiveRookieLevel(_cfg.Coach.RookieLevel), "·自动");
     }
 
     /// <summary>**选中某位英雄**（② 选人权：减压必须由玩家指定对象，不是"自动挑最低的"）。</summary>
@@ -90,24 +87,12 @@ public partial class HamletRoot : Control
         Refresh();
     }
 
-    /// <summary>**招募指定原型**（⑤：玩家决定招哪种人；免费 / Lv1 / morale 50 / 满员拒绝）。</summary>
+    /// <summary>
+    /// **招募指定原型**（⑤：玩家决定招哪种人；免费 ／ 满员拒绝）。
+    /// 🆕 2026-10-01 M7u：同走唯一业务入口 `RecruitOne`（与驿站【今日新兵】条目**同一条路**）✓
+    /// </summary>
     public void RecruitArchetype(string archetype)
-    {
-        Roster? roster = ExpeditionContext.Roster;
-        if (roster is null)
-        {
-            return;
-        }
-
-                HeroConfig? rookie = roster.Recruit(_log, _cfg.Coach, archetype, $"新兵{roster.Heroes.Count + 1}",
-                    rookieLevel: Darkest.Gameplay.Scene.ExpeditionContext.Heirlooms?.EffectiveRookieLevel(_cfg.Coach.RookieLevel));   // 🔴 消费 HamletRoot:1605 的展示值（马车升级起点落到新兵；null ⇒ 内核缺省=旧行为）✓
-        GD.Print(rookie is null
-            ? $"[HamletRoot] 招募·{archetype}：**名册已满**（{roster.Heroes.Count}/{roster.Cap}）—— 拒绝（不悄悄顶替）"
-            : $"[HamletRoot] 招募·{archetype}：{rookie.Name}（Lv{rookie.Level} 士气{rookie.Morale}）**免费**" +
-              $"　名册 {roster.Heroes.Count}/{roster.Cap}");
-        Refresh();
-        AutoSave("招募·原型");
-    }
+        => RecruitOne(archetype, ExpeditionContext.Heirlooms?.EffectiveRookieLevel(_cfg.Coach.RookieLevel), $"·{archetype}");
 
     /// <summary>**升级建筑**（M8.1）：按曲线扣传家宝；不足即拒绝（不部分扣）；升级后**生效值真的改变**。</summary>
     public void UpgradeBuilding(string building)
@@ -120,9 +105,15 @@ public partial class HamletRoot : Control
 
         UpgradeLevel? next = h.NextLevel(building);
         bool ok = h.TryUpgrade(_log, building);
+        if (ok && building == "stagecoach")
+        {
+            // 🔴 M7u 上限接线点 ②（马车升级）：升完**立刻重算** ⇒ 界面上的可用上限当帧就变（不等下次回城）✓
+            RecomputeRosterCap("马车升级");
+        }
+
         GD.Print(ok
             ? $"[HamletRoot] 升级·{building} ⇒ Lv{h.LevelOf(building)}（花 {string.Join("/", next!.Cost.Select(k => $"{k.Key}×{k.Value}"))}）" +
-              $"　生效：减压价 {h.EffectiveReliefCost(_cfg.StressReliefCost)}　名册上限 {h.EffectiveRosterCap(baseCap: ExpeditionContext.Roster?.Heroes.Count ?? 0, hardCap: 12)}"
+              $"　生效：减压价 {h.EffectiveReliefCost(_cfg.StressReliefCost)}　名册上限 {EffectiveCapNow(ExpeditionContext.Roster)}"
             : $"[HamletRoot] 升级·{building}：**传家宝不足或已满级** ⇒ 拒绝（不部分扣）");
         Refresh();
         AutoSave("建筑升级");

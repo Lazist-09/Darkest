@@ -1,7 +1,7 @@
 {
   "config": { "version": 1, "roster_base_cap": 8,
     "base_curios": ["cur_supply_crate", "cur_discarded_camp", "cur_sconce", "cur_bone_pile"] },
-  "_note": "解锁阈值表（O-86 内容清单来自 #316③）：按【已完成出征数 runs】逐步解锁。id 命名空间：building:<id> ／ curio:<id> ／ roster_cap_delta:<N>（**增量语义** · 策划 #403；旧 roster_cap:<N> 绝对值仍兼容 ✓）。起手态：城池只有 Stage Coach ＋ 4 种 Curio ＋ 名册可用上限 8（硬上限 12 见 C1）。",
+  "_note": "解锁阈值表（O-86 内容清单来自 #316③）：按【已完成出征数 runs】逐步解锁。id 命名空间：building:<id> ／ curio:<id> ／ roster_cap:<N>（**绝对值** · 旧语法，仍兼容 ✓）。🔴 M7②（#423）：roster_cap_delta:<N> 已撤 —— 名册上限的【单一来源】= 马车曲线（economy.json 的 stagecoach.roster_cap_by_level，索引 = 马车等级）；解锁表不再提供上限增量 ✓。起手态：城池只有 Stage Coach ＋ 4 种 Curio ＋ 名册可用上限 8（硬上限 = roster.json 的 roster_cap）。",
   "unlocks": [
     { "id": "unlock_tavern", "required_runs_finished": 1, "required_battles_won": 0,
       "unlocks": ["building:tavern"],

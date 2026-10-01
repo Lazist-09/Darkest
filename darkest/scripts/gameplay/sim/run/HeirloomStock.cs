@@ -13,7 +13,10 @@ namespace Darkest.Gameplay.Sim.Run;
 /// · **第三种资源**：传家宝**从光照档掉落**（**与金钱同源**：越暗越多）；
 /// · **两轴升级**：**降费**（服务更便宜）与**解锁/增强**（更高阶）—— 每级**消耗固定几种、数量递增**；
 /// · 🔴 **升级必须真的改变数字**（验收）：本类提供**生效值**读取口（`EffectiveReliefCost` / `EffectiveMoraleRestore` /
-///   `EffectiveRosterCap` / `EffectiveRookieLevel`），供 Hamlet 与经济使用 —— **UI 只读不算**。
+///   `EffectiveRookieLevel`），供 Hamlet 与经济使用 —— **UI 只读不算**。
+///   ⚠️ **名册上限已不在本类**：M7②（策划 `#423`）裁定上限的【单一来源】= 马车曲线
+///   （`economy.json` 的 `stagecoach.roster_cap_by_level` ⇒ `RunProgress.CurrentRosterCap`）
+///   ⇒ 原 `EffectiveRosterCap(baseCap, hardCap)`（`baseCap + roster_cap_delta`）**已删** ✓
 ///
 /// 归属：**跨会话持有者**（组合根注入；`BattleDirector` 不持有它）。变更**必写事件**。
 /// </summary>
@@ -203,10 +206,6 @@ public sealed partial class HeirloomStock
     public int EffectiveMoraleRestore(string building, int baseRestore)
         => Math.Max(0, baseRestore + SumEffects(building).MoraleRestoreDelta);
 
-    /// <summary>名册上限（含 Stage Coach 解锁）。</summary>
-    public int EffectiveRosterCap(int baseCap, int hardCap)
-        => Math.Min(hardCap, baseCap + SumEffects("stagecoach").RosterCapDelta);
-
     /// <summary>新兵起始等级（含 Stage Coach 解锁；缺省 1）。</summary>
     public int EffectiveRookieLevel(int baseLevel)
     {
@@ -216,20 +215,21 @@ public sealed partial class HeirloomStock
 
     private UpgradeEffect SumEffects(string building)
     {
+        // 🔴 **M7②（策划 `#423`）：名册上限增量已退役** —— 上限的【单一来源】= 马车曲线
+        //    （`economy.json` 的 `stagecoach.roster_cap_by_level` ⇒ `RunProgress.CurrentRosterCap`）✓
+        //    ⇒ 这里**不再累加** `roster_cap_delta`（**数据保留待裁定**：`heirlooms.json` 的旧键本件不动）⚠️
         int level = LevelOf(building);
         var costDown = 0;
         var restore = 0;
-        var cap = 0;
         int? rookie = null;
         foreach (UpgradeLevel lv in _cfg.PathFor(building).Levels.Where(l => l.Level <= level))
         {
             costDown += lv.Effect.ReliefCostDelta;
             restore += lv.Effect.MoraleRestoreDelta;
-            cap += lv.Effect.RosterCapDelta;
             rookie = lv.Effect.RookieLevel ?? rookie;
         }
 
-        return new UpgradeEffect(costDown, restore, cap, rookie);
+        return new UpgradeEffect(costDown, restore, RookieLevel: rookie);
     }
 
     /// <summary>

@@ -56,17 +56,13 @@ public sealed class RecruitGrowthTests
         int beforeLevel = stock.EffectiveRookieLevel(coach.RookieLevel);
         HeroConfig? rookieBefore = roster.Recruit(log, coach, "warrior", "甲", rookieLevel: beforeLevel);
 
-        // 🔴 数据事实（我第一版用例写错、被断言当场抓到 ⚠️）：马车 **Lv1/Lv2 = 名册上限 +2**，
-        //    **Lv3 才是 `rookie_level: 2`** ⇒ 所以必须**连升 3 级**才看得到"新兵起点"变化 ✓
-        Assert.IsTrue(stock.TryUpgrade(log, "stagecoach"), "马车 Lv1（名册上限 +2）✓");
-        int capBase = 8;
-        int capAfter1 = stock.EffectiveRosterCap(capBase, cfg.RosterCap);
-        Assert.IsTrue(stock.TryUpgrade(log, "stagecoach"), "马车 Lv2（名册上限 +2）✓");
+        // 🔴 数据事实（我第一版用例写错、被断言当场抓到 ⚠️）：马车 **Lv3 才是 `rookie_level: 2`**
+        //    ⇒ 所以必须**连升 3 级**才看得到"新兵起点"变化 ✓
+        //    ⚠️ **M7②（策划 `#423`）**：名册上限**不在本用例读**（单一来源 = 马车曲线 ⇒ `RosterCapGrowthTests` 专测）✓
+        Assert.IsTrue(stock.TryUpgrade(log, "stagecoach"), "马车 Lv1 ✓");
+        Assert.IsTrue(stock.TryUpgrade(log, "stagecoach"), "马车 Lv2 ✓");
         Assert.IsTrue(stock.TryUpgrade(log, "stagecoach"), "马车 Lv3（**新兵起始等级**）✓");
         int afterLevel = stock.EffectiveRookieLevel(coach.RookieLevel);
-        string capLine = $"[招募·马车] **名册上限**轴：基值 {capBase} ⇒ 生效 {capAfter1}（Lv1 的 `roster_cap_delta: 2` ✓）";
-        Console.WriteLine(capLine);
-        TestContext.WriteLine(capLine);
         HeroConfig? rookieAfter = roster.Recruit(log, coach, "warrior", "乙", rookieLevel: afterLevel);
 
         Assert.IsNotNull(rookieBefore);

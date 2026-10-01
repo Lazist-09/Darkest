@@ -46,15 +46,19 @@ public sealed record UnlocksConfig(
     /// </summary>
     public static readonly IReadOnlyList<string> NamespacePrefixes = new[]
     {
-        "building:", "curio:", "roster_cap_delta:", "roster_cap:",
+        "building:", "curio:", "roster_cap:",
     };
 
-    /// <summary>起手【名册可用上限】（`config.roster_base_cap`；**硬上限**是 `roster.cap = 12`，见 C1）。</summary>
+    /// <summary>起手【名册可用上限】（`config.roster_base_cap`；**硬上限**是 `roster.json` 的 `roster_cap`（现 28），见 C1）。</summary>
     /// 🔴 数字外置（P29）：**不再有 `?? 8` 兜底** —— 缺键由 `DataPresence.RequireKeys` 在 Parse 里拦下 ✓
     public int RosterBaseCap => Config?.RosterBaseCap ?? 0;
 
+    /// <param name="rosterHardCap">
+    /// 名册**硬上限**（= `roster.json` 的 `roster_cap`；只用来校验 `roster_cap:&lt;N&gt;` 的值域）✓
+    /// 🔴 **0 = 调用方没给** ⇒ 只查正数（**不静默编一个 12** —— 数字外置纪律 ✓）
+    /// </param>
     public static UnlocksConfig Parse(string json, IReadOnlySet<string>? buildingIds = null,
-        IReadOnlySet<string>? curioIds = null, int rosterHardCap = 12)
+        IReadOnlySet<string>? curioIds = null, int rosterHardCap = 0)
     {
         if (string.IsNullOrWhiteSpace(json))
         {
@@ -85,7 +89,7 @@ public sealed record UnlocksConfig(
 
     /// <summary>**P27 校验**（合并包片 D 的验收）+ 🔴 **id 命名空间校验**（`#316`③ 的三种解锁对象）。</summary>
     public static void Validate(UnlocksConfig cfg, IReadOnlySet<string>? buildingIds = null,
-        IReadOnlySet<string>? curioIds = null, int rosterHardCap = 12)
+        IReadOnlySet<string>? curioIds = null, int rosterHardCap = 0)
     {
         if (cfg.Unlocks is null)
         {
@@ -124,9 +128,10 @@ public sealed record UnlocksConfig(
                 seen[target] = e.Id;
 
                 // 🔴 命名空间校验（**引用的对象必须存在** —— 与 P26 同一条纪律）：
-                //    building:<id> ／ curio:<id> ／ roster_cap_delta:<N>（**增量**，策划 #403）
-                //    ／ roster_cap:<N>（**绝对值**，旧语法 · 仍兼容，见 C1）
-                //    ⚠️ 两者语义不同：delta 加在起手 8 之上，绝对值直接给上限 ✓
+                //    building:<id> ／ curio:<id> ／ roster_cap:<N>（**绝对值** · 旧语法，见 C1）
+                //    🔴 **M7②（策划 `#423`）**：`roster_cap_delta:<N>` 那支**已撤** ——
+                //       名册上限改成【马车曲线】单一来源（`economy.json` 的 `roster_cap_by_level`）⇒
+                //       解锁表不再提供任何「上限增量」（否则又是「两处真值」✓）
                 //    🔴 报错清单由 `NamespacePrefixes`【插值】而来 ⇒ **加一支即自动同步**，
                 //       不再手写（教训：那处漏改正是"手写清单"造成的）✓
                 if (target.StartsWith("building:", StringComparison.Ordinal))
@@ -147,21 +152,15 @@ public sealed record UnlocksConfig(
                             $"{ResPath}: 解锁引用了不存在的 Curio \"{id}\"（须在 `curios.json` 里）（P27 ④）。");
                     }
                 }
-                else if (target.StartsWith("roster_cap_delta:", StringComparison.Ordinal))
-                {
-                    // 🆕 策划 `#403`：**增量语义**（与马车同语法 ✓）—— 值 = 增量（1..硬上限）
-                    if (!int.TryParse(target["roster_cap_delta:".Length..], out int delta) || delta <= 0 || delta > rosterHardCap)
-                    {
-                        throw new InvalidDataException(
-                            $"{ResPath}: `roster_cap_delta:` 的值必须是 1..{rosterHardCap}（增量）—— 实际 \"{target}\"。");
-                    }
-                }
                 else if (target.StartsWith("roster_cap:", StringComparison.Ordinal))
                 {
-                    if (!int.TryParse(target["roster_cap:".Length..], out int cap) || cap <= 0 || cap > rosterHardCap)
+                    // 🔴 `rosterHardCap = 0` ⇒ 调用方**没给**硬上限 ⇒ 只查正数（不静默编 12 ✓）
+                    string range = rosterHardCap > 0 ? $"1..{rosterHardCap}" : "≥1（未给硬上限）";
+                    if (!int.TryParse(target["roster_cap:".Length..], out int cap) || cap <= 0
+                        || (rosterHardCap > 0 && cap > rosterHardCap))
                     {
                         throw new InvalidDataException(
-                            $"{ResPath}: `roster_cap:` 的值必须是 1..{rosterHardCap}（**硬上限**，见 C1）—— 实际 \"{target}\"。");
+                            $"{ResPath}: `roster_cap:` 的值必须是 {range}（**绝对值**，见 C1）—— 实际 \"{target}\"。");
                     }
                 }
                 else

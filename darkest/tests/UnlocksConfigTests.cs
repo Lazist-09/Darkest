@@ -38,22 +38,24 @@ public sealed class UnlocksConfigTests
         CuriosConfig curios = CuriosConfig.Parse(ReadData("curios.json"));
         UnlocksConfig cfg = UnlocksConfig.Parse(ReadData("unlocks.json"),
             HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
-            curios.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal), 12);
+            curios.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal),
+            RosterConfig.Parse(ReadData("roster.json")).RosterCap);   // 🔴 M7②：硬上限**读数据**（不再写死 12）✓
 
         // 🔴 `#316`③ 的真清单（2 条阈值：第 1／3 趟）＋ 🆕 2026-10-01 解冻窗口第 3 条（铁匠铺 · 同 3 趟）—— 不再是占位
         Assert.AreEqual(3, cfg.Unlocks.Count,
             "三条（1／3／3 趟；第 3 条 = 铁匠铺两条树 · 2026-10-01 解冻窗口）—— 🔴 M7②/#423：6/10 趟那两条只做「上限增量」，已收敛到马车曲线 ✓");
         CollectionAssert.AreEquivalent(new[] { 1, 3, 3 },
             cfg.Unlocks.Select(e => e.RequiredRunsFinished).ToArray(), "阈值 = 1／3／3");
-        Assert.AreEqual(8, cfg.RosterBaseCap, "起手名册可用上限 8（硬上限 12 见 C1）");
+        Assert.AreEqual(8, cfg.RosterBaseCap,
+            "起手名册可用上限 8（硬上限 = roster.json 的 roster_cap；🔴 M7②：实际可用值 = 马车曲线，见 RosterCapGrowthTests）");
 
         // 命名空间三种都必须出现（覆盖 C2 的三个消费点）
         var targets = cfg.Unlocks.SelectMany(e => e.Unlocks).ToArray();
         Assert.IsTrue(targets.Any(t => t.StartsWith("building:", StringComparison.Ordinal)), "有 building: 项");
         Assert.IsTrue(targets.Any(t => t.StartsWith("curio:", StringComparison.Ordinal)), "有 curio: 项");
-        // 🔴 策划 `#403`：名册上限改成**增量语义**（`roster_cap_delta:N`，与马车同语法 ✓）
+        // 🔴 M7②（`#423`）：`roster_cap_delta:` 已撤 —— 上限单一来源 = 马车曲线 ⇒ 本表**不得**再出现增量项 ✓
         Assert.IsFalse(targets.Any(t => t.StartsWith("roster_cap_delta:", StringComparison.Ordinal)),   // 🔴 M7②：已撤（单一来源=马车曲线）
-            "有 roster_cap_delta: 项（增量语义 · `#403` ✓）");
+            "**不得**有 roster_cap_delta: 项（增量语义已撤 ⇒ 单一来源 = 马车曲线 ✓）");
 
         foreach (UnlockEntry e in cfg.Unlocks)
         {
@@ -114,15 +116,15 @@ public sealed class UnlocksConfigTests
     /// <summary>
     /// 🔴 **命名空间清单 ⇔ 实际分支**（防 `152_*.md` 那处漂移**复发**）：
     ///   ① `NamespacePrefixes` 里每一支都**真的被 Parse 接受**（否则清单是空的）✓
-    ///   ③ 🔴 **反方向**：不在清单里的前缀必须被拒，且**报错文案要列出全部 4 支**
+    ///   ③ 🔴 **反方向**：不在清单里的前缀必须被拒，且**报错文案要列出全部 3 支**
     ///      （文案由 `NamespacePrefixes` 插值 ⇒ 加一支即自动同步）✓
     /// </summary>
     [TestMethod]
     public void NamespacePrefixes_CoverEveryBranch()
     {
         string[] prefixes = UnlocksConfig.NamespacePrefixes.ToArray();
-        Assert.AreEqual(4, prefixes.Length,
-            "KNOWN: 4 支（building / curio / roster_cap_delta / roster_cap）✓");
+        Assert.AreEqual(3, prefixes.Length,
+            "KNOWN: 3 支（building / curio / roster_cap）—— 🔴 M7②：roster_cap_delta 已撤 ✓");
 
         // ① 每一支都被接受（用最小合法负载 —— 值本身由各支自行校验）
         foreach (string p in prefixes)
@@ -131,7 +133,6 @@ public sealed class UnlocksConfigTests
             {
                 "building:" => "building:tavern",
                 "curio:" => "curio:cur_sconce",
-                "roster_cap_delta:" => "roster_cap_delta:1",
                 _ => "roster_cap:9",
             };
             string json = "{ \"config\": { \"version\": 1, \"roster_base_cap\": 8 }, "
@@ -142,7 +143,7 @@ public sealed class UnlocksConfigTests
                 new[] { "cur_sconce" }.ToHashSet(StringComparer.Ordinal), 12);
         }
 
-        // ③ 反方向：清单外的前缀 ⇒ 报错，且报错里必须**列出全部 4 支**（插值而来）
+        // ③ 反方向：清单外的前缀 ⇒ 报错，且报错里必须**列出全部 3 支**（插值而来）
         string bad = "{ \"config\": { \"version\": 1, \"roster_base_cap\": 8 }, "
             + "\"unlocks\": [ { \"id\": \"u\", \"required_runs_finished\": 1, "
             + "\"required_battles_won\": 0, \"unlocks\": [\"bogus:x\"] } ] }";

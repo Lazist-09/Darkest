@@ -95,7 +95,8 @@ public sealed class HeirloomStockTests
             "修道院恢复量上升（升级真的改变数字）");
 
         Assert.IsTrue(stock.TryUpgrade(log, "stagecoach"), "驿站马车可升级（解锁轴）");
-        Assert.IsTrue(stock.EffectiveRosterCap(8, hardCap: 12) > 8, "名册上限被解锁轴抬高");
+        // ⚠️ **M7②（策划 `#423`）**：原「名册上限被解锁轴抬高」断言**已删** —— 上限【单一来源】= 马车曲线
+        //    （`RosterCapGrowthTests` 专测：曲线 + 硬上限 + 满员拒绝；本用例只管两轴升级真的改变数字）✓
         Assert.AreEqual(baseRookie, stock.EffectiveRookieLevel(baseRookie), "Lv1 尚未解锁新兵起始等级 ⇒ 仍为基准");
 
         Assert.IsTrue(log.Events.OfType<BuildingUpgradedEvent>().Count() == 3, "每次升级必写事件");
