@@ -118,6 +118,9 @@ public partial class HamletRoot : Control
             "tavern" => "减压 · 酒馆（快而不稳）",
             "abbey" => "减压 · 修道院（慢而稳）",
             "stagecoach" => "招募新兵（免费 / Lv1 / 士气 50）",
+            // 🆕 2026-10-01 解冻窗口：铁匠铺两条升级树（H-1 前置 = 本树等级被 `HeroGear` 读作装备升级门槛）✓
+            "blacksmith.weapon" => "装备升级 · 武器轴（H-1 前置树 blacksmith.weapon）",
+            "blacksmith.armour" => "装备升级 · 护甲轴（H-1 前置树 blacksmith.armour）",
             _ => "—",
         };
         UpgradeLevel? next = h.NextLevel(building);
@@ -275,6 +278,9 @@ public partial class HamletRoot : Control
             "tavern" => "减压·酒馆（快而不稳）",
             "abbey" => "减压·修道院（慢而稳）",
             "stagecoach" => "招募新兵（免费 / Lv1 / 士气 50）",
+            // 🆕 2026-10-01 解冻窗口：铁匠铺两条升级树（与 RefreshBuildingPopup 同一份口径）✓
+            "blacksmith.weapon" => "装备升级 · 武器轴（H-1 前置树 blacksmith.weapon）",
+            "blacksmith.armour" => "装备升级 · 护甲轴（H-1 前置树 blacksmith.armour）",
             _ => "—",
         };
         UpgradeLevel? next = h.NextLevel(building);
@@ -282,7 +288,10 @@ public partial class HamletRoot : Control
             ? "已满级"
             : string.Join(" ＋ ", next.Cost.Select(k => $"{k.Key}×{k.Value}")) +
               $"　⇒ Lv{h.LevelOf(building) + 1}";
-        _buildingInfo.Text = $"🏛 {building}　功能：{func}　当前等级：Lv{h.LevelOf(building)}　下一级所需：{nextText}";
+        // 🔴 建筑名取自**同一份清单**（`_buildingIds` / `_buildingLabels`），此处不抄第二份（P3 纪律）✓
+        int infoIdx = Array.IndexOf(_buildingIds, building);
+        string infoLabel = infoIdx >= 0 ? _buildingLabels[infoIdx] : building;
+        _buildingInfo.Text = $"🏛 {infoLabel}　功能：{func}　当前等级：Lv{h.LevelOf(building)}　下一级所需：{nextText}";
         GD.Print($"[HamletRoot] 悬停建筑 {building}：{_buildingInfo.Text}");
     }
 }

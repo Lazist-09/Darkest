@@ -40,10 +40,11 @@ public sealed class UnlocksConfigTests
             HeirloomConfig.AllowedBuildings.ToHashSet(StringComparer.Ordinal),
             curios.RealCurios.Select(c => c.Id).ToHashSet(StringComparer.Ordinal), 12);
 
-        // 🔴 `#316`③ 的真清单（4 条：第 1／3／6／10 趟）—— 不再是占位
-        Assert.AreEqual(2, cfg.Unlocks.Count, "两条阈值（1／3 趟）—— 🔴 M7②/#423：6/10 趟那两条只做「上限增量」，已收敛到马车曲线 ✓");
-        CollectionAssert.AreEquivalent(new[] { 1, 3 },
-            cfg.Unlocks.Select(e => e.RequiredRunsFinished).ToArray(), "阈值 = 1／3／6／10");
+        // 🔴 `#316`③ 的真清单（2 条阈值：第 1／3 趟）＋ 🆕 2026-10-01 解冻窗口第 3 条（铁匠铺 · 同 3 趟）—— 不再是占位
+        Assert.AreEqual(3, cfg.Unlocks.Count,
+            "三条（1／3／3 趟；第 3 条 = 铁匠铺两条树 · 2026-10-01 解冻窗口）—— 🔴 M7②/#423：6/10 趟那两条只做「上限增量」，已收敛到马车曲线 ✓");
+        CollectionAssert.AreEquivalent(new[] { 1, 3, 3 },
+            cfg.Unlocks.Select(e => e.RequiredRunsFinished).ToArray(), "阈值 = 1／3／3");
         Assert.AreEqual(8, cfg.RosterBaseCap, "起手名册可用上限 8（硬上限 12 见 C1）");
 
         // 命名空间三种都必须出现（覆盖 C2 的三个消费点）

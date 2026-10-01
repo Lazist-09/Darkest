@@ -197,8 +197,12 @@ public partial class HamletRoot : Control
         }
 
         // 🔴 M8.1 建筑区（= 片① 的"中央建筑区"）+ `next_round`③ 消费点 (a)：**按解锁显示**
-        string[] upgradable = { "tavern", "abbey", "stagecoach" };
-        string[] buildingNames = { "酒馆 Tavern", "修道院 Abbey", "驿站 Stage Coach" };
+        // 🆕 2026-10-01 解冻窗口（用户裁定「铁匠铺加一条解锁」）：+ 铁匠铺的**两条升级树**（weapon / armour）——
+        //    🔴 用【树 id】而不是建筑名：`HeirloomStock.LevelOf / NextLevel / CanUpgrade` 的键 = `heirlooms.json` 的 `building` 字段
+        //       （= `hero_upgrades.json` 的 `prerequisites.tree_id`·H-1 前置）⇒ 建筑名 `blacksmith` 在这三个口上会**抛**（P23 ④）✓
+        //    ⚠️ 原版铁匠铺 = **一栋建筑内两个页签**；我方弹窗一次只显示一条树 ⇒ 暂以**两个 nav 入口**表达（deviation 已登记 O-105）✓
+        string[] upgradable = { "tavern", "abbey", "stagecoach", "blacksmith.weapon", "blacksmith.armour" };
+        string[] buildingNames = { "酒馆 Tavern", "修道院 Abbey", "驿站 Stage Coach", "铁匠铺·武器", "铁匠铺·护甲" };
         _buildingIds = upgradable;      // 🔴 P3：左列切换用**同一份**清单（不抄第二份）✓
         _buildingLabels = buildingNames;
         UnlocksConfig unlockCfg = UnlocksConfig.Parse(FileAccess.GetFileAsString(UnlocksConfig.ResPath),
@@ -253,8 +257,27 @@ public partial class HamletRoot : Control
             ub.MouseEntered += () => ShowBuildingInfo(bId); // 悬停仍给一行摘要（低成本、不占版面）
             // P1.1：DD index 槽优先（编辑器里可见的位）；缺失则回落直接加到 nav（不崩不静默）
             // 🔴 2026-09-27 修假绿：本行整体曾被写成**注释** ⇒ 建筑入口按钮**从未挂上树**（与上面 BuildingNav 同一类事故）
-            int ddIdx = bId switch { "stage_coach" => 0, "tavern" => 4, "abbey" => 5, _ => -1 };
+            // 🔴 DD nav 槽位（骨架 `hamlet_skeleton.tscn` 里已按 DD index 摆好）：铁匠铺 = **index 1**（骨架的 `DDNav1_blacksmith` 就是为它留的）✓
+            //    ⚠️ 护甲轴**没有**第二个槽（原版是同一栋里的页签）⇒ 落 -1（直接追加到 nav 末尾，不崩不静默）✓
+            int ddIdx = bId switch
+            {
+                "stage_coach" => 0, "tavern" => 4, "abbey" => 5, "blacksmith.weapon" => 1, _ => -1,
+            };
             PanelContainer? ubSlot = ddIdx >= 0 ? buildingRow.GetNodeOrNull<PanelContainer>($"DDNav{ddIdx}_{bId}") : null;
+            if (ubSlot is not null)
+            {
+                // 骨架 §14.0.68：**数据接入 ⇒ 占位让位**（`PurposeLabel` + `NavPlaceholder` 是"未接线"的占位，
+                // 留着会和真按钮**重叠**⇒ 正是用户 #319① 说的"文字各种重叠"）✓
+                foreach (Node ph in ubSlot.GetChildren().ToArray())
+                {
+                    ubSlot.RemoveChild(ph);
+                    ph.QueueFree();
+                }
+            }
+            else if (ddIdx < 0)
+            {
+                GD.Print($"[HamletRoot] nav：{bId} 无 DD 槽（骨架未留）⇒ 直接追加到 nav 末尾（如实留痕）✓");
+            }
             (ubSlot is not null ? (Node)ubSlot : buildingRow).AddChild(ub);
             _upgradeButtons[bId] = ub; // ⚠️ 明细按钮在弹窗里（`RefreshBuildingPopup` 重建）；这里三栋都登记到**同一个入口**（`PressUpgrade` 两步路径仍成立）✓
             // 🔴 DD 1:1 #1c：**三栋 nav 都保留**（旧"`i==0` 保留 ＋ 其余 `QueueFree`"已被本次 DD 还原覆盖）✓
@@ -381,8 +404,10 @@ public partial class HamletRoot : Control
         bottomRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });   // 🔴 DD 1:1 #1d：右弹性空隙（两侧等权 ⇒ Embark 居中）✓
         _embark = embark;
 
-        GD.Print($"[HamletRoot] 城池建筑：已解锁 {unlockedBuildings.Count + 1} ／ 3" +
-                 $"（起手只有 Stage Coach；已完成出征 {ExpeditionContext.Progress.RunsFinished} 趟）");
+        // 🆕 2026-10-01：分母跟着 `upgradable` 走（此前写死"／3"，加铁匠铺两条树后会是 **5**）✓
+        int unlockedNav = upgradable.Count(id => id == "stagecoach" || unlockedBuildings.Contains(id));
+        GD.Print($"[HamletRoot] 城池建筑：已解锁 {unlockedNav} ／ {upgradable.Length}" +
+                 $"（起手只有 Stage Coach；已完成出征 {ExpeditionContext.Progress.RunsFinished} 趟；铁匠铺 = 2026-10-01 解冻窗口）");
 
         Refresh();
         GD.Print($"[HamletRoot] 回城就绪：金钱 {economy.Gold}（跨趟持有；减压一次 {economy.StressReliefCost}）" +

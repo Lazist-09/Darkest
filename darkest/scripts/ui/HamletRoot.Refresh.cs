@@ -223,7 +223,8 @@ info.Text = $"装备 攻{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压"
         if (heirlooms is not null)
         {
             string stock = string.Join(" ／ ", heirlooms.Kinds.Select(k => $"{k}×{heirlooms.Count(k)}"));
-            string levels = string.Join(" ／ ", new[] { "tavern", "abbey", "stagecoach" }
+            // 🆕 2026-10-01 解冻窗口：铁匠铺两条树入摘要（键 = heirlooms.json 的 building，LevelOf 可命中 ✓）
+            string levels = string.Join(" ／ ", new[] { "tavern", "abbey", "stagecoach", "blacksmith.weapon", "blacksmith.armour" }
                 .Select(b => $"{b} Lv{heirlooms.LevelOf(b)}"));
             _upgradeStatus.Text =
                 $"传家宝：{stock}\n建筑：{levels}　⇒ 减压价 {heirlooms.EffectiveReliefCost(_cfg.StressReliefCost)}" +

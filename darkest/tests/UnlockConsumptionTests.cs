@@ -68,6 +68,9 @@ public sealed class UnlockConsumptionTests
         Assert.IsTrue(p.UnlockedBuildings(unlocks).Contains("abbey"), "第 3 趟 ⇒ Abbey");
         Assert.IsTrue(p.UnlockedCurios(unlocks).Contains("cur_book_stack"), "第 3 趟 ⇒ 书堆");
         Assert.IsTrue(p.UnlockedCurios(unlocks).Contains("cur_altar"), "第 3 趟 ⇒ 圣坛");
+        // 🆕 2026-10-01 解冻窗口：铁匠铺两条升级树（阈值取自一手黑铁匠 requirements.number_of_quests_finished = 3）
+        Assert.IsTrue(p.UnlockedBuildings(unlocks).Contains("blacksmith.weapon"), "第 3 趟 ⇒ 铁匠铺·武器树");
+        Assert.IsTrue(p.UnlockedBuildings(unlocks).Contains("blacksmith.armour"), "第 3 趟 ⇒ 铁匠铺·护甲树");
 
         while (p.RunsFinished < 6)
         {

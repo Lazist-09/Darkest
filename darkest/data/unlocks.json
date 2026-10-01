@@ -8,7 +8,9 @@
       "source": "#316③：第 1 趟后 ⇒ 解锁 Tavern（减压）" },
     { "id": "unlock_abbey_and_curios", "required_runs_finished": 3, "required_battles_won": 0,
       "unlocks": ["building:abbey", "curio:cur_book_stack", "curio:cur_altar"],
-      "source": "#316③：第 3 趟后 ⇒ 解锁 Abbey ＋ Curio【书堆/圣坛】（起手 4 种 → 6 种）" }
-    
+      "source": "#316③：第 3 趟后 ⇒ 解锁 Abbey ＋ Curio【书堆/圣坛】（起手 4 种 → 6 种）" },
+    { "id": "unlock_blacksmith", "required_runs_finished": 3, "required_battles_won": 0,
+      "unlocks": ["building:blacksmith.weapon", "building:blacksmith.armour"],
+      "source": "🔓 解冻窗口（用户 2026-10-01 裁定「铁匠铺加一条解锁」）：阈值取一手 E 盘 campaign/town/buildings/blacksmith/blacksmith.building.json 的 requirements.number_of_quests_finished = 3（highest_dungeon_level = 0）⇒ 折算 required_runs_finished = 3。🔴 「按趟数解锁建筑」是**我方自创**（原版无对应 · 红线 30 · #423 ⑨）；解锁对象 = 两条升级树 id（= heirlooms.json 的 building 键 · 与 hero_upgrades.json 的 prerequisites.tree_id 逐字一致 ⇒ H-1 前置可达）" }
   ]
 }
