@@ -83,8 +83,8 @@
     },
     {
       "id": "warrior_lunge",
-      "dmg_pct": -55,
-      "_dmg_pct_source": "ref:Hellion/breakthru (纠正:旧 -50)",
+      "dmg_pct": -50,
+      "_dmg_pct_source": "dd1:breakthru (一手 .dmg · hellion.info.darkest:34-38)",
       "name": "突刺",
       "owner_unit": "warrior",
       "self_slots": [
@@ -1371,8 +1371,8 @@
     },
     {
       "id": "commissar_burst_fire",
-      "dmg_pct": -60,
-      "_dmg_pct_source": "ref:Highwayman/grape_shot_blast (纠正:旧 -50)",
+      "dmg_pct": -50,
+      "_dmg_pct_source": "dd1:grape_shot_blast (一手 .dmg · highwayman.info.darkest:28-32)",
       "name": "连射",
       "owner_unit": "commissar",
       "self_slots": [
