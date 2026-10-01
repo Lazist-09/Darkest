@@ -96,7 +96,8 @@ public partial class HamletRoot : Control
 
         // 🔴 2026-09-27 修假绿：清空气前先把**复用的服务行**摘下来（只 RemoveChild、不 QueueFree）✓
         //    否则下面这条清空循环会把它们 `QueueFree` ⇒ 下次刷新再挂上就是**已销毁的野节点**（崩/静默）
-        foreach (Control? row in new Control?[] { _reliefRow, _recruitRow, _saniRow })
+        // 🆕 2026-10-01 M6u：`_gearRow` 也必须在**清空前摘下来**（否则下面那条清空循环把它 `QueueFree` ⇒ 野节点）✓
+        foreach (Control? row in new Control?[] { _reliefRow, _recruitRow, _saniRow, _gearRow })
         {
             if (row is not null && row.GetParent() is not null)
             {
@@ -206,11 +207,18 @@ public partial class HamletRoot : Control
     {
         if (_buildingPopupBody is null) { return; }
 
+        // 🆕 2026-10-01 M6u：铁匠铺两条树 ⇒ **懒建**装备阶行（只有真打开铁匠铺才建；城池主屏零新增节点）✓
+        if (GearAxisOfBuilding(building) is not null)
+        {
+            EnsureGearRow();
+        }
+
         Control? row = building switch
         {
             "tavern" => _reliefRow,
             "abbey" => _reliefRow,
             "stagecoach" => _recruitRow,
+            "blacksmith.weapon" or "blacksmith.armour" => _gearRow,
             _ => null,
         };
         if (row is null) { return; }
@@ -223,6 +231,8 @@ public partial class HamletRoot : Control
 
         if (row.GetParent() is null) { _buildingPopupBody.AddChild(row); }
         else if (row.GetParent() != _buildingPopupBody) { row.Reparent(_buildingPopupBody); }
+
+        RefreshGearRow();   // 幂等：行未建 ⇒ 空操作；弹窗不是铁匠铺 ⇒ 行隐藏（不显示别的轴）✓
     }
 
     /// <summary>

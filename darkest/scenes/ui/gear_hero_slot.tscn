@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/GearHeroSlot.cs" id="1_slot"]
+[ext_resource type="Theme" path="res://resources/theme/dd_theme.tres" id="9_theme"]
+
+[node name="GearHeroSlot" type="PanelContainer"]
+theme = ExtResource("9_theme")
+custom_minimum_size = Vector2(56, 56)
+script = ExtResource("1_slot")
+
+[node name="SlotGlyph" type="Label" parent="."]
+layout_mode = 2
+mouse_filter = 2
+text = "＋"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -119,7 +119,11 @@ public static class ExpeditionComposition
         //       文件缺失时**升级机制照样是关的**（下面那个分支会打印"关闭"），只是状态有了落点 ✓
         //    🔴 2026-09-30 架构裁定①（取「（甲）直读」）⇒ **护甲阶的投影来源就是这份容器**：
         //       组合根取阶（`ArmourTierOf`）→ 传参进桥 ⇒ 阶的**真值只此一处**（`HeroConfig.ArmourTier` 那条读点已换源删除 ✓）
-        var gear = new HeroGearState();
+        // 🔴🆕 2026-10-01 M6u 组合根修复（用户已授权）：`ExpeditionContext.Gear` **已有就用它** ——
+        //    旧写法无条件 `new` ⇒ 玩家在 Hamlet 买了阶、一出征就被**覆盖清零**，回城自动存档再把空表写盘
+        //    （静默丢进度家族：玩家归因不到、日志里也没有一行）✓
+        //    ⚠️ 空表 ⇒ 仍是"全员第 0 阶"，与"未接线"同读数；数据在不在与容器无关（见上）✓
+        var gear = ExpeditionContext.Gear ?? new HeroGearState();
         ExpeditionContext.BindGear(gear);
 
         // 🔴 按**出征槽位顺序**取阶（与 `sortie` 一一对应）——
@@ -243,11 +247,9 @@ public static class ExpeditionComposition
         {
             HeroUpgradesConfig upCfg = HeroUpgradesConfig.Parse(
                 FileAccess.GetFileAsString(HeroUpgradesConfig.ResPath));
-            // 外部树目录（供 `Validate` 判定"前置悬空"）：铁匠铺两条 + 本件用到的职业树自身 ✓
-            upCfg.Validate(new[]
-            {
-                HeroGear.BuildingTreeId(GearAxis.Weapon), HeroGear.BuildingTreeId(GearAxis.Armour),
-            });
+            // 外部树目录（供 `Validate` 判定「前置悬空」）= **全部建筑树**（`buildings.json` 唯一真值）：
+            //   `hero_upgrades.json` 的先决里有 `guild.skill_levels`（公会树，M8.3 未落地）⇒ 只列铁匠铺两条会把整表判失败 ⇒ 机制关死 ✓
+            upCfg.Validate(BuildingsConfig.Parse(FileAccess.GetFileAsString(BuildingsConfig.ResPath)).TreeIds);
             ExpeditionContext.BindUpgrades(upCfg);
             GD.Print($"[片5·H-1] 装备阶已接线：{upCfg.TreeCount} 棵树 / {upCfg.LevelCount} 级 ／ " +
                      $"铁匠铺「武器」Lv{heirlooms.LevelOf(HeroGear.BuildingTreeId(GearAxis.Weapon))} ／ " +

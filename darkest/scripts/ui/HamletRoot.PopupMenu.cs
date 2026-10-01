@@ -12,7 +12,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 /// ① 从 `HamletRoot.cs` 拆出（用户红线：程序文件 ≤600 行）✓
 /// ② 本文件 = **城池 · 弹窗工厂与菜单族**（`MakePopup` 模态工厂 · `Esc` 关闭 · `CloseTopPopup` · 二级菜单 `OpenHamletMenu`）✓
 /// ③ 🔴 依赖主类私有成员/状态：`_hamletMenu` · `_hamletMenuBody` · `_detailPanel` · `_buildingPopup` · `_menuButton` ·
-///    `_buildingEntry` · `_buildingIds` · `_buildingLabels`（弹窗一律**不透明**、必带 ✕、`Esc` 也能关）✓
+///    `_buildingIds` · `_buildingLabels`（弹窗一律**不透明**、必带 ✕、`Esc` 也能关）✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
 public partial class HamletRoot : Control

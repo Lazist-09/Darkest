@@ -224,26 +224,30 @@ info.Text = $"装备 攻{lv}　{dots}　防{dodge}{(canRelief ? "　·可减压"
         {
             string stock = string.Join(" ／ ", heirlooms.Kinds.Select(k => $"{k}×{heirlooms.Count(k)}"));
             // 🆕 2026-10-01 解冻窗口：铁匠铺两条树入摘要（键 = heirlooms.json 的 building，LevelOf 可命中 ✓）
-            string levels = string.Join(" ／ ", new[] { "tavern", "abbey", "stagecoach", "blacksmith.weapon", "blacksmith.armour" }
-                .Select(b => $"{b} Lv{heirlooms.LevelOf(b)}"));
+            // 🔴 清单**同源** `_buildingIds`（P3 纪律：不抄第二份）✓
+            string levels = string.Join(" ／ ", _buildingIds.Select(b => $"{b} Lv{heirlooms.LevelOf(b)}"));
             _upgradeStatus.Text =
                 $"传家宝：{stock}\n建筑：{levels}　⇒ 减压价 {heirlooms.EffectiveReliefCost(_cfg.StressReliefCost)}" +
                 $"　恢复量 {heirlooms.EffectiveMoraleRestore("tavern", _cfg.StressRelief!.Buildings[0].MoraleRestore)}" +
                 $"　新兵起始等级 {heirlooms.EffectiveRookieLevel(_cfg.Coach.RookieLevel)}";
 
-            // 🔴 红线 21 (b)：**按钮可用性由内核回答**（传家宝不足或已满级 ⇒ 置灰；不假装可用）
+            // 🔴 2026-10-01 M6u 修假绿：nav 按钮**不再置灰** —— 旧写法 `btn.Disabled = !can` 让铁匠铺在起手
+            //    0 传家宝时**永久点不开**（连"看看要什么"都做不到）；可用性改由**弹窗里的升级按钮**回答
+            //    （那里同样读 `HeirloomStock.CanUpgrade` ⇒ 红线 21 (b)：由内核回答，UI 不本地重算）✓
             foreach ((string b, Button btn) in _upgradeButtons)
             {
-                bool can = heirlooms.CanUpgrade(b);
-                btn.Disabled = !can;
                 UpgradeLevel? next = heirlooms.NextLevel(b);
-                if (ReferenceEquals(btn, _buildingEntry)) { continue; } // 🔴 入口按钮文案由摘要统一写（不在按栋循环里覆盖）
+                // 🔴 建筑名取自**同一份清单**（`_buildingIds` / `_buildingLabels`），不抄第二份（P3 纪律）✓
+                int idx = Array.IndexOf(_buildingIds, b);
+                string label = idx >= 0 ? _buildingLabels[idx] : b;
 
                 // 🔴 按钮文案带上【当前等级】（玩家一眼看得到），详细使用仍走点击后的二级窗口 ✓
                 btn.Text = next is null
-                    ? $"🏛 {b}　Lv{heirlooms.LevelOf(b)}（已满级）"
-                    : $"🏛 {b}　Lv{heirlooms.LevelOf(b)} ⇒ Lv{heirlooms.LevelOf(b) + 1}（需 {string.Join("/", next.Cost.Select(k => $"{k.Key}×{k.Value}"))}）";
+                    ? $"🏛 {label}　Lv{heirlooms.LevelOf(b)}（已满级）"
+                    : $"🏛 {label}　Lv{heirlooms.LevelOf(b)} ⇒ Lv{heirlooms.LevelOf(b) + 1}（需 {string.Join("/", next.Cost.Select(k => $"{k.Key}×{k.Value}"))}）";
             }
         }
+
+        RefreshGearRow();   // 🆕 M6u：装备阶行幂等刷新（行未建 ／ 弹窗非铁匠铺 ⇒ 空操作/隐藏）✓
     }
 }

@@ -38,8 +38,6 @@ public partial class HamletRoot : Control, IUiPanel
     private HBoxContainer? _saniRow;
 
 
-    /// <summary>🔴 P2：建筑**唯一入口**按钮（三栋共用；明细在二级窗口里切换）✓</summary>
-    private Button? _buildingEntry;
     private Button? _menuButton;                 // 🔴 P2：底部"☰ 菜单"入口 ✓
     private PanelContainer? _hamletMenu;         // 🔴 P2：城池二级菜单（弹窗）✓
     private VBoxContainer? _hamletMenuBody;

@@ -31,6 +31,10 @@ public partial class HamletRoot : Control
         HeirloomConfig heirloomCfg = HeirloomConfig.Parse(FileAccess.GetFileAsString(HeirloomConfig.ResPath));
         _ = ExpeditionContext.EnsureHeirlooms(heirloomCfg);
 
+        // 🆕 2026-10-01 M6u 冒烟播种：`--hamlet-runs-seed=N` 的调用点**必须在这里**（nav 建树之前）——
+        //    锁着的建筑只建 🔒 Label、不建按钮（建完再播种就晚了）；走**公开 API** `RunProgress.FinishRun`，不改内核 ✓
+        HandleSmokeUnlockSeed(OS.GetCmdlineArgs());
+
         // 🔴 片② 数据源：名册（等级/特质）+ 技能（战斗技能）+ 单位（6 属性 + 5 抗性，**按原型**）
         _rosterCfgForDetail = rosterCfg;
         _skillsCfg = SkillsConfig.Parse(FileAccess.GetFileAsString(SkillsConfig.ResPath));
@@ -282,10 +286,8 @@ public partial class HamletRoot : Control
             _upgradeButtons[bId] = ub; // ⚠️ 明细按钮在弹窗里（`RefreshBuildingPopup` 重建）；这里三栋都登记到**同一个入口**（`PressUpgrade` 两步路径仍成立）✓
             // 🔴 DD 1:1 #1c：**三栋 nav 都保留**（旧"`i==0` 保留 ＋ 其余 `QueueFree`"已被本次 DD 还原覆盖）✓
             //    2026-09-27 修假绿：旧代码把 abbey / stagecoach 的入口按钮**直接销毁** ⇒ 玩家只能进酒馆
-            if (i == 0)
-            {
-                _buildingEntry = ub; // 第一个作为**默认入口**；其余栋同样保留在 nav 上（玩家可逐栋点开）
-            }
+            //    🆕 2026-10-01：删掉 `if (i == 0) { _buildingEntry = ub; }`（字段随之下线）——
+            //    每颗 nav 按钮的文案/可用性由 `Refresh()` 按**同一份清单**统一重写，"默认入口"这个概念不再需要 ✓
         }
 
         _buildingInfo = new Label
@@ -415,12 +417,9 @@ public partial class HamletRoot : Control
 
         // 🔴 M8.0 ⑥ 端到端：回城阶段 ⇒ **花钱（减压）** 然后 **再出发**
         // 🔴 片①（三界面卡 §1.3）冒烟钩子：**全部走真实 `Pressed`**（红线 26：功能级验收走玩家路径）
+        // 🔴 2026-10-01 M6u：`--hamlet-embark` 的提前 `return` 已移到本方法**末尾** ——
+        //    组合冒烟「先买阶 ⇒ 再出征 ⇒ 回城自动存档」需要装备阶冒烟**先跑完**（放在这里会整段被跳过）✓
         string[] hamletArgs = OS.GetCmdlineArgs();
-        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-embark"))
-        {
-            PressEmbark();
-            return; // 已切场景
-        }
 
         string? hover = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-hover=", StringComparison.Ordinal));
         if (hover is not null)
@@ -512,6 +511,17 @@ public partial class HamletRoot : Control
             GD.Print($"[片②] 返回前：DetailOpen={DetailOpen}");
             CloseHeroDetail();
             GD.Print($"[片②] 返回后：DetailOpen={DetailOpen}（应回到城池，红线 18：不是孤岛）");
+        }
+
+        // 🆕 2026-10-01 M6u：装备阶冒烟族（金币/传家宝播种 + 真实 `Pressed` 升阶；全部走玩家路径）✓
+        HandleGearSmokeFlags(hamletArgs);
+
+        // 🔴 M8.0 ⑥ 端到端：回城阶段 ⇒ **花钱（减压）** 然后 **再出发**（`--hamlet-embark`）
+        //    ⚠️ 位置在装备阶冒烟**之后**：本分支会切场景并 `return`（M6u 组合冒烟依赖此顺序）✓
+        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-embark"))
+        {
+            PressEmbark();
+            return; // 已切场景
         }
 
         // 🔴 跨场景步进冒烟：消费本场景的一步（`ui_three_screens.md` §3 / `#310`⑦）

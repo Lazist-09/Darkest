@@ -200,6 +200,14 @@ public sealed class BuildingsConfig
 
     public int LevelCount => Buildings.Sum(b => b.Trees.Sum(t => t.Levels.Count));
 
+    /// <summary>
+    /// 🔴 **全部树 id**（= 建筑树目录）—— 用途 = `HeroUpgradesConfig.Validate` 的 `externalTreeIds`。
+    ///   `hero_upgrades.json` 的先决会指向**别的**建筑树（`blacksmith.weapon` ／ `guild.skill_levels` …）
+    ///   ⇒ 目录必须取自本文件（**唯一真值**；与 `HeroUpgradesLandedTests` 同口径 ✓）。
+    ///   ⚠️ 只列铁匠铺两条 ⇒ `guild.skill_levels` 被判「悬空」⇒ **整表校验失败 ⇒ 装备阶机制关闭**（2026-10-01 实测踩过）✓
+    /// </summary>
+    public IReadOnlyList<string> TreeIds => Buildings.SelectMany(b => b.Trees).Select(t => t.Id).ToList();
+
     /// <summary>按 id 取建筑（不存在抛异常 ✓）。</summary>
     public BuildingConfig Get(string id)
     {
