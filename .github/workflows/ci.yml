@@ -71,6 +71,12 @@ jobs:
       - name: Static check — B6 negative self-test (injected E-drive reference must be flagged)
         run: python3 tools/check_no_external_assets.py --selfcheck
 
+      - name: Static check — csproj TargetFramework stays indirect (O-114; the Godot 4.6 C# plugin materialises it on save)
+        run: python3 tools/check_csproj_tfm.py
+
+      - name: Static check — csproj TFM negative self-test (a materialised TFM must be caught)
+        run: python3 tools/check_csproj_tfm.py --selfcheck
+
   static-gates-powershell:
     runs-on: windows-latest
     steps:
