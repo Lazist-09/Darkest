@@ -190,3 +190,18 @@
   **验收（四条玩家路径 · 新进程 = 新 `--hamlet` 进程）**：无档 ⇒ 建基线 · 旧进程买阶 ⇒ `自动存档（装备阶升级）：…装备阶 1 条 ✓` · 🔴 **新进程** ⇒ `启动读档（槽位 0）：…装备阶 1 条 ✓` ＋ `读档后装备阶：hero_warrior_1[武1/甲0]` ⇒ 同一按钮被拒理由变「需 b = 等级 2，当前 1」（**读档失败则阶为 0、同一按钮升得动** ⇒ 这才是判据）· 损坏档 ⇒ 读不出来**且原档 SHA256 前后一致**（红线 21）✓
   ⚠️ **仍【未结案】的是武器半**（`M1c` 阶段 3 · 待 `dmg%` 请单 · 见 `O-101` ③）· ⚠️ **只登记不动**：`Roster.Heroes[].weapon_tier` / `armour_tier` 在档里**恒 0**（真值在 `Gear.Tiers`）⇒ 待 `P6` 清理 ✓
   📄 `reports/o106_save_read_20261001.md` ✓
+
+- 🆕 **`O-107` 登记（2026-10-01 · 主程序 · 用户指令「减少测试数量，仅作必要性测试」／「只允许最低限度的必要性测试」）**：**测试面减量** —— `[TestMethod]` **866 ⇒ 812**（文件 **185 ⇒ 166**）· 口径 = **只删/并既有用例，不新增** · 被删的探针/验证包读数（`M76` 族 ／ `M75` 族 ／ `M6` 报告 dump ／ A1 档位 ／ `P2` 战斗层 ／ 房间分布 ／ `Campaign` 轨迹 ／ `M9` 4v4 ／ 数据在场性）**改由 Godot 冒烟 + 门禁取证**
+  ⚠️ **边界（如实）**：冒烟**不进 CI**（需 Godot 可执行 + headless 环境）⇒ 这些面属**人工/定期取证**，不是「每次提交自动拦」；若将来要自动拦 ⇒ **正解是把判据挪回纯函数层**（能被 xUnit 消费），**不是**把探针用例加回来 ✓
+  ✅ **证据**：`check_data_discipline.py --all` **三扫可疑 0**（numbers 0 ／ **deadfuncs 0** ／ deadkeys 0）⇒ 删测试**没有**把任何生产方法变成死函数 ✓
+  📌 **判据（可复用）**：**删一条测试前先问「它断言的是【行为】还是【读数】」** —— 读数型（只打印不判红）⇒ 删，读数入 `reports/` 留档；行为型/门禁型/单一来源型 ⇒ 留（`FormulaTests` 那 8 条单行样例是**逐条物理断言** ⇒ 只能合并、不能删）✓
+  📄 `reports/test_reduction_20261001.md` · `doc/state.md #500` ✓
+- 🆕 **`O-108` 登记（2026-10-01 · 主程序 · `M7u` 上限收敛留下的数据残留）**：**`heirlooms.json:157-158` 的 `effect.roster_cap_delta: 2` 已无消费点** —— `HeirloomStock.SumEffects` **不再累加**（`HeirloomStock.cs:220` 注释）、`UnlocksConfig` 的 `roster_cap_delta:` 那支**已撤**（`UnlocksConfig.cs:132`）⇒ `rg -n 'roster_cap_delta' darkest` 只剩三类：解析字段 `HeirloomConfig.cs:14`（JSON 属性）／注释／测试断言（`UnlocksConfigTests.cs:56-58/127` 断言「不得再出现增量项」）✓
+  ⚠️ **只登记不动**（`#307` 冻结 + 数值归策划）：待裁定 **删**（清残留 ⇒ 免得下一个人照抄「增量语义」）／**留**（历史语义留痕）✓
+  📌 **口径（策划 `#423`）**：**可用上限 = 马车曲线**（`economy.json` 的 `stagecoach.roster_cap_by_level`，索引 = 马车等级）· **硬上限 = `roster.json` 的 `roster_cap`（28）** ⇒ 将来若要恢复「遗物抬上限」⇒ **另立新键**，不与已撤的 `roster_cap_delta` 混（否则又回「两处真值」）✓
+  📄 `reports/m7u_recruit_20261001.md` · `doc/state.md #502` ✓
+
+- 🆕 **`O-109` 登记（2026-10-01 · 主程序 · 答复用户提问「编辑器打开项目后窗口内点不动了」）**：**结论 = 编辑器把窗口坐标记忆在【副屏】上** —— `darkest/.godot/editor/editor_layout.cfg`：`[EditorWindow]` 段 `screen=1` / `position=Vector2i(3250, 191)` / `size=Vector2i(1152, 1108)`（`:51/53/54`），`[GameView] floating_window_screen=1`（`:68`）⇒ 副屏关闭 / 换位后窗口主体落在可见桌面之外 ⇒ **只剩标题栏能拖、内容区点不到** ✓
+  ✅ **解法（一行 · 无需改代码）**：删 `darkest/.godot/editor/editor_layout.cfg`（或只删其中 `[EditorWindow]` 段）后重启编辑器 ⇒ 位置复位回主屏；若常驻双屏 ⇒ 直接把窗口拖回主屏，编辑器下次记住新坐标 ✓
+  ⚠️ **不是引擎 bug、不是项目设置问题**（证据：当时进程枚举 = **0 个 Godot 进程** · `project_metadata.cfg` 的 `executable_path` 正常）· `.godot/` = 生成物不入库 ⇒ 本条目只作**答复留痕**，无代码动作 ✓
+
