@@ -238,3 +238,10 @@
   📌 **孤儿文件不入库**：`darkest/tests/M9FourVFourFixtureTests.cs.uid` 仍在工作区（未跟踪）⇒ **不提交、不删** ✓
   📌 **非本件内容（顺手修）**：`doc/state.md #504` 行内**两处裸竖线**把该行切成 6 格（表格渲染断）⇒ 已转义 ＋ 1 处分隔符补空格（**只改转义与空格，不改任何字词**）✓
   📄 `reports/m12_provision_20261002.md` · `doc/state.md #505` ✓
+- 🆕 **`O-114` 登记（2026-10-02 · 主程序 · `csproj` TFM 实化【复发】＋ 已修 ＋ 上机器门禁）**：**`darkest/Darkest.csproj:28` 的 `<TargetFramework>` 被实化成字面量 `net8.0`** ⇒ 本机口径 `-p:DarkestTargetFramework=net10.0` **静默失效**（`dotnet build darkest/Darkest.csproj -p:DarkestTargetFramework=net10.0 --getProperty:TargetFramework` 实测打印 **net8.0**）✓
+  🔴 **为什么必须上机器门禁（它已复发一次）**：`7425e35`（2026-09-09）还原过并写下维护纪律（`Darkest.csproj` 顶部注释 `:22-24`）；**`9d42a8f`（2026-09-10 · 「M6 探针」）把它打回** —— diff 里就是那一行 ⇒ **纪律写在注释里 = 挡不住第二次**；`darkest/Darkest.csproj.old`（编辑器改写留下的备份）正是那次改写的证物 ✓
+  ⚠️ **为什么静默（危害面）**：实化后构建**照样成功**（本机 NuGet 缓存已有 `microsoft.netcore.app.ref/8.0.30` ⇒ net8.0 离线可建）⇒ 「本地已验证」会退化成对**一个没人打算构建的程序集**的断言；CI 用 `actions/setup-dotnet` 装 net8.0 ⇒ **CI 一直正常，只有本机口径受害**（所以门禁必须查【形态】，不是查构建成败）✓
+  ✅ **本次动作四件**：① 还原 `:28` 为 `$(DarkestTargetFramework)`（**双向实测**：`-p:...=net10.0` ⇒ `net10.0` · 默认 ⇒ `net8.0`）② 🆕 `tools/check_csproj_tfm.py`（100 行 · 只用 stdlib · 契约 = **凡定义 `DarkestTargetFramework` 的 csproj，`TargetFramework` 必须取自它**；`--selfcheck` = 实化探针必须被抓）③ 接入 `.github/workflows/ci.yml` 的 `build-and-test` 作业（正检 ＋ 反证两行）④ 按计划删 `darkest/Darkest.csproj.old`（未跟踪 · 编辑器下次改写仍会重建它 ⇒ **判据看 `:28` 那行，不看 `.old` 在不在**）✓
+  📌 **同批答复（用户提问「编辑器打开项目后窗口内点不动了」）**：**真因 = 编辑器把窗口几何记忆在副屏上**（`O-109` 已登记同一结论，本次以当前几何**复测坐实**）—— `darkest/.godot/editor/editor_layout.cfg`：`[EditorWindow] screen=1 / position=Vector2i(3250, 191) / size=Vector2i(1152, 1108)` ＋ `[GameView] floating_window_screen=1`；而**当前桌面 x 只到 2560**（副屏 DISPLAY1 在**左** `-1920..0` 且仅 **1200** 高；主屏 DISPLAY2 `0..2560` × 1440）⇒ 记忆坐标要求桌面伸到 `x=4402 / y=1299` ⇒ **窗口主体落在可见桌面之外，只剩标题栏可拖可关** ✓
+  ✅ **处置（已执行）**：备份 `darkest/.godot/editor/editor_layout.cfg` ⇒ `.tmp_editor_layout_backup.cfg`，再删原文件（`.godot/` = 生成物不入库）⇒ 下次启动回默认布局；**代码侧零改动**（不是引擎 bug、不是项目设置）✓
+  📄 `doc/state.md #508` ✓
