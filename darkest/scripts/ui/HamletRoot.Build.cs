@@ -221,20 +221,19 @@ public partial class HamletRoot : Control
 
         // 🔴 2026-09-21 DD 1:1 还原 #1c：建筑区 = **窄左列竖排 nav**（DD: 宽 128、按钮竖距 68、贴左缘）✓
         VBoxContainer buildingRow = skel?.BuildingNav ?? new VBoxContainer { Name = "BuildingNav" };   // DD 1:1 3-3：骨架优先（编辑器可改），缺失才代码建
-        buildingRow.CustomMinimumSize = new Vector2(128, 1000);   // 🔴 DD 原文 building_navigation.base_size **128×1000** ⇒ 按 1280/1920=0.667 等比 ⇒ **128×667**（还原比例、非像素）✓
+        // 🔴 DD 原文 building_navigation.base_size **128×1000**（1920×1080）⇒ 我方相机 720 ⇒ 等比 **128×667**
+        //    但**固定最小高 1000 会撑爆 HamletRootCol**（实测 demand 2）⇒ 宽度照 DD 128，高度交 expand-fill 撑满（≥667 自然满足）
+        buildingRow.CustomMinimumSize = new Vector2(128, 0);
+        buildingRow.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         buildingRow.AddThemeConstantOverride("separation", 12);   // DD 竖距 68 = 按钮高 56 + 12 ✓
-        // 修 Can't add child BuildingNav already has a parent：骨架已带该节点 ⇒ 先判断父再挂（Godot 要求 Reparent）
-        // 🔴 2026-09-27 修假绿：本行整体曾被写成**注释** ⇒ BuildingNav **从未挂上树** ⇒ 玩家连一个建筑入口都看不到
-        if (buildingRow.GetParent() is null) { leftCol.AddChild(buildingRow); }
-        else if (buildingRow.GetParent() != leftCol) { buildingRow.Reparent(leftCol); }
+        // 🔴 2026-10-02 M12 修 demand 超相机（实测 2）：**内容最小高 912 > 可分配 874**（1080 − TopBar 39 − StatusBar 87
+        //    − BottomBar 56 − 3×8 间距 − HamletMargin 20）⇒ `HamletRootCol` 最小高 1159 撑爆相机。
+        //    ✅ 用 Godot 内建 `ScrollContainer` 兜住：**滚动轴的最小尺寸不向上传播**（4.6 实测：内容 896 ⇒ scroll 最小高 **0**）⇒ demand 归零 ✓
+        EnsureNavScrollHost(leftCol, buildingRow);
         for (int i = 0; i < upgradable.Length; i++)
         {
             string bId = upgradable[i];
             string label = buildingNames[i];
-
-            // 🔴 P2：入口文案 = **三栋摘要**（一次算好）；只**建一个**按钮（i>0 直接跳过）✓
-            string buildingEntryText = "🏛 建筑：" + string.Join("　", upgradable.Select((bid, k) =>
-                $"{buildingNames[k]} Lv{ExpeditionContext.Heirlooms?.LevelOf(bid) ?? 0}"));
             bool unlocked = bId == "stagecoach" || unlockedBuildings.Contains(bId);
 
             if (!unlocked)
@@ -245,6 +244,8 @@ public partial class HamletRoot : Control
                     Name = $"Locked_{bId}",
                     Text = $"🔒 {label}（第 {need} 趟后解锁）",
                     CustomMinimumSize = new Vector2(180, 32),
+                    // 🔴 2026-10-02 M12：Locked 文案自然宽 **214~229** ⇒ 会撑宽左列（Body 753）；`ClipText` 后最小宽 = 180 上限 ✓
+                    ClipText = true,
                     VerticalAlignment = VerticalAlignment.Center,
                 };
                 locked.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.Disabled);
@@ -259,6 +260,8 @@ public partial class HamletRoot : Control
                 Name = $"BuildingEntry_{bId}",
                 Text = $"🏛 {label} Lv{ExpeditionContext.Heirlooms?.LevelOf(bId) ?? 0}",   // 🔴 DD 1:1：nav 逐栋显示（不再合并成一行摘要）✓
                 CustomMinimumSize = new Vector2(128, 56),   // 🔴 DD 1:1：nav 按钮 **128 宽**（+ 竖距 12 = 68）✓
+                // 🔴 2026-10-02 M12：文案自然宽 **367**（dd_theme 字号）⇒ 撑宽左列到 379；`ClipText` 把最小宽压回 128 ✓
+                ClipText = true,
             };
             ub.Pressed += () => OpenBuildingPopup(bId);
             ub.MouseEntered += () => ShowBuildingInfo(bId); // 悬停仍给一行摘要（低成本、不占版面）
@@ -486,6 +489,10 @@ public partial class HamletRoot : Control
 
         // 🆕 2026-10-01 M6u：装备阶冒烟族（金币/传家宝播种 + 真实 `Pressed` 升阶；全部走玩家路径）✓
         HandleGearSmokeFlags(hamletArgs);
+
+        // 🆕 2026-10-02 M12：供应冒烟族（买卖走**真实按钮**；必须排在 `--hamlet-gold=` 播种**之后**
+        //    ⇒ 状态行按播种后余额现读；本族自己 `OpenProvision()` ⇒ 不依赖上一族把弹窗留在哪一栋）✓
+        HandleProvisionSmokeFlags(hamletArgs);
 
         // 🆕 2026-10-01 M7u：招募冒烟族（**排在装备阶之后** ⇒ 组合冒烟「先升马车 ⇒ 再看今日新兵」读到的是**升后**的名单
         //    与上限；本族自己会 `OpenBuildingPopup("stagecoach")` ⇒ 不依赖上一族把弹窗留在哪一栋）✓

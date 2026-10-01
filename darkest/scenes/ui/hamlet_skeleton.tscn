@@ -12,12 +12,13 @@ theme = ExtResource("9_theme")
 script = ExtResource("1_hamlet")
 
 
-[node name="LayerTitle" type="Label" parent="HamletSkeleton"]
+[node name="LayerTitle" type="Label" parent="."]   ; 🔴 2026-10-02：原写 `parent="HamletSkeleton"`（相对场景根找不到同名子节点）⇒ 加载警告 `'./HamletSkeleton' has vanished`，节点被兜到根下并改名 `HamletSkeleton#LayerTitle`；写 `.` 才是「根的直接子节点」
+; 🔴 2026-10-02（重叠修复）：原锚点 (0.004,0.004)-(0.16,0.024) 与 `TopBar/TopRow/HamletBanner` **必撞**（顶部整条 16~43 被 banner 占满，其下 57~144 又被 StatusBar 占满）⇒ 层级标题是**骨架开发用注释**（非玩家内容）⇒ 改用**绝对像素偏移**（anchor 全 0 + offset）：落点 x 208~508 / y 320~358 在 **1080 真实口径与 headless 1920 口径下都无 Label**（左列 x≤204、活动日志 y≤311、领域库存 x≥881）✓
 layout_mode = 0
-anchor_left = 0.004
-anchor_top = 0.004
-anchor_right = 0.16
-anchor_bottom = 0.024
+offset_left = 208.0
+offset_top = 320.0
+offset_right = 508.0
+offset_bottom = 358.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
@@ -57,6 +58,10 @@ size_flags_horizontal = 0
 layout_mode = 2
 theme_override_constants/separation = 6
 
+[node name="BodySpacer" type="Control" parent="HamletMargin/HamletRootCol/Body"]   ; 🔴 2026-10-02：DD town.roster_list_pos.x **1550** ⇒ 名册列必须**右贴边**；只写 `RightColumn.size_flags_horizontal = 8(ShrinkEnd)` 实测**无效**（Godot 4 BoxContainer 只在有 expand 子节点时才分配余量）⇒ 用**撑开垫片**把右列推到右缘（x≈1538 = 1920−12−370 ✓）
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="RightColumn" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body" unique_id=333327316]
 custom_minimum_size = Vector2(370, 0)
 layout_mode = 2
@@ -75,7 +80,8 @@ theme_override_constants/separation = 12
 
 [node name="BuildingNav" type="VBoxContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol"]
 layout_mode = 2
-custom_minimum_size = Vector2(128, 1000)
+custom_minimum_size = Vector2(128, 0)   ; DD building_navigation.base_size 128x1000 ⇒ 固定高 1000 会撑爆 HamletRootCol（demand 2）；改由 expand-fill 撑满（尺子见 check_dd_layout.ps1）
+size_flags_vertical = 3
 theme_override_constants/separation = 12
 
 [node name="DDNav1_blacksmith" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
@@ -85,7 +91,7 @@ mouse_filter = 2
 tooltip_text = "DD building_navigation index 1: blacksmith (placeholder)"
 
 
-[node name="PurposeLabel" type="Label" parent="DDNav1_blacksmith"]
+[node name="PurposeLabel" type="Label" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav1_blacksmith"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -104,7 +110,7 @@ mouse_filter = 2
 tooltip_text = "DD building_navigation index 2: guild (placeholder)"
 
 
-[node name="PurposeLabel" type="Label" parent="DDNav2_guild"]
+[node name="PurposeLabel" type="Label" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav2_guild"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -123,7 +129,7 @@ mouse_filter = 2
 tooltip_text = "DD building_navigation index 3: camping_trainer (placeholder)"
 
 
-[node name="PurposeLabel" type="Label" parent="DDNav3_camping_trainer"]
+[node name="PurposeLabel" type="Label" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav3_camping_trainer"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -142,7 +148,7 @@ mouse_filter = 2
 tooltip_text = "DD building_navigation index 6: sanitarium (placeholder)"
 
 
-[node name="PurposeLabel" type="Label" parent="DDNav6_sanitarium"]
+[node name="PurposeLabel" type="Label" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav6_sanitarium"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -161,7 +167,7 @@ mouse_filter = 2
 tooltip_text = "DD building_navigation index 7: nomad_wagon (placeholder)"
 
 
-[node name="PurposeLabel" type="Label" parent="DDNav7_nomad_wagon"]
+[node name="PurposeLabel" type="Label" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav7_nomad_wagon"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -180,7 +186,7 @@ mouse_filter = 2
 tooltip_text = "DD building_navigation index 8: graveyard (placeholder)"
 
 
-[node name="PurposeLabel" type="Label" parent="DDNav8_graveyard"]
+[node name="PurposeLabel" type="Label" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav8_graveyard"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -199,7 +205,7 @@ mouse_filter = 2
 tooltip_text = "DD building_navigation index 9: statue (placeholder)"
 
 
-[node name="PurposeLabel" type="Label" parent="DDNav9_statue"]
+[node name="PurposeLabel" type="Label" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav9_statue"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -240,7 +246,7 @@ mouse_filter = 2
 tooltip_text = "DD estate_summary_pos 0,975 (resource bar, placeholder)"
 
 
-[node name="PurposeLabel" type="Label" parent="EstateSummary"]
+[node name="PurposeLabel" type="Label" parent="Overlay/EstateSummary"]   ; 🔴 2026-10-02：相对 parent 是**相对场景根**解析的（不是相对上一个节点的父）⇒ 写成 `EstateSummary` 会变成悬空根子节点（屏幕上 (0,0) 一坨文字）⇒ 必须写全路径
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -256,13 +262,13 @@ layout_mode = 2
 layout_mode = 0
 anchor_left = 0.459
 anchor_top = 0.119
-anchor_right = 0.60
-anchor_bottom = 0.42
+anchor_right = 0.6531
+anchor_bottom = 0.4426
 mouse_filter = 2
-tooltip_text = "DD realm_inventory_pos 881,128 (realm inventory, placeholder)"
+tooltip_text = "领域库存（DD town.layout realm_inventory_pos 881,128 · realm_inventory_layout inventory_grid_size 560x525 ⇒ ×0.667 ≈ 373×350；grid_pos 30,195 · close 610,22）· 色块占位，不换不删"
 
 
-[node name="PurposeLabel" type="Label" parent="RealmInventory"]
+[node name="PurposeLabel" type="Label" parent="Overlay/RealmInventory"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -275,7 +281,8 @@ color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
 
 ; 阶段2 城池批(5)：E 盘直读 town.layout [town_screen_layout] —— activity_log_pos 与 town_event_pos 同为 144,132（共享一位）
-[node name="ActivityLogAnchor" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
+; 🔴 2026-10-02：改挂 Overlay（屏幕级锚真位）；原先挂 HamletMargin/HamletRootCol ⇒ 位置被容器排版带跑，且 min-size 被计入 demand
+[node name="ActivityLogAnchor" type="PanelContainer" parent="Overlay"]
 layout_mode = 0
 anchor_left = 0.075
 anchor_top = 0.1222
@@ -285,7 +292,7 @@ mouse_filter = 2
 tooltip_text = "活动日志/城镇事件位（DD town.layout activity_log_pos / town_event_pos 均 144,132 · 屏幕级 ÷1920 ÷1080 · 色块占位，不换不删）"
 
 
-[node name="PurposeLabel" type="Label" parent="ActivityLogAnchor"]
+[node name="PurposeLabel" type="Label" parent="Overlay/ActivityLogAnchor"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -293,12 +300,13 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "活动日志"
-[node name="ActivityLogFill" type="ColorRect" parent="HamletMargin/HamletRootCol/ActivityLogAnchor"]
+[node name="ActivityLogFill" type="ColorRect" parent="Overlay/ActivityLogAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2
 
 ; 阶段2：E 盘 shared/estate estate_cost_hot_spot_layout.size **100x50**（费用热区）
-[node name="EstateCostHotSpot" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
+; 🔴 2026-10-02：改挂 Overlay（屏幕级锚真位）——见 ActivityLogAnchor 同批说明
+[node name="EstateCostHotSpot" type="PanelContainer" parent="Overlay"]
 layout_mode = 0
 anchor_left = 0.0
 anchor_top = 0.903
@@ -309,7 +317,7 @@ mouse_filter = 2
 tooltip_text = "地产费用热区（DD shared/estate estate_cost_hot_spot_layout.size 100x50 · 色块占位，不换不删）"
 
 
-[node name="PurposeLabel" type="Label" parent="EstateCostHotSpot"]
+[node name="PurposeLabel" type="Label" parent="Overlay/EstateCostHotSpot"]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
@@ -317,30 +325,6 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "地产费用"
-[node name="Fill" type="ColorRect" parent="HamletMargin/HamletRootCol/EstateCostHotSpot"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
-layout_mode = 2
-
-; 阶段2：E 盘 realm_inventory inventory_grid_size **560x525**（自带尺寸 => 直接用）；面板屏位取 town.realm_inventory_pos 881,128
-[node name="RealmInventoryGrid" type="PanelContainer" parent="HamletMargin/HamletRootCol"]
-layout_mode = 0
-anchor_left = 0.459
-anchor_top = 0.119
-anchor_right = 0.559
-anchor_bottom = 0.219
-custom_minimum_size = Vector2(560, 525)   ; DD realm_inventory_layout.inventory_grid_size
-mouse_filter = 2
-tooltip_text = "领域库存网格（DD realm_inventory inventory_grid_size 560x525 · grid_pos 30,195 · close 610,22 · 尺寸=DD 原值；面板屏位取 town.realm_inventory_pos 881,128）· 色块占位，不换不删"
-
-
-[node name="PurposeLabel" type="Label" parent="RealmInventoryGrid"]
-layout_mode = 2
-mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "库存网格"
-[node name="Fill" type="ColorRect" parent="HamletMargin/HamletRootCol/RealmInventoryGrid"]
+[node name="Fill" type="ColorRect" parent="Overlay/EstateCostHotSpot"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 2

@@ -1,0 +1,28 @@
+{
+  "_note": "M12 供应（provision）：一手 E 盘 inventory/base.supply.inventory.items.darkest 逐字段转写（1 条 provision（口粮/食物）+ 10 条 supply = 共 11 个 id）。⚠️ 口粮（食物）一行一手 .id 是**空串**（type=provision，mode.supply 同款）⇒ 我方转写为 id=food（与既有 raid 补给口径一致）；一手无 desc 字段 ⇒ desc_zh 留空串，不编造。",
+  "_source": "E:\\SteamLibrary\\steamapps\\common\\DarkestDungeon\\inventory\\base.supply.inventory.items.darkest",
+  "_field_classes": {
+    "id": "一手转写（口粮行一手 id 为空串 ⇒ 我方转写为 food，见 _note）",
+    "name_zh": "我方中文名（一手无名字字段；DD 中文名来自本地化表 ⇒ 此处只给商店行显示用）",
+    "desc_zh": "留空串 —— 一手无描述字段，不编造（红线 21）",
+    "stack_limit": "一手 base_stack_limit",
+    "buy_gold": "一手 purchase_gold_value（0 = 一手就是 0 ⇒ 商店置灰，不发明免费）",
+    "sell_gold": "一手 sell_gold_value（0 = 一手就是 0 ⇒ 卖回同样拒绝）",
+    "raid_item": "**我方映射（DD 一手全树无 raid_item 字段，已实测）**：本列 = 本趟背包落点口径，取值限定 food（⇒ ItemKind.Food）/ firewood（⇒ ItemKind.Firewood）/ null（不进背包）",
+    "act_out_consume_priority": "一手 act_out_consume_priority（缺失 ⇒ null；本包只登记，待接线 O-113）",
+    "replace_buffs": "一手 replace_buffs（缺失 ⇒ null；本包只登记，待接线 O-113）"
+  },
+  "provisions": [
+    { "id": "food", "name_zh": "食物", "desc_zh": "", "stack_limit": 12, "buy_gold": 75, "sell_gold": 5, "raid_item": "food", "act_out_consume_priority": null, "replace_buffs": null },
+    { "id": "shovel", "name_zh": "铁铲", "desc_zh": "", "stack_limit": 4, "buy_gold": 250, "sell_gold": 25, "raid_item": null, "act_out_consume_priority": null, "replace_buffs": null },
+    { "id": "firewood", "name_zh": "木柴", "desc_zh": "", "stack_limit": 1, "buy_gold": 0, "sell_gold": 0, "raid_item": "firewood", "act_out_consume_priority": null, "replace_buffs": null },
+    { "id": "bandage", "name_zh": "绷带", "desc_zh": "", "stack_limit": 6, "buy_gold": 150, "sell_gold": 15, "raid_item": null, "act_out_consume_priority": 1, "replace_buffs": true },
+    { "id": "antivenom", "name_zh": "解毒剂", "desc_zh": "", "stack_limit": 6, "buy_gold": 150, "sell_gold": 15, "raid_item": null, "act_out_consume_priority": 1, "replace_buffs": true },
+    { "id": "skeleton_key", "name_zh": "骷髅钥匙", "desc_zh": "", "stack_limit": 6, "buy_gold": 200, "sell_gold": 20, "raid_item": null, "act_out_consume_priority": null, "replace_buffs": null },
+    { "id": "medicinal_herbs", "name_zh": "药草", "desc_zh": "", "stack_limit": 6, "buy_gold": 200, "sell_gold": 20, "raid_item": null, "act_out_consume_priority": 1, "replace_buffs": true },
+    { "id": "torch", "name_zh": "火把", "desc_zh": "", "stack_limit": 8, "buy_gold": 75, "sell_gold": 5, "raid_item": "firewood", "act_out_consume_priority": 1, "replace_buffs": null },
+    { "id": "holy_water", "name_zh": "圣水", "desc_zh": "", "stack_limit": 6, "buy_gold": 150, "sell_gold": 15, "raid_item": null, "act_out_consume_priority": 1, "replace_buffs": null },
+    { "id": "dog_treats", "name_zh": "狗粮", "desc_zh": "", "stack_limit": 2, "buy_gold": 0, "sell_gold": 0, "raid_item": null, "act_out_consume_priority": 1, "replace_buffs": null },
+    { "id": "laudanum", "name_zh": "鸦片酊", "desc_zh": "", "stack_limit": 6, "buy_gold": 100, "sell_gold": 20, "raid_item": null, "act_out_consume_priority": 1, "replace_buffs": true }
+  ]
+}

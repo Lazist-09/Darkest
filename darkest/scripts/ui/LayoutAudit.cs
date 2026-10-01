@@ -39,7 +39,8 @@ public static class LayoutAudit
         var panels = new List<(string Path, Control Panel)>();
         // 🔴 架构裁定（`next_round §4.1.1`）：判据第 7 条**批准**，但**例外必须可审计**
         //    ⇒ 报告里必须打印"**跳过 N 个瞬态元素**"（红线 17 口径写清 + 红线 21 不留黑箱）✓
-        int skippedTransient = Collect(scope, scope, labels, panels);
+        var scopeSkips = new SkipLog();
+        Collect(scope, scope, labels, panels, scopeSkips);
 
         var problems = new StringBuilder();
 
@@ -92,7 +93,9 @@ public static class LayoutAudit
         var outsideList = new System.Collections.Generic.List<string>();
         foreach (Node n in Walk(root))
         {
-            if (n is Control oc && oc.IsVisibleInTree() && oc.Size.X > 0 && oc.Size.Y > 0)
+            // 🔴 跨视口口径（见 `SameViewport`）：子窗口（引擎 tooltip 的 `PopupPanel` ／ `PopupMenu`）内
+            //    控件的坐标系是【子窗口内容原点】⇒ 与主视口**不可比**，不参与相机判据 ✓
+            if (n is Control oc && SameViewport(root, oc) && oc.IsVisibleInTree() && oc.Size.X > 0 && oc.Size.Y > 0)
             {
                 Vector2 op = oc.GlobalPosition;
                 if (op.X < -0.5f || op.Y < -0.5f || op.X + oc.Size.X > cam.X + 0.5f || op.Y + oc.Size.Y > cam.Y + 0.5f)
@@ -116,7 +119,7 @@ public static class LayoutAudit
         var tooBig = new System.Collections.Generic.List<string>();
         foreach (Node n in Walk(root))
         {
-            if (n is Control tc && tc.IsVisibleInTree() && !InsideScroll(tc))
+            if (n is Control tc && SameViewport(root, tc) && tc.IsVisibleInTree() && !InsideScroll(tc))
             {
                 Vector2 need = tc.GetCombinedMinimumSize();
                 if (need.X > cam.X + 0.5f || need.Y > cam.Y + 0.5f)
@@ -144,7 +147,8 @@ public static class LayoutAudit
         //   ⇒ 所以每次都要把【覆盖层是谁/什么类/样式读数】+【全场景计数】一起打出来 ✓
         var allLabels = new List<(string Path, Rect2 Rect)>();
         var allPanels = new List<(string Path, Control Panel)>();
-        Collect(root, root, allLabels, allPanels);
+        var allSkips = new SkipLog();
+        Collect(root, root, allLabels, allPanels, allSkips);
         int outsideLabels = allLabels.Count - labels.Count;
         int outsidePanels = allPanels.Count - panels.Count;
         string overlayInfo = overlay is null
@@ -155,8 +159,11 @@ public static class LayoutAudit
                          (outsideLabels > 0 || outsidePanels > 0
                              ? $"　⚠️ 在审范围外还有 {outsideLabels} 个 Label ／ {outsidePanels} 个 Panel（须判定：真被遮住 还是 漏审）"
                              : "　（范围外无控件）") +
-                         // 🔴 架构裁定（`§4.1.1`）：第 7 条例外**必须可审计** ⇒ 打印"跳过的瞬态元素数"（含覆盖层子树内的）✓
-                         $"　跳过瞬态元素 {skippedTransient + Collect(root, root, new List<(string, Rect2)>(), new List<(string, Control)>())} 个（`{MotionLayerName}` 口径例外，按设计会短暂叠放）" +
+                        // 🔴 架构裁定（`§4.1.1`）：第 7 条例外**必须可审计** ⇒ 打印"跳过的瞬态元素数"（含覆盖层子树内的）✓
+                         // ⚠️ 读数更正（2026-10-02）：原式 = 覆盖层跳过数 ＋ 全场景跳过数 ⇒ **把覆盖层那一份数了两遍**（同子树被数两次）✓
+                         $"　跳过瞬态元素 {allSkips.Transient} 个（`{MotionLayerName}` 口径例外，按设计会短暂叠放）" +
+                         (overlay is null ? string.Empty : $"（覆盖层内 {scopeSkips.Transient} 个）") +
+                         $"　跳过子窗口 {allSkips.Windows} 个（{SkipNote(allSkips)}；`Window` 系自成视口 ⇒ 矩形不可比，见 SameViewport）" +
                          $"　相机 {cam.X:0}×{cam.Y:0}（**项目真实视口**）越界控件 {outsideList.Count} 个（实际矩形口径，含 headless 填满视口的噪声）" +
                          $"　帧={Engine.GetProcessFrames()}　🔴 **内容需求超出相机 {tooBig.Count} 个**" + (tooBig.Count == 0 ? "（全部装得下 ✅）" : "：" + string.Join(" ／ ", tooBig)) +
                          (outsideList.Count == 0 ? "（全部落在可视区内 ✅）" : "：" + string.Join(" ／ ", outsideList));
@@ -257,15 +264,72 @@ public static class LayoutAudit
         }
     }
 
-    /// <summary>递归收集；返回**被跳过的瞬态元素个数**（`MotionLayer` 口径例外 ⇒ 必须留痕）✓</summary>
-    private static int Collect(Node node, Node root, List<(string, Rect2)> labels, List<(string, Control)> panels)
+    /// <summary>
+    /// 🔴 **跨视口口径**（2026-10-02 实证）：`Window` 系节点（引擎 tooltip 的 `PopupPanel` ／ `PopupMenu`）**自成一个 `Viewport`**
+    /// ⇒ 它内部 `Control.GlobalPosition` 是【相对该子窗口内容原点】的坐标，与主视口**不可比**。
+    /// 实测：`ProvStoreAnchor`（带 `tooltip_text`）被引擎挂上 tooltip 弹窗（`@PopupPanel@10/@Label@9` pos=(6,6)），
+    /// 与主视口的 `DialogTitle` pos=(6,10) 被判成"重叠" —— 那是**坐标系错误**，不是布局重叠（`hamlet-quest-select` 屏同样复现）✓
+    /// ⚠️ 口径代价（如实登记 `O-113`）：子窗口**内部**的布局本判据不覆盖（tooltip 内容随光标、由引擎托管）✓
+    /// </summary>
+    private static bool SameViewport(Node root, Node node)
     {
-        int skipped = 0;
+        for (Node? p = node; p is not null; p = p.GetParent())
+        {
+            if (p == root)
+            {
+                return true;
+            }
+
+            if (p is Window)
+            {
+                return false;
+            }
+        }
+
+        return true;   // 走到树根也没碰到 `Window`（游离节点 ⇒ 不该发生，按同视口处理）✓
+    }
+
+    /// <summary>子窗口样本（诊断用；空 ⇒ 如实写「无」）✓</summary>
+    private static string SkipNote(SkipLog log)
+        => log.WindowNames.Count == 0 ? "无" : string.Join(" ／ ", log.WindowNames);
+
+    /// <summary>跳过留痕（红线 21：**例外必须可审计**）✓</summary>
+    private sealed class SkipLog
+    {
+        /// <summary>跳过的瞬态元素个数（含其子树）✓</summary>
+        public int Transient;
+
+        /// <summary>跳过的子窗口个数（含其子树）✓</summary>
+        public int Windows;
+
+        /// <summary>子窗口名字样本（最多 3 个 ⇒ 报告里能看出到底跳过了谁）✓</summary>
+        public readonly List<string> WindowNames = new();
+
+        public void AddWindow(Node window)
+        {
+            Windows += 1 + CountDescendants(window);
+            if (WindowNames.Count < 3)
+            {
+                WindowNames.Add($"{window.Name}({window.GetType().Name})");
+            }
+        }
+    }
+
+    /// <summary>递归收集（跳过项写进 `SkipLog`；红线 21：例外必须留痕）✓</summary>
+    private static void Collect(Node node, Node root, List<(string, Rect2)> labels, List<(string, Control)> panels, SkipLog log)
+    {
         foreach (Node child in node.GetChildren())
         {
             if (child.Name == MotionLayerName)
             {
-                skipped += 1 + CountDescendants(child); // 🔴 跳过（口径见常量注释）—— **计数并上报**，不做黑箱 ✓
+                log.Transient += 1 + CountDescendants(child); // 🔴 跳过（口径见常量注释）—— **计数并上报**，不做黑箱 ✓
+                continue;
+            }
+
+            // 🔴 跨视口口径（见 `SameViewport`）：`Window` 子树自成视口 ⇒ 里面 Label 的 GlobalPosition 与主视口**不可比** ✓
+            if (!SameViewport(root, child))
+            {
+                log.AddWindow(child);
                 continue;
             }
 
@@ -283,10 +347,8 @@ public static class LayoutAudit
                 panels.Add((Path(root, ctl), ctl));
             }
 
-            skipped += Collect(child, root, labels, panels); // 递归（并累加子树的跳过数）
+            Collect(child, root, labels, panels, log); // 递归（跳过数写进同一份 `log`）✓
         }
-
-        return skipped;
     }
 
     private static string Path(Node root, Node node)

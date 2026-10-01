@@ -109,6 +109,20 @@ public static class ExpeditionComposition
 
         var bag = new Inventory(tuning.Inventory!);
         bag.ConfigureRecommended(out _); // 整备默认 = 推荐配置（2/9/support_crate）
+
+        // 🆕 M12 ④（2026-10-02）：**城内【供应】库存注入本趟背包** —— 位置**必须**在
+        //    `ConfigureRecommended` 之后、`LockForRun` 之前（锁定之后背包不可再改）✓
+        //    ⚠️ 已知硬读数（O-113 登记）：推荐整备 11 格 / `slot_cap` 12 ⇒ **恰 1 件**能落进包里，
+        //       第 2 件起 `TryAdd` 必返 `full_choose_discard` ⇒ 余量留城内 + 逐行打印（不静默丢弃）✓
+        //    ⚠️ 无货（未买到 / 未接线）⇒ `InjectInto` 返回空 ⇒ **零操作零打印**（不是"静默失效"）✓
+        if (ExpeditionContext.Supplies is { } supplies)
+        {
+            foreach (string line in supplies.InjectInto(bag))
+            {
+                GD.Print(line);
+            }
+        }
+
         bag.LockForRun();
 
         // 🔴🆕 **H-1 装备阶的【唯一容器】**（`P4 ①` · 2026-09-30 · **本处故意在会话构造之前**）：

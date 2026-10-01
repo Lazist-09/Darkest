@@ -39,7 +39,8 @@ $Entries = @(
     @{ N = 'hamlet-building'; A = @('--hamlet', '--hamlet-building=tavern') }
     @{ N = 'hero-detail';     A = @('--hamlet', '--hamlet-hero-detail=0') }
     @{ N = 'hamlet-hover';     A = @('--hamlet', '--hamlet-hover=tavern') }
-    @{ N = 'hamlet-hover-abbey';      A = @('--hamlet', '--hamlet-hover=abbey') }        # Track 4(a)：逐栋悬停读数（修道院）`n    @{ N = 'hamlet-hover-stagecoach'; A = @('--hamlet', '--hamlet-hover=stagecoach') }   # Track 4(a)：逐栋悬停读数（驿站）   # Track 4(a)：建筑悬停信息（名称/功能/等级/下级所需）正向留痕 ✓
+    @{ N = 'hamlet-hover-abbey';      A = @('--hamlet', '--hamlet-hover=abbey') }        # Track 4(a)：逐栋悬停读数（修道院）
+    @{ N = 'hamlet-hover-stagecoach'; A = @('--hamlet', '--hamlet-hover=stagecoach') }   # Track 4(a)：逐栋悬停读数（驿站）＋ 建筑悬停信息（名称/功能/等级/下级所需）正向留痕 ✓
     @{ N = 'hamlet-hover-stagecoach'; A = @('--hamlet', '--hamlet-hover=stagecoach') }   # Track 4(a)：逐栋悬停读数（驿站）
     @{ N = 'main-menu';       A = @() }
     @{ N = 'main-menu-feflow'; A = @() }
@@ -132,18 +133,29 @@ foreach ($e in $run) {
     $cmdLine = '"' + $godot + '" ' + (($argv | ForEach-Object { if ($_ -match '\s') { '"' + $_ + '"' } else { $_ } }) -join ' ') + ' > "' + $log + '" 2>&1'
     cmd /c $cmdLine | Out-Null
 
-    $lines = @(Get-Content $log -ErrorAction SilentlyContinue)
+    # 2026-10-02 修（实测假绿）：PS 5.1 无 -Encoding 的 Get-Content 按 ANSI(cp936) 解码 UTF-8 日志
+    #   ⇒ 中文判据模式（重叠对/透明框/内容需求超出相机）恒失配 ⇒ demand/overlap/transparent 恒 0 ⇒ 假 ok。
+    #   修法：确定性 UTF-8 读取 + 自证防线（红线 25）。
+    $lines = @()
+    if (Test-Path -LiteralPath $log) { $lines = @([System.IO.File]::ReadAllLines($log, [System.Text.Encoding]::UTF8)) }
     $empty = ($lines.Count -eq 0)
 
-    # demand over camera
+    # 自证防线：日志里出现判据行（ASCII 特征 "[UI ....=>"，不受编码影响）却没有任何中文判据命中
+    #   ⇒ 必然是解码/匹配失效 ⇒ 该入口 FAIL（不允许"没匹配到"当绿）。
+    $judgeRows = @($lines | Select-String -Pattern '^\[UI .*=>')
+    $encBroken = ($judgeRows.Count -gt 0) -and (@($lines | Select-String -Pattern ([char]0x91CD + [char]0x53E0 + [char]0x5BF9)).Count -eq 0)
+
+    # demand over camera（2026-10-02 修：取最后一条口径行并按中文口径抓数；旧版取首条命中行的第一个数字会抓到 a=1 / 帧=24）
     $demand = 0
     $dl = $lines | Select-String -Pattern 'content demand' -SimpleMatch
     $dl2 = $lines | Select-String -Pattern 'content demand over camera'
     $dl3 = $lines | Select-String -Pattern ([char]0x5185 + [char]0x5BB9 + [char]0x9700 + [char]0x6C42 + [char]0x8D85 + [char]0x51FA + [char]0x76F8 + [char]0x673A)
     $hit = @($dl) + @($dl2) + @($dl3)
     if ($hit.Count -gt 0) {
-        $m = [regex]::Match($hit[0].Line, '(\d+)')
-        if ($m.Success) { $demand = [int]$m.Value }
+        $zhPat = [char]0x5185 + [char]0x5BB9 + [char]0x9700 + [char]0x6C42 + [char]0x8D85 + [char]0x51FA + [char]0x76F8 + [char]0x673A
+        $m = [regex]::Match($hit[-1].Line, ($zhPat + '\s*(\d+)'))
+        if (-not $m.Success) { $m = [regex]::Match($hit[-1].Line, 'content demand(?: over camera)?[^0-9]*(\d+)') }
+        if ($m.Success) { $demand = [int]$m.Groups[$m.Groups.Count - 1].Value }
     }
 
     # overlap / transparent
@@ -163,12 +175,12 @@ foreach ($e in $run) {
 
     $expect = if ($TraceExpect.ContainsKey($e.N)) { [string]$TraceExpect[$e.N] } else { '' }
     $traceOk = ($expect -eq '') -or (@($lines | Select-String -Pattern $expect -SimpleMatch).Count -gt 0)   # 期望留痕必须出现
-    $fail = ($empty -or $demand -gt 0 -or $ov -gt 0 -or $tr -gt 0 -or $real.Count -gt 0 -or (-not $traceOk))
+    $fail = ($empty -or $encBroken -or $demand -gt 0 -or $ov -gt 0 -or $tr -gt 0 -or $real.Count -gt 0 -or (-not $traceOk))
     if ($fail) { $bad++ }
 
     $spec145 = if ($demand -eq 0 -and $ov -eq 0 -and $tr -eq 0) { 'ok' } else { 'FAIL' }   # §14.5: 相机口径+Label不相交+Panel不透明
-    $row = "{0,-18} | lines={1,-6} | spec14.5={2} | demand={3} | overlap={4} | transparent={5} | realERROR={6} | trace={7} | {8}" -f `
-        $e.N, $lines.Count, $spec145, $demand, $ov, $tr, $real.Count, $(if ($expect -eq '') { '(none)' } elseif ($traceOk) { $expect } else { "MISSING:" + $expect }), $(if ($empty) { 'FAIL(empty log)' } elseif ($fail) { 'FAIL' } else { 'ok' })
+    $row = "{0,-18} | lines={1,-6} | spec14.5={2} | encSelfCheck={3} | demand={4} | overlap={5} | transparent={6} | realERROR={7} | trace={8} | {9}" -f `
+        $e.N, $lines.Count, $spec145, $(if ($encBroken) { 'FAIL' } else { 'ok' }), $demand, $ov, $tr, $real.Count, $(if ($expect -eq '') { '(none)' } elseif ($traceOk) { $expect } else { "MISSING:" + $expect }), $(if ($empty) { 'FAIL(empty log)' } elseif ($fail) { 'FAIL' } else { 'ok' })
     $rows += $row
     Write-Host ("         " + $row) -ForegroundColor $(if ($fail) { 'Red' } else { 'Green' })
     $row | Add-Content $summary -Encoding UTF8

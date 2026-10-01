@@ -137,6 +137,8 @@ public static class SaveWiring
                 || a.StartsWith("--hamlet-gold=", StringComparison.Ordinal)
                 || a.StartsWith("--hamlet-heirloom-seed=", StringComparison.Ordinal)
                 || a.StartsWith("--hamlet-press-upgrade=", StringComparison.Ordinal)
+                || a.StartsWith("--hamlet-provision-buy=", StringComparison.Ordinal)
+                || a.StartsWith("--hamlet-provision-sell=", StringComparison.Ordinal)
                 || a == "--e2e" || a == "--hamlet-next" || a == "--hamlet-embark")
             {
                 return true;

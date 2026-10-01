@@ -18,7 +18,7 @@ $rows = @(
   @{ Key = "town.roster_list_pos.x";   Dd = 1550; Impl = "hamlet_skeleton.tscn RightColumn width"; Pat = "Vector2(370, 0)" }
   @{ Key = "town.embark_party_pos";    Dd = 754;  Impl = "HamletRoot.Build (two expanders centre Embark)"; Pat = "MidPadLeft" }
   @{ Key = "town.heirloom_exchange_pos.x"; Dd = 340; Impl = "HamletRoot.Build resource bar ShrinkBegin"; Pat = "ShrinkBegin" }
-  @{ Key = "building_navigation.base_size"; Dd = 128; Impl = "HamletRoot.Build BuildingNav"; Pat = "Vector2(128, 1000)" }
+  @{ Key = "building_navigation.base_size"; Dd = 128; Impl = "hamlet_skeleton BuildingNav min (128,0)+expand-fill (DD 1000 fixed height overflowed HamletRootCol)"; Pat = "Vector2(128, 0)" }
   @{ Key = "roster row height";        Dd = 97;   Impl = "roster_row.tscn root"; Pat = "Vector2(370, 97)" }
   @{ Key = "menu element_hot_area_size"; Dd = 466; Impl = "MainMenuRoot button"; Pat = "Vector2(466, 48)" }
   @{ Key = "menu base_pos"; Dd = 450; Impl = "main_menu MenuMargin (element start 510,240 x0.667 = 340,160)"; Pat = "MenuMargin" }

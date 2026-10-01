@@ -8,12 +8,13 @@
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+size_flags_vertical = 3
 mouse_filter = 2
 theme = ExtResource("1_theme")
 script = ExtResource("2_prov")
 
 
-[node name="LayerTitle" type="Label" parent="ProvisionSkeleton"]
+[node name="LayerTitle" type="Label" parent="."]   ; 🔴 2026-10-02：同 hamlet_skeleton —— 相对 parent 相对【场景根】解析；`ProvisionSkeleton` 会找不到 ⇒ 兜到根下改名并报加载警告；`. ` = 根的直接子节点（几何零变化）
 layout_mode = 0
 anchor_left = 0.004
 anchor_top = 0.004
@@ -25,8 +26,10 @@ theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
 text = "L2 二级面板 · 补给（provision）"
 [node name="ProvisionCol" type="VBoxContainer" parent="."]
 anchor_left = 0.0542   ; P5：DD provision name_pos 104,126 ⇒ x 104/1920
+anchor_top = 0.1167    ; P5：DD provision name_pos 104,126 ⇒ y 126/1080（补：此前只做了 x ⇒ TitleRow 与 LayerTitle 撞）
 anchor_right = 1.0
 anchor_bottom = 1.0
+size_flags_vertical = 3
 theme_override_constants/separation = 8
 
 [node name="TitleRow" type="HBoxContainer" parent="ProvisionCol"]
@@ -48,20 +51,15 @@ theme_override_constants/separation = 12
 
 [node name="PartyGrid" type="GridContainer" parent="ProvisionCol/BodyRow"]
 layout_mode = 2
-size_flags_horizontal = 3
-columns = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-
-[node name="StoreGrid" type="GridContainer" parent="ProvisionCol/BodyRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-columns = 2
+size_flags_horizontal = 0   ; 🔴 2026-10-02：队伍格**不参与**横向扩展 —— 否则 8 列会被拉成 227 宽（格宽应为 DD 的 34）✓
+columns = 8   ; 🔴 2026-10-02：party grid = 8 列（start_pos 60,28 · offset 80,160）；此前误标 2 ✓
+; 出处（一手布局，仅注释溯源）：DD provision.layout.darkest party grid —— B6 门禁要求 .darkest 只出现在**整行注释**里 ✓
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 
 [node name="InfoCol" type="VBoxContainer" parent="ProvisionCol/BodyRow"]
 layout_mode = 2
+size_flags_horizontal = 0   ; 🔴 2026-10-02（重叠修复）：默认 Fill ⇒ 被 BodyRow 撑到 587 宽，长句 Label 右边界压进商店位（x≥814）⇒ 与 StoreGrid 判据 1 重叠。改 Shrink(0) + 下方 custom_minimum_size(180) ⇒ 宽 = 180（右边界 375+180=555 < 814；队伍满 8 人时 458+180=638 < 814 仍安全）✓
 custom_minimum_size = Vector2(180, 0)
 theme_override_constants/separation = 6
 
@@ -72,6 +70,7 @@ text = "任务信息"
 
 [node name="ScoutingStat" type="Label" parent="ProvisionCol/BodyRow/InfoCol"]
 layout_mode = 2
+autowrap_mode = 2   ; 🔴 2026-10-02（重叠修复）：不换行 ⇒ Label 最小宽 = 整句宽（~390）⇒ 会把 InfoCol 的 Shrink 宽度顶到 390（右边界 765，距商店位 814 只剩 49）⇒ 改为换行，让最小宽回到 1 ✓
 text = "侦察数值"
 
 [node name="SellBackInfo" type="Label" parent="ProvisionCol/BodyRow/InfoCol"]
@@ -85,10 +84,10 @@ text = "售回信息"
 layout_mode = 0
 anchor_left = 0.6771
 anchor_top = 0.0889
-anchor_right = 0.7571
+anchor_right = 0.7188   ; 🔴 2026-10-02（重叠修复）：原 0.7571（宽 153.6）与 scouting 只差 80px（DD quest_info_pos 1300 ／ scouting_stat_pos 1380）⇒ 两块**结构必撞**（PanelContainer 会把 PurposeLabel 拉满 ⇒ Label 也撞，实测 141 宽各一）。改**按 DD 间距平铺**：1300→1380，即 0.6771→0.7188
 anchor_bottom = 0.1289
 mouse_filter = 2
-tooltip_text = "任务信息位（DD provision quest_info_pos 1300,96 · 屏幕级 ⇒ ÷1920 ÷1080） · 数据未接入 ⇒ 色块占位，不换不删"
+tooltip_text = "任务信息位（DD provision quest_info_pos 1300,96 · 屏幕级 ⇒ ÷1920 ÷1080）· 宽度取到下一元素 scouting_stat_pos 1380 为止（DD 未给 size ⇒ 不编造，只平铺）· 数据未接入 ⇒ 色块占位，不换不删"
 
 
 [node name="PurposeLabel" type="Label" parent="ProvQuestInfoAnchor"]
@@ -110,10 +109,10 @@ layout_mode = 2
 layout_mode = 0
 anchor_left = 0.7188
 anchor_top = 0.0889
-anchor_right = 0.7988
+anchor_right = 0.7604   ; 🔴 2026-10-02：同 quest 一条口径 —— 1380→1460（保留 DD 未给 size 的原判断：宽度 = 80，与左邻等宽平铺）
 anchor_bottom = 0.1289
 mouse_filter = 2
-tooltip_text = "侦察数值位（DD scouting_stat_pos 1380,96） · 数据未接入 ⇒ 色块占位，不换不删"
+tooltip_text = "侦察数值位（DD scouting_stat_pos 1380,96）· 宽度取 80（与左邻 quest 平铺同宽；DD 未给 size ⇒ 不编造）· 数据未接入 ⇒ 色块占位，不换不删"
 
 
 [node name="PurposeLabel" type="Label" parent="ProvScoutingAnchor"]
@@ -158,25 +157,41 @@ layout_mode = 2
 
 [node name="ProvStoreAnchor" type="PanelContainer" parent="."]
 layout_mode = 0
-anchor_left = 0.4167
-anchor_top = 0.4926
-anchor_right = 0.4967
-anchor_bottom = 0.5326
+anchor_left = 0.423958
+anchor_top = 0.133333
+anchor_right = 0.851042
+anchor_bottom = 0.411111
 mouse_filter = 2
-tooltip_text = "商店背景位（DD provision pos 800,532；网格 start_pos 60,28 需面板尺寸 ⇒ 未取得） · 数据未接入 ⇒ 色块占位，不换不删"
+tooltip_text = "商店位（DD provision_store_background_layout .pos 814,144 ⇒ 0.4240 / 0.1333；网格 start_pos 120,20 · offset 80,170 ⇒ 7 列）。⚠️ DD 未给 background 的 size ⇒ 本件尺寸（820×300 @1920 基准 = 547×200 我们的相机）按「装得下 7 列」推导，非 DD 原值（登记 O-113）"
 
-
-[node name="PurposeLabel" type="Label" parent="ProvStoreAnchor"]
+[node name="StoreCol" type="VBoxContainer" parent="ProvStoreAnchor"]
 layout_mode = 2
 mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
-text = "商店"
-[node name="BlockPlaceholder" type="PanelContainer" parent="ProvStoreAnchor"]
-layout_mode = 2
+theme_override_constants/separation = 4
 
-[node name="Fill" type="ColorRect" parent="ProvStoreAnchor/BlockPlaceholder"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+[node name="StoreMargin" type="MarginContainer" parent="ProvStoreAnchor/StoreCol"]
 layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 80   ; DD grid start_pos.x 120 × 0.667 = 80（我们的 1280 相机坐标）✓
+theme_override_constants/margin_top = 13    ; DD grid start_pos.y 20 × 0.667 = 13 ✓
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 0
+
+[node name="StoreScroll" type="ScrollContainer" parent="ProvStoreAnchor/StoreCol/StoreMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+tooltip_text = "商品列表（7 列 = DD store grid）· 住在 ScrollContainer 之内 ⇒ 相机口径「内容需求」判据对它豁免（LayoutAudit.InsideScroll）✓"
+
+[node name="StoreGrid" type="GridContainer" parent="ProvStoreAnchor/StoreCol/StoreMargin/StoreScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 7   ; 🔴 2026-10-02：DD store grid = 7 列（此前误标 2）✓
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 6
+
+[node name="StoreStatus" type="Label" parent="ProvStoreAnchor/StoreCol"]
+layout_mode = 2
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "商店：待接入"

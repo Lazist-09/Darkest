@@ -267,7 +267,15 @@ public partial class HamletRoot : Control
                 GD.Print($"[城池菜单] 库存：本趟背包 {bag.Slots.Count}/{bag.SlotCap}（详情面板在远征层；此处先只报读数）");
             };
             _hamletMenuBody.AddChild(bBag);
+        }
+        else
+        {
+            GD.Print("[城池菜单] 库存：**本趟无背包**（`ExpeditionContext.Flow` 为空）⇒ 不显示该项（红线 21：不假装可用）✓");
+        }
 
+        // 🔴 2026-10-02 修假绿：三个入口此前误缩进在 `if (bag is not null)` **块内** ⇒ 本趟无背包时
+        //    「🛒 供应 ／ 📜 任务选择 ／ 💎 传家宝兑换」**根本不显示**（城池菜单里三个入口一起消失）⚠️
+        //    它们是**城池常驻入口**（与「本趟有没有背包」无关）⇒ 必须无条件挂 ✓
         var bProvision = new Button { Name = "Menu_Provision", Text = "🛒 供应", CustomMinimumSize = new Vector2(220, 32) };   // DD 1:1 ②：供应屏入口
         bProvision.Pressed += () => { ClosePopup(_hamletMenu!, "HamletMenu"); OpenProvision(); };
         _hamletMenuBody.AddChild(bProvision);
@@ -279,11 +287,6 @@ public partial class HamletRoot : Control
         var bExchange = new Button { Name = "Menu_HeirloomExchange", Text = "💎 传家宝兑换", CustomMinimumSize = new Vector2(220, 32) };   // DD 1:1 P5：传家宝兑换入口
         bExchange.Pressed += () => { ClosePopup(_hamletMenu!, "HamletMenu"); OpenHeirloomExchange(); };
         _hamletMenuBody.AddChild(bExchange);
-        }
-        else
-        {
-            GD.Print("[城池菜单] 库存：**本趟无背包**（`ExpeditionContext.Flow` 为空）⇒ 不显示该项（红线 21：不假装可用）✓");
-        }
 
         // 🔴 2026-09-27 修假绿：减压 / 招募已改由**建筑弹窗自己挂**（见 `BuildingPopup.MountServiceRow`）⇒ 这里不再挂 ✓
         //    `sanitarium` 是**服务**而非**可升级建筑**（内核裁定：`HeirloomStock.LevelOf` 对它抛"未知建筑"）

@@ -185,6 +185,21 @@ public static class ExpeditionContext
     }
 
     /// <summary>
+    /// 🔴 **M12（2026-10-02）**：**城内【供应】库存** —— 与 `Gold` 同层（跨场景活着），
+    /// 但**不入存档**（用户裁定：本包只登记 `O-113`，**退出即丢**）✓
+    /// 由城池侧 `HamletRoot` 在拿到 `provisions.json` 后 `EnsureSupplies`；
+    /// 出征时由 `ExpeditionComposition` 读取并注入背包（**不随 `End()` 清空**：回城后还能看/卖）✓
+    /// </summary>
+    public static ProvisionStock? Supplies { get; private set; }
+
+    /// <summary>确保城内库存存在（复用同一实例 ⇒ 买卖读数不会被重置）✓</summary>
+    public static ProvisionStock EnsureSupplies(ProvisionsConfig config)
+    {
+        Supplies ??= new ProvisionStock(config);
+        return Supplies;
+    }
+
+    /// <summary>
     /// 🔴 M8.1：**传家宝（第三种资源）与建筑升级也是跨会话状态** —— 与 `Gold` 同层、**不随 `End()` 清空**。
     /// </summary>
     public static HeirloomStock? Heirlooms { get; private set; }

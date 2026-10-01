@@ -15,10 +15,23 @@ public partial class ProvisionSkeleton : Control
     public Label? Title => GetNodeOrNull<Label>("ProvisionCol/TitleRow/ProvisionTitle");
     public Button? Close => GetNodeOrNull<Button>("ProvisionCol/TitleRow/ProvisionClose");
     public GridContainer? PartyGrid => GetNodeOrNull<GridContainer>("ProvisionCol/BodyRow/PartyGrid");
-    public GridContainer? StoreGrid => GetNodeOrNull<GridContainer>("ProvisionCol/BodyRow/StoreGrid");
+
+    /// <summary>
+    /// 🔴 2026-10-02：商店网格**搬到 DD 商店背景位之内**（`ProvStoreAnchor` 814,144 ⇒ 网格 start_pos 120,20）——
+    /// 此前它在 `BodyRow` 流式布局里（与 DD 的 `provision_store_background_layout` 无关，属推导位）✓
+    /// ⚠️ 网格住在 `ScrollContainer` 之内 ⇒ `LayoutAudit` 的「内容需求超相机」判据对它豁免（`InsideScroll`）✓
+    /// </summary>
+    public GridContainer? StoreGrid => GetNodeOrNull<GridContainer>("ProvStoreAnchor/StoreCol/StoreMargin/StoreScroll/StoreGrid");
+
+    /// <summary>商店状态行（读数：库存总件数 / 金币 / 最近一次买卖原文）✓</summary>
+    public Label? StoreStatus => GetNodeOrNull<Label>("ProvStoreAnchor/StoreCol/StoreStatus");
     public Label? QuestInfo => GetNodeOrNull<Label>("ProvisionCol/BodyRow/InfoCol/QuestInfo");
     public Label? ScoutingStat => GetNodeOrNull<Label>("ProvisionCol/BodyRow/InfoCol/ScoutingStat");
     public Label? SellBackInfo => GetNodeOrNull<Label>("ProvisionCol/BodyRow/InfoCol/SellBackInfo");
+    public PanelContainer? ProvQuestInfoAnchor => GetNodeOrNull<PanelContainer>("ProvQuestInfoAnchor");
+    public PanelContainer? ProvScoutingAnchor => GetNodeOrNull<PanelContainer>("ProvScoutingAnchor");
+    public PanelContainer? ProvSellBackAnchor => GetNodeOrNull<PanelContainer>("ProvSellBackAnchor");
+    public PanelContainer? ProvStoreAnchor => GetNodeOrNull<PanelContainer>("ProvStoreAnchor");
 
     public static ProvisionSkeleton? TryInstantiate()
     {
