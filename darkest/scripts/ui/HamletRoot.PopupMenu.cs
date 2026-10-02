@@ -186,17 +186,27 @@ public partial class HamletRoot : Control
     /// 🔴 **优先委托模态栈**（2026-09-20）：栈里有 ⇒ 关栈顶（**任意**面板，不再只认 2 个）✓
     ///    此前是硬编码 if 链，只认 `_buildingPopup` 与 `_detailPanel` ⇒ QuestSelect/Provision/传家宝/战利品 **Esc 关不掉** ✓
     /// </summary>
-    public bool CloseTopPopup()
+    public bool CloseTopPopup() => CloseTopPopup(out _);
+
+    /// <summary>
+    /// 🔴 同上，并**带出实际关掉的那一层名字**（2026-10-02 修判据误报）：
+    /// 冒烟/自检此前拿 `BuildingPopupOpen` 判"关掉成功" ⇒ 栈顶不是建筑弹窗时必读成"没关掉"（误报）。
+    /// 真值口径 = **栈深 + 实际层名**（红线 26）；`closed` = `HamletMenu` ／ `BuildingPopup` ／ `HeroDetail` 等 ✓
+    /// </summary>
+    public bool CloseTopPopup(out string? closed)
     {
+        closed = null;
+
         // ① 栈优先：Overlay 可用且栈非空 ⇒ 关栈顶（含所有后来接进来的面板）
         if (_overlay is not null && _overlay.ModalDepth > 0)
         {
-            return _overlay.CloseTopModal();
+            return _overlay.CloseTopModal(out closed);
         }
 
         // ② 回落：Overlay 不可用（骨架缺失）⇒ 保留旧行为，不至于"能开不能关"
         if (_buildingPopup is { Visible: true })
         {
+            closed = "BuildingPopup";
             ClosePopup(_buildingPopup, "BuildingPopup");
             _buildingPopupId = null;
             GD.Print("[HamletRoot] 建筑弹窗关闭（Esc）⇒ 回到城池");
@@ -205,6 +215,7 @@ public partial class HamletRoot : Control
 
         if (_detailPanel is { Visible: true })
         {
+            closed = "HeroDetail";
             CloseHeroDetail();
             return true;
         }

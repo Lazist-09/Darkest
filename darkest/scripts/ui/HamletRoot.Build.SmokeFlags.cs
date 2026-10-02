@@ -60,9 +60,12 @@ public partial class HamletRoot : Control
 
         if (System.Array.Exists(hamletArgs, a => a == "--hamlet-popup-close"))
         {
-            GD.Print($"[HamletRoot] --hamlet-popup-close：关闭前 BuildingPopupOpen={BuildingPopupOpen}");
-            CloseTopPopup();
-            GD.Print($"[HamletRoot] --hamlet-popup-close：关闭后 BuildingPopupOpen={BuildingPopupOpen}（应 False）");
+            // 🔴 2026-10-02 修判据误报：旧口径拿 `BuildingPopupOpen` 判"关掉成功"—— 它只反映**建筑弹窗自己**，
+            //    当栈顶是别的层（如 `HamletMenu`）时，关掉栈顶后建筑弹窗仍在栈里且可见 ⇒ 必读成"没关掉"（误报）。
+            //    真值口径 = **栈深 + 实际关掉的层名**（红线 26：显示/判据必须反映真值）✓
+            GD.Print($"[HamletRoot] --hamlet-popup-close：关闭前 栈深={_overlay?.ModalDepth ?? 0} 建筑弹窗开={BuildingPopupOpen}");
+            bool closedOk = CloseTopPopup(out string? closedName);
+            GD.Print($"[HamletRoot] --hamlet-popup-close：关闭后 栈深={_overlay?.ModalDepth ?? 0} 关掉的层={closedName ?? "(无)"} 关掉={closedOk} 建筑弹窗仍开={BuildingPopupOpen}");
         }
 
         // 🆕 2026-10-01 M5u：怪癖冒烟播种 —— `--hamlet-quirk-seed=<英雄>:<怪癖>[,…]`，走**公开 API** `Roster.AddQuirk`

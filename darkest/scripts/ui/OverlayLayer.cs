@@ -105,8 +105,17 @@ public partial class OverlayLayer : Control
     }
 
     /// <summary>关掉栈顶模态（✕ / Esc 的第二出口由此统一）✓</summary>
-    public bool CloseTopModal()
+    public bool CloseTopModal() => CloseTopModal(out _);
+
+    /// <summary>
+    /// 🔴 关掉栈顶模态，并**带出实际关掉的那一层名字**（2026-10-02 修判据误报）：
+    /// 修的是「只能靠某个面板自己的 `Visible` 去猜关掉的是谁」—— 当那面板**不在栈顶**时
+    /// （例如栈顶是 `HamletMenu`、建筑弹窗压在下面），关掉栈顶后它**仍在栈里且可见** ⇒ 旧判据读成“没关掉”（误报）。
+    /// 判据必须反映真值（红线 26）：**栈深 + 实际层名**才是真值；`closed = null` 表示栈已空、没关任何层 ✓
+    /// </summary>
+    public bool CloseTopModal(out string? closed)
     {
+        closed = null;
         while (_modals.Count > 0)
         {
             Control top = _modals[^1];
@@ -115,6 +124,7 @@ public partial class OverlayLayer : Control
             if (GodotObject.IsInstanceValid(top))
             {
                 top.Visible = false;
+                closed = top.Name;
                 GD.Print($"[UI Overlay] CloseTopModal：`{top.Name}`（余 {_modals.Count}）✓");
                 return true;
             }
