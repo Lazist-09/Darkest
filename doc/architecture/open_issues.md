@@ -256,3 +256,10 @@
   📌 **口径（非缺陷 · 设计如此）**：`--hamlet` 冒烟下 `blacksmith.armour 无 DD 槽` 是**正确的** —— 原版铁匠铺是**同一栋里的两页签**（武器轴 ／ 护甲轴）⇒ 骨架只留一个槽（`O-105`）✓
   ⏳ **残留（既存债 · 非本次引入 · 待 M15 后续或解冻窗口）**：`--hamlet --ui-audit` 判据仍 🔴 ⇒ 重叠对 **1** = `LeftColumn/LeftCol/ReliefHint pos=(18,1781) size=(140,23)` ⟷ `Overlay/EstateSummary/PurposeLabel pos=(6,1798) size=(410,18)`；归因 = `ReliefHint` y=1781 落在**相机 1920×1080 之外的越界区**（`EstateSummary` 锚 0.903）⇒ `M15-P0` 的 30 下垫片不够 ✓
   📄 `reports/hamlet_nav_slot_20261002.md` · `doc/state.md #535` ✓
+- 🆕 **`O-116` 登记（2026-10-02 · 主程序 · M14 `quests.json` 落库读数 ≠ 任务卡一手读数【待策划裁】）**：M14 落库（`darkest/data/quests.json` · 104,205 B · 4,192 行 · LF 无 BOM）读数与任务卡一手读数**三处不一致** ⇒ **不猜、不补、不静默对齐**，只登记待裁 ✓
+  🔴 **差异表**：`plot_quests` **34 → 30**（−4）· `goals` **48 → 45**（−3）· 任务数表 `[2,6,8,9,10,11,12,13] → [2,5,7,8,9,10,11,12]`（**逐档 −1** · 第 0 档同为 2）；`stress_damage` **20 = 20 ✅ 一致**；阈值表 99 ⇒ `null` **不算差异**（有意归一：原值＋语义写 `_ruling`）✓
+  🧭 **归因三选（未定 · 三选互斥待证）**：① **DLC ／ 版本差**（一手表比降级源多 4 条任务）；② **降级源被第三方动过手脚**（`reports/unity_ref/` 下 JSON 非一手导出）；③ **任务卡读的是另一张表**（同名不同源）✓
+  📌 **降级事实（一并留痕）**：一手源 **E 盘 `campaign/quest/JsonQuests.json` 当前不在原位** ⇒ 按 `doc/architecture/source_priority.md §2/§3` 降级到 `reports/unity_ref/quests_loot_narration_from_ref.json` 的 `quests` 段；**实际取用路径已写进 `_source`**（可复核 · 不隐去降级）✓
+  ✅ **已就位的护栏（防止差异被静默吞掉）**：`darkest/tests/QuestsConfigTests.cs` 的 `LandedQuests_MatchTheMeasuredNumbers` 把 **30／45／6 ＋ crypts 7** 钉成断言 ⇒ 任何一方后续变动都会红；`heirloom_amount_table` 由生成工具每次运行**断言与 `heirlooms.json` 逐值相同**（唯一真相单点）✓
+  ⏳ **待裁**：以哪张表为准（补齐到 34／48 还是维持 30／45）· 是否授权回一手源重导；**冻结期只登记、不动数值**（数值只登记不动 · 红线 17）✓
+  📄 `reports/m14_quest_20261002.md` · `doc/state.md #536` ✓

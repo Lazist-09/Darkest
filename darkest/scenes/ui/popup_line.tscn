@@ -5,8 +5,10 @@
 
 [node name="PopupLine" type="Label"]
 theme = ExtResource("9_theme")
-autowrap_mode = 2
-clip_text = true
-text_overrun_behavior = 3
+autowrap_mode = 2   ; 🔴 2026-10-02（1px 行高修复）：保留【按词换行】—— 弹窗内容行该有的行为 ✓
 size_flags_horizontal = 3
 script = ExtResource("1_line")
+; 🔴 2026-10-02（1px 行高修复）：**删掉 `clip_text = true` ＋ `text_overrun_behavior = 3`** ——
+;    引擎语义（Label::get_minimum_size）：**换行开启**且（clip **或** 省略任一生效）时，最小高度恒为 1
+;    ⇒ 住进 VBoxContainer 的每一行只拿 1px（实测 GetCombinedMinimumSize=(1,1)，QuestList 15 行全是 size=(220,1)，玩家读不到）✓
+;    现在最小高度 = 按当前宽度换行后的真实高度；改这里 = 改所有弹窗行（本模板的全部使用者同时受益）✓

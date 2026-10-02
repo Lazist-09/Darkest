@@ -8,12 +8,13 @@
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+size_flags_vertical = 3   ; 🔴 2026-10-02（塌陷修复）：根住在 modal_dialog 的 DialogBody(VBox) 里 ⇒ **没有 expand 就只能拿最小尺寸(≈0 高)** ⇒ 整屏被压到顶部（实测两行任务 Label 被压成 size=(220,1)）。对照 provision_skeleton 同姿势 ✓
 mouse_filter = 2
 theme = ExtResource("1_theme")
 script = ExtResource("2_qs")
 
 
-[node name="LayerTitle" type="Label" parent="QuestSelectSkeleton"]
+[node name="LayerTitle" type="Label" parent="."]   ; 🔴 2026-10-02：同 provision/hamlet —— parent 相对【场景根】解析；写根节点名会找不到 ⇒ 兜到根下改名并报加载警告（几何零变化）✓
 layout_mode = 0
 anchor_left = 0.004
 anchor_top = 0.004
@@ -25,8 +26,10 @@ theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
 text = "L2 二级面板 · 任务选择（quest_select）"
 [node name="QuestSelectCol" type="VBoxContainer" parent="."]
 anchor_left = 0.0542   ; P5：DD quest_select name_pos 104,122 ⇒ x 104/1920
+anchor_top = 0.1130   ; 🔴 2026-10-02（重叠修复）：同 provision —— 此前**只做了 x** ⇒ 本列从 y=0 起 ⇒ TitleRow 撞骨架自己的 LayerTitle（实测 pos=(109,51) ⟷ (14,49)）。DD name_pos y 122 ⇒ 122/1080 = 0.1130 ✓
 anchor_right = 1.0
 anchor_bottom = 1.0
+size_flags_vertical = 3   ; 🔴 2026-10-02（塌陷修复）：同 provision —— 根撑开后本列才拿得到全高（否则 TitleRow/BodyRow 都挤在顶部）✓
 theme_override_constants/separation = 8
 
 [node name="TitleRow" type="HBoxContainer" parent="QuestSelectCol"]
@@ -46,9 +49,23 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="QuestList" type="VBoxContainer" parent="QuestSelectCol/BodyRow"]
+; 🔴 2026-10-02（压占位修复）：任务列表随任务数变高（15 行实测 y 204..1023）⇒ 压到左下角 5 个屏幕级占位
+;   （QsWaveHighscoreTt 盒顶 648 ／ QsDungeonXpBar 810 ／ 热区 875 ／ 城镇事件 940 ／ 扎营 1004 ⇒ 实测 5 对重叠）。
+;   修法 = Godot 内建 `ScrollContainer` 定高：**滚动轴的最小尺寸不向上传播**（4.6 实测，同 HamletRoot.NavScroll 口径）⇒
+;   BodyRow 不再被内容撑高。高度 442 = QsWaveHighscoreTt 盒顶 648 − BodyRow 顶 204（实测）− 2px 缝 ⇒ 与下方占位不相交；
+;   超出部分玩家滚动可见（DD 的 quest 列表本就可滚）⇒ 信息零丢失 ✓ 范式同 provision_skeleton 的 StoreScroll ✓
+;   ⚠️ 442 是**读数常量**：QsWaveHighscoreTt 的 anchor_top（0.6×1080 = 648）一变就要同步重测；护栏 = LayoutAudit 重叠判据 ✓
+[node name="QuestListScroll" type="ScrollContainer" parent="QuestSelectCol/BodyRow"]
 layout_mode = 2
-custom_minimum_size = Vector2(220, 0)
+custom_minimum_size = Vector2(220, 442)
+size_flags_vertical = 0   ; 🔴 SIZE_SHRINK_BEGIN（同 hamlet_skeleton 的 EstateCost 姿势）：只拿最小高、贴顶 ⇒ 不随 BodyRow 撑到屏底（否则仍压占位）✓
+horizontal_scroll_mode = 0   ; Disabled：宽度照 DD 列宽 220 定死（同 NavScroll 口径）✓
+vertical_scroll_mode = 1   ; Auto：装不下才出滚动条（DD 列表行为）✓
+tooltip_text = "任务列表（超出即可滚动）· 住在 ScrollContainer 之内 ⇒ 相机「内容需求」判据按 InsideScroll 豁免 ✓"
+
+[node name="QuestList" type="VBoxContainer" parent="QuestSelectCol/BodyRow/QuestListScroll"]
+layout_mode = 2
+size_flags_horizontal = 3   ; 填满滚动宿主内容区（宽度由宿主 220 定；纵向按行内容长）✓
 theme_override_constants/separation = 6
 
 [node name="MapArea" type="Control" parent="QuestSelectCol/BodyRow"]
@@ -246,12 +263,12 @@ layout_mode = 2
 [node name="QsWaveHighscoreTt" type="PanelContainer" parent="."]
 layout_mode = 0
 anchor_left = 0.0198
-anchor_top = 0.7
+anchor_top = 0.6   ; 🔴 2026-10-02（重叠修复）：DD 只给 size（260x160）**没给绝对位置** ⇒ y 本就是推导占位；原 0.7 会把 160 高的块盖住本列 XP 条(0.75)/热区(0.81) 两个占位 ⇒ 判据 1 红（实测 2 对）。上移到 0.6（648）后与 XP 条 0.75（810）留 2px 缝；**真值待一手布局或接线时定**，不声称 1:1 ✓
 anchor_right = 0.1552
-anchor_bottom = 0.8481
+anchor_bottom = 0.7481   ; = 0.6 ＋ 160/1080（**尺寸仍是 DD 原值 160**，只挪位置）✓
 custom_minimum_size = Vector2(260, 160)   ; DD size (box=size, px @1920x1080)
 mouse_filter = 2
-tooltip_text = "波次高分 tooltip（DD wave_highscore_tt_size 260x160 · 自带尺寸 ✓） · 色块占位，不换不删"
+tooltip_text = "波次高分 tooltip（DD wave_highscore_tt_size 260x160 · 自带尺寸 ✓） · 色块占位，不换不删 · ⚠️ 位置为推导值（DD 未给本件绝对坐标，只有 size） · 🔴 本盒顶 648 = 任务列表列的定高基准（见 QuestListScroll）✓"
 
 
 [node name="PurposeLabel" type="Label" parent="QsWaveHighscoreTt"]

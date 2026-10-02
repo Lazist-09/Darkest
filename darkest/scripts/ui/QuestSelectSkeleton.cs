@@ -14,7 +14,11 @@ public partial class QuestSelectSkeleton : Control
 
     public Label? Title => GetNodeOrNull<Label>("QuestSelectCol/TitleRow/QuestSelectTitle");
     public Button? Close => GetNodeOrNull<Button>("QuestSelectCol/TitleRow/QuestSelectClose");
-    public VBoxContainer? QuestList => GetNodeOrNull<VBoxContainer>("QuestSelectCol/BodyRow/QuestList");
+    /// <summary>
+    /// 🔴 2026-10-02（压占位修复）：列表住在**内建 `ScrollContainer`** 里（路径含 `QuestListScroll`）——
+    /// 宿主定高 442（推导见场景内注释：占位盒顶 648 − 列表顶 204 − 2px 缝）⇒ 内容再长也不压左下角 5 个屏幕级占位 ✓
+    /// </summary>
+    public VBoxContainer? QuestList => GetNodeOrNull<VBoxContainer>("QuestSelectCol/BodyRow/QuestListScroll/QuestList");
     public Control? MapArea => GetNodeOrNull<Control>("QuestSelectCol/BodyRow/MapArea");
     public PanelContainer? QuestMap => GetNodeOrNull<PanelContainer>("QuestSelectCol/BodyRow/MapArea/QuestMap");
     public PanelContainer? AllQuestMap => GetNodeOrNull<PanelContainer>("QuestSelectCol/BodyRow/MapArea/AllQuestMap");
