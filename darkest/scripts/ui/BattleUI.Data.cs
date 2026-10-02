@@ -14,7 +14,7 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 
 /// <summary>
 /// ① 从 `BattleUI.cs` 拆出（用户红线：程序文件 ≤600 行）✓
-/// ② 本文件 = **战斗 · 名字与数据读取族**（技能池缓存 · 单位/技能/增益名 · `names.json` 惰性加载 · `ReadData`）✓
+/// ② 本文件 = **战斗 · 名字与数据读取族**（技能池缓存 · 单位/技能/增益名 · `names.json` 惰性加载 · `SkillsCfg` 惰性配置入口 · `ReadData`）✓
 /// ③ 🔴 依赖主类静态成员：`_poolCache`/`_unitNames`/`_skillNames`/`_buffNames`/`_skillsCfg`；数据只读 `res://data/**` ✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
@@ -98,4 +98,6 @@ public partial class BattleUI : Control
 
         return Godot.FileAccess.GetFileAsString(path);
     }
+
+    private static SkillsConfig SkillsCfg => _skillsCfg ??= SkillsConfig.Parse(ReadData("skills.json"));
 }

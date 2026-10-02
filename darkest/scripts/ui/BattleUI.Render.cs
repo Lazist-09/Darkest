@@ -15,8 +15,8 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 
 /// <summary>
 /// ① 从 `BattleUI.cs` 拆出（用户红线：程序文件 ≤600 行）✓
-/// ② 本文件 = **战斗 · 渲染族**（行动顺序条 `RefreshOrderStrip` · 卡牌填数 `FillCard` · 技能栏 `RefreshSkillBar`）✓
-/// ③ 🔴 依赖主类私有成员：`_orderIcons`/`_orderBox`/`_cards`/`_portraits`/`_skillButtons`/`_skillBar`/`_skillTitle`/`_host` ✓
+/// ② 本文件 = **战斗 · 渲染族**（行动顺序条 `RefreshOrderStrip` · 卡牌填数 `FillCard` · 技能栏 `RefreshSkillBar`／`ClearSkillButtons`／`MoveCandidates`）✓
+/// ③ 🔴 依赖主类私有成员：`_orderIcons`/`_orderBox`/`_cards`/`_portraits`/`_skillButtons`/`_skillBar`/`_skillTitle`/`_host` ／`_view` ✓
 /// ④ **只搬家、零行为改动**✓
 /// </summary>
 public partial class BattleUI : Control
@@ -178,5 +178,27 @@ public partial class BattleUI : Control
             _skillBar.AddChild(b); // 🔴 §14：技能键进【C 区的技能栏容器】（不再手摆坐标）
             _skillButtons.Add(b);
         }
+    }
+
+    private void ClearSkillButtons()
+    {
+        foreach (Button b in _skillButtons)
+        {
+            b.QueueFree();
+        }
+
+        _skillButtons.Clear();
+    }
+
+    private int[] MoveCandidates(UnitId actor)
+    {
+        // 🔴 阶段 2 去直读：用 _view.Units 推导该 actor 是否处于我方前排（1~4 号位），不再触内核板
+        int slot = _view is null ? -1 : (_view.Units(true).FirstOrDefault(u => u.UnitId == actor.Value)?.Slot ?? -1);
+        if (slot is not (>= 1 and <= 4))
+        {
+            return Array.Empty<int>();
+        }
+
+        return _view!.SkillTargetCandidates("move", actor).ToArray(); // F1：通用 move
     }
 }
