@@ -269,3 +269,9 @@
   📌 **同族先例**：`O-116`（quests 一手源不在原位 ⇒ 降级到 `reports/unity_ref/…`）✓
   ⏳ **待办（E 盘恢复或用户给一手副本后）**：① 复跑 `extract_dd1_hero_skills.py` 核对 525 行 ② 复跑 `reconcile_skill_dmg_edrive_vs_ref.py --check` ③ 产物若有变 ⇒ 按「一条一类 + 前后读数」另开一件 ✓
   📄 `reports/p0_skill_dmg_request_20261002.md` · `doc/state.md #537` ✓
+- 🆕 **`O-118` 登记（2026-10-02 · 主程序 · `--ui-audit`【全界面口径】19 对重叠【已定性为非布局缺陷 · 判据缺口 · 未收口】）**：`--hamlet --hamlet-building=blacksmith.weapon --ui-audit`（无覆盖层 ⇒ `scope=root` 审全场景）实测 **16 次采样恒定：可见 Label 59 ／ Panel+PC 72 ／ 重叠对 19 ／ 透明框 0 ⇒ 🔴**（报告只打印前 6 对 · `LayoutAudit.cs:63` `overlaps <= 6` 防刷屏）✓
+  🔍 **已定性（前 6 对）**：**5 对**参战控件 = **有明文出处的占位块 / DD 原设计溢出块**（`hamlet_skeleton.tscn:261-279` 的 `Overlay/RealmInventory/PurposeLabel`（tooltip「色块占位，不换不删」）· `building_popup.tscn:232` ／ `:259` 的 `PurposeLabel` · 同族 `PopupLine` · 出处 `doc/UI_STRUCTURE_DECISIONS.md:303-306`「`BpActivityBase 800x200（溢出裁剪）` · 4 个溢出块均已确认是 DD 原设计」）；**1 对** = `HamletStatus ⟷ DialogTitle` = **分层遮挡**（`HamletRoot.Build.cs:167-172` 建的下层状态栏（`AutowrapMode=WordSmart` ⇒ 实测 75 高）被 `modal_dialog.tscn:20` 的弹窗面板盖住 ⇒ 模态弹窗**预期行为**）✓
+  🔴 **判据缺口（已定位 · 未改）**：`LayoutAudit.Traversal.cs:83-128` 现有三条跳过（`MotionLayer` ／ `Window` ／ `clip_contents` 裁到空）**没有**「被不透明祖先完全遮住 ⇒ 跳过」这一口径；`LayoutAudit.Caliber.cs:35-66` 的覆盖层口径**只认「恰好一个满屏不透明 Panel」**⇒ 本场景「建筑详情 ＋ ProvisionPopup 两个局部浮层」不满足 ⇒ 回落全界面（`LayoutAudit.cs:34-40`）✓
+  ⏳ **未收口（待裁）**：**剩余 13 对未打印 ⇒ 未逐对核**（前置 = 先全量打印再逐对核 ⇒ 属改码）；两条路 **(a) 判据侧**「被不透明祖先完全遮住 ⇒ 跳过并留痕」（红线 21：跳过数须打印 ＋ 改口径须给前后读数两臂）／**(b) 场景侧**按 DD 真值收敛占位块（受既有决定「色块占位，不换不删」约束 · `O-105` 家族）；**推荐 (a)** ✓
+  📌 **与 `O-115` 不同源**（`O-115` 的 1 对 `ReliefHint ⟷ EstateSummary/PurposeLabel` 是**不带** `--hamlet-building` 时的越界残留；本件 A 臂读数里无 `ReliefHint`）⇒ 两条分开处置 ✓
+  📄 `reports/ui_audit_fullscene_20261002.md` · `doc/state.md #540` ✓
