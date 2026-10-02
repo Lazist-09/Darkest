@@ -46,7 +46,7 @@ public partial class HamletRoot : Control
                 body.AddChild(bpSkel);
                 bodyHost = TakeAnchor<VBoxContainer>(bpSkel.BodyAnchor, "BpRuntimeBody");
                 _buildingPopupUpgrade = TakeAnchor<VBoxContainer>(bpSkel.UpgradeAnchor, "BpRuntimeUpgrade");
-                _buildingPopupTrees = TakeAnchor<HBoxContainer>(bpSkel.TreesAnchor, "BpRuntimeTrees");
+                _buildingPopupTrees = TakeAnchor<VBoxContainer>(bpSkel.TreesAnchor, "BpRuntimeTrees");
                 if (_buildingPopupTrees is not null)
                 {
                     _buildingPopupTrees.AddThemeConstantOverride("separation", 6);
@@ -61,7 +61,7 @@ public partial class HamletRoot : Control
                 bodyHost.AddThemeConstantOverride("separation", 6);
                 body.AddChild(bodyHost);
                 _buildingPopupUpgrade = bodyHost;
-                _buildingPopupTrees = new HBoxContainer { Name = "BpRuntimeTrees" };
+                _buildingPopupTrees = new VBoxContainer { Name = "BpRuntimeTrees" };
                 _buildingPopupTrees.AddThemeConstantOverride("separation", 6);
                 bodyHost.AddChild(_buildingPopupTrees);
             }
@@ -145,7 +145,7 @@ public partial class HamletRoot : Control
         bool affordable = next is not null && h.CanUpgrade(building);
         // 🔴 DD 1:1 ①【升级树】照 `building.layout.darkest` 的 `.upgrade_trees_offset 0 195`：等级链三态（已达成/下一级/未达成）
         //    数据全部用**已有** `HeirloomStock.LevelOf` 与 `NextLevel().Cost`（不新造数字）✓
-        HBoxContainer tree = _buildingPopupTrees ?? new HBoxContainer { Name = "UpgradeTree" };   // DD 1:1：骨架锚点优先，缺失才代码建
+        HBoxContainer tree = ChainHost();   // DD 1:1：数字链住在升级树宿主内（锚点缺失 ⇒ ChainHost 自建）
         foreach (Node old in tree.GetChildren()) { old.Free(); }   // 换一栋 ⇒ 清空重填（复用同一节点，不重复挂载）
         int curLv = h.LevelOf(building);
         int shownLv = curLv + 2;   // 展示 0..当前+2（保守：不虚构更高上限）
@@ -163,6 +163,7 @@ public partial class HamletRoot : Control
         }
         if (tree.GetParent() is null) { _buildingPopupBody.AddChild(tree); }
         GD.Print($"[UI 建筑弹窗] OK DD 升级树就位：{building} 当前 Lv{curLv} · 节点 {shownLv + 1} 个（DD upgrade_trees，数据同源）");
+        MountLevelTree(building);   // M6u：同锚点内追加「树 × 级（code）」全表（可滚动 · 数据 = buildings.json 唯一真值）
 
         // 🔴 2026-09-27 修假绿：升级按钮**每次刷新都新建一个并 AddChild**，从不清理 ⇒ 升一次级就多一颗重复按钮
         //    ⚠️ 回落布局下 `_buildingPopupUpgrade` 就是正文容器本身（内部还挂着升级树）⇒ **必须排除**，不能误清

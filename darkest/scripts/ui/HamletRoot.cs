@@ -70,7 +70,7 @@ public partial class HamletRoot : Control, IUiPanel
     private Label? _buildingPopupTitle;
     private VBoxContainer? _buildingPopupBody;      // 正文区（DD body_base_pos 596,102）
     private VBoxContainer? _buildingPopupUpgrade;   // 升级按钮区（DD upgrade_base_pos 172,259）
-    private HBoxContainer? _buildingPopupTrees;     // 升级树区（DD upgrade_trees_offset → 172,454）
+    private VBoxContainer? _buildingPopupTrees;     // 升级树区（DD upgrade_trees_offset → 172,454）· 宿主 = 数字链 ＋ M6u「code 全表」
     private string? _buildingPopupId;
     private readonly Darkest.Core.Events.CombatLog _log = new();
     private readonly Darkest.Core.Rng.RngProvider _rng = new(20260909);

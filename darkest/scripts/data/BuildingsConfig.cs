@@ -219,4 +219,25 @@ public sealed class BuildingsConfig
 
         return b;
     }
+
+    /// <summary>
+    /// 🔴 **按建筑名或树 id 取树**（M6u 升级树全表用）：
+    ///   ① 命中**建筑 id**（`tavern` ／ `abbey` ／ `stagecoach` ／ `blacksmith` …）⇒ 该建筑的全部树；
+    ///   ② 否则按**树 id**（`blacksmith.weapon` ／ `blacksmith.armour` —— 城池 nav 清单与
+    ///      `HeirloomStock.LevelOf` 的键就是它）⇒ 该单棵树；
+    ///   ③ 都没有 ⇒ 空表（调用方如实上报，不猜）。
+    ///   ⚠️ **不发明 code → 数字等级的映射**（红线 26）：只有 blacksmith 的 a..d 对 Lv1..4 有一手出处，
+    ///      其余树只显示数据本身（当前进度由弹窗正文的「当前等级：Lv{n}」回答）✓
+    /// </summary>
+    public IReadOnlyList<BuildingTreeConfig> TreesFor(string id)
+    {
+        BuildingConfig? b = Buildings.FirstOrDefault(x => x.Id == id);
+        if (b is not null)
+        {
+            return b.Trees;
+        }
+
+        BuildingTreeConfig? t = Buildings.SelectMany(x => x.Trees).FirstOrDefault(x => x.Id == id);
+        return t is null ? Array.Empty<BuildingTreeConfig>() : new[] { t };
+    }
 }

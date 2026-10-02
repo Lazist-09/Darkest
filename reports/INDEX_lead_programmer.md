@@ -141,6 +141,7 @@ godot 引用 **0 命中** ✓ · 拆分完整性自检 **PASS**（`--selfcheck` 
   `m1c_stage3_readiness.md` · `m2_activation_readings.md` · `m3_traits_step2_plan.md` · `m8_four_answers.md` ✓
 · 🆕 P6 ／ UI 审计（2026-10-02）：`ui_audit_fullscene_20261002.md`（全界面 **19 对全名单三类** ＋ 真根因 `O-119` · `#544`）·
   `p6_ui_audit_three_way_sync_20261002.md`（三处同步 · `#541`）· `p6_observe_369_371_20261002.md`（判据续编 · `#544`）✓
+· 🆕 `M6u`（2026-10-02）：`m6u_building_tree_ui_20261002.md`（建筑升级树 UI 收口 · 读数 59/72/19/0 ⇒ 62/72/20/0（+1 对 = 同锚点占位 · `O-119` 家族）· 抓修「内层塌成 1px」· `#545`）✓
 ```
 
 ---

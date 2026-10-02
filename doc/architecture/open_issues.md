@@ -277,9 +277,11 @@
   📌 **与 `O-115` 不同源**（`O-115` 的 1 对 `ReliefHint ⟷ EstateSummary/PurposeLabel` 是**不带** `--hamlet-building` 时的越界残留；本件 A 臂读数里无 `ReliefHint`）⇒ 两条分开处置 ✓
   📄 `reports/ui_audit_fullscene_20261002.md` · `doc/state.md #540` ✓
   🆕 **更新（`#544`）**：19 对全名单＋三类（11 同源／2 父子包含／5 占位溢出／1 分层遮挡）见 `reports/ui_audit_fullscene_20261002.md §2`；真根因见 `§3(4)` ＋ `O-119` ✓
+  🆕 **更新（`#545` · `M6u`）**：读数 **59/72/19/0 ⇒ 62/72/20/0**（+3 可见 Label ＋1 对）；新增对 = `UpgradeLevelScroll/UpgradeLevelList/PopupLine (797,648)` ⟷ `UpgradePanel/BpUpgradeSlot/PurposeLabel (797,637)` = **同锚点占位块**（`building_popup.tscn:179/633`）⇒ `O-119` 家族 · 非本件布局缺陷 · 占位不删 ✓
   📄 `reports/ui_audit_fullscene_20261002.md` · `doc/state.md #544` ✓
 - 🆕 **`O-119` 登记（2026-10-02 · 主程序 · 【六栋建筑 L2 子面板恒可见 ⇒ 19 对重叠里 11 对同源】）**：`darkest/scripts/ui/BuildingPopupSkeleton.cs:88-137` 声明 `GraveyardPanel`／`StatuePanel`／`StageCoachPanel`／`SanitariumPanel`／`HeroActionPanel`／`UpgradePanel` 六属性 —— **全仓零消费者**（`rg` 除声明文件外零命中）；`darkest/scripts/ui/HamletRoot.BuildingPopup.cs:42-49` 只用 `BodyAnchor`／`UpgradeAnchor`／`TreesAnchor` ⇒ **无一处 `Hide()`／`Visible=false`** ⇒ 六块恒可见 ✓
   🔴 **为何被判据读到**：`LayoutAudit.Traversal.cs:119-121` 用 `IsVisibleInTree()`（有效可见性）⇒ 六块**真画在屏幕上**（六块是 `PanelFrame` 的兄弟节点：`building_popup.tscn:338/408/453/525/571/616`）⇒ 19 对里 **11 对同源**（类 A 6 ＋ 类 C 5）✓
   📌 **设计出处**：`doc/UI_STRUCTURE_DECISIONS.md:28` §1「**选 A：每栋建独立 L2 子面板**」⇒ 应**二选一显示**（当前 = 未接线）✓
   ⏳ **待裁（三条路）**：(c) 修根因（推荐 · 主 · 六属性接线二选一显示）／(a) 判据侧「被不透明祖先完全遮住 ⇒ 跳过并留痕」（推荐 · 与 (c) 互补）／(b) 场景侧（受「色块占位，不换不删」约束 · `O-105` 家族）✓
   📄 `reports/ui_audit_fullscene_20261002.md` · `doc/state.md #544` ✓
+  🆕 **更新（`#545` · `M6u`）**：新增消费点 `BuildingsConfig.TreesFor(id)`（升级树全表读配置 · `tavern` = 3 树 / 18 级）；`M6u` 新增 1 对同锚点占位（`BpTreesAnchor` ⟷ `BpUpgradeSlot` 均 @(172,454)）⇒ 与三条路裁决一并收口 ✓
