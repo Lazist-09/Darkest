@@ -245,3 +245,7 @@
   📌 **同批答复（用户提问「编辑器打开项目后窗口内点不动了」）**：**真因 = 编辑器把窗口几何记忆在副屏上**（`O-109` 已登记同一结论，本次以当前几何**复测坐实**）—— `darkest/.godot/editor/editor_layout.cfg`：`[EditorWindow] screen=1 / position=Vector2i(3250, 191) / size=Vector2i(1152, 1108)` ＋ `[GameView] floating_window_screen=1`；而**当前桌面 x 只到 2560**（副屏 DISPLAY1 在**左** `-1920..0` 且仅 **1200** 高；主屏 DISPLAY2 `0..2560` × 1440）⇒ 记忆坐标要求桌面伸到 `x=4402 / y=1299` ⇒ **窗口主体落在可见桌面之外，只剩标题栏可拖可关** ✓
   ✅ **处置（已执行）**：备份 `darkest/.godot/editor/editor_layout.cfg` ⇒ `.tmp_editor_layout_backup.cfg`，再删原文件（`.godot/` = 生成物不入库）⇒ 下次启动回默认布局；**代码侧零改动**（不是引擎 bug、不是项目设置）✓
   📄 `doc/state.md #508` ✓
+- 🆕 **`P6` 更正登记（2026-10-02 · 主程序 · `Roster.Heroes[].weapon_tier`／`armour_tier` 的「P6 清理」【不可直接做】）**：任务卡口径（本文件 `:191`）写「`weapon_tier`／`armour_tier` 在档里恒 0 ⇒ 待 `P6` 清理」，**但**代码侧 `darkest/scripts/data/RosterConfig.cs:45` 明写「**(丙) 删字段未授权 ⇒ 单独一件、单独裁**」⇒ **本件只登记、不改代码** ✓
+  🔍 **技术面复核（供裁定用 · 本棒实测）**：① 全仓**无生产读点**（命中只在注释与测试）② `SaveSerializer` 的 `JsonSerializerOptions` **未开** `UnmappedMemberHandling.Disallow` ⇒ 删字段后**旧档仍可读**（多余键被忽略）、新档不再写这两键 ③ 真值在 `Gear.Tiers`（v2 起必备件 · `SaveMigrator` 有迁移）⇒ 删字段**不动存档版本号**也自洽 ✓
+  ⏳ **待裁**：「是否授权删这两字段」已与 `P2`（`M1c` 阶段 3 切默认）解冻**一并提给用户**，答复未到 ⇒ 冻结期只登记、不动代码 ✓
+  📄 `reports/p6_observe_353_356_20261002.md` · `doc/state.md #509` ✓
