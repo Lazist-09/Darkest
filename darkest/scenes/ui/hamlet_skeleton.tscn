@@ -82,7 +82,11 @@ theme_override_constants/separation = 12
 layout_mode = 2
 custom_minimum_size = Vector2(128, 0)   ; DD building_navigation.base_size 128x1000 ⇒ 固定高 1000 会撑爆 HamletRootCol（demand 2）；改由 expand-fill 撑满（尺子见 check_dd_layout.ps1）
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 12   ; 🔴 2026-10-02 修 nav 槽位缺陷（改序留痕）：**兄弟顺序 = 屏幕顺序** ⇒ 本节点下 DDNav0..9 按 DD index 排列（旧文件把 DDNav0/4/5 追加在末尾 ⇒ 驿站/酒馆/修道院渲染在未接线占位**之下**；实测取证见 reports/hamlet_nav_slot_20261002.md）
+
+[node name="DDNav0_stage_coach" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
 
 [node name="DDNav1_blacksmith" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
 layout_mode = 2
@@ -140,6 +144,14 @@ text = "训练师"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav3_camping_trainer"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
+
+[node name="DDNav4_tavern" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
+
+[node name="DDNav5_abbey" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 56)
 
 [node name="DDNav6_sanitarium" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
 layout_mode = 2
@@ -216,18 +228,6 @@ text = "雕像"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav9_statue"]
 color = Color(0.62, 0.6, 0.58, 0.22)
 layout_mode = 2
-
-[node name="DDNav0_stage_coach" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 56)
-
-[node name="DDNav4_tavern" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 56)
-
-[node name="DDNav5_abbey" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 56)
 
 [node name="Overlay" type="Control" parent="."]
 layout_mode = 0

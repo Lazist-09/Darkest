@@ -265,15 +265,24 @@ public partial class HamletRoot : Control
             };
             ub.Pressed += () => OpenBuildingPopup(bId);
             ub.MouseEntered += () => ShowBuildingInfo(bId); // 悬停仍给一行摘要（低成本、不占版面）
-            // P1.1：DD index 槽优先（编辑器里可见的位）；缺失则回落直接加到 nav（不崩不静默）
+            // P1.1：DD 槽位优先（编辑器里可见的位）；缺失则回落直接加到 nav（不崩不静默）
             // 🔴 2026-09-27 修假绿：本行整体曾被写成**注释** ⇒ 建筑入口按钮**从未挂上树**（与上面 BuildingNav 同一类事故）
-            // 🔴 DD nav 槽位（骨架 `hamlet_skeleton.tscn` 里已按 DD index 摆好）：铁匠铺 = **index 1**（骨架的 `DDNav1_blacksmith` 就是为它留的）✓
-            //    ⚠️ 护甲轴**没有**第二个槽（原版是同一栋里的页签）⇒ 落 -1（直接追加到 nav 末尾，不崩不静默）✓
-            int ddIdx = bId switch
+            // 🔴 2026-10-02 修 nav 槽位缺陷（实测取证 · `reports/hamlet_nav_slot_20261002.md`）：槽位名必须**显式映射**——
+            //    ① 旧 switch 键写 `stage_coach`，而本清单 id 是 `stagecoach` ⇒ 恒落 -1（永远追加到 nav 末尾）；
+            //    ② 旧写法用 `$"DDNav{ddIdx}_{bId}"` **拼节点名**，骨架节点名却是 `DDNav0_stage_coach` / `DDNav1_blacksmith`
+            //       （下划线、段名都与 id 不同）⇒ 就算键改对也**照样找不到**；
+            //    ③ 槽位名有、节点却缺（`GetNodeOrNull` 返回 null）时旧写法**不打印** ⇒ 静默回落（违反「不崩不静默」）。
+            //    ⇒ 唯一真相 = 本表（bId → 骨架节点名）；两类未命中一律留痕 ✓
+            string? ddSlotName = bId switch
             {
-                "stage_coach" => 0, "tavern" => 4, "abbey" => 5, "blacksmith.weapon" => 1, _ => -1,
+                "stagecoach" => "DDNav0_stage_coach",
+                "blacksmith.weapon" => "DDNav1_blacksmith",   // 骨架 `DDNav1_blacksmith` 就是为它留的槽 ✓
+                "tavern" => "DDNav4_tavern",
+                "abbey" => "DDNav5_abbey",
+                // ⚠️ 护甲轴**没有**第二个槽（原版是同一栋里的页签）⇒ 无槽（直接追加到 nav 末尾，如实留痕）✓
+                _ => null,
             };
-            PanelContainer? ubSlot = ddIdx >= 0 ? buildingRow.GetNodeOrNull<PanelContainer>($"DDNav{ddIdx}_{bId}") : null;
+            PanelContainer? ubSlot = ddSlotName is not null ? buildingRow.GetNodeOrNull<PanelContainer>(ddSlotName) : null;
             if (ubSlot is not null)
             {
                 // 骨架 §14.0.68：**数据接入 ⇒ 占位让位**（`PurposeLabel` + `NavPlaceholder` 是"未接线"的占位，
@@ -284,9 +293,13 @@ public partial class HamletRoot : Control
                     ph.QueueFree();
                 }
             }
-            else if (ddIdx < 0)
+            else if (ddSlotName is null)
             {
                 GD.Print($"[HamletRoot] nav：{bId} 无 DD 槽（骨架未留）⇒ 直接追加到 nav 末尾（如实留痕）✓");
+            }
+            else
+            {
+                GD.Print($"[HamletRoot] nav：{bId} 槽位名 {ddSlotName} 在骨架里找不到节点 ⇒ 回落追加到 nav 末尾（不崩不静默 ⚠️）");
             }
             (ubSlot is not null ? (Node)ubSlot : buildingRow).AddChild(ub);
             _upgradeButtons[bId] = ub; // ⚠️ 明细按钮在弹窗里（`RefreshBuildingPopup` 重建）；这里三栋都登记到**同一个入口**（`PressUpgrade` 两步路径仍成立）✓
