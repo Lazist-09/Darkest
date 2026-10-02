@@ -10,7 +10,9 @@ using Darkest.Gameplay.Sim.Board;
 using Darkest.Gameplay.Sim.Skill;
 using Godot;
 
+
 namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）✓
+
 
 /// <summary>
 /// ① 从 `BattleUI.cs` 拆出（用户红线：程序文件 ≤600 行；架构要求**按相位切**）✓
@@ -20,8 +22,11 @@ namespace Darkest.UI;   // 🔴 命名纪律：一律 Darkest.UI（大写 UI）�
 ///    `_abandonConfirm`/`_abandonWarned`/`_mode`/`_walkView`/`_host`（其余读数走内核 `ExpeditionFlow`）✓
 /// ④ **只搬家、零行为改动**（含 2026-09-21 `_uiRoot` 未就绪守卫与 map-phase 分支，一字未改）✓
 /// </summary>
+/// ⑤ 🔴 2026-10-02 第八件：原 520 行**按相位族切 4 片** —— 扎营面板 ⇒ `.Camp.cs`、行走 HUD/示意地图 ⇒ `.Walk.cs`、
+///    放弃远征 ⇒ `.Abandon.cs`（本片保留：宿主 · 面板登记 · 模式进出）；**只搬家、零行为改动** ✓
 public partial class BattleUI : Control
 {
+
     /// <summary>地牢面板宿主（惰性建一次，**不属于骨架** ⇒ 增删不影响 S1 指纹）✓</summary>
     private Control DungeonHost()
     {
@@ -41,268 +46,6 @@ public partial class BattleUI : Control
         }
 
         return _dungeonHost;
-    }
-
-    /// <summary>
-    /// 🔴 `#327` 片 2 #6：把 **【扎营】面板（B 类）**挂进地图模式。
-    /// 铁律：**可见性只读 `Session.CanShowCampUi`**（`blueprint §9.17.0`：内核持相位、UI 只读谓词 ⇒ 绝不推断相位）✓
-    /// 数据与 `ExpeditionRoot` **同源**（`camp_skills.json` + 名册原型映射 + `RespiteLeft` + `Tuning.Camp`），UI 不重算 ✓
-    /// ⚠️ 诚实边界：**战斗相位下谓词为假 ⇒ 面板必然隐藏**；"该显示时显示"要等片 3 的行走相位进宿主后才能观察 ✓
-    /// </summary>
-    private void HostDungeonCampPanel(Darkest.Gameplay.Sim.Run.ExpeditionFlow flow)
-    {
-        if (_mapModeCamp is null || !GodotObject.IsInstanceValid(_mapModeCamp))
-        {
-            _mapModeCamp = new Darkest.UI.CampSkillPanel { Name = "MapModeCamp", CustomMinimumSize = new Vector2(210, 96) }; // 🔴 预留宽度+按 720 收高  // 🔴 相机 720 口径：96→64
-            DungeonHost().AddChild(_mapModeCamp);
-        }
-
-        if (!flow.Session.CanShowCampUi) // 🔴 只读谓词
-        {
-            _mapModeCamp.Visible = false;
-            GD.Print($"[UI 片2] 【扎营】面板：Phase={flow.Session.Phase} ⇒ `CanShowCampUi=False` ⇒ **隐藏**（只读谓词，不推断相位）✓");
-            return;
-        }
-
-        // 🔴 片 4 收尾（主程序 ③）：**配置改读公共读处** `ExpeditionContext.CampSkills`（消掉"各解析一份"）——
-        //    ⚠️ 为空时（单场战斗 / 未 `BindConfigs`）退回本地解析并**留痕**（不静默、不崩）✓
-        if (_campSkillsCfgForMap is null)
-        {
-            _campSkillsCfgForMap = Darkest.Gameplay.Scene.ExpeditionContext.CampSkills;
-            if (_campSkillsCfgForMap is null)
-            {
-                _campSkillsCfgForMap = Darkest.Data.CampSkillsConfig.Parse(
-                    Godot.FileAccess.GetFileAsString(Darkest.Data.CampSkillsConfig.ResPath));
-                GD.Print("[UI 片2] `ExpeditionContext.CampSkills` 为空 ⇒ 本地解析一份" +
-                         "（留痕：单场战斗 / 未 `BindConfigs` 时会走这里）");
-            }
-        }
-
-        // `RosterConfig`（英雄 id → 原型）：**你未开公共读处** ⇒ 仍本地懒解析（已投窗口问是否要开）✓
-        _rosterCfgForMap ??= Darkest.Data.RosterConfig.Parse(
-            Godot.FileAccess.GetFileAsString(Darkest.Data.RosterConfig.ResPath));
-
-        var heroByArchetype = new System.Collections.Generic.Dictionary<string, string>(StringComparer.Ordinal);
-        foreach ((string id, int _, int _, int _) in flow.Session.Roster())
-        {
-            string? archetype = _rosterCfgForMap.Heroes.FirstOrDefault(h => h.Id == id)?.Archetype;
-            if (archetype is not null && !heroByArchetype.ContainsKey(archetype))
-            {
-                heroByArchetype[archetype] = id;
-            }
-        }
-
-        Darkest.Data.CampSkillConfig[] usable = _campSkillsCfgForMap.Skills
-            .Where(s => Darkest.Data.CampSkillsConfig.ConsumedEffectNames.Contains(s.Effect)) // 只列已接线（红线 21）
-            .ToArray();
-        Darkest.Core.Events.CombatLog? log = Darkest.Gameplay.Scene.ExpeditionContext.Log;
-
-        _mapModeCamp.Visible = true;
-        _mapModeCamp.Refresh(
-            usable,
-            heroOf: s => heroByArchetype.TryGetValue(s.OwnerUnit, out string? hero) ? hero : null,
-            affordOf: s => flow.Session.RespiteLeft >= s.Cost,
-            useOf: (s, target) =>
-            {
-                if (log is null)
-                {
-                    GD.Print("[UI 片2] 扎营：无 `ExpeditionContext.Log` ⇒ 不执行（如实拒绝）");
-                    return;
-                }
-
-                bool used = flow.Session.UseCampSkill(log, s, Darkest.Core.Contracts.UnitId.Of(target), flow.Tuning.Camp!);
-                GD.Print($"[UI 片2] 扎营技能 {s.Name}：{(used ? "已使用" : "拒绝")}　剩余 Respite {flow.Session.RespiteLeft}");
-                HostDungeonPanels(); // 刷新（点数/可用性变化）
-            },
-            statusText: $"【扎营】Respite {flow.Session.RespiteLeft} 点　可用技能 {usable.Length} 个（只列已接线）");
-
-        GD.Print($"[UI 片2] 【扎营】面板：Phase={flow.Session.Phase} ⇒ **显示**（可用 {usable.Length} 个技能）✓");
-    }
-
-    /// <summary>🔴 行走模式 HUD（`#327` 层②④）：下一跳 / 到终点距离 / 已揭示 / 光照档 —— **全部只读内核读数** ✓</summary>
-    private Label? _walkHud;
-    private string _lastWalkHud = string.Empty;
-
-    /// <summary>🔴 层④：**DD 式示意地图**（大方块=房间 / 小方块=走廊）—— 数据全只读内核 ✓</summary>
-    private Darkest.UI.WalkMapView? _walkMap;
-    private string _lastWalkMapSketch = string.Empty;
-
-    /// <summary>层④：把示意地图挂进地图模式（非地图模式 ⇒ 不建/隐藏，如实空态）✓</summary>
-    private void HostDungeonWalkMap(Darkest.Gameplay.Sim.Run.ExpeditionFlow flow)
-    {
-        var map = flow.Map;
-        if (!flow.IsTopologyMode || map is null)
-        {
-            if (_walkMap is not null && GodotObject.IsInstanceValid(_walkMap))
-            {
-                _walkMap.Visible = false;
-            }
-
-            return;
-        }
-
-        if (_walkMap is null || !GodotObject.IsInstanceValid(_walkMap))
-        {
-            _walkMap = new Darkest.UI.WalkMapView { Name = "MapModeWalkMap" };
-            DungeonHost().AddChild(_walkMap);
-        }
-
-        _walkMap.Visible = true;
-        _walkMap.Refresh(map, flow.CurrentRoomId, flow.RevealedRoomIds);
-
-        // 布局自证：headless 看不到画面 ⇒ 用**文字速写**证明位置与标记（红线 25：不是"看起来像"）✓
-        if (_walkMap.LastSketch != _lastWalkMapSketch)
-        {
-            _lastWalkMapSketch = _walkMap.LastSketch;
-            GD.Print($"[UI 行走地图] {_lastWalkMapSketch}");
-        }
-    }
-
-    /// <summary>
-    /// 🔴 **行走模式 HUD**（DD 式层②④ 的最小可用版）：**只读**内核读数，不新增机制、不自己算规则：
-    /// `flow.CurrentRoomId` / `Map.Rooms`（Id/Depth/Type）· `flow.NextRoomToward(GoalId)` + `MapTraversal.IsAdjacent`
-    /// · `MapTraversal.ShortestPathLength`（**内核算，不是我算**）· `flow.RevealedRoomIds` · `flow.Meter.Value/.Tier` ✓
-    /// ⚠️ 非地图模式 / 无地图 ⇒ **如实空态**（红线 21：不留不可解释的空）；内容变化时**打印一行自证** ✓
-    /// </summary>
-    private void HostDungeonWalkHud(Darkest.Gameplay.Sim.Run.ExpeditionFlow flow)
-    {
-        if (_walkHud is null || !GodotObject.IsInstanceValid(_walkHud))
-        {
-            _walkHud = new Label
-            {
-                Name = "MapModeWalkHud",
-                AutowrapMode = TextServer.AutowrapMode.WordSmart,
-                CustomMinimumSize = new Vector2(0, 24),
-                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-            };
-            _walkHud.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.TextInfo);
-            DungeonHost().AddChild(_walkHud);
-        }
-
-        var map = flow.Map;
-        if (!flow.IsTopologyMode || map is null)
-        {
-            _walkHud.Text = "行走 HUD：非地图模式（`IsTopologyMode=false` 或无 Map）⇒ 不适用";
-        }
-        else
-        {
-            int cur = flow.CurrentRoomId;
-            string curType = map.Rooms.FirstOrDefault(r => r.Id == cur)?.Type ?? "?";
-            int next = flow.NextRoomToward(map.GoalId); // -1 = 不可达 / 已到终点
-            string nextText = next < 0
-                ? "（不可达 / 已到终点）"
-                : $"→ 房间 {next}（{map.Rooms.FirstOrDefault(r => r.Id == next)?.Type ?? "?"}" +
-                  $"／相邻={Darkest.Gameplay.Sim.Run.MapTraversal.IsAdjacent(map, cur, next)}）";
-            int remain = cur == map.GoalId ? 0 : Darkest.Gameplay.Sim.Run.MapTraversal.ShortestPathLength(map, cur, map.GoalId);
-            // 🔴 **路线光照预算**（`DungeonWalkLight.PlanPath` 的生产消费点，2026-09-20 接线）——
-            //    显示"按当前路线走到终点要花掉多少光"；走格未开启 / 不可达 ⇒ 如实标不可预测 ✓
-            int target = map.GoalId;
-            int? forecast = flow.ForecastLightTo(target);
-            string forecastText = forecast is { } f
-                ? $"需扣 {f} 光（现 {flow.Meter.Value} ⇒ 预计剩 {System.Math.Max(0, flow.Meter.Value - f)}）"
-                : "（不可预测：走格未开启 / 不可达）";
-            _walkHud.Text = $"[行走] 当前 房间 {cur}（{curType}）　下一跳 {nextText}　到终点 {remain} 间" +
-                            $"　已揭示 {flow.RevealedRoomIds.Count}/{map.Rooms.Count}　光照 {flow.Meter.Value}（{flow.Meter.Tier}）" +
-                            $"　路线预算：{forecastText}";
-        }
-
-        // 🔴 **展示值 == 事件流复算值**（纪律 V）—— `LightMeter.Recompute` 的**生产调用点**：
-        //    光照条显示的是 `Meter.Value`（内存值），而它**必须**能从 `LightChangedEvent` 流复算出来；
-        //    两者不等 ⇒ 说明"有变化没写事件"（真缺陷）⇒ **当场如实报**（不静默、不自动修正）⚠️
-        Darkest.Core.Events.CombatLog? meterLog = Darkest.Gameplay.Scene.ExpeditionContext.Log;
-        if (meterLog is not null)
-        {
-            int recomputed = Darkest.Gameplay.Sim.Survival.LightMeter.Recompute(meterLog, flow.Meter.Value);
-            // ⚠️ 口径：`Recompute(log, enterValue)` 取**最后一条** `LightChangedEvent.To`；
-            //    无事件 ⇒ 返回 `enterValue`（此处传当前值 ⇒ 恒等）。因此本检查的语义 = "**若事件流非空，
-            //    其末值必须等于内存值**"（不是"必然相等" —— 无事件时按设计返回入参）✓
-            bool hasEvent = meterLog.Events.OfType<Darkest.Core.Events.LightChangedEvent>().Any();
-            if (hasEvent && recomputed != flow.Meter.Value)
-            {
-                GD.Print($"🔴 [UI 光照校验] **展示值 {flow.Meter.Value} ≠ 事件流复算 {recomputed}** ⇒ " +
-                         "有光照变化**没写 `LightChangedEvent`**（纪律 V 违反：数字必须能从事件流复算）⚠️");
-            }
-        }
-
-        if (_walkHud.Text != _lastWalkHud)
-        {
-            _lastWalkHud = _walkHud.Text;
-            GD.Print($"[UI 行走HUD] {_walkHud.Text}");
-        }
-    }
-
-    /// <summary>
-    /// 🔴 `retreat.md §8`：宿主把【放弃远征】动作交给我（**不破 `Bind` 签名**：`Bind` 之后调一次即可）✓
-    /// ⚠️ **未调用 ⇒ 按钮不显示**（红线 21：不留"点了没用"的控件；也避免把"结束一趟"错标成"退一场"）✓
-    /// </summary>
-    public void SetAbandonAction(Action? abandon)
-    {
-        _abandonExpedition = abandon;
-        if (_abandonButton is not null)
-        {
-            _abandonButton.Visible = abandon is not null;
-        }
-
-        GD.Print(abandon is null
-            ? "[UI 撤退/放弃] 宿主**未提供**放弃远征动作 ⇒ 按钮不显示（不假装可用，红线 21）✓"
-            : "[UI 撤退/放弃] 已接入【放弃远征】入口（行走模式可见·二次确认·tooltip 写清后果）✓");
-    }
-
-    /// <summary>按下【放弃远征】⇒ **二次确认**（不可逆；`§8` 硬要求②）✓</summary>
-    public void PressAbandon()   // 🔴 主程序 2026-09-21 请求：retreat 冒烟需公共入口（发真实 Pressed）✓
-    {
-        GD.Print("[UI-TRACE] abandon");   // ASCII 留痕（供 ui_sweep 断言：避免 PS5.1 读中文的编码坑）
-        if (_abandonExpedition is null)
-        {
-            if (!_abandonWarned)
-            {
-                _abandonWarned = true;
-                GD.Print("[UI 撤退/放弃] 放弃远征：**没有动作可调**（宿主未注入）⇒ 什么也不做（不静默假装）✓");
-            }
-
-            return;
-        }
-
-        if (_uiRoot is null || !GodotObject.IsInstanceValid(_uiRoot))
-        {
-            GD.Print("[UI 撤退/放弃] ⚠️ _uiRoot 未就绪（未 Build）⇒ 不执行放弃（不静默、不半执行）✓");
-            return;
-        }
-
-        if (_abandonConfirm is null)
-        {
-            // ⚠️ 战斗屏的模态工厂是 `MakeOpaqueModal`（返回正文 Label + out 面板）；按钮挂在**正文的父容器**（col）上 ✓
-            // 🔴 DD `shared/confirm_dialog` ⇒ 840×600 居中（二次确认框比普通模态高）✓
-            Label abandonText = MakeOpaqueModal("AbandonConfirm", out PanelContainer abandonPanel,
-                Darkest.UI.PopupLayout.Confirm);
-            _abandonConfirm = abandonPanel;
-            abandonText.Text = "放弃远征 = **结束本次远征、回城**（本趟未完成）。\n此操作**不可逆**；若只是想退出本场战斗，请用【撤退】。";
-            var row = new HBoxContainer { Name = "AbandonConfirmRow" };
-            row.AddThemeConstantOverride("separation", 8);
-            ((Control)abandonText).GetParent().AddChild(row);
-
-            var yes = new Button { Name = "AbandonYes", Text = "确认放弃远征", CustomMinimumSize = new Vector2(180, 34) };
-            yes.Pressed += () =>
-            {
-                GD.Print("[UI 撤退/放弃] ✅ 二次确认通过 ⇒ 调宿主【放弃远征】动作 ✓");
-                _abandonConfirm!.Visible = false;
-                _overlay?.CloseModal(_abandonConfirm!);
-                _abandonExpedition?.Invoke();
-            };
-            row.AddChild(yes);
-
-            var no = new Button { Name = "AbandonNo", Text = "取消（继续走）", CustomMinimumSize = new Vector2(160, 34) };
-            no.Pressed += () =>
-            {
-                GD.Print("[UI 撤退/放弃] 取消放弃远征 ⇒ 继续走 ✓");
-                _abandonConfirm!.Visible = false;
-                _overlay?.CloseModal(_abandonConfirm!);
-            };
-            row.AddChild(no);
-        }
-
-        _overlay?.OpenModal(_abandonConfirm);   // 🔴 入栈 ⇒ 遮罩出现 + Esc 可关 ✓
-        GD.Print("[UI 撤退/放弃] 弹出【放弃远征】二次确认（不可逆；取消 ⇒ 继续走）✓");
     }
 
     /// <summary>面板状态读数：**显示/隐藏 + 子控件数**（隐藏 = 门禁生效的**自证**，不是"没接上"）✓</summary>
@@ -329,11 +72,6 @@ public partial class BattleUI : Control
 
     /// <summary>地牢面板 #4：**本趟投影列表**（`ExpeditionListPanel`）。数据：`ExpeditionProjector.Project/RenderList`（内核投影）✓</summary>
     private Darkest.UI.ExpeditionListPanel? _mapModeList;
-
-    /// <summary>🔴 `#327` 片 2 #6：**扎营**面板（B 类）—— 内容已独立化（`CampSkillPanel`），可见性**只读** `Session.CanShowCampUi` ✓</summary>
-    private Darkest.UI.CampSkillPanel? _mapModeCamp;
-    private Darkest.Data.CampSkillsConfig? _campSkillsCfgForMap;   // 懒解析（与 `ExpeditionRoot` 同一数据源）
-    private Darkest.Data.RosterConfig? _rosterCfgForMap;           // 懒解析（英雄 id → 原型）
 
     /// <summary>
     /// 🔴 `#327` 片 2：**逐个把地牢面板挂进地图模式**（宿主 = `DungeonHost()`，在骨架之外 ⇒ 切模式不动骨架）✓
