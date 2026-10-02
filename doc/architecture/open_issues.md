@@ -263,3 +263,9 @@
   ✅ **已就位的护栏（防止差异被静默吞掉）**：`darkest/tests/QuestsConfigTests.cs` 的 `LandedQuests_MatchTheMeasuredNumbers` 把 **30／45／6 ＋ crypts 7** 钉成断言 ⇒ 任何一方后续变动都会红；`heirloom_amount_table` 由生成工具每次运行**断言与 `heirlooms.json` 逐值相同**（唯一真相单点）✓
   ⏳ **待裁**：以哪张表为准（补齐到 34／48 还是维持 30／45）· 是否授权回一手源重导；**冻结期只登记、不动数值**（数值只登记不动 · 红线 17）✓
   📄 `reports/m14_quest_20261002.md` · `doc/state.md #536` ✓
+- 🆕 **`O-117` 登记（2026-10-02 · 主程序 · 一手源 E 盘**整体不在原位**【降级登记 · 影响面 = 所有一手复核】）**：`E:\SteamLibrary\steamapps\common\DarkestDungeon\` 当前只剩 `mods/` + `app.log`（`heroes/` 已不在）⇒ `tools/dsh/extract_dd1_hero_skills.py` 复跑 **RC=1（tree not found）** ✓
+  🔴 **影响面**：一切「回一手」复核（`doc/architecture/source_priority.md §1/§1b`）无法现场复读 ⇒ 只能引用**库内既有产物**（`reports/dd1_hero_skills_from_edrive.json` · 产物内写有 `root` / `hero_files=15` / `shared_files=28`，可审计）；E 盘恢复后须**逐件复跑**核对 ✓
+  ✅ **已按纪律留痕（不静默降级）**：P0 请单 `reports/p0_skill_dmg_request_20261002.md §2` 显式写明本降级 · `doc/state.md #537` 同步 ✓
+  📌 **同族先例**：`O-116`（quests 一手源不在原位 ⇒ 降级到 `reports/unity_ref/…`）✓
+  ⏳ **待办（E 盘恢复或用户给一手副本后）**：① 复跑 `extract_dd1_hero_skills.py` 核对 525 行 ② 复跑 `reconcile_skill_dmg_edrive_vs_ref.py --check` ③ 产物若有变 ⇒ 按「一条一类 + 前后读数」另开一件 ✓
+  📄 `reports/p0_skill_dmg_request_20261002.md` · `doc/state.md #537` ✓
