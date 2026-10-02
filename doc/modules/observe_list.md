@@ -1974,5 +1974,29 @@
      归一化口径要写进报告，否则红绿不可判」** ✓
      救过：第二十六件冒烟 pre／post —— 判据行含 `帧=`（每跑必不同）
      ⇒ 先归一化再比 ⇒ **11/11 判据行全等**；不归一化则读数差异混入比对 ✓
+🎖️ **第 360~362 条（P6 判据口径段，2026-10-02）**：
+
+(360) **「『关掉了没』的判据，别拿【某个面板自己的 Visible】当【栈顶探针】——
+      关的是【栈顶】那一层 ⇒ 判据要报【栈深 ＋ 实际关掉的层名】」** ✓
+      救过：`--hamlet-popup-close` 报 `关闭后 BuildingPopupOpen=True（应 False）`，被三份报告当作**缺陷**挂账；
+      实为**判据误报** —— 该场景栈顶是 `HamletMenu`（证据 `.tmp_smoke_hamlet.log:91-96`：调用前栈深已是 3、
+      `OpenModal：HamletMenu（栈深 3）`），`CloseTopPopup()` 关对了层，而建筑弹窗**仍在栈里且 Visible** ⇒ `True` 就是真值
+      ⇒ 修复 = `OverlayLayer.CloseTopModal(out string? closed)` 带出层名 ＋ 冒烟改打印「关闭前/后 栈深 ／ 关掉的层名 ／ 建筑弹窗是否仍开」；
+      两臂对照把真值钉死（A 臂栈顶 `HamletMenu` ⇒ 关掉后建筑弹窗仍开=True；B 臂栈顶 `BuildingPopup` ⇒ False）✓
+
+(361) **「给既有 API 加读数，用【out 参数新增重载】而不是改签名 ——
+      旧签名转发 `out _` ⇒ 既有调用点零改动，新读数按需取用」** ✓
+      救过：本棒 `CloseTopModal()` ／ `CloseTopPopup()` —— 若直接改签名，三处既有调用点
+      （`HamletRoot.PopupMenu.cs:178` Esc ／ `OverlayLayer.cs:193` Esc 兜底 ／ `UIRoot.cs:189`）全要跟着改；
+      保留旧签名 ⇒ 本件只动 3 个文件（89 插入 ／ 6 删除），修复面最小 ✓
+
+(362) **「`.cmd` 批处理【必须 CRLF】—— 用 LF 写的 `.cmd` 会被 `cmd.exe` 按【行片段】错切，
+      症状是 `'E' is not recognized` 这类【单字母命令】报错」** ✓
+      救过：本棒 `.tmp_smoke_p6.cmd`（补丁工具落 LF）⇒ `cmd /c` 输出
+      `'F:\GithubPro\Darkest\.tmp_godot_appdata' is not recognized` ＋ `'E' is not recognized` ＋ `'C' is not recognized`；
+      改以 python `write_bytes` 写 CRLF（同一个 `.cmd` 内容逐字不变）⇒ 两臂 RC=0 ✓
+      📌 **同族换行纪律（按【消费方】选，不是全局统一）**：`darkest/**` = LF 无 BOM · `doc/*.md`／`reports/*.md`／`doc/windows/*.txt` = CRLF 无 BOM ·
+      `tools/dsh/*.ps1` = CRLF **带 BOM** · `.cmd` = **CRLF** · commit 消息 = LF 无 BOM ✓
+
 ```
 
