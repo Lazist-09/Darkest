@@ -30,6 +30,13 @@ public static partial class LayoutAudit
     /// </summary>
     public const string MotionLayerName = "MotionLayer";
 
+    /// <summary>
+    /// 🔴 **全量打印开关**（`--ui-audit-all` · **只影响打印，不影响判定**）：默认重叠对/透明框只打前 6 条（防刷屏）；
+    /// 打开后**全量打印** —— 取证「19 对重叠里其余 13 对是谁」时用（`O-118` 前置）。
+    /// ⚠️ 开与不开，**计数与 `ok` 必须一字不差**（否则就是「开关改了判定」的 bug）✓
+    /// </summary>
+    public static bool PrintAll { get; set; }
+
     /// <summary>跑两条判据（递归遍历整棵子树）。</summary>
     public static (bool Ok, string Report) Check(Node root)
     {
@@ -57,7 +64,7 @@ public static partial class LayoutAudit
                 if (labels[i].Rect.Intersects(labels[j].Rect))
                 {
                     overlaps++;
-                    if (overlaps <= 6) // 报告前几条即可（防刷屏）
+                    if (PrintAll || overlaps <= 6) // 报告前几条即可（防刷屏）；`--ui-audit-all` ⇒ 全量（只影响打印）✓
                     {
                         // 🔴 带**矩形坐标**：光有"谁压谁"不够 —— 实测踩过"整列溢出 ⇒ 子控件拿到负尺寸 ⇒ 假/真重叠"
                         //    ⇒ 有坐标才能一眼看出是"放错位置"还是"容器被挤爆"（取证 > 猜）
@@ -78,7 +85,7 @@ public static partial class LayoutAudit
             if (box is not StyleBoxFlat || alpha < 1.0f)
             {
                 transparent++;
-                if (transparent <= 6)
+                if (PrintAll || transparent <= 6) // `--ui-audit-all` ⇒ 全量（同判据 1 口径）✓
                 {
                     problems.Append($"\n  🔴 框透明/无样式：{path}（a={alpha:0.##}）");
                 }
@@ -175,10 +182,16 @@ public static partial class LayoutAudit
                         $"　帧={Engine.GetProcessFrames()}　🔴 **内容需求超出相机 {tooBig.Count} 个**" + (tooBig.Count == 0 ? "（全部装得下 ✅）" : "：" + string.Join(" ／ ", tooBig)) +
                          (outsideList.Count == 0 ? "（全部落在可视区内 ✅）" : "：" + string.Join(" ／ ", outsideList));
 
+        // 🔴 打印口径自证（红线 17／21）：默认只打前 6 条（防刷屏）——报告必须自证「是否全量」，
+        //    否则「只打了 6 条」会被误读成「只有 6 对」（`O-118` 的 13 对无名就是这么来的）✓
+        string printNote = PrintAll
+            ? "　打印口径=**全量**（`--ui-audit-all`：重叠对/透明框不截断）"
+            : "　打印口径=前 6 条（防刷屏；`--ui-audit-all` ⇒ 全量）";
+
         string report = $"布局判据（{root.Name}）{scopeNote}：可见 Label {labels.Count} 个 ／ Panel+PC {panels.Count} 个　" +
                         $"重叠对 {overlaps} ／ 透明框 {transparent}　=> {(ok ? "✅ 通过" : "🔴 未通过")}" +
                         (ok ? string.Empty : problems.ToString()) +
-                        caliber;
+                        caliber + printNote;
         return (ok, report);
     }
 }

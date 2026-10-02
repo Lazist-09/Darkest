@@ -23,10 +23,17 @@ namespace Darkest.UI;
 /// 🔴 判据 1 = 可见 `Label` 两两不相交；🔴 判据 2 = `Panel`/`PanelContainer` 的 `BgColor.a == 1.0`。
 /// ⚠️ **每屏跑满 5 次、以最后一次为准**：界面刚建好时 Label 还是**空文本**，判据会跳过它
 /// ⇒ 只报一次就可能"过早判定 ⇒ 假通过"（主程序实测踩过）。
+/// 🔴 `--ui-audit-all`：判据同跑，但**全量打印**（默认只打前 6 条 · 防刷屏）⇒ 取证用（`O-118`）✓
 /// </summary>
 public static class UiAuditHook
 {
     private const string Flag = "--ui-audit";
+
+    /// <summary>
+    /// 🔴 **全量打印开关**（`--ui-audit-all`）：判据同跑，但重叠对/透明框**不再截断到前 6 条** ——
+    /// 取证「计数 19 对、名字只有 6 对」时用（`O-118` 前置）。**只影响打印，不影响判定** ✓
+    /// </summary>
+    private const string FlagAll = "--ui-audit-all";
 
     /// <summary>每屏打印几次（都以**最后一次**为准；防"过早判定的假通过"）。</summary>
     private const int FiresPerScene = 5;
@@ -39,11 +46,11 @@ public static class UiAuditHook
     private static string _lastReport = string.Empty;
     private static int _printsThisScene;
 
-    /// <summary>`--ui-audit` 是否开启（唯一开关，读命令行）。</summary>
-    public static bool Requested => System.Array.Exists(OS.GetCmdlineArgs(), a => a == Flag);
+    /// <summary>`--ui-audit`（或 `--ui-audit-all`）是否开启（读命令行）。</summary>
+    public static bool Requested => System.Array.Exists(OS.GetCmdlineArgs(), a => a == Flag || a == FlagAll);
 
     /// <summary>
-    /// 若命令行带 `--ui-audit` ⇒ 安装（**幂等**：多次调用只装一个定时器，挂在 `Root` 上跨场景存活）。
+    /// 若命令行带 `--ui-audit`（或 `--ui-audit-all`）⇒ 安装（**幂等**：多次调用只装一个定时器，挂在 `Root` 上跨场景存活）。
     /// 调用点必须在场景根 `_Ready` 的**第一句**（后面的冒烟步骤可能提前 `return`）。
     /// </summary>
     public static void InstallIfRequested(Node context)
@@ -60,6 +67,9 @@ public static class UiAuditHook
         }
 
         _installed = true;
+
+        // 🔴 打印口径开关（只影响打印、不影响判定）：`--ui-audit-all` ⇒ 全量打印重叠对/透明框 ✓
+        LayoutAudit.PrintAll = System.Array.Exists(OS.GetCmdlineArgs(), a => a == FlagAll);
 
         var timer = new Timer
         {
