@@ -13,7 +13,9 @@ namespace Darkest.UI;
 /// 🔴 **本轮的轴**：只做"**字体/字号/颜色集中**"这一条 —— **容器与锚点在下一轮**（`#244` 一次一个轴）✓
 /// 🔴 值与 `ui_spec` 的现有视觉口径一致（**不是新规范** —— 架构 `§4.1`：材质/主题只是"视觉规范的一致实现"）✓
 /// </summary>
-public static class DdTheme
+/// 分片（M11 ① 预警面第二十二件 · 2026-10-02）：**字体解析族** ⇒ `DdTheme.Fonts.cs`；**语义色口族** ⇒ `DdTheme.Colors.cs`（只搬家 · 零行为改动）✓
+/// 🔴 本片职责收窄为：调色板加载 ＋ 字号读数 ＋ **Theme 构建**（`Build`）＋ 样式工厂 ＋ `Apply`／`Audit`／`DumpTo` ✓
+public static partial class DdTheme
 {
     // ---- 语义色（把散落各处的字面量收敛到这里；四色定义见下方 `§14.4` 段）----
 
@@ -191,101 +193,6 @@ public static class DdTheme
         return box;
     }
 
-    /// <summary>字体目录（**放进去即生效**；`§13.4①` 的实施落点）。</summary>
-    public const string FontDir = "res://resources/theme/fonts/";
-
-    /// <summary>
-    /// 🔴 解析字体（`§13.4①` / 策划 `#321`④）：**优先拉丁 `EB Garamond` → CJK `Noto Serif SC` 的 fallback 链**。
-    /// ⚠️ **不要写死单一文件名**（实测教训）：用户实际放进来的是 `NotoSerifSC-Regular.otf`（Noto 官方**静态字重**命名），
-    ///    而不是我原先假定的 `NotoSerifSC-Subset.ttf` ⇒ 写死名字会"文件明明在却认不出"（且只报"未找到"，很误导）⚠️
-    /// ⇒ 正解 = **候选名按优先级试 + 目录扫描兜底**，并在读数里**打印真正用的是哪个文件** ✓
-    /// </summary>
-    private static (Font? Main, Font? Cjk, string Note) ResolveFonts()
-    {
-        Font? latin = FirstExisting(
-            $"{FontDir}EBGaramond.ttf",
-            $"{FontDir}EBGaramond-VF.ttf",
-            $"{FontDir}EBGaramond-Regular.ttf");
-
-        // CJK 候选：正则权重（正文）优先；子集/可变字重次之
-        Font? cjk = FirstExisting(
-            $"{FontDir}NotoSerifSC-Subset.ttf",
-            $"{FontDir}NotoSerifSC-Regular.otf",
-            $"{FontDir}NotoSerifSC-Regular.ttf",
-            $"{FontDir}NotoSerifSC-VF.ttf",
-            $"{FontDir}NotoSerifSC-Subset.otf");
-
-        cjk ??= ScanFontDir("NotoSerifSC");   // 兜底：目录里任何 NotoSerifSC* 字体（按名字排序取第一个）
-        latin ??= ScanFontDir("EBGaramond");
-
-        Font? main = latin ?? cjk;
-        if (main is null)
-        {
-            return (null, null, $"🔴 未找到字体文件（{FontDir} 下应有 EBGaramond*.ttf ／ NotoSerifSC*.otf|ttf）" +
-                          " ⇒ **用引擎默认字体（占位）**；把 OFL 字体放进该目录即自动生效");
-        }
-
-        // 🔴 fallback 链：拉丁字体在前、CJK 在后（缺字形时逐级回退）✓
-        if (latin is not null && cjk is not null)
-        {
-            latin.Fallbacks = new Godot.Collections.Array<Font> { cjk };
-        }
-
-        // 🔴 可断言：**字体是否真的覆盖中文**（不是"看起来像换了字体"）——
-        //    `Font.HasChar` 是引擎内置查询 ⇒ 拿一个中文常用字直接问它 ✓（红线 25：能断言才算）
-        const char Probe = '黑';
-        bool cjkCovered = cjk is not null && cjk.HasChar(Probe);
-        string cover = cjkCovered
-            ? $"✅ 中文覆盖（`HasChar('{Probe}')` = true）"
-            : "🔴 **中文未覆盖**（CJK 字体缺失或缺字形 ⇒ 中文会掉字）";
-
-        return (main, cjk, $"{Describe(main)}（fallback {(cjk is null ? "无" : Describe(cjk))}）⇒ 已接（`§13.4①`）　{cover}");
-    }
-
-    /// <summary>按顺序取第一个存在的字体。</summary>
-    private static Font? FirstExisting(params string[] paths)
-    {
-        foreach (string p in paths)
-        {
-            Font? f = TryLoadFont(p);
-            if (f is not null)
-            {
-                return f;
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>兜底：扫 `resources/theme/fonts/` 里名字含关键字的字体（按名字排序，结果确定）✓</summary>
-    private static Font? ScanFontDir(string keyword)
-    {
-        using DirAccess? dir = DirAccess.Open(FontDir.TrimEnd('/'));
-        if (dir is null)
-        {
-            return null;
-        }
-
-        var names = new System.Collections.Generic.List<string>();
-        foreach (string file in dir.GetFiles())
-        {
-            if (file.Contains(keyword, System.StringComparison.OrdinalIgnoreCase) &&
-                (file.EndsWith(".ttf", System.StringComparison.OrdinalIgnoreCase) ||
-                 file.EndsWith(".otf", System.StringComparison.OrdinalIgnoreCase)))
-            {
-                names.Add(file);
-            }
-        }
-
-        names.Sort(System.StringComparer.Ordinal);
-        return names.Count == 0 ? null : TryLoadFont($"{FontDir}{names[0]}");
-    }
-
-    private static string Describe(Font f) => $"{f.ResourcePath.GetFile()}";
-
-    private static Font? TryLoadFont(string resPath)
-        => ResourceLoader.Exists(resPath) ? ResourceLoader.Load<Font>(resPath) : null;
-
     /// <summary>🔴 不透明面板样式（§14.2 ②）：底深色 + a=1.0 + 1px 边框 + 圆角 0。</summary>
     public static StyleBoxFlat MakePanelStyle(Color? bg = null, Color? border = null)
     {
@@ -302,84 +209,6 @@ public static class DdTheme
         box.SetContentMarginAll(6);            // 内边距（配合 MarginContainer 用；容器给最小尺寸见 §14.2 ④）
         return box;
     }
-
-    // ---- 🔴 `ui_spec §14.4` 的**四色**（正文近白 / 强调金 / 危险红 / 弱化灰）+ 不透明深底 ----
-    //    🔴 纪律：**颜色不得在节点上硬写**（`§14.4`）⇒ 一律走这里或 Theme；**值来自 `ui_palette.tres`**（`#325` D5）✓
-    public static Color TextPrimary => Palette.TextPrimary;   // ① 正文【近白】（暖白，非冷白）
-    public static Color Gold => Palette.Gold;                 // ② 【强调金】（标题 / 分组 / 提示）
-    public static Color Danger => Palette.Danger;             // ③ 【危险红】（敌方 / 死门 / 告警）
-    public static Color Disabled => Palette.Disabled;         // ④ 【弱化灰】（**降饱和，不降透明度**：`§1.4`⑤）
-
-    // 语义别名（调用点不变；值统一到上面四色）
-    public static Color TextAccent => Gold;                   // 分组标题
-    public static Color TextSkill => Gold;                    // 技能栏标题
-    public static Color TextHint => Gold;                     // 提示
-    public static Color TextInfo => Palette.TextInfo;         // 情报 / 进度（暖白略压）
-
-    // 条与状态（`§14.4`：不再散落字面量）
-    public static Color Hp => Palette.Hp;                     // HP 条（正常）
-    public static Color HpWeak => Palette.HpWeak;             // HP 条（虚弱）
-    public static Color Morale => Palette.Morale;             // 士气条（我方 = 金）
-    public static Color MoraleEnemy => Palette.MoraleEnemy;   // 士气条（敌方 = 灰）
-    public static Color Positive => Palette.Positive;         // 正面 / 增益
-
-    /// <summary>面板内部填充底（不透明近黑暖褐；`§13.2`① 底色 = 近黑 + 低饱和暖褐）。</summary>
-    public static Color PanelBg => Palette.PanelBg;
-
-    /// <summary>抬升面（按钮底、卡片内嵌块）—— 比 `PanelBg` 稍亮 ⇒ 满足 `§1.4`⑤「可交互项提亮」。</summary>
-    public static Color PanelBgRaised => Palette.PanelBgRaised;
-
-    /// <summary>面板边框（1px；暖色线条）。</summary>
-    public static Color PanelBorder => Palette.PanelBorder;
-
-    /// <summary>场景底（最深；`BattleUI` 背景等）。</summary>
-    public static Color BgDeep => Palette.BgDeep;
-
-    // ---- 🔴 `§1.4`① + `§12.3` 文字描边（**引擎内置**：`font_outline_color` + `outline_size`）----
-    /// <summary>描边色：近黑暖（把文字从暗底"抠"出来；`§13.2`③）</summary>
-    public static Color Outline => Palette.Outline;
-
-    /// <summary>🔴 用户规则②：**空闲/待填位置的半透明占位填充**（色值在调色板里 ⇒ 不写死在 `.cs`）✓</summary>
-    public static Color PlaceholderFill => Palette.PlaceholderFill;
-
-    /// <summary>描边宽度（`§1.4`① "**深色粗描边**"；2px 在 15px 正文上可读且不糊）</summary>
-    public static int OutlineSize => Palette.OutlineSize;
-
-    // ---- 交互 / 状态（`§1.4`④⑤：选中 = 提亮；灰显 = 降饱和）----
-    public static Color Highlight => Palette.Highlight;       // 当前行动者 / 选中项（提亮）
-    public static Color Ally => Palette.Ally;                 // 我方阵营底色（冷钢蓝，与红=敌方成对）
-    public static Color Muted => Palette.Muted;               // 空位 / 未探索（压暗）
-    public static Color Mental => Palette.Mental;             // 精神伤害（士气）
-    public static Color Shock => Palette.Shock;               // 震慑 / 死门后遗症
-
-    // ---- 地图（远征地图视图 与 战斗小地图 **共用一套**，避免两处各写一套色）----
-    public static Color MapEdge => Palette.MapEdge;
-    public static Color MapCurrent => Palette.MapCurrent;
-    public static Color MapReachable => Palette.MapReachable;
-    public static Color MapVisited => Palette.MapVisited;
-    public static Color MapScouted => Palette.MapScouted;   // 🔴 D-3：三态中间态（暗 + 亮轮廓）
-    public static Color MapUnknown => Palette.MapUnknown;
-    public static Color MapFrame => Palette.MapFrame;
-    public static Color TeamDot => Palette.TeamDot;
-
-    /// <summary>原型色板（立绘占位块 / 单位卡）：**颜色集中在这里**，UI 侧不再硬写（`§14.4` 纪律）✓</summary>
-    private static readonly System.Collections.Generic.Dictionary<string, Color> ArchetypePalette =
-        new(System.StringComparer.Ordinal)
-        {
-            ["tank"] = new(0.42f, 0.52f, 0.62f),
-            ["warrior"] = new(0.62f, 0.35f, 0.32f),
-            ["commissar"] = new(0.66f, 0.58f, 0.30f),
-            ["medic"] = new(0.34f, 0.55f, 0.42f),
-            ["melee_soldier"] = new(0.50f, 0.28f, 0.30f),
-            ["ranged_archer"] = new(0.42f, 0.44f, 0.28f),
-            ["caster"] = new(0.45f, 0.32f, 0.58f),
-        };
-
-    /// <summary>取某原型的颜色（未登记 ⇒ 按阵营给中性色 —— 仍然"有出处"，不是散落字面量）。</summary>
-    public static Color ArchetypeColor(string archetype, bool isPlayer)
-        => ArchetypePalette.TryGetValue(archetype, out Color c)
-            ? c
-            : isPlayer ? new Color(0.40f, 0.45f, 0.55f) : new Color(0.50f, 0.35f, 0.35f);
 
     /// <summary>把中央 Theme 挂到某根控件上（**向下继承** ⇒ 子控件自动套用）✓</summary>
     public static void Apply(Control root)
