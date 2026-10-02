@@ -247,6 +247,9 @@ def infer_level(node_name, tooltip, v3_sections, parent_level='L2'):
 
 ⇒ 工程实现必须给 `PanelFrame` 加 `clip_contents = true`，否则会画出面板外。**这是 DD 行为一致性的要求，不是折衷。**
 
+🆕 **审计口径（2026-10-02 · `O-118`）**：上表 4 个溢出块在 `--ui-audit`【无覆盖层 ⇒ `scope=root` 全界面口径】下会被计为「重叠对」（实测 19 对中 5 对出自此处 · 前 6 对已逐对核）——**这是判据口径缺口，不是布局缺陷**：`LayoutAudit` 现有三条跳过（`MotionLayer` ／ `Window` ／ `clip_contents` 裁到空）里没有「被不透明祖先完全遮住 ⇒ 跳过」，覆盖层口径又只认「恰好一个满屏不透明 Panel」⇒ **全界面口径不作逐屏验收口** ✓
+📄 登记 `doc/architecture/open_issues.md O-118` · 读数 `reports/ui_audit_fullscene_20261002.md` ✓
+
 ### 5.3 已写回 spec
 
 `ui_spec.json` 的 `meta.面板尺寸补全.panels` 已记录两处，对应 section 也补了 `面板尺寸` 字段。**你可以撤掉"未取得"标注，直接精确落位。**
