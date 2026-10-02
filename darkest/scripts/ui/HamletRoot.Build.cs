@@ -350,67 +350,9 @@ public partial class HamletRoot : Control
         _rosterList.AddThemeConstantOverride("separation", 3);
         rightCol.AddChild(_rosterList);
 
-        // ---- 底栏：资源条 + Embark（全屏唯一大红）----
-        // 🔴 骨架优先（2026-09-17）：底栏容器也从骨架取（节点名 BottomBar / BottomRow 保持不变）✓
-        //    ⚠️ 缺失 ⇒ 回落代码构建；子项（资源条/菜单/出发）仍由代码追加 ✓
-        PanelContainer bottomPanel = skel?.GetNodeOrNull<PanelContainer>("HamletMargin/HamletRootCol/BottomBar")
-            ?? new PanelContainer { Name = "BottomBar" };
-        if (bottomPanel.GetParent() is null)
-        {
-            rootCol.AddChild(bottomPanel);
-        }
-
-        HBoxContainer bottomRow = skel?.GetNodeOrNull<HBoxContainer>("HamletMargin/HamletRootCol/BottomBar/BottomRow")
-            ?? new HBoxContainer { Name = "BottomRow" };
-        if (bottomRow.GetParent() is null)
-        {
-            bottomRow.AddThemeConstantOverride("separation", 12);
-            bottomPanel.AddChild(bottomRow);
-        }
-        _resourceBar = new Label
-        {
-            Name = "HamletResourceBar",
-            SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,   // 🔴 DD 1:1 #1d：资源条**靠左**（DD 340/1920 ≈ 左下）✓
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        // P1.3（DD town.layout）：heirloom 340/1920 = **0.177** ⇒ 资源条前加左空（比例表达，不写像素）         bottomRow.AddChild(new Control { Name = "BottomPadLeft", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.177f });
-        bottomRow.AddChild(_resourceBar);
-        bottomRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });   // 🔴 DD 1:1 #1d：左弹性空隙（把 Embark 顶到**底部居中** = DD 754/1920 ≈ 39% x）✓
-        bottomRow.AddChild(new Control { Name = "BottomPadMid", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.2157f });   // P1.3：DD embark 0.3927 − heirloom 0.177 = 0.2157 ✓
-        // 🔴 P2（用户参考图①）：**最下方资源 UI 可点开【二级菜单】** —— 库存/角色详情/建筑都从这里进 ✓
-        _menuButton = new Button
-        {
-            Name = "HamletMenuButton",
-            Text = "☰ 菜单",
-            CustomMinimumSize = new Vector2(120, 44),
-        };
-        _menuButton.Pressed += OpenHamletMenu;
-
-        // 🔴 相机 1280 口径（规则①）：**把所有单行长文本 Label 设为"裁切+省略号"** ——
-        //    否则它们的最小宽（= 文本宽）会把整屏撑宽 ⇒ 名册被切（实测 HamletMargin 1397 > 1280）✓
-        foreach (Label l in new[] { _status, _hint, _buildingInfo, _upgradeStatus, _saniStatus, _rosterCount, _rosterTitle, _resourceBar, _banner }) // 🔴 `_banner` 补进（实测它宽 1348px，是整屏 1373 的元凶）
-        {
-            l.AutowrapMode = TextServer.AutowrapMode.Off;
-            l.ClipText = true;
-            l.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-        }
-        bottomRow.AddChild(_menuButton);
-
-        var embark = new Button
-        {
-            Name = "Embark",
-            Text = "再出发（远征）· EMBARK",
-            CustomMinimumSize = new Vector2(280, 44),
-            Modulate = Darkest.UI.DdTheme.Danger, // 🔴 `§14.4`：颜色不得在节点上硬写 ⇒ 走语义色（Embark = 危险红：出发是要付代价的）
-        };
-        embark.Pressed += () =>
-        {
-            Darkest.Gameplay.Scene.ExpeditionContext.RequestDungeon(); // 🔴 片 4①：再出发 ⇒ 宿主进地牢 ✓
-            GetTree().ChangeSceneToFile(Darkest.UI.MainMenuRoot.BattleScene);
-        };
-        bottomRow.AddChild(embark);
-        bottomRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });   // 🔴 DD 1:1 #1d：右弹性空隙（两侧等权 ⇒ Embark 居中）✓
-        _embark = embark;
+        // 🆕 2026-10-02 分片：底栏（资源条 ＋ ☰ 菜单 ＋ EMBARK）已移到 `HamletRoot.Build.BottomBar.cs`
+        //    （用户红线：程序文件 ≤600 行；只搬家、零行为改动）✓
+        BuildBottomBar(skel, rootCol);
 
         // 🆕 2026-10-01：分母跟着 `upgradable` 走（此前写死"／3"，加铁匠铺两条树后会是 **5**）✓
         int unlockedNav = upgradable.Count(id => id == "stagecoach" || unlockedBuildings.Contains(id));
@@ -422,138 +364,15 @@ public partial class HamletRoot : Control
                  $"　名册 {roster.Heroes.Count} 人（士气跨趟；最低 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}）");
 
         // 🔴 M8.0 ⑥ 端到端：回城阶段 ⇒ **花钱（减压）** 然后 **再出发**
-        // 🔴 片①（三界面卡 §1.3）冒烟钩子：**全部走真实 `Pressed`**（红线 26：功能级验收走玩家路径）
-        // 🔴 2026-10-01 M6u：`--hamlet-embark` 的提前 `return` 已移到本方法**末尾** ——
-        //    组合冒烟「先买阶 ⇒ 再出征 ⇒ 回城自动存档」需要装备阶冒烟**先跑完**（放在这里会整段被跳过）✓
-        string[] hamletArgs = OS.GetCmdlineArgs();
-        // 🆕 2026-10-02 分片：本族 = **冒烟旗标族**（悬停／弹窗／二级屏／播种）— 已移到
-        //    `HamletRoot.Build.SmokeFlags.cs`（用户红线：程序文件 ≤600 行；只搬家、零行为改动）✓
-        //    🔴 顺序纪律：本调用**必须**留在 `--hamlet-hero-detail` / `--hamlet-row` 分支之前 —
-        //       播种族（怪癖／饰品）要让详情「打开那一刻现读」到真状态；`--hamlet-popup-close` 的读数
-        //       也按搬家前逐条同序（旗标族内部顺序一字未改）✓
-        HandleHamletSmokeFlags(hamletArgs);
-
-        // ⚠️ 本查找 = 搬家前同一行：只是位置移到旗标族调用**之后**（命令行参数不因调用而变 ⇒ 同值同序）✓
-        string? detailArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-hero-detail=", StringComparison.Ordinal));
-        if (detailArg is not null && int.TryParse(detailArg["--hamlet-hero-detail=".Length..], out int dIdx))
+        // 🔴 片①（三界面卡 §1.3）冒烟钩子：**全部走真实 Pressed**（红线 26：功能级验收走玩家路径）
+        // 🆕 2026-10-02 分片：本族（--hamlet-hero-detail= ／ --hamlet-row= ／ --hamlet-detail-back ／
+        //    --hamlet-embark ／ SmokeScript.Step ／ --e2e 阶段 1）已移到 `HamletRoot.Build.Cli.cs`
+        //    （用户红线：程序文件 ≤600 行；只搬家、零行为改动）✓
+        //    🔴 顺序纪律：调用**必须**留在 Refresh() ＋「回城就绪」读数**之后** ——
+        //       --hamlet-embark 的提前 return 由本调用的返回值承担（true ⇒ _Ready() 立即早退）✓
+        if (RunHamletCliAndSmokeFlags(economy, roster))
         {
-            PressPortraitRightClick(dIdx); // 🔴 右键头像 ⇒ 角色详情（用户 2026-09-15 要求）✓
-            // 审计修复：右键路径若当时未开（名册行可能尚未建好）⇒ 兜底直接打开首位英雄，
-            // 保证 hero-detail 入口**不空跑**（此前实测该入口长期静默无效，属假绿）✓
-            if (!DetailOpen)
-            {
-                string? firstHero = ExpeditionContext.Roster?.Heroes.FirstOrDefault()?.Id;
-                if (!string.IsNullOrEmpty(firstHero))
-                {
-                    GD.Print($"[HamletRoot] --hamlet-hero-detail：右键未开 ⇒ 兜底直接 OpenHeroDetail({firstHero})（审计不空跑）");
-                    OpenHeroDetail(firstHero);
-                }
-                else
-                {
-                    GD.Print("[HamletRoot] --hamlet-hero-detail：名册为空 ⇒ 无法打开详情（如实留痕，不静默）");
-                }
-            }
-        }
-
-        // 🆕 2026-10-02 M4u：饰品 **UI 冒烟族**（落孔 ／ 点方块卸下）—— 🔴 **必须排在 `--hamlet-hero-detail` 之后**：
-        //    详情里的 2 个孔/方块是「打开那一刻」建的（与旗标族里的**播种族**正好相反：那族必须排在前）✓
-        //    两条旗标都走真实控件（红线 26）：落孔 = `GearHeroSlot.TryDropPayload`（引擎拖动同一入口），
-        //    卸下 = 方块真发 `Pressed` ⇒ 验收看的是玩家那条路，不是绕过 UI 直调内核 ✓
-        HandleTrinketUiSmokeFlags(hamletArgs);
-
-        string? rowArg = System.Array.Find(hamletArgs, a => a.StartsWith("--hamlet-row=", StringComparison.Ordinal));
-        if (rowArg is not null && int.TryParse(rowArg["--hamlet-row=".Length..], out int rowIdx))
-        {
-            GD.Print($"[HamletRoot] 名册竖列行数 = {RosterRowCount}（名册 {roster.Heroes.Count} 人）");
-            PressRosterRow(rowIdx);
-
-            // 🆕 2026-10-01 M5u：**名册行读数**（行内文本 + 悬停）—— 供「名册显示怪癖」验收留证
-            //    🔴 读的就是行上的**真控件**（红线 26：不另算一份 ⇒ 不会出现「打印的与屏上的不是一份」）✓
-            if (rowIdx >= 0 && rowIdx < _heroButtons.Count)
-            {
-                Button rowBtn = _heroButtons[rowIdx];
-                GD.Print($"[片②·名册行#{rowIdx}] 行文本=「{(rowBtn.FindChild("RosterInfo", true, false) as Label)?.Text}」" +
-                         $"　悬停=「{rowBtn.TooltipText}」");
-            }
-
-            // 🔴 片② 冒烟：**打印详情内容摘要**，供断言"显示的是被点的人 / 特质状态 / 只列已接线 / 装备未实现"
-            if (DetailOpen)
-            {
-                GD.Print($"[片②] DetailOpen={DetailOpen}　DetailHeroId={DetailHeroId}");
-                GD.Print($"[片②·左] {_detailLeft?.Text?.Replace("\n", " ｜ ")}");
-                GD.Print($"[片②·右] {_detailRight?.Text?.Replace("\n", " ｜ ")}");
-                GD.Print($"[片②·扎营] {_detailCampSkills?.Text?.Replace("\n", " ｜ ")}");
-            }
-        }
-
-        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-detail-back"))
-        {
-            GD.Print($"[片②] 返回前：DetailOpen={DetailOpen}");
-            CloseHeroDetail();
-            GD.Print($"[片②] 返回后：DetailOpen={DetailOpen}（应回到城池，红线 18：不是孤岛）");
-        }
-
-        // 🆕 2026-10-01 M6u：装备阶冒烟族（金币/传家宝播种 + 真实 `Pressed` 升阶；全部走玩家路径）✓
-        HandleGearSmokeFlags(hamletArgs);
-
-        // 🆕 2026-10-02 M12：供应冒烟族（买卖走**真实按钮**；必须排在 `--hamlet-gold=` 播种**之后**
-        //    ⇒ 状态行按播种后余额现读；本族自己 `OpenProvision()` ⇒ 不依赖上一族把弹窗留在哪一栋）✓
-        HandleProvisionSmokeFlags(hamletArgs);
-
-        // 🆕 2026-10-01 M7u：招募冒烟族（**排在装备阶之后** ⇒ 组合冒烟「先升马车 ⇒ 再看今日新兵」读到的是**升后**的名单
-        //    与上限；本族自己会 `OpenBuildingPopup("stagecoach")` ⇒ 不依赖上一族把弹窗留在哪一栋）✓
-        HandleRecruitSmokeFlags(hamletArgs);
-
-        // 🔴 M8.0 ⑥ 端到端：回城阶段 ⇒ **花钱（减压）** 然后 **再出发**（`--hamlet-embark`）
-        //    ⚠️ 位置在装备阶冒烟**之后**：本分支会切场景并 `return`（M6u 组合冒烟依赖此顺序）✓
-        if (System.Array.Exists(hamletArgs, a => a == "--hamlet-embark"))
-        {
-            PressEmbark();
-            return; // 已切场景
-        }
-
-        // 🔴 跨场景步进冒烟：消费本场景的一步（`ui_three_screens.md` §3 / `#310`⑦）
-        Darkest.Gameplay.Scene.SmokeScript.Step(this);
-
-        if (System.Array.Exists(OS.GetCmdlineArgs(), a => a == "--e2e") && ExpeditionContext.E2EStage == 1)
-        {
-            int goldBefore = economy.Gold;
-            // ② 选人权：冒烟里**显式指定对象**（证明"能对指定的人减压"）
-            string target = roster.Heroes.OrderBy(h => roster.MoraleOf(h.Id)).First().Id;
-            int moraleBefore = roster.MoraleOf(target);
-            SelectHero(target);
-            DoRelief("tavern");
-            int moraleAfter = roster.MoraleOf(target);
-            GD.Print($"[E2E] 阶段1 回城：**花钱** {goldBefore} 减 {economy.Gold} ⇒ 剩余 {economy.Gold}" +
-                     $"　指定对象 {target} 士气 {moraleBefore} 到 {moraleAfter}（V2：减压 ⇒ 士气确实更高）" +
-                     $"　名册最低士气 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}");
-            // 🔴 M8.1：**真实点击路径**升级（发 `Pressed` 信号）⇒ 证明"升级入口从启动场景可达、且点得动"
-            int costBefore = ExpeditionContext.Heirlooms?.EffectiveReliefCost(_cfg.StressReliefCost) ?? -1;
-            PressUpgrade("tavern");
-            int costAfter = ExpeditionContext.Heirlooms?.EffectiveReliefCost(_cfg.StressReliefCost) ?? -1;
-            GD.Print($"[E2E] 阶段1 升级：减压价 {costBefore} 到 {costAfter}");
-
-            // 🔴 M8.2 / V16：**患病 → 治病**（冒烟用：对**全队**按概率掷骰使其患病，再走**真实点击路径**治愈）
-            if (_saniCfg is not null)
-            {
-                Sanitarium.RollContract(_log, _rng, _saniCfg, roster, roster.Heroes.Select(h => h.Id).ToArray());
-                int sickTotal = roster.Heroes.Count(h => roster.DiseasesOf(h.Id).Count > 0);
-                string? sickHero = roster.Heroes.FirstOrDefault(h => roster.DiseasesOf(h.Id).Count > 0)?.Id;
-                GD.Print($"[E2E] 阶段1 患病：全队 {roster.Heroes.Count} 人掷骰 ⇒ 患病 {sickTotal} 人（概率 0.15/0.12/0.10 ×3 病）");
-
-                if (sickHero is not null)
-                {
-                    _selectedHero = sickHero; // 指定治疗对象（走"按人选"的入口）
-                    int before = roster.DiseasesOf(sickHero).Count;
-                    PressService("cure_disease");
-                    int after = roster.DiseasesOf(sickHero).Count;
-                    GD.Print($"[E2E] 阶段1 治病：{sickHero} 患病 {before} 到 {after}（V16：患病 → 治病 回路成立）");
-                }
-            }
-
-            ExpeditionContext.E2EStage = 2;
-            Darkest.Gameplay.Scene.ExpeditionContext.RequestDungeon(); // 🔴 片 4：再出发 ⇒ 宿主进地牢（旧场景已退休）✓
-                GetTree().CallDeferred("change_scene_to_file", Darkest.UI.MainMenuRoot.BattleScene);
+            return; // 已切场景（--hamlet-embark）
         }
     }
 }
