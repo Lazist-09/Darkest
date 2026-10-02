@@ -272,6 +272,14 @@
 - 🆕 **`O-118` 登记（2026-10-02 · 主程序 · `--ui-audit`【全界面口径】19 对重叠【已定性为非布局缺陷 · 判据缺口 · 未收口】）**：`--hamlet --hamlet-building=blacksmith.weapon --ui-audit`（无覆盖层 ⇒ `scope=root` 审全场景）实测 **16 次采样恒定：可见 Label 59 ／ Panel+PC 72 ／ 重叠对 19 ／ 透明框 0 ⇒ 🔴**（报告只打印前 6 对 · `LayoutAudit.cs:63` `overlaps <= 6` 防刷屏）✓
   🔍 **已定性（前 6 对）**：**5 对**参战控件 = **有明文出处的占位块 / DD 原设计溢出块**（`hamlet_skeleton.tscn:261-279` 的 `Overlay/RealmInventory/PurposeLabel`（tooltip「色块占位，不换不删」）· `building_popup.tscn:232` ／ `:259` 的 `PurposeLabel` · 同族 `PopupLine` · 出处 `doc/UI_STRUCTURE_DECISIONS.md:303-306`「`BpActivityBase 800x200（溢出裁剪）` · 4 个溢出块均已确认是 DD 原设计」）；**1 对** = `HamletStatus ⟷ DialogTitle` = **分层遮挡**（`HamletRoot.Build.cs:167-172` 建的下层状态栏（`AutowrapMode=WordSmart` ⇒ 实测 75 高）被 `modal_dialog.tscn:20` 的弹窗面板盖住 ⇒ 模态弹窗**预期行为**）✓
   🔴 **判据缺口（已定位 · 未改）**：`LayoutAudit.Traversal.cs:83-128` 现有三条跳过（`MotionLayer` ／ `Window` ／ `clip_contents` 裁到空）**没有**「被不透明祖先完全遮住 ⇒ 跳过」这一口径；`LayoutAudit.Caliber.cs:35-66` 的覆盖层口径**只认「恰好一个满屏不透明 Panel」**⇒ 本场景「建筑详情 ＋ ProvisionPopup 两个局部浮层」不满足 ⇒ 回落全界面（`LayoutAudit.cs:34-40`）✓
-  ⏳ **未收口（待裁）**：**剩余 13 对未打印 ⇒ 未逐对核**（前置 = 先全量打印再逐对核 ⇒ 属改码）；两条路 **(a) 判据侧**「被不透明祖先完全遮住 ⇒ 跳过并留痕」（红线 21：跳过数须打印 ＋ 改口径须给前后读数两臂）／**(b) 场景侧**按 DD 真值收敛占位块（受既有决定「色块占位，不换不删」约束 · `O-105` 家族）；**推荐 (a)** ✓
+  ✅ **已收口（本棒 · `#544`）**：`--ui-audit-all`（只改打印 · 不改判定 ⇒ 两臂计数一字不差 59／72／19／0）⇒ 19 对**全量打印并逐对定性**：**11 对同源真根因**（`O-119`）＋ **2 对**同栋父子包含 ＋ **5 对**占位/溢出块 ＋ **1 对**分层遮挡 ✓
+  📌 **首版结论（「剩余 13 对未打印 ⇒ 未逐对核」）已解除** ⇒ 三条路 **(a) 判据侧**（推荐 · 与 (c) 互补）／**(b) 场景侧**／🆕 **(c) 修根因**（推荐 · 主 · 即 `O-119`）**待裁** ✓
   📌 **与 `O-115` 不同源**（`O-115` 的 1 对 `ReliefHint ⟷ EstateSummary/PurposeLabel` 是**不带** `--hamlet-building` 时的越界残留；本件 A 臂读数里无 `ReliefHint`）⇒ 两条分开处置 ✓
   📄 `reports/ui_audit_fullscene_20261002.md` · `doc/state.md #540` ✓
+  🆕 **更新（`#544`）**：19 对全名单＋三类（11 同源／2 父子包含／5 占位溢出／1 分层遮挡）见 `reports/ui_audit_fullscene_20261002.md §2`；真根因见 `§3(4)` ＋ `O-119` ✓
+  📄 `reports/ui_audit_fullscene_20261002.md` · `doc/state.md #544` ✓
+- 🆕 **`O-119` 登记（2026-10-02 · 主程序 · 【六栋建筑 L2 子面板恒可见 ⇒ 19 对重叠里 11 对同源】）**：`darkest/scripts/ui/BuildingPopupSkeleton.cs:88-137` 声明 `GraveyardPanel`／`StatuePanel`／`StageCoachPanel`／`SanitariumPanel`／`HeroActionPanel`／`UpgradePanel` 六属性 —— **全仓零消费者**（`rg` 除声明文件外零命中）；`darkest/scripts/ui/HamletRoot.BuildingPopup.cs:42-49` 只用 `BodyAnchor`／`UpgradeAnchor`／`TreesAnchor` ⇒ **无一处 `Hide()`／`Visible=false`** ⇒ 六块恒可见 ✓
+  🔴 **为何被判据读到**：`LayoutAudit.Traversal.cs:119-121` 用 `IsVisibleInTree()`（有效可见性）⇒ 六块**真画在屏幕上**（六块是 `PanelFrame` 的兄弟节点：`building_popup.tscn:338/408/453/525/571/616`）⇒ 19 对里 **11 对同源**（类 A 6 ＋ 类 C 5）✓
+  📌 **设计出处**：`doc/UI_STRUCTURE_DECISIONS.md:28` §1「**选 A：每栋建独立 L2 子面板**」⇒ 应**二选一显示**（当前 = 未接线）✓
+  ⏳ **待裁（三条路）**：(c) 修根因（推荐 · 主 · 六属性接线二选一显示）／(a) 判据侧「被不透明祖先完全遮住 ⇒ 跳过并留痕」（推荐 · 与 (c) 互补）／(b) 场景侧（受「色块占位，不换不删」约束 · `O-105` 家族）✓
+  📄 `reports/ui_audit_fullscene_20261002.md` · `doc/state.md #544` ✓

@@ -139,8 +139,8 @@ godot 引用 **0 命中** ✓ · 拆分完整性自检 **PASS**（`--selfcheck` 
 · 相关报告：`final_verification.md`（终检快照）· `HANDOVER_lead_programmer.md`（交接）·
   `orphan_batch_per_file_audit.md` · `no_comment_class_bodies.md` · `planner_briefing_work_summary.md` ·
   `m1c_stage3_readiness.md` · `m2_activation_readings.md` · `m3_traits_step2_plan.md` · `m8_four_answers.md` ✓
-· 🆕 P6 ／ UI 审计（2026-10-02）：`ui_audit_fullscene_20261002.md`（全界面 19 对重叠定性 · `O-118`）·
-  `p6_ui_audit_three_way_sync_20261002.md`（三处同步 · `#541`）✓
+· 🆕 P6 ／ UI 审计（2026-10-02）：`ui_audit_fullscene_20261002.md`（全界面 **19 对全名单三类** ＋ 真根因 `O-119` · `#544`）·
+  `p6_ui_audit_three_way_sync_20261002.md`（三处同步 · `#541`）· `p6_observe_369_371_20261002.md`（判据续编 · `#544`）✓
 ```
 
 ---
