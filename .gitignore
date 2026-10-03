@@ -74,3 +74,7 @@ reports/unity_ref/_probe/
 reports/unity_ref/_*.py
 reports/unity_ref/_raw_stats.json
 darkest/data/save.json
+
+# --- 2026-10-03 探针清理（MCP 工具替代一次性探针）---
+/.tmp_*
+/__pycache__/
