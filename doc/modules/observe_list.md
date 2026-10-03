@@ -2068,5 +2068,13 @@
       救过：`EnterDungeonInScene()` 不调 `Bind()`（`EnterMapMode()` 只置 `_pendingMapMode`）⇒ 地图永不显示；
       修法 = 入口处 `Callable.From(BindUi).CallDeferred()`（`_Ready` 期间 `AddChild` 会撞 busy）✓
 
+(378) **「占位骨架（色块）必须默认 `Visible=false` 惰性挂载 —— 骨架根写 `Ignore` **不**豁免内部满屏 `Fill`（`mouse_filter` 是逐控件的）」** ✓
+      救过：`MainMenuRoot` 无条件 `AddChild(credits/fe_flow 骨架)` ⇒ 满屏 `Fill`（`ColorRect` 默认 `Stop`）吞掉主菜单**全部**点击（实测 9 ⇒ 0）；
+      修法 = 惰性 `Visible=false` ＋ 内部装饰件**逐件**写 `Ignore` ＋ 占位「返回」块用 `PlaceholderBackButton` 升级成真按钮 ✓
+
+(379) **「容器的最小高由子节点决定 —— 纯 `Control` 层 = 0；与 `ExpandFill` 同层时会把整条带吃掉」** ✓
+      救过：`BattleUI.Build.cs` 的 `StageLayer`（非容器）⇒ 中段空间被 `MidPadTop`（stretch 0.6297）吃光 ⇒ **舞台带 0 高** ⇒ `playerArea`／`enemyArea` 对 0 高矩形算锚点 ⇒ 卡片溢出 233px 钻进底栏之下（看不见 ＋ 点不动）；
+      修法 = 显式 `CustomMinimumSize`（`CardH+SupportH+48 = 246`）＋ 带内三块锚点改 `0~1`（带内语义，不再对满屏 1080 算）✓
+
 ```
 

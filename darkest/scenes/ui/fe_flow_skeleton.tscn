@@ -14,7 +14,7 @@ theme = ExtResource("1_theme")
 script = ExtResource("2_ff")
 
 
-[node name="LayerTitle" type="Label" parent="FeFlowSkeleton"]
+[node name="LayerTitle" type="Label" parent="."]
 layout_mode = 0
 anchor_left = 0.004
 anchor_top = 0.004
@@ -46,6 +46,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "存档槽"
 [node name="Fill" type="ColorRect" parent="FfSaveSlotWindow"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="FfScrollBar" type="PanelContainer" parent="."]
@@ -68,6 +69,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "滚动条"
 [node name="Fill" type="ColorRect" parent="FfScrollBar"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="FfModeSelectDialog" type="PanelContainer" parent="."]
@@ -90,6 +92,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "模式选择"
 [node name="Fill" type="ColorRect" parent="FfModeSelectDialog"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="FfAnswerButton1" type="PanelContainer" parent="."]
@@ -113,6 +116,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "选项按钮"
 [node name="Fill" type="ColorRect" parent="FfAnswerButton1"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="FfBackButton" type="PanelContainer" parent="."]
@@ -135,6 +139,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "返回"
 [node name="Fill" type="ColorRect" parent="FfBackButton"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="FfBuildNum" type="PanelContainer" parent="."]
@@ -157,4 +162,5 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "版本号"
 [node name="Fill" type="ColorRect" parent="FfBuildNum"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2

@@ -16,7 +16,7 @@ mouse_filter = 2
 theme = ExtResource("1_theme")
 
 
-[node name="LayerTitle" type="Label" parent="HeroDetailSkeleton"]
+[node name="LayerTitle" type="Label" parent="."]
 layout_mode = 0
 anchor_left = 0.004
 anchor_top = 0.004
@@ -96,7 +96,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "装备"
 [node name="EquipPlaceholder" type="ColorRect" parent="HeroEquipArea"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HeroTrinketArea" type="PanelContainer" parent="."]
@@ -118,7 +118,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "饰品"
 [node name="TrinketPlaceholder" type="ColorRect" parent="HeroTrinketArea"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; P2 细化：DD hero.layout 的两处未用键 —— hero_portrait_icon_layout.disease_icon_offset 61,61 与
@@ -143,7 +143,7 @@ mouse_filter = 2
 tooltip_text = "侦察数值（DD hero_scouting_stat_layout · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="ScoutingPlaceholder" type="ColorRect" parent="HeroScoutingStat"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; P2 细化(续)：DD hero_equipment_layout 的 highlight_pos_offset -20,-20 / level_offset 90,12 与
@@ -199,7 +199,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "英雄名"
 [node name="Fill" type="ColorRect" parent="HdNameAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdClassAnchor" type="PanelContainer" parent="."]
@@ -221,7 +221,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "职业"
 [node name="Fill" type="ColorRect" parent="HdClassAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdQuirksAnchor" type="PanelContainer" parent="."]
@@ -243,7 +243,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "怪癖"
 [node name="Fill" type="ColorRect" parent="HdQuirksAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdHeroPipsAnchor" type="PanelContainer" parent="."]
@@ -265,7 +265,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "位点"
 [node name="Fill" type="ColorRect" parent="HdHeroPipsAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdTargetPipsAnchor" type="PanelContainer" parent="."]
@@ -287,7 +287,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "目标位点"
 [node name="Fill" type="ColorRect" parent="HdTargetPipsAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdPosTitleAnchor" type="PanelContainer" parent="."]
@@ -309,7 +309,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "位点标题"
 [node name="Fill" type="ColorRect" parent="HdPosTitleAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdCombatSkillAnchor" type="PanelContainer" parent="."]
@@ -331,7 +331,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "战斗技能"
 [node name="Fill" type="ColorRect" parent="HdCombatSkillAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdCampSkillAnchor" type="PanelContainer" parent="."]
@@ -353,7 +353,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "扎营技能"
 [node name="Fill" type="ColorRect" parent="HdCampSkillAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdResistAnchor" type="PanelContainer" parent="."]
@@ -375,7 +375,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "抗性"
 [node name="Fill" type="ColorRect" parent="HdResistAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdClassBonusAnchor" type="PanelContainer" parent="."]
@@ -397,7 +397,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "职业加成"
 [node name="Fill" type="ColorRect" parent="HdClassBonusAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdCloseAnchor" type="PanelContainer" parent="."]
@@ -420,7 +420,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "关闭"
 [node name="Fill" type="ColorRect" parent="HdCloseAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HdHeroArtAnchor" type="PanelContainer" parent="."]
@@ -442,7 +442,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "立绘"
 [node name="Fill" type="ColorRect" parent="HdHeroArtAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 阶段2：E 盘 shared/hero/hero.layout 的 4 个自带尺寸（hotspot）=> 同尺寸色块（尺寸=DD 原值）
@@ -467,7 +467,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "装备热区"
 [node name="Fill" type="ColorRect" parent="HhEquipHotspot"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HhBaseStatHotspot" type="PanelContainer" parent="."]
@@ -490,7 +490,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "属性热区"
 [node name="Fill" type="ColorRect" parent="HhBaseStatHotspot"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HhStatHotspot" type="PanelContainer" parent="."]
@@ -513,7 +513,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "属性热区"
 [node name="Fill" type="ColorRect" parent="HhStatHotspot"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HhScoutingHotspot" type="PanelContainer" parent="."]
@@ -536,5 +536,5 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "侦察热区"
 [node name="Fill" type="ColorRect" parent="HhScoutingHotspot"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2

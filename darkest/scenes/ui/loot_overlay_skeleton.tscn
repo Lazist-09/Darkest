@@ -14,7 +14,7 @@ theme = ExtResource("1_theme")
 script = ExtResource("2_lt")
 
 
-[node name="LayerTitle" type="Label" parent="LootOverlaySkeleton"]
+[node name="LayerTitle" type="Label" parent="."]
 layout_mode = 0
 anchor_left = 0.004
 anchor_top = 0.004
@@ -52,6 +52,7 @@ tooltip_text = "描述（DD loot_description .pos 228,136 · .width 350 · 数�
 
 [node name="LootDescPlaceholder" type="ColorRect" parent="LootCol/LootDescBlock"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="LootTiles" type="HBoxContainer" parent="LootCol"]
@@ -66,6 +67,7 @@ mouse_filter = 2
 
 [node name="TilePlaceholder" type="ColorRect" parent="LootCol/LootTiles/LootTile1"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="LootTile2" type="PanelContainer" parent="LootCol/LootTiles"]
@@ -75,6 +77,7 @@ mouse_filter = 2
 
 [node name="TilePlaceholder" type="ColorRect" parent="LootCol/LootTiles/LootTile2"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="LootTile3" type="PanelContainer" parent="LootCol/LootTiles"]
@@ -84,6 +87,7 @@ mouse_filter = 2
 
 [node name="TilePlaceholder" type="ColorRect" parent="LootCol/LootTiles/LootTile3"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="LootTile4" type="PanelContainer" parent="LootCol/LootTiles"]
@@ -93,6 +97,7 @@ mouse_filter = 2
 
 [node name="TilePlaceholder" type="ColorRect" parent="LootCol/LootTiles/LootTile4"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="ButtonRow" type="HBoxContainer" parent="LootCol"]
@@ -107,6 +112,7 @@ tooltip_text = "全部拿取（DD loot_buttons .take_all_pos 80,358 · 数据未
 
 [node name="TakeAllPlaceholder" type="ColorRect" parent="LootCol/ButtonRow/TakeAllBlock"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="CloseBlock" type="PanelContainer" parent="LootCol/ButtonRow"]
@@ -117,6 +123,7 @@ tooltip_text = "关闭（DD loot_buttons .close_pos 306,358 · 色块占位，�
 
 [node name="ClosePlaceholder" type="ColorRect" parent="LootCol/ButtonRow/CloseBlock"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 阶段2 子流程批(3)：overlay.loot 屏幕级位置块（÷1920、÷1080）
@@ -140,7 +147,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "全部拿取"
 [node name="Fill" type="ColorRect" parent="LootTakeAllAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="LootCloseAnchor" type="PanelContainer" parent="."]
@@ -162,7 +169,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "关闭"
 [node name="Fill" type="ColorRect" parent="LootCloseAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="LootDescAnchor" type="PanelContainer" parent="."]
@@ -184,5 +191,5 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "描述"
 [node name="Fill" type="ColorRect" parent="LootDescAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2

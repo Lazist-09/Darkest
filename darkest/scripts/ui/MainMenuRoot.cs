@@ -43,6 +43,9 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
     private VBoxContainer _menuCol = null!;   // 主菜单的纵向容器（标题 / 三选一 / 状态）
     private VBoxContainer _optionsCol = null!; // 三选一按钮的容器
     private readonly List<Button> _menuButtons = new(); // 🔴 按钮现在在容器里（不再是场景根的直接子节点）⇒ 用列表按下标取
+    private Darkest.UI.OverlayLayer? _overlay;   // 🔴 2026-10-03：占位骨架的模态宿主（既有 OverlayLayer ⇒ 遮罩/栈/Esc 全兜底）✓
+    private CreditsSkeleton? _credits;           // 🔴 2026-10-03：**默认不可见**的常驻占位层（修复「满屏点不动」）✓
+    private FeFlowSkeleton? _feFlow;             // 🔴 同上：外壳流程占位骨架 ✓
 
     public override void _Ready()
     {
@@ -170,17 +173,35 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
         };
         statusPanel.AddChild(_status);
 
-        // 阶段2：外壳流程（存梣槽窗口 1800x434 / 模式选择 500x55 / 版本号）色块占位 —— 数据未接入
-        if (FeFlowSkeleton.TryInstantiate() is FeFlowSkeleton feFlow)
+        // 🔴 2026-10-03 修复（用户报「开始游戏后满屏点不动」的**根因**）：阶段2 的两个满屏占位骨架
+        //    **不再无条件常驻可见** —— 它们内部的 `Fill` 是 `ColorRect`（引擎默认 `mouse_filter=Stop`）⇒
+        //    常驻时压在主菜单上、把三选一按钮的点击**全部吞掉**（实测读数：吞点击 9 ⇒ 一个按钮都点不动）⚠️
+        //    三条一起才算修好：
+        //      ① 常驻但**默认不可见** —— 结构仍在（`§14.0.68` 不换不删），只是不参与命中/绘制；
+        //      ② 由**玩家可达的入口**打开（下面的 `PlaceholderRow`；不塞进三选一 ⇒ 不改「三选一」契约）；
+        //      ③ 打开后**关得掉** —— 住在既有 `OverlayLayer`（不造新轮子）：遮罩 + 模态栈 + Esc 全兜底 ✓
+        _overlay = Darkest.UI.OverlayLayer.TryInstantiate();
+        if (_overlay is not null)
         {
-            AddChild(feFlow);
+            AddChild(_overlay);
         }
 
+        // 阶段2：外壳流程（存档槽窗口 1800x434 / 模式选择 500x55 / 版本号）色块占位 —— 数据未接入
+        _feFlow = FeFlowSkeleton.TryInstantiate();
+        MountPlaceholder(_feFlow, "外壳流程");
+
         // 阶段2：制作人员屏（DD shared/credits：背景 0,0 + 返回 64,148）色块占位 —— 数据未接入
-        if (CreditsSkeleton.TryInstantiate() is CreditsSkeleton credits)
-        {
-            AddChild(credits);
-        }
+        _credits = CreditsSkeleton.TryInstantiate();
+        MountPlaceholder(_credits, "制作人员");
+
+        // 🔴 2026-10-03：占位骨架的**玩家可达入口** —— 此前两个骨架只有「常驻叠加」这一种用法：
+        //    既盖住菜单、又没有打开入口（`rg` 确认全项目 0 处引用）⇒ 结构在、玩法不在。
+        //    🔴 位置 = **标题与三选一之间**（`MoveChild(row, 1)`）：放列尾会把 `StatusPanel` 往上顶 44px
+        //    （`OptionsPanel` 是 `size_flags_vertical=3` ⇒ 多一行 = 展开量少一行）⇒ 实测 `MenuStatus` y 979..1002
+        //    撞进屏底 DD 占位热区 `MenuControllerHotArea`（anchor_top 0.9 ⇒ y 972..1008）⇒ 判据读数「重叠对 1」（红线 25：以读数为准）。
+        //    插在 `TitlePanel` 之后 ⇒ 底部几何回到基线（`StatusPanel` 仍 y 1020..1056）✓
+        //    **三选一仍是三选一**：占位层入口与目的地入口分成两组，不混 ✓
+        AddPlaceholderRow();
         _status.Text = $"跨趟状态：金钱 {economy.Gold}　名册 {roster.Heroes.Count}/{roster.Cap}　" +
                        $"最低士气 {roster.Heroes.Min(h => roster.MoraleOf(h.Id))}";
 
@@ -297,6 +318,96 @@ public partial class MainMenuRoot : Control, Darkest.UI.IUiPanel
         {
             CallDeferred(nameof(PressMenu), menuIndex);
         }
+    }
+
+    /// <summary>
+    /// 🔴 2026-10-03：把阶段2 占位骨架挂进 `OverlayLayer.ModalHost` 并**一律先藏**。
+    /// 纪律：宿主 = 既有 Overlay 层（`ui_spec §11.4⑤` 的「点开」那一层）⇒ 遮罩/模态栈/Esc 全部复用，不另造开关逻辑 ✓
+    /// ⚠️ 挂载点缺失（场景缺失）⇒ 回落挂自己身上；骨架缺失 ⇒ 打印后返回（红线 21：不留不可解释的状态）✓
+    /// </summary>
+    private void MountPlaceholder(Control? layer, string title)
+    {
+        if (layer is null)
+        {
+            GD.Print($"[MainMenuRoot] 「{title}」占位骨架不可用（场景缺失）—— 入口按钮会如实报，不静默");
+            return;
+        }
+
+        // 🔴 挂进 ModalHost（而不是 MainMenuRoot 自己）⇒ `OpenModal` 不必再搬树；
+        //    节点**在树内** ⇒ 切场景时随宿主一起释放（不留孤儿节点）✓
+        Control host = _overlay?.ModalHost ?? this;
+        host.AddChild(layer);
+        layer.Visible = false;
+        // 🔴 「返回」色块 ⇒ 真能点（占位块是 PanelContainer ⇒ 默认不接输入；见 PlaceholderBackButton）✓
+        Darkest.UI.PlaceholderBackButton.Wire(layer.GetNodeOrNull<PanelContainer>(layer is CreditsSkeleton ? "CrBackButton" : "FfBackButton"),
+            ClosePlaceholders);
+    }
+
+    /// <summary>🔴 2026-10-03：占位骨架入口行（两个按钮，与「三选一」目的地入口分开）✓</summary>
+    private void AddPlaceholderRow()
+    {
+        var row = new HBoxContainer { Name = "PlaceholderRow" };
+        row.AddThemeConstantOverride("separation", 8);
+        _menuCol.AddChild(row);
+        _menuCol.MoveChild(row, 1);   // 🔴 位置依据见调用点注释（插在 TitlePanel 之后 ⇒ 底部几何不动）✓
+        row.AddChild(MakePlaceholderButton("制作人员（占位骨架）", _credits, "制作人员"));
+        row.AddChild(MakePlaceholderButton("外壳流程（占位骨架）", _feFlow, "外壳流程"));
+    }
+
+    private Button MakePlaceholderButton(string text, Control? layer, string title)
+    {
+        var button = new Button
+        {
+            Name = $"Open{title}",
+            Text = text,
+            CustomMinimumSize = new Vector2(0, 32),
+            TooltipText = "阶段2 色块占位骨架（数据未接入）⇒ 打开看排布；Esc 或「返回」块可关",
+        };
+        button.Pressed += () => OpenPlaceholder(layer, title);
+        return button;
+    }
+
+    /// <summary>打开占位层（走既有 Overlay 模态栈 ⇒ 遮罩 + 栈顶 + Esc 全自动）✓</summary>
+    private void OpenPlaceholder(Control? layer, string title)
+    {
+        if (layer is null)
+        {
+            GD.Print($"[MainMenuRoot] 🔴 「{title}」骨架不可用（场景缺失）—— 红线 21：不留不可解释的状态");
+            return;
+        }
+
+        if (_overlay is null)
+        {
+            layer.Visible = true; // 回落：无 Overlay 层 ⇒ 直接显示（「返回」块仍可关，不静默）✓
+            GD.Print($"[MainMenuRoot] Overlay 层缺失 ⇒ 「{title}」按回落路径显示（「返回」块可关）✓");
+            return;
+        }
+
+        _overlay.OpenModal(layer);
+    }
+
+    /// <summary>关掉两个占位层（「返回」色块的回调；Esc 由 OverlayLayer 统一兜底）✓</summary>
+    private void ClosePlaceholders()
+    {
+        if (_overlay is not null)
+        {
+            _overlay.CloseModal(_credits);
+            _overlay.CloseModal(_feFlow);
+        }
+        else
+        {
+            if (_credits is not null)
+            {
+                _credits.Visible = false;
+            }
+
+            if (_feFlow is not null)
+            {
+                _feFlow.Visible = false;
+            }
+        }
+
+        GD.Print("[MainMenuRoot] 占位层已关闭 ⇒ 回主菜单（三选一可点）✓");
     }
 
     private void AddMenuButton(string text, string scenePath, int index)

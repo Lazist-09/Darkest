@@ -15,7 +15,7 @@ theme = ExtResource("1_theme")
 script = ExtResource("2_cr")
 
 
-[node name="LayerTitle" type="Label" parent="CreditsSkeleton"]
+[node name="LayerTitle" type="Label" parent="."]
 layout_mode = 0
 anchor_left = 0.004
 anchor_top = 0.004
@@ -44,6 +44,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "制作人员"
 [node name="Fill" type="ColorRect" parent="CrBasePanel"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="CrBackButton" type="PanelContainer" parent="."]
@@ -66,6 +67,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "返回"
 [node name="Fill" type="ColorRect" parent="CrBackButton"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="CrScrollBody" type="PanelContainer" parent="."]
@@ -88,4 +90,5 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "名单正文"
 [node name="Fill" type="ColorRect" parent="CrScrollBody"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2

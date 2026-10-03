@@ -16,14 +16,22 @@ script = ExtResource("2_bn")
 
 [node name="BannerPanel" type="PanelContainer" parent="."]
 layout_mode = 0
-anchor_left = 0.2
+; 🔴 2026-10-03（锚点反向修复）：原 anchor_left=0.200 > anchor_right=0.000（未声明 ⇒ 默认 0）
+;    ⇒ 宽 = (0.000−0.200)×屏宽 = **负值**（被引擎夹到最小尺寸）⇒ 实际几何与「顶部居中」的注释不符（实测读数：anchor 1 处）。
+;    改法：锚点相等 + 偏移表达（同 BuildingPopupBody 的居中姿势）⇒ 754x136 顶部居中，读数与意图一致 ✓
+anchor_left = 0.5
 anchor_top = 0.02
+anchor_right = 0.5
+anchor_bottom = 0.02
+offset_left = -377.0
+offset_right = 377.0
+offset_bottom = 136.0
 custom_minimum_size = Vector2(754, 136)
 mouse_filter = 2
 tooltip_text = "战斗横幅（DD panel_banner.png 754x136 · 屏位未取得 ⇒ 顶部居中约定）"
 
 [node name="BannerBackground" type="ColorRect" parent="BannerPanel"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 

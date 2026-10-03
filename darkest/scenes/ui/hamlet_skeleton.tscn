@@ -105,6 +105,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "铁匠铺"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav1_blacksmith"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="DDNav2_guild" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
@@ -124,6 +125,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "公会"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav2_guild"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="DDNav3_camping_trainer" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
@@ -143,6 +145,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "训练师"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav3_camping_trainer"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="DDNav4_tavern" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
@@ -170,6 +173,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "疗养院"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav6_sanitarium"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="DDNav7_nomad_wagon" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
@@ -189,6 +193,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "游商"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav7_nomad_wagon"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="DDNav8_graveyard" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
@@ -208,6 +213,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "坟场"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav8_graveyard"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="DDNav9_statue" type="PanelContainer" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav"]
@@ -227,6 +233,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "雕像"
 [node name="NavPlaceholder" type="ColorRect" parent="HamletMargin/HamletRootCol/Body/LeftColumn/LeftCol/BuildingNav/DDNav9_statue"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="Overlay" type="Control" parent="."]
@@ -256,6 +263,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "地产总览"
 [node name="EstateSummaryPlaceholder" type="ColorRect" parent="Overlay/EstateSummary"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="RealmInventory" type="PanelContainer" parent="Overlay"]
@@ -278,6 +286,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "领域库存"
 [node name="RealmInventoryPlaceholder" type="ColorRect" parent="Overlay/RealmInventory"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 阶段2 城池批(5)：E 盘直读 town.layout [town_screen_layout] —— activity_log_pos 与 town_event_pos 同为 144,132（共享一位）
@@ -302,6 +311,7 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "活动日志"
 [node name="ActivityLogFill" type="ColorRect" parent="Overlay/ActivityLogAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 阶段2：E 盘 shared/estate estate_cost_hot_spot_layout.size **100x50**（费用热区）
@@ -328,4 +338,5 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "地产费用"
 [node name="Fill" type="ColorRect" parent="Overlay/EstateCostHotSpot"]
 color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2

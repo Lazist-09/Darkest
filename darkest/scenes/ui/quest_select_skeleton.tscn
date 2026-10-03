@@ -97,7 +97,11 @@ layout_mode = 0
 anchor_left = 0.394   ; P5：DD party_name_pos 756/1920
 anchor_top = 0.772   ; P5：DD party_name_pos 834/1080
 anchor_right = 0.95
-anchor_bottom = 0.7
+; 🔴 2026-10-03（锚点反向修复）：原 anchor_top 0.772 > anchor_bottom 0.700 ⇒ 高 = (0.700−0.772)×MapArea 高 = **负值**
+;    （被引擎夹到 Label 的最小高）⇒ 几何不可预期，且静态审计读数报「锚点反向」（实测 anchor 1 处）。
+;    改法：纵向锚点相等 + offset_bottom = 28（= 单行行高，正文档）⇒ 语义明确、读数可复算 ✓
+anchor_bottom = 0.772
+offset_bottom = 28.0
 text = "队伍名（DD party_name_pos 756,834）"
 
 ; 阶段2 子流程批(2)：quest_select —— 位置项按屏幕级 ÷1920、÷1080；**自带尺寸项直接用 DD 原值**（来源①最可信 ✓）
@@ -121,7 +125,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "任务地图"
 [node name="Fill" type="ColorRect" parent="QsQuestMapAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="QsAllQuestMapAnchor" type="PanelContainer" parent="."]
@@ -143,7 +147,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "全图"
 [node name="Fill" type="ColorRect" parent="QsAllQuestMapAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="QsEffectOverlayAnchor" type="PanelContainer" parent="."]
@@ -165,7 +169,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "地牢效果"
 [node name="Fill" type="ColorRect" parent="QsEffectOverlayAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="QsDungeonXpBar" type="PanelContainer" parent="."]
@@ -188,7 +192,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "地牢经验"
 [node name="Fill" type="ColorRect" parent="QsDungeonXpBar"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="QsXpBarTtHotArea" type="PanelContainer" parent="."]
@@ -211,7 +215,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "经验热区"
 [node name="Fill" type="ColorRect" parent="QsXpBarTtHotArea"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="QsTownEventIconTt" type="PanelContainer" parent="."]
@@ -234,7 +238,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "城镇事件"
 [node name="Fill" type="ColorRect" parent="QsTownEventIconTt"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="QsCampingTt" type="PanelContainer" parent="."]
@@ -257,7 +261,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "扎营提示"
 [node name="Fill" type="ColorRect" parent="QsCampingTt"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="QsWaveHighscoreTt" type="PanelContainer" parent="."]
@@ -280,5 +284,5 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "波次高分"
 [node name="Fill" type="ColorRect" parent="QsWaveHighscoreTt"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2

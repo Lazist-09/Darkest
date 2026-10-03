@@ -47,16 +47,27 @@ public partial class BattleUI : Control
         // 🔴 背景：世界层暗色底（落在相机视口、压在角色之下），**不在 UI(CanvasLayer) 层** ⇒
         //   不会盖住 HUD，也不会盖住世界单位（单位运行时加入世界层、位于 bg 之上）✓
         //   （旧实现把满屏不透明 bg 放在 UI 层 ⇒ 直接遮住世界单位；现归世界层、随相机视口定位）
+        // 🔴 2026-10-03（**重入 `Bind()` 的世界层泄漏** ＋ **吞点击**，两条一起修）：
+        //   ① `Bind()` 的 `QueueFree()` 只清**本节点子树**，而 bg 挂在**世界层**（`worldRoot`）⇒ 第 2 次 `Bind()`
+        //      时场上同时有两张满屏 `Panel`（S1 骨架指纹实测：`BattleBg#45801801347` ⇒ `@Panel@29#69625449165`；
+        //      后者是「旧 `BattleBg` 还活着 ⇒ Godot 给同名新节点自动改名」的产物）⇒ 改为**复用**：`_bg` 仍有效就不新建 ✓
+        //   ② 两张都是 `mouse_filter=Stop` ⇒ 判据 3 各报 2 处「点不动」（`StartExpedition`／`ToHamlet`）。
+        //      背景是**装饰** ⇒ 置 `Ignore`（`Pass` 仍会吞掉画在它下面的兄弟 —— 见 `LayoutAudit.Clicks.cs` 引擎实测）✓
         Camera2D? cam = GetParent()?.GetParent()?.GetNode<Camera2D>("Camera2D");
-        var bg = new Panel { Name = "BattleBg" };
+        Panel bg = _bg is Panel aliveBg && GodotObject.IsInstanceValid(aliveBg) ? aliveBg : new Panel { Name = "BattleBg" };
         _bg = bg; // 🔴 `#327` S1：背景属于【必须存活的骨架】（其 id 在进战斗前后应不变）
+        bg.MouseFilter = Control.MouseFilterEnum.Ignore;
         bg.Modulate = Darkest.UI.DdTheme.BgDeep;
         Vector2 viewSize = GetViewport().GetVisibleRect().Size;
         Vector2 camCenter = cam is not null ? cam.Position : viewSize * 0.5f;
         bg.Position = camCenter - viewSize * 0.5f;
         bg.Size = viewSize;
         Node worldRoot = GetParent()?.GetParent() ?? this;
-        worldRoot.AddChild(bg);
+        if (bg.GetParent() != worldRoot)
+        {
+            bg.GetParent()?.RemoveChild(bg);
+            worldRoot.AddChild(bg);
+        }
 
         var uiMargin = new MarginContainer { Name = "BattleMargin" };
         uiMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -94,6 +105,14 @@ public partial class BattleUI : Control
         uiCol.AddChild(midPanel);
         var midRow = new Control { Name = "StageLayer", SizeFlagsVertical = Control.SizeFlags.ShrinkEnd };   // 🔴 相机口径：不参与垂直拉伸   // 🔴 DD 1:1 ④-3c：中段**底对齐**（DD overlays y=680/1080 = 63.0% ⇒ 立绘站在低处；容器语义 = ShrinkEnd）✓
         midRow.AddThemeConstantOverride("separation", 8);
+        // 🔴 2026-10-03 布局审计（`reports/ui_layout_audit_20261003.md`）：`StageLayer` 是**纯 Control**（不是容器）
+        //    ⇒ 它的最小高 = **0**，而同层 `MidPadTop` 是 `ExpandFill` ⇒ 中段整条被空档吃光、舞台带被压成 **0 高**；
+        //    锚在下方的 `PlayerArea`/`EnemyArea`（`0.6297~0.95`）因此全落空，卡片溢出 **233px** 钻进底栏面板之下
+        //    ⇒ 玩家实测「卡牌看不见、点不动」（判据报 7 处吞点击）。
+        //    ⇒ 显式给出**舞台带最小高** = 标题 27 + 卡 112 + 辅 86 + 两道间距 8 = 233 ⇒ 取 **246**（余量 13）✓
+        //    ⚠️ 数值只登记不动：240 是**排版预算**，不是玩法数值（`§39` 冻结不涉及）✓
+        const float stageBandMinH = CardH + SupportH + 48f;
+        midRow.CustomMinimumSize = new Vector2(0, stageBandMinH);
         var midCol = new VBoxContainer { Name = "MidCol" };   // P4-c(A)：DD overlays y=680/1080=0.6297 ⇒ 用顶部空档比例表达（不写像素）
         midCol.AddThemeConstantOverride("separation", 0);
         midCol.AddChild(new Control { Name = "MidPadTop", SizeFlagsVertical = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.6297f });
@@ -129,6 +148,9 @@ public partial class BattleUI : Control
         // 🔴 屏幕空间覆盖层（状态托盘 / 地图角 / 攻击覆盖位 / 怪物面板 / 换位按钮 / 库存网格）：
         //    这些都是**全屏坐标**（y 0.078~0.676），绝不能留在底栏 HBox —— 否则锚点只会对到底栏那一小块，
         //    整片托盘被压成一坨。挂到 FullRect 的 `_uiRoot` 上，锚点才能对到整块 1920×1080 画布。
+        //    ✅ 2026-10-03 收口：底栏 `battle_bottombar.tscn` 里那 33 个**屏幕级占位**（含这 6 个的旧副本）
+        //       已全部搬进本覆盖层 —— 搬前底栏最小宽被 HBox 流式排布累加到 **5310 px**、
+        //       `get_combined_minimum_size()` = 2232×360；搬后底栏只剩五区（见 `BattleBottomBarSkeleton.cs` 抬头）✓
         var overlayScene = GD.Load<PackedScene>("res://scenes/ui/battle_overlay.tscn");
         if (overlayScene is not null)
         {
@@ -137,6 +159,17 @@ public partial class BattleUI : Control
             _uiRoot.AddChild(overlay);
             _statusTray = overlay.GetNodeOrNull<Control>("StatusTray");
             GD.Print("[BattleUI] ✅ 战斗屏幕空间覆盖层就位（状态托盘回到全屏坐标，不再被底栏 HBox 压缩）");
+
+            // 🔴 2026-10-03 布局审计（`reports/ui_layout_audit_20261003.md`）：`battle_overlay.tscn` 的 `MapCorner`
+            //    （DD `panel.map` 占位板 · 720×360 · 锚 0.615~0.99 × 0.6367~0.97）与底栏 **E 区多功能框是同一块 DD 区域**，
+            //    而覆盖层画在底栏**之上** ⇒ 占位板的半透明洗色（`UiPalette.PlaceholderFill` · alpha 0.22）压住真内容，
+            //    「地图 ／ 地图页签 ／ 地图回中按钮」三个占位文字还飘在多功能框上 ⚠️
+            //    E 区已自带【地图】页（`SetMultiFunctionPage(4)` · 格子主画面）⇒ 真内容在 ⇒ 占位板**隐藏** ✓
+            //    ⚠️ 只改可见性、**不删节点**：`tools/dsh/check_dd_layout.ps1` 按名字 grep `MapCorner`（DD 台账，不换不删）✓
+            if (_mfPanel is not null && overlay.GetNodeOrNull<Control>("MapCorner") is Control mapPlaceholder)
+            {
+                mapPlaceholder.Visible = false;
+            }
         }
 
         // 结算 / 开发者日志 = **满屏不透明模态**（挂 `_uiRoot`：它是真 `Control` ⇒ `FullRect` 锚点算得出满屏 ✓）

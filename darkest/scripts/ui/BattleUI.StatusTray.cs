@@ -25,11 +25,13 @@ public partial class BattleUI : Control
             return;
         }
 
-        // DD 1:1 3-1：骨架优先 —— 骨架里已放好 8 槽（编辑器可改）则直接用，缺失才代码建
-        if (_bottomBarSkel?.StatusTray is Control skelTray)
+        // 🔴 2026-10-03：托盘**已搬出底栏**（底栏是 HBox，屏幕比例的锚点进去只会被压扁 —— 见 `battle_overlay.tscn` 抬头）
+        //    ⇒ 先认屏幕空间覆盖层那份（`Build()` 已赋值；这里是 `ForgetLazyPanels()` 之后的兜底重解析）；
+        //      覆盖层也不在（场景被删）才代码建 —— 三条路径都打印，别静默 ✗
+        if (_uiRoot.GetNodeOrNull<Control>("BattleOverlay/StatusTray") is Control ovlTray)
         {
-            _statusTray = skelTray;
-            GD.Print("[UI 战斗] OK 托盘采用骨架 battle_bottombar.tscn/StatusTray（编辑器里可改）");
+            _statusTray = ovlTray;
+            GD.Print("[UI 战斗] OK 托盘采用屏幕空间覆盖层 battle_overlay.tscn/StatusTray（编辑器里可改）");
             return;
         }
 

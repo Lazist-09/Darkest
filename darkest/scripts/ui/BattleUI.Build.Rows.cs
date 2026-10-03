@@ -142,7 +142,10 @@ public partial class BattleUI : Control
         var playerArea = new VBoxContainer { Name = "PlayerArea", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         playerArea.AddThemeConstantOverride("separation", 4);
         _midRow.AddChild(new Control { Name = "MidPadLeft", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.148f });   // DD 左空 284/1920 ✓
-        playerArea.AnchorLeft = 0.148f; playerArea.AnchorRight = 0.410f; playerArea.AnchorTop = 0.6297f; playerArea.AnchorBottom = 0.95f;   // C2a：DD overlays（hero band 284-788 · y 680/1080）
+        // 🔴 2026-10-03 布局审计：纵向锚点 0.6297~0.95 原本对的是**满屏 1080**，但父级 `StageLayer` 实测高 **0**
+        //    ⇒ 带子落空、卡片溢出钻到底栏之下（既看不见也点不动）⇒ 纵向改为**吃满舞台带**（0~1），
+        //    带高由 `BattleUI.Build.cs` 的 `stageBandMinH` 保证；**横向仍守 DD 1:1 带宽**（284→788 = 26.2%）✓
+        playerArea.AnchorLeft = 0.148f; playerArea.AnchorRight = 0.410f; playerArea.AnchorTop = 0f; playerArea.AnchorBottom = 1f;   // C2a：DD overlays（hero band 284-788 · 26.2% 宽）
         _midRow.AddChild(playerArea);   // 🔴 DD 1:1 ④-3a：英雄 band 284→788 = 26.2% ✓
         playerArea.SizeFlagsStretchRatio = 0.262f;
 
@@ -158,13 +161,16 @@ public partial class BattleUI : Control
 
         var vs = new Label { Text = "VS", CustomMinimumSize = new Vector2(24, 24), VerticalAlignment = VerticalAlignment.Center };
         vs.AddThemeColorOverride("font_color", Darkest.UI.DdTheme.Danger);
-        vs.AnchorLeft = 0.41f; vs.AnchorRight = 0.547f; vs.AnchorTop = 0.6297f; vs.AnchorBottom = 0.95f;   // C2a：VS 分隔居中于两 band 之间
+        vs.HorizontalAlignment = HorizontalAlignment.Center;   // 🔴 2026-10-03 布局审计：本 Label 的矩形**按设计**吃满中缝（259 宽 × 舞台带高 246），
+                                                              //    默认左对齐会把「VS」画到中缝左边缘（贴着我方卡名）⇒ 居中才对得上 DD 语义 ✓
+        vs.MouseFilter = Control.MouseFilterEnum.Ignore;       // 纯展示：逐控件写（父级 Ignore 不豁免子节点）✓
+        vs.AnchorLeft = 0.41f; vs.AnchorRight = 0.547f; vs.AnchorTop = 0f; vs.AnchorBottom = 1f;   // C2a：VS 分隔居中于两 band 之间（纵向吃满舞台带，同 PlayerArea）
         _midRow.AddChild(vs);
         _midRow.AddChild(new Control { Name = "MidPadCenter", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.137f });   // DD 中缝 (1050-788)/1920 ✓
 
         var enemyArea = new VBoxContainer { Name = "EnemyArea", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         enemyArea.AddThemeConstantOverride("separation", 4);
-        enemyArea.AnchorLeft = 0.547f; enemyArea.AnchorRight = 0.809f; enemyArea.AnchorTop = 0.6297f; enemyArea.AnchorBottom = 0.95f;   // C2a：DD overlays（monster band 1050-1554）
+        enemyArea.AnchorLeft = 0.547f; enemyArea.AnchorRight = 0.809f; enemyArea.AnchorTop = 0f; enemyArea.AnchorBottom = 1f;   // C2a：DD overlays（monster band 1050-1554 · 26.2% 宽）
         _midRow.AddChild(enemyArea);   // 🔴 DD 1:1 ④-3a：怪物 band 1050→1554 = 26.2% ✓
         GD.Print("[UI-TRACE] stage-layer-ready");   // C2a/C4：舞台层与 DD 锚点就位（供 ui_sweep 观察）
         ShowBanner();   // 阶段2 施工④：显示 DD panel.banner 战斗横幅（骨架优先/缺失回落）
@@ -231,12 +237,15 @@ public partial class BattleUI : Control
             Darkest.UI.DdTheme.MakePanelStyle(Darkest.UI.DdTheme.PanelBgRaised, Darkest.UI.DdTheme.Gold));
 
         // 🔴 P5：**橙框 = 当前角色头像 + 技能选择**（头像留框+色块占位+名字；技能栏在其下）✓
-        _actorRow = new HBoxContainer { Name = "CurrentActorRow" };
+        // 🔴 2026-10-03 布局审计：橙框这一行 = **纯展示**（头像占位色块 + 名字 Label，无任何可点控件）
+        //    ⇒ 三件（行/框/色块）一律 `Ignore`：`mouse_filter` 是**逐控件**的，父级 `Ignore` 不豁免子节点
+        //    ⇒ 必须逐件写，否则仍会吞掉下方卡牌的点击（实测 5/7 条「点不动」出自这里）✓
+        _actorRow = new HBoxContainer { Name = "CurrentActorRow", MouseFilter = Control.MouseFilterEnum.Ignore };
         _actorRow.AddThemeConstantOverride("separation", 6);
         cCol.AddChild(_actorRow);
-        var actorFrame = new PanelContainer { Name = "CurrentActorFrame", CustomMinimumSize = new Vector2(36, 36) };
+        var actorFrame = new PanelContainer { Name = "CurrentActorFrame", CustomMinimumSize = new Vector2(36, 36), MouseFilter = Control.MouseFilterEnum.Ignore };
         _actorRow.AddChild(actorFrame);
-        _actorPortrait = new ColorRect { Name = "CurrentActorPlaceholder", Color = Darkest.UI.DdTheme.PanelBgRaised };
+        _actorPortrait = new ColorRect { Name = "CurrentActorPlaceholder", Color = Darkest.UI.DdTheme.PanelBgRaised, MouseFilter = Control.MouseFilterEnum.Ignore };
         actorFrame.AddChild(_actorPortrait);
         _actorName = new Label { Name = "CurrentActorName", VerticalAlignment = VerticalAlignment.Center };
         _actorRow.AddChild(_actorName);
@@ -250,6 +259,9 @@ public partial class BattleUI : Control
 
         // 🔴 用户更正（2026-09-16）：**技能框下方 = 角色详情框**（紫边；多功能框回右侧原位）✓
         _actorDetailBox = _bottomBarSkel?.ActorDetailBox ?? new PanelContainer { Name = "ActorDetailBox", CustomMinimumSize = new Vector2(0, 84) };
+        // 🔴 2026-10-03 布局审计：本框内部只有 1 个 Label（`_actorDetail`）⇒ **纯展示** ⇒ `Ignore`
+        //    （此前 Stop ⇒ 盖住 2 张支援位卡，判据报 2 条「点不动」）✓
+        ((Control)_actorDetailBox).MouseFilter = Control.MouseFilterEnum.Ignore;
         ((Control)_actorDetailBox).AddThemeStyleboxOverride("panel",
             Darkest.UI.DdTheme.MakePanelStyle(Darkest.UI.DdTheme.PanelBgRaised.Lightened(0.22f), Darkest.UI.DdTheme.Mental));
         _actorDetail = new Label

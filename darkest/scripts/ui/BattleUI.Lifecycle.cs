@@ -117,7 +117,7 @@ public partial class BattleUI : Control
         _walkHud = null;              // 行走 HUD
         _mapModeCurio = null;         // Curio（事件房）
         _mapModeHunger = null;        // 饥饿面板
-        _statusTray = null;           // 4v4 状态托盘（骨架内 ⇒ 随子树一起死）
+        _statusTray = null;           // 4v4 状态托盘（**屏幕空间覆盖层**内 ⇒ 随子树一起死；2026-10-03 搬出底栏）
         _banner = null;               // 战斗横幅（挂 `_uiRoot`）
         _mapModeScoutMark = null;     // 侦察标记（当前不创建：登记以免将来复活时悬空）
         _mapModeInventory = null;     // 背包（同上）

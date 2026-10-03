@@ -12,8 +12,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource("9_theme")
 mouse_filter = 2
-
-; DD 1:1 3-1：紧凑状态托盘（全屏浮层；比例来自 DD status_bars 与 overlays）
 [node name="StatusTray" type="Control" parent="."]
 mouse_filter = 2
 anchors_preset = 15
@@ -21,206 +19,854 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="HeroTray1" type="Control" parent="StatusTray"]
-layout_mode = 0
+mouse_filter = 2
 anchor_left = 0.41
 anchor_top = 0.646
 anchor_right = 0.514
-anchor_bottom = 0.6653
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="EnemyTray1" type="Control" parent="StatusTray"]
-layout_mode = 0
+mouse_filter = 2
 anchor_left = 0.547
 anchor_top = 0.646
 anchor_right = 0.651
-anchor_bottom = 0.6653
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="HeroTray2" type="Control" parent="StatusTray"]
-layout_mode = 0
+mouse_filter = 2
 anchor_left = 0.323
 anchor_top = 0.646
 anchor_right = 0.427
-anchor_bottom = 0.6653
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="EnemyTray2" type="Control" parent="StatusTray"]
-layout_mode = 0
+mouse_filter = 2
 anchor_left = 0.634
 anchor_top = 0.646
 anchor_right = 0.738
-anchor_bottom = 0.6653
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="HeroTray3" type="Control" parent="StatusTray"]
-layout_mode = 0
+mouse_filter = 2
 anchor_left = 0.235
 anchor_top = 0.646
 anchor_right = 0.339
-anchor_bottom = 0.6653
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="EnemyTray3" type="Control" parent="StatusTray"]
-layout_mode = 0
+mouse_filter = 2
 anchor_left = 0.722
 anchor_top = 0.646
 anchor_right = 0.826
-anchor_bottom = 0.6653
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="HeroTray4" type="Control" parent="StatusTray"]
-layout_mode = 0
+mouse_filter = 2
 anchor_left = 0.148
 anchor_top = 0.646
 anchor_right = 0.252
-anchor_bottom = 0.6653
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
 [node name="EnemyTray4" type="Control" parent="StatusTray"]
-layout_mode = 0
+mouse_filter = 2
 anchor_left = 0.809
 anchor_top = 0.646
 anchor_right = 0.913
-anchor_bottom = 0.6653
+anchor_bottom = 0.6653   ; P4-b: taller slot so stress bar sits just below hp bar (DD stress_offset -1,12)
 
-; P4-b(1b)：DD status_bars 的图标位（tray_icon_left/right_offset 58/62,-38 · hot_spot 20x24）
-; 需美术图标 ⇒ 按硬规矩 §14.0.68 一律 ColorRect 色块占位（不换不删）；y = (698-38)/1080 = 0.611
+; P4-b(1b)：DD status_bars 的图标位（tray_icon_left/right_offset 58/62,-38 · round_indicator_icon_offset 10,-4）
+; 需美术图标 ⇒ 按硬规矩 §14.0.68 一律 ColorRect **色块占位**（不换不删）；y = (698-38)/1080 = 0.611
+
 [node name="HeroIcon1" type="ColorRect" parent="StatusTray"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.41
 anchor_top = 0.611
 anchor_right = 0.4204
 anchor_bottom = 0.633
 mouse_filter = 2
-tooltip_text = "icon Hero1 (DD tray_icon_left 58,-38 / right 62,-38; needs art => color placeholder, keep)"
+tooltip_text = "图标位 Hero1（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="EnemyIcon1" type="ColorRect" parent="StatusTray"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.547
 anchor_top = 0.611
 anchor_right = 0.5574
 anchor_bottom = 0.633
 mouse_filter = 2
-tooltip_text = "icon Enemy1 (DD tray_icon; needs art => color placeholder, keep)"
+tooltip_text = "图标位 Enemy1（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="HeroIcon2" type="ColorRect" parent="StatusTray"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.323
 anchor_top = 0.611
 anchor_right = 0.3334
 anchor_bottom = 0.633
 mouse_filter = 2
-tooltip_text = "icon Hero2 (DD tray_icon; needs art => color placeholder, keep)"
+tooltip_text = "图标位 Hero2（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="EnemyIcon2" type="ColorRect" parent="StatusTray"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.634
 anchor_top = 0.611
 anchor_right = 0.6444
 anchor_bottom = 0.633
 mouse_filter = 2
-tooltip_text = "icon Enemy2 (DD tray_icon; needs art => color placeholder, keep)"
+tooltip_text = "图标位 Enemy2（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="HeroIcon3" type="ColorRect" parent="StatusTray"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.235
 anchor_top = 0.611
 anchor_right = 0.2454
 anchor_bottom = 0.633
 mouse_filter = 2
-tooltip_text = "icon Hero3 (DD tray_icon; needs art => color placeholder, keep)"
+tooltip_text = "图标位 Hero3（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="EnemyIcon3" type="ColorRect" parent="StatusTray"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.722
 anchor_top = 0.611
 anchor_right = 0.7324
 anchor_bottom = 0.633
 mouse_filter = 2
-tooltip_text = "icon Enemy3 (DD tray_icon; needs art => color placeholder, keep)"
+tooltip_text = "图标位 Enemy3（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="HeroIcon4" type="ColorRect" parent="StatusTray"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.148
 anchor_top = 0.611
 anchor_right = 0.1584
 anchor_bottom = 0.633
 mouse_filter = 2
-tooltip_text = "icon Hero4 (DD tray_icon; needs art => color placeholder, keep)"
+tooltip_text = "图标位 Hero4（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="EnemyIcon4" type="ColorRect" parent="StatusTray"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.809
 anchor_top = 0.611
 anchor_right = 0.8194
 anchor_bottom = 0.633
 mouse_filter = 2
-tooltip_text = "icon Enemy4 (DD tray_icon; needs art => color placeholder, keep)"
+tooltip_text = "图标位 Enemy4（DD tray_icon_left 58,-38 / right 62,-38 · hot_spot 20x24 · 需美术 ⇒ 色块占位，不换不删）"
 
 [node name="RoundIndicator" type="ColorRect" parent="StatusTray"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
-anchor_left = 0.005
+anchor_left = 0.005   ; DD round_indicator_icon_offset 10,-4
 anchor_top = 0.646
 anchor_right = 0.015
 anchor_bottom = 0.665
 mouse_filter = 2
-tooltip_text = "round indicator (DD round_indicator_icon_offset 10,-4; needs art => color placeholder, keep)"
+tooltip_text = "回合指示器（DD round_indicator_icon_offset 10,-4 · spacing 8,0 · 需美术 ⇒ 色块占位，不换不删）"
 
-; P4-a（DD 严格贴合）：panel.map 接右下（只读不可点；数据未接入 ⇒ 色块占位，不换不删）
-; 可视区 DD panel.map clip 16 665 19 340 · 可视区 720x360
-[node name="MapCorner" type="PanelContainer" parent="."]
-layout_mode = 0
-anchor_left = 0.74
-anchor_top = 0.30
-anchor_right = 0.985
-anchor_bottom = 0.62
+; P4 overlays：DD screen.raid.battle 的 .attack_overlay_pos 960,360（屏心）与 .monster_panel_position 946,712
+; ⇒ 比例 0.5/0.3333 与 0.4927/0.6593；数据未接入 ⇒ ColorRect 色块占位（不换不删）
+
+[node name="PurposeLabel" type="Label" parent="RoundIndicator"]
+layout_mode = 2
 mouse_filter = 2
-tooltip_text = "dungeon map (DD panel.map; read-only, no data => color placeholder, keep)"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "回合"
 
+; P4-a（DD 严格贴合）：`panel.map` 接**右下**（用户计划 P4）；只读不可点（mouse_filter=2）
+; 数据未接入 ⇒ 按硬规矩 §14.0.68 用 ColorRect **色块占位**（不换不删）；DD panel.map: pos 4,40 · clip 16 665 19 340 · 可视区 720x360
+[node name="MapCorner" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(720, 360)   ; DD panel_map.png 真实尺寸 720x360（asset_sizes ✓）
+layout_mode = 0
+anchor_left = 0.615   ; 屏位=右下约定（DD 的 panel.map 屏幕位未取得，如实注明）
+anchor_top = 0.6367
+anchor_right = 0.99
+anchor_bottom = 0.97
+mouse_filter = 2
+tooltip_text = "地牢地图（DD panel.map · 只读不可点 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+
+[node name="PurposeLabel" type="Label" parent="MapCorner"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "地图"
 [node name="MapPlaceholder" type="ColorRect" parent="MapCorner"]
-color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
-; P4 overlays：DD screen.raid.battle attack_overlay_pos 960,360 与 monster_panel_position 946,712
+; 阶段2 施工③（ui_spec.json · panel.map，基准 720x360）：tab_placement pos 672,252 size 48,90 · home button_pos 677,24
+[node name="MapTabAnchor" type="PanelContainer" parent="MapCorner"]
+layout_mode = 0
+anchor_left = 0.9333
+anchor_top = 0.7
+anchor_right = 1.0
+anchor_bottom = 0.95
+mouse_filter = 2
+tooltip_text = "地图页签（DD panel.map tab 672,252 · size 48x90 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+
+[node name="PurposeLabel" type="Label" parent="MapTabAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "地图页签"
+[node name="TabPlaceholder" type="ColorRect" parent="MapCorner/MapTabAnchor"]
+mouse_filter = 2
+layout_mode = 2
+
+[node name="MapHomeButton" type="PanelContainer" parent="MapCorner"]
+layout_mode = 0
+anchor_left = 0.9403
+anchor_top = 0.0667
+anchor_right = 0.99
+anchor_bottom = 0.14
+mouse_filter = 2
+tooltip_text = "地图回中按钮（DD panel.map home button_pos 677,24 · 数据未接入 ⇒ 色块占位，不换不删）"
+
+
+[node name="PurposeLabel" type="Label" parent="MapHomeButton"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "地图回中"
+[node name="HomePlaceholder" type="ColorRect" parent="MapCorner/MapHomeButton"]
+mouse_filter = 2
+layout_mode = 2
 [node name="AttackOverlayAnchor" type="ColorRect" parent="."]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.485
 anchor_top = 0.318
 anchor_right = 0.515
 anchor_bottom = 0.349
 mouse_filter = 2
-tooltip_text = "attack overlay anchor (DD screen.raid.battle attack_overlay_pos 960,360; needs fx => color placeholder, keep)"
+tooltip_text = "攻击覆盖位（DD screen.raid.battle .attack_overlay_pos 960,360 · 需特效 ⇒ 色块占位，不换不删）"
 
+
+[node name="PurposeLabel" type="Label" parent="AttackOverlayAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "攻击覆盖"
 [node name="MonsterPanelAnchor" type="ColorRect" parent="."]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
-anchor_left = 0.478
+anchor_left = 0.478   ; DD .monster_panel_position 946,712
 anchor_top = 0.645
 anchor_right = 0.508
 anchor_bottom = 0.676
 mouse_filter = 2
-tooltip_text = "monster panel anchor (DD screen.raid.battle monster_panel_position 946,712; no data => color placeholder, keep)"
+tooltip_text = "怪物面板位（DD screen.raid.battle .monster_panel_position 946,712 · 数据未接入 ⇒ 色块占位，不换不删）"
 
-; 补位：DD panel.tab reorder_party button_pos 678,90 与 pannel.inventory raid grid
+; 补位：DD panel.tab 的 reorder_party .button_pos 678,90 与 pannel.inventory 的 8 列网格（start 20,28 / offset 80,160）
+; 均未接入数据/美术 ⇒ ColorRect 色块占位（不换不删）；注意 inventory 面板的**屏幕位置**不在该文件里 ⇒ 不猜 ✗
+
+[node name="PurposeLabel" type="Label" parent="MonsterPanelAnchor"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "怪物面板"
 [node name="RaidReorderPartyButton" type="ColorRect" parent="."]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
-anchor_left = 0.345
-anchor_top = 0.078
+anchor_left = 0.345   ; DD panel.tab reorder_party .button_pos 678/1920
+anchor_top = 0.078   ; 90/1080
 anchor_right = 0.375
 anchor_bottom = 0.11
 mouse_filter = 2
-tooltip_text = "reorder party button (DD panel.tab reorder_party button_pos 678,90; mf_tab template pending)"
+tooltip_text = "换位按钮位（DD panel.tab reorder_party .button_pos 678,90 · 我域有 mf_tab 模板 ⇒ 待对齐 · 色块占位，不换不删）"
 
 [node name="RaidInventoryGridAnchor" type="ColorRect" parent="."]
-color = Color(0.62, 0.6, 0.58, 0.22)
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
 layout_mode = 0
 anchor_left = 0.735
 anchor_top = 0.30
 anchor_right = 0.985
 anchor_bottom = 0.62
 mouse_filter = 2
-tooltip_text = "raid inventory grid anchor (DD pannel.inventory raid grid 8 cols; screen pos per E area; color placeholder, keep)"
+tooltip_text = "库存网格位（DD pannel.inventory raid grid: 8 列 · start_pos 20,28 · offset 80,160 · 面板屏幕位置未在该文件给出 ⇒ 按 E 区右下占位，不换不删）"
+
+; 阶段2：E 盘 scripts/layout/screen.raid.darkest（34 section / 307 字段）的**自带尺寸**段 ⇒ 同尺寸色块（尺寸=DD 原值 ✓）
+; 注意：[sidebar_scroll] item_slot_size 80x160 与 pannel.inventory 格距 80x160 一致 ✓（互相印证）
+
+[node name="RaidTorchGauge" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.3
+anchor_top = 0.0204
+anchor_right = 0.5083
+anchor_bottom = 0.0241
+custom_minimum_size = Vector2(400, 4)   ; DD size (box=size, px @1920x1080)
+mouse_filter = 2
+tooltip_text = "DD screen.raid [torch_layout] gauge_size 400x4 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
+
+[node name="Fill" type="ColorRect" parent="RaidTorchGauge"]
+mouse_filter = 2
+layout_mode = 2
+
+[node name="RaidBasicScrollBtn" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.3
+anchor_top = 0.0546
+anchor_right = 0.5
+anchor_bottom = 0.088
+custom_minimum_size = Vector2(384, 36)   ; DD size (box=size, px @1920x1080)
+mouse_filter = 2
+tooltip_text = "DD screen.raid [basic_scroll] button_size 384x36 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidBasicScrollBtn"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "基础翻页"
+[node name="Fill" type="ColorRect" parent="RaidBasicScrollBtn"]
+mouse_filter = 2
+layout_mode = 2
+
+[node name="RaidSidebarSlot" type="PanelContainer" parent="."]
+; 尺寸自洽(收尾)：DD [sidebar_scroll] item_slot_size 80x160（尺寸类）· 侧栏位 pos 1348,200 ⇒ 框按 DD 尺寸落位
+layout_mode = 0
+anchor_left = 0.7021
+anchor_top = 0.1852
+anchor_right = 0.7438
+anchor_bottom = 0.3333
+custom_minimum_size = Vector2(80, 160)   ; DD sidebar_scroll item_slot_size
+mouse_filter = 2
+tooltip_text = "DD screen.raid [sidebar_scroll] item_slot_size 80x160 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidSidebarSlot"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "侧栏格"
+[node name="Fill" type="ColorRect" parent="RaidSidebarSlot"]
+mouse_filter = 2
+layout_mode = 2
+
+[node name="RaidResultScrollBtn" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.3
+anchor_top = 0.125
+anchor_right = 0.5
+anchor_bottom = 0.1583
+custom_minimum_size = Vector2(384, 36)   ; DD size (box=size, px @1920x1080)
+mouse_filter = 2
+tooltip_text = "DD screen.raid [result_scroll] button_size 384x36 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidResultScrollBtn"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "结算翻页"
+[node name="Fill" type="ColorRect" parent="RaidResultScrollBtn"]
+mouse_filter = 2
+layout_mode = 2
+
+[node name="RaidTorchInfoArea" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.30
+anchor_top = 0.16
+anchor_right = 0.50
+anchor_bottom = 0.19
+custom_minimum_size = Vector2(200, 130)   ; DD [torch_info] mouseOverAreaSize 200x130
+mouse_filter = 2
+tooltip_text = "DD screen.raid [torch_info] mouseOverAreaSize 200x130 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidTorchInfoArea"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "火把信息"
+[node name="Fill" type="ColorRect" parent="RaidTorchInfoArea"]
+mouse_filter = 2
+layout_mode = 2
+
+[node name="RaidTorchStripArea" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.30
+anchor_top = 0.195
+anchor_right = 0.50
+anchor_bottom = 0.225
+custom_minimum_size = Vector2(860, 24)   ; DD [torch_info] stripMouseOverAreaSize 860x24
+mouse_filter = 2
+tooltip_text = "DD screen.raid [torch_info] stripMouseOverAreaSize 860x24 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidTorchStripArea"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "火把条"
+[node name="Fill" type="ColorRect" parent="RaidTorchStripArea"]
+mouse_filter = 2
+layout_mode = 2
+
+[node name="RaidQuestInfoArea" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.3
+anchor_top = 0.2296
+anchor_right = 0.4562
+anchor_bottom = 0.3685
+custom_minimum_size = Vector2(300, 150)   ; DD size (box=size, px @1920x1080)
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] size 300x150 · 尺寸=DD 原值 ✓ · 位置待该段 *_pos（未读 ⇒ 约定位，不猜）· 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidQuestInfoArea"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "任务信息"
+[node name="Fill" type="ColorRect" parent="RaidQuestInfoArea"]
+mouse_filter = 2
+layout_mode = 2
+
+; 阶段2：E 盘 screen.raid.darkest 关键段的真实 *_pos（÷1920 ÷1080；屏幕级 ✓）
+
+[node name="RaidPos1" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.7969
+anchor_top = 0.0324
+anchor_right = 0.8569
+anchor_bottom = 0.0624
+mouse_filter = 2
+tooltip_text = "DD screen.raid [kill_count_display] pos 1530,35 ⇒ 0.7969/0.0324 · 数据未接入 ⇒ 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidPos1"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "击杀数"
+
+[node name="RaidPos3" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.3812
+anchor_top = 0.0556
+anchor_right = 0.4412
+anchor_bottom = 0.0856
+mouse_filter = 2
+tooltip_text = "DD screen.raid [camp_layout] respite_scroll_pos 732,60 ⇒ 0.3812/0.0556 · 数据未接入 ⇒ 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidPos3"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "扎营翻页"
+[node name="RaidPos4" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.0062
+anchor_top = 0.0185
+anchor_right = 0.0662
+anchor_bottom = 0.0485
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] pos 12,20 ⇒ 0.0062/0.0185 · 数据未接入 ⇒ 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidPos4"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "任务面板"
+[node name="RaidPos5" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.4938
+anchor_top = 0.5463
+anchor_right = 0.5538
+anchor_bottom = 0.5763
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] complete_mid_screen_pos 948,590 ⇒ 0.4938/0.5463 · 数据未接入 ⇒ 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidPos5"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "完成提示"
+[node name="RaidPos6" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0
+anchor_top = 0.0509
+anchor_right = 0.06
+anchor_bottom = 0.0809
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] complete_choice_shared_frame_pos 0,55 ⇒ 0/0.0509 · 数据未接入 ⇒ 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidPos6"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "选择框"
+[node name="RaidPos8" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.0469
+anchor_top = 0.0907
+anchor_right = 0.1069
+anchor_bottom = 0.1207
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] complete_continue_raid_pos 90,98 ⇒ 0.0469/0.0907 · 数据未接入 ⇒ 色块占位，不换不删"
+
+; 阶段2：E 盘 screen.raid.darkest 其余段真实 *_pos（÷1920 ÷1080；屏幕级 ✓）——安全写法，不用 RemoveRange
+
+
+[node name="PurposeLabel" type="Label" parent="RaidPos8"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "继续远征"
+[node name="RaidSec1" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.7969
+anchor_top = 0.125
+anchor_right = 0.8569
+anchor_bottom = 0.155
+mouse_filter = 2
+tooltip_text = "DD screen.raid [shard_escrow_display] pos 1530,135 ⇒ 0.7969/0.125 · 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidSec1"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "碎片寄存"
+[node name="RaidSec2" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.7969
+anchor_top = 0.0324
+anchor_right = 0.8569
+anchor_bottom = 0.0624
+mouse_filter = 2
+tooltip_text = "DD screen.raid [wave_countdown_display] pos 1530,35 ⇒ 0.7969/0.0324 · 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidSec2"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "波次倒计时"
+[node name="RaidSec3" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.9167
+anchor_top = 0.5324
+anchor_right = 0.9767
+anchor_bottom = 0.5624
+mouse_filter = 2
+tooltip_text = "DD screen.raid [skip_curio_display] pos 1760,575 ⇒ 0.9167/0.5324 · 色块占位，不换不删"
+
+; 阶段2：E 盘 shared/inventory inventory_item_layout.icon_size **72x144**（图标本体；格距是 80x160 => 两者不矛盾）
+
+[node name="PurposeLabel" type="Label" parent="RaidSec3"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "跳过奇物"
+[node name="InvItemIconBody" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.30
+anchor_top = 0.70
+anchor_right = 0.45
+anchor_bottom = 0.80
+custom_minimum_size = Vector2(72, 144)   ; DD inventory_item_layout.icon_size
+mouse_filter = 2
+tooltip_text = "库存图标本体（DD shared/inventory inventory_item_layout.icon_size 72x144 · 与 hero_equipment/资产 inv_* 一致；格距见 pannel.inventory 80x160）· 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="InvItemIconBody"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "物品图标"
+[node name="Fill" type="ColorRect" parent="InvItemIconBody"]
+mouse_filter = 2
+layout_mode = 2
+
+; 阶段2：E 盘 screen.raid 其余段 pos（屏幕级 /1920 /1080）
+
+[node name="RaidX1" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.4104
+anchor_top = 0.6296
+anchor_right = 0.4604
+anchor_bottom = 0.6546
+mouse_filter = 2
+tooltip_text = "DD screen.raid [overlays] hero_start_pos 788,680 => 0.4104/0.6296 · 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidX1"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "英雄区起点"
+[node name="RaidX2" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.5469
+anchor_top = 0.6296
+anchor_right = 0.5969
+anchor_bottom = 0.6546
+mouse_filter = 2
+tooltip_text = "DD screen.raid [overlays] monster_start_pos 1050,680 => 0.5469/0.6296 · 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidX2"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "怪物区起点"
+[node name="RaidX3" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.699
+anchor_top = 0.1296
+anchor_right = 0.749
+anchor_bottom = 0.1546
+mouse_filter = 2
+tooltip_text = "DD screen.raid [basic_scroll] pos 1342,140 => 0.699/0.1296 · 色块占位，不换不删"
+
+[node name="RaidX4" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0
+anchor_top = 0.3704
+anchor_right = 0.05
+anchor_bottom = 0.3954
+mouse_filter = 2
+tooltip_text = "DD screen.raid [basic_scroll] ok_button_pos -150,400 => 0/0.3704 · 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidX4"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "确定"
+[node name="RaidX5" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.0406
+anchor_top = 0.3704
+anchor_right = 0.0906
+anchor_bottom = 0.3954
+mouse_filter = 2
+tooltip_text = "DD screen.raid [basic_scroll] cancel_button_pos 78,400 => 0.0406/0.3704 · 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidX5"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "取消"
+[node name="RaidX6" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.7021
+anchor_top = 0.1852
+anchor_right = 0.7521
+anchor_bottom = 0.2102
+mouse_filter = 2
+tooltip_text = "DD screen.raid [sidebar_scroll] pos 1348,200 => 0.7021/0.1852 · 色块占位，不换不删"
+
+[node name="RaidX7" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0
+anchor_top = 0.2222
+anchor_right = 0.05
+anchor_bottom = 0.2472
+mouse_filter = 2
+tooltip_text = "DD screen.raid [sidebar_scroll] investigate_button_pos -152,240 => 0/0.2222 · 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidX7"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "调查"
+[node name="RaidX8" type="ColorRect" parent="."]
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = 0.0391
+anchor_top = 0.2222
+anchor_right = 0.0891
+anchor_bottom = 0.2472
+mouse_filter = 2
+tooltip_text = "DD screen.raid [sidebar_scroll] pass_button_pos 75,240 => 0.0391/0.2222 · 色块占位，不换不删"
+
+[node name="PurposeLabel" type="Label" parent="RaidX8"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "跳过"
+[node name="RaidPos2" type="ColorRect" parent="RaidCampLayer"]
+; 归位(第2步)：父容器 = DD camp_layout（容器 = screen_guide，同族 first/second/third/fourth_pos）
+;   本块 DD 来源 = fourth_pos -255,0（offset 类；负值语义 = 父基准点在元素中心/右下 ✓ 未钳值未改符号 ✓）
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = -0.1328
+anchor_top = 0
+anchor_right = -0.0728
+anchor_bottom = 0.03
+mouse_filter = 2
+tooltip_text = "DD screen.raid [camp_layout] fourth_pos -255,0 ⇒ -0.1328/0 · 数据未接入 ⇒ 色块占位，不换不删"
+
+; 归位(第2步)：父容器 = DD camp_layout（容器 = screen_guide，同族 first/second/third/fourth_pos）
+;   本块 DD 来源 = fourth_pos -255,0（offset 类；负值语义 = 父基准点在元素中心/右下 ✓ 未钳值未改符号 ✓）
+[node name="RaidCampLayer" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+; 归位(第2步)：父容器 = DD quest_info（**30 字段**，容器 = screen_guide）
+;   ⚠️ 更正：本块 DD 出处原标 [monster_info] ✗ ⇒ 实为 [quest_info] complete_return_to_hamlet_pos -170,98（offset ✓ 未钳值未改符号 ✓）
+
+[node name="LayerTitle" type="Label" parent="RaidCampLayer"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "L1 战斗 · 扎营界面"
+[node name="RaidPos7" type="ColorRect" parent="RaidQuestInfoLayer"]
+; 归位(第2步)：父容器 = DD quest_info（**30 字段**，容器 = screen_guide）
+;   ⚠️ 更正：本块 DD 出处原标 [monster_info] ✗ ⇒ 实为 [quest_info] complete_return_to_hamlet_pos -170,98（offset ✓ 未钳值未改符号 ✓）
+color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+layout_mode = 0
+anchor_left = -0.0885
+anchor_top = 0.0907
+anchor_right = -0.0285
+anchor_bottom = 0.1207
+mouse_filter = 2
+tooltip_text = "DD screen.raid [quest_info] complete_return_to_hamlet_pos -170,98 ⇒ -0.0885/0.0907 · 数据未接入 ⇒ 色块占位，不换不删"
+
+
+[node name="PurposeLabel" type="Label" parent="RaidPos7"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
+text = "回城"
+[node name="RaidQuestInfoLayer" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="LayerTitle" type="Label" parent="RaidQuestInfoLayer"]
+layout_mode = 0
+anchor_left = 0.004
+anchor_top = 0.004
+anchor_right = 0.05
+anchor_bottom = 0.02
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.7, 0.36, 0.9)
+text = "L1 战斗 · 任务信息面板"
+mouse_filter = 2

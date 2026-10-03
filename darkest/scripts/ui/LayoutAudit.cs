@@ -92,6 +92,18 @@ public static partial class LayoutAudit
             }
         }
 
+        // 🆕 🔴 判据 3（2026-10-03）：**吞点击** —— 装饰性控件（`mouse_filter=Stop`）画在交互控件【上面】
+        //    且盖住它 ⇒ 玩家"怎么点都没反应"（用户 2026-10-03 报的主菜单症状；前两条判据全绿也照样发生）⚠️
+        //    口径与例外见 `LayoutAudit.Clicks.cs`（只有 Stop 会吞；模态层内部按设计跳过但计数上报）✓
+        //    ⚠️ **审全场景**（`root`）而**不是**上面那个"只审覆盖层"的 `scope`：满屏不透明覆盖层恰恰是本判据
+        //    要抓的头号嫌疑（实测 2026-10-03：制作人员骨架被当模态层 ⇒ 判据范围被缩到它内部 ⇒ 前两条"全绿"）⚠️
+        //    有意为之的模态遮挡由判据内部的模态口径排除（见 `IsIntentionalModalLayer`）✓
+        (int blocked, List<string> blockedItems, int modalSkips) = FindClickBlockers(root);
+        foreach (string item in blockedItems)
+        {
+            problems.Append(item);
+        }
+
         // 🆕 🔴 用户规则 ①（2026-09-15）：**一切 UI 都要考虑【相机大小】** ⇒ 任何可见控件的外接矩形
         //    必须落在**相机矩形**内。**越界 = 用户说的"UI 看不全"** ⇒ 做成可读读数（首个越界控件带 pos/size）✓
         //    ⚠️ 本轮先作**独立读数**（不并入 `ok`）：并入后全屏立刻红，而"全屏重新按 1280×720 收敛"是下一轮的工作 ✓
@@ -149,7 +161,49 @@ public static partial class LayoutAudit
             }
         }
 
-        bool ok = overlaps == 0 && transparent == 0;
+        bool ok = overlaps == 0 && transparent == 0 && blocked == 0;
+        // 🔴 **溢出归因**（本刀新增 · 起因＝battle 底栏 `需 5310` 只能人肉翻日志）：
+        //    "某容器需 X" 不说明**谁**撑的（往往是孙子）⇒ 沿溢出链下钻到**末端容器**，点名最宽的前 3 个子项 ✓
+        string blame = string.Empty;
+        Control? chain = null;
+        foreach (Node n in Walk(root))
+        {
+            if (n is Control tc && SameViewport(root, tc) && tc.IsVisibleInTree() && !InsideScroll(tc)
+                && tc.GetCombinedMinimumSize().X > cam.X + 0.5f)
+            {
+                chain = tc;
+                break;
+            }
+        }
+
+        while (chain is Container cur)
+        {
+            Control? widest = null;
+            foreach (Node ch in cur.GetChildren())
+            {
+                if (ch is Control cc && cc.IsVisibleInTree() && cc.GetCombinedMinimumSize().X > cam.X + 0.5f
+                    && (widest is null || cc.GetCombinedMinimumSize().X > widest.GetCombinedMinimumSize().X))
+                {
+                    widest = cc;
+                }
+            }
+
+            if (widest is null)
+            {
+                break;
+            }
+
+            chain = widest;
+        }
+
+        if (chain is not null)
+        {
+            var ranked = chain.GetChildren().OfType<Control>()
+                .Where(cc => cc.IsVisibleInTree())
+                .Select(cc => (W: cc.GetCombinedMinimumSize().X, S: $"{cc.Name} {cc.GetCombinedMinimumSize().X:0}×{cc.GetCombinedMinimumSize().Y:0}"))
+                .OrderByDescending(t => t.W).Take(3).ToList();
+            blame = $"　🔴 **溢出归因**：`{Path(root, chain)}` 需 {chain.GetCombinedMinimumSize().X:0} ⇒ 最宽子项：" + string.Join(" ／ ", ranked.ConvertAll(t => t.S));
+        }
         string scopeNote = overlay is null ? "（全界面）" : $"（**只审覆盖层 {overlay.Name}**）";
 
         // 🆕 🔴 **口径自证**（红线 17 / 红线 25：「通过了」之前先问「它到底检查了什么」）——
@@ -175,11 +229,13 @@ public static partial class LayoutAudit
                          // ⚠️ 读数更正（2026-10-02）：原式 = 覆盖层跳过数 ＋ 全场景跳过数 ⇒ **把覆盖层那一份数了两遍**（同子树被数两次）✓
                          $"　跳过瞬态元素 {allSkips.Transient} 个（`{MotionLayerName}` 口径例外，按设计会短暂叠放）" +
                          (overlay is null ? string.Empty : $"（覆盖层内 {scopeSkips.Transient} 个）") +
-                         $"　跳过子窗口 {allSkips.Windows} 个（{SkipNote(allSkips)}；`Window` 系自成视口 ⇒ 矩形不可比，见 SameViewport）" +
+                        $"　跳过子窗口 {allSkips.Windows} 个（{SkipNote(allSkips)}；`Window` 系自成视口 ⇒ 矩形不可比，见 SameViewport）" +
+                        $"　跳过模态层内遮挡 {modalSkips} 个（遮罩＋自带按钮 ⇒ 设计如此；同层遮挡仍会报，见 IsIntentionalModalLayer）" +
                         $"　相机 {cam.X:0}×{cam.Y:0}（**项目真实视口**）越界控件 {outsideList.Count} 个（实际矩形口径；滚动容器内部按设计可超出 ⇒ 不计，见 InsideScroll）" +
                         // 🔴 口径自证（红线 17／21）：被 clip_contents 裁到空的 Label **没画在屏幕上** ⇒ 不进重叠判据，但**必须留痕** ✓
                         $"　跳过裁剪外元素 {allSkips.Clipped} 个（clip_contents 口径：被祖先容器裁到空的像素没画在屏幕上 ⇒ 不参与重叠判据，见 ClippedRect；上方 Label 计数已扣除）" +
                         $"　帧={Engine.GetProcessFrames()}　🔴 **内容需求超出相机 {tooBig.Count} 个**" + (tooBig.Count == 0 ? "（全部装得下 ✅）" : "：" + string.Join(" ／ ", tooBig)) +
+                        blame +
                          (outsideList.Count == 0 ? "（全部落在可视区内 ✅）" : "：" + string.Join(" ／ ", outsideList));
 
         // 🔴 打印口径自证（红线 17／21）：默认只打前 6 条（防刷屏）——报告必须自证「是否全量」，
@@ -189,7 +245,7 @@ public static partial class LayoutAudit
             : "　打印口径=前 6 条（防刷屏；`--ui-audit-all` ⇒ 全量）";
 
         string report = $"布局判据（{root.Name}）{scopeNote}：可见 Label {labels.Count} 个 ／ Panel+PC {panels.Count} 个　" +
-                        $"重叠对 {overlaps} ／ 透明框 {transparent}　=> {(ok ? "✅ 通过" : "🔴 未通过")}" +
+                        $"重叠对 {overlaps} ／ 透明框 {transparent} ／ 吞点击 {blocked}　=> {(ok ? "✅ 通过" : "🔴 未通过")}" +
                         (ok ? string.Empty : problems.ToString()) +
                         caliber + printNote;
         return (ok, report);

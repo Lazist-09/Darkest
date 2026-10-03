@@ -99,6 +99,10 @@ public partial class HamletRoot : Control
                 }
 
                 b.Name = $"RosterRow_{id}";
+                // 🔴 2026-10-03（吞点击修复）：占位块**不吃输入** —— 引擎默认 `ColorRect.mouse_filter = Stop(0)`，
+                //    它压在名册行 `Button` 上 ⇒ **点头像那一格选不中该英雄**（同一缺陷类见 `credits_skeleton`：父块 inert、子块照吞）。
+                //    与场景侧 `roster_row.tscn` 的 4 个占位块同口径（父块已声明 inert ⇒ 子块跟上）✓
+                ph.MouseFilter = Control.MouseFilterEnum.Ignore;
                 // 🔴 2026-09-21：宽度仍按相机 1280 口径收窄到 232；**高度改为按行内实际需求算**
                 //    （用户在编辑器里把名册行改成**两行结构** ⇒ 写死 32px 会把上下两行压叠：实测 6~7 对重叠）✓
                 // 🔴 2026-09-21：行高**量到内层 VBox（用户两行结构的 RosterRowBody2）**，缺失则退回外层需求；宽度仍按相机 1280 口径 232 ✓
@@ -140,12 +144,19 @@ public partial class HamletRoot : Control
                 }
 
                 // 🔴 **用户要求（2026-09-15）：角色详情 = 【右键头像】点开**（左键点行仍是"选中"，供减压用）✓
-                frame.MouseFilter = Control.MouseFilterEnum.Stop; // 头像要自己收鼠标事件（否则被按钮吃掉）
+                // 🔴 2026-10-03（吞点击修复）：`Stop` ⇒ **头像那一格左键彻底死掉**（实测 `--hamlet --ui-audit-all`
+                //    报「点不动：RosterRow_… ⟸ 被 …/PortraitFrame（mouse_filter=Stop）盖住」）⚠️
+                //    ⇒ 改 `Pass`：头像照样收得到右键（见下方 `GuiInput`），**左键继续往父链走** ⇒ 行按钮选中照常 ✓
+                //    与场景侧 `roster_row.tscn` 的 `PortraitFrame` 同口径（一处改、另一处跟上，不两处漂移）✓
+                frame.MouseFilter = Control.MouseFilterEnum.Pass;
                 frame.TooltipText = "右键 ⇒ 打开角色详情";
                 frame.GuiInput += (InputEvent ev) =>
                 {
                     if (ev is InputEventMouseButton { ButtonIndex: MouseButton.Right, Pressed: true })
                     {
+                        // 🔴 `Pass` 的代价：不 `AcceptEvent()` 就会**连右键也漏给行按钮**（选中 + 开详情同时发生）⇒
+                        //    右键在这里"吃掉"，左键不动它（这就是 `Pass` 与 `Stop` 的区别所在）✓
+                        frame.AcceptEvent();
                         GD.Print($"[HamletRoot] **右键头像** ⇒ 打开角色详情：{id}");
                         OpenHeroDetail(id);
                     }

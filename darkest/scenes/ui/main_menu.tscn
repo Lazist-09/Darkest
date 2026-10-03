@@ -11,7 +11,7 @@ anchor_bottom = 1.0
 script = ExtResource("1_menu")
 
 
-[node name="LayerTitle" type="Label" parent="MainMenu"]
+[node name="LayerTitle" type="Label" parent="."]
 layout_mode = 0
 anchor_left = 0.004
 anchor_top = 0.004
@@ -77,7 +77,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "返回"
 [node name="MenuBackFill" type="ColorRect" parent="MenuBackButtonAnchor"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 自带尺寸项（来源①）：元素名 tooltip 热区 360x50 · 手柄勾选热区 600x36
@@ -101,7 +101,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "名称提示"
 [node name="MenuNameTooltipFill" type="ColorRect" parent="MenuNameTooltipHotArea"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="MenuControllerHotArea" type="PanelContainer" parent="."]
@@ -124,7 +124,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "手柄提示"
 [node name="MenuControllerFill" type="ColorRect" parent="MenuControllerHotArea"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 scene margin_top
 scene separation

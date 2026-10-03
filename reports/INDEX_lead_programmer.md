@@ -169,4 +169,5 @@ godot 引用 **0 命中** ✓ · 拆分完整性自检 **PASS**（`--selfcheck` 
 · 工具：`reconcile_hero_tables_edrive_vs_ref.py` · `land_edrive_hero_tables.py` ·
   🆕 `land_ref_skill_dmg.py`（A2 落库器 · **幂等** · `--check` 不写盘）·
   `reconcile…`（buff 原语用 `extract_dd1_buff_primitives.py --out-suffix`）· `make_skill_mapping_proposal.py` ✓
+· 🆕 UI 布局审计（2026-10-03）：`ui_layout_audit_20261003.md`（用户「开始游戏后 `credits_skeleton` 占满全屏且点不动」：根因 = 占位骨架**常驻** ＋ 内部满屏 `Fill` 默认 `Stop` ⇒ **吞点击 9 ⇒ 0**；战斗屏「点不动」真凶 = `StageLayer` 纯 `Control` 最小高 0 ＋ 同层 `MidPadTop` `ExpandFill` ⇒ **舞台带 0 高**、卡片溢出 **233px** 钻进底栏之下；本件新增 `MapCorner` 运行时隐藏（不删节点）＋ `VS` 居中 `Ignore`；76 处装饰件 `mouse_filter` 补齐；三屏 **吞点击全 0** · `O-125`／`O-126` · `#549`）✓
 ```

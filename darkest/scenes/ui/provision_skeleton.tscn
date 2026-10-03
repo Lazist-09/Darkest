@@ -99,10 +99,10 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "任务信息"
 [node name="BlockPlaceholder" type="PanelContainer" parent="ProvQuestInfoAnchor"]
-layout_mode = 2
+mouse_filter = 2
 
 [node name="Fill" type="ColorRect" parent="ProvQuestInfoAnchor/BlockPlaceholder"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="ProvScoutingAnchor" type="PanelContainer" parent="."]
@@ -124,10 +124,10 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "侦察"
 [node name="BlockPlaceholder" type="PanelContainer" parent="ProvScoutingAnchor"]
-layout_mode = 2
+mouse_filter = 2
 
 [node name="Fill" type="ColorRect" parent="ProvScoutingAnchor/BlockPlaceholder"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="ProvSellBackAnchor" type="PanelContainer" parent="."]
@@ -149,10 +149,10 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "售回"
 [node name="BlockPlaceholder" type="PanelContainer" parent="ProvSellBackAnchor"]
-layout_mode = 2
+mouse_filter = 2
 
 [node name="Fill" type="ColorRect" parent="ProvSellBackAnchor/BlockPlaceholder"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="ProvStoreAnchor" type="PanelContainer" parent="."]

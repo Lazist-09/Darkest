@@ -21,7 +21,7 @@ theme_override_constants/separation = 2
 theme_override_constants/separation = 4
 
 [node name="portraitBox" type="PanelContainer" parent="CardCol/CardHead"]
-custom_minimum_size = Vector2(44, 44)
+mouse_filter = 2
 
 [node name="glyph" type="Label" parent="CardCol/CardHead/portraitBox"]
 custom_minimum_size = Vector2(44, 30)
@@ -45,12 +45,12 @@ autowrap_mode = 2
 theme_override_font_sizes/font_size = 12
 
 [node name="hp" type="ProgressBar" parent="CardCol"]
-custom_minimum_size = Vector2(0, 14)
+mouse_filter = 2
 max_value = 100.0
 show_percentage = false
 
 [node name="morale" type="ProgressBar" parent="CardCol"]
-custom_minimum_size = Vector2(0, 12)
+mouse_filter = 2
 max_value = 100.0
 show_percentage = false
 

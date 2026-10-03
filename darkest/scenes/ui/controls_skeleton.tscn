@@ -14,7 +14,7 @@ theme = ExtResource("1_theme")
 script = ExtResource("2_ct")
 
 
-[node name="LayerTitle" type="Label" parent="ControlsSkeleton"]
+[node name="LayerTitle" type="Label" parent="."]
 layout_mode = 0
 anchor_left = 0.004
 anchor_top = 0.004
@@ -43,7 +43,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "键鼠说明"
 [node name="Fill" type="ColorRect" parent="CtrlMouseKbPanel"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="CtrlControllerPanel" type="PanelContainer" parent="."]
@@ -65,7 +65,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "手柄说明"
 [node name="Fill" type="ColorRect" parent="CtrlControllerPanel"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="CtrlCategoryStart" type="PanelContainer" parent="."]
@@ -87,7 +87,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "分类起点"
 [node name="Fill" type="ColorRect" parent="CtrlCategoryStart"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 3 套手柄元素变体各留一组占位（标准 / alternate / steamdeck）
@@ -110,7 +110,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "手柄·标准"
 [node name="Fill" type="ColorRect" parent="CtrlVariantStandard"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="CtrlVariantAlternate" type="PanelContainer" parent="."]
@@ -132,7 +132,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "手柄·备用"
 [node name="Fill" type="ColorRect" parent="CtrlVariantAlternate"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="CtrlVariantSteamDeck" type="PanelContainer" parent="."]
@@ -154,5 +154,5 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 0.85)
 text = "手柄·掌机"
 [node name="Fill" type="ColorRect" parent="CtrlVariantSteamDeck"]
-color = Color(0.62, 0.6, 0.58, 0.22)   ; UiPalette.PlaceholderFill (theme, alpha 0.22)
+mouse_filter = 2
 layout_mode = 2

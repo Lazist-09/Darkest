@@ -23,6 +23,10 @@ theme_override_constants/separation = 0
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+; 🔴 2026-10-03（吞点击修复·根因）：引擎默认 `Control.mouse_filter = Stop(0)` ⇒ 这块 336x97 的整行覆盖层
+;   把父级 `RosterRow`（Button）**整行吃掉**（实测：`--hamlet --ui-audit-all` 报「点不动」8 行 ×2 条）⇒
+;   左键点行选不中英雄。改 `Ignore(2)`：自己不参与命中，子树（头像框/等级框）各自照常收事件 ✓
+mouse_filter = 2
 
 [node name="PortraitFrame" type="PanelContainer" parent="RosterRowBody/RosterRowBody2"]
 layout_mode = 0
@@ -30,10 +34,14 @@ anchor_left = 0.0568
 anchor_top = 0.0928
 anchor_right = 0.127
 anchor_bottom = 0.3608
-mouse_filter = 2
+; 🔴 `Pass(1)` 不是 `Ignore(2)`：这一格要收【右键】开角色详情（运行时 `HamletRoot.Refresh` 挂 `GuiInput`），
+;   而 `Ignore` 连 hover/右键都收不到；`Pass` 收得到、且事件会继续往父链走 ⇒ 左键照样能选中整行 ✓
+mouse_filter = 1
+tooltip_text = "右键 ⇒ 打开角色详情"
 
 [node name="PortraitPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/PortraitFrame"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="RosterInfo" type="Label" parent="RosterRowBody/RosterRowBody2"]
@@ -58,11 +66,14 @@ anchor_left = 0.4216
 anchor_top = 0.6701
 anchor_right = 0.4919
 anchor_bottom = 0.9381
-mouse_filter = 2
+; 🔴 `Pass(1)`：`tooltip_text` 要能弹出就必须参与命中（`Ignore` 的控件**永远不弹 tooltip**，引擎读数为证）⇒
+;   用 `Pass` 两全：tooltip 照弹、点击照穿到行按钮 ✓
+mouse_filter = 1
 tooltip_text = "装备等级·攻（DD weapon_level_offset 156,65 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="EquipLevelPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/EquipLevelSlot"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="ArmourLevelSlot" type="PanelContainer" parent="RosterRowBody/RosterRowBody2"]
@@ -71,11 +82,12 @@ anchor_left = 0.6162
 anchor_top = 0.6701
 anchor_right = 0.6865
 anchor_bottom = 0.9381
-mouse_filter = 2
+mouse_filter = 1
 tooltip_text = "装备等级·防（DD armour_level_offset 228,65 · 数据未接入 ⇒ 色块占位，不换不删）"
 
 [node name="ArmourLevelPlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/ArmourLevelSlot"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 [node name="HeroLevel" type="PanelContainer" parent="RosterRowBody/RosterRowBody2"]
@@ -84,8 +96,10 @@ anchor_left = 0.6973
 anchor_top = 0.0412
 anchor_right = 0.7676
 anchor_bottom = 0.3093
-mouse_filter = 2
+; 🔴 `Pass(1)`：同 `EquipLevelSlot` —— 运行时会写 `TooltipText`（装备等级语义）⇒ 必须参与命中 ✓
+mouse_filter = 1
 
 [node name="ResolvePlaceholder" type="ColorRect" parent="RosterRowBody/RosterRowBody2/HeroLevel"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2

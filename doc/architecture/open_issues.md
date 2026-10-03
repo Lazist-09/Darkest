@@ -305,3 +305,11 @@
 - 🆕 **`O-124` 登记（2026-10-03 · 主程序 · 【`_mapModeInventoryBag` 从未使用 · `CS0169`】）**：构建警告 `CS0169: 字段 BattleUI._mapModeInventoryBag 从不使用`（既存 · 与 `_mapModeInventory` 是同名家族但**另一个字段**）✓
   🔍 **现状**：`_mapModeInventory`（惰性面板字段）在本件已登记进 `ForgetLazyPanels()`；`_mapModeInventoryBag` 无任何读写点 ⇒ 死字段 ✓
   ⏳ **待裁**：删字段（需确认「背包格子」是否留待 M10u 绘层复用）⇒ 冻结期只登记、不删 ✓
+- 🆕 **`O-125` 登记（2026-10-03 · 主程序 · 【占位骨架常驻 ⇒ 满屏吞点击】）**：`credits_skeleton`／`fe_flow_skeleton` 被 `MainMenuRoot._Ready()` **无条件** `AddChild` ⇒ 常驻压在主菜单上；骨架根 `Control` 的 `mouse_filter=2` **不豁免**内部满屏 `Fill`（`ColorRect` 引擎默认 `Stop`）⇒ 整屏吞点击（实测 **9**）✓
+  🔍 **根因**：`mouse_filter` 是**逐控件**属性（引擎 4.7.2 实测：`Control`／`ColorRect`／`Panel`／`PanelContainer`／`RichTextLabel`／`Button`／`ItemList` = `Stop`；`Margin/VBox/HBox/Grid/ScrollContainer`／`TextureRect`／`CenterContainer`／`TabContainer` = `Pass`；`Label` = `Ignore`）⇒ 骨架根写 `Ignore` 挡不住子节点 ✓
+  ✅ **处置（已修）**：`MainMenuRoot` 改 `MountPlaceholder`／`OpenPlaceholder`／`ClosePlaceholders` —— 一律 `Visible=false` 惰性挂载 ＋ 挂 `_overlay?.ModalHost ?? this`；🆕 `PlaceholderBackButton.cs` 把占位骨架的「返回」色块运行时升级成真按钮 ⇒ 主菜单吞点击 **9 ⇒ 0** ✓
+  📌 **纪律（新增占位骨架必守三条）**：① 默认 `Visible=false`、按需 `OpenPlaceholder`；② 内部满屏 `Fill`／装饰件**逐件**显式 `MouseFilter=Ignore`（不靠父级）；③ 纯展示件（Label／色块／`VS` 之类）同律 ✓
+- 🆕 **`O-126` 登记（2026-10-03 · 主程序 · 【Battle「重叠 44 对」的定性 ＋ `MapCorner` 处置】）**：`--ui-audit-all` 战斗屏读数 = 重叠 **44** ／ 透明 11 ／ **吞点击 0**（真玩家入口 `--click-menu=0`：重叠 48 ／ 透明 9 ／ 吞点击 0 ／ `ObjectDisposedException` 0）✓
+  📌 **定性（不修 · 全部非缺陷）**：主体 = **S1 重入**产生第二份 `UiRoot`（`@Control@28/*` 的 `PurposeLabel`／`LayerTitle` 全在 `(0,0)` 附近互叠 · 见 `O-123`／§9.17）＋ `RaidX*` 占位族同格互叠（占位设计）＋ 两处**设计矩形**：`MidCol/StageLayer/@Label@36`（= `VS`，矩形按设计吃满中缝 259×246）／`BottomRowBox/EArea/PurposeLabel`（E 区占位标题 `Ignore` 与 `MfContent` 真内容 Label 互叠 ⇒ **零点击影响**）✓
+  🛠️ **`MapCorner` 处置（登记为「处置」而非缺陷）**：`battle_overlay.tscn` 的 `MapCorner`（DD `panel.map` 占位板 · 720×360 · 锚 0.615~0.99 × 0.6367~0.97）与底栏 **E 区多功能框是同一块 DD 区域**且覆盖层画在**其上** ⇒ 半透明洗色 ＋ 三个占位文字压住真内容；E 区已自带【地图】页 ⇒ **运行时 `Visible=false`（只改可见性、不删节点** —— `tools/dsh/check_dd_layout.ps1:34` 按名字 grep DD 台账）✓
+  ⏳ **待办**：`MapCorner` 的 `CustomMinimumSize` 720×360 与锚点冲突的**静态**处置（清 `cms` 或改锚）⇒ 本件只做运行时隐藏，静态待裁 ✓

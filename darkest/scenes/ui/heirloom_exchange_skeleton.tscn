@@ -144,6 +144,7 @@ text = "选项起点"
 
 [node name="Fill" type="ColorRect" parent="PanelFrame/HxFromLayer/HxChoiceStartAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 图标位（DD icon_offset 0,32 · 相对选项起点）⇒ (79, 142)
@@ -171,6 +172,7 @@ text = "图标位"
 
 [node name="Fill" type="ColorRect" parent="PanelFrame/HxFromLayer/HxIconOffsetAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 上箭头（DD arrow_up_offset 0,-10 · 相对选项起点）⇒ (79, 100)
@@ -189,6 +191,7 @@ tooltip_text = "上箭头（DD arrow_up_offset 0,-10 · 32x30 资产） · 数�
 
 [node name="Fill" type="ColorRect" parent="PanelFrame/HxFromLayer/HxArrowUpAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 下箭头（DD arrow_down_offset 0,84 · 相对选项起点）⇒ (79, 194)
@@ -207,6 +210,7 @@ tooltip_text = "下箭头（DD arrow_down_offset 0,84 · 32x30 资产） · 数�
 
 [node name="Fill" type="ColorRect" parent="PanelFrame/HxFromLayer/HxArrowDownAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; ══════════════════════════════════════════════════════════
@@ -263,6 +267,7 @@ text = "选项起点"
 
 [node name="Fill" type="ColorRect" parent="PanelFrame/HxToLayer/HxChoiceStartAnchorTo"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 箭头位（DD arrow_offset 148,80 · 相对选项起点）⇒ (404,155) —— 注意 x=404 < 429 边缘
@@ -290,6 +295,7 @@ text = "箭头"
 
 [node name="Fill" type="ColorRect" parent="PanelFrame/HxToLayer/HxArrowAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 兑换框（DD frame_offset -32,-8 · 资产 frame.png 189x56）⇒ 相对选项起点 (224,67)
@@ -317,6 +323,7 @@ text = "兑换框"
 
 [node name="Fill" type="ColorRect" parent="PanelFrame/HxToLayer/HxFrameAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
 
 ; 确认按钮（DD confirm_offset 112,20 · 资产 confirm.png 48x24）⇒ 相对选项起点 (368,95)
@@ -344,4 +351,5 @@ text = "确认"
 
 [node name="Fill" type="ColorRect" parent="PanelFrame/HxToLayer/HxConfirmAnchor"]
 color = Color(0.62, 0.6, 0.58, 0.22)
+mouse_filter = 2
 layout_mode = 2
