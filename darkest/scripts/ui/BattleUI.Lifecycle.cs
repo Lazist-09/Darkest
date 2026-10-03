@@ -34,6 +34,14 @@ public partial class BattleUI : Control
             child.QueueFree();
         }
 
+        // 🔴🔴 2026-10-03 修（真缺陷 · 玩家路径 · **1799 条/秒** `ObjectDisposedException` 的根因）：
+        //    `QueueFree()` **本帧不销毁**（延到帧尾）⇒ 惰性面板的判据 `is null || !IsInstanceValid`
+        //    在本帧内**仍然为假**（旧节点还「有效」）⇒ 不重建、不重挂；帧尾旧节点真死 ⇒ 字段**悬空** ⚠️
+        //    ⇒ `Refresh()` 每帧访问已释放节点（实测对象 = `ExpeditionListPanel`，`BattleUI.Refresh.cs:138`）
+        //    ⇒ 正解：**重建前先「忘掉」全部惰性节点字段**（它们都挂在刚被 `QueueFree` 的子树里）——
+        //       之后各创建点的 `is null` 判据自然重建、`Refresh()` 也不再碰悬空引用 ✓
+        ForgetLazyPanels();
+
         _cards.Clear();
         _portraits.Clear();
         _orderIcons.Clear();
@@ -92,6 +100,44 @@ public partial class BattleUI : Control
             CallDeferred(nameof(EnterMapMode));
             CallDeferred(nameof(ExitMapMode)); // 顺序执行 ⇒ 得到"进→出"完整往返 ✓
         }
+    }
+
+    /// <summary>
+    /// 🔴🔴 2026-10-03（根因修复）：**重建前作废全部惰性节点字段**（详见 `Bind()` 内注释）——
+    ///   这些字段**不在 `Build()` 的赋值表里**（惰性建一次、之后只刷新）⇒ 必须在此显式置空，
+    ///   否则 `QueueFree()` 的「帧尾销毁」会让它们悬空（= 1799 条 `ObjectDisposedException` 的来源）✓
+    ///   纪律 ⚠️：**新增惰性面板**（`is null || !IsInstanceValid` 判据 + `AddChild`）时**必须登记到这里**。
+    /// </summary>
+    private void ForgetLazyPanels()
+    {
+        _dungeonHost = null;          // 地牢面板宿主（`DungeonHost()` 惰性建）
+        _mapModeList = null;          // 本趟投影列表（崩溃现场对象）
+        _mapModeCamp = null;          // 扎营面板
+        _walkMap = null;              // 行走地图（格子主画面）
+        _walkHud = null;              // 行走 HUD
+        _mapModeCurio = null;         // Curio（事件房）
+        _mapModeHunger = null;        // 饥饿面板
+        _statusTray = null;           // 4v4 状态托盘（骨架内 ⇒ 随子树一起死）
+        _banner = null;               // 战斗横幅（挂 `_uiRoot`）
+        _mapModeScoutMark = null;     // 侦察标记（当前不创建：登记以免将来复活时悬空）
+        _mapModeInventory = null;     // 背包（同上）
+        _mapModeLightBar = null;      // 光照条（同上）
+    }
+
+    /// <summary>
+    /// 🔴🔴 2026-10-03 修（真缺陷 · 玩家路径）：**接 ／ 断「本场战斗只读视图」** ——
+    ///   实测（`.tmp_battle_base.txt:259`）：`_view` **全项目无人赋值**（`rg` 搜赋值零命中）
+    ///   ⇒ `Refresh()` 首行 `if (_host is null || _view is null) return;` **整条刷新路径空转**
+    ///   （卡片 ／ 技能栏 ／ 行动顺序条 ／ 5·6 号位都不更新），且 E 区【序列】页直接 `NullReferenceException` ⚠️
+    ///   口径：**只在「战斗成立」时接**（`StartExpeditionBattleInScene` ／ `NewGame`）；
+    ///   地图模式 ／ 未起战斗 **保持 `null`** ⇒ 空转是预期（E 区三页走空态，见 `RefreshMultiFunctionContent`）✓
+    /// </summary>
+    public void SetBattleView(IBattleView? view)
+    {
+        _view = view;
+        GD.Print(view is null
+            ? "[UI 视图] 🔻 已断开本场只读视图（战斗结束 ⇒ 地图模式里卡片 ／ 技能栏保持空态）✓"
+            : "[UI 视图] ✅ 已接入本场只读视图（卡片 ／ 技能栏 ／ 顺序条 ／ 5·6 号位恢复刷新）✓");
     }
 
     /// <summary>🔴 审计清单③的**取证**：当前焦点所有者 + 可聚焦控件数（headless 可断言）。</summary>

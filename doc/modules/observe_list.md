@@ -2056,5 +2056,17 @@
       救过：`跳过裁剪外` 0 ⇒ 2（滚动视口外行）= `ExpandFill` 的预期结果；
       与 `O-118` 同族（判据缺口 ≠ 布局缺陷）✓
 
+(375) **「`QueueFree()` 是【帧尾销毁】—— 同帧内 `IsInstanceValid` 仍为真」** ✓
+      救过：`BattleUI.Bind()` 重建骨架后惰性字段悬空 ⇒ 每帧 **1799** 条 `ObjectDisposedException`；
+      修法 = 重建前 `ForgetLazyPanels()` 显式置空 ＋ 判据补 `IsInstanceValid` ✓
+
+(376) **「日志里有 C# backtrace ≠ 有缺陷 —— 判据看【计数】与【✅ 行】；Godot 会把已捕获异常也打栈」** ✓
+      救过：`.tmp_tile_smoke.txt` 前 241 行启动期 `Bind→NewGame→_Ready` 栈被首读当崩溃；
+      实测口径 = `ObjectDisposedException` ／ `NullReferenceException` ／ `^ERROR` 三条计数 ✓
+
+(377) **「接线一个玩家能看见的入口前，先问【这条路会不会建 UI】—— 不建 UI 的路径 = 玩家看到空屏」** ✓
+      救过：`EnterDungeonInScene()` 不调 `Bind()`（`EnterMapMode()` 只置 `_pendingMapMode`）⇒ 地图永不显示；
+      修法 = 入口处 `Callable.From(BindUi).CallDeferred()`（`_Ready` 期间 `AddChild` 会撞 busy）✓
+
 ```
 

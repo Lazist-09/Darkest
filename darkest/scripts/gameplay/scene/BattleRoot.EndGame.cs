@@ -97,6 +97,10 @@ public partial class BattleRoot
             // 🔴 片 4②：战后**留在本场景、切回地图模式**（由宿主继续驱动流程；不再切场景、也不再重跑组装）✓
             toExpedition.Pressed += () =>
             {
+                // 🔴🔴 2026-10-03 修（真缺陷 · 玩家路径）：**战斗已结束 ⇒ 断开本场只读视图** ——
+                //    `_view` 若留着旧的投影 ⇒ 回地图模式后 E 区【日志 ／ 序列 ／ 编成】仍读**上一场**的读数（会撒谎 ⚠️）
+                //    ⇒ 两条路（宿主内回地图 ／ 旧路径回远征场景）**都要断** ⇒ 只在此处调一次 ✓
+                _ui.SetBattleView(null);
                 if (_dungeonHostedInScene)
                 {
                     // 🔴 片 4②：**宿主内进的**地牢 ⇒ 战后**留在本场景、切回地图模式**（不切场景、不重跑组装）✓
@@ -108,6 +112,21 @@ public partial class BattleRoot
                     if (SmokeScript.HasPending)
                     {
                         SmokeScript.Step(this);
+                    }
+
+                    // 🔴🔴 2026-10-03 修（真缺陷 · 玩家路径）：**终点房若是战斗房** ⇒ 打完这一场才算"走到终点" ——
+                    //    地图回调（`BattleUI.TryStartBattleAtCurrentRoom`）在**走进战斗格时**就起了战斗（先打后结算）
+                    //    ⇒ 这里补上"战后结算回城"，否则玩家赢了最后一场却停在地图上（无路可走 = 流程断点 ⚠️）
+                    //    · 只在**胜利**时回城：撤退（`DrawRetreat`）**留在图里**（`#352` 口径不变 ⇒ 走回终点格仍会结算）✓
+                    //    · 复用 `DungeonRunDriver.ReturnToTown`（与 `--hamlet-next` / 冒烟 `town` 同一实现 ⇒ 不两处漂移）✓
+                    //    · 放在冒烟续跑**之后**：冒烟步骤若已回城 ⇒ `ExpeditionContext.End()` 已清 `Flow` ⇒ 本判据自然不成立 ✓
+                    if (result == "PlayerVictory"
+                        && ExpeditionContext.Flow is Darkest.Gameplay.Sim.Run.ExpeditionFlow { ReachedGoal: true } goalFlow)
+                    {
+                        string townResult = goalFlow.Completed ? "completed" : "abandoned";
+                        GD.Print($"[片4] 🏁 战后回地图：已到**终点**（房间 {goalFlow.CurrentRoomId}）⇒ 结算回城" +
+                                 $"（`{townResult}`：走 {goalFlow.StepsDone} 段 ／ 胜 {goalFlow.Wins} ／ 光照 {goalFlow.Meter.Value}）✓");
+                        DungeonRunDriver.ReturnToTown(this, goalFlow, townResult);
                     }
                 }
                 // 🔴 片 4 收尾：**旧场景已退休** ⇒ 两条路都回**同一场景的地图模式**（过渡分支删除 ✓）

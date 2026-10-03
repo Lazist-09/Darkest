@@ -27,6 +27,18 @@ public sealed partial class BattleRoot
             _ui = GetNode<BattleUI>("UILayer/BattleUI");
         }
 
+        // 🔴🔴 2026-10-03 修（真缺陷 · 玩家路径）：**进地牢必须先建 UI** ——
+        //    实测（`.tmp_tile_smoke.txt`）：进地牢后只有两条「地图模式请求：**UI 尚未构建** ⇒ 延后到 Bind() 之后」，
+        //    **没有** `[BattleUI] 暗黑地牢式排布就绪` ／ `[UI 模式] 进入【地图模式】` ／ `[UI 瓷砖]` ⇒ **玩家看不到地图** ⚠️
+        //    根因链：本方法**不调 `Bind()`**；而 `EnterMapMode()`（`BattleUI.Dungeon.cs`）在 `_bottomRow` ／ `_uiRoot`
+        //    为空时只置 `_pendingMapMode = true` 就返回，**唯一解药 `Bind()` 只有 `BindUi()` 会调** ⇒ 纯进地牢路径永远不建 UI ✓
+        //    · `Bind()` 只建 UI、**不起战斗**（起战斗仍在 `StartExpeditionBattleInScene` ／ `NewGame`）⇒ 不改任何规则 ✓
+        //    · 必须 **deferred**：本方法在 `_Ready()` 期间被调，此时 `AddChild` 会撞
+        //      「Parent node is busy adding/removing children」（实测踩过）⚠️
+        //    · `Bind()` **不接 `_view`**（视图由战斗开始时接：`SetBattleView`）⇒ 地图模式里卡片 ／ 技能栏保持空转（预期）✓
+        Callable.From(BindUi).CallDeferred();
+        GD.Print("[片4] ✅ 已排入 `BindUi()`（延后一帧）⇒ 进地牢**会建 UI**（此前只置 `_pendingMapMode` 而无人 `Bind()` ⇒ 地图不显示）✓");
+
         _dungeonHostedInScene = true; // 🔴 片 4 过渡标记（战后据此回地图模式）✓
         // 🔴 片 4 收口：**把走格真正开起来**（UI 报"全项目无人调 `EnableTileWalk`" ⇒ 走格接口一直没人用 ⚠️）
         //    · 段消耗**从数据取**（`tuning.light.node_step` = −30，负值 = 消耗 ⇒ 取反得 30）⇒ **代码不写死** ✓

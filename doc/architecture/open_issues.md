@@ -285,3 +285,23 @@
   ⏳ **待裁（三条路）**：(c) 修根因（推荐 · 主 · 六属性接线二选一显示）／(a) 判据侧「被不透明祖先完全遮住 ⇒ 跳过并留痕」（推荐 · 与 (c) 互补）／(b) 场景侧（受「色块占位，不换不删」约束 · `O-105` 家族）✓
   📄 `reports/ui_audit_fullscene_20261002.md` · `doc/state.md #544` ✓
   🆕 **更新（`#545` · `M6u`）**：新增消费点 `BuildingsConfig.TreesFor(id)`（升级树全表读配置 · `tavern` = 3 树 / 18 级）；`M6u` 新增 1 对同锚点占位（`BpTreesAnchor` ⟷ `BpUpgradeSlot` 均 @(172,454)）⇒ 与三条路裁决一并收口 ✓
+- 🆕 **`O-120` 登记（2026-10-03 · 主程序 · 【战斗格重复触发：打赢不写 `_resolvedRooms`】）**：本件给地图回调接上「走进战斗格 ⇒ 起战斗」（`BattleUI.Dungeon.cs` 的 `TryStartBattleAtCurrentRoom`）后，**打赢的房间不会被标记** —— 内核 `ExpeditionFlow` 的已处理集合**只在 `DrawRetreat`（撤退）写入**，`IsRoomResolved` 是唯一读点，写入口 `MarkRoomResolved` **不存在** ✓
+  🔴 **后果**：`flow.IsRoomResolved(rid)` 对「打赢的房间」恒 `false` ⇒ 走回已打过的战斗格**会再打一场**（当前判据只挡「撤退过的那格」· `#352` 口径）✓
+  ✅ **本件已如实留痕**：`TryStartBattleAtCurrentRoom` 的 XML 注释写明该缺口（「已知缺口（已登记）」）⇒ 不静默、不假装完整 ✓
+  ⏳ **后续件（未做）**：内核补写入口（战后按房间 id 标记 · 需与存档 `RunProgress` 的已处理集合同口径）＋ 最小筛选测试；**本件不动内核**（最低限度 · 零规则改动）✓
+  📄 `reports/ui_flow_closure_20261003.md` · `doc/state.md #548` ✓
+- 🆕 **`O-121` 登记（2026-10-03 · 主程序 · 【起点房 `battle` 类型 ⇒ 第一步即开打 · 待策划裁】）**：本件实测（`.tmp_tile_smoke.txt:257-258`）：出生格 `(0,0)` 的**当前房间**类型即 `battle`（房间 0）⇒ 玩家走第一步就进战斗 ✓
+  🔴 **为何可疑**：DD 原版地牢**起点房是安全房**（入口／走廊），第一格就开打会把「出发 → 走图」的节奏压掉；但**当前拓扑数据**（`DungeonGridDeriver` 派生 · 冒烟种子 3）确实把房间 0 派生成 `battle` ⇒ 是**数据／派生**问题还是**设计如此**，待裁 ✓
+  ⏳ **待裁**：① 起点房类型是否应固定为安全房（派生器或拓扑表改）② 若维持现状，是否需要 UI 提示「出门即战」✓
+  📄 `reports/ui_flow_closure_20261003.md` · `doc/state.md #548` ✓
+- 🆕 **`O-122` 登记（2026-10-03 · 主程序 · 【骨架 `has vanished` 告警 · 36／14 条】）**：两条冒烟实测：`.tmp_tile_smoke.txt` **36** 条 · `.tmp_battle_base.txt` **14** 条 `has vanished`（对象 = `main_menu.tscn` ／ `fe_flow_skeleton.tscn` ／ `raid_results_skeleton.tscn` 等骨架里的 `LayerTitle` 家族）✓
+  🔍 **疑因**：这些节点在场景文件里写的是 `./XXX` **相对父路径**，而编辑器「Editable Children」另存后归属变化 ⇒ 实例化时找不到 ⇒ 打印 `has vanished`（**非致命** · 不崩不 NRE）✓
+  📌 **判据口径**：两条冒烟的**缺陷计数**（`ObjectDisposedException` ／ `NullReferenceException` ／ `^ERROR`）与 `has vanished` **分开统计** ⇒ 不混为一谈（`#546` 已登记同族）✓
+  ⏳ **待办**：骨架文件里的 `./` 路径清理（属场景资产件 · 需逐骨架核对归属）⇒ 只登记 ✓
+- 🆕 **`O-123` 登记（2026-10-03 · 主程序 · 【重入 `Bind()` ⇒ 骨架被重建】）**：冒烟实测 `.tmp_tile_smoke.txt:484/646`：**第 2／3 次** `Bind()` 时 `[UI S1] 🔴 S1（重入 Bind）骨架**被重建**` —— 首次绑定与切模式往返（`:243/488/497`）判据通过 ✓
+  📌 **性质**：**既存**（非本件引入）· 架构 §9.17 S1 的**已知迁移目标**（`Bind()` 当前无条件 `QueueFree` 全部子节点再重建 ⇒ 重入必然重建）✓
+  ✅ **本件的相关工作**：`ForgetLazyPanels()` 只解决「重建后字段悬空」⇒ **没有**改变重建行为本身 ✓
+  ⏳ **待办（架构件）**：`Bind()` 增「骨架已存在 ⇒ 只重挂、不重建」判据（S1 迁移目标）✓
+- 🆕 **`O-124` 登记（2026-10-03 · 主程序 · 【`_mapModeInventoryBag` 从未使用 · `CS0169`】）**：构建警告 `CS0169: 字段 BattleUI._mapModeInventoryBag 从不使用`（既存 · 与 `_mapModeInventory` 是同名家族但**另一个字段**）✓
+  🔍 **现状**：`_mapModeInventory`（惰性面板字段）在本件已登记进 `ForgetLazyPanels()`；`_mapModeInventoryBag` 无任何读写点 ⇒ 死字段 ✓
+  ⏳ **待裁**：删字段（需确认「背包格子」是否留待 M10u 绘层复用）⇒ 冻结期只登记、不删 ✓

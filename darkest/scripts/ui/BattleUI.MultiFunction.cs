@@ -204,6 +204,21 @@ public partial class BattleUI : Control
                                  $"（{(wasVisited ? "回头" : "新格")}　现在 {mFlow.TilePosition}：{mFlow.TileHere}" +
                                  $"　已走 {mFlow.TileStepsTaken} 格　三态 {mFlow.TileStateAt((cell.Depth, cell.Lane))}）✓");
 
+                        // 🔴🔴 2026-10-03 修（真缺陷 · 玩家路径）：**走进战斗格 ⇒ 起战斗** ／ **走到终点 ⇒ 结算回城** ——
+                        //    此前两条回调**都只挪位置**：走进 `battle` 房**不起战斗**（`BattleRoot.EndGame` 里
+                        //    `flowExpectsBattle`（`CurrentRoomType=="battle"`）因此永不成立 ⇒ `OnBattleFinished` 也被跳过 ⚠️），
+                        //    走到终点也**无人消费 `ReachedGoal`**（只有 CLI ／冒烟回城）⇒ 玩家只能干站在地图上 ⚠️
+                        //    ⇒ 两个判据都收进 `TryStartBattleAtCurrentRoom` / `TryReturnToTownAtGoal`（两条回调**共用**）✓
+                        if (moved && TryStartBattleAtCurrentRoom(mFlow))
+                        {
+                            return; // 起战斗会 `ExitMapMode` ⇒ 不再弹饥饿、不再刷面板 ✓
+                        }
+
+                        if (moved && TryReturnToTownAtGoal(mFlow))
+                        {
+                            return; // 已切城池（`change_scene_to_file`）⇒ 本帧不再动面板 ✓
+                        }
+
                         // 🔴🔴 `D-5`：**走完一格 ⇒ 检查队伍是否饿了**（`HasPendingHunger` 是唯一入口，
                         //    它同时确认"名册台账已建" ⇒ 首场战斗之前**不会**弹，因为那时无人可结算）✓
                         //    DD 铁律：饥饿触发后**必须二选一**（不能拖、不能跳）⇒ 立刻弹面板 ✓
@@ -241,10 +256,21 @@ public partial class BattleUI : Control
                     var outcome = mFlow.StepTo(rid);
                     GD.Print($"[UI 行走] 点击房间 {rid} ⇒ `StepTo` 结果={outcome}（当前房间 {mFlow.CurrentRoomId}：{mFlow.CurrentRoomType}）剩余 {mFlow.RemainingSegmentsToGoal} 段 ✓");
 
+                    // 🔴🔴 2026-10-03 修（真缺陷 · 玩家路径）：**走进战斗格 ⇒ 起战斗** ／ **走到终点 ⇒ 结算回城** ——
+                    //    与瓷砖主画面回调**共用同一对判据**（`TryStartBattleAtCurrentRoom` / `TryReturnToTownAtGoal`）⇒ 两处不漂移 ✓
+                    //    ⚠️ 顺序：**先战斗、后终点** —— 终点房若是战斗房，先打完那一场（战后由 `BattleRoot.EndGame` 补结算）✓
+                    if (outcome.Moved && TryStartBattleAtCurrentRoom(mFlow))
+                    {
+                        // 已起战斗（`ExitMapMode`）⇒ 本回调到此为止 ✓
+                    }
+                    else if (outcome.Moved && TryReturnToTownAtGoal(mFlow))
+                    {
+                        // 已结算回城（切城池）⇒ 本回调到此为止 ✓
+                    }
                     // 🔴 **已处理过的格 ⇒ 不再触发遭遇**（`IsRoomResolved` 的**生产消费点**，2026-09-20 接线）——
                     //    口径（`#352` / `retreat.md §2`）：**撤退后那格算"避过"** ⇒ 走回它**不重打** ✓
                     //    此前本方法只推进位置、**从不问"这格是否已处理"** ⇒ 死字段 `_resolvedRooms` 形同虚设 ⚠️
-                    if (outcome.Moved && mFlow.IsRoomResolved(rid))
+                    else if (outcome.Moved && mFlow.IsRoomResolved(rid))
                     {
                         GD.Print($"[UI 行走] 🔴 房间 {rid} **已处理过**（撤退后标记）⇒ **不触发遭遇/战斗**，" +
                                  "只把位置挪过去（`#352`：撤退后不重打）✓");
@@ -291,6 +317,17 @@ public partial class BattleUI : Control
     {
         if (_mfContent is null || _host is null)
         {
+            return;
+        }
+
+        // 🔴🔴 2026-10-03 修（真缺陷 · 玩家路径）：**没有进行中的战斗 ⇒ 三页走空态**（不再 NRE）——
+        //    实测（`.tmp_battle_base.txt:259`）：`_view` 为空时点【序列】直接抛
+        //    `System.NullReferenceException at RefreshMultiFunctionContent():340`（`_view.Support()`）⚠️
+        //    口径：日志 ／ 序列 ／ 编成三页读的都是**本场战斗**的读数 ⇒ 没有战斗就**如实写空态**（不编数字 · 红线 21）✓
+        if (_view is null && _mfPage is 1 or 2 or 3)
+        {
+            _mfContent.Text = "（本页读的是**本场战斗**的读数：日志 ／ 序列 ／ 编成。）\n" +
+                              "　当前没有进行中的战斗 ⇒ **空态**（进战斗后此页自动有内容）。";
             return;
         }
 

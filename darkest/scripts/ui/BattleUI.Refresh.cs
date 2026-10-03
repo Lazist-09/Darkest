@@ -134,8 +134,12 @@ public partial class BattleUI : Control
         // 🔴 相机 720 口径：**背包/投影列表也由"模式"统一裁决** ——
         //    实测 `MapModeInventory 需 298×312 且可见`（我在 `HostDungeonPanels` 里的隐藏被 `Initialize` 的
         //    `Visible = true` 覆盖了）⇒ 把模式可见性**集中到这里**（唯一权威处），否则"设了又被覆盖" ⚠️
-        if (_mapModeInventory is not null) { _mapModeInventory.Visible = false; }
-        if (_mapModeList is not null) { _mapModeList.Visible = false; }
+        // 🔴🔴 2026-10-03 修（真缺陷 · 玩家路径）：**这两行曾是每帧 `ObjectDisposedException` 的现场** ——
+        //    惰性面板被 `Bind()` 重建时的 `QueueFree()`（帧尾销毁）带走后，`is not null` 仍为真
+        //    ⇒ 访问已释放节点（实测 1799 条，对象 = `ExpeditionListPanel`）⚠️
+        //    ⇒ 判据补 `IsInstanceValid`（与全项目其余惰性面板判据同口径；根因侧见 `Bind()` 的 `ForgetLazyPanels()`）✓
+        if (_mapModeInventory is not null && GodotObject.IsInstanceValid(_mapModeInventory)) { _mapModeInventory.Visible = false; }
+        if (_mapModeList is not null && GodotObject.IsInstanceValid(_mapModeList)) { _mapModeList.Visible = false; }
         // 🔴 用户要求：5/6 号位**两种模式都显示**（原先只战斗模式 ⇒ "看不见 6 号位"）✓
         if (_slotLeft is not null) { _slotLeft.Visible = true; }
 

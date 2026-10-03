@@ -46,6 +46,7 @@ public partial class BattleRoot : Node2D
         _pendingSkill = null;
         _reinforcePhase = 0;
         BindUi();
+        _ui!.SetBattleView(this); // 🔴🔴 2026-10-03 修：**战斗成立 ⇒ 接本场只读视图**（此前 `_view` 全项目无人赋值 ⇒ 刷新空转 ／ 序列页 NRE）✓
         _ui!.ExitMapMode(); // 进战斗 ⇒ 离开地图模式（片 4 会在战斗结束回地图模式）✓
         flow.Session.EnterPhase(Darkest.Gameplay.Sim.Run.FlowPhase.Battle);
         GD.Print($"[片3] ✅ **场景内起远征战斗**：第 {index} 场　Phase={flow.Session.Phase}　" +
@@ -71,6 +72,7 @@ public partial class BattleRoot : Node2D
         }
 
         BindUi();
+        _ui!.SetBattleView(this); // 🔴🔴 2026-10-03 修：单场战斗同样要接视图（否则卡片 ／ 技能栏 ／ 顺序条都不刷新）✓
     }
 
     /// <summary>S5.2 待命：显式结束该单位本次行动（不消耗 SP、不算技能、不结算任何效果）。</summary>

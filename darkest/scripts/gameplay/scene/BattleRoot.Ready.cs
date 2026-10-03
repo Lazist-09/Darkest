@@ -56,7 +56,15 @@ public partial class BattleRoot
         // 🔴🔴 **相位在【两个场景】之间的修补**（UI 实测报告：战斗场景里 `Phase` 仍是 `Walking` ⇒ 三谓词全 True ⚠️）
         //   根因：战斗是**另一个场景**，而 `ExpeditionSession.Phase` 只由远征那条循环推动 ⇒ 战斗期间它"诚实但过时" ✓
         //   ⇒ 现在进战斗就显式推进到 `Battle`（片 3 把两场景并成一个状态机后，这行会被状态机自然取代）✓
-        if (ExpeditionContext.IsActive)
+        //   🔴🔴 **2026-10-03 修（真缺陷 · 玩家路径）**：本补丁此前**无条件**执行 ⇒ **进地牢**（地图模式）也被推成
+        //      `Battle` ⇒ `CanShowPathChoice/CanShowCampUi/CanShowCurioUi` **三谓词全假** ⇒ 玩家进地牢后
+        //      **选不了路、扎不了营、摸不了奇物**（相位门禁把整张地图挡死；实测 `--e2e` 阶段 2 `Phase=Battle`）⚠️
+        //      ⇒ 判据：**本场景接下来要进地牢**（有请求 / `--dungeon-in-scene` / `--expedition` / `--e2e`）时**不推**；
+        //         其余入口（真的要在本场景打一场）才推 `Battle` ✓
+        bool requestDungeon = ExpeditionContext.ConsumeRequestDungeon();
+        bool entersDungeon = requestDungeon || System.Array.Exists(OS.GetCmdlineArgs(),
+            a => a is "--dungeon-in-scene" or "--expedition" or "--e2e");
+        if (ExpeditionContext.IsActive && !entersDungeon)
         {
             ExpeditionContext.Flow!.Session.EnterPhase(Darkest.Gameplay.Sim.Run.FlowPhase.Battle);
         }
@@ -64,7 +72,7 @@ public partial class BattleRoot
         // 🔴 片 3 冒烟触发器：`--battle-piece3-exp` ⇒ 由宿主**在场景内**起流程战斗（验证"不再切场景"这条路）✓
         // 🔴 片 4④：`--dungeon-in-scene` ⇒ **宿主直接进地牢**（用新组装 `ExpeditionComposition`，不经过远征场景）✓
         // 🔴 片 4①：**入口请求**（主菜单/Hamlet 的"出发远征"）⇒ 进地图模式（**默认路径**，不再切远征场景）✓
-        if (ExpeditionContext.ConsumeRequestDungeon())
+        if (requestDungeon)
         {
             EnterDungeonInScene();
         }

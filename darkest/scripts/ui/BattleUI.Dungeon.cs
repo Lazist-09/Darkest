@@ -255,4 +255,100 @@ public partial class BattleUI : Control
         GD.Print($"[UI 模式] 回到【战斗模式】　{ModeAudit()}");
         GD.Print($"[UI S1] {SkeletonVerdict()}"); // 🔴 退出方向**也要**断言（两向都验，才算"往返不重建"）✓
     }
+
+    // ═══════════════════════════════════════════════════════════════════════════════════════════
+    // 🔴🔴 2026-10-03：**地图 → 战斗 ／ 终点** 两处接线（玩家路径的真缺陷修复）——
+    //    两条回调（瓷砖主画面 `TryStepTile` ／ 房间图 `StepTo`）**共用这两个方法** ⇒ 判据只写一处、不漂移 ✓
+    // ═══════════════════════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// 🔴 走进**战斗格** ⇒ 在**同一场景内**起一场远征战斗（`#327` 片 4 的玩家入口）。
+    /// 返回 true = 这一步已由战斗接管（调用方**不要再**弹饥饿 ／ 刷面板：起战斗会 `ExitMapMode`）✓
+    /// · 判据 = **当前房间类型**（拓扑模式下 `flow.Current` 恒 null ⇒ 只能按房间类型判）
+    /// · 🔴 **人确实还在那间房里**（瓷砖模式）：站立格必须映射回 `CurrentRoomId` —— 内核只在**踩进房间格**时更新房间 id
+    ///   （`ExpeditionFlow.TileWalk.cs`：走廊格**不更新**）⇒ 单看房间类型会**在走出战斗房后的走廊格**上误起一场战斗 ⚠️
+    ///   （判据收在 `StandingInsideCurrentRoom`）✓
+    /// · **撤退过的那格**（`IsRoomResolved`，`#352`）**不起战斗**：只挪位置 ✓
+    /// ⚠️ 已知缺口（已登记）：**打赢不写** `_resolvedRooms`（内核只在 `DrawRetreat` 写）⇒ 走回已打过的战斗格**会再打一场**；
+    ///    内核写入口（`MarkRoomResolved`）留作后续件（见 `doc/state.md` 与本轮报告）✓
+    /// </summary>
+    private bool TryStartBattleAtCurrentRoom(Darkest.Gameplay.Sim.Run.ExpeditionFlow flow)
+    {
+        if (flow.CurrentRoomType != "battle" || flow.IsRoomResolved(flow.CurrentRoomId))
+        {
+            return false;
+        }
+
+        // 🔴🔴 2026-10-03 二修（真缺陷 · 玩家路径）：**人必须还在那间房里**才起战斗 ——
+        //    内核只在**踩进房间格**时更新 `_currentRoomId`（走廊格不更新）⇒ 从战斗房**往外走**时
+        //    `CurrentRoomType` 仍是 `"battle"`、`IsRoomResolved` 仍是 false ⇒ 单看类型会**在走廊格上误起一场战斗** ⚠️
+        //    （画面里人明明站在走廊 ⇒ 红线 18 家族：显示必须等于真值）✓
+        if (!StandingInsideCurrentRoom(flow))
+        {
+            GD.Print($"[UI 地图] ⚠️ 战斗房 {flow.CurrentRoomId} **人已不在房内**（现在 {flow.TilePosition}）⇒ **不起战斗**（本步只挪位置）✓");
+            return false;
+        }
+
+        if (_host is not { } host)
+        {
+            GD.Print("[UI 地图] ⚠️ 走进战斗格但**无宿主**（`_host` 为空）⇒ 如实不起战斗（不假装成功）✓");
+            return true;
+        }
+
+        GD.Print($"[UI 地图] 🔴 走进**战斗格**（房间 {flow.CurrentRoomId}）⇒ 起战斗" +
+                 $"（同场景 · 本趟第 {flow.Session.BattlesPlayed + 1} 场 · 此前胜 {flow.Wins}）✓");
+        host.StartExpeditionBattleInScene();
+        return true;
+    }
+
+    /// <summary>
+    /// 🔴 走到**终点** ⇒ 本趟结算并回城（`DungeonRunDriver.ReturnToTown`：**与 `--hamlet-next` ／冒烟 `town` 同一实现** ⇒ 不两处漂移）。
+    /// 返回 true = 这一步已由回城接管 ✓
+    /// · `result` 由内核 `Completed`（到终点 **且** 胜场 ≥ `tuning.expedition.battle_goal`）定 ✓
+    /// · ⚠️ 终点房**若是战斗房**：先打完（上面的方法接管），战后由 `BattleRoot.EndGame` 的【继续（回地图）】补结算 ✓
+    /// </summary>
+    private bool TryReturnToTownAtGoal(Darkest.Gameplay.Sim.Run.ExpeditionFlow flow)
+    {
+        if (!flow.ReachedGoal)
+        {
+            return false;
+        }
+
+        // 🔴 同一类缺口：`ReachedGoal` 是**粘性**的（`_currentRoomId` 出房后不更新）⇒ 走出终点房**不再**结算回城，
+        //    否则"站在走廊上点一下"会被莫名传回城（显示 ≠ 真值）✓
+        if (!StandingInsideCurrentRoom(flow))
+        {
+            return false;
+        }
+
+        if (_host is not { } host)
+        {
+            GD.Print("[UI 地图] ⚠️ 走到终点但**无宿主**（`_host` 为空）⇒ 如实不结算回城（不假装成功）✓");
+            return true;
+        }
+
+        string result = flow.Completed ? "completed" : "abandoned";
+        GD.Print($"[UI 地图] 🏁 走到**终点**（房间 {flow.CurrentRoomId}）⇒ 结算回城：" +
+                 $"走 {flow.StepsDone} 段 ／ 胜 {flow.Wins} ／ 光照 {flow.Meter.Value} ⇒ `{result}` ✓");
+        Darkest.Gameplay.Scene.DungeonRunDriver.ReturnToTown(host, flow, result);
+        return true;
+    }
+
+    /// <summary>
+    /// 🔴 **站立格是否确实落在 `CurrentRoomId` 那间房里**（瓷砖模式专用；房间图/线性模式恒 true）——
+    /// 内核 `_currentRoomId` **只在踩进房间格时更新**（走廊格不更新）⇒ 出房后它仍是**上一间房**的 id，
+    /// 两个判据（起战斗 ／ 到终点）都必须先问这一句，否则会在**走廊格**上触发"房间事件" ⚠️
+    /// · 依据（派生器契约，`DungeonGridDeriver`）：房间 3×3 块**全部**登记进 `TileRoom` · 走廊格**永不**登记 ·
+    ///   房间格**不被走廊覆盖**（`Carve` 遇房间格直接返回）⇒ "站立格 → 房间 id" 是可靠真值 ✓
+    /// </summary>
+    private static bool StandingInsideCurrentRoom(Darkest.Gameplay.Sim.Run.ExpeditionFlow flow)
+    {
+        if (!flow.TileWalkEnabled || flow.TileWalk is not { } tileWalk)
+        {
+            return true; // 房间图（`StepTo`）只允许走进相邻房间 ⇒ 位置与房间 id 天然一致 ✓
+        }
+
+        (int X, int Y) here = flow.TilePosition;
+        return tileWalk.TileRoom.TryGetValue(here, out int roomId) && roomId == flow.CurrentRoomId;
+    }
 }
