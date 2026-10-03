@@ -1,4 +1,4 @@
-<Project Sdk="Godot.NET.Sdk/4.6.1">
+<Project Sdk="Godot.NET.Sdk/4.7.2">
 
   <!--
     M0 (T-M0-01) 冒烟核对结论 —— 条件编译 / 构建上下文事实（要点4；出处见各条）：
@@ -22,6 +22,10 @@
     * ⚠️ 维护纪律（2026-09-09 编辑器冒烟钉死）：Godot 4.6 C# 插件保存 csproj 时会把下行
       `TargetFramework` 的间接取值【实化为字面量 net8.0】（并生成 *.csproj.old 备份）。
       一旦被实化，本机 net10 覆盖即失效 → 请还原下行并删除 .old；工程默认与 CI 不受影响。
+    * ⚠️ 工具链实况（2026-10-03）：本机编辑器 = Godot 4.7.2 mono，保存 csproj 时把 Sdk 一并写成 4.7.2
+      （O-114 家族：同一动作还会把下行 TargetFramework 实化）⇒ Sdk 随编辑器走，本文件已同步 4.7.2。
+      离线还原 4.7.2 包靠 `darkest/nuget.config`（指向本机 Godot 安装目录自带 nupkg，**不入库**；
+      做法与取证见 reports/toolchain_godot472_20261003.md §三）；回 4.6.1 需同步改 project.godot 的 features。
   -->
   <PropertyGroup>
     <DarkestTargetFramework Condition="'$(DarkestTargetFramework)' == ''">net8.0</DarkestTargetFramework>
